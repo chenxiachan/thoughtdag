@@ -239,8 +239,8 @@ function Canvas() {
 
   return (
     <div className="w-full h-full flex">
-      {/* Canvas — shrinks when panel is open */}
-      <div className={`relative h-full transition-all duration-300 ease-in-out ${panelOpen ? 'w-1/2' : 'w-full'}`}>
+      {/* Canvas — takes the remaining width when the panel is open */}
+      <div className={`relative h-full ${panelOpen ? 'flex-1 min-w-0' : 'w-full'}`}>
       <ReactFlow
         onInit={(instance) => { rfInstance.current = instance; }}
         nodes={nodes}

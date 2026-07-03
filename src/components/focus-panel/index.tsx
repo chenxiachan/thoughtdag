@@ -3,6 +3,15 @@ import { X } from 'lucide-react';
 import { useStore } from '../../store';
 import { countTokens } from '../../utils';
 import { getContextPath } from '../../lib/graph';
+
+const PANEL_WIDTH_KEY = 'thoughtdag.panelWidth';
+const PANEL_MIN_WIDTH = 380;
+
+function loadPanelWidth(): number | null {
+  const raw = localStorage.getItem(PANEL_WIDTH_KEY);
+  const n = raw ? parseInt(raw, 10) : NaN;
+  return Number.isFinite(n) ? n : null;
+}
 import RoleSection from './RoleSection';
 import AttachmentsSection from './AttachmentsSection';
 import QuestionSection from './QuestionSection';
@@ -24,6 +33,34 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
   const [branchContext, setBranchContext] = useState(''); // preserved selected text for branch
   const [branchInheritRole, setBranchInheritRole] = useState(true);
   const [roleChanged, setRoleChanged] = useState(false);
+
+  // Resizable width: null → default 50%; persisted on drag end
+  const [panelWidth, setPanelWidth] = useState<number | null>(loadPanelWidth);
+  const [resizing, setResizing] = useState(false);
+
+  const onResizePointerDown = (e: React.PointerEvent) => {
+    e.preventDefault();
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    setResizing(true);
+  };
+  const onResizePointerMove = (e: React.PointerEvent) => {
+    if (!resizing) return;
+    const maxW = Math.floor(window.innerWidth * 0.7);
+    setPanelWidth(Math.min(maxW, Math.max(PANEL_MIN_WIDTH, window.innerWidth - e.clientX)));
+  };
+  const onResizePointerUp = (e: React.PointerEvent) => {
+    if (!resizing) return;
+    setResizing(false);
+    (e.target as HTMLElement).releasePointerCapture(e.pointerId);
+    setPanelWidth((w) => {
+      if (w != null) localStorage.setItem(PANEL_WIDTH_KEY, String(w));
+      return w;
+    });
+  };
+  const onResizeDoubleClick = () => {
+    setPanelWidth(null);
+    localStorage.removeItem(PANEL_WIDTH_KEY);
+  };
 
   // Reset states when switching nodes (adjust-during-render, no effect needed).
   // Section-local states are reset via key={...selectedNodeId} on the sections below.
@@ -101,7 +138,19 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
   };
 
   return (
-    <div className="w-1/2 shrink-0 h-full bg-card border-l border-line flex flex-col">
+    <div
+      className={`relative shrink-0 h-full bg-card border-l border-line flex flex-col ${resizing ? 'select-none' : ''}`}
+      style={{ width: panelWidth ?? '50%', minWidth: PANEL_MIN_WIDTH, maxWidth: '70vw' }}
+    >
+      {/* Resize handle on the left edge */}
+      <div
+        onPointerDown={onResizePointerDown}
+        onPointerMove={onResizePointerMove}
+        onPointerUp={onResizePointerUp}
+        onDoubleClick={onResizeDoubleClick}
+        className={`absolute left-0 top-0 h-full w-[5px] -ml-[2px] z-20 cursor-col-resize hover:bg-accent/30 transition-colors ${resizing ? 'bg-accent/40' : ''}`}
+        title="Drag to resize · double-click to reset"
+      />
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-line shrink-0">
         <div className="flex items-center gap-2 min-w-0">
