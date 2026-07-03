@@ -1,0 +1,146 @@
+import { useState, useRef, useEffect } from 'react';
+import { useStore } from '../store';
+
+export default function SelectionToolbar() {
+  const { selectedNodeIds, nodes, batchDelete, batchMergeSummarize, addQuestion } = useStore();
+  const [exploreOpen, setExploreOpen] = useState(false);
+  const [exploreInput, setExploreInput] = useState('');
+  const exploreRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (exploreOpen) setTimeout(() => exploreRef.current?.focus(), 100);
+  }, [exploreOpen]);
+
+  // Reset explore when selection changes
+  useEffect(() => {
+    setExploreOpen(false);
+    setExploreInput('');
+  }, [selectedNodeIds.length]);
+
+  if (selectedNodeIds.length < 2) return null;
+
+  const selectedNodes = selectedNodeIds
+    .map((id) => nodes.find((n) => n.id === id))
+    .filter(Boolean);
+
+  const totalTokens = selectedNodes.reduce((sum, n) => sum + (n?.data.tokenCount || 0), 0);
+
+  // Collect all highlights from selected nodes
+  const allHighlights = selectedNodes.flatMap((n) => n?.data.highlights || []);
+
+  // Build context from selected nodes for explore
+  const selectedContent = selectedNodes
+    .map((n) => `Q: ${n?.data.question}\nA: ${n?.data.response}`)
+    .join('\n\n---\n\n');
+
+  const handleExplore = () => {
+    if (!exploreInput.trim()) return;
+    // Use first selected node as parent
+    const parentId = selectedNodeIds[0];
+    addQuestion(exploreInput.trim(), parentId, selectedContent);
+    setExploreOpen(false);
+    setExploreInput('');
+  };
+
+  return (
+    <div className="absolute top-16 left-1/2 -translate-x-1/2 z-20 animate-fade-in">
+      <div className="bg-white/95 backdrop-blur border border-[#E8E5E0] rounded-2xl px-4 py-3 shadow-lg space-y-2">
+        {/* Header */}
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-[#6B6560] font-medium">
+            {selectedNodeIds.length} nodes selected
+            <span className="text-xs text-[#B8B2A8] ml-1.5">
+              ({totalTokens} tokens{allHighlights.length > 0 ? ` · ${allHighlights.length} highlights` : ''})
+            </span>
+          </span>
+        </div>
+
+        {/* Action buttons */}
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Summarize Highlights — only if highlights exist */}
+          {allHighlights.length > 0 && (
+            <button
+              onClick={() => {
+                const highlightTexts = allHighlights.map((h) => h.text).join('\n\n');
+                addQuestion(
+                  `Summarize the following highlights from ${selectedNodeIds.length} nodes concisely. Use the same language as the content:\n\n${highlightTexts}`,
+                  selectedNodeIds[0]
+                );
+              }}
+              className="text-xs bg-amber-50 hover:bg-amber-100 text-amber-700 px-3 py-1.5 rounded-lg transition-colors"
+              title="Summarize all highlights from selected nodes"
+            >
+              ⭐ Summary Highlights
+            </button>
+          )}
+
+          <button
+            onClick={() => batchMergeSummarize(selectedNodeIds)}
+            className="text-xs bg-blue-50 hover:bg-blue-100 text-blue-600 px-3 py-1.5 rounded-lg transition-colors"
+            title="Merge content into a summary node"
+          >
+            📋 Merge Summary
+          </button>
+
+          <button
+            onClick={() => batchMergeSummarize(selectedNodeIds, true)}
+            className="text-xs bg-[#6B5CE7]/10 hover:bg-[#6B5CE7]/20 text-[#6B5CE7] px-3 py-1.5 rounded-lg transition-colors"
+            title="Merge summary then delete original nodes"
+          >
+            📋 Merge & Delete
+          </button>
+
+          <button
+            onClick={() => setExploreOpen(!exploreOpen)}
+            className={`text-xs px-3 py-1.5 rounded-lg transition-colors ${
+              exploreOpen
+                ? 'bg-[#6B5CE7] text-white'
+                : 'bg-[#6B5CE7]/10 hover:bg-[#6B5CE7]/20 text-[#6B5CE7]'
+            }`}
+            title="Ask a question about selected nodes"
+          >
+            ⑂ Explore
+          </button>
+
+          <div className="w-px h-5 bg-[#E8E5E0]" />
+
+          <button
+            onClick={() => {
+              if (confirm(`Delete ${selectedNodeIds.length} selected nodes?`)) {
+                batchDelete(selectedNodeIds);
+              }
+            }}
+            className="text-xs bg-red-50 hover:bg-red-100 text-red-600 px-3 py-1.5 rounded-lg transition-colors"
+          >
+            🗑 Delete All
+          </button>
+        </div>
+
+        {/* Explore input */}
+        {exploreOpen && (
+          <div className="flex gap-1.5 pt-1">
+            <input
+              ref={exploreRef}
+              type="text"
+              value={exploreInput}
+              onChange={(e) => setExploreInput(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && exploreInput.trim()) handleExplore();
+                if (e.key === 'Escape') { setExploreOpen(false); setExploreInput(''); }
+              }}
+              placeholder="What do you want to explore about these nodes?"
+              className="flex-1 text-xs border border-[#6B5CE7]/30 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#6B5CE7] bg-[#6B5CE7]/5 min-w-[300px]"
+            />
+            <button
+              onClick={handleExplore}
+              disabled={!exploreInput.trim()}
+              className="text-xs bg-[#6B5CE7] text-white px-3 py-2 rounded-lg hover:bg-[#5A4BD6] transition-colors shrink-0 disabled:opacity-30"
+            >
+              Go
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
