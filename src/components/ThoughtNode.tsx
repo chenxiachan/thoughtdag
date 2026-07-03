@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Handle, Position, type NodeProps } from '@xyflow/react';
+import { ChevronDown, ChevronLeft, ChevronRight, GitBranch, Paperclip, RefreshCw, Send, Star, Trash2, X } from 'lucide-react';
 import 'katex/dist/katex.min.css';
 import type { ThoughtNode as ThoughtNodeType } from '../types';
 import { useStore } from '../store';
@@ -162,7 +163,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
       <div className="flex items-center justify-between px-6 py-3 border-b border-line cursor-grab active:cursor-grabbing drag-handle">
         <div className="flex items-center gap-2">
           <button onClick={() => toggleCollapse(id)} className={`hover:bg-wash rounded-lg w-7 h-7 flex items-center justify-center transition-all text-sm font-bold ${data.isCollapsed ? 'text-accent bg-accent/10' : 'text-ink-faint'}`}>
-            {data.isCollapsed ? '▶' : '▼'}
+            {data.isCollapsed ? <ChevronRight size={16} strokeWidth={1.75} /> : <ChevronDown size={16} strokeWidth={1.75} />}
           </button>
           <span className="text-xs text-ink-faint font-mono">{data.tokenCount} tok</span>
           {data.appliedRole && (
@@ -172,16 +173,16 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
           )}
           {hasMultipleVersions && (
             <div className="flex items-center gap-1 text-xs text-ink-muted">
-              <button onClick={() => navigateVersion(id, 'prev')} className="hover:text-accent hover:bg-wash rounded-full w-5 h-5 flex items-center justify-center transition-colors">‹</button>
+              <button onClick={() => navigateVersion(id, 'prev')} className="hover:text-accent hover:bg-wash rounded-full w-5 h-5 flex items-center justify-center transition-colors"><ChevronLeft size={12} strokeWidth={1.75} /></button>
               <span className="text-accent font-medium">v{data.responseIndex + 1}/{data.responses.length}</span>
-              <button onClick={() => navigateVersion(id, 'next')} className="hover:text-accent hover:bg-wash rounded-full w-5 h-5 flex items-center justify-center transition-colors">›</button>
+              <button onClick={() => navigateVersion(id, 'next')} className="hover:text-accent hover:bg-wash rounded-full w-5 h-5 flex items-center justify-center transition-colors"><ChevronRight size={12} strokeWidth={1.75} /></button>
               {data.responses.length > 1 && (
                 <button
                   onClick={() => deleteVersion(id, data.responseIndex)}
                   className="text-ink-faint hover:text-red-500 hover:bg-red-50 rounded-full w-5 h-5 flex items-center justify-center transition-colors ml-0.5"
                   title="Delete this version"
                 >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                  <Trash2 size={12} strokeWidth={1.75} />
                 </button>
               )}
             </div>
@@ -189,10 +190,10 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
         </div>
         <div className="flex items-center gap-0.5">
           <button onClick={() => regenerate(id)} className="text-ink-faint hover:text-accent hover:bg-wash rounded-full w-7 h-7 flex items-center justify-center transition-colors" title="Regenerate">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            <RefreshCw size={14} strokeWidth={1.75} />
           </button>
           <button onClick={() => deleteNode(id)} className="text-ink-faint hover:text-red-500 hover:bg-red-50 rounded-full w-7 h-7 flex items-center justify-center transition-colors" title="Delete">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <X size={14} strokeWidth={1.75} />
           </button>
         </div>
       </div>
@@ -222,7 +223,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
           {/* Branch context */}
           {data.branchContext && (
             <div className="text-xs text-ink-muted italic mb-3 pl-3 border-l-2 border-warm/40 bg-warm/15 rounded-r py-1.5 pr-2">
-              📌 Explored from: &ldquo;{data.branchContext.slice(0, 100)}{data.branchContext.length > 100 ? '...' : ''}&rdquo;
+              <GitBranch size={12} strokeWidth={1.75} className="inline" /> Explored from: &ldquo;{data.branchContext.slice(0, 100)}{data.branchContext.length > 100 ? '...' : ''}&rdquo;
             </div>
           )}
 
@@ -231,7 +232,8 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
             <div className="mb-3 flex flex-wrap gap-1">
               {data.highlights.map((h) => (
                 <span key={h.id} className="inline-flex items-center gap-1 text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">
-                  ⭐ {h.text.slice(0, 30)}{h.text.length > 30 ? '…' : ''}
+                  <Star size={12} strokeWidth={1.75} />
+                  {h.text.slice(0, 30)}{h.text.length > 30 ? '…' : ''}
                 </span>
               ))}
             </div>
@@ -274,7 +276,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
           {/* Branch context indicator when branching from selection */}
           {branchFromText && (
             <div className="mt-3 text-xs pl-3 py-2 pr-2 border-l-3 border-accent bg-accent/5 rounded-r">
-              <span className="text-accent font-medium">⑂ Exploring from selection:</span>
+              <span className="text-accent font-medium"><GitBranch size={12} strokeWidth={1.75} className="inline" /> Exploring from selection:</span>
               <p className="text-ink-muted mt-1 leading-relaxed">&ldquo;{branchFromText.slice(0, 150)}{branchFromText.length > 150 ? '...' : ''}&rdquo;</p>
             </div>
           )}
@@ -296,7 +298,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
                   disabled={!inputValue.trim()}
                   className="text-ink-faint hover:text-accent disabled:opacity-30 disabled:hover:text-ink-faint transition-colors shrink-0 rounded-full w-7 h-7 flex items-center justify-center hover:bg-line"
                 >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                  <Send size={16} strokeWidth={1.75} />
                 </button>
               </div>
             </div>
@@ -310,7 +312,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
           <div className="text-sm text-accent font-medium truncate flex items-center gap-1.5">
             {data.question.slice(0, 80)}{data.question.length > 80 ? '…' : ''}
             {(data.attachments?.length > 0) && (
-              <span className="text-[10px] bg-wash text-ink-muted px-1.5 py-0.5 rounded-full shrink-0">📎{data.attachments.length}</span>
+              <span className="text-[10px] bg-wash text-ink-muted px-1.5 py-0.5 rounded-full shrink-0"><Paperclip size={10} strokeWidth={1.75} className="inline" />{data.attachments.length}</span>
             )}
           </div>
           {data.summary ? (
@@ -351,13 +353,13 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
               onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); handleBranch(); }}
               className="bg-accent hover:bg-accent-strong text-white text-xs px-3 py-1.5 rounded-lg transition-all whitespace-nowrap cursor-pointer"
             >
-              ⑂ Explore
+              <GitBranch size={12} strokeWidth={1.75} className="inline" /> Explore
             </button>
             <button
               onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); handleHighlight(); }}
               className="bg-amber-500 hover:bg-amber-400 text-white text-xs px-3 py-1.5 rounded-lg transition-all whitespace-nowrap cursor-pointer"
             >
-              ⭐ Highlight
+              <Star size={12} strokeWidth={1.75} className="inline" /> Highlight
             </button>
           </div>
         </div>

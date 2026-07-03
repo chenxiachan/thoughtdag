@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ChevronDown, ChevronRight, CornerDownRight, Sprout } from 'lucide-react';
 import { useStore } from '../../store';
 import { countTokens } from '../../utils';
 import type { ThoughtNode } from '../../types';
@@ -22,7 +23,7 @@ export default function ContextChainSection({
         onClick={() => setContextOpen(!contextOpen)}
         className="flex items-center gap-1.5 text-xs text-ink-faint uppercase tracking-wide font-medium mb-2 hover:text-ink-muted transition-colors w-full"
       >
-        <span>{contextOpen ? '▾' : '▸'}</span>
+        <span>{contextOpen ? <ChevronDown size={12} strokeWidth={1.75} /> : <ChevronRight size={12} strokeWidth={1.75} />}</span>
         <span>Context Chain</span>
         <span className="text-accent font-mono normal-case ml-auto">{totalContextTokens} tok</span>
       </button>
@@ -39,7 +40,7 @@ export default function ContextChainSection({
                 className="w-full text-left border border-line hover:border-accent/40 rounded-lg p-2.5 transition-colors group"
               >
                 <div className="flex items-center gap-1.5 text-xs">
-                  <span className="text-ink-faint">{i === 0 ? '🌱' : '↳'}</span>
+                  <span className="text-ink-faint">{i === 0 ? <Sprout size={12} strokeWidth={1.75} /> : <CornerDownRight size={12} strokeWidth={1.75} />}</span>
                   <span className="text-ink group-hover:text-accent transition-colors truncate">
                     {ancestor.data.question.slice(0, 60)}{ancestor.data.question.length > 60 ? '…' : ''}
                   </span>

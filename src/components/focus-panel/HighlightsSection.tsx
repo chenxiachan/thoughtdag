@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { ClipboardList, FileText, GitBranch, Scissors, Sparkles, Star, Tag, X } from 'lucide-react';
 import { useStore } from '../../store';
 import type { Highlight } from '../../types';
 
@@ -41,7 +42,8 @@ export default function HighlightsSection({
               className="text-xs bg-amber-50 hover:bg-amber-100 text-amber-700 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1"
               title="Distill: keep highlights, remove redundancy"
             >
-              ✨ Distill
+              <Sparkles size={12} strokeWidth={1.75} />
+              Distill
             </button>
             <button
               onClick={() => {
@@ -51,7 +53,8 @@ export default function HighlightsSection({
               className="text-xs bg-blue-50 hover:bg-blue-100 text-blue-600 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1"
               title="Summarize highlighted content in a new branch"
             >
-              📋 Summary
+              <ClipboardList size={12} strokeWidth={1.75} />
+              Summary
             </button>
             <button
               onClick={() => {
@@ -61,7 +64,8 @@ export default function HighlightsSection({
               className="text-xs bg-accent/10 hover:bg-accent/20 text-accent px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1"
               title="Ask a follow-up question about highlighted content"
             >
-              ⑂ Explore
+              <GitBranch size={12} strokeWidth={1.75} />
+              Explore
             </button>
           </div>
         )}
@@ -74,13 +78,13 @@ export default function HighlightsSection({
             {highlights.map((h) => (
               <div key={h.id} className="flex items-start gap-2 bg-amber-50 rounded-lg px-3 py-2 group">
                 <span className="text-xs text-amber-700 flex-1 leading-relaxed">
-                  ⭐ {h.text.slice(0, 80)}{h.text.length > 80 ? '…' : ''}
+                  <Star size={12} strokeWidth={1.75} className="inline" /> {h.text.slice(0, 80)}{h.text.length > 80 ? '…' : ''}
                 </span>
                 <button
                   onClick={() => removeHighlight(nodeId, h.id)}
                   className="text-amber-300 hover:text-red-500 transition-colors shrink-0 opacity-0 group-hover:opacity-100"
                 >
-                  ✕
+                  <X size={12} strokeWidth={1.75} />
                 </button>
               </div>
             ))}
@@ -90,9 +94,9 @@ export default function HighlightsSection({
             <span className="text-xs text-ink-faint font-medium">Pass to downstream</span>
             <div className="flex items-center gap-1.5">
               {([
-                { mode: 'tag' as const, icon: '🏷️', label: 'Tag important' },
-                { mode: 'filter' as const, icon: '✂️', label: 'Highlights only' },
-                { mode: 'off' as const, icon: '📄', label: 'Full text' },
+                { mode: 'tag' as const, icon: <Tag size={12} strokeWidth={1.75} />, label: 'Tag important' },
+                { mode: 'filter' as const, icon: <Scissors size={12} strokeWidth={1.75} />, label: 'Highlights only' },
+                { mode: 'off' as const, icon: <FileText size={12} strokeWidth={1.75} />, label: 'Full text' },
               ]).map(({ mode, icon, label }) => (
                 <button
                   key={mode}
@@ -116,7 +120,7 @@ export default function HighlightsSection({
           {/* Highlight Explore input */}
           {highlightExploreContext && (
             <div className="mt-3 space-y-1.5">
-              <span className="text-xs text-accent font-medium">⑂ Ask about highlights:</span>
+              <span className="text-xs text-accent font-medium"><GitBranch size={12} strokeWidth={1.75} className="inline" /> Ask about highlights:</span>
               <div className="flex gap-1.5">
                 <input
                   ref={highlightExploreRef}
@@ -155,7 +159,7 @@ export default function HighlightsSection({
                   onClick={() => { setHighlightExploreContext(''); setHighlightExploreInput(''); }}
                   className="text-xs text-ink-faint hover:text-ink-muted px-1.5 py-2 transition-colors shrink-0"
                 >
-                  ✕
+                  <X size={12} strokeWidth={1.75} />
                 </button>
               </div>
               <label className="flex items-center gap-2 text-xs text-ink-muted cursor-pointer select-none">

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { X } from 'lucide-react';
 import { useStore } from '../../store';
 import { countTokens } from '../../utils';
 import { getContextPath } from '../../lib/graph';
@@ -115,7 +116,7 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
           onClick={() => setSelectedNodeId(null)}
           className="text-ink-faint hover:text-ink transition-colors shrink-0 ml-2"
         >
-          ✕
+          <X size={14} strokeWidth={1.75} />
         </button>
       </div>
 

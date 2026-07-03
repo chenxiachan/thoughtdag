@@ -1,3 +1,4 @@
+import { ChevronRight, RefreshCw } from 'lucide-react';
 import { useStore } from '../../store';
 import type { ThoughtData } from '../../types';
 
@@ -29,7 +30,7 @@ export default function RoleSection({
     <div className="px-4 py-3 border-b border-line">
       <details className="group" open={roleMode !== 'inherit'}>
         <summary className="text-xs text-ink-faint uppercase tracking-wide font-medium cursor-pointer hover:text-ink-muted transition-colors flex items-center gap-1.5 select-none">
-          <span className="transition-transform group-open:rotate-90 text-[10px]">▶</span>
+          <ChevronRight size={10} strokeWidth={1.75} className="transition-transform group-open:rotate-90" />
           Role (System Prompt)
           {roleMode === 'set-next' && <span className="text-accent font-medium normal-case ml-1">Set for next ↓</span>}
           {roleMode === 'reset' && <span className="text-amber-600 font-medium normal-case ml-1">Reset</span>}
@@ -131,7 +132,8 @@ export default function RoleSection({
               onClick={() => { regenerate(nodeId); setRoleChanged(false); }}
               className="w-full text-xs bg-accent hover:bg-accent-strong text-white px-3 py-2 rounded-lg transition-colors flex items-center justify-center gap-1.5"
             >
-              ↻ Regenerate with new role
+              <RefreshCw size={12} strokeWidth={1.75} />
+              Regenerate with new role
             </button>
           )}
           {roleChanged && roleMode === 'set-next' && !!data.response && !data.isLoading && (

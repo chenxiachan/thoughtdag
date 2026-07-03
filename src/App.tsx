@@ -15,6 +15,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import 'highlight.js/styles/github.css';
+import { FileText, Loader2, Paperclip, Redo2, Trash2, Undo2, X } from 'lucide-react';
 import './index.css';
 import ThoughtNode from './components/ThoughtNode';
 import FocusPanel from './components/focus-panel';
@@ -290,15 +291,15 @@ function Canvas() {
                       {att.thumbnailUrl ? (
                         <img src={att.thumbnailUrl} className="w-6 h-6 rounded object-cover" alt={att.name} />
                       ) : (
-                        <span className="text-xs">📄</span>
+                        <span className="text-xs"><FileText size={14} strokeWidth={1.75} /></span>
                       )}
                       <span className="text-xs text-ink-muted max-w-[100px] truncate">{att.name}</span>
-                      {att.isExtracting && <span className="text-[10px] text-accent animate-pulse">⏳</span>}
+                      {att.isExtracting && <span className="text-[10px] text-accent"><Loader2 className="animate-spin" size={10} strokeWidth={1.75} /></span>}
                       {att.numPages != null && <span className="text-[10px] text-ink-faint">{att.numPages}p</span>}
                       <button
                         onClick={() => setPendingAttachments((p) => p.filter((a) => a.id !== att.id))}
                         className="text-ink-faint hover:text-red-500 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                      >✕</button>
+                      ><X size={12} strokeWidth={1.75} /></button>
                     </div>
                   ))}
                 </div>
@@ -316,7 +317,7 @@ function Canvas() {
                   <div className="space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-ink-muted font-medium">Role (System Prompt)</span>
-                      <button onClick={() => { setShowRootRole(false); setRootRole(''); }} className="text-xs text-ink-faint hover:text-ink-muted">✕</button>
+                      <button onClick={() => { setShowRootRole(false); setRootRole(''); }} className="text-xs text-ink-faint hover:text-ink-muted"><X size={12} strokeWidth={1.75} /></button>
                     </div>
                     <textarea
                       value={rootRole}
@@ -334,7 +335,7 @@ function Canvas() {
                   className="text-ink-faint hover:text-accent hover:bg-wash rounded-xl px-3 py-2 transition-colors text-sm"
                   title="Attach files"
                 >
-                  📎
+                  <Paperclip size={14} strokeWidth={1.75} />
                 </button>
                 <input
                   ref={landingFileRef}
@@ -349,7 +350,7 @@ function Canvas() {
                   disabled={!inputValue.trim() || pendingAttachments.some(a => a.isExtracting)}
                   className="bg-accent hover:bg-accent-strong disabled:opacity-30 disabled:cursor-not-allowed text-white text-sm px-5 py-2 rounded-xl transition-all"
                 >
-                  {pendingAttachments.some(a => a.isExtracting) ? 'Extracting...' : 'Send ↵'}
+                  {pendingAttachments.some(a => a.isExtracting) ? 'Extracting...' : 'Send'}
                 </button>
               </div>
             </div>
@@ -383,7 +384,7 @@ function Canvas() {
                 className="text-ink-faint hover:text-accent transition-colors shrink-0 text-sm"
                 title="Attach files"
               >
-                📎
+                <Paperclip size={14} strokeWidth={1.75} />
               </button>
               <input
                 ref={floatingFileRef}
@@ -409,13 +410,13 @@ function Canvas() {
                     {att.thumbnailUrl ? (
                       <img src={att.thumbnailUrl} className="w-5 h-5 rounded object-cover" alt={att.name} />
                     ) : (
-                      <span className="text-[10px]">📄</span>
+                      <span className="text-[10px]"><FileText size={14} strokeWidth={1.75} /></span>
                     )}
                     <span className="text-[10px] text-ink-muted max-w-[80px] truncate">{att.name}</span>
                     <button
                       onClick={() => setPendingAttachments((p) => p.filter((a) => a.id !== att.id))}
                       className="text-ink-faint hover:text-red-500 text-[10px] opacity-0 group-hover:opacity-100"
-                    >✕</button>
+                    ><X size={12} strokeWidth={1.75} /></button>
                   </div>
                 ))}
               </div>
@@ -431,7 +432,7 @@ function Canvas() {
               <div className="mt-1.5 space-y-1">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] text-ink-muted">Role</span>
-                  <button onClick={() => { setShowRootRole(false); setRootRole(''); }} className="text-[10px] text-ink-faint hover:text-ink-muted">✕</button>
+                  <button onClick={() => { setShowRootRole(false); setRootRole(''); }} className="text-[10px] text-ink-faint hover:text-ink-muted"><X size={12} strokeWidth={1.75} /></button>
                 </div>
                 <input
                   type="text"
@@ -454,7 +455,7 @@ function Canvas() {
           className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors disabled:opacity-20 disabled:cursor-not-allowed"
           title="Undo (Cmd+Z)"
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B6560" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+          <Undo2 size={14} strokeWidth={1.75} />
         </button>
         <button
           onClick={redo}
@@ -462,7 +463,7 @@ function Canvas() {
           className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors disabled:opacity-20 disabled:cursor-not-allowed"
           title="Redo (Cmd+Shift+Z)"
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B6560" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          <Redo2 size={14} strokeWidth={1.75} />
         </button>
       </div>
 
@@ -477,9 +478,10 @@ function Canvas() {
         >
           <button
             onClick={() => deleteEdge(edgeMenu.edgeId)}
-            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+            className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center gap-1.5"
           >
-            🗑 Delete edge
+            <Trash2 size={12} strokeWidth={1.75} />
+            Delete edge
           </button>
         </div>
       )}

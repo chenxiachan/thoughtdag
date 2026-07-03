@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { ClipboardList, GitBranch, Star, Trash2 } from 'lucide-react';
 import { useStore } from '../store';
 
 export default function SelectionToolbar() {
@@ -71,7 +72,7 @@ export default function SelectionToolbar() {
               className="text-xs bg-amber-50 hover:bg-amber-100 text-amber-700 px-3 py-1.5 rounded-lg transition-colors"
               title="Summarize all highlights from selected nodes"
             >
-              ⭐ Summary Highlights
+              <Star size={12} strokeWidth={1.75} className="inline" /> Summary Highlights
             </button>
           )}
 
@@ -80,7 +81,7 @@ export default function SelectionToolbar() {
             className="text-xs bg-blue-50 hover:bg-blue-100 text-blue-600 px-3 py-1.5 rounded-lg transition-colors"
             title="Merge content into a summary node"
           >
-            📋 Merge Summary
+            <ClipboardList size={12} strokeWidth={1.75} className="inline" /> Merge Summary
           </button>
 
           <button
@@ -88,7 +89,7 @@ export default function SelectionToolbar() {
             className="text-xs bg-accent/10 hover:bg-accent/20 text-accent px-3 py-1.5 rounded-lg transition-colors"
             title="Merge summary then delete original nodes"
           >
-            📋 Merge & Delete
+            <ClipboardList size={12} strokeWidth={1.75} className="inline" /> Merge & Delete
           </button>
 
           <button
@@ -100,7 +101,7 @@ export default function SelectionToolbar() {
             }`}
             title="Ask a question about selected nodes"
           >
-            ⑂ Explore
+            <GitBranch size={12} strokeWidth={1.75} className="inline" /> Explore
           </button>
 
           <div className="w-px h-5 bg-line" />
@@ -113,7 +114,7 @@ export default function SelectionToolbar() {
             }}
             className="text-xs bg-red-50 hover:bg-red-100 text-red-600 px-3 py-1.5 rounded-lg transition-colors"
           >
-            🗑 Delete All
+            <Trash2 size={12} strokeWidth={1.75} className="inline" /> Delete All
           </button>
         </div>
 

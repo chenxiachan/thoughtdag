@@ -1,3 +1,4 @@
+import { CornerDownLeft, Copy, GitBranch, RefreshCw, Square, Trash2 } from 'lucide-react';
 import { useStore } from '../../store';
 
 export default function ActionsSection({
@@ -53,7 +54,7 @@ export default function ActionsSection({
           onClick={() => regenerate(nodeId)}
           className="text-xs bg-wash hover:bg-line text-ink-muted px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
         >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          <RefreshCw size={12} strokeWidth={1.75} />
           Regenerate
         </button>
         {isLoading ? (
@@ -61,7 +62,7 @@ export default function ActionsSection({
             onClick={() => stopGeneration(nodeId)}
             className="text-xs bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
           >
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="6" width="12" height="12" rx="1"/></svg>
+            <Square size={10} strokeWidth={1.75} fill="currentColor" />
             Stop
           </button>
         ) : (
@@ -69,21 +70,22 @@ export default function ActionsSection({
             onClick={() => duplicateNode(nodeId)}
             className="text-xs bg-wash hover:bg-line text-ink-muted px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
           >
-            📋 Duplicate
+            <Copy size={12} strokeWidth={1.75} />
+            Duplicate
           </button>
         )}
         <button
           onClick={() => { deleteNode(nodeId); setSelectedNodeId(null); }}
           className="text-xs bg-red-50 hover:bg-red-100 text-red-500 px-3 py-2 rounded-lg transition-colors"
         >
-          🗑 Delete
+          <Trash2 size={12} strokeWidth={1.75} className="inline" /> Delete
         </button>
       </div>
       {showBranchInput && (
         <div className="mt-3">
           {branchContext && (
             <div className="text-xs pl-3 py-1.5 pr-2 mb-2 border-l-2 border-accent bg-accent/5 rounded-r text-ink-muted">
-              <span className="text-accent font-medium">⑂ Exploring from selection:</span>
+              <span className="text-accent font-medium"><GitBranch size={12} strokeWidth={1.75} className="inline" /> Exploring from selection:</span>
               &ldquo;{branchContext.slice(0, 100)}{branchContext.length > 100 ? '…' : ''}&rdquo;
             </div>
           )}
@@ -105,7 +107,7 @@ export default function ActionsSection({
               disabled={!branchInput.trim()}
               className="text-accent hover:text-accent-strong disabled:opacity-30 transition-colors"
             >
-              ↵
+              <CornerDownLeft size={14} strokeWidth={1.75} />
             </button>
           </div>
           <label className="flex items-center gap-2 text-xs text-ink-muted mt-1.5 cursor-pointer select-none">

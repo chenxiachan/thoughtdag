@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { Send } from 'lucide-react';
 import { useStore } from '../../store';
 
 export default function FollowUpInput({
@@ -53,7 +54,7 @@ export default function FollowUpInput({
           disabled={!continueInput.trim()}
           className="text-ink-faint hover:text-accent disabled:opacity-30 disabled:hover:text-ink-faint transition-colors shrink-0 rounded-full w-7 h-7 flex items-center justify-center hover:bg-line"
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          <Send size={16} strokeWidth={1.75} />
         </button>
       </div>
       <div className="flex gap-4 mt-1.5 px-1">

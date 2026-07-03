@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
+import { ChevronRight, FileText, Loader2, Paperclip, X } from 'lucide-react';
 import { useStore } from '../../store';
 import { processFile, FILE_INPUT_ACCEPT } from '../../lib/attachments';
 import type { Attachment } from '../../types';
@@ -59,7 +60,7 @@ export default function AttachmentsSection({
     <div className="px-4 py-3 border-b border-line">
       <details className="group" open={hasContent}>
         <summary className="text-xs text-ink-faint uppercase tracking-wide font-medium cursor-pointer hover:text-ink-muted transition-colors flex items-center gap-1.5 select-none">
-          <span className="transition-transform group-open:rotate-90 text-[10px]">▶</span>
+          <ChevronRight size={10} strokeWidth={1.75} className="transition-transform group-open:rotate-90" />
           Attachments
           {hasContent && (
             <span className="text-accent/60 font-medium normal-case ml-1">
@@ -82,7 +83,7 @@ export default function AttachmentsSection({
             }`}
           >
             <p className="text-xs text-ink-faint">
-              {isDragging ? 'Drop files here' : '📎 Drop, paste, or click to upload'}
+              {isDragging ? 'Drop files here' : <><Paperclip size={12} strokeWidth={1.75} className="inline" /> Drop, paste, or click to upload</>}
             </p>
             <p className="text-[10px] text-ink-faint/60 mt-0.5">Images (Vision) • PDF • Text files (txt/md/code)</p>
             <input
@@ -109,13 +110,13 @@ export default function AttachmentsSection({
                   {att.thumbnailUrl ? (
                     <img src={att.thumbnailUrl} className="w-8 h-8 rounded object-cover shrink-0" alt={att.name} />
                   ) : (
-                    <span className="w-8 h-8 rounded bg-line flex items-center justify-center text-xs text-ink-muted shrink-0">{att.type === 'application/pdf' ? '📕' : '📄'}</span>
+                    <span className="w-8 h-8 rounded bg-line flex items-center justify-center text-xs text-ink-muted shrink-0"><FileText size={14} strokeWidth={1.75} /></span>
                   )}
                   <div className="min-w-0 flex-1">
                     <p className="text-xs text-ink truncate">{att.name}</p>
                     <p className="text-[10px] text-ink-faint">
                       {(att.size / 1024).toFixed(1)} KB
-                      {att.isExtracting && <span className="ml-1 text-accent animate-pulse">⏳ Extracting...</span>}
+                      {att.isExtracting && <span className="ml-1 text-accent"><Loader2 className="animate-spin inline" size={10} strokeWidth={1.75} /> Extracting...</span>}
                       {att.numPages != null && <span className="ml-1 text-ink-muted">• {att.numPages} pages</span>}
                       {att.renderMode && <span className="ml-1 text-ink-muted">• {att.renderMode === 'full' ? 'Text + Vision' : 'Text only'}</span>}
                     </p>
@@ -140,7 +141,7 @@ export default function AttachmentsSection({
                     onClick={() => removeAttachment(nodeId, att.id)}
                     className="text-ink-faint hover:text-red-500 transition-colors shrink-0 opacity-0 group-hover:opacity-100"
                   >
-                    ✕
+                    <X size={12} strokeWidth={1.75} />
                   </button>
                 </div>
               ))}
@@ -161,7 +162,7 @@ export default function AttachmentsSection({
                     {att.thumbnailUrl ? (
                       <img src={att.thumbnailUrl} className="w-8 h-8 rounded object-cover shrink-0" alt={att.name} />
                     ) : (
-                      <span className="w-8 h-8 rounded bg-line flex items-center justify-center text-xs text-ink-muted shrink-0">{att.type === 'application/pdf' ? '📕' : '📄'}</span>
+                      <span className="w-8 h-8 rounded bg-line flex items-center justify-center text-xs text-ink-muted shrink-0"><FileText size={14} strokeWidth={1.75} /></span>
                     )}
                     <div className="min-w-0 flex-1">
                       <p className={`text-xs truncate ${isEffectivelyExcluded ? 'text-ink-faint line-through' : 'text-ink'}`}>{att.name}</p>
