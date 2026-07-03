@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import type { ThoughtNode, ThoughtEdge, Highlight, Attachment } from './types';
 import { generateId, countTokens, autoLayout, getDescendantIds } from './utils';
-import { llmCall, llmCallStream, type ContextMessage, type ImageAttachment } from './mockLLM';
+import { llmCall, llmCallStream, type ContextMessage, type ImageAttachment } from './lib/api';
 
 // Background summary generation — fire and forget
 function generateSummary(nodeId: string, question: string, response: string, setSummary: (id: string, summary: string) => void) {

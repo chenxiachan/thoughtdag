@@ -7,6 +7,8 @@ import rehypeKatex from 'rehype-katex';
 import rehypeRaw from 'rehype-raw';
 import { useStore } from '../store';
 import { countTokens, getContextPath, generateId } from '../utils';
+import { extractPdf } from '../lib/api';
+import { PDF_VISION_PAGE_THRESHOLD } from '../lib/constants';
 import type { Attachment } from '../types';
 
 export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string) => void }) {
@@ -829,12 +831,7 @@ function AttachmentsSection({
         // Add immediately as extracting
         addAttachment(nodeId, { id, name: file.name, type: 'application/pdf', size: file.size, content: base64, isExtracting: true });
         try {
-          const res = await fetch('http://localhost:3001/api/pdf-extract', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ base64, scale: 1.5 }),
-          });
-          const data = await res.json();
+          const data = await extractPdf(base64);
           const numPages = data.numPages || 0;
           // Update the attachment in-place with extracted data
           const store = useStore.getState();
@@ -842,7 +839,7 @@ function AttachmentsSection({
             extractedText: data.text,
             pageImages: data.images,
             numPages,
-            renderMode: numPages > 10 ? 'text-only' : 'full',
+            renderMode: numPages > PDF_VISION_PAGE_THRESHOLD ? 'text-only' : 'full',
             isExtracting: false,
           });
         } catch (err) {

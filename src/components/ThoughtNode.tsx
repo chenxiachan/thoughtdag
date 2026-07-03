@@ -10,6 +10,8 @@ import rehypeRaw from 'rehype-raw';
 import type { ThoughtNode as ThoughtNodeType, Attachment } from '../types';
 import { useStore } from '../store';
 import { generateId } from '../utils';
+import { extractPdf } from '../lib/api';
+import { PDF_VISION_PAGE_THRESHOLD } from '../lib/constants';
 
 function processDroppedFile(file: File): Promise<Attachment | null> {
   return new Promise((resolve) => {
@@ -179,15 +181,11 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
           if (att.type === 'application/pdf') {
             addAttachment(id, { ...att, isExtracting: true });
             try {
-              const res = await fetch('http://localhost:3001/api/pdf-extract', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ base64: att.content, scale: 1.5 }),
-              });
-              const data = await res.json();
+              const data = await extractPdf(att.content);
               const numPages = data.numPages || 0;
               useStore.getState().setAttachmentData(id, att.id, {
                 extractedText: data.text, pageImages: data.images, numPages,
-                renderMode: numPages > 10 ? 'text-only' : 'full', isExtracting: false,
+                renderMode: numPages > PDF_VISION_PAGE_THRESHOLD ? 'text-only' : 'full', isExtracting: false,
               });
             } catch { useStore.getState().setAttachmentData(id, att.id, { isExtracting: false }); }
           } else {

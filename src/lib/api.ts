@@ -1,5 +1,8 @@
-const API_URL = 'http://localhost:3001/api/claude';
-const STREAM_URL = 'http://localhost:3001/api/stream';
+import { API_BASE } from './constants';
+
+const API_URL = `${API_BASE}/api/claude`;
+const STREAM_URL = `${API_BASE}/api/stream`;
+const PDF_EXTRACT_URL = `${API_BASE}/api/pdf-extract`;
 
 export interface ContextMessage {
   role: 'user' | 'assistant' | 'system';
@@ -9,6 +12,27 @@ export interface ContextMessage {
 export interface ImageAttachment {
   data: string; // base64
   mimeType: string;
+}
+
+export interface PdfExtractResult {
+  text: string;
+  numPages: number;
+  images?: string[]; // base64 PNG per page (absent if poppler unavailable)
+  imagesUnavailable?: boolean;
+}
+
+// Extract text + page images from a PDF via the proxy. Throws on HTTP errors.
+export async function extractPdf(base64: string): Promise<PdfExtractResult> {
+  const res = await fetch(PDF_EXTRACT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ base64 }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+    throw new Error(err.error || `HTTP ${res.status}`);
+  }
+  return res.json();
 }
 
 // Legacy non-streaming call

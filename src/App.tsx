@@ -22,6 +22,8 @@ import SelectionToolbar from './components/SelectionToolbar';
 import { useStore } from './store';
 import type { Attachment, ThoughtNode as ThoughtNodeType, ThoughtEdge } from './types';
 import { generateId } from './utils';
+import { extractPdf } from './lib/api';
+import { PDF_VISION_PAGE_THRESHOLD } from './lib/constants';
 
 const nodeTypes = { thought: ThoughtNode };
 
@@ -181,19 +183,13 @@ export default function App() {
 
       // Auto-extract PDF before adding to pending
       if (att.type === 'application/pdf') {
-        console.log(`[PDF Upload] name=${att.name} size=${att.size} base64len=${att.content.length} first20=${att.content.substring(0,20)}`);
         setPendingAttachments((prev) => [...prev, { ...att, isExtracting: true }]);
         try {
-          const res = await fetch('http://localhost:3001/api/pdf-extract', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ base64: att.content, scale: 1.5 }),
-          });
-          const data = await res.json();
+          const data = await extractPdf(att.content);
           const numPages = data.numPages || 0;
           setPendingAttachments((prev) => prev.map((a) =>
             a.id === att.id
-              ? { ...a, extractedText: data.text, pageImages: data.images, numPages, renderMode: numPages > 10 ? 'text-only' : 'full', isExtracting: false }
+              ? { ...a, extractedText: data.text, pageImages: data.images, numPages, renderMode: numPages > PDF_VISION_PAGE_THRESHOLD ? 'text-only' : 'full', isExtracting: false }
               : a
           ));
         } catch {
