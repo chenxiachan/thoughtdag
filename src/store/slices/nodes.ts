@@ -29,6 +29,14 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
     get().pushHistory();
   },
 
+  deleteEdges: (edgeIds: string[]) => {
+    const remove = new Set(edgeIds);
+    if (!get().edges.some((e) => remove.has(e.id))) return;
+    get().pushHistory();
+    set((state) => ({ edges: state.edges.filter((e) => !remove.has(e.id)) }));
+    get().pushHistory();
+  },
+
   editResponse: (nodeId: string, response: string) => {
     get().pushHistory();
     const tokenCount = countTokens(get().nodes.find((n) => n.id === nodeId)?.data.question + response || response);

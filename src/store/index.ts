@@ -44,12 +44,12 @@ export const useStore = create<StoreState>()(persist((...a) => ({
   // selection are session-scoped and would bloat the stored payload.
   partialize: (state): PersistedState => ({
     nodes: stripTransient(state.nodes),
-    edges: state.edges,
+    edges: state.edges.map((e) => (e.selected ? { ...e, selected: false } : e)),
   }),
   merge: (persisted, current) => {
     const p = (persisted ?? { nodes: [], edges: [] }) as PersistedState;
     const nodes = stripTransient(p.nodes ?? []);
-    const edges = p.edges ?? [];
+    const edges = (p.edges ?? []).map((e) => (e.selected ? { ...e, selected: false } : e));
     return {
       ...current,
       nodes,

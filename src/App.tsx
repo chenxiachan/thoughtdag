@@ -18,6 +18,7 @@ import 'highlight.js/styles/github.css';
 import { FileText, Loader2, Paperclip, Redo2, Trash2, Undo2, X } from 'lucide-react';
 import './index.css';
 import ThoughtNode from './components/ThoughtNode';
+import ThoughtEdgeView from './components/ThoughtEdgeView';
 import FocusPanel from './components/focus-panel';
 import SelectionToolbar from './components/SelectionToolbar';
 import { useStore } from './store';
@@ -30,6 +31,8 @@ import ConfirmDialog from './components/ui/ConfirmDialog';
 import Toaster from './components/ui/Toaster';
 
 const nodeTypes = { thought: ThoughtNode };
+// Overrides the built-in smoothstep so persisted edges need no migration
+const edgeTypes = { smoothstep: ThoughtEdgeView };
 
 // Gate on rehydration: the store loads asynchronously from IndexedDB, and
 // mounting the canvas only after hydration lets ReactFlow's fitView see the
@@ -47,7 +50,7 @@ export default function App() {
 }
 
 function Canvas() {
-  const { nodes, edges, setNodes, setEdges, addQuestion, undo, redo, addCrossLink, pushHistory, setSelectedNodeId, setSelectedNodeIds, history, historyIndex } = useStore();
+  const { nodes, edges, setNodes, setEdges, addQuestion, undo, redo, addCrossLink, setSelectedNodeId, setSelectedNodeIds, history, historyIndex } = useStore();
   const [inputValue, setInputValue] = useState('');
   const [rootRole, setRootRole] = useState('');
   const [showRootRole, setShowRootRole] = useState(false);
@@ -104,13 +107,14 @@ function Canvas() {
     return () => window.removeEventListener('click', handler);
   }, [edgeMenu]);
 
+  const deleteEdges = useStore((s) => s.deleteEdges);
+
   const deleteEdge = useCallback(
     (edgeId: string) => {
-      setEdges(edges.filter((e) => e.id !== edgeId));
-      setTimeout(() => pushHistory(), 0);
+      deleteEdges([edgeId]);
       setEdgeMenu(null);
     },
-    [edges, setEdges, pushHistory]
+    [deleteEdges]
   );
 
   const onConnect: OnConnect = useCallback(
@@ -136,22 +140,30 @@ function Canvas() {
         if (e.shiftKey) { e.preventDefault(); redo(); }
         else { e.preventDefault(); undo(); }
       }
-      // Delete/Backspace on multi-select
-      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedNodeIds.length > 1) {
+      // Delete/Backspace: multi-selected nodes (confirm) or selected edges
+      if (e.key === 'Delete' || e.key === 'Backspace') {
         const target = e.target as HTMLElement;
-        if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return;
-        e.preventDefault();
-        void confirmDialog({
-          title: 'Delete nodes',
-          message: `Delete ${selectedNodeIds.length} selected nodes?`,
-          confirmLabel: 'Delete',
-          danger: true,
-        }).then((ok) => { if (ok) batchDelete(selectedNodeIds); });
+        if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
+        if (selectedNodeIds.length > 1) {
+          e.preventDefault();
+          void confirmDialog({
+            title: 'Delete nodes',
+            message: `Delete ${selectedNodeIds.length} selected nodes?`,
+            confirmLabel: 'Delete',
+            danger: true,
+          }).then((ok) => { if (ok) batchDelete(selectedNodeIds); });
+        } else {
+          const selectedEdgeIds = edges.filter((ed) => ed.selected).map((ed) => ed.id);
+          if (selectedEdgeIds.length > 0) {
+            e.preventDefault();
+            deleteEdges(selectedEdgeIds);
+          }
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [undo, redo, selectedNodeIds, batchDelete]);
+  }, [undo, redo, selectedNodeIds, batchDelete, edges, deleteEdges]);
 
   const handleSubmit = () => {
     if (!inputValue.trim()) return;
@@ -238,6 +250,8 @@ function Canvas() {
         onConnect={onConnect}
         onEdgeContextMenu={onEdgeContextMenu}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
+        deleteKeyCode={null}
         fitView
         minZoom={0.1}
         maxZoom={2}

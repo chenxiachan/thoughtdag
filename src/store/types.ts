@@ -23,6 +23,7 @@ export interface NodeSlice {
   setSelectedNodeId: (id: string | null) => void;
   setSelectedNodeIds: (ids: string[]) => void;
   deleteNode: (nodeId: string) => void;
+  deleteEdges: (edgeIds: string[]) => void;
   editResponse: (nodeId: string, response: string) => void;
   toggleCollapse: (nodeId: string) => void;
   setEditing: (nodeId: string, editing: boolean) => void;

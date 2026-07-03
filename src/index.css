@@ -52,11 +52,6 @@ code, pre {
   background: var(--color-surface) !important;
 }
 
-.react-flow__edge-path {
-  stroke: var(--color-accent) !important;
-  stroke-width: 2 !important;
-}
-
 .react-flow__controls {
   background: var(--color-card) !important;
   border: 1px solid var(--color-line) !important;
