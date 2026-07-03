@@ -94,6 +94,15 @@ code, pre {
 /* Selection highlight */
 ::selection { background: rgba(107, 92, 231, 0.2); }
 
+/* Consistent keyboard-focus ring on all interactive elements */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+summary:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-accent) 45%, transparent);
+  outline-offset: 2px;
+}
+
 /* Animations */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }

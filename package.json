@@ -8,6 +8,7 @@
     "server": "node server.mjs",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
+    "smoke": "node scripts/smoke.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

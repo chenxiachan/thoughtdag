@@ -98,7 +98,7 @@ export default function ActionsSection({
                 if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleBranchSubmit(); }
                 if (e.key === 'Escape') { setShowBranchInput(false); setBranchContext(''); }
               }}
-              placeholder="Branch question..."
+              placeholder="Explore question..."
               className="flex-1 bg-transparent text-sm text-ink placeholder-ink-faint focus:outline-none"
               autoFocus
             />
