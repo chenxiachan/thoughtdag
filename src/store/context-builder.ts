@@ -202,3 +202,29 @@ export function resolveAvailableRoles(
   }
   return results;
 }
+
+// Explicit role for a freshly created node (addQuestion / regenerate),
+// covering the cases buildContext can't see because it treats the parent
+// as "self":
+//   1. New node is reset → its own role
+//   2. New root with inherit + own rolePrompt (e.g. set on the landing page)
+//   3. Parent has set-next → parent's role
+export function resolveExplicitRole(
+  selfData: { roleMode?: string; rolePrompt?: string } | undefined,
+  parentData: { roleMode?: string; rolePrompt?: string } | undefined,
+  hasParent: boolean,
+): string | undefined {
+  if (selfData?.roleMode === 'reset' && selfData.rolePrompt) return selfData.rolePrompt;
+  if (selfData?.rolePrompt && selfData.roleMode === 'inherit' && !hasParent) return selfData.rolePrompt;
+  if (parentData?.roleMode === 'set-next' && parentData.rolePrompt) return parentData.rolePrompt;
+  return undefined;
+}
+
+// Replace any system message in-place with the given role (no-op if undefined).
+export function applyRoleOverride(messages: ContextMessage[], role: string | undefined): void {
+  if (!role) return;
+  const filtered = messages.filter((m) => m.role !== 'system');
+  filtered.unshift({ role: 'system', content: role });
+  messages.length = 0;
+  messages.push(...filtered);
+}

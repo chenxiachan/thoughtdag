@@ -34,8 +34,20 @@ export interface NodeSlice {
   batchDelete: (nodeIds: string[]) => void;
 }
 
+export interface AddQuestionOptions {
+  parentId?: string;
+  /** Selected text this node explores; also marks the node as an orange branch. */
+  branchContext?: string;
+  branchYRatio?: number;
+  /** false → the new node starts with roleMode 'reset' (no inherited role). */
+  inheritRole?: boolean;
+  rolePrompt?: string;
+  initialAttachments?: Attachment[];
+  excludeAllInheritedAttachments?: boolean;
+}
+
 export interface LlmSlice {
-  addQuestion: (question: string, parentId?: string, branchContext?: string, branchYRatio?: number, inheritRole?: boolean, rolePrompt?: string, initialAttachments?: Attachment[], excludeAllInheritedAttachments?: boolean) => void;
+  addQuestion: (question: string, opts?: AddQuestionOptions) => void;
   editQuestion: (nodeId: string, question: string) => void;
   regenerate: (nodeId: string) => void;
   distillRegenerate: (nodeId: string) => void;
@@ -45,7 +57,6 @@ export interface LlmSlice {
 
 export interface RoleSlice {
   setRolePrompt: (nodeId: string, rolePrompt: string) => void;
-  setInheritRole: (nodeId: string, inherit: boolean) => void;
   setRoleMode: (nodeId: string, mode: 'inherit' | 'set-next' | 'reset') => void;
   setRoleSource: (nodeId: string, sourceNodeId: string | undefined) => void;
   getAvailableRoles: (nodeId: string) => { nodeId: string; role: string; isPrimary: boolean; label: string }[];

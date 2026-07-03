@@ -13,16 +13,6 @@ export const createRoleSlice: StateCreator<StoreState, [], [], RoleSlice> = (set
     get().pushHistory();
   },
 
-  setInheritRole: (nodeId: string, inherit: boolean) => {
-    get().pushHistory();
-    set((state) => ({
-      nodes: state.nodes.map((n) =>
-        n.id === nodeId ? { ...n, data: { ...n.data, inheritRole: inherit } } : n
-      ),
-    }));
-    get().pushHistory();
-  },
-
   setRoleSource: (nodeId: string, sourceNodeId: string | undefined) => {
     get().pushHistory();
     set((state) => ({
@@ -40,11 +30,9 @@ export const createRoleSlice: StateCreator<StoreState, [], [], RoleSlice> = (set
   setRoleMode: (nodeId: string, mode: 'inherit' | 'set-next' | 'reset') => {
     get().pushHistory();
     set((state) => ({
-      nodes: state.nodes.map((n) => {
-        if (n.id !== nodeId) return n;
-        const inheritRole = mode !== 'reset';
-        return { ...n, data: { ...n.data, roleMode: mode, inheritRole } };
-      }),
+      nodes: state.nodes.map((n) =>
+        n.id === nodeId ? { ...n, data: { ...n.data, roleMode: mode } } : n
+      ),
     }));
     get().pushHistory();
   },

@@ -17,8 +17,6 @@ export interface Attachment {
 export interface Highlight {
   id: string;
   text: string;
-  startOffset: number;
-  endOffset: number;
 }
 
 export interface ThoughtData extends Record<string, unknown> {
@@ -38,8 +36,7 @@ export interface ThoughtData extends Record<string, unknown> {
   rolePrompt?: string;
   appliedRole?: string; // the role actually used when generating the current response
   roleSourceNodeId?: string; // user-chosen role source node (for multi-parent role conflict)
-  inheritRole: boolean; // true=inherit from ancestors, false=stop inheritance
-  roleMode: 'inherit' | 'set-next' | 'reset'; // explicit mode for UI
+  roleMode: 'inherit' | 'set-next' | 'reset'; // inherit from ancestors / set for descendants / reset for this node
   attachments: Attachment[];
   excludedAttachmentIds: string[]; // upstream attachment IDs to exclude from context
   includedAttachmentIds: string[]; // override ancestor exclusions (re-include)

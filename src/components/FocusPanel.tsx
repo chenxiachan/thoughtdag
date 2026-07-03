@@ -186,7 +186,11 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
 
   const handleBranchSubmit = () => {
     if (!branchInput.trim()) return;
-    addQuestion(branchInput.trim(), selectedNodeId!, branchContext || undefined, undefined, branchInheritRole ? undefined : false);
+    addQuestion(branchInput.trim(), {
+      parentId: selectedNodeId!,
+      branchContext: branchContext || undefined,
+      inheritRole: branchInheritRole ? undefined : false,
+    });
     setBranchInput('');
     setShowBranchInput(false);
     setBranchContext('');
@@ -195,12 +199,7 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
 
   const handleHighlight = () => {
     if (!selectedText) return;
-    addHighlight(selectedNodeId!, {
-      id: generateId(),
-      text: selectedText,
-      startOffset: 0,
-      endOffset: 0,
-    });
+    addHighlight(selectedNodeId!, { id: generateId(), text: selectedText });
     setSelectedText('');
     setSelectionPos(null);
     window.getSelection()?.removeAllRanges();
@@ -500,7 +499,7 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
                 <button
                   onClick={() => {
                     const highlightTexts = data.highlights.map((h) => h.text).join('\n\n');
-                    addQuestion(`Summarize the following key points concisely:\n\n${highlightTexts}`, selectedNodeId!, highlightTexts);
+                    addQuestion(`Summarize the following key points concisely:\n\n${highlightTexts}`, { parentId: selectedNodeId!, branchContext: highlightTexts });
                   }}
                   className="text-xs bg-blue-50 hover:bg-blue-100 text-blue-600 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1"
                   title="Summarize highlighted content in a new branch"
@@ -579,7 +578,7 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
                       onChange={(e) => setHighlightExploreInput(e.target.value)}
                       onKeyDown={(e) => {
                         if (e.key === 'Enter' && highlightExploreInput.trim()) {
-                          addQuestion(highlightExploreInput.trim(), selectedNodeId!, highlightExploreContext, undefined, exploreInheritRole ? undefined : false);
+                          addQuestion(highlightExploreInput.trim(), { parentId: selectedNodeId!, branchContext: highlightExploreContext, inheritRole: exploreInheritRole ? undefined : false });
                           setHighlightExploreInput('');
                           setHighlightExploreContext('');
                           setExploreInheritRole(true);
@@ -595,7 +594,7 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
                     <button
                       onClick={() => {
                         if (highlightExploreInput.trim()) {
-                          addQuestion(highlightExploreInput.trim(), selectedNodeId!, highlightExploreContext, undefined, exploreInheritRole ? undefined : false);
+                          addQuestion(highlightExploreInput.trim(), { parentId: selectedNodeId!, branchContext: highlightExploreContext, inheritRole: exploreInheritRole ? undefined : false });
                           setHighlightExploreInput('');
                           setHighlightExploreContext('');
                           setExploreInheritRole(true);
@@ -660,7 +659,7 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
             <div className="mt-3">
               {branchContext && (
                 <div className="text-xs pl-3 py-1.5 pr-2 mb-2 border-l-2 border-[#6B5CE7] bg-[#6B5CE7]/5 rounded-r text-[#6B6560]">
-                  <span className="text-[#6B5CE7] font-medium">⑂ Exploreed from selection:</span>
+                  <span className="text-[#6B5CE7] font-medium">⑂ Exploring from selection:</span>
                   &ldquo;{branchContext.slice(0, 100)}{branchContext.length > 100 ? '…' : ''}&rdquo;
                 </div>
               )}
@@ -744,7 +743,7 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 if (continueInput.trim()) {
-                  addQuestion(continueInput.trim(), selectedNodeId!, undefined, undefined, continueInheritRole ? undefined : false, undefined, undefined, !continueInheritAttachments);
+                  addQuestion(continueInput.trim(), { parentId: selectedNodeId!, inheritRole: continueInheritRole ? undefined : false, excludeAllInheritedAttachments: !continueInheritAttachments });
                   setContinueInput('');
                   setContinueInheritRole(true);
                 }
@@ -756,7 +755,7 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
           <button
             onClick={() => {
               if (continueInput.trim()) {
-                addQuestion(continueInput.trim(), selectedNodeId!, undefined, undefined, continueInheritRole ? undefined : false, undefined, undefined, !continueInheritAttachments);
+                addQuestion(continueInput.trim(), { parentId: selectedNodeId!, inheritRole: continueInheritRole ? undefined : false, excludeAllInheritedAttachments: !continueInheritAttachments });
                 setContinueInput('');
                 setContinueInheritRole(true);
               }

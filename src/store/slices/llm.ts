@@ -1,15 +1,16 @@
 import type { StateCreator } from 'zustand';
-import type { ThoughtNode, ThoughtEdge, Attachment } from '../../types';
-import { generateId, countTokens } from '../../utils';
+import type { ThoughtNode, ThoughtEdge } from '../../types';
+import { generateId } from '../../utils';
 import { autoLayout } from '../../lib/layout';
 import { getDescendantIds } from '../../lib/graph';
-import { llmCallStream, type ContextMessage } from '../../lib/api';
-import { buildContext } from '../context-builder';
-import { generateSummary, activeAbortControllers } from '../streaming';
-import type { StoreState, LlmSlice } from '../types';
+import type { ContextMessage } from '../../lib/api';
+import { buildContext, resolveExplicitRole, applyRoleOverride } from '../context-builder';
+import { activeAbortControllers, runNodeGeneration } from '../streaming';
+import type { StoreState, LlmSlice, AddQuestionOptions } from '../types';
 
 export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, get) => ({
-  addQuestion: async (question: string, parentId?: string, branchContext?: string, branchYRatio?: number, inheritRole?: boolean, rolePrompt?: string, initialAttachments?: Attachment[], excludeAllInheritedAttachments?: boolean) => {
+  addQuestion: async (question: string, opts: AddQuestionOptions = {}) => {
+    const { parentId, branchContext, branchYRatio, inheritRole, rolePrompt, initialAttachments, excludeAllInheritedAttachments } = opts;
     const id = generateId();
     const isRoot = !parentId;
     const newNode: ThoughtNode = {
@@ -35,7 +36,6 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
             )
           : [],
         includedAttachmentIds: [],
-        inheritRole: inheritRole !== false,
         roleMode: inheritRole === false ? 'reset' : 'inherit',
         rolePrompt: rolePrompt || undefined,
         isRoot,
@@ -72,112 +72,47 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
     const newNodes = autoLayout([...updatedNodes, newNode], newEdges);
     set({ nodes: newNodes, edges: newEdges, selectedNodeId: id });
 
-    try {
-      const abortController = new AbortController();
-      activeAbortControllers.set(id, abortController);
-      // Build full context from blue-edge ancestors + current question
-      const selfNode2 = get().nodes.find((n) => n.id === id);
-      const ctx = parentId
-        ? buildContext(parentId, get().nodes, get().edges, branchContext, selfNode2?.data.excludedAttachmentIds, selfNode2?.data.includedAttachmentIds)
-        : { messages: [], images: [] };
-      const contextMessages = ctx.messages;
-      const contextImages = ctx.images;
-      // Role injection for new nodes:
-      // 1. Parent has set-next → inject parent's role (buildContext skips it because it treats parent as "self")
-      // 2. New node is reset → inject its own role
-      // 3. New node is root with set-next → inject its own role (no parent to inherit from)
-      const newNodeData = get().nodes.find((n) => n.id === id)?.data;
-      const parentNode = parentId ? get().nodes.find((n) => n.id === parentId) : null;
+    // Build full context from ancestors + explicit role for the new node
+    const selfNode = get().nodes.find((n) => n.id === id);
+    const ctx = parentId
+      ? buildContext(parentId, get().nodes, get().edges, branchContext, selfNode?.data.excludedAttachmentIds, selfNode?.data.includedAttachmentIds)
+      : { messages: [] as ContextMessage[], images: [] };
+    const contextMessages = ctx.messages;
+    const contextImages = ctx.images;
+    const parentNode = parentId ? get().nodes.find((n) => n.id === parentId) : null;
+    applyRoleOverride(contextMessages, resolveExplicitRole(selfNode?.data, parentNode?.data, !!parentId));
 
-      let roleToInject: string | undefined;
-      if (newNodeData?.roleMode === 'reset' && newNodeData.rolePrompt) {
-        // Reset: this node's own role
-        roleToInject = newNodeData.rolePrompt;
-      } else if (newNodeData?.rolePrompt && newNodeData.roleMode === 'inherit' && !parentId) {
-        // Root node with inherit + own rolePrompt (e.g. from landing page)
-        roleToInject = newNodeData.rolePrompt;
-      } else if (parentNode?.data.roleMode === 'set-next' && parentNode.data.rolePrompt) {
-        // Parent has set-for-next: inject parent's role
-        roleToInject = parentNode.data.rolePrompt;
-      } else if (parentNode?.data.roleMode === 'inherit' && parentNode.data.rolePrompt) {
-        // Parent has inherit + own rolePrompt: also passes to children
-        // (buildContext already handles ancestors, but parent is treated as "self" and skipped for set-next;
-        //  for inherit mode, buildContext DOES find parent's rolePrompt, so this is a backup)
-        // Actually buildContext(parentId) treats parent as last in ordered, and inherit+rolePrompt → uses it.
-        // So this case is already handled by buildContext. Skip.
-      }
-
-      if (roleToInject) {
-        const filtered = contextMessages.filter((m) => m.role !== 'system');
-        filtered.unshift({ role: 'system', content: roleToInject });
-        contextMessages.length = 0;
-        contextMessages.push(...filtered);
-      }
-      // Collect this node's own attachments (skip if same file already from ancestors)
-      const selfAttachments = selfNode2?.data.attachments || [];
-      for (const att of selfAttachments) {
-        const alreadyInContext = contextMessages.some(m => m.content.includes(`[PDF: ${att.name}]`) || m.content.includes(`[File: ${att.name}]`));
-        if (alreadyInContext) continue;
-        if (att.type.startsWith('image/')) {
-          contextImages.push({ data: att.content, mimeType: att.type });
-        } else if (att.type === 'application/pdf') {
-          if (att.extractedText) {
-            contextMessages.push({ role: 'user', content: `[PDF: ${att.name}]\n${att.extractedText}` });
-          }
-          if (att.renderMode !== 'text-only' && att.pageImages && att.pageImages.length > 0) {
-            for (const pageImg of att.pageImages) {
-              contextImages.push({ data: pageImg, mimeType: 'image/png' });
-            }
-          }
-        } else if (att.content) {
-          contextMessages.push({ role: 'user', content: `[File: ${att.name}]\n${att.content}` });
+    // Collect this node's own attachments (skip if same file already from ancestors)
+    const selfAttachments = selfNode?.data.attachments || [];
+    for (const att of selfAttachments) {
+      const alreadyInContext = contextMessages.some(m => m.content.includes(`[PDF: ${att.name}]`) || m.content.includes(`[File: ${att.name}]`));
+      if (alreadyInContext) continue;
+      if (att.type.startsWith('image/')) {
+        contextImages.push({ data: att.content, mimeType: att.type });
+      } else if (att.type === 'application/pdf') {
+        if (att.extractedText) {
+          contextMessages.push({ role: 'user', content: `[PDF: ${att.name}]\n${att.extractedText}` });
         }
+        if (att.renderMode !== 'text-only' && att.pageImages && att.pageImages.length > 0) {
+          for (const pageImg of att.pageImages) {
+            contextImages.push({ data: pageImg, mimeType: 'image/png' });
+          }
+        }
+      } else if (att.content) {
+        contextMessages.push({ role: 'user', content: `[File: ${att.name}]\n${att.content}` });
       }
-
-      // Save the applied role before streaming
-      const appliedRole = contextMessages.find((m) => m.role === 'system')?.content || undefined;
-      contextMessages.push({ role: 'user', content: question });
-
-      // Store appliedRole on the node
-      set((state) => ({
-        nodes: state.nodes.map((n) =>
-          n.id === id ? { ...n, data: { ...n.data, appliedRole } } : n
-        ),
-      }));
-
-      const response = await llmCallStream(contextMessages, (_chunk, fullSoFar) => {
-        set((state) => ({
-          nodes: state.nodes.map((n) =>
-            n.id === id ? { ...n, data: { ...n.data, response: fullSoFar } } : n
-          ),
-        }));
-      }, abortController.signal, contextImages);
-      activeAbortControllers.delete(id);
-      const tokenCount = countTokens(question + response);
-      set((state) => ({
-        nodes: state.nodes.map((n) =>
-          n.id === id
-            ? { ...n, data: { ...n.data, response, responses: [response], responseIndex: 0, isLoading: false, isCollapsed: true, tokenCount } }
-            : n
-        ),
-      }));
-      get().pushHistory();
-      generateSummary(id, question, response, get().setSummary);
-    } catch (err) {
-      activeAbortControllers.delete(id);
-      // If aborted, keep whatever was generated so far
-      const currentNode = get().nodes.find((n) => n.id === id);
-      const partialResponse = currentNode?.data.response || '';
-      const isAbort = err instanceof DOMException && err.name === 'AbortError';
-      const finalResponse = isAbort && partialResponse ? partialResponse : (partialResponse || 'Error generating response.');
-      const tokenCount = countTokens(question + finalResponse);
-      set((state) => ({
-        nodes: state.nodes.map((n) =>
-          n.id === id ? { ...n, data: { ...n.data, response: finalResponse, responses: [finalResponse], responseIndex: 0, isLoading: false, isCollapsed: true, tokenCount } } : n
-        ),
-      }));
-      if (isAbort) get().pushHistory();
     }
+
+    // Record the applied role before streaming
+    const appliedRole = contextMessages.find((m) => m.role === 'system')?.content || undefined;
+    contextMessages.push({ role: 'user', content: question });
+    set((state) => ({
+      nodes: state.nodes.map((n) =>
+        n.id === id ? { ...n, data: { ...n.data, appliedRole } } : n
+      ),
+    }));
+
+    await runNodeGeneration(set, get, id, { question, messages: contextMessages, images: contextImages });
   },
 
   editQuestion: async (nodeId: string, question: string) => {
@@ -187,41 +122,17 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
         n.id === nodeId ? { ...n, data: { ...n.data, question, isEditing: false, isLoading: true } } : n
       ),
     }));
-    const abortController = new AbortController();
-    activeAbortControllers.set(nodeId, abortController);
-    try {
-      const editNode = get().nodes.find((n) => n.id === nodeId);
-      const editCtx = buildContext(nodeId, get().nodes.map(n =>
-        n.id === nodeId ? { ...n, data: { ...n.data, question: '', response: '' } } : n
-      ), get().edges, undefined, editNode?.data.excludedAttachmentIds, editNode?.data.includedAttachmentIds);
-      const contextMessages = editCtx.messages;
-      const appliedRole = contextMessages.find((m) => m.role === 'system')?.content || undefined;
-      contextMessages.push({ role: 'user', content: question });
-      set((state) => ({ nodes: state.nodes.map((n) => n.id === nodeId ? { ...n, data: { ...n.data, appliedRole } } : n) }));
+    // Rebuild context with this node's own Q&A blanked out
+    const editNode = get().nodes.find((n) => n.id === nodeId);
+    const editCtx = buildContext(nodeId, get().nodes.map(n =>
+      n.id === nodeId ? { ...n, data: { ...n.data, question: '', response: '' } } : n
+    ), get().edges, undefined, editNode?.data.excludedAttachmentIds, editNode?.data.includedAttachmentIds);
+    const contextMessages = editCtx.messages;
+    const appliedRole = contextMessages.find((m) => m.role === 'system')?.content || undefined;
+    contextMessages.push({ role: 'user', content: question });
+    set((state) => ({ nodes: state.nodes.map((n) => n.id === nodeId ? { ...n, data: { ...n.data, appliedRole } } : n) }));
 
-      const response = await llmCallStream(contextMessages, (_chunk, fullSoFar) => { set((state) => ({ nodes: state.nodes.map((n) => n.id === nodeId ? { ...n, data: { ...n.data, response: fullSoFar } } : n) })); }, abortController.signal, editCtx.images);
-      activeAbortControllers.delete(nodeId);
-      const tokenCount = countTokens(question + response);
-      set((state) => ({
-        nodes: state.nodes.map((n) =>
-          n.id === nodeId
-            ? { ...n, data: { ...n.data, response, responses: [response], responseIndex: 0, isLoading: false, isCollapsed: true, tokenCount } }
-            : n
-        ),
-      }));
-      get().pushHistory();
-      generateSummary(nodeId, question, response, get().setSummary);
-    } catch {
-      activeAbortControllers.delete(nodeId);
-      const partial = get().nodes.find((n) => n.id === nodeId)?.data.response || '';
-      const tokenCount = countTokens(question + partial);
-      set((state) => ({
-        nodes: state.nodes.map((n) =>
-          n.id === nodeId ? { ...n, data: { ...n.data, response: partial || 'Stopped.', responses: [partial || 'Stopped.'], responseIndex: 0, isLoading: false, isCollapsed: true, tokenCount } } : n
-        ),
-      }));
-      get().pushHistory();
-    }
+    await runNodeGeneration(set, get, nodeId, { question, messages: contextMessages, images: editCtx.images });
   },
 
   regenerate: async (nodeId: string) => {
@@ -251,7 +162,6 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
         tokenCount: 0,
         branchContext: node.data.branchContext,
         highlights: [], highlightMode: 'tag', attachments: [], excludedAttachmentIds: [], includedAttachmentIds: [],
-        inheritRole: node.data.inheritRole,
         roleMode: node.data.roleMode || 'inherit',
         rolePrompt: node.data.rolePrompt,
         isRoot: !parentId,
@@ -266,57 +176,19 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
     const newNodes = autoLayout([...get().nodes, newNode], newEdges);
     set({ nodes: newNodes, edges: newEdges, selectedNodeId: id });
 
-    const abortController = new AbortController();
-    activeAbortControllers.set(id, abortController);
-    try {
-      const regenSelf = get().nodes.find((n) => n.id === id);
-      const regenCtx = parentId
-        ? buildContext(parentId, get().nodes, get().edges, node.data.branchContext, regenSelf?.data.excludedAttachmentIds, regenSelf?.data.includedAttachmentIds)
-        : { messages: [], images: [] };
-      const contextMessages = regenCtx.messages;
-      // Role injection for regenerated nodes (same logic as addQuestion)
-      const regenData = regenSelf?.data;
-      const regenParent = parentId ? get().nodes.find((n) => n.id === parentId) : null;
-      let regenRole: string | undefined;
-      if (regenData?.roleMode === 'reset' && regenData.rolePrompt) {
-        regenRole = regenData.rolePrompt;
-      } else if (regenData?.rolePrompt && regenData.roleMode === 'inherit' && !parentId) {
-        regenRole = regenData.rolePrompt;
-      } else if (regenParent?.data.roleMode === 'set-next' && regenParent.data.rolePrompt) {
-        regenRole = regenParent.data.rolePrompt;
-      }
-      if (regenRole) {
-        const filtered = contextMessages.filter((m) => m.role !== 'system');
-        filtered.unshift({ role: 'system', content: regenRole });
-        contextMessages.length = 0;
-        contextMessages.push(...filtered);
-      }
-      const appliedRole = contextMessages.find((m) => m.role === 'system')?.content || undefined;
-      contextMessages.push({ role: 'user', content: node.data.question });
-      set((state) => ({ nodes: state.nodes.map((n) => n.id === id ? { ...n, data: { ...n.data, appliedRole } } : n) }));
-      const response = await llmCallStream(contextMessages, (_chunk, fullSoFar) => { set((state) => ({ nodes: state.nodes.map((n) => n.id === id ? { ...n, data: { ...n.data, response: fullSoFar } } : n) })); }, abortController.signal, regenCtx.images);
-      activeAbortControllers.delete(id);
-      const tokenCount = countTokens(node.data.question + response);
-      set((state) => ({
-        nodes: state.nodes.map((n) =>
-          n.id === id
-            ? { ...n, data: { ...n.data, response, responses: [response], responseIndex: 0, isLoading: false, isCollapsed: true, tokenCount } }
-            : n
-        ),
-      }));
-      get().pushHistory();
-      generateSummary(id, node.data.question, response, get().setSummary);
-    } catch {
-      activeAbortControllers.delete(id);
-      const partial = get().nodes.find((n) => n.id === id)?.data.response || '';
-      const tokenCount = countTokens(node.data.question + partial);
-      set((state) => ({
-        nodes: state.nodes.map((n) =>
-          n.id === id ? { ...n, data: { ...n.data, response: partial || 'Stopped.', responses: [partial || 'Stopped.'], responseIndex: 0, isLoading: false, isCollapsed: true, tokenCount } } : n
-        ),
-      }));
-      get().pushHistory();
-    }
+    const regenSelf = get().nodes.find((n) => n.id === id);
+    const regenCtx = parentId
+      ? buildContext(parentId, get().nodes, get().edges, node.data.branchContext, regenSelf?.data.excludedAttachmentIds, regenSelf?.data.includedAttachmentIds)
+      : { messages: [] as ContextMessage[], images: [] };
+    const contextMessages = regenCtx.messages;
+    const regenParent = parentId ? get().nodes.find((n) => n.id === parentId) : null;
+    applyRoleOverride(contextMessages, resolveExplicitRole(regenSelf?.data, regenParent?.data, !!parentId));
+
+    const appliedRole = contextMessages.find((m) => m.role === 'system')?.content || undefined;
+    contextMessages.push({ role: 'user', content: node.data.question });
+    set((state) => ({ nodes: state.nodes.map((n) => n.id === id ? { ...n, data: { ...n.data, appliedRole } } : n) }));
+
+    await runNodeGeneration(set, get, id, { question: node.data.question, messages: contextMessages, images: regenCtx.images });
   },
 
   distillRegenerate: async (nodeId: string) => {
@@ -341,7 +213,6 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
         isLoading: true,
         tokenCount: 0,
         highlights: [], highlightMode: 'tag', attachments: [], excludedAttachmentIds: [], includedAttachmentIds: [],
-        inheritRole: true,
         roleMode: 'inherit' as const,
         isRoot: false,
         isBranch: false,
@@ -367,35 +238,17 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
     const newNodes = autoLayout([...get().nodes, newNode], newEdges);
     set({ nodes: newNodes, edges: newEdges, selectedNodeId: id });
 
-    try {
-      const distillCtx = parentEdge
-        ? buildContext(parentEdge.source, get().nodes, get().edges)
-        : { messages: [], images: [] };
-      const contextMessages = distillCtx.messages;
-      contextMessages.push({ role: 'user', content: node.data.question });
-      contextMessages.push({
-        role: 'user',
-        content: `Based on the following highlighted key content, regenerate a more concise response. Keep these key points, remove redundancy:\n\n${highlightTexts}`,
-      });
+    const distillCtx = parentEdge
+      ? buildContext(parentEdge.source, get().nodes, get().edges)
+      : { messages: [] as ContextMessage[], images: [] };
+    const contextMessages = distillCtx.messages;
+    contextMessages.push({ role: 'user', content: node.data.question });
+    contextMessages.push({
+      role: 'user',
+      content: `Based on the following highlighted key content, regenerate a more concise response. Keep these key points, remove redundancy:\n\n${highlightTexts}`,
+    });
 
-      const response = await llmCallStream(contextMessages, (_chunk, fullSoFar) => { set((state) => ({ nodes: state.nodes.map((n) => n.id === id ? { ...n, data: { ...n.data, response: fullSoFar } } : n) })); });
-      const tokenCount = countTokens(node.data.question + response);
-      set((state) => ({
-        nodes: state.nodes.map((n) =>
-          n.id === id
-            ? { ...n, data: { ...n.data, response, responses: [response], responseIndex: 0, isLoading: false, isCollapsed: true, tokenCount } }
-            : n
-        ),
-      }));
-      get().pushHistory();
-      generateSummary(id, node.data.question, response, get().setSummary);
-    } catch {
-      set((state) => ({
-        nodes: state.nodes.map((n) =>
-          n.id === id ? { ...n, data: { ...n.data, response: 'Error generating response.', isLoading: false, isCollapsed: true } } : n
-        ),
-      }));
-    }
+    await runNodeGeneration(set, get, id, { question: node.data.question, messages: contextMessages });
   },
 
   batchMergeSummarize: async (nodeIds: string[], deleteAfter?: boolean) => {
@@ -438,7 +291,6 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
         highlightMode: 'tag',
         attachments: [],
         excludedAttachmentIds: [], includedAttachmentIds: [],
-        inheritRole: true,
         roleMode: 'inherit' as const,
         isRoot: !parentId,
         isBranch: false,
@@ -460,11 +312,9 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
     const newNodes = autoLayout([...nodes, newNode], newEdges);
     set({ nodes: newNodes, edges: newEdges, selectedNodeId: id, selectedNodeIds: [] });
 
-    // Call LLM to summarize
-    try {
-      const messages: ContextMessage[] = [
-        { role: 'system', content: `You merge conversation nodes. CRITICAL: Your output language MUST match the primary language of the user content. If the content is in Chinese, respond in Chinese. If English, respond in English. Never use German or any other language unless the content is in that language. Do not translate — use the same language as the source.` },
-        { role: 'user', content: `将以下 ${selected.length} 个对话节点合并为一份完整文档。(Merge the following ${selected.length} conversation nodes into one comprehensive document.)
+    const messages: ContextMessage[] = [
+      { role: 'system', content: `You merge conversation nodes. CRITICAL: Your output language MUST match the primary language of the user content. If the content is in Chinese, respond in Chinese. If English, respond in English. Never use German or any other language unless the content is in that language. Do not translate — use the same language as the source.` },
+      { role: 'user', content: `将以下 ${selected.length} 个对话节点合并为一份完整文档。(Merge the following ${selected.length} conversation nodes into one comprehensive document.)
 
 规则 / Rules:
 1. 输出语言必须与下面内容的主要语言一致。(Output language must match the primary language of the content below.)
@@ -476,59 +326,32 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
 内容 / Content:
 
 ${mergedContent}` },
-      ];
+    ];
 
-      let fullResponse = '';
-      await llmCallStream(messages, (chunk) => {
-        fullResponse += chunk;
-        set((state) => ({
-          nodes: state.nodes.map((n) =>
-            n.id === id ? { ...n, data: { ...n.data, response: fullResponse, responses: [fullResponse] } } : n
-          ),
-        }));
-      });
-
-      const tokenCount = countTokens(summaryQuestion + fullResponse);
-      set((state) => ({
-        nodes: autoLayout(
-          state.nodes.map((n) =>
-            n.id === id ? { ...n, data: { ...n.data, response: fullResponse, responses: [fullResponse], isLoading: false, isCollapsed: true, tokenCount } } : n
-          ),
-          state.edges
-        ),
-      }));
-      // Generate summary
-      const setSummary = get().setSummary;
-      generateSummary(id, summaryQuestion, fullResponse, setSummary);
-
-      // Delete original nodes if requested
-      if (deleteAfter) {
-        const allRemove = new Set<string>();
-        for (const nid of nodeIds) {
-          allRemove.add(nid);
-          for (const d of getDescendantIds(nid, get().edges)) {
-            allRemove.add(d);
+    await runNodeGeneration(set, get, id, {
+      question: summaryQuestion,
+      messages,
+      onSuccess: () => {
+        // Re-layout with the summary node's final height, then optionally
+        // delete the merged originals (and their descendants)
+        if (deleteAfter) {
+          const allRemove = new Set<string>();
+          for (const nid of nodeIds) {
+            allRemove.add(nid);
+            for (const d of getDescendantIds(nid, get().edges)) {
+              allRemove.add(d);
+            }
           }
+          // Don't delete the newly created merge node
+          allRemove.delete(id);
+          set((state) => ({
+            nodes: state.nodes.filter((n) => !allRemove.has(n.id)),
+            edges: state.edges.filter((e) => !allRemove.has(e.source) && !allRemove.has(e.target)),
+          }));
         }
-        // Don't delete the newly created merge node
-        allRemove.delete(id);
-        set((state) => ({
-          nodes: autoLayout(
-            state.nodes.filter((n) => !allRemove.has(n.id)),
-            state.edges.filter((e) => !allRemove.has(e.source) && !allRemove.has(e.target))
-          ),
-          edges: state.edges.filter((e) => !allRemove.has(e.source) && !allRemove.has(e.target)),
-        }));
-      }
-
-      get().pushHistory();
-    } catch {
-      set((state) => ({
-        nodes: state.nodes.map((n) =>
-          n.id === id ? { ...n, data: { ...n.data, response: 'Error generating summary.', isLoading: false, isCollapsed: true } } : n
-        ),
-      }));
-    }
+        set((state) => ({ nodes: autoLayout(state.nodes, state.edges) }));
+      },
+    });
   },
 
   stopGeneration: (nodeId: string) => {

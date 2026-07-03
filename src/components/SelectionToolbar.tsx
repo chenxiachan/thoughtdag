@@ -38,8 +38,7 @@ export default function SelectionToolbar() {
   const handleExplore = () => {
     if (!exploreInput.trim()) return;
     // Use first selected node as parent
-    const parentId = selectedNodeIds[0];
-    addQuestion(exploreInput.trim(), parentId, selectedContent);
+    addQuestion(exploreInput.trim(), { parentId: selectedNodeIds[0], branchContext: selectedContent });
     setExploreOpen(false);
     setExploreInput('');
   };
@@ -66,7 +65,7 @@ export default function SelectionToolbar() {
                 const highlightTexts = allHighlights.map((h) => h.text).join('\n\n');
                 addQuestion(
                   `Summarize the following highlights from ${selectedNodeIds.length} nodes concisely. Use the same language as the content:\n\n${highlightTexts}`,
-                  selectedNodeIds[0]
+                  { parentId: selectedNodeIds[0] }
                 );
               }}
               className="text-xs bg-amber-50 hover:bg-amber-100 text-amber-700 px-3 py-1.5 rounded-lg transition-colors"

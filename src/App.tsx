@@ -140,7 +140,10 @@ function Canvas() {
 
   const handleSubmit = () => {
     if (!inputValue.trim()) return;
-    addQuestion(inputValue.trim(), undefined, undefined, undefined, true, rootRole.trim() || undefined, pendingAttachments.length > 0 ? pendingAttachments : undefined);
+    addQuestion(inputValue.trim(), {
+      rolePrompt: rootRole.trim() || undefined,
+      initialAttachments: pendingAttachments.length > 0 ? pendingAttachments : undefined,
+    });
     setInputValue('');
     setRootRole('');
     setShowRootRole(false);

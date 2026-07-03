@@ -74,12 +74,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
 
   const handleHighlight = () => {
     if (!selectedText) return;
-    addHighlight(id, {
-      id: generateId(),
-      text: selectedText,
-      startOffset: 0,
-      endOffset: 0,
-    });
+    addHighlight(id, { id: generateId(), text: selectedText });
     setSelectedText('');
     setSelectionPos(null);
     window.getSelection()?.removeAllRanges();
@@ -87,7 +82,11 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
 
   const handleSubmitBranch = () => {
     if (!inputValue.trim()) return;
-    addQuestion(inputValue.trim(), id, branchFromText || undefined, branchFromText ? branchYRatio : undefined);
+    addQuestion(inputValue.trim(), {
+      parentId: id,
+      branchContext: branchFromText || undefined,
+      branchYRatio: branchFromText ? branchYRatio : undefined,
+    });
     setInputValue('');
     setBranchFromText('');
     setSelectedText('');
@@ -275,7 +274,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
           {/* Branch context indicator when branching from selection */}
           {branchFromText && (
             <div className="mt-3 text-xs pl-3 py-2 pr-2 border-l-3 border-[#6B5CE7] bg-[#6B5CE7]/5 rounded-r">
-              <span className="text-[#6B5CE7] font-medium">⑂ Exploreed from selection:</span>
+              <span className="text-[#6B5CE7] font-medium">⑂ Exploring from selection:</span>
               <p className="text-[#6B6560] mt-1 leading-relaxed">&ldquo;{branchFromText.slice(0, 150)}{branchFromText.length > 150 ? '...' : ''}&rdquo;</p>
             </div>
           )}
