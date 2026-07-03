@@ -1,44 +1,11 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Handle, Position, type NodeProps } from '@xyflow/react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import remarkMath from 'remark-math';
-import rehypeHighlight from 'rehype-highlight';
-import rehypeKatex from 'rehype-katex';
 import 'katex/dist/katex.min.css';
-import rehypeRaw from 'rehype-raw';
-import type { ThoughtNode as ThoughtNodeType, Attachment } from '../types';
+import type { ThoughtNode as ThoughtNodeType } from '../types';
 import { useStore } from '../store';
 import { generateId } from '../utils';
-import { extractPdf } from '../lib/api';
-import { PDF_VISION_PAGE_THRESHOLD } from '../lib/constants';
-
-function processDroppedFile(file: File): Promise<Attachment | null> {
-  return new Promise((resolve) => {
-    const id = generateId();
-    const isImage = file.type.startsWith('image/');
-    const isPDF = file.type === 'application/pdf' || file.name.endsWith('.pdf');
-    const isText = file.type.startsWith('text/') || /\.(md|txt|js|ts|tsx|jsx|py|json|csv|yaml|yml|toml|sh|bash|zsh|c|cpp|h|hpp|java|rs|go|rb|swift|kt|css|html|xml|sql|r|m|lua)$/i.test(file.name);
-    if (isImage) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        resolve({ id, name: file.name, type: file.type, size: file.size, content: (reader.result as string).split(',')[1], thumbnailUrl: reader.result as string });
-      };
-      reader.readAsDataURL(file);
-    } else if (isPDF) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const base64 = (reader.result as string).split(',')[1];
-        resolve({ id, name: file.name, type: 'application/pdf', size: file.size, content: base64 });
-      };
-      reader.readAsDataURL(file);
-    } else if (isText) {
-      file.text().then((text) => resolve({ id, name: file.name, type: file.type || 'text/plain', size: file.size, content: text }));
-    } else {
-      resolve(null);
-    }
-  });
-}
+import { processFile } from '../lib/attachments';
+import { Markdown, HighlightedMarkdown } from './Markdown';
 
 export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   const {
@@ -179,21 +146,10 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
         e.stopPropagation();
         setIsDropTarget(false);
         for (const file of Array.from(e.dataTransfer.files)) {
-          const att = await processDroppedFile(file);
-          if (!att) continue;
-          if (att.type === 'application/pdf') {
-            addAttachment(id, { ...att, isExtracting: true });
-            try {
-              const data = await extractPdf(att.content);
-              const numPages = data.numPages || 0;
-              useStore.getState().setAttachmentData(id, att.id, {
-                extractedText: data.text, pageImages: data.images, numPages,
-                renderMode: numPages > PDF_VISION_PAGE_THRESHOLD ? 'text-only' : 'full', isExtracting: false,
-              });
-            } catch { useStore.getState().setAttachmentData(id, att.id, { isExtracting: false }); }
-          } else {
-            addAttachment(id, att);
-          }
+          await processFile(file, {
+            add: (att) => addAttachment(id, att),
+            update: (attId, patch) => useStore.getState().setAttachmentData(id, attId, patch),
+          });
         }
         setSelectedNodeId(id);
       }}
@@ -311,9 +267,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
               {highlightedTexts.size > 0 ? (
                 <HighlightedMarkdown content={data.response} highlights={highlightedTexts} />
               ) : (
-                <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeRaw, rehypeHighlight, rehypeKatex]}>
-                  {data.response}
-                </ReactMarkdown>
+                <Markdown>{data.response}</Markdown>
               )}
             </div>
           )}
@@ -410,18 +364,5 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
         </div>
       )}
     </div>
-  );
-}
-
-function HighlightedMarkdown({ content, highlights }: { content: string; highlights: Set<string> }) {
-  let processed = content;
-  for (const h of highlights) {
-    const escaped = h.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    processed = processed.replace(new RegExp(escaped, 'g'), `<mark class="bg-amber-100 text-amber-800 px-0.5 rounded">${h}</mark>`);
-  }
-  return (
-    <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeRaw, rehypeHighlight, rehypeKatex]}>
-      {processed}
-    </ReactMarkdown>
   );
 }

@@ -1,14 +1,9 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import remarkMath from 'remark-math';
-import rehypeHighlight from 'rehype-highlight';
-import rehypeKatex from 'rehype-katex';
-import rehypeRaw from 'rehype-raw';
 import { useStore } from '../store';
-import { countTokens, getContextPath, generateId } from '../utils';
-import { extractPdf } from '../lib/api';
-import { PDF_VISION_PAGE_THRESHOLD } from '../lib/constants';
+import { countTokens, generateId } from '../utils';
+import { getContextPath } from '../lib/graph';
+import { processFile, FILE_INPUT_ACCEPT } from '../lib/attachments';
+import { Markdown, HighlightedMarkdown } from './Markdown';
 import type { Attachment } from '../types';
 
 export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string) => void }) {
@@ -429,9 +424,7 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
             </div>
           ) : data.isLoading && data.response ? (
             <div className="markdown-body text-sm text-[#1A1A1A] leading-relaxed max-h-[500px] overflow-y-auto px-3 py-2.5 bg-[#FAFAF8] rounded-xl">
-              <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeRaw, rehypeHighlight, rehypeKatex]}>
-                {data.response}
-              </ReactMarkdown>
+              <Markdown>{data.response}</Markdown>
               <span className="inline-block w-2 h-4 bg-[#6B5CE7] animate-pulse rounded-sm ml-0.5 align-text-bottom" />
             </div>
           ) : data.isEditingResponse ? (
@@ -455,9 +448,7 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
                 {highlightedTexts.size > 0 ? (
                   <HighlightedMarkdown content={data.response} highlights={highlightedTexts} />
                 ) : (
-                  <ReactMarkdown remarkPlugins={[remarkGfm, remarkMath]} rehypePlugins={[rehypeRaw, rehypeHighlight, rehypeKatex]}>
-                    {data.response}
-                  </ReactMarkdown>
+                  <Markdown>{data.response}</Markdown>
                 )}
               </div>
 
@@ -817,66 +808,29 @@ function AttachmentsSection({
   const inherited = getInheritedAttachments(nodeId);
   const excludeSet = new Set(excludedAttachmentIds);
 
-  const processFile = useCallback(async (file: File) => {
-    const id = generateId();
-    const isImage = file.type.startsWith('image/');
-    const isPDF = file.type === 'application/pdf' || file.name.endsWith('.pdf');
-    const isText = file.type.startsWith('text/') || /\.(md|txt|js|ts|tsx|jsx|py|json|csv|yaml|yml|toml|sh|bash|zsh|c|cpp|h|hpp|java|rs|go|rb|swift|kt|css|html|xml|sql|r|m|lua)$/i.test(file.name);
-
-    if (isImage) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const base64 = (reader.result as string).split(',')[1];
-        addAttachment(nodeId, { id, name: file.name, type: file.type, size: file.size, content: base64, thumbnailUrl: reader.result as string });
-      };
-      reader.readAsDataURL(file);
-    } else if (isPDF) {
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const base64 = (reader.result as string).split(',')[1];
-        // Add immediately as extracting
-        addAttachment(nodeId, { id, name: file.name, type: 'application/pdf', size: file.size, content: base64, isExtracting: true });
-        try {
-          const data = await extractPdf(base64);
-          const numPages = data.numPages || 0;
-          // Update the attachment in-place with extracted data
-          const store = useStore.getState();
-          store.setAttachmentData(nodeId, id, {
-            extractedText: data.text,
-            pageImages: data.images,
-            numPages,
-            renderMode: numPages > PDF_VISION_PAGE_THRESHOLD ? 'text-only' : 'full',
-            isExtracting: false,
-          });
-        } catch (err) {
-          console.error('PDF extraction failed:', err);
-          const store = useStore.getState();
-          store.setAttachmentData(nodeId, id, { isExtracting: false });
-        }
-      };
-      reader.readAsDataURL(file);
-    } else if (isText) {
-      const text = await file.text();
-      addAttachment(nodeId, { id, name: file.name, type: file.type || 'text/plain', size: file.size, content: text });
-    }
+  const handleFile = useCallback((file: File) => {
+    void processFile(file, {
+      add: (att) => addAttachment(nodeId, att),
+      update: (attId, patch) => useStore.getState().setAttachmentData(nodeId, attId, patch),
+    });
   }, [nodeId, addAttachment]);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(false);
     for (const file of Array.from(e.dataTransfer.files)) {
-      processFile(file);
+      handleFile(file);
     }
-  }, [processFile]);
+  }, [handleFile]);
 
   const handlePaste = useCallback((e: React.ClipboardEvent) => {
     for (const item of Array.from(e.clipboardData.items)) {
       if (item.kind === 'file') {
         const file = item.getAsFile();
-        if (file) processFile(file);
+        if (file) handleFile(file);
       }
     }
-  }, [processFile]);
+  }, [handleFile]);
 
   const hasContent = attachments.length > 0 || inherited.length > 0;
 
@@ -914,11 +868,11 @@ function AttachmentsSection({
               ref={fileInputRef}
               type="file"
               multiple
-              accept="image/*,.pdf,.txt,.md,.js,.ts,.tsx,.jsx,.py,.json,.csv,.yaml,.yml,.toml,.sh,.c,.cpp,.h,.java,.rs,.go,.rb,.swift,.css,.html,.xml,.sql"
+              accept={FILE_INPUT_ACCEPT}
               className="hidden"
               onChange={(e) => {
                 for (const file of Array.from(e.target.files || [])) {
-                  processFile(file);
+                  handleFile(file);
                 }
                 e.target.value = '';
               }}
@@ -1024,19 +978,3 @@ function AttachmentsSection({
   );
 }
 
-function HighlightedMarkdown({ content, highlights }: { content: string; highlights: Set<string> }) {
-  // Simple approach: replace in markdown source, skip LaTeX regions
-  let processed = content;
-  for (const h of highlights) {
-    const escaped = h.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    processed = processed.replace(new RegExp(escaped, 'g'), `<mark class="bg-amber-100 text-amber-800 px-0.5 rounded">${h}</mark>`);
-  }
-  return (
-    <ReactMarkdown
-      remarkPlugins={[remarkGfm, remarkMath]}
-      rehypePlugins={[rehypeRaw, rehypeHighlight, rehypeKatex]}
-    >
-      {processed}
-    </ReactMarkdown>
-  );
-}

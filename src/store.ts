@@ -2,7 +2,11 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { idbStorage } from './lib/persistence';
 import type { ThoughtNode, ThoughtEdge, Highlight, Attachment } from './types';
-import { generateId, countTokens, autoLayout, getDescendantIds } from './utils';
+import { generateId, countTokens } from './utils';
+import { autoLayout, estimateNodeHeight } from './lib/layout';
+import { walkUpAncestors, getDescendantIds } from './lib/graph';
+import { attachmentFingerprint } from './lib/attachments';
+import { HISTORY_LIMIT } from './lib/constants';
 import { llmCall, llmCallStream, type ContextMessage, type ImageAttachment } from './lib/api';
 
 // Background summary generation — fire and forget
@@ -37,28 +41,9 @@ function buildContext(
   // Collect excludedAttachmentIds from ALL nodes in the path (propagation)
   const excludeSet = new Set<string>(excludedAttachmentIds || []);
   const seenAttachmentFingerprints = new Set<string>();
-  
-  // Topological-order collection of all ancestors via incoming edges
-  const ordered: ThoughtNode[] = [];
-  const visited = new Set<string>();
 
-  function walkUp(id: string) {
-    if (visited.has(id)) return;
-    visited.add(id);
-    
-    const node = nodes.find((n) => n.id === id);
-    if (!node) return;
-    
-    // Follow ALL incoming edges (blue, orange, cross-link — any arrow pointing here)
-    const incomingEdges = edges.filter((e) => e.target === id);
-    for (const edge of incomingEdges) {
-      walkUp(edge.source);
-    }
-    
-    ordered.push(node);
-  }
-  
-  walkUp(nodeId);
+  // Topological-order collection of all ancestors via incoming edges
+  const { ordered } = walkUpAncestors(nodeId, nodes, edges);
 
   // Propagate excludedAttachmentIds from all ancestors
   const includeOverrides = new Set<string>(includedAttachmentIds || []);
@@ -76,7 +61,7 @@ function buildContext(
     const nodeAttachments = node.data.attachments || [];
     for (const att of nodeAttachments) {
       if (excludeSet.has(att.id)) continue;
-      const fp = `${att.name}|${att.size}|${att.content?.substring(0, 100)}`;
+      const fp = attachmentFingerprint(att);
       if (seenAttachmentFingerprints.has(fp)) continue;
       seenAttachmentFingerprints.add(fp);
       if (att.type.startsWith('image/')) {
@@ -323,7 +308,7 @@ export const useStore = create<StoreState>()(persist((set, get) => ({
     const { nodes, edges, history, historyIndex } = get();
     const newHistory = history.slice(0, historyIndex + 1);
     newHistory.push({ nodes: JSON.parse(JSON.stringify(nodes)), edges: JSON.parse(JSON.stringify(edges)) });
-    if (newHistory.length > 50) newHistory.shift();
+    if (newHistory.length > HISTORY_LIMIT) newHistory.shift();
     set({ history: newHistory, historyIndex: newHistory.length - 1 });
   },
 
@@ -601,12 +586,8 @@ export const useStore = create<StoreState>()(persist((set, get) => ({
     if (!node) return;
 
     // Estimate height before and after toggle
-    const oldCollapsed = node.data.isCollapsed;
-    const responseLen = (node.data.response || '').length;
-    const expandedHeight = Math.max(220, Math.min(600, 150 + (responseLen / 3)));
-    const collapsedHeight = 80;
-    const oldHeight = oldCollapsed ? collapsedHeight : expandedHeight;
-    const newHeight = oldCollapsed ? expandedHeight : collapsedHeight;
+    const oldHeight = estimateNodeHeight(node);
+    const newHeight = estimateNodeHeight({ ...node, data: { ...node.data, isCollapsed: !node.data.isCollapsed } });
     const delta = newHeight - oldHeight;
 
     // Find all descendants of this node
@@ -1152,9 +1133,8 @@ ${mergedContent}` },
   addAttachment: (nodeId: string, attachment: Attachment) => {
     // Dedup: skip if same file already on this node (name + size + content prefix)
     const existing = get().nodes.find((n) => n.id === nodeId)?.data.attachments || [];
-    const fingerprint = `${attachment.name}|${attachment.size}|${attachment.content?.substring(0, 100)}`;
-    if (existing.some((a) => `${a.name}|${a.size}|${a.content?.substring(0, 100)}` === fingerprint)) {
-      console.log(`[Attachment] Skipping duplicate: ${attachment.name}`);
+    const fingerprint = attachmentFingerprint(attachment);
+    if (existing.some((a) => attachmentFingerprint(a) === fingerprint)) {
       return;
     }
     get().pushHistory();
@@ -1234,22 +1214,7 @@ ${mergedContent}` },
     const { nodes, edges } = get();
     const result: { attachment: Attachment; sourceNodeId: string; sourceQuestion: string; excludedByAncestor: boolean }[] = [];
     const seenFingerprints = new Set<string>();
-    const visited = new Set<string>();
-    const ordered: typeof nodes = [];
-
-    function walkUp(id: string) {
-      if (visited.has(id)) return;
-      visited.add(id);
-      const node = nodes.find((n) => n.id === id);
-      if (!node) return;
-      const incomingEdges = edges.filter((e) => e.target === id);
-      for (const edge of incomingEdges) {
-        walkUp(edge.source);
-      }
-      ordered.push(node);
-    }
-
-    walkUp(nodeId);
+    const { ordered } = walkUpAncestors(nodeId, nodes, edges);
 
     // Collect all ancestor exclusions (propagation)
     const ancestorExcludes = new Set<string>();
@@ -1265,7 +1230,7 @@ ${mergedContent}` },
     for (const node of ordered) {
       if (node.id === nodeId) continue;
       for (const att of (node.data.attachments || [])) {
-        const fp = `${att.name}|${att.size}|${att.content?.substring(0, 100)}`;
+        const fp = attachmentFingerprint(att);
         if (seenFingerprints.has(fp)) continue;
         seenFingerprints.add(fp);
         result.push({

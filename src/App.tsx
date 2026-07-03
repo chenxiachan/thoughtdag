@@ -21,49 +21,10 @@ import FocusPanel from './components/FocusPanel';
 import SelectionToolbar from './components/SelectionToolbar';
 import { useStore } from './store';
 import type { Attachment, ThoughtNode as ThoughtNodeType, ThoughtEdge } from './types';
-import { generateId } from './utils';
-import { extractPdf } from './lib/api';
-import { PDF_VISION_PAGE_THRESHOLD } from './lib/constants';
+import { processFile, FILE_INPUT_ACCEPT } from './lib/attachments';
+import { walkUpAncestors } from './lib/graph';
 
 const nodeTypes = { thought: ThoughtNode };
-
-// Shared file processing helper
-const TEXT_EXTENSIONS = /\.(md|txt|js|ts|tsx|jsx|py|json|csv|yaml|yml|toml|sh|bash|zsh|c|cpp|h|hpp|java|rs|go|rb|swift|kt|css|html|xml|sql|r|m|lua)$/i;
-
-function processFileToAttachment(file: File): Promise<Attachment | null> {
-  return new Promise((resolve) => {
-    const id = generateId();
-    const isImage = file.type.startsWith('image/');
-    const isPDF = file.type === 'application/pdf' || file.name.endsWith('.pdf');
-    const isText = file.type.startsWith('text/') || TEXT_EXTENSIONS.test(file.name);
-
-    if (isImage) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const base64 = (reader.result as string).split(',')[1];
-        resolve({
-          id, name: file.name, type: file.type, size: file.size,
-          content: base64, thumbnailUrl: reader.result as string,
-        });
-      };
-      reader.readAsDataURL(file);
-    } else if (isPDF) {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const base64 = (reader.result as string).split(',')[1];
-        // Store raw base64 — extraction happens in handleFileUpload
-        resolve({ id, name: file.name, type: 'application/pdf', size: file.size, content: base64 });
-      };
-      reader.readAsDataURL(file);
-    } else if (isText) {
-      file.text().then((text) => {
-        resolve({ id, name: file.name, type: file.type || 'text/plain', size: file.size, content: text });
-      });
-    } else {
-      resolve(null);
-    }
-  });
-}
 
 // Gate on rehydration: the store loads asynchronously from IndexedDB, and
 // mounting the canvas only after hydration lets ReactFlow's fitView see the
@@ -188,28 +149,12 @@ function Canvas() {
 
   const handleFileUpload = async (files: FileList | File[]) => {
     for (const file of Array.from(files)) {
-      const att = await processFileToAttachment(file);
-      if (!att) continue;
-
-      // Auto-extract PDF before adding to pending
-      if (att.type === 'application/pdf') {
-        setPendingAttachments((prev) => [...prev, { ...att, isExtracting: true }]);
-        try {
-          const data = await extractPdf(att.content);
-          const numPages = data.numPages || 0;
-          setPendingAttachments((prev) => prev.map((a) =>
-            a.id === att.id
-              ? { ...a, extractedText: data.text, pageImages: data.images, numPages, renderMode: numPages > PDF_VISION_PAGE_THRESHOLD ? 'text-only' : 'full', isExtracting: false }
-              : a
-          ));
-        } catch {
-          setPendingAttachments((prev) => prev.map((a) =>
-            a.id === att.id ? { ...a, isExtracting: false } : a
-          ));
-        }
-      } else {
-        setPendingAttachments((prev) => [...prev, att]);
-      }
+      await processFile(file, {
+        add: (att) => setPendingAttachments((prev) => [...prev, att]),
+        update: (attId, patch) => setPendingAttachments((prev) => prev.map((a) =>
+          a.id === attId ? { ...a, ...patch } : a
+        )),
+      });
     }
   };
 
@@ -233,21 +178,7 @@ function Canvas() {
     if (activeIds.length === 0) return edges;
 
     // Walk up from each selected node, collect all ancestor edge ids
-    const ancestorEdgeIds = new Set<string>();
-    const visited = new Set<string>();
-
-    function walkUp(nodeId: string) {
-      if (visited.has(nodeId)) return;
-      visited.add(nodeId);
-      for (const edge of edges) {
-        if (edge.target === nodeId) {
-          ancestorEdgeIds.add(edge.id);
-          walkUp(edge.source);
-        }
-      }
-    }
-
-    for (const id of activeIds) walkUp(id);
+    const { visitedEdgeIds: ancestorEdgeIds } = walkUpAncestors(activeIds, nodes, edges);
 
     return edges.map((e) => {
       if (ancestorEdgeIds.has(e.id)) {
@@ -265,7 +196,7 @@ function Canvas() {
         zIndex: 0,
       };
     });
-  }, [edges, selectedNodeId, selectedNodeIds]);
+  }, [nodes, edges, selectedNodeId, selectedNodeIds]);
 
   // Re-center canvas when panel opens/closes
   useEffect(() => {
@@ -405,7 +336,7 @@ function Canvas() {
                   ref={landingFileRef}
                   type="file"
                   multiple
-                  accept="image/*,.pdf,.txt,.md,.js,.ts,.tsx,.jsx,.py,.json,.csv,.yaml,.yml,.toml,.sh,.c,.cpp,.h,.java,.rs,.go,.rb,.swift,.css,.html,.xml,.sql"
+                  accept={FILE_INPUT_ACCEPT}
                   className="hidden"
                   onChange={(e) => { handleFileUpload(e.target.files || []); e.target.value = ''; }}
                 />
@@ -454,7 +385,7 @@ function Canvas() {
                 ref={floatingFileRef}
                 type="file"
                 multiple
-                accept="image/*,.pdf,.txt,.md,.js,.ts,.tsx,.jsx,.py,.json,.csv,.yaml,.yml,.toml,.sh,.c,.cpp,.h,.java,.rs,.go,.rb,.swift,.css,.html,.xml,.sql"
+                accept={FILE_INPUT_ACCEPT}
                 className="hidden"
                 onChange={(e) => { handleFileUpload(e.target.files || []); e.target.value = ''; }}
               />
