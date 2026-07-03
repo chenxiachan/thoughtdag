@@ -46,12 +46,12 @@ export default function ActionsSection({
   };
 
   return (
-    <div className={`px-4 py-3 border-b border-[#E8E5E0] ${dimmed ? 'opacity-40 pointer-events-none' : ''}`}>
-      <label className="text-xs text-[#B8B2A8] uppercase tracking-wide font-medium mb-2 block">Actions</label>
+    <div className={`px-4 py-3 border-b border-line ${dimmed ? 'opacity-40 pointer-events-none' : ''}`}>
+      <label className="text-xs text-ink-faint uppercase tracking-wide font-medium mb-2 block">Actions</label>
       <div className="flex flex-wrap gap-2">
         <button
           onClick={() => regenerate(nodeId)}
-          className="text-xs bg-[#F5F3F0] hover:bg-[#E8E5E0] text-[#6B6560] px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
+          className="text-xs bg-wash hover:bg-line text-ink-muted px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
           Regenerate
@@ -67,7 +67,7 @@ export default function ActionsSection({
         ) : (
           <button
             onClick={() => duplicateNode(nodeId)}
-            className="text-xs bg-[#F5F3F0] hover:bg-[#E8E5E0] text-[#6B6560] px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
+            className="text-xs bg-wash hover:bg-line text-ink-muted px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
           >
             📋 Duplicate
           </button>
@@ -82,12 +82,12 @@ export default function ActionsSection({
       {showBranchInput && (
         <div className="mt-3">
           {branchContext && (
-            <div className="text-xs pl-3 py-1.5 pr-2 mb-2 border-l-2 border-[#6B5CE7] bg-[#6B5CE7]/5 rounded-r text-[#6B6560]">
-              <span className="text-[#6B5CE7] font-medium">⑂ Exploring from selection:</span>
+            <div className="text-xs pl-3 py-1.5 pr-2 mb-2 border-l-2 border-accent bg-accent/5 rounded-r text-ink-muted">
+              <span className="text-accent font-medium">⑂ Exploring from selection:</span>
               &ldquo;{branchContext.slice(0, 100)}{branchContext.length > 100 ? '…' : ''}&rdquo;
             </div>
           )}
-          <div className="flex items-center gap-2 bg-[#F5F3F0] rounded-xl px-3 py-2">
+          <div className="flex items-center gap-2 bg-wash rounded-xl px-3 py-2">
             <input
               type="text"
               value={branchInput}
@@ -97,19 +97,19 @@ export default function ActionsSection({
                 if (e.key === 'Escape') { setShowBranchInput(false); setBranchContext(''); }
               }}
               placeholder="Branch question..."
-              className="flex-1 bg-transparent text-sm text-[#1A1A1A] placeholder-[#B8B2A8] focus:outline-none"
+              className="flex-1 bg-transparent text-sm text-ink placeholder-ink-faint focus:outline-none"
               autoFocus
             />
             <button
               onClick={handleBranchSubmit}
               disabled={!branchInput.trim()}
-              className="text-[#6B5CE7] hover:text-[#5A4BD6] disabled:opacity-30 transition-colors"
+              className="text-accent hover:text-accent-strong disabled:opacity-30 transition-colors"
             >
               ↵
             </button>
           </div>
-          <label className="flex items-center gap-2 text-xs text-[#6B6560] mt-1.5 cursor-pointer select-none">
-            <input type="checkbox" checked={branchInheritRole} onChange={(e) => setBranchInheritRole(e.target.checked)} className="rounded border-[#E8E5E0] text-[#6B5CE7] focus:ring-[#6B5CE7] w-3 h-3" />
+          <label className="flex items-center gap-2 text-xs text-ink-muted mt-1.5 cursor-pointer select-none">
+            <input type="checkbox" checked={branchInheritRole} onChange={(e) => setBranchInheritRole(e.target.checked)} className="rounded border-line text-accent focus:ring-accent w-3 h-3" />
             Inherit role
           </label>
         </div>

@@ -138,7 +138,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
       ref={nodeRef}
       className={`thought-node rounded-2xl w-[480px] animate-fade-in transition-all duration-200 ${
         isBranch ? 'orange-node' : isRoot ? 'root-node' : 'branch-node'
-      } ${data.isLoading ? 'loading-border' : ''} ${selectedNodeId === id ? 'ring-4 ring-[#6B5CE7] selected-glow' : ''} ${isDropTarget ? 'ring-4 ring-[#6B5CE7]/50 ring-dashed' : ''}`}
+      } ${data.isLoading ? 'loading-border' : ''} ${selectedNodeId === id ? 'ring-4 ring-accent selected-glow' : ''} ${isDropTarget ? 'ring-4 ring-accent/50 ring-dashed' : ''}`}
       onClick={() => setSelectedNodeId(id)}
       onDrop={async (e) => {
         e.preventDefault();
@@ -155,30 +155,30 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
       onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setIsDropTarget(true); }}
       onDragLeave={() => setIsDropTarget(false)}
     >
-      <Handle type="target" position={Position.Top} id="top" className="!bg-[#6B5CE7] !w-3 !h-3 !border-2 !border-white" />
-      <Handle type="target" position={Position.Left} id="left" className="!bg-[#E08A3C] !w-3 !h-3 !border-2 !border-white" style={{ top: '40%' }} />
+      <Handle type="target" position={Position.Top} id="top" className="!bg-accent !w-3 !h-3 !border-2 !border-white" />
+      <Handle type="target" position={Position.Left} id="left" className="!bg-warm !w-3 !h-3 !border-2 !border-white" style={{ top: '40%' }} />
 
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-3 border-b border-[#E8E5E0] cursor-grab active:cursor-grabbing drag-handle">
+      <div className="flex items-center justify-between px-6 py-3 border-b border-line cursor-grab active:cursor-grabbing drag-handle">
         <div className="flex items-center gap-2">
-          <button onClick={() => toggleCollapse(id)} className={`hover:bg-[#F5F3F0] rounded-lg w-7 h-7 flex items-center justify-center transition-all text-sm font-bold ${data.isCollapsed ? 'text-[#6B5CE7] bg-[#6B5CE7]/10' : 'text-[#B8B2A8]'}`}>
+          <button onClick={() => toggleCollapse(id)} className={`hover:bg-wash rounded-lg w-7 h-7 flex items-center justify-center transition-all text-sm font-bold ${data.isCollapsed ? 'text-accent bg-accent/10' : 'text-ink-faint'}`}>
             {data.isCollapsed ? '▶' : '▼'}
           </button>
-          <span className="text-xs text-[#B8B2A8] font-mono">{data.tokenCount} tok</span>
+          <span className="text-xs text-ink-faint font-mono">{data.tokenCount} tok</span>
           {data.appliedRole && (
-            <span className="text-[10px] bg-[#6B5CE7]/10 text-[#6B5CE7] px-1.5 py-0.5 rounded-md truncate max-w-[120px]" title={data.appliedRole}>
+            <span className="text-[10px] bg-accent/10 text-accent px-1.5 py-0.5 rounded-md truncate max-w-[120px]" title={data.appliedRole}>
               {data.appliedRole.slice(0, 20)}{data.appliedRole.length > 20 ? '…' : ''}
             </span>
           )}
           {hasMultipleVersions && (
-            <div className="flex items-center gap-1 text-xs text-[#6B6560]">
-              <button onClick={() => navigateVersion(id, 'prev')} className="hover:text-[#6B5CE7] hover:bg-[#F5F3F0] rounded-full w-5 h-5 flex items-center justify-center transition-colors">‹</button>
-              <span className="text-[#6B5CE7] font-medium">v{data.responseIndex + 1}/{data.responses.length}</span>
-              <button onClick={() => navigateVersion(id, 'next')} className="hover:text-[#6B5CE7] hover:bg-[#F5F3F0] rounded-full w-5 h-5 flex items-center justify-center transition-colors">›</button>
+            <div className="flex items-center gap-1 text-xs text-ink-muted">
+              <button onClick={() => navigateVersion(id, 'prev')} className="hover:text-accent hover:bg-wash rounded-full w-5 h-5 flex items-center justify-center transition-colors">‹</button>
+              <span className="text-accent font-medium">v{data.responseIndex + 1}/{data.responses.length}</span>
+              <button onClick={() => navigateVersion(id, 'next')} className="hover:text-accent hover:bg-wash rounded-full w-5 h-5 flex items-center justify-center transition-colors">›</button>
               {data.responses.length > 1 && (
                 <button
                   onClick={() => deleteVersion(id, data.responseIndex)}
-                  className="text-[#B8B2A8] hover:text-red-500 hover:bg-red-50 rounded-full w-5 h-5 flex items-center justify-center transition-colors ml-0.5"
+                  className="text-ink-faint hover:text-red-500 hover:bg-red-50 rounded-full w-5 h-5 flex items-center justify-center transition-colors ml-0.5"
                   title="Delete this version"
                 >
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
@@ -188,10 +188,10 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
           )}
         </div>
         <div className="flex items-center gap-0.5">
-          <button onClick={() => regenerate(id)} className="text-[#B8B2A8] hover:text-[#6B5CE7] hover:bg-[#F5F3F0] rounded-full w-7 h-7 flex items-center justify-center transition-colors" title="Regenerate">
+          <button onClick={() => regenerate(id)} className="text-ink-faint hover:text-accent hover:bg-wash rounded-full w-7 h-7 flex items-center justify-center transition-colors" title="Regenerate">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
           </button>
-          <button onClick={() => deleteNode(id)} className="text-[#B8B2A8] hover:text-red-500 hover:bg-red-50 rounded-full w-7 h-7 flex items-center justify-center transition-colors" title="Delete">
+          <button onClick={() => deleteNode(id)} className="text-ink-faint hover:text-red-500 hover:bg-red-50 rounded-full w-7 h-7 flex items-center justify-center transition-colors" title="Delete">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
@@ -206,14 +206,14 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
               onChange={(e) => setEditValue(e.target.value)}
               onKeyDown={handleEditKeyDown}
               onBlur={handleEditSubmit}
-              className="w-full bg-[#F5F3F0] border border-[#6B5CE7] rounded-xl p-3 text-sm text-[#1A1A1A] resize-none focus:outline-none focus:ring-2 focus:ring-[#6B5CE7]/20"
+              className="w-full bg-wash border border-accent rounded-xl p-3 text-sm text-ink resize-none focus:outline-none focus:ring-2 focus:ring-accent/20"
               rows={2}
               autoFocus
             />
           ) : (
             <div
               onDoubleClick={handleDoubleClickQuestion}
-              className="text-sm text-[#6B5CE7] font-medium mb-3 cursor-pointer hover:bg-[#F5F3F0] rounded-xl px-2 py-1.5 -mx-1 transition-colors"
+              className="text-sm text-accent font-medium mb-3 cursor-pointer hover:bg-wash rounded-xl px-2 py-1.5 -mx-1 transition-colors"
             >
               {data.question}
             </div>
@@ -221,7 +221,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
 
           {/* Branch context */}
           {data.branchContext && (
-            <div className="text-xs text-[#6B6560] italic mb-3 pl-3 border-l-2 border-[#E08A3C]/40 bg-[#F5E6D0] rounded-r py-1.5 pr-2">
+            <div className="text-xs text-ink-muted italic mb-3 pl-3 border-l-2 border-warm/40 bg-warm/15 rounded-r py-1.5 pr-2">
               📌 Explored from: &ldquo;{data.branchContext.slice(0, 100)}{data.branchContext.length > 100 ? '...' : ''}&rdquo;
             </div>
           )}
@@ -239,8 +239,8 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
 
           {/* Response */}
           {data.isLoading ? (
-            <div className="flex items-center gap-2 text-sm text-[#6B6560]">
-              <span className="animate-pulse text-[#6B5CE7]">●</span> Thinking...
+            <div className="flex items-center gap-2 text-sm text-ink-muted">
+              <span className="animate-pulse text-accent">●</span> Thinking...
             </div>
           ) : data.isEditingResponse ? (
             <div>
@@ -248,20 +248,20 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
                 value={editResponseValue}
                 onChange={(e) => setEditResponseValue(e.target.value)}
                 onKeyDown={handleResponseEditKeyDown}
-                className="w-full bg-[#F5F3F0] border border-[#6B5CE7] rounded-xl p-3 text-sm text-[#1A1A1A] resize-y focus:outline-none focus:ring-2 focus:ring-[#6B5CE7]/20 min-h-[100px]"
+                className="w-full bg-wash border border-accent rounded-xl p-3 text-sm text-ink resize-y focus:outline-none focus:ring-2 focus:ring-accent/20 min-h-[100px]"
                 rows={6}
                 autoFocus
               />
               <div className="flex justify-end gap-2 mt-2">
-                <button onClick={() => setEditingResponse(id, false)} className="text-xs text-[#6B6560] hover:text-[#1A1A1A] px-3 py-1.5 rounded-lg hover:bg-[#F5F3F0] transition-colors">Cancel</button>
-                <button onClick={handleResponseEditSubmit} className="text-xs bg-[#6B5CE7] hover:bg-[#5A4BD6] text-white px-4 py-1.5 rounded-lg transition-colors">Save</button>
+                <button onClick={() => setEditingResponse(id, false)} className="text-xs text-ink-muted hover:text-ink px-3 py-1.5 rounded-lg hover:bg-wash transition-colors">Cancel</button>
+                <button onClick={handleResponseEditSubmit} className="text-xs bg-accent hover:bg-accent-strong text-white px-4 py-1.5 rounded-lg transition-colors">Save</button>
               </div>
             </div>
           ) : (
             <div
               ref={responseRef}
               onDoubleClick={handleDoubleClickResponse}
-              className="markdown-body text-sm text-[#1A1A1A] leading-relaxed max-h-[400px] overflow-y-auto cursor-text nopan nodrag nowheel px-3 py-2.5 bg-[#FAFAF8] rounded-xl"
+              className="markdown-body text-sm text-ink leading-relaxed max-h-[400px] overflow-y-auto cursor-text nopan nodrag nowheel px-3 py-2.5 bg-surface rounded-xl"
             >
               {highlightedTexts.size > 0 ? (
                 <HighlightedMarkdown content={data.response} highlights={highlightedTexts} />
@@ -273,28 +273,28 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
 
           {/* Branch context indicator when branching from selection */}
           {branchFromText && (
-            <div className="mt-3 text-xs pl-3 py-2 pr-2 border-l-3 border-[#6B5CE7] bg-[#6B5CE7]/5 rounded-r">
-              <span className="text-[#6B5CE7] font-medium">⑂ Exploring from selection:</span>
-              <p className="text-[#6B6560] mt-1 leading-relaxed">&ldquo;{branchFromText.slice(0, 150)}{branchFromText.length > 150 ? '...' : ''}&rdquo;</p>
+            <div className="mt-3 text-xs pl-3 py-2 pr-2 border-l-3 border-accent bg-accent/5 rounded-r">
+              <span className="text-accent font-medium">⑂ Exploring from selection:</span>
+              <p className="text-ink-muted mt-1 leading-relaxed">&ldquo;{branchFromText.slice(0, 150)}{branchFromText.length > 150 ? '...' : ''}&rdquo;</p>
             </div>
           )}
 
           {/* Inline continue input — always visible at bottom */}
           {!data.isLoading && !data.isEditingResponse && (
-            <div className="mt-3 pt-3 border-t border-[#E8E5E0]">
-              <div className="flex items-center gap-2 bg-[#F5F3F0] rounded-xl px-4 py-2.5">
+            <div className="mt-3 pt-3 border-t border-line">
+              <div className="flex items-center gap-2 bg-wash rounded-xl px-4 py-2.5">
                 <input
                   type="text"
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={handleInputKeyDown}
                   placeholder="Follow up..."
-                  className="flex-1 bg-transparent text-sm text-[#1A1A1A] placeholder-[#B8B2A8] focus:outline-none nopan nodrag"
+                  className="flex-1 bg-transparent text-sm text-ink placeholder-ink-faint focus:outline-none nopan nodrag"
                 />
                 <button
                   onClick={handleSubmitBranch}
                   disabled={!inputValue.trim()}
-                  className="text-[#B8B2A8] hover:text-[#6B5CE7] disabled:opacity-30 disabled:hover:text-[#B8B2A8] transition-colors shrink-0 rounded-full w-7 h-7 flex items-center justify-center hover:bg-[#E8E5E0]"
+                  className="text-ink-faint hover:text-accent disabled:opacity-30 disabled:hover:text-ink-faint transition-colors shrink-0 rounded-full w-7 h-7 flex items-center justify-center hover:bg-line"
                 >
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                 </button>
@@ -307,25 +307,25 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
       {/* Collapsed view — question + summary */}
       {data.isCollapsed && (
         <div className="px-5 py-3">
-          <div className="text-sm text-[#6B5CE7] font-medium truncate flex items-center gap-1.5">
+          <div className="text-sm text-accent font-medium truncate flex items-center gap-1.5">
             {data.question.slice(0, 80)}{data.question.length > 80 ? '…' : ''}
             {(data.attachments?.length > 0) && (
-              <span className="text-[10px] bg-[#F5F3F0] text-[#6B6560] px-1.5 py-0.5 rounded-full shrink-0">📎{data.attachments.length}</span>
+              <span className="text-[10px] bg-wash text-ink-muted px-1.5 py-0.5 rounded-full shrink-0">📎{data.attachments.length}</span>
             )}
           </div>
           {data.summary ? (
-            <div className="text-xs text-[#9B9590] mt-1.5 leading-relaxed line-clamp-2">
+            <div className="text-xs text-ink-faint mt-1.5 leading-relaxed line-clamp-2">
               {data.summary}
             </div>
           ) : data.response ? (
-            <div className="text-xs text-[#B8B2A8] mt-1.5 leading-relaxed line-clamp-2 italic">
+            <div className="text-xs text-ink-faint mt-1.5 leading-relaxed line-clamp-2 italic">
               {data.response.replace(/[#*`>-]/g, '').slice(0, 120)}{data.response.length > 120 ? '…' : ''}
             </div>
           ) : null}
         </div>
       )}
 
-      <Handle type="source" position={Position.Bottom} id="continue" className="!bg-[#6B5CE7] !w-3 !h-3 !border-2 !border-white" />
+      <Handle type="source" position={Position.Bottom} id="continue" className="!bg-accent !w-3 !h-3 !border-2 !border-white" />
       <Handle
         type="source"
         position={Position.Right}
@@ -346,10 +346,10 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
           }}
           onMouseDown={(e) => e.preventDefault()}
         >
-          <div className="flex gap-1 bg-white border border-[#E8E5E0] rounded-xl shadow-lg p-1 animate-fade-in">
+          <div className="flex gap-1 bg-card border border-line rounded-xl shadow-lg p-1 animate-fade-in">
             <button
               onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); handleBranch(); }}
-              className="bg-[#6B5CE7] hover:bg-[#5A4BD6] text-white text-xs px-3 py-1.5 rounded-lg transition-all whitespace-nowrap cursor-pointer"
+              className="bg-accent hover:bg-accent-strong text-white text-xs px-3 py-1.5 rounded-lg transition-all whitespace-nowrap cursor-pointer"
             >
               ⑂ Explore
             </button>

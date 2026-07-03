@@ -1,6 +1,7 @@
 import type { StateCreator } from 'zustand';
 import type { ThoughtNode, ThoughtEdge } from '../../types';
 import { generateId, countTokens } from '../../utils';
+import { COLORS } from '../../lib/constants';
 import { autoLayout, estimateNodeHeight } from '../../lib/layout';
 import { getDescendantIds } from '../../lib/graph';
 import type { StoreState, NodeSlice } from '../types';
@@ -139,7 +140,7 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
       source: sourceId,
       target: targetId,
       type: 'smoothstep',
-      style: { stroke: '#6B5CE7', strokeDasharray: '8 4', strokeWidth: 2 },
+      style: { stroke: COLORS.accent, strokeDasharray: '8 4', strokeWidth: 2 },
       animated: true,
       data: { isCrossLink: true },
     };

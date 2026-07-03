@@ -3,6 +3,7 @@ import type { ThoughtNode, ThoughtEdge } from '../../types';
 import { generateId } from '../../utils';
 import { autoLayout } from '../../lib/layout';
 import { getDescendantIds } from '../../lib/graph';
+import { COLORS } from '../../lib/constants';
 import type { ContextMessage } from '../../lib/api';
 import { buildContext, resolveExplicitRole, applyRoleOverride } from '../context-builder';
 import { activeAbortControllers, runNodeGeneration } from '../streaming';
@@ -52,14 +53,14 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
       targetHandle: isBranch ? 'left' : 'top',
       type: 'smoothstep',
       ...(isBranch ? {
-        style: { stroke: '#E08A3C', strokeWidth: 2, strokeDasharray: '6 3' },
+        style: { stroke: COLORS.warm, strokeWidth: 2, strokeDasharray: '6 3' },
         animated: true,
-        markerEnd: { type: 'arrowclosed' as const, color: '#E08A3C', width: 16, height: 16 },
+        markerEnd: { type: 'arrowclosed' as const, color: COLORS.warm, width: 16, height: 16 },
         data: { isBranchFromSelection: true, branchYRatio: branchYRatio ?? 0.5 },
       } : {
-        style: { stroke: '#6B5CE7', strokeWidth: 2 },
+        style: { stroke: COLORS.accent, strokeWidth: 2 },
         animated: false,
-        markerEnd: { type: 'arrowclosed' as const, color: '#6B5CE7', width: 16, height: 16 },
+        markerEnd: { type: 'arrowclosed' as const, color: COLORS.accent, width: 16, height: 16 },
         data: {},
       }),
     } : null;
@@ -228,9 +229,9 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
       sourceHandle: 'continue',
       targetHandle: 'top',
       type: 'smoothstep',
-      style: { stroke: '#6B5CE7', strokeWidth: 2 },
+      style: { stroke: COLORS.accent, strokeWidth: 2 },
       animated: false,
-      markerEnd: { type: 'arrowclosed' as const, color: '#6B5CE7', width: 16, height: 16 },
+      markerEnd: { type: 'arrowclosed' as const, color: COLORS.accent, width: 16, height: 16 },
       data: {},
     } : null;
 
@@ -303,8 +304,8 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
       source: parentId,
       target: id,
       type: 'smoothstep',
-      style: { stroke: '#6B5CE7', strokeWidth: 2 },
-      markerEnd: { type: 'arrowclosed' as const, color: '#6B5CE7', width: 16, height: 16 },
+      style: { stroke: COLORS.accent, strokeWidth: 2 },
+      markerEnd: { type: 'arrowclosed' as const, color: COLORS.accent, width: 16, height: 16 },
     } : null;
 
     get().pushHistory();

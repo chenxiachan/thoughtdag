@@ -19,3 +19,16 @@ export const LAYOUT_V_GAP = 100;
 
 // Collapsed node card height, used by layout estimation and collapse shifting.
 export const COLLAPSED_NODE_HEIGHT = 80;
+
+// JS mirror of the @theme design tokens in src/index.css — for ReactFlow
+// edge styles / markers / minimap, which take literal color values.
+// Keep in sync with index.css.
+export const COLORS = {
+  surface: '#FAF9F7',
+  card: '#FFFFFF',
+  line: '#E8E5E0',
+  inkMuted: '#6B6560',
+  accent: '#6B5CE7',   // continue edges, primary actions
+  warm: '#E08A3C',     // explore branch edges
+  trace: '#F59E0B',    // ancestor-path highlight
+} as const;

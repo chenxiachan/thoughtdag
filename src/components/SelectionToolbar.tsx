@@ -45,12 +45,12 @@ export default function SelectionToolbar() {
 
   return (
     <div className="absolute top-16 left-1/2 -translate-x-1/2 z-20 animate-fade-in">
-      <div className="bg-white/95 backdrop-blur border border-[#E8E5E0] rounded-2xl px-4 py-3 shadow-lg space-y-2">
+      <div className="bg-card/95 backdrop-blur border border-line rounded-2xl px-4 py-3 shadow-lg space-y-2">
         {/* Header */}
         <div className="flex items-center gap-3">
-          <span className="text-sm text-[#6B6560] font-medium">
+          <span className="text-sm text-ink-muted font-medium">
             {selectedNodeIds.length} nodes selected
-            <span className="text-xs text-[#B8B2A8] ml-1.5">
+            <span className="text-xs text-ink-faint ml-1.5">
               ({totalTokens} tokens{allHighlights.length > 0 ? ` · ${allHighlights.length} highlights` : ''})
             </span>
           </span>
@@ -85,7 +85,7 @@ export default function SelectionToolbar() {
 
           <button
             onClick={() => batchMergeSummarize(selectedNodeIds, true)}
-            className="text-xs bg-[#6B5CE7]/10 hover:bg-[#6B5CE7]/20 text-[#6B5CE7] px-3 py-1.5 rounded-lg transition-colors"
+            className="text-xs bg-accent/10 hover:bg-accent/20 text-accent px-3 py-1.5 rounded-lg transition-colors"
             title="Merge summary then delete original nodes"
           >
             📋 Merge & Delete
@@ -95,15 +95,15 @@ export default function SelectionToolbar() {
             onClick={() => setExploreOpen(!exploreOpen)}
             className={`text-xs px-3 py-1.5 rounded-lg transition-colors ${
               exploreOpen
-                ? 'bg-[#6B5CE7] text-white'
-                : 'bg-[#6B5CE7]/10 hover:bg-[#6B5CE7]/20 text-[#6B5CE7]'
+                ? 'bg-accent text-white'
+                : 'bg-accent/10 hover:bg-accent/20 text-accent'
             }`}
             title="Ask a question about selected nodes"
           >
             ⑂ Explore
           </button>
 
-          <div className="w-px h-5 bg-[#E8E5E0]" />
+          <div className="w-px h-5 bg-line" />
 
           <button
             onClick={() => {
@@ -130,12 +130,12 @@ export default function SelectionToolbar() {
                 if (e.key === 'Escape') { setExploreOpen(false); setExploreInput(''); }
               }}
               placeholder="What do you want to explore about these nodes?"
-              className="flex-1 text-xs border border-[#6B5CE7]/30 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#6B5CE7] bg-[#6B5CE7]/5 min-w-[300px]"
+              className="flex-1 text-xs border border-accent/30 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-accent bg-accent/5 min-w-[300px]"
             />
             <button
               onClick={handleExplore}
               disabled={!exploreInput.trim()}
-              className="text-xs bg-[#6B5CE7] text-white px-3 py-2 rounded-lg hover:bg-[#5A4BD6] transition-colors shrink-0 disabled:opacity-30"
+              className="text-xs bg-accent text-white px-3 py-2 rounded-lg hover:bg-accent-strong transition-colors shrink-0 disabled:opacity-30"
             >
               Go
             </button>

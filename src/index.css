@@ -1,16 +1,34 @@
 @import "tailwindcss";
 
+/* ─── Design tokens ─────────────────────────────────────────────
+   Single source of truth for the color system. The JS mirror lives in
+   src/lib/constants.ts (COLORS) — keep the two in sync.
+   Dark mode is intentionally not implemented yet; when it is, add a
+   `@media (prefers-color-scheme: dark)` block redefining these vars. */
+@theme {
+  --color-surface: #FAF9F7;      /* app / canvas background        */
+  --color-card: #FFFFFF;         /* node cards, panels             */
+  --color-wash: #F5F3F0;         /* secondary fills, hovers        */
+  --color-line: #E8E5E0;         /* borders                        */
+  --color-line-strong: #D4CFC7;  /* emphasized borders             */
+  --color-ink: #1A1A1A;          /* primary text                   */
+  --color-ink-muted: #6B6560;    /* secondary text                 */
+  --color-ink-faint: #B8B2A8;    /* placeholders, hints            */
+  --color-accent: #6B5CE7;       /* primary actions, continue edges */
+  --color-accent-strong: #5A4BD6;/* accent hover                   */
+  --color-warm: #E08A3C;         /* explore branches               */
+  --color-trace: #F59E0B;        /* ancestor-path edge highlight   */
+}
+
 :root {
   color-scheme: light;
 }
 
-/* Tailwind preflight handles resets — no manual * reset needed */
-
 html, body, #root {
   width: 100%;
   height: 100%;
-  background: #FAF9F7;
-  color: #1A1A1A;
+  background: var(--color-surface);
+  color: var(--color-ink);
   font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   line-height: 1.6;
   overflow: hidden;
@@ -22,35 +40,35 @@ code, pre {
 
 /* ReactFlow overrides */
 .react-flow__background {
-  background: #FAF9F7 !important;
+  background: var(--color-surface) !important;
 }
 
 .react-flow__edge-path {
-  stroke: #6B5CE7 !important;
+  stroke: var(--color-accent) !important;
   stroke-width: 2 !important;
 }
 
 .react-flow__controls {
-  background: #FFFFFF !important;
-  border: 1px solid #E8E5E0 !important;
+  background: var(--color-card) !important;
+  border: 1px solid var(--color-line) !important;
   border-radius: 12px !important;
   box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
 }
 
 .react-flow__controls-button {
-  background: #FFFFFF !important;
-  border-color: #E8E5E0 !important;
-  fill: #6B6560 !important;
+  background: var(--color-card) !important;
+  border-color: var(--color-line) !important;
+  fill: var(--color-ink-muted) !important;
 }
 
 .react-flow__controls-button:hover {
-  background: #F5F3F0 !important;
-  fill: #6B5CE7 !important;
+  background: var(--color-wash) !important;
+  fill: var(--color-accent) !important;
 }
 
 .react-flow__minimap {
-  background: #FFFFFF !important;
-  border: 1px solid #E8E5E0 !important;
+  background: var(--color-card) !important;
+  border: 1px solid var(--color-line) !important;
   border-radius: 12px !important;
   box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
 }
@@ -58,8 +76,8 @@ code, pre {
 /* Scrollbar */
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #D4CFC7; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #B8B2A8; }
+::-webkit-scrollbar-thumb { background: var(--color-line-strong); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--color-ink-faint); }
 
 /* Allow text selection inside nodes */
 .react-flow__node {
@@ -85,8 +103,8 @@ code, pre {
 .animate-fade-in { animation: fadeIn 0.3s ease-out; }
 
 @keyframes pulse-border {
-  0%, 100% { border-color: #E8E5E0; }
-  50% { border-color: #6B5CE7; }
+  0%, 100% { border-color: var(--color-line); }
+  50% { border-color: var(--color-accent); }
 }
 
 .loading-border { animation: pulse-border 1.5s ease-in-out infinite; }
@@ -99,33 +117,33 @@ code, pre {
 
 /* Node styling */
 .thought-node {
-  background: #FFFFFF;
-  border: 1px solid #E8E5E0;
+  background: var(--color-card);
+  border: 1px solid var(--color-line);
   box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
   transition: all 0.2s ease;
 }
 
 .thought-node:hover {
-  border-color: #D4CFC7;
+  border-color: var(--color-line-strong);
   box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06);
   transform: translateY(-1px);
 }
 
 .root-node {
-  border-color: #D4CFC7;
+  border-color: var(--color-line-strong);
 }
 
 .branch-node {
-  border-color: #E8E5E0;
+  border-color: var(--color-line);
 }
 
 .orange-node {
-  border-color: #E08A3C40;
-  background: linear-gradient(135deg, #FFFFFF 0%, #FDF8F3 100%);
+  border-color: color-mix(in srgb, var(--color-warm) 25%, transparent);
+  background: linear-gradient(135deg, var(--color-card) 0%, #FDF8F3 100%);
 }
 
 .orange-node:hover {
-  border-color: #E08A3C60;
+  border-color: color-mix(in srgb, var(--color-warm) 38%, transparent);
   box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 0 0 1px rgba(224, 138, 60, 0.1);
 }
 
@@ -136,7 +154,7 @@ code, pre {
 
 .markdown-body h1, .markdown-body h2, .markdown-body h3,
 .markdown-body h4, .markdown-body h5, .markdown-body h6 {
-  color: #1A1A1A;
+  color: var(--color-ink);
   font-weight: 600;
   margin-top: 1em;
   margin-bottom: 0.5em;
@@ -164,36 +182,36 @@ code, pre {
 }
 
 .markdown-body strong {
-  color: #1A1A1A;
+  color: var(--color-ink);
   font-weight: 600;
 }
 
 .markdown-body em {
-  color: #6B6560;
+  color: var(--color-ink-muted);
 }
 
 .markdown-body a {
-  color: #6B5CE7;
+  color: var(--color-accent);
   text-decoration: underline;
   text-underline-offset: 2px;
 }
 
 .markdown-body a:hover {
-  color: #5A4BD6;
+  color: var(--color-accent-strong);
 }
 
 .markdown-body code {
-  background: #F5F3F0;
-  color: #1A1A1A;
+  background: var(--color-wash);
+  color: var(--color-ink);
   padding: 0.15em 0.4em;
   border-radius: 4px;
   font-size: 0.85em;
-  border: 1px solid #E8E5E0;
+  border: 1px solid var(--color-line);
 }
 
 .markdown-body pre {
-  background: #F5F3F0 !important;
-  border: 1px solid #E8E5E0;
+  background: var(--color-wash) !important;
+  border: 1px solid var(--color-line);
   border-radius: 8px;
   padding: 0.75em 1em;
   margin: 0.75em 0;
@@ -209,9 +227,9 @@ code, pre {
 }
 
 .markdown-body blockquote {
-  border-left: 3px solid #6B5CE7;
+  border-left: 3px solid var(--color-accent);
   padding-left: 1em;
-  color: #6B6560;
+  color: var(--color-ink-muted);
   margin: 0.75em 0;
 }
 
@@ -223,20 +241,20 @@ code, pre {
 }
 
 .markdown-body th, .markdown-body td {
-  border: 1px solid #E8E5E0;
+  border: 1px solid var(--color-line);
   padding: 0.4em 0.6em;
   text-align: left;
 }
 
 .markdown-body th {
-  background: #F5F3F0;
-  color: #1A1A1A;
+  background: var(--color-wash);
+  color: var(--color-ink);
   font-weight: 600;
 }
 
 .markdown-body hr {
   border: none;
-  border-top: 1px solid #E8E5E0;
+  border-top: 1px solid var(--color-line);
   margin: 1em 0;
 }
 

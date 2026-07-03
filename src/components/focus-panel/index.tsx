@@ -100,20 +100,20 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
   };
 
   return (
-    <div className="w-1/2 shrink-0 h-full bg-white border-l border-[#E8E5E0] flex flex-col">
+    <div className="w-1/2 shrink-0 h-full bg-card border-l border-line flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[#E8E5E0] shrink-0">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-line shrink-0">
         <div className="flex items-center gap-2 min-w-0">
-          <h2 className="text-sm font-semibold text-[#1A1A1A] truncate">
+          <h2 className="text-sm font-semibold text-ink truncate">
             {data.question.slice(0, 50)}{data.question.length > 50 ? '…' : ''}
           </h2>
-          <span className="text-xs text-[#6B6560] bg-[#F5F3F0] px-2 py-0.5 rounded-full shrink-0 font-mono">
+          <span className="text-xs text-ink-muted bg-wash px-2 py-0.5 rounded-full shrink-0 font-mono">
             {data.tokenCount} tok
           </span>
         </div>
         <button
           onClick={() => setSelectedNodeId(null)}
-          className="text-[#B8B2A8] hover:text-[#1A1A1A] transition-colors shrink-0 ml-2"
+          className="text-ink-faint hover:text-ink transition-colors shrink-0 ml-2"
         >
           ✕
         </button>

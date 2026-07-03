@@ -89,18 +89,18 @@ export default function ResponseSection({
   };
 
   return (
-    <div className="px-4 py-3 border-b border-[#E8E5E0]">
+    <div className="px-4 py-3 border-b border-line">
       <div className="flex items-center justify-between mb-1.5">
-        <label className="text-xs text-[#B8B2A8] uppercase tracking-wide font-medium">Response</label>
+        <label className="text-xs text-ink-faint uppercase tracking-wide font-medium">Response</label>
         {hasMultipleVersions && (
-          <div className="flex items-center gap-1 text-xs text-[#6B6560]">
-            <button onClick={() => navigateVersion(nodeId, 'prev')} className="hover:text-[#6B5CE7] hover:bg-[#F5F3F0] rounded-full w-5 h-5 flex items-center justify-center transition-colors">‹</button>
-            <span className="text-[#6B5CE7] font-medium">v{data.responseIndex + 1}/{data.responses.length}</span>
-            <button onClick={() => navigateVersion(nodeId, 'next')} className="hover:text-[#6B5CE7] hover:bg-[#F5F3F0] rounded-full w-5 h-5 flex items-center justify-center transition-colors">›</button>
+          <div className="flex items-center gap-1 text-xs text-ink-muted">
+            <button onClick={() => navigateVersion(nodeId, 'prev')} className="hover:text-accent hover:bg-wash rounded-full w-5 h-5 flex items-center justify-center transition-colors">‹</button>
+            <span className="text-accent font-medium">v{data.responseIndex + 1}/{data.responses.length}</span>
+            <button onClick={() => navigateVersion(nodeId, 'next')} className="hover:text-accent hover:bg-wash rounded-full w-5 h-5 flex items-center justify-center transition-colors">›</button>
             {data.responses.length > 1 && (
               <button
                 onClick={() => deleteVersion(nodeId, data.responseIndex)}
-                className="text-[#B8B2A8] hover:text-red-500 hover:bg-red-50 rounded-full w-5 h-5 flex items-center justify-center transition-colors ml-0.5"
+                className="text-ink-faint hover:text-red-500 hover:bg-red-50 rounded-full w-5 h-5 flex items-center justify-center transition-colors ml-0.5"
                 title="Delete this version"
               >
                 🗑
@@ -111,13 +111,13 @@ export default function ResponseSection({
       </div>
 
       {data.isLoading && !data.response ? (
-        <div className="flex items-center gap-2 text-sm text-[#6B6560]">
-          <span className="animate-pulse text-[#6B5CE7]">●</span> Thinking...
+        <div className="flex items-center gap-2 text-sm text-ink-muted">
+          <span className="animate-pulse text-accent">●</span> Thinking...
         </div>
       ) : data.isLoading && data.response ? (
-        <div className="markdown-body text-sm text-[#1A1A1A] leading-relaxed max-h-[500px] overflow-y-auto px-3 py-2.5 bg-[#FAFAF8] rounded-xl">
+        <div className="markdown-body text-sm text-ink leading-relaxed max-h-[500px] overflow-y-auto px-3 py-2.5 bg-surface rounded-xl">
           <Markdown>{data.response}</Markdown>
-          <span className="inline-block w-2 h-4 bg-[#6B5CE7] animate-pulse rounded-sm ml-0.5 align-text-bottom" />
+          <span className="inline-block w-2 h-4 bg-accent animate-pulse rounded-sm ml-0.5 align-text-bottom" />
         </div>
       ) : data.isEditingResponse ? (
         <div>
@@ -125,18 +125,18 @@ export default function ResponseSection({
             value={editResponseValue}
             onChange={(e) => setEditResponseValue(e.target.value)}
             onKeyDown={handleResponseEditKeyDown}
-            className="w-full bg-[#F5F3F0] border border-[#6B5CE7] rounded-xl p-3 text-sm text-[#1A1A1A] resize-y focus:outline-none focus:ring-2 focus:ring-[#6B5CE7]/20 min-h-[150px]"
+            className="w-full bg-wash border border-accent rounded-xl p-3 text-sm text-ink resize-y focus:outline-none focus:ring-2 focus:ring-accent/20 min-h-[150px]"
             rows={10}
             autoFocus
           />
           <div className="flex justify-end gap-2 mt-2">
-            <button onClick={() => setEditingResponse(nodeId, false)} className="text-xs text-[#6B6560] hover:text-[#1A1A1A] px-3 py-1.5 rounded-lg hover:bg-[#F5F3F0] transition-colors">Cancel</button>
-            <button onClick={handleResponseEditSubmit} className="text-xs bg-[#6B5CE7] hover:bg-[#5A4BD6] text-white px-4 py-1.5 rounded-lg transition-colors">Save</button>
+            <button onClick={() => setEditingResponse(nodeId, false)} className="text-xs text-ink-muted hover:text-ink px-3 py-1.5 rounded-lg hover:bg-wash transition-colors">Cancel</button>
+            <button onClick={handleResponseEditSubmit} className="text-xs bg-accent hover:bg-accent-strong text-white px-4 py-1.5 rounded-lg transition-colors">Save</button>
           </div>
         </div>
       ) : (
         <div ref={responseRef} onDoubleClick={handleDoubleClickResponse} className="relative">
-          <div className="markdown-body text-sm text-[#1A1A1A] leading-relaxed cursor-text px-3 py-2.5 bg-[#FAFAF8] rounded-xl">
+          <div className="markdown-body text-sm text-ink leading-relaxed cursor-text px-3 py-2.5 bg-surface rounded-xl">
             {highlightedTexts.size > 0 ? (
               <HighlightedMarkdown content={data.response} highlights={highlightedTexts} />
             ) : (
@@ -156,10 +156,10 @@ export default function ResponseSection({
               }}
               onMouseDown={(e) => e.preventDefault()}
             >
-              <div className="flex gap-1 bg-white border border-[#E8E5E0] rounded-xl shadow-lg p-1 animate-fade-in">
+              <div className="flex gap-1 bg-card border border-line rounded-xl shadow-lg p-1 animate-fade-in">
                 <button
                   onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); handleBranchFromSelection(); }}
-                  className="bg-[#6B5CE7] hover:bg-[#5A4BD6] text-white text-xs px-3 py-1.5 rounded-lg transition-all whitespace-nowrap cursor-pointer"
+                  className="bg-accent hover:bg-accent-strong text-white text-xs px-3 py-1.5 rounded-lg transition-all whitespace-nowrap cursor-pointer"
                 >
                   ⑂ Explore
                 </button>

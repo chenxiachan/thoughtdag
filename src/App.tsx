@@ -23,6 +23,7 @@ import { useStore } from './store';
 import type { Attachment, ThoughtNode as ThoughtNodeType, ThoughtEdge } from './types';
 import { processFile, FILE_INPUT_ACCEPT } from './lib/attachments';
 import { walkUpAncestors } from './lib/graph';
+import { COLORS } from './lib/constants';
 
 const nodeTypes = { thought: ThoughtNode };
 
@@ -187,8 +188,8 @@ function Canvas() {
       if (ancestorEdgeIds.has(e.id)) {
         return {
           ...e,
-          style: { ...e.style, stroke: '#F59E0B', strokeWidth: 3.5, opacity: 1 },
-          markerEnd: { type: 'arrowclosed' as const, ...((e.markerEnd && typeof e.markerEnd === 'object') ? e.markerEnd : {}), color: '#F59E0B' },
+          style: { ...e.style, stroke: COLORS.trace, strokeWidth: 3.5, opacity: 1 },
+          markerEnd: { type: 'arrowclosed' as const, ...((e.markerEnd && typeof e.markerEnd === 'object') ? e.markerEnd : {}), color: COLORS.trace },
           zIndex: 10,
         };
       }
@@ -229,15 +230,15 @@ function Canvas() {
         defaultEdgeOptions={{
           type: 'smoothstep',
           animated: false,
-          style: { stroke: '#6B5CE7', strokeWidth: 2 },
-          markerEnd: { type: 'arrowclosed' as const, color: '#6B5CE7', width: 16, height: 16 },
+          style: { stroke: COLORS.accent, strokeWidth: 2 },
+          markerEnd: { type: 'arrowclosed' as const, color: COLORS.accent, width: 16, height: 16 },
         }}
         proOptions={{ hideAttribution: true }}
         nodeDragThreshold={5}
         selectionMode={SelectionMode.Partial}
         selectionOnDrag
         panOnDrag={[1, 2]}
-        connectionLineStyle={{ stroke: '#6B5CE7', strokeDasharray: '8 4', strokeWidth: 2 }}
+        connectionLineStyle={{ stroke: COLORS.accent, strokeDasharray: '8 4', strokeWidth: 2 }}
         onSelectionChange={onSelectionChange}
         onPaneClick={() => { setSelectedNodeId(null); setSelectedNodeIds([]); }}
       >
@@ -246,10 +247,10 @@ function Canvas() {
         <MiniMap
           nodeColor={(node) => {
             const data = node.data as Record<string, unknown>;
-            return data.isRoot ? '#6B5CE7' : '#E08A3C';
+            return data.isRoot ? COLORS.accent : COLORS.warm;
           }}
           maskColor="rgba(250,249,247,0.85)"
-          style={{ background: '#FFFFFF', border: '1px solid #E8E5E0', borderRadius: '12px' }}
+          style={{ background: COLORS.card, border: `1px solid ${COLORS.line}`, borderRadius: '12px' }}
           position="bottom-right"
         />
       </ReactFlow>
@@ -259,11 +260,11 @@ function Canvas() {
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="pointer-events-auto w-[500px] animate-fade-in">
             <div className="text-center mb-6">
-              <h1 className="text-2xl font-semibold text-[#1A1A1A] mb-2">ThoughtDAG</h1>
-              <p className="text-sm text-[#6B6560]">Explore ideas as branching conversations</p>
+              <h1 className="text-2xl font-semibold text-ink mb-2">ThoughtDAG</h1>
+              <p className="text-sm text-ink-muted">Explore ideas as branching conversations</p>
             </div>
             <div
-              className={`bg-white border rounded-2xl px-5 py-4 shadow-lg transition-all ${isDraggingLanding ? 'border-[#6B5CE7] ring-2 ring-[#6B5CE7]/20' : 'border-[#E8E5E0]'}`}
+              className={`bg-card border rounded-2xl px-5 py-4 shadow-lg transition-all ${isDraggingLanding ? 'border-accent ring-2 ring-accent/20' : 'border-line'}`}
               onDrop={(e) => { e.preventDefault(); e.stopPropagation(); setIsDraggingLanding(false); handleFileUpload(e.dataTransfer.files); }}
               onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setIsDraggingLanding(true); }}
               onDragLeave={() => setIsDraggingLanding(false)}
@@ -277,7 +278,7 @@ function Canvas() {
                   if (files.length) handleFileUpload(files);
                 }}
                 placeholder="What would you like to explore?"
-                className="w-full bg-transparent text-[#1A1A1A] text-sm leading-relaxed resize-none focus:outline-none placeholder-[#B8B2A8]"
+                className="w-full bg-transparent text-ink text-sm leading-relaxed resize-none focus:outline-none placeholder-ink-faint"
                 rows={3}
                 autoFocus
               />
@@ -285,18 +286,18 @@ function Canvas() {
               {pendingAttachments.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-2 pb-1">
                   {pendingAttachments.map((att) => (
-                    <div key={att.id} className="flex items-center gap-1.5 bg-[#F5F3F0] rounded-lg px-2.5 py-1.5 group">
+                    <div key={att.id} className="flex items-center gap-1.5 bg-wash rounded-lg px-2.5 py-1.5 group">
                       {att.thumbnailUrl ? (
                         <img src={att.thumbnailUrl} className="w-6 h-6 rounded object-cover" alt={att.name} />
                       ) : (
                         <span className="text-xs">📄</span>
                       )}
-                      <span className="text-xs text-[#6B6560] max-w-[100px] truncate">{att.name}</span>
-                      {att.isExtracting && <span className="text-[10px] text-[#6B5CE7] animate-pulse">⏳</span>}
-                      {att.numPages != null && <span className="text-[10px] text-[#B8B2A8]">{att.numPages}p</span>}
+                      <span className="text-xs text-ink-muted max-w-[100px] truncate">{att.name}</span>
+                      {att.isExtracting && <span className="text-[10px] text-accent animate-pulse">⏳</span>}
+                      {att.numPages != null && <span className="text-[10px] text-ink-faint">{att.numPages}p</span>}
                       <button
                         onClick={() => setPendingAttachments((p) => p.filter((a) => a.id !== att.id))}
-                        className="text-[#B8B2A8] hover:text-red-500 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="text-ink-faint hover:text-red-500 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
                       >✕</button>
                     </div>
                   ))}
@@ -307,21 +308,21 @@ function Canvas() {
                 {!showRootRole ? (
                   <button
                     onClick={() => setShowRootRole(true)}
-                    className="text-xs text-[#B8B2A8] hover:text-[#6B6560] transition-colors flex items-center gap-1"
+                    className="text-xs text-ink-faint hover:text-ink-muted transition-colors flex items-center gap-1"
                   >
                     Set role (optional)
                   </button>
                 ) : (
                   <div className="space-y-1">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-[#6B6560] font-medium">Role (System Prompt)</span>
-                      <button onClick={() => { setShowRootRole(false); setRootRole(''); }} className="text-xs text-[#B8B2A8] hover:text-[#6B6560]">✕</button>
+                      <span className="text-xs text-ink-muted font-medium">Role (System Prompt)</span>
+                      <button onClick={() => { setShowRootRole(false); setRootRole(''); }} className="text-xs text-ink-faint hover:text-ink-muted">✕</button>
                     </div>
                     <textarea
                       value={rootRole}
                       onChange={(e) => setRootRole(e.target.value)}
                       placeholder="e.g. You are a physicist. Explain using first principles."
-                      className="w-full text-xs border border-[#E8E5E0] rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#6B5CE7] bg-[#FAFAF8] resize-none leading-relaxed"
+                      className="w-full text-xs border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-accent bg-surface resize-none leading-relaxed"
                       rows={2}
                     />
                   </div>
@@ -330,7 +331,7 @@ function Canvas() {
               <div className="flex justify-end mt-2 gap-2">
                 <button
                   onClick={() => landingFileRef.current?.click()}
-                  className="text-[#B8B2A8] hover:text-[#6B5CE7] hover:bg-[#F5F3F0] rounded-xl px-3 py-2 transition-colors text-sm"
+                  className="text-ink-faint hover:text-accent hover:bg-wash rounded-xl px-3 py-2 transition-colors text-sm"
                   title="Attach files"
                 >
                   📎
@@ -346,7 +347,7 @@ function Canvas() {
                 <button
                   onClick={handleSubmit}
                   disabled={!inputValue.trim() || pendingAttachments.some(a => a.isExtracting)}
-                  className="bg-[#6B5CE7] hover:bg-[#5A4BD6] disabled:opacity-30 disabled:cursor-not-allowed text-white text-sm px-5 py-2 rounded-xl transition-all"
+                  className="bg-accent hover:bg-accent-strong disabled:opacity-30 disabled:cursor-not-allowed text-white text-sm px-5 py-2 rounded-xl transition-all"
                 >
                   {pendingAttachments.some(a => a.isExtracting) ? 'Extracting...' : 'Send ↵'}
                 </button>
@@ -360,7 +361,7 @@ function Canvas() {
       {hasNodes && (
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10">
           <div
-            className="bg-white/90 backdrop-blur border border-[#E8E5E0] rounded-2xl px-4 py-3 shadow-lg w-[400px]"
+            className="bg-card/90 backdrop-blur border border-line rounded-2xl px-4 py-3 shadow-lg w-[400px]"
             onDrop={(e) => { e.preventDefault(); handleFileUpload(e.dataTransfer.files); }}
             onDragOver={(e) => e.preventDefault()}
           >
@@ -374,12 +375,12 @@ function Canvas() {
                   if (files.length) handleFileUpload(files);
                 }}
                 placeholder="New root question..."
-                className="flex-1 bg-transparent text-[#1A1A1A] text-sm resize-none focus:outline-none placeholder-[#B8B2A8]"
+                className="flex-1 bg-transparent text-ink text-sm resize-none focus:outline-none placeholder-ink-faint"
                 rows={1}
               />
               <button
                 onClick={() => floatingFileRef.current?.click()}
-                className="text-[#B8B2A8] hover:text-[#6B5CE7] transition-colors shrink-0 text-sm"
+                className="text-ink-faint hover:text-accent transition-colors shrink-0 text-sm"
                 title="Attach files"
               >
                 📎
@@ -395,7 +396,7 @@ function Canvas() {
               <button
                 onClick={handleSubmit}
                 disabled={!inputValue.trim()}
-                className="bg-[#6B5CE7] hover:bg-[#5A4BD6] disabled:opacity-30 text-white text-xs px-3 py-1.5 rounded-xl transition-all shrink-0"
+                className="bg-accent hover:bg-accent-strong disabled:opacity-30 text-white text-xs px-3 py-1.5 rounded-xl transition-all shrink-0"
               >
                 Send
               </button>
@@ -404,16 +405,16 @@ function Canvas() {
             {pendingAttachments.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mt-2">
                 {pendingAttachments.map((att) => (
-                  <div key={att.id} className="flex items-center gap-1 bg-[#F5F3F0] rounded-lg px-2 py-1 group">
+                  <div key={att.id} className="flex items-center gap-1 bg-wash rounded-lg px-2 py-1 group">
                     {att.thumbnailUrl ? (
                       <img src={att.thumbnailUrl} className="w-5 h-5 rounded object-cover" alt={att.name} />
                     ) : (
                       <span className="text-[10px]">📄</span>
                     )}
-                    <span className="text-[10px] text-[#6B6560] max-w-[80px] truncate">{att.name}</span>
+                    <span className="text-[10px] text-ink-muted max-w-[80px] truncate">{att.name}</span>
                     <button
                       onClick={() => setPendingAttachments((p) => p.filter((a) => a.id !== att.id))}
-                      className="text-[#B8B2A8] hover:text-red-500 text-[10px] opacity-0 group-hover:opacity-100"
+                      className="text-ink-faint hover:text-red-500 text-[10px] opacity-0 group-hover:opacity-100"
                     >✕</button>
                   </div>
                 ))}
@@ -422,22 +423,22 @@ function Canvas() {
             {!showRootRole ? (
               <button
                 onClick={() => setShowRootRole(true)}
-                className="text-[10px] text-[#B8B2A8] hover:text-[#6B6560] transition-colors mt-1.5 flex items-center gap-1"
+                className="text-[10px] text-ink-faint hover:text-ink-muted transition-colors mt-1.5 flex items-center gap-1"
               >
                 Set role
               </button>
             ) : (
               <div className="mt-1.5 space-y-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] text-[#6B6560]">Role</span>
-                  <button onClick={() => { setShowRootRole(false); setRootRole(''); }} className="text-[10px] text-[#B8B2A8] hover:text-[#6B6560]">✕</button>
+                  <span className="text-[10px] text-ink-muted">Role</span>
+                  <button onClick={() => { setShowRootRole(false); setRootRole(''); }} className="text-[10px] text-ink-faint hover:text-ink-muted">✕</button>
                 </div>
                 <input
                   type="text"
                   value={rootRole}
                   onChange={(e) => setRootRole(e.target.value)}
                   placeholder="e.g. You are a physicist."
-                  className="w-full text-xs border border-[#E8E5E0] rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#6B5CE7] bg-[#FAFAF8]"
+                  className="w-full text-xs border border-line rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-accent bg-surface"
                 />
               </div>
             )}
@@ -450,7 +451,7 @@ function Canvas() {
         <button
           onClick={undo}
           disabled={historyIndex <= 0}
-          className="bg-white/90 backdrop-blur border border-[#E8E5E0] rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-[#F5F3F0] transition-colors disabled:opacity-20 disabled:cursor-not-allowed"
+          className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors disabled:opacity-20 disabled:cursor-not-allowed"
           title="Undo (Cmd+Z)"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B6560" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
@@ -458,7 +459,7 @@ function Canvas() {
         <button
           onClick={redo}
           disabled={historyIndex >= history.length - 1}
-          className="bg-white/90 backdrop-blur border border-[#E8E5E0] rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-[#F5F3F0] transition-colors disabled:opacity-20 disabled:cursor-not-allowed"
+          className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors disabled:opacity-20 disabled:cursor-not-allowed"
           title="Redo (Cmd+Shift+Z)"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6B6560" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
@@ -471,7 +472,7 @@ function Canvas() {
       {/* Edge context menu */}
       {edgeMenu && (
         <div
-          className="fixed z-50 bg-white border border-[#E8E5E0] rounded-xl shadow-lg py-1 min-w-[120px]"
+          className="fixed z-50 bg-card border border-line rounded-xl shadow-lg py-1 min-w-[120px]"
           style={{ left: edgeMenu.x, top: edgeMenu.y }}
         >
           <button

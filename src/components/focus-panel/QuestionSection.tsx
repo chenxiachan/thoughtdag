@@ -32,22 +32,22 @@ export default function QuestionSection({
   };
 
   return (
-    <div className="px-4 py-3 border-b border-[#E8E5E0]">
-      <label className="text-xs text-[#B8B2A8] uppercase tracking-wide font-medium mb-1.5 block">Question</label>
+    <div className="px-4 py-3 border-b border-line">
+      <label className="text-xs text-ink-faint uppercase tracking-wide font-medium mb-1.5 block">Question</label>
       {isEditing ? (
         <textarea
           value={editValue}
           onChange={(e) => setEditValue(e.target.value)}
           onKeyDown={handleEditKeyDown}
           onBlur={handleEditSubmit}
-          className="w-full bg-[#F5F3F0] border border-[#6B5CE7] rounded-xl p-3 text-sm text-[#1A1A1A] resize-none focus:outline-none focus:ring-2 focus:ring-[#6B5CE7]/20"
+          className="w-full bg-wash border border-accent rounded-xl p-3 text-sm text-ink resize-none focus:outline-none focus:ring-2 focus:ring-accent/20"
           rows={3}
           autoFocus
         />
       ) : (
         <div
           onDoubleClick={handleDoubleClickQuestion}
-          className="text-sm text-[#6B5CE7] font-medium cursor-pointer hover:bg-[#F5F3F0] rounded-xl px-2 py-1.5 -mx-1 transition-colors"
+          className="text-sm text-accent font-medium cursor-pointer hover:bg-wash rounded-xl px-2 py-1.5 -mx-1 transition-colors"
         >
           {question}
         </div>

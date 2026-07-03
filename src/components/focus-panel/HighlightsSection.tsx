@@ -31,9 +31,9 @@ export default function HighlightsSection({
   }, [highlightExploreContext]);
 
   return (
-    <div className={`px-4 py-3 border-b border-[#E8E5E0] ${dimmed ? 'opacity-40 pointer-events-none' : ''}`}>
+    <div className={`px-4 py-3 border-b border-line ${dimmed ? 'opacity-40 pointer-events-none' : ''}`}>
       <div className="flex items-center justify-between mb-2">
-        <label className="text-xs text-[#B8B2A8] uppercase tracking-wide font-medium">Highlights</label>
+        <label className="text-xs text-ink-faint uppercase tracking-wide font-medium">Highlights</label>
         {highlights.length > 0 && (
           <div className="flex items-center gap-1.5">
             <button
@@ -58,7 +58,7 @@ export default function HighlightsSection({
                 const highlightTexts = highlights.map((h) => h.text).join('\n\n');
                 setHighlightExploreContext(highlightTexts);
               }}
-              className="text-xs bg-[#6B5CE7]/10 hover:bg-[#6B5CE7]/20 text-[#6B5CE7] px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1"
+              className="text-xs bg-accent/10 hover:bg-accent/20 text-accent px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1"
               title="Ask a follow-up question about highlighted content"
             >
               ⑂ Explore
@@ -67,7 +67,7 @@ export default function HighlightsSection({
         )}
       </div>
       {highlights.length === 0 ? (
-        <p className="text-xs text-[#B8B2A8] italic">No highlights yet — select text above to highlight</p>
+        <p className="text-xs text-ink-faint italic">No highlights yet — select text above to highlight</p>
       ) : (
         <>
           <div className="space-y-1.5 mb-3">
@@ -87,7 +87,7 @@ export default function HighlightsSection({
           </div>
           {/* Highlight context mode */}
           <div className="space-y-2">
-            <span className="text-xs text-[#B8B2A8] font-medium">Pass to downstream</span>
+            <span className="text-xs text-ink-faint font-medium">Pass to downstream</span>
             <div className="flex items-center gap-1.5">
               {([
                 { mode: 'tag' as const, icon: '🏷️', label: 'Tag important' },
@@ -99,15 +99,15 @@ export default function HighlightsSection({
                   onClick={() => setHighlightMode(nodeId, mode)}
                   className={`text-xs px-2.5 py-1.5 rounded-lg transition-colors flex items-center gap-1 ${
                     highlightMode === mode
-                      ? 'bg-[#6B5CE7] text-white'
-                      : 'bg-[#F5F3F0] text-[#6B6560] hover:bg-[#E8E5E0]'
+                      ? 'bg-accent text-white'
+                      : 'bg-wash text-ink-muted hover:bg-line'
                   }`}
                 >
                   <span>{icon}</span> {label}
                 </button>
               ))}
             </div>
-            <p className="text-[10px] text-[#B8B2A8] leading-relaxed">
+            <p className="text-[10px] text-ink-faint leading-relaxed">
               {highlightMode === 'off' && 'Downstream nodes receive the full response'}
               {highlightMode === 'tag' && 'Highlighted parts wrapped with [Important] tags to guide AI focus'}
               {highlightMode === 'filter' && 'Downstream nodes only receive highlighted content, rest discarded'}
@@ -116,7 +116,7 @@ export default function HighlightsSection({
           {/* Highlight Explore input */}
           {highlightExploreContext && (
             <div className="mt-3 space-y-1.5">
-              <span className="text-xs text-[#6B5CE7] font-medium">⑂ Ask about highlights:</span>
+              <span className="text-xs text-accent font-medium">⑂ Ask about highlights:</span>
               <div className="flex gap-1.5">
                 <input
                   ref={highlightExploreRef}
@@ -136,7 +136,7 @@ export default function HighlightsSection({
                     }
                   }}
                   placeholder="What do you want to explore about these highlights?"
-                  className="flex-1 text-xs border border-[#6B5CE7]/30 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-[#6B5CE7] bg-[#6B5CE7]/5"
+                  className="flex-1 text-xs border border-accent/30 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-accent bg-accent/5"
                 />
                 <button
                   onClick={() => {
@@ -147,19 +147,19 @@ export default function HighlightsSection({
                       setExploreInheritRole(true);
                     }
                   }}
-                  className="text-xs bg-[#6B5CE7] text-white px-3 py-2 rounded-lg hover:bg-[#5A4BD6] transition-colors shrink-0"
+                  className="text-xs bg-accent text-white px-3 py-2 rounded-lg hover:bg-accent-strong transition-colors shrink-0"
                 >
                   Go
                 </button>
                 <button
                   onClick={() => { setHighlightExploreContext(''); setHighlightExploreInput(''); }}
-                  className="text-xs text-[#B8B2A8] hover:text-[#6B6560] px-1.5 py-2 transition-colors shrink-0"
+                  className="text-xs text-ink-faint hover:text-ink-muted px-1.5 py-2 transition-colors shrink-0"
                 >
                   ✕
                 </button>
               </div>
-              <label className="flex items-center gap-2 text-xs text-[#6B6560] cursor-pointer select-none">
-                <input type="checkbox" checked={exploreInheritRole} onChange={(e) => setExploreInheritRole(e.target.checked)} className="rounded border-[#E8E5E0] text-[#6B5CE7] focus:ring-[#6B5CE7] w-3 h-3" />
+              <label className="flex items-center gap-2 text-xs text-ink-muted cursor-pointer select-none">
+                <input type="checkbox" checked={exploreInheritRole} onChange={(e) => setExploreInheritRole(e.target.checked)} className="rounded border-line text-accent focus:ring-accent w-3 h-3" />
                 Inherit role
               </label>
             </div>
