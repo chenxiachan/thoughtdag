@@ -58,9 +58,12 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   const nodeRef = useRef<HTMLDivElement>(null);
   const addQuestion = useStore((s) => s.addQuestion);
 
-  useEffect(() => {
+  // Sync local edit buffer when the response changes externally (streaming, undo)
+  const [prevResponse, setPrevResponse] = useState(data.response);
+  if (prevResponse !== data.response) {
+    setPrevResponse(data.response);
     setEditResponseValue(data.response);
-  }, [data.response]);
+  }
 
   const handleTextSelection = useCallback(() => {
     const selection = window.getSelection();
@@ -363,7 +366,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
             </div>
           ) : data.response ? (
             <div className="text-xs text-[#B8B2A8] mt-1.5 leading-relaxed line-clamp-2 italic">
-              {data.response.replace(/[#*`>\-]/g, '').slice(0, 120)}{data.response.length > 120 ? '…' : ''}
+              {data.response.replace(/[#*`>-]/g, '').slice(0, 120)}{data.response.length > 120 ? '…' : ''}
             </div>
           ) : null}
         </div>

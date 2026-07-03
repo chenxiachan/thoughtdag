@@ -1,4 +1,6 @@
 import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { idbStorage } from './lib/persistence';
 import type { ThoughtNode, ThoughtEdge, Highlight, Attachment } from './types';
 import { generateId, countTokens, autoLayout, getDescendantIds } from './utils';
 import { llmCall, llmCallStream, type ContextMessage, type ImageAttachment } from './lib/api';
@@ -194,7 +196,7 @@ function resolveAvailableRoles(
   const seenRoles = new Set<string>();
 
   for (const edge of incomingEdges) {
-    const isCrossLink = !!(edge.data as any)?.isCrossLink;
+    const isCrossLink = !!edge.data?.isCrossLink;
     // Walk up from this edge's source to find the nearest role
     const visited = new Set<string>();
     function findRoleUp(id: string): { nodeId: string; role: string } | null {
@@ -260,7 +262,6 @@ interface StoreState {
   setEditing: (nodeId: string, editing: boolean) => void;
   setEditingResponse: (nodeId: string, editing: boolean) => void;
   regenerate: (nodeId: string) => void;
-  continueFrom: (nodeId: string) => void;
   addHighlight: (nodeId: string, highlight: Highlight) => void;
   removeHighlight: (nodeId: string, highlightId: string) => void;
   setHighlightMode: (nodeId: string, mode: 'off' | 'tag' | 'filter') => void;
@@ -290,7 +291,27 @@ interface StoreState {
 // Track active AbortControllers per node
 const activeAbortControllers = new Map<string, AbortController>();
 
-export const useStore = create<StoreState>((set, get) => ({
+// Reset transient UI flags — applied both when persisting and when rehydrating,
+// so a refresh mid-stream/mid-edit never restores a node stuck in loading state.
+function stripTransient(nodes: ThoughtNode[]): ThoughtNode[] {
+  return nodes.map((n) => ({
+    ...n,
+    selected: false,
+    data: {
+      ...n.data,
+      isLoading: false,
+      isEditing: false,
+      isEditingResponse: false,
+      attachments: (n.data.attachments || []).map((a) =>
+        a.isExtracting ? { ...a, isExtracting: false } : a
+      ),
+    },
+  }));
+}
+
+type PersistedState = { nodes: ThoughtNode[]; edges: ThoughtEdge[] };
+
+export const useStore = create<StoreState>()(persist((set, get) => ({
   nodes: [],
   edges: [],
   history: [{ nodes: [], edges: [] }],
@@ -715,10 +736,6 @@ export const useStore = create<StoreState>((set, get) => ({
       }));
       get().pushHistory();
     }
-  },
-
-  continueFrom: (_nodeId: string) => {
-    // Handled by UI
   },
 
   addHighlight: (nodeId: string, highlight: Highlight) => {
@@ -1262,10 +1279,32 @@ ${mergedContent}` },
 
     return result;
   },
+}), {
+  name: 'thoughtdag',
+  version: 1,
+  storage: createJSONStorage(() => idbStorage),
+  // Persist only the graph. Undo history (full-graph snapshots ×50) and
+  // selection are session-scoped and would bloat the stored payload.
+  partialize: (state): PersistedState => ({
+    nodes: stripTransient(state.nodes),
+    edges: state.edges,
+  }),
+  merge: (persisted, current) => {
+    const p = (persisted ?? { nodes: [], edges: [] }) as PersistedState;
+    const nodes = stripTransient(p.nodes ?? []);
+    const edges = p.edges ?? [];
+    return {
+      ...current,
+      nodes,
+      edges,
+      // The restored graph becomes the base snapshot of the undo stack.
+      history: [{ nodes: JSON.parse(JSON.stringify(nodes)), edges: JSON.parse(JSON.stringify(edges)) }],
+      historyIndex: 0,
+    };
+  },
 }));
 
-// Debug: expose store for testing
-if (typeof window !== 'undefined') {
-  (window as any).__store = useStore;
-  (window as any).__buildContext = buildContext;
+// Debug: expose store for testing (DEV only)
+if (import.meta.env.DEV && typeof window !== 'undefined') {
+  Object.assign(window, { __store: useStore, __buildContext: buildContext });
 }

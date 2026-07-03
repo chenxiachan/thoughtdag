@@ -65,7 +65,17 @@ function processFileToAttachment(file: File): Promise<Attachment | null> {
   });
 }
 
+// Gate on rehydration: the store loads asynchronously from IndexedDB, and
+// mounting the canvas only after hydration lets ReactFlow's fitView see the
+// restored graph (and avoids flashing the landing input).
 export default function App() {
+  const [hydrated, setHydrated] = useState(useStore.persist.hasHydrated());
+  useEffect(() => useStore.persist.onFinishHydration(() => setHydrated(true)), []);
+  if (!hydrated) return null;
+  return <Canvas />;
+}
+
+function Canvas() {
   const { nodes, edges, setNodes, setEdges, addQuestion, undo, redo, addCrossLink, pushHistory, setSelectedNodeId, setSelectedNodeIds, history, historyIndex } = useStore();
   const [inputValue, setInputValue] = useState('');
   const [rootRole, setRootRole] = useState('');
@@ -92,7 +102,7 @@ export default function App() {
       }
     }
     prevNodeCount.current = nodes.length;
-  }, [nodes.length]);
+  }, [nodes]);
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => setNodes(applyNodeChanges(changes, nodes) as typeof nodes),
@@ -129,7 +139,7 @@ export default function App() {
       setTimeout(() => pushHistory(), 0);
       setEdgeMenu(null);
     },
-    [edges, setEdges]
+    [edges, setEdges, pushHistory]
   );
 
   const onConnect: OnConnect = useCallback(

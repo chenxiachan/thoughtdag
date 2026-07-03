@@ -12,10 +12,12 @@ export default function SelectionToolbar() {
   }, [exploreOpen]);
 
   // Reset explore when selection changes
-  useEffect(() => {
+  const [prevSelectionCount, setPrevSelectionCount] = useState(selectedNodeIds.length);
+  if (prevSelectionCount !== selectedNodeIds.length) {
+    setPrevSelectionCount(selectedNodeIds.length);
     setExploreOpen(false);
     setExploreInput('');
-  }, [selectedNodeIds.length]);
+  }
 
   if (selectedNodeIds.length < 2) return null;
 

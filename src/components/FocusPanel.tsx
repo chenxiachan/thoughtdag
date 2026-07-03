@@ -42,8 +42,10 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
   const highlightExploreRef = useRef<HTMLInputElement>(null);
   const responseRef = useRef<HTMLDivElement>(null);
 
-  // Reset states when switching nodes
-  useEffect(() => {
+  // Reset states when switching nodes (adjust-during-render, no effect needed)
+  const [prevNodeId, setPrevNodeId] = useState(selectedNodeId);
+  if (prevNodeId !== selectedNodeId) {
+    setPrevNodeId(selectedNodeId);
     setShowBranchInput(false);
     setBranchInput('');
     setBranchContext('');
@@ -53,8 +55,12 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
     setHighlightExploreContext('');
     setHighlightExploreInput('');
     setRoleChanged(false);
-    // Auto-focus continue input when switching to a new node
-    setTimeout(() => continueRef.current?.focus(), 100);
+  }
+
+  // Auto-focus continue input when switching to a new node
+  useEffect(() => {
+    const t = setTimeout(() => continueRef.current?.focus(), 100);
+    return () => clearTimeout(t);
   }, [selectedNodeId]);
 
   // Auto-focus highlight explore input when context is set
