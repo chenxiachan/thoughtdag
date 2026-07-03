@@ -15,7 +15,7 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
     editQuestion, editResponse, setEditing, setEditingResponse,
     regenerate, deleteNode, addQuestion, addHighlight, removeHighlight,
     setHighlightMode, distillRegenerate, duplicateNode,
-    navigateVersion, deleteVersion, stopGeneration, setRolePrompt, setInheritRole, setRoleMode,
+    navigateVersion, deleteVersion, stopGeneration, setRolePrompt, setRoleMode,
     setRoleSource, getAvailableRoles,
     addAttachment, removeAttachment, toggleExcludeAttachment, setAttachmentRenderMode, getInheritedAttachments,
   } = useStore();
@@ -63,7 +63,6 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
   }, [highlightExploreContext]);
 
   const node = nodes.find((n) => n.id === selectedNodeId);
-  const isOpen = !!selectedNodeId && !!node;
 
   // Text selection handler
   const handleTextSelection = useCallback((e: MouseEvent) => {
@@ -180,12 +179,6 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
 
   const handleResponseEditKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') setEditingResponse(selectedNodeId!, false);
-  };
-
-  const handleBranch = () => {
-    setBranchContext(''); // no selection context from button
-    setShowBranchInput(true);
-    setBranchInput('');
   };
 
   const handleBranchSubmit = () => {

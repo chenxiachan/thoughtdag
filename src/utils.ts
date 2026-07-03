@@ -182,12 +182,10 @@ export function autoLayout(nodes: ThoughtNode[], edges: ThoughtEdge[]): ThoughtN
 
   while (queue.length > 0) {
     const current = queue.shift()!;
-    const children = childrenMap.get(current) || [];
     const parentPos = positioned.get(current)!;
     const parentHeight = nodeHeightMap.get(current) || 220;
 
     const { continuation, regenerates, explores } = classifyChildren(current);
-    const allBranches = [...regenerates, ...explores];
 
     if (continuation && !visited.has(continuation)) {
       visited.add(continuation);

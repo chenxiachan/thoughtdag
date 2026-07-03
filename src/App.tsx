@@ -20,7 +20,7 @@ import ThoughtNode from './components/ThoughtNode';
 import FocusPanel from './components/FocusPanel';
 import SelectionToolbar from './components/SelectionToolbar';
 import { useStore } from './store';
-import type { Attachment } from './types';
+import type { Attachment, ThoughtNode as ThoughtNodeType, ThoughtEdge } from './types';
 import { generateId } from './utils';
 
 const nodeTypes = { thought: ThoughtNode };
@@ -64,7 +64,7 @@ function processFileToAttachment(file: File): Promise<Attachment | null> {
 }
 
 export default function App() {
-  const { nodes, edges, setNodes, setEdges, addQuestion, undo, redo, addCrossLink, pushHistory, setSelectedNodeId, setSelectedNodeIds, history, historyIndex, addAttachment } = useStore();
+  const { nodes, edges, setNodes, setEdges, addQuestion, undo, redo, addCrossLink, pushHistory, setSelectedNodeId, setSelectedNodeIds, history, historyIndex } = useStore();
   const [inputValue, setInputValue] = useState('');
   const [rootRole, setRootRole] = useState('');
   const [showRootRole, setShowRootRole] = useState(false);
@@ -73,7 +73,7 @@ export default function App() {
   const landingFileRef = useRef<HTMLInputElement>(null);
   const floatingFileRef = useRef<HTMLInputElement>(null);
   const hasNodes = nodes.length > 0;
-  const rfInstance = useRef<ReactFlowInstance | null>(null);
+  const rfInstance = useRef<ReactFlowInstance<ThoughtNodeType, ThoughtEdge> | null>(null);
   const prevNodeCount = useRef(nodes.length);
 
   useEffect(() => {
@@ -222,7 +222,7 @@ export default function App() {
   }, [setSelectedNodeId, setSelectedNodeIds]);
 
   // Highlight ancestor edges for selected node(s)
-  const highlightedEdges = useMemo(() => {
+  const highlightedEdges = useMemo((): ThoughtEdge[] => {
     const activeIds = selectedNodeIds.length > 0 ? selectedNodeIds : (selectedNodeId ? [selectedNodeId] : []);
     if (activeIds.length === 0) return edges;
 
@@ -248,7 +248,7 @@ export default function App() {
         return {
           ...e,
           style: { ...e.style, stroke: '#F59E0B', strokeWidth: 3.5, opacity: 1 },
-          markerEnd: { ...((e.markerEnd && typeof e.markerEnd === 'object') ? e.markerEnd : {}), color: '#F59E0B' },
+          markerEnd: { type: 'arrowclosed' as const, ...((e.markerEnd && typeof e.markerEnd === 'object') ? e.markerEnd : {}), color: '#F59E0B' },
           zIndex: 10,
         };
       }
@@ -290,7 +290,7 @@ export default function App() {
           type: 'smoothstep',
           animated: false,
           style: { stroke: '#6B5CE7', strokeWidth: 2 },
-          markerEnd: { type: 'arrowclosed' as any, color: '#6B5CE7', width: 16, height: 16 },
+          markerEnd: { type: 'arrowclosed' as const, color: '#6B5CE7', width: 16, height: 16 },
         }}
         proOptions={{ hideAttribution: true }}
         nodeDragThreshold={5}

@@ -370,12 +370,12 @@ export const useStore = create<StoreState>((set, get) => ({
       ...(isBranch ? {
         style: { stroke: '#E08A3C', strokeWidth: 2, strokeDasharray: '6 3' },
         animated: true,
-        markerEnd: { type: 'arrowclosed', color: '#E08A3C', width: 16, height: 16 },
+        markerEnd: { type: 'arrowclosed' as const, color: '#E08A3C', width: 16, height: 16 },
         data: { isBranchFromSelection: true, branchYRatio: branchYRatio ?? 0.5 },
       } : {
         style: { stroke: '#6B5CE7', strokeWidth: 2 },
         animated: false,
-        markerEnd: { type: 'arrowclosed', color: '#6B5CE7', width: 16, height: 16 },
+        markerEnd: { type: 'arrowclosed' as const, color: '#6B5CE7', width: 16, height: 16 },
         data: {},
       }),
     } : null;
@@ -1045,7 +1045,7 @@ export const useStore = create<StoreState>((set, get) => ({
       target: id,
       type: 'smoothstep',
       style: { stroke: '#6B5CE7', strokeWidth: 2 },
-      markerEnd: { type: 'arrowclosed' as any, color: '#6B5CE7', width: 16, height: 16 },
+      markerEnd: { type: 'arrowclosed' as const, color: '#6B5CE7', width: 16, height: 16 },
     } : null;
 
     get().pushHistory();
