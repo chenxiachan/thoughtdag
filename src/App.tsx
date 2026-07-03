@@ -17,7 +17,7 @@ import '@xyflow/react/dist/style.css';
 import 'highlight.js/styles/github.css';
 import './index.css';
 import ThoughtNode from './components/ThoughtNode';
-import FocusPanel from './components/FocusPanel';
+import FocusPanel from './components/focus-panel';
 import SelectionToolbar from './components/SelectionToolbar';
 import { useStore } from './store';
 import type { Attachment, ThoughtNode as ThoughtNodeType, ThoughtEdge } from './types';
