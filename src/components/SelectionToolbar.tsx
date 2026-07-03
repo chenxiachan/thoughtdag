@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { ClipboardList, GitBranch, Star, Trash2 } from 'lucide-react';
 import { useStore } from '../store';
+import { confirmDialog } from '../lib/ui-store';
 
 export default function SelectionToolbar() {
   const { selectedNodeIds, nodes, batchDelete, batchMergeSummarize, addQuestion } = useStore();
@@ -108,9 +109,12 @@ export default function SelectionToolbar() {
 
           <button
             onClick={() => {
-              if (confirm(`Delete ${selectedNodeIds.length} selected nodes?`)) {
-                batchDelete(selectedNodeIds);
-              }
+              void confirmDialog({
+                title: 'Delete nodes',
+                message: `Delete ${selectedNodeIds.length} selected nodes?`,
+                confirmLabel: 'Delete',
+                danger: true,
+              }).then((ok) => { if (ok) batchDelete(selectedNodeIds); });
             }}
             className="text-xs bg-red-50 hover:bg-red-100 text-red-600 px-3 py-1.5 rounded-lg transition-colors"
           >

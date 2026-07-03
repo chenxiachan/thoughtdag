@@ -25,6 +25,9 @@ import type { Attachment, ThoughtNode as ThoughtNodeType, ThoughtEdge } from './
 import { processFile, FILE_INPUT_ACCEPT } from './lib/attachments';
 import { walkUpAncestors } from './lib/graph';
 import { COLORS } from './lib/constants';
+import { confirmDialog, useUiStore } from './lib/ui-store';
+import ConfirmDialog from './components/ui/ConfirmDialog';
+import Toaster from './components/ui/Toaster';
 
 const nodeTypes = { thought: ThoughtNode };
 
@@ -34,8 +37,13 @@ const nodeTypes = { thought: ThoughtNode };
 export default function App() {
   const [hydrated, setHydrated] = useState(useStore.persist.hasHydrated());
   useEffect(() => useStore.persist.onFinishHydration(() => setHydrated(true)), []);
-  if (!hydrated) return null;
-  return <Canvas />;
+  return (
+    <>
+      {hydrated && <Canvas />}
+      <Toaster />
+      <ConfirmDialog />
+    </>
+  );
 }
 
 function Canvas() {
@@ -122,6 +130,8 @@ function Canvas() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // While the confirm dialog is open it owns the keyboard
+      if (useUiStore.getState().confirmRequest) return;
       if ((e.metaKey || e.ctrlKey) && e.key === 'z') {
         if (e.shiftKey) { e.preventDefault(); redo(); }
         else { e.preventDefault(); undo(); }
@@ -131,9 +141,12 @@ function Canvas() {
         const target = e.target as HTMLElement;
         if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return;
         e.preventDefault();
-        if (confirm(`Delete ${selectedNodeIds.length} selected nodes?`)) {
-          batchDelete(selectedNodeIds);
-        }
+        void confirmDialog({
+          title: 'Delete nodes',
+          message: `Delete ${selectedNodeIds.length} selected nodes?`,
+          confirmLabel: 'Delete',
+          danger: true,
+        }).then((ok) => { if (ok) batchDelete(selectedNodeIds); });
       }
     };
     window.addEventListener('keydown', handleKeyDown);
