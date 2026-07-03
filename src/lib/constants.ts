@@ -9,11 +9,11 @@ export const PDF_VISION_PAGE_THRESHOLD = 10;
 // Undo stack depth (full-graph snapshots).
 export const HISTORY_LIMIT = 50;
 
-// Rendered node card width (ThoughtNode w-[480px]).
-export const NODE_CSS_WIDTH = 480;
+// Rendered node card width (ThoughtNode w-[520px]).
+export const NODE_CSS_WIDTH = 520;
 
 // Layout column pitch — wider than the card so edges have breathing room.
-export const LAYOUT_COL_WIDTH = 500;
+export const LAYOUT_COL_WIDTH = 540;
 export const LAYOUT_H_GAP = 80;
 export const LAYOUT_V_GAP = 100;
 

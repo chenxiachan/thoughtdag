@@ -54,7 +54,7 @@ export default function FollowUpInput({
           disabled={!continueInput.trim()}
           className="text-ink-faint hover:text-accent disabled:opacity-30 disabled:hover:text-ink-faint transition-colors shrink-0 rounded-full w-7 h-7 flex items-center justify-center hover:bg-line"
         >
-          <Send size={16} strokeWidth={1.75} />
+          <Send size={18} strokeWidth={1.75} />
         </button>
       </div>
       <div className="flex gap-4 mt-1.5 px-1">

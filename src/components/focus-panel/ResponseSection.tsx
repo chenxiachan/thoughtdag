@@ -92,19 +92,19 @@ export default function ResponseSection({
   return (
     <div className="px-4 py-3 border-b border-line">
       <div className="flex items-center justify-between mb-1.5">
-        <label className="text-xs text-ink-faint uppercase tracking-wide font-medium">Response</label>
+        <label className="text-xs text-ink-faint uppercase tracking-wider font-medium">Response</label>
         {hasMultipleVersions && (
           <div className="flex items-center gap-1 text-xs text-ink-muted">
-            <button onClick={() => navigateVersion(nodeId, 'prev')} className="hover:text-accent hover:bg-wash rounded-full w-5 h-5 flex items-center justify-center transition-colors"><ChevronLeft size={12} strokeWidth={1.75} /></button>
+            <button onClick={() => navigateVersion(nodeId, 'prev')} className="hover:text-accent hover:bg-wash rounded-full w-5 h-5 flex items-center justify-center transition-colors"><ChevronLeft size={14} strokeWidth={1.75} /></button>
             <span className="text-accent font-medium">v{data.responseIndex + 1}/{data.responses.length}</span>
-            <button onClick={() => navigateVersion(nodeId, 'next')} className="hover:text-accent hover:bg-wash rounded-full w-5 h-5 flex items-center justify-center transition-colors"><ChevronRight size={12} strokeWidth={1.75} /></button>
+            <button onClick={() => navigateVersion(nodeId, 'next')} className="hover:text-accent hover:bg-wash rounded-full w-5 h-5 flex items-center justify-center transition-colors"><ChevronRight size={14} strokeWidth={1.75} /></button>
             {data.responses.length > 1 && (
               <button
                 onClick={() => deleteVersion(nodeId, data.responseIndex)}
                 className="text-ink-faint hover:text-red-500 hover:bg-red-50 rounded-full w-5 h-5 flex items-center justify-center transition-colors ml-0.5"
                 title="Delete this version"
               >
-                <Trash2 size={12} strokeWidth={1.75} />
+                <Trash2 size={14} strokeWidth={1.75} />
               </button>
             )}
           </div>
@@ -162,13 +162,13 @@ export default function ResponseSection({
                   onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); handleBranchFromSelection(); }}
                   className="bg-accent hover:bg-accent-strong text-white text-xs px-3 py-1.5 rounded-lg transition-all whitespace-nowrap cursor-pointer"
                 >
-                  <GitBranch size={12} strokeWidth={1.75} className="inline" /> Explore
+                  <GitBranch size={14} strokeWidth={1.75} className="inline" /> Explore
                 </button>
                 <button
                   onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); handleHighlight(); }}
                   className="bg-amber-500 hover:bg-amber-400 text-white text-xs px-3 py-1.5 rounded-lg transition-all whitespace-nowrap cursor-pointer"
                 >
-                  <Star size={12} strokeWidth={1.75} className="inline" /> Highlight
+                  <Star size={14} strokeWidth={1.75} className="inline" /> Highlight
                 </button>
               </div>
             </div>

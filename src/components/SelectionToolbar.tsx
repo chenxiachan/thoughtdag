@@ -46,7 +46,7 @@ export default function SelectionToolbar() {
 
   return (
     <div className="absolute top-16 left-1/2 -translate-x-1/2 z-20 animate-fade-in">
-      <div className="bg-card/95 backdrop-blur border border-line rounded-2xl px-4 py-3 shadow-lg space-y-2">
+      <div className="bg-card/95 backdrop-blur border border-line rounded-xl px-4 py-3 shadow-lg space-y-2">
         {/* Header */}
         <div className="flex items-center gap-3">
           <span className="text-sm text-ink-muted font-medium">
@@ -72,7 +72,7 @@ export default function SelectionToolbar() {
               className="text-xs bg-amber-50 hover:bg-amber-100 text-amber-700 px-3 py-1.5 rounded-lg transition-colors"
               title="Summarize all highlights from selected nodes"
             >
-              <Star size={12} strokeWidth={1.75} className="inline" /> Summary Highlights
+              <Star size={14} strokeWidth={1.75} className="inline" /> Summary Highlights
             </button>
           )}
 
@@ -81,7 +81,7 @@ export default function SelectionToolbar() {
             className="text-xs bg-blue-50 hover:bg-blue-100 text-blue-600 px-3 py-1.5 rounded-lg transition-colors"
             title="Merge content into a summary node"
           >
-            <ClipboardList size={12} strokeWidth={1.75} className="inline" /> Merge Summary
+            <ClipboardList size={14} strokeWidth={1.75} className="inline" /> Merge Summary
           </button>
 
           <button
@@ -89,7 +89,7 @@ export default function SelectionToolbar() {
             className="text-xs bg-accent/10 hover:bg-accent/20 text-accent px-3 py-1.5 rounded-lg transition-colors"
             title="Merge summary then delete original nodes"
           >
-            <ClipboardList size={12} strokeWidth={1.75} className="inline" /> Merge & Delete
+            <ClipboardList size={14} strokeWidth={1.75} className="inline" /> Merge & Delete
           </button>
 
           <button
@@ -101,7 +101,7 @@ export default function SelectionToolbar() {
             }`}
             title="Ask a question about selected nodes"
           >
-            <GitBranch size={12} strokeWidth={1.75} className="inline" /> Explore
+            <GitBranch size={14} strokeWidth={1.75} className="inline" /> Explore
           </button>
 
           <div className="w-px h-5 bg-line" />
@@ -114,7 +114,7 @@ export default function SelectionToolbar() {
             }}
             className="text-xs bg-red-50 hover:bg-red-100 text-red-600 px-3 py-1.5 rounded-lg transition-colors"
           >
-            <Trash2 size={12} strokeWidth={1.75} className="inline" /> Delete All
+            <Trash2 size={14} strokeWidth={1.75} className="inline" /> Delete All
           </button>
         </div>
 

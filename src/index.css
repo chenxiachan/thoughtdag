@@ -6,6 +6,15 @@
    Dark mode is intentionally not implemented yet; when it is, add a
    `@media (prefers-color-scheme: dark)` block redefining these vars. */
 @theme {
+  /* Type scale — bumped one notch from Tailwind defaults for research-
+     grade readability (xs 12→13px, sm 14→15px); 2xs is the old xs. */
+  --text-2xs: 0.75rem;
+  --text-2xs--line-height: 1.35;
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.45;
+  --text-sm: 0.9375rem;
+  --text-sm--line-height: 1.6;
+
   --color-surface: #FAF9F7;      /* app / canvas background        */
   --color-card: #FFFFFF;         /* node cards, panels             */
   --color-wash: #F5F3F0;         /* secondary fills, hovers        */

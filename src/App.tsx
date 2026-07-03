@@ -261,11 +261,11 @@ function Canvas() {
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <div className="pointer-events-auto w-[500px] animate-fade-in">
             <div className="text-center mb-6">
-              <h1 className="text-2xl font-semibold text-ink mb-2">ThoughtDAG</h1>
+              <h1 className="text-3xl font-semibold tracking-tight text-ink mb-2">ThoughtDAG</h1>
               <p className="text-sm text-ink-muted">Explore ideas as branching conversations</p>
             </div>
             <div
-              className={`bg-card border rounded-2xl px-5 py-4 shadow-lg transition-all ${isDraggingLanding ? 'border-accent ring-2 ring-accent/20' : 'border-line'}`}
+              className={`bg-card border rounded-xl px-5 py-4 shadow-lg transition-all ${isDraggingLanding ? 'border-accent ring-2 ring-accent/20' : 'border-line'}`}
               onDrop={(e) => { e.preventDefault(); e.stopPropagation(); setIsDraggingLanding(false); handleFileUpload(e.dataTransfer.files); }}
               onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setIsDraggingLanding(true); }}
               onDragLeave={() => setIsDraggingLanding(false)}
@@ -291,15 +291,15 @@ function Canvas() {
                       {att.thumbnailUrl ? (
                         <img src={att.thumbnailUrl} className="w-6 h-6 rounded object-cover" alt={att.name} />
                       ) : (
-                        <span className="text-xs"><FileText size={14} strokeWidth={1.75} /></span>
+                        <span className="text-xs"><FileText size={16} strokeWidth={1.75} /></span>
                       )}
                       <span className="text-xs text-ink-muted max-w-[100px] truncate">{att.name}</span>
-                      {att.isExtracting && <span className="text-[10px] text-accent"><Loader2 className="animate-spin" size={10} strokeWidth={1.75} /></span>}
-                      {att.numPages != null && <span className="text-[10px] text-ink-faint">{att.numPages}p</span>}
+                      {att.isExtracting && <span className="text-2xs text-accent"><Loader2 className="animate-spin" size={12} strokeWidth={1.75} /></span>}
+                      {att.numPages != null && <span className="text-2xs text-ink-faint">{att.numPages}p</span>}
                       <button
                         onClick={() => setPendingAttachments((p) => p.filter((a) => a.id !== att.id))}
                         className="text-ink-faint hover:text-red-500 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                      ><X size={12} strokeWidth={1.75} /></button>
+                      ><X size={14} strokeWidth={1.75} /></button>
                     </div>
                   ))}
                 </div>
@@ -317,7 +317,7 @@ function Canvas() {
                   <div className="space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-ink-muted font-medium">Role (System Prompt)</span>
-                      <button onClick={() => { setShowRootRole(false); setRootRole(''); }} className="text-xs text-ink-faint hover:text-ink-muted"><X size={12} strokeWidth={1.75} /></button>
+                      <button onClick={() => { setShowRootRole(false); setRootRole(''); }} className="text-xs text-ink-faint hover:text-ink-muted"><X size={14} strokeWidth={1.75} /></button>
                     </div>
                     <textarea
                       value={rootRole}
@@ -335,7 +335,7 @@ function Canvas() {
                   className="text-ink-faint hover:text-accent hover:bg-wash rounded-xl px-3 py-2 transition-colors text-sm"
                   title="Attach files"
                 >
-                  <Paperclip size={14} strokeWidth={1.75} />
+                  <Paperclip size={16} strokeWidth={1.75} />
                 </button>
                 <input
                   ref={landingFileRef}
@@ -362,7 +362,7 @@ function Canvas() {
       {hasNodes && (
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10">
           <div
-            className="bg-card/90 backdrop-blur border border-line rounded-2xl px-4 py-3 shadow-lg w-[400px]"
+            className="bg-card/90 backdrop-blur border border-line rounded-xl px-4 py-3 shadow-lg w-[400px]"
             onDrop={(e) => { e.preventDefault(); handleFileUpload(e.dataTransfer.files); }}
             onDragOver={(e) => e.preventDefault()}
           >
@@ -384,7 +384,7 @@ function Canvas() {
                 className="text-ink-faint hover:text-accent transition-colors shrink-0 text-sm"
                 title="Attach files"
               >
-                <Paperclip size={14} strokeWidth={1.75} />
+                <Paperclip size={16} strokeWidth={1.75} />
               </button>
               <input
                 ref={floatingFileRef}
@@ -410,13 +410,13 @@ function Canvas() {
                     {att.thumbnailUrl ? (
                       <img src={att.thumbnailUrl} className="w-5 h-5 rounded object-cover" alt={att.name} />
                     ) : (
-                      <span className="text-[10px]"><FileText size={14} strokeWidth={1.75} /></span>
+                      <span className="text-2xs"><FileText size={16} strokeWidth={1.75} /></span>
                     )}
-                    <span className="text-[10px] text-ink-muted max-w-[80px] truncate">{att.name}</span>
+                    <span className="text-2xs text-ink-muted max-w-[80px] truncate">{att.name}</span>
                     <button
                       onClick={() => setPendingAttachments((p) => p.filter((a) => a.id !== att.id))}
-                      className="text-ink-faint hover:text-red-500 text-[10px] opacity-0 group-hover:opacity-100"
-                    ><X size={12} strokeWidth={1.75} /></button>
+                      className="text-ink-faint hover:text-red-500 text-2xs opacity-0 group-hover:opacity-100"
+                    ><X size={14} strokeWidth={1.75} /></button>
                   </div>
                 ))}
               </div>
@@ -424,15 +424,15 @@ function Canvas() {
             {!showRootRole ? (
               <button
                 onClick={() => setShowRootRole(true)}
-                className="text-[10px] text-ink-faint hover:text-ink-muted transition-colors mt-1.5 flex items-center gap-1"
+                className="text-2xs text-ink-faint hover:text-ink-muted transition-colors mt-1.5 flex items-center gap-1"
               >
                 Set role
               </button>
             ) : (
               <div className="mt-1.5 space-y-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] text-ink-muted">Role</span>
-                  <button onClick={() => { setShowRootRole(false); setRootRole(''); }} className="text-[10px] text-ink-faint hover:text-ink-muted"><X size={12} strokeWidth={1.75} /></button>
+                  <span className="text-2xs text-ink-muted">Role</span>
+                  <button onClick={() => { setShowRootRole(false); setRootRole(''); }} className="text-2xs text-ink-faint hover:text-ink-muted"><X size={14} strokeWidth={1.75} /></button>
                 </div>
                 <input
                   type="text"
@@ -455,7 +455,7 @@ function Canvas() {
           className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors disabled:opacity-20 disabled:cursor-not-allowed"
           title="Undo (Cmd+Z)"
         >
-          <Undo2 size={14} strokeWidth={1.75} />
+          <Undo2 size={16} strokeWidth={1.75} />
         </button>
         <button
           onClick={redo}
@@ -463,7 +463,7 @@ function Canvas() {
           className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors disabled:opacity-20 disabled:cursor-not-allowed"
           title="Redo (Cmd+Shift+Z)"
         >
-          <Redo2 size={14} strokeWidth={1.75} />
+          <Redo2 size={16} strokeWidth={1.75} />
         </button>
       </div>
 
@@ -480,7 +480,7 @@ function Canvas() {
             onClick={() => deleteEdge(edgeMenu.edgeId)}
             className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center gap-1.5"
           >
-            <Trash2 size={12} strokeWidth={1.75} />
+            <Trash2 size={14} strokeWidth={1.75} />
             Delete edge
           </button>
         </div>

@@ -59,8 +59,8 @@ export default function AttachmentsSection({
   return (
     <div className="px-4 py-3 border-b border-line">
       <details className="group" open={hasContent}>
-        <summary className="text-xs text-ink-faint uppercase tracking-wide font-medium cursor-pointer hover:text-ink-muted transition-colors flex items-center gap-1.5 select-none">
-          <ChevronRight size={10} strokeWidth={1.75} className="transition-transform group-open:rotate-90" />
+        <summary className="text-xs text-ink-faint uppercase tracking-wider font-medium cursor-pointer hover:text-ink-muted transition-colors flex items-center gap-1.5 select-none">
+          <ChevronRight size={12} strokeWidth={1.75} className="transition-transform group-open:rotate-90" />
           Attachments
           {hasContent && (
             <span className="text-accent/60 font-medium normal-case ml-1">
@@ -83,9 +83,9 @@ export default function AttachmentsSection({
             }`}
           >
             <p className="text-xs text-ink-faint">
-              {isDragging ? 'Drop files here' : <><Paperclip size={12} strokeWidth={1.75} className="inline" /> Drop, paste, or click to upload</>}
+              {isDragging ? 'Drop files here' : <><Paperclip size={14} strokeWidth={1.75} className="inline" /> Drop, paste, or click to upload</>}
             </p>
-            <p className="text-[10px] text-ink-faint/60 mt-0.5">Images (Vision) • PDF • Text files (txt/md/code)</p>
+            <p className="text-2xs text-ink-faint/60 mt-0.5">Images (Vision) • PDF • Text files (txt/md/code)</p>
             <input
               ref={fileInputRef}
               type="file"
@@ -104,29 +104,29 @@ export default function AttachmentsSection({
           {/* Local attachments */}
           {attachments.length > 0 && (
             <div className="space-y-1.5">
-              <span className="text-[10px] text-ink-faint font-medium uppercase">This node</span>
+              <span className="text-2xs text-ink-faint font-medium uppercase">This node</span>
               {attachments.map((att) => (
                 <div key={att.id} className="flex items-center gap-2 bg-wash rounded-lg px-3 py-2 group">
                   {att.thumbnailUrl ? (
                     <img src={att.thumbnailUrl} className="w-8 h-8 rounded object-cover shrink-0" alt={att.name} />
                   ) : (
-                    <span className="w-8 h-8 rounded bg-line flex items-center justify-center text-xs text-ink-muted shrink-0"><FileText size={14} strokeWidth={1.75} /></span>
+                    <span className="w-8 h-8 rounded bg-line flex items-center justify-center text-xs text-ink-muted shrink-0"><FileText size={16} strokeWidth={1.75} /></span>
                   )}
                   <div className="min-w-0 flex-1">
                     <p className="text-xs text-ink truncate">{att.name}</p>
-                    <p className="text-[10px] text-ink-faint">
+                    <p className="text-2xs text-ink-faint">
                       {(att.size / 1024).toFixed(1)} KB
-                      {att.isExtracting && <span className="ml-1 text-accent"><Loader2 className="animate-spin inline" size={10} strokeWidth={1.75} /> Extracting...</span>}
+                      {att.isExtracting && <span className="ml-1 text-accent"><Loader2 className="animate-spin inline" size={12} strokeWidth={1.75} /> Extracting...</span>}
                       {att.numPages != null && <span className="ml-1 text-ink-muted">• {att.numPages} pages</span>}
                       {att.renderMode && <span className="ml-1 text-ink-muted">• {att.renderMode === 'full' ? 'Text + Vision' : 'Text only'}</span>}
                     </p>
                     {/* Render mode toggle for PDFs with >10 pages */}
                     {att.type === 'application/pdf' && att.numPages != null && att.numPages > 10 && !att.isExtracting && (
                       <div className="mt-1 flex items-center gap-1.5">
-                        <span className="text-[10px] text-amber-600">⚠ {att.numPages} pages (~{(att.numPages * 1500).toLocaleString()} tokens with Vision)</span>
+                        <span className="text-2xs text-amber-600">⚠ {att.numPages} pages (~{(att.numPages * 1500).toLocaleString()} tokens with Vision)</span>
                         <button
                           onClick={() => setAttachmentRenderMode(nodeId, att.id, att.renderMode === 'full' ? 'text-only' : 'full')}
-                          className={`text-[10px] px-2 py-0.5 rounded-lg transition-colors ${
+                          className={`text-2xs px-2 py-0.5 rounded-lg transition-colors ${
                             att.renderMode === 'full'
                               ? 'bg-accent/10 text-accent'
                               : 'bg-line text-ink-muted'
@@ -141,7 +141,7 @@ export default function AttachmentsSection({
                     onClick={() => removeAttachment(nodeId, att.id)}
                     className="text-ink-faint hover:text-red-500 transition-colors shrink-0 opacity-0 group-hover:opacity-100"
                   >
-                    <X size={12} strokeWidth={1.75} />
+                    <X size={14} strokeWidth={1.75} />
                   </button>
                 </div>
               ))}
@@ -151,7 +151,7 @@ export default function AttachmentsSection({
           {/* Inherited attachments */}
           {inherited.length > 0 && (
             <div className="space-y-1.5">
-              <span className="text-[10px] text-ink-faint font-medium uppercase">Inherited from ancestors</span>
+              <span className="text-2xs text-ink-faint font-medium uppercase">Inherited from ancestors</span>
               {inherited.map(({ attachment: att, sourceQuestion, excludedByAncestor }) => {
                 const isExcludedSelf = excludeSet.has(att.id);
                 const includeSet = new Set(includedAttachmentIds);
@@ -162,11 +162,11 @@ export default function AttachmentsSection({
                     {att.thumbnailUrl ? (
                       <img src={att.thumbnailUrl} className="w-8 h-8 rounded object-cover shrink-0" alt={att.name} />
                     ) : (
-                      <span className="w-8 h-8 rounded bg-line flex items-center justify-center text-xs text-ink-muted shrink-0"><FileText size={14} strokeWidth={1.75} /></span>
+                      <span className="w-8 h-8 rounded bg-line flex items-center justify-center text-xs text-ink-muted shrink-0"><FileText size={16} strokeWidth={1.75} /></span>
                     )}
                     <div className="min-w-0 flex-1">
                       <p className={`text-xs truncate ${isEffectivelyExcluded ? 'text-ink-faint line-through' : 'text-ink'}`}>{att.name}</p>
-                      <p className="text-[10px] text-ink-faint truncate">
+                      <p className="text-2xs text-ink-faint truncate">
                         ← {sourceQuestion.slice(0, 40)}{sourceQuestion.length > 40 ? '…' : ''}
                         {excludedByAncestor && !isOverridden && !isExcludedSelf && <span className="ml-1 text-amber-500">• excluded upstream</span>}
                         {isOverridden && <span className="ml-1 text-green-500">• re-included</span>}
@@ -192,7 +192,7 @@ export default function AttachmentsSection({
           )}
 
           {!hasContent && (
-            <p className="text-[10px] text-ink-faint italic">No attachments. Upload files or they'll be inherited from ancestor nodes.</p>
+            <p className="text-2xs text-ink-faint italic">No attachments. Upload files or they'll be inherited from ancestor nodes.</p>
           )}
         </div>
       </details>

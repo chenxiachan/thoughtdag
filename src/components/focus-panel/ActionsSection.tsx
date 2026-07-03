@@ -48,13 +48,13 @@ export default function ActionsSection({
 
   return (
     <div className={`px-4 py-3 border-b border-line ${dimmed ? 'opacity-40 pointer-events-none' : ''}`}>
-      <label className="text-xs text-ink-faint uppercase tracking-wide font-medium mb-2 block">Actions</label>
+      <label className="text-xs text-ink-faint uppercase tracking-wider font-medium mb-2 block">Actions</label>
       <div className="flex flex-wrap gap-2">
         <button
           onClick={() => regenerate(nodeId)}
           className="text-xs bg-wash hover:bg-line text-ink-muted px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
         >
-          <RefreshCw size={12} strokeWidth={1.75} />
+          <RefreshCw size={14} strokeWidth={1.75} />
           Regenerate
         </button>
         {isLoading ? (
@@ -62,7 +62,7 @@ export default function ActionsSection({
             onClick={() => stopGeneration(nodeId)}
             className="text-xs bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
           >
-            <Square size={10} strokeWidth={1.75} fill="currentColor" />
+            <Square size={12} strokeWidth={1.75} fill="currentColor" />
             Stop
           </button>
         ) : (
@@ -70,7 +70,7 @@ export default function ActionsSection({
             onClick={() => duplicateNode(nodeId)}
             className="text-xs bg-wash hover:bg-line text-ink-muted px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
           >
-            <Copy size={12} strokeWidth={1.75} />
+            <Copy size={14} strokeWidth={1.75} />
             Duplicate
           </button>
         )}
@@ -78,14 +78,14 @@ export default function ActionsSection({
           onClick={() => { deleteNode(nodeId); setSelectedNodeId(null); }}
           className="text-xs bg-red-50 hover:bg-red-100 text-red-500 px-3 py-2 rounded-lg transition-colors"
         >
-          <Trash2 size={12} strokeWidth={1.75} className="inline" /> Delete
+          <Trash2 size={14} strokeWidth={1.75} className="inline" /> Delete
         </button>
       </div>
       {showBranchInput && (
         <div className="mt-3">
           {branchContext && (
             <div className="text-xs pl-3 py-1.5 pr-2 mb-2 border-l-2 border-accent bg-accent/5 rounded-r text-ink-muted">
-              <span className="text-accent font-medium"><GitBranch size={12} strokeWidth={1.75} className="inline" /> Exploring from selection:</span>
+              <span className="text-accent font-medium"><GitBranch size={14} strokeWidth={1.75} className="inline" /> Exploring from selection:</span>
               &ldquo;{branchContext.slice(0, 100)}{branchContext.length > 100 ? '…' : ''}&rdquo;
             </div>
           )}
@@ -107,7 +107,7 @@ export default function ActionsSection({
               disabled={!branchInput.trim()}
               className="text-accent hover:text-accent-strong disabled:opacity-30 transition-colors"
             >
-              <CornerDownLeft size={14} strokeWidth={1.75} />
+              <CornerDownLeft size={16} strokeWidth={1.75} />
             </button>
           </div>
           <label className="flex items-center gap-2 text-xs text-ink-muted mt-1.5 cursor-pointer select-none">

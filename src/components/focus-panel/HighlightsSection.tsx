@@ -34,7 +34,7 @@ export default function HighlightsSection({
   return (
     <div className={`px-4 py-3 border-b border-line ${dimmed ? 'opacity-40 pointer-events-none' : ''}`}>
       <div className="flex items-center justify-between mb-2">
-        <label className="text-xs text-ink-faint uppercase tracking-wide font-medium">Highlights</label>
+        <label className="text-xs text-ink-faint uppercase tracking-wider font-medium">Highlights</label>
         {highlights.length > 0 && (
           <div className="flex items-center gap-1.5">
             <button
@@ -42,7 +42,7 @@ export default function HighlightsSection({
               className="text-xs bg-amber-50 hover:bg-amber-100 text-amber-700 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1"
               title="Distill: keep highlights, remove redundancy"
             >
-              <Sparkles size={12} strokeWidth={1.75} />
+              <Sparkles size={14} strokeWidth={1.75} />
               Distill
             </button>
             <button
@@ -53,7 +53,7 @@ export default function HighlightsSection({
               className="text-xs bg-blue-50 hover:bg-blue-100 text-blue-600 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1"
               title="Summarize highlighted content in a new branch"
             >
-              <ClipboardList size={12} strokeWidth={1.75} />
+              <ClipboardList size={14} strokeWidth={1.75} />
               Summary
             </button>
             <button
@@ -64,7 +64,7 @@ export default function HighlightsSection({
               className="text-xs bg-accent/10 hover:bg-accent/20 text-accent px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1"
               title="Ask a follow-up question about highlighted content"
             >
-              <GitBranch size={12} strokeWidth={1.75} />
+              <GitBranch size={14} strokeWidth={1.75} />
               Explore
             </button>
           </div>
@@ -78,13 +78,13 @@ export default function HighlightsSection({
             {highlights.map((h) => (
               <div key={h.id} className="flex items-start gap-2 bg-amber-50 rounded-lg px-3 py-2 group">
                 <span className="text-xs text-amber-700 flex-1 leading-relaxed">
-                  <Star size={12} strokeWidth={1.75} className="inline" /> {h.text.slice(0, 80)}{h.text.length > 80 ? '…' : ''}
+                  <Star size={14} strokeWidth={1.75} className="inline" /> {h.text.slice(0, 80)}{h.text.length > 80 ? '…' : ''}
                 </span>
                 <button
                   onClick={() => removeHighlight(nodeId, h.id)}
                   className="text-amber-300 hover:text-red-500 transition-colors shrink-0 opacity-0 group-hover:opacity-100"
                 >
-                  <X size={12} strokeWidth={1.75} />
+                  <X size={14} strokeWidth={1.75} />
                 </button>
               </div>
             ))}
@@ -94,9 +94,9 @@ export default function HighlightsSection({
             <span className="text-xs text-ink-faint font-medium">Pass to downstream</span>
             <div className="flex items-center gap-1.5">
               {([
-                { mode: 'tag' as const, icon: <Tag size={12} strokeWidth={1.75} />, label: 'Tag important' },
-                { mode: 'filter' as const, icon: <Scissors size={12} strokeWidth={1.75} />, label: 'Highlights only' },
-                { mode: 'off' as const, icon: <FileText size={12} strokeWidth={1.75} />, label: 'Full text' },
+                { mode: 'tag' as const, icon: <Tag size={14} strokeWidth={1.75} />, label: 'Tag important' },
+                { mode: 'filter' as const, icon: <Scissors size={14} strokeWidth={1.75} />, label: 'Highlights only' },
+                { mode: 'off' as const, icon: <FileText size={14} strokeWidth={1.75} />, label: 'Full text' },
               ]).map(({ mode, icon, label }) => (
                 <button
                   key={mode}
@@ -111,7 +111,7 @@ export default function HighlightsSection({
                 </button>
               ))}
             </div>
-            <p className="text-[10px] text-ink-faint leading-relaxed">
+            <p className="text-2xs text-ink-faint leading-relaxed">
               {highlightMode === 'off' && 'Downstream nodes receive the full response'}
               {highlightMode === 'tag' && 'Highlighted parts wrapped with [Important] tags to guide AI focus'}
               {highlightMode === 'filter' && 'Downstream nodes only receive highlighted content, rest discarded'}
@@ -120,7 +120,7 @@ export default function HighlightsSection({
           {/* Highlight Explore input */}
           {highlightExploreContext && (
             <div className="mt-3 space-y-1.5">
-              <span className="text-xs text-accent font-medium"><GitBranch size={12} strokeWidth={1.75} className="inline" /> Ask about highlights:</span>
+              <span className="text-xs text-accent font-medium"><GitBranch size={14} strokeWidth={1.75} className="inline" /> Ask about highlights:</span>
               <div className="flex gap-1.5">
                 <input
                   ref={highlightExploreRef}
@@ -159,7 +159,7 @@ export default function HighlightsSection({
                   onClick={() => { setHighlightExploreContext(''); setHighlightExploreInput(''); }}
                   className="text-xs text-ink-faint hover:text-ink-muted px-1.5 py-2 transition-colors shrink-0"
                 >
-                  <X size={12} strokeWidth={1.75} />
+                  <X size={14} strokeWidth={1.75} />
                 </button>
               </div>
               <label className="flex items-center gap-2 text-xs text-ink-muted cursor-pointer select-none">

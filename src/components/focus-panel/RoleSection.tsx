@@ -29,8 +29,8 @@ export default function RoleSection({
   return (
     <div className="px-4 py-3 border-b border-line">
       <details className="group" open={roleMode !== 'inherit'}>
-        <summary className="text-xs text-ink-faint uppercase tracking-wide font-medium cursor-pointer hover:text-ink-muted transition-colors flex items-center gap-1.5 select-none">
-          <ChevronRight size={10} strokeWidth={1.75} className="transition-transform group-open:rotate-90" />
+        <summary className="text-xs text-ink-faint uppercase tracking-wider font-medium cursor-pointer hover:text-ink-muted transition-colors flex items-center gap-1.5 select-none">
+          <ChevronRight size={12} strokeWidth={1.75} className="transition-transform group-open:rotate-90" />
           Role (System Prompt)
           {roleMode === 'set-next' && <span className="text-accent font-medium normal-case ml-1">Set for next ↓</span>}
           {roleMode === 'reset' && <span className="text-amber-600 font-medium normal-case ml-1">Reset</span>}
@@ -76,7 +76,7 @@ export default function RoleSection({
           {/* Multi-role source selector */}
           {roleMode === 'inherit' && hasRoleConflict && (
             <div className="space-y-1.5">
-              <p className="text-[10px] text-amber-600 font-medium">Multiple roles from incoming edges:</p>
+              <p className="text-2xs text-amber-600 font-medium">Multiple roles from incoming edges:</p>
               {availableRoles.map((r) => {
                 const isSelected = data.roleSourceNodeId === r.nodeId || (!data.roleSourceNodeId && r.isPrimary);
                 return (
@@ -90,7 +90,7 @@ export default function RoleSection({
                     />
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded ${r.isPrimary ? 'bg-accent/15 text-accent' : 'bg-line text-ink-muted'}`}>
+                        <span className={`text-2xs px-1.5 py-0.5 rounded ${r.isPrimary ? 'bg-accent/15 text-accent' : 'bg-line text-ink-muted'}`}>
                           {r.isPrimary ? 'Primary' : 'Cross-link'}
                         </span>
                         <span className="text-ink-muted truncate">{r.label}</span>
@@ -132,14 +132,14 @@ export default function RoleSection({
               onClick={() => { regenerate(nodeId); setRoleChanged(false); }}
               className="w-full text-xs bg-accent hover:bg-accent-strong text-white px-3 py-2 rounded-lg transition-colors flex items-center justify-center gap-1.5"
             >
-              <RefreshCw size={12} strokeWidth={1.75} />
+              <RefreshCw size={14} strokeWidth={1.75} />
               Regenerate with new role
             </button>
           )}
           {roleChanged && roleMode === 'set-next' && !!data.response && !data.isLoading && (
-            <p className="text-[10px] text-accent">Role will apply to new child nodes from here.</p>
+            <p className="text-2xs text-accent">Role will apply to new child nodes from here.</p>
           )}
-          <p className="text-[10px] text-ink-faint leading-relaxed">
+          <p className="text-2xs text-ink-faint leading-relaxed">
             {roleMode === 'inherit' && !data.rolePrompt && !inheritedRole && 'No role set. Use Set for next or Reset to define one.'}
             {roleMode === 'inherit' && !data.rolePrompt && inheritedRole && 'Inherited from ancestor.'}
             {roleMode === 'inherit' && data.rolePrompt && 'Role active. Applies here and passes to descendants.'}
