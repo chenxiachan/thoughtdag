@@ -78,6 +78,11 @@ if (ZHIPU_KEY) {
     cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
     contextWindow: 131072,
     maxTokens: 8192,
+    // GLM-4.5 defaults to hidden "thinking" (burns seconds + tokens before
+    // the first visible character). reasoning + thinkingFormat let pi-ai
+    // send thinking: {type: "disabled"} explicitly.
+    reasoning: true,
+    compat: { ...OPENAI_COMPAT.compat, thinkingFormat: 'zai' },
   };
   modelRegistry['glm-4v-flash'] = {
     ...OPENAI_COMPAT,
