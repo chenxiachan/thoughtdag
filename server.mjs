@@ -17,15 +17,16 @@ try {
   }
 } catch { /* .env is optional — env vars may come from the shell */ }
 
+const ZHIPU_KEY = process.env.ZHIPU_API_KEY;
 const QWEN_KEY = process.env.DASHSCOPE_API_KEY;
 const PORT = Number(process.env.PORT) || 3001;
 
-if (!QWEN_KEY) {
+if (!ZHIPU_KEY && !QWEN_KEY) {
   console.error(
-    '\n✗ Missing DASHSCOPE_API_KEY.\n' +
-    '  未找到 DashScope API key。请执行：\n' +
-    '    cp .env.example .env\n' +
-    '  然后在 .env 中填入你的 key（https://dashscope.console.aliyun.com/）\n'
+    '\n✗ No LLM API key found. 未找到任何 LLM API key。\n' +
+    '  请执行 cp .env.example .env，然后至少填入一把 key：\n' +
+    '    ZHIPU_API_KEY     — 智谱 GLM（免费，推荐）https://open.bigmodel.cn/\n' +
+    '    DASHSCOPE_API_KEY — 通义千问 https://dashscope.console.aliyun.com/\n'
   );
   process.exit(1);
 }
@@ -42,19 +43,13 @@ try {
 }
 
 // ─── Model Configuration ────────────────────────────────────────
-// Default: Qwen Plus via DashScope (OpenAI-compatible)
+// Providers register their models only when the matching API key is present.
+// Every model is OpenAI-compatible via pi-ai; each entry carries its own
+// apiKey, and text models name a visionFallback used when images are attached.
 
-const qwenModel = {
-  id: 'qwen-plus',
-  name: 'Qwen Plus (DashScope)',
+const OPENAI_COMPAT = {
   api: 'openai-completions',
-  provider: 'dashscope',
-  baseUrl: 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1',
   reasoning: false,
-  input: ['text'],
-  cost: { input: 0.8, output: 2, cacheRead: 0, cacheWrite: 0 },
-  contextWindow: 131072,
-  maxTokens: 8192,
   compat: {
     supportsStore: false,
     supportsDeveloperRole: false,
@@ -64,33 +59,69 @@ const qwenModel = {
   },
 };
 
-const qwenVLModel = {
-  id: 'qwen-vl-plus',
-  name: 'Qwen VL Plus (DashScope)',
-  api: 'openai-completions',
-  provider: 'dashscope',
-  baseUrl: 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1',
-  reasoning: false,
-  input: ['text', 'image'],
-  cost: { input: 1.5, output: 4, cacheRead: 0, cacheWrite: 0 },
-  contextWindow: 131072,
-  maxTokens: 8192,
-  compat: {
-    supportsStore: false,
-    supportsDeveloperRole: false,
-    supportsReasoningEffort: false,
-    supportsStrictMode: false,
-    maxTokensField: 'max_tokens',
-  },
-};
+const ZHIPU_BASE = 'https://open.bigmodel.cn/api/paas/v4';
+const DASHSCOPE_BASE = 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1';
 
-// Model registry — add more models here
-const modelRegistry = {
-  'qwen-plus': qwenModel,
-  'qwen-vl-plus': qwenVLModel,
-};
+// Model registry — add more providers/models here
+const modelRegistry = {};
 
-const DEFAULT_MODEL = 'qwen-plus';
+if (ZHIPU_KEY) {
+  modelRegistry['glm-4.5-flash'] = {
+    ...OPENAI_COMPAT,
+    id: 'glm-4.5-flash',
+    name: 'GLM-4.5 Flash (Zhipu, free)',
+    provider: 'zhipu',
+    baseUrl: ZHIPU_BASE,
+    apiKey: ZHIPU_KEY,
+    input: ['text'],
+    visionFallback: 'glm-4v-flash',
+    cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+    contextWindow: 131072,
+    maxTokens: 8192,
+  };
+  modelRegistry['glm-4v-flash'] = {
+    ...OPENAI_COMPAT,
+    id: 'glm-4v-flash',
+    name: 'GLM-4V Flash (Zhipu, free vision)',
+    provider: 'zhipu',
+    baseUrl: ZHIPU_BASE,
+    apiKey: ZHIPU_KEY,
+    input: ['text', 'image'],
+    cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
+    contextWindow: 8192,
+    maxTokens: 4096,
+  };
+}
+
+if (QWEN_KEY) {
+  modelRegistry['qwen-plus'] = {
+    ...OPENAI_COMPAT,
+    id: 'qwen-plus',
+    name: 'Qwen Plus (DashScope)',
+    provider: 'dashscope',
+    baseUrl: DASHSCOPE_BASE,
+    apiKey: QWEN_KEY,
+    input: ['text'],
+    visionFallback: 'qwen-vl-plus',
+    cost: { input: 0.8, output: 2, cacheRead: 0, cacheWrite: 0 },
+    contextWindow: 131072,
+    maxTokens: 8192,
+  };
+  modelRegistry['qwen-vl-plus'] = {
+    ...OPENAI_COMPAT,
+    id: 'qwen-vl-plus',
+    name: 'Qwen VL Plus (DashScope)',
+    provider: 'dashscope',
+    baseUrl: DASHSCOPE_BASE,
+    apiKey: QWEN_KEY,
+    input: ['text', 'image'],
+    cost: { input: 1.5, output: 4, cacheRead: 0, cacheWrite: 0 },
+    contextWindow: 131072,
+    maxTokens: 8192,
+  };
+}
+
+const DEFAULT_MODEL = ZHIPU_KEY ? 'glm-4.5-flash' : 'qwen-plus';
 
 // ─── Helpers ────────────────────────────────────────────────────
 
@@ -128,12 +159,14 @@ function buildPiContext(messages, images) {
   return { systemPrompt, messages: piMessages };
 }
 
-// Choose model: if images present, use vision model
+// Choose model: if images are attached and the model is text-only,
+// switch to its provider's vision counterpart.
 function resolveModel(modelId, hasImages) {
-  if (hasImages && modelId === 'qwen-plus') {
-    return modelRegistry['qwen-vl-plus'];
+  const model = modelRegistry[modelId] || modelRegistry[DEFAULT_MODEL];
+  if (hasImages && !model.input.includes('image') && model.visionFallback && modelRegistry[model.visionFallback]) {
+    return modelRegistry[model.visionFallback];
   }
-  return modelRegistry[modelId] || modelRegistry[DEFAULT_MODEL];
+  return model;
 }
 
 // ─── Express App ────────────────────────────────────────────────
@@ -226,7 +259,7 @@ app.post('/api/claude', async (req, res) => {
   const context = buildPiContext(messages, images);
 
   try {
-    const response = await complete(model, context, { apiKey: QWEN_KEY });
+    const response = await complete(model, context, { apiKey: model.apiKey });
     const text = response.content
       .filter((b) => b.type === 'text')
       .map((b) => b.text)
@@ -255,7 +288,7 @@ app.post('/api/stream', async (req, res) => {
   });
 
   try {
-    const s = stream(model, context, { apiKey: QWEN_KEY });
+    const s = stream(model, context, { apiKey: model.apiKey });
 
     for await (const event of s) {
       switch (event.type) {

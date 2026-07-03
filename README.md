@@ -176,18 +176,20 @@ ThoughtDAG 把 LLM 对话从线性聊天变成空间化、可编辑的 DAG（有
 | 画布 | @xyflow/react (React Flow) |
 | 状态 | Zustand（persist → IndexedDB via idb-keyval）|
 | 样式 | Tailwind CSS v4 |
-| 大模型 | 通义千问 Qwen Plus / Qwen-VL（DashScope intl API，经 @mariozechner/pi-ai）|
+| 大模型 | 智谱 GLM-4.5-Flash / GLM-4V-Flash（免费）或 通义千问 Qwen Plus / Qwen-VL，按 .env 中的 key 自动注册（经 @mariozechner/pi-ai）|
 | 代理 | Express (server.mjs, 默认端口 3001) |
 
 ## 快速开始
 
 ```bash
 npm install
-cp .env.example .env   # 填入你的 DASHSCOPE_API_KEY
+cp .env.example .env   # 至少填一把 key：ZHIPU_API_KEY（免费）或 DASHSCOPE_API_KEY
 npm run server         # 启动 LLM 代理（缺 key 会友好报错）
 npm run dev            # 另开终端，启动开发服务器
 # 打开 http://localhost:5173
 ```
+
+> **免费用法：** 到 [open.bigmodel.cn](https://open.bigmodel.cn/) 注册智谱账号（手机号即可），生成 API key 填入 `ZHIPU_API_KEY`。GLM-4.5-Flash（文本）和 GLM-4V-Flash（图片/PDF 视觉）均免费，有智谱 key 时自动作为默认模型。
 
 > **可选依赖：** PDF 页图渲染需要 poppler（`brew install poppler`）。没有它 PDF 附件自动降级为纯文本模式。
 >

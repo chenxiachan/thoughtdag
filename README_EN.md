@@ -175,18 +175,20 @@ The context sent to the LLM is determined by a simple rule: **walk up all incomi
 | Canvas | @xyflow/react (React Flow) |
 | State | Zustand (persist → IndexedDB via idb-keyval) |
 | Styling | Tailwind CSS v4 |
-| LLM | Qwen Plus / Qwen-VL via DashScope intl API (through @mariozechner/pi-ai) |
+| LLM | Zhipu GLM-4.5-Flash / GLM-4V-Flash (free) or Qwen Plus / Qwen-VL — registered automatically based on which keys are in .env (through @mariozechner/pi-ai) |
 | Proxy | Express (server.mjs, default port 3001) |
 
 ## Quick Start
 
 ```bash
 npm install
-cp .env.example .env   # fill in your DASHSCOPE_API_KEY
-npm run server         # start the LLM proxy (fails fast with a hint if the key is missing)
+cp .env.example .env   # fill in at least one key: ZHIPU_API_KEY (free) or DASHSCOPE_API_KEY
+npm run server         # start the LLM proxy (fails fast with a hint if no key is present)
 npm run dev            # in another terminal, start the dev server
 # Open http://localhost:5173
 ```
+
+> **Free tier:** register at [open.bigmodel.cn](https://open.bigmodel.cn/) (phone number only), create an API key and put it in `ZHIPU_API_KEY`. GLM-4.5-Flash (text) and GLM-4V-Flash (vision for images/PDF) are both free and become the default when the key is present.
 
 > **Optional dependency:** PDF page rendering needs poppler (`brew install poppler`). Without it, PDF attachments fall back to text-only mode.
 >
