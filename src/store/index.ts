@@ -59,6 +59,11 @@ export const useStore = create<StoreState>()(persist((...a) => ({
       historyIndex: 0,
     };
   },
+  // Surface rehydration failures — zustand's hydrate() swallows them silently,
+  // which would leave the app stuck behind the hydration gate.
+  onRehydrateStorage: () => (_state, error) => {
+    if (error) console.error('[thoughtdag] rehydration failed:', error);
+  },
 }));
 
 // Debug: expose store for testing (DEV only)
