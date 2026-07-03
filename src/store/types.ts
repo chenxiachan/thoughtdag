@@ -1,0 +1,72 @@
+import type { ThoughtNode, ThoughtEdge, Highlight, Attachment } from '../types';
+
+export interface Snapshot {
+  nodes: ThoughtNode[];
+  edges: ThoughtEdge[];
+}
+
+export interface HistorySlice {
+  history: Snapshot[];
+  historyIndex: number;
+  pushHistory: () => void;
+  undo: () => void;
+  redo: () => void;
+}
+
+export interface NodeSlice {
+  nodes: ThoughtNode[];
+  edges: ThoughtEdge[];
+  selectedNodeId: string | null;
+  selectedNodeIds: string[];
+  setNodes: (nodes: ThoughtNode[]) => void;
+  setEdges: (edges: ThoughtEdge[]) => void;
+  setSelectedNodeId: (id: string | null) => void;
+  setSelectedNodeIds: (ids: string[]) => void;
+  deleteNode: (nodeId: string) => void;
+  editResponse: (nodeId: string, response: string) => void;
+  toggleCollapse: (nodeId: string) => void;
+  setEditing: (nodeId: string, editing: boolean) => void;
+  setEditingResponse: (nodeId: string, editing: boolean) => void;
+  duplicateNode: (nodeId: string) => void;
+  addCrossLink: (sourceId: string, targetId: string) => void;
+  navigateVersion: (nodeId: string, direction: 'prev' | 'next') => void;
+  deleteVersion: (nodeId: string, versionIndex: number) => void;
+  batchDelete: (nodeIds: string[]) => void;
+}
+
+export interface LlmSlice {
+  addQuestion: (question: string, parentId?: string, branchContext?: string, branchYRatio?: number, inheritRole?: boolean, rolePrompt?: string, initialAttachments?: Attachment[], excludeAllInheritedAttachments?: boolean) => void;
+  editQuestion: (nodeId: string, question: string) => void;
+  regenerate: (nodeId: string) => void;
+  distillRegenerate: (nodeId: string) => void;
+  batchMergeSummarize: (nodeIds: string[], deleteAfter?: boolean) => void;
+  stopGeneration: (nodeId: string) => void;
+}
+
+export interface RoleSlice {
+  setRolePrompt: (nodeId: string, rolePrompt: string) => void;
+  setInheritRole: (nodeId: string, inherit: boolean) => void;
+  setRoleMode: (nodeId: string, mode: 'inherit' | 'set-next' | 'reset') => void;
+  setRoleSource: (nodeId: string, sourceNodeId: string | undefined) => void;
+  getAvailableRoles: (nodeId: string) => { nodeId: string; role: string; isPrimary: boolean; label: string }[];
+}
+
+export interface HighlightSlice {
+  addHighlight: (nodeId: string, highlight: Highlight) => void;
+  removeHighlight: (nodeId: string, highlightId: string) => void;
+  setHighlightMode: (nodeId: string, mode: 'off' | 'tag' | 'filter') => void;
+  setSummary: (nodeId: string, summary: string) => void;
+}
+
+export interface AttachmentSlice {
+  addAttachment: (nodeId: string, attachment: Attachment) => void;
+  removeAttachment: (nodeId: string, attachmentId: string) => void;
+  toggleExcludeAttachment: (nodeId: string, attachmentId: string, ancestorExcluded?: boolean) => void;
+  setAttachmentRenderMode: (nodeId: string, attachmentId: string, mode: 'full' | 'text-only') => void;
+  setAttachmentData: (nodeId: string, attachmentId: string, data: Partial<Attachment>) => void;
+  getInheritedAttachments: (nodeId: string) => { attachment: Attachment; sourceNodeId: string; sourceQuestion: string; excludedByAncestor: boolean }[];
+}
+
+export type StoreState = HistorySlice & NodeSlice & LlmSlice & RoleSlice & HighlightSlice & AttachmentSlice;
+
+export type PersistedState = { nodes: ThoughtNode[]; edges: ThoughtEdge[] };

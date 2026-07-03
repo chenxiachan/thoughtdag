@@ -1,0 +1,67 @@
+import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import { idbStorage } from '../lib/persistence';
+import type { ThoughtNode } from '../types';
+import type { StoreState, PersistedState } from './types';
+import { buildContext } from './context-builder';
+import { createHistorySlice } from './slices/history';
+import { createNodeSlice } from './slices/nodes';
+import { createLlmSlice } from './slices/llm';
+import { createRoleSlice } from './slices/roles';
+import { createHighlightSlice } from './slices/highlights';
+import { createAttachmentSlice } from './slices/attachments';
+
+// Reset transient UI flags — applied both when persisting and when rehydrating,
+// so a refresh mid-stream/mid-edit never restores a node stuck in loading state.
+function stripTransient(nodes: ThoughtNode[]): ThoughtNode[] {
+  return nodes.map((n) => ({
+    ...n,
+    selected: false,
+    data: {
+      ...n.data,
+      isLoading: false,
+      isEditing: false,
+      isEditingResponse: false,
+      attachments: (n.data.attachments || []).map((a) =>
+        a.isExtracting ? { ...a, isExtracting: false } : a
+      ),
+    },
+  }));
+}
+
+export const useStore = create<StoreState>()(persist((...a) => ({
+  ...createHistorySlice(...a),
+  ...createNodeSlice(...a),
+  ...createLlmSlice(...a),
+  ...createRoleSlice(...a),
+  ...createHighlightSlice(...a),
+  ...createAttachmentSlice(...a),
+}), {
+  name: 'thoughtdag',
+  version: 1,
+  storage: createJSONStorage(() => idbStorage),
+  // Persist only the graph. Undo history (full-graph snapshots ×50) and
+  // selection are session-scoped and would bloat the stored payload.
+  partialize: (state): PersistedState => ({
+    nodes: stripTransient(state.nodes),
+    edges: state.edges,
+  }),
+  merge: (persisted, current) => {
+    const p = (persisted ?? { nodes: [], edges: [] }) as PersistedState;
+    const nodes = stripTransient(p.nodes ?? []);
+    const edges = p.edges ?? [];
+    return {
+      ...current,
+      nodes,
+      edges,
+      // The restored graph becomes the base snapshot of the undo stack.
+      history: [{ nodes: JSON.parse(JSON.stringify(nodes)), edges: JSON.parse(JSON.stringify(edges)) }],
+      historyIndex: 0,
+    };
+  },
+}));
+
+// Debug: expose store for testing (DEV only)
+if (import.meta.env.DEV && typeof window !== 'undefined') {
+  Object.assign(window, { __store: useStore, __buildContext: buildContext });
+}
