@@ -86,23 +86,25 @@ The context sent to the LLM is determined by a simple rule: **walk up all incomi
 - **Node role system** — Per-node system prompt (Role) with 3 modes: Inherit from previous / Set for next ↓ / Reset for this node; `appliedRole` records the role used at generation time (editing doesn't affect badge)
 - **Multi-role conflict resolution** — When a DAG node has multiple incoming edges with different roles, FocusPanel shows a radio selector (Primary / Cross-link labels); defaults to primary edge, user can override
 
-### 📎 Attachment System (Designed)
+### 📎 Attachment System (Phase 1 implemented)
 
 **Core differentiator**: Unlike linear chat UIs, ThoughtDAG lets you precisely control attachment inheritance in downstream nodes.
 
-- **Node-local attachments** — files bind to specific nodes, not global conversation history
-- **Inherited attachment control** — FocusPanel shows all upstream attachments with per-file include/exclude toggle
-- **Full transparency** — see exactly which files the LLM will receive before asking
-- **Single-origin attachment** — attachments appear once at the originating node's position; downstream nodes inherit via DAG traversal without duplication
-- **Auto-dedup on DAG merge** — when multiple paths reach the same ancestor, visited set ensures attachments appear only once
-- **Phase 1**: Images (Qwen-VL Vision) + text files (txt/md/code)
-- **Phase 2**: PDF/DOCX + Web Search
-- **Phase 3**: LLM Tool Use (autonomous search)
+- ✅ **Node-local attachments** — files bind to specific nodes, not global conversation history; drag-drop / paste / click to upload
+- ✅ **Inherited attachment control** — FocusPanel shows all upstream attachments with per-file include/exclude toggle (`excludedAttachmentIds` / `includedAttachmentIds` override mechanism)
+- ✅ **Full transparency** — see exactly which files the LLM will receive before asking
+- ✅ **Single-origin attachment** — attachments appear once at the originating node's position; downstream nodes inherit via DAG traversal; fingerprint dedup keeps them unique across merged paths
+- ✅ **Images + Vision** — automatically switches to Qwen-VL when images are present
+- ✅ **Text files** — txt/md/code injected directly into context
+- ✅ **PDF** — server-side text extraction (pdfjs) + page rendering (poppler); >10 pages defaults to text-only (Vision toggleable); degrades to text-only when poppler is absent
+- **Phase 2 (todo)**: DOCX + Web Search
+- **Phase 3 (todo)**: LLM Tool Use (autonomous search)
 
 ### 📋 Roadmap
 
 #### P0 — Core UX
-- [ ] **Data persistence** — No data loss on refresh; auto-save to LocalStorage/IndexedDB with multi-project support
+- [x] **Data persistence** — ✅ auto-save to IndexedDB, survives refresh (undo history and selection stay session-scoped)
+- [ ] **Multi-project switching** — project list management (create/switch/rename/delete), each saved independently
 - [x] **Streaming responses** — SSE streaming with real-time markdown rendering + blinking cursor in FocusPanel
 
 #### P1 — Deep Node Editing
@@ -147,11 +149,12 @@ The context sent to the LLM is determined by a simple rule: **walk up all incomi
 - [ ] **Export to file** — Multi-select nodes → LLM organizes into code file / document / paper outline → download. Lightweight output approach
 - [ ] **Code block enhancement** — Copy/Run buttons on code blocks, "Open in Editor" with Monaco editor, save back to node
 
-#### P0.5 — Attachment System Phase 1
-- [ ] **Image upload + Vision** — Qwen-VL-Plus for image understanding
-- [ ] **Text file upload** — txt/md/code injected directly into context
-- [ ] **FocusPanel attachment area** — upload zone + inherited attachment list with include/exclude toggles
-- [ ] **buildContext attachment filtering** — `excludedAttachmentIds` controls which upstream attachments are excluded
+#### P0.5 — Attachment System Phase 1 ✅ Done
+- [x] **Image upload + Vision** — Qwen-VL-Plus for image understanding
+- [x] **Text file upload** — txt/md/code injected directly into context
+- [x] **PDF upload** — server-side text extraction + page rendering, >10 pages defaults to text-only
+- [x] **FocusPanel attachment area** — upload zone + inherited attachment list with include/exclude toggles
+- [x] **buildContext attachment filtering** — `excludedAttachmentIds` controls which upstream attachments are excluded
 
 #### P4 — Long-term
 - [ ] **Attachment System Phase 2/3** — PDF/DOCX parsing, Web Search, LLM Tool Use
@@ -168,39 +171,39 @@ The context sent to the LLM is determined by a simple rule: **walk up all incomi
 
 | Layer | Tech |
 |-------|------|
-| UI | React 18 + TypeScript + Vite |
+| UI | React 19 + TypeScript + Vite 7 |
 | Canvas | @xyflow/react (React Flow) |
-| State | Zustand |
+| State | Zustand (persist → IndexedDB via idb-keyval) |
 | Styling | Tailwind CSS v4 |
-| LLM | Qwen Plus via DashScope intl API |
-| Proxy | Express (server.mjs, port 3001) |
+| LLM | Qwen Plus / Qwen-VL via DashScope intl API (through @mariozechner/pi-ai) |
+| Proxy | Express (server.mjs, default port 3001) |
 
 ## Quick Start
 
 ```bash
-# Install dependencies
 npm install
-
-# Start the LLM proxy server
-node server.mjs
-
-# Start the dev server (in another terminal)
-npx vite --host
-
+cp .env.example .env   # fill in your DASHSCOPE_API_KEY
+npm run server         # start the LLM proxy (fails fast with a hint if the key is missing)
+npm run dev            # in another terminal, start the dev server
 # Open http://localhost:5173
 ```
 
-> **Note:** You need a DashScope API key in `server.mjs` to use the LLM. The app works without it but responses will fail.
+> **Optional dependency:** PDF page rendering needs poppler (`brew install poppler`). Without it, PDF attachments fall back to text-only mode.
+>
+> **Data storage:** The canvas auto-saves to browser IndexedDB. To wipe the save, run `indexedDB.deleteDatabase('keyval-store')` in the DevTools console and refresh.
 
 ## Architecture
 
 ```
 Browser (localhost:5173)
   └─ React + React Flow canvas
-      └─ Zustand store (nodes, edges, history)
-          ├─ buildContext(nodeId) → walks DAG → ContextMessage[]
-          └─ llmCall(messages) → POST localhost:3001/api/chat
-                                      └─ Express proxy → DashScope API (Qwen Plus)
+      └─ Zustand store (nodes, edges, history) ⇄ IndexedDB (auto-save)
+          ├─ buildContext(nodeId) → walks DAG → ContextMessage[] + images
+          └─ src/lib/api.ts
+              ├─ llmCallStream(messages) → POST /api/stream (SSE streaming)
+              ├─ llmCall(messages)       → POST /api/claude (non-streaming, summaries)
+              └─ extractPdf(base64)      → POST /api/pdf-extract
+                        └─ Express proxy (server.mjs) → DashScope API (Qwen Plus, Qwen-VL for images)
 ```
 
 ## License

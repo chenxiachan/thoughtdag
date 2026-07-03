@@ -85,24 +85,28 @@ ThoughtDAG 把 LLM 对话从线性聊天变成空间化、可编辑的 DAG（有
 - **选中边高亮** — 选中节点时祖先路径上的边变金色加粗（#F59E0B），其余边淡化
 - **节点角色系统** — 每个节点可设 System Prompt（Role），三种模式：Inherit from previous / Set for next ↓ / Reset for this node；子节点自动继承，可覆盖。`appliedRole` 记录生成时使用的角色（编辑不影响 badge）
 - **多 Role 冲突解决** — DAG 多父节点场景下，如果多条入边带有不同 Role，FocusPanel 显示 Radio 选择器（Primary / Cross-link 标签），默认主边优先，用户可手动切换
+- **数据持久化** — 画布自动保存到 IndexedDB（防抖 1s），刷新不丢数据；恢复的图作为 undo 栈基底
+- **环境变量配置** — API key 走 `.env`（不入库），代理端口与前端 API 地址均可配置
 
-### 📎 附件系统（设计中）
+### 📎 附件系统（Phase 1 已实现）
 
 **核心差异化**：与线性聊天不同，ThoughtDAG 允许在下游节点中精确控制附件的继承。
 
-- **节点局部附件** — 文件绑定在具体节点上，不是全局对话历史
-- **继承附件控制** — FocusPanel 显示上游所有附件，每个附件可 toggle include/exclude
-- **用户完全透明** — 提问前就能看到"这个节点的 LLM 会看到哪些文件"
-- **附件只传一次** — 附件在原始节点的消息位置出现，下游节点通过 DAG 遍历自然继承，不重复传入
-- **DAG 合并自动去重** — 多条路径到达同一祖先时，visited set 保证附件只出现一次
-- **Phase 1**: 图片（Qwen-VL Vision）+ 文本文件（txt/md/code）
-- **Phase 2**: PDF/DOCX + Web Search
-- **Phase 3**: LLM Tool Use（自主搜索）
+- ✅ **节点局部附件** — 文件绑定在具体节点上，不是全局对话历史；拖拽/粘贴/点击上传
+- ✅ **继承附件控制** — FocusPanel 显示上游所有附件，每个附件可 toggle include/exclude（`excludedAttachmentIds` / `includedAttachmentIds` 覆盖机制）
+- ✅ **用户完全透明** — 提问前就能看到"这个节点的 LLM 会看到哪些文件"
+- ✅ **附件只传一次** — 附件在原始节点的消息位置出现，下游节点通过 DAG 遍历自然继承；指纹去重保证多路径合并时只出现一次
+- ✅ **图片 + Vision** — 有图自动切换 Qwen-VL
+- ✅ **文本文件** — txt/md/code 直接注入 context
+- ✅ **PDF** — 服务端 pdfjs 抽文本 + poppler 渲染页图；>10 页默认 Text-only（可切换 Vision）；无 poppler 时自动降级纯文本
+- **Phase 2（待做）**: DOCX + Web Search
+- **Phase 3（待做）**: LLM Tool Use（自主搜索）
 
 ### 📋 Roadmap
 
 #### P0 — 基础体验
-- [ ] **数据持久化** — 刷新不丢数据；自动保存到 LocalStorage/IndexedDB，支持多项目切换
+- [x] **数据持久化** — ✅ 自动保存到 IndexedDB，刷新不丢数据（undo 历史与选中态不持久化）
+- [ ] **多项目切换** — 项目列表管理（新建/切换/重命名/删除），每个项目独立保存
 - [x] **流式响应** — LLM 回答逐字输出（SSE streaming），FocusPanel 实时渲染 + 闪烁光标
 
 #### P1 — 节点深度编辑
@@ -146,11 +150,12 @@ ThoughtDAG 把 LLM 对话从线性聊天变成空间化、可编辑的 DAG（有
 - [ ] **导出为文件** — 多选节点 → LLM 整理为代码文件/文档/论文大纲 → 下载。轻量的产出物方案
 - [ ] **代码块增强** — 代码块加 Copy/Run 按钮，Open in Editor 弹出可编辑面板
 
-#### P0.5 — 附件系统 Phase 1
-- [ ] **图片上传 + Vision** — Qwen-VL-Plus 理解图片内容
-- [ ] **文本文件上传** — txt/md/code 直接注入 context
-- [ ] **FocusPanel 附件区** — 上传 + 继承附件列表 + include/exclude toggle
-- [ ] **buildContext 附件过滤** — `excludedAttachmentIds` 控制哪些上游附件被排除
+#### P0.5 — 附件系统 Phase 1 ✅ 已完成
+- [x] **图片上传 + Vision** — Qwen-VL-Plus 理解图片内容
+- [x] **文本文件上传** — txt/md/code 直接注入 context
+- [x] **PDF 上传** — 服务端抽文本 + 渲染页图，>10 页默认 Text-only
+- [x] **FocusPanel 附件区** — 上传 + 继承附件列表 + include/exclude toggle
+- [x] **buildContext 附件过滤** — `excludedAttachmentIds` 控制哪些上游附件被排除
 
 #### P4 — 长期愿景
 - [ ] **附件系统 Phase 2/3** — PDF/DOCX 解析、Web Search、LLM Tool Use
@@ -167,33 +172,39 @@ ThoughtDAG 把 LLM 对话从线性聊天变成空间化、可编辑的 DAG（有
 
 | 层级 | 技术 |
 |------|------|
-| 界面 | React 18 + TypeScript + Vite |
+| 界面 | React 19 + TypeScript + Vite 7 |
 | 画布 | @xyflow/react (React Flow) |
-| 状态 | Zustand |
+| 状态 | Zustand（persist → IndexedDB via idb-keyval）|
 | 样式 | Tailwind CSS v4 |
-| 大模型 | 通义千问 Qwen Plus（DashScope intl API）|
-| 代理 | Express (server.mjs, 端口 3001) |
+| 大模型 | 通义千问 Qwen Plus / Qwen-VL（DashScope intl API，经 @mariozechner/pi-ai）|
+| 代理 | Express (server.mjs, 默认端口 3001) |
 
 ## 快速开始
 
 ```bash
 npm install
-node server.mjs        # 启动 LLM 代理
-npx vite --host        # 启动开发服务器
+cp .env.example .env   # 填入你的 DASHSCOPE_API_KEY
+npm run server         # 启动 LLM 代理（缺 key 会友好报错）
+npm run dev            # 另开终端，启动开发服务器
 # 打开 http://localhost:5173
 ```
 
-> **注意：** 需要在 `server.mjs` 中配置 DashScope API key 才能使用 LLM。
+> **可选依赖：** PDF 页图渲染需要 poppler（`brew install poppler`）。没有它 PDF 附件自动降级为纯文本模式。
+>
+> **数据存储：** 画布自动保存在浏览器 IndexedDB。如需清空存档，在 DevTools Console 执行 `indexedDB.deleteDatabase('keyval-store')` 后刷新。
 
 ## 架构
 
 ```
 浏览器 (localhost:5173)
   └─ React + React Flow 画布
-      └─ Zustand store (nodes, edges, history)
-          ├─ buildContext(nodeId) → 遍历 DAG → ContextMessage[]
-          └─ llmCall(messages) → POST localhost:3001/api/chat
-                                      └─ Express 代理 → DashScope API (Qwen Plus)
+      └─ Zustand store (nodes, edges, history) ⇄ IndexedDB（自动保存）
+          ├─ buildContext(nodeId) → 遍历 DAG → ContextMessage[] + images
+          └─ src/lib/api.ts
+              ├─ llmCallStream(messages) → POST /api/stream（SSE 流式）
+              ├─ llmCall(messages)       → POST /api/claude（非流式，用于摘要）
+              └─ extractPdf(base64)      → POST /api/pdf-extract
+                        └─ Express 代理 (server.mjs) → DashScope API（Qwen Plus / 有图切 Qwen-VL）
 ```
 
 ## 许可
