@@ -35,7 +35,19 @@ export async function extractPdf(base64: string): Promise<PdfExtractResult> {
   return res.json();
 }
 
-// Legacy non-streaming call
+// Wrap transport failures with an actionable hint. Errors always THROW —
+// callers decide how to surface them (toast, placeholder, silent).
+function wrapError(err: unknown): Error {
+  if (err instanceof DOMException && err.name === 'AbortError') return err as unknown as Error;
+  const message = err instanceof Error ? err.message : 'Unknown error';
+  return new Error(
+    /fetch|network|Failed to fetch/i.test(message)
+      ? `${message} — is the proxy running? (npm run server)`
+      : message
+  );
+}
+
+// Non-streaming call (used for background summaries)
 export async function llmCall(contextMessages: ContextMessage[], images?: ImageAttachment[]): Promise<string> {
   try {
     const res = await fetch(API_URL, {
@@ -43,17 +55,16 @@ export async function llmCall(contextMessages: ContextMessage[], images?: ImageA
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ messages: contextMessages, images: images?.length ? images : undefined }),
     });
-    
+
     if (!res.ok) {
       const err = await res.json().catch(() => ({ error: 'Unknown error' }));
       throw new Error(err.error || `HTTP ${res.status}`);
     }
-    
+
     const data = await res.json();
     return data.text;
   } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : 'Unknown error';
-    return `⚠️ API Error: ${message}\n\nCheck that the proxy server is running (\`node server.mjs\`).`;
+    throw wrapError(err);
   }
 }
 
@@ -110,9 +121,7 @@ export async function llmCallStream(
 
     return full || 'No response';
   } catch (err: unknown) {
-    // Re-throw AbortError so callers can handle stop-generation gracefully
-    if (err instanceof DOMException && err.name === 'AbortError') throw err;
-    const message = err instanceof Error ? err.message : 'Unknown error';
-    return `⚠️ API Error: ${message}\n\nCheck that the proxy server is running (\`node server.mjs\`).`;
+    // AbortError passes through untouched for stop-generation handling
+    throw wrapError(err);
   }
 }

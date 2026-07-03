@@ -1,6 +1,7 @@
 import type { StoreApi } from 'zustand';
 import { llmCall, llmCallStream, type ContextMessage, type ImageAttachment } from '../lib/api';
 import { countTokens } from '../utils';
+import { toast } from '../lib/ui-store';
 import type { StoreState } from './types';
 
 // Background summary generation — fire and forget
@@ -67,11 +68,19 @@ export async function runNodeGeneration(
     onSuccess?.(response);
     get().pushHistory();
     generateSummary(nodeId, question, response, get().setSummary);
-  } catch {
-    // AbortError or transport failure — keep the partial response
+  } catch (err) {
     activeAbortControllers.delete(nodeId);
     const partial = get().nodes.find((n) => n.id === nodeId)?.data.response || '';
-    writeFinal(partial || 'Error generating response.');
+    const isAbort = err instanceof DOMException && err.name === 'AbortError';
+    if (isAbort) {
+      // User pressed Stop — keep whatever streamed, no error surfacing
+      writeFinal(partial || '(generation stopped)');
+    } else {
+      // Real failure: details go to a toast, not into the answer text
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      toast('error', `Generation failed: ${message}`);
+      writeFinal(partial || 'Generation failed — edit the question or press Regenerate to retry.');
+    }
     get().pushHistory();
   }
 }
