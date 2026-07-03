@@ -8,9 +8,41 @@ import path from 'path';
 import os from 'os';
 // pdf-parse removed - using pdfjs-dist for both text and image extraction
 
+// ─── Environment ────────────────────────────────────────────────
+// Minimal .env loader (avoids dotenv dependency and Node --env-file version quirks)
+try {
+  for (const line of fs.readFileSync(new URL('.env', import.meta.url), 'utf8').split('\n')) {
+    const m = line.match(/^\s*([\w.]+)\s*=\s*(.*?)\s*$/);
+    if (m && !(m[1] in process.env)) process.env[m[1]] = m[2];
+  }
+} catch { /* .env is optional — env vars may come from the shell */ }
+
+const QWEN_KEY = process.env.DASHSCOPE_API_KEY;
+const PORT = Number(process.env.PORT) || 3001;
+
+if (!QWEN_KEY) {
+  console.error(
+    '\n✗ Missing DASHSCOPE_API_KEY.\n' +
+    '  未找到 DashScope API key。请执行：\n' +
+    '    cp .env.example .env\n' +
+    '  然后在 .env 中填入你的 key（https://dashscope.console.aliyun.com/）\n'
+  );
+  process.exit(1);
+}
+
+// Optional dependency: poppler's pdftoppm renders PDF pages as images for Vision.
+// Without it, PDF attachments fall back to extracted text only.
+let POPPLER_AVAILABLE = true;
+try {
+  execSync('pdftoppm -v', { stdio: 'ignore' });
+} catch {
+  POPPLER_AVAILABLE = false;
+  console.warn('⚠ pdftoppm (poppler) not found — PDF page rendering disabled, text-only fallback.');
+  console.warn('  Install with: brew install poppler');
+}
+
 // ─── Model Configuration ────────────────────────────────────────
 // Default: Qwen Plus via DashScope (OpenAI-compatible)
-const QWEN_KEY = 'REDACTED_REVOKED_KEY';
 
 const qwenModel = {
   id: 'qwen-plus',
@@ -144,7 +176,7 @@ app.post('/api/pdf-extract', async (req, res) => {
 
     // 2. Render pages as images via pdftoppm (poppler) — much better quality
     const pageImages = [];
-    if (renderImages) {
+    if (renderImages && POPPLER_AVAILABLE) {
       try {
         const outPrefix = path.join(tmpDir, 'page');
         execSync(`pdftoppm -png -r ${dpi} "${pdfPath}" "${outPrefix}"`, { timeout: 60000 });
@@ -163,7 +195,12 @@ app.post('/api/pdf-extract', async (req, res) => {
     try { fs.rmSync(tmpDir, { recursive: true }); } catch {}
 
     console.log(`PDF done: ${numPages} pages, ${text.length} chars, ${pageImages.length} images`);
-    res.json({ text, numPages, images: pageImages.length > 0 ? pageImages : undefined });
+    res.json({
+      text,
+      numPages,
+      images: pageImages.length > 0 ? pageImages : undefined,
+      imagesUnavailable: !POPPLER_AVAILABLE || undefined,
+    });
   } catch (err) {
     console.error('PDF extract error:', err);
     res.status(500).json({ error: err.message });
@@ -225,12 +262,6 @@ app.post('/api/stream', async (req, res) => {
         case 'text_delta':
           res.write(`data: ${JSON.stringify({ text: event.delta })}\n\n`);
           break;
-        case 'toolcall_start':
-          res.write(`data: ${JSON.stringify({ tool: 'start', name: event.partial.content[event.contentIndex]?.name })}\n\n`);
-          break;
-        case 'toolcall_end':
-          res.write(`data: ${JSON.stringify({ tool: 'end', name: event.toolCall.name, args: event.toolCall.arguments })}\n\n`);
-          break;
         case 'error':
           res.write(`data: ${JSON.stringify({ error: event.error?.errorMessage || 'Unknown error' })}\n\n`);
           break;
@@ -254,7 +285,7 @@ app.post('/api/stream', async (req, res) => {
   }
 });
 
-app.listen(3001, () => {
-  console.log('ThoughtDAG proxy (pi-ai) running on http://localhost:3001');
+app.listen(PORT, () => {
+  console.log(`ThoughtDAG proxy (pi-ai) running on http://localhost:${PORT}`);
   console.log(`Models: ${Object.keys(modelRegistry).join(', ')}`);
 });
