@@ -47,7 +47,7 @@ export default function QuestionSection({
       ) : (
         <div
           onDoubleClick={handleDoubleClickQuestion}
-          className="text-sm text-accent font-medium cursor-pointer hover:bg-wash rounded-xl px-2 py-1.5 -mx-1 transition-colors"
+          className="text-sm text-ink font-semibold cursor-pointer hover:bg-wash rounded-xl px-2 py-1.5 -mx-1 transition-colors"
         >
           {question}
         </div>

@@ -25,7 +25,7 @@ export default function ContextChainSection({
       >
         <span>{contextOpen ? <ChevronDown size={14} strokeWidth={1.75} /> : <ChevronRight size={14} strokeWidth={1.75} />}</span>
         <span>Context Chain</span>
-        <span className="text-accent font-mono normal-case ml-auto">{totalContextTokens} tok</span>
+        <span className="text-ink-muted font-mono normal-case ml-auto">{totalContextTokens} tok</span>
       </button>
 
       {contextOpen && (

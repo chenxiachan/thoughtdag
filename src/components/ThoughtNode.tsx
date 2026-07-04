@@ -230,7 +230,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
           ) : (
             <div
               onDoubleClick={handleDoubleClickQuestion}
-              className="text-sm text-accent font-medium mb-3 cursor-pointer hover:bg-wash rounded-xl px-2 py-1.5 -mx-1 transition-colors"
+              className="text-sm text-ink font-semibold mb-3 cursor-pointer hover:bg-wash rounded-xl px-2 py-1.5 -mx-1 transition-colors"
             >
               {data.question}
             </div>
@@ -347,7 +347,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
       {/* Collapsed view — question + summary */}
       {data.isCollapsed && (
         <div className="px-5 py-3">
-          <div className="text-sm text-accent font-semibold truncate flex items-center gap-1.5">
+          <div className="text-sm text-ink font-semibold truncate flex items-center gap-1.5">
             {data.question.slice(0, 80)}{data.question.length > 80 ? '…' : ''}
             {(data.attachments?.length > 0) && (
               <span className="text-2xs bg-wash text-ink-muted px-1.5 py-0.5 rounded-full shrink-0"><Paperclip size={12} strokeWidth={1.75} className="inline" />{data.attachments.length}</span>

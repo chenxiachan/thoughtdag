@@ -309,8 +309,18 @@ function Canvas() {
       {/* Initial input */}
       {!hasNodes && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="pointer-events-auto w-[500px] animate-fade-in">
-            <div className="text-center mb-6">
+          <div className="pointer-events-auto w-[520px] animate-fade-in">
+            <div className="text-center mb-7">
+              {/* Mark: a tiny DAG — main chain in accent, explore branch in warm */}
+              <svg width="44" height="44" viewBox="0 0 44 44" className="mx-auto mb-4" aria-hidden>
+                <line x1="22" y1="11" x2="22" y2="19" stroke={COLORS.accent} strokeWidth="2" strokeLinecap="round" />
+                <line x1="22" y1="25" x2="22" y2="33" stroke={COLORS.accent} strokeWidth="2" strokeLinecap="round" />
+                <line x1="25.5" y1="23.5" x2="33" y2="28.5" stroke={COLORS.warm} strokeWidth="2" strokeLinecap="round" strokeDasharray="3 3" />
+                <circle cx="22" cy="7" r="3.5" fill={COLORS.accent} />
+                <circle cx="22" cy="22" r="3.5" fill="none" stroke={COLORS.accent} strokeWidth="2.5" />
+                <circle cx="22" cy="37" r="3.5" fill={COLORS.accent} opacity="0.35" />
+                <circle cx="36" cy="30" r="3.5" fill={COLORS.warm} />
+              </svg>
               <h1 className="text-3xl font-semibold tracking-tight text-ink mb-2">ThoughtDAG</h1>
               <p className="text-sm text-ink-muted">Explore ideas as branching conversations</p>
             </div>
@@ -403,6 +413,14 @@ function Canvas() {
                   {pendingAttachments.some(a => a.isExtracting) ? 'Extracting...' : 'Send'}
                 </button>
               </div>
+            </div>
+            {/* What makes this different — one quiet line */}
+            <div className="flex items-center justify-center gap-5 mt-5 text-2xs text-ink-faint">
+              <span>Branch from any selection</span>
+              <span className="w-1 h-1 rounded-full bg-line-strong" />
+              <span>Every edge feeds context</span>
+              <span className="w-1 h-1 rounded-full bg-line-strong" />
+              <span>Delete an edge to prune</span>
             </div>
           </div>
         </div>
