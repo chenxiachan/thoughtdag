@@ -280,7 +280,7 @@ function Canvas() {
           type: 'smoothstep',
           animated: false,
           style: { stroke: COLORS.accent, strokeWidth: 2 },
-          markerEnd: { type: 'arrowclosed' as const, color: COLORS.accent, width: 16, height: 16 },
+          markerEnd: { type: 'arrowclosed' as const, color: COLORS.accent, width: 18, height: 18 },
         }}
         proOptions={{ hideAttribution: true }}
         nodeDragThreshold={5}
@@ -297,10 +297,11 @@ function Canvas() {
         <MiniMap
           nodeColor={(node) => {
             const data = node.data as Record<string, unknown>;
-            return data.isRoot ? COLORS.accent : COLORS.warm;
+            return data.isRoot ? COLORS.accent : data.isBranch ? COLORS.warm : COLORS.line;
           }}
-          maskColor="rgba(250,249,247,0.85)"
-          style={{ background: COLORS.card, border: `1px solid ${COLORS.line}`, borderRadius: '12px' }}
+          maskColor="rgba(250,249,247,0.7)"
+          style={{ background: COLORS.card, border: `1px solid ${COLORS.line}`, borderRadius: '10px', width: 160, height: 110 }}
+          pannable
           position="bottom-right"
         />
       </ReactFlow>

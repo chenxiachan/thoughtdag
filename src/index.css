@@ -123,41 +123,48 @@ summary:focus-visible {
 .loading-border { animation: pulse-border 1.5s ease-in-out infinite; }
 
 @keyframes pulse-selected {
-  0%, 100% { box-shadow: 0 0 0 4px rgba(107, 92, 231, 0.3); }
-  50% { box-shadow: 0 0 0 6px rgba(107, 92, 231, 0.15); }
+  0%, 100% { box-shadow: 0 0 0 3px rgba(107, 92, 231, 0.25); }
+  50% { box-shadow: 0 0 0 5px rgba(107, 92, 231, 0.12); }
 }
 .selected-glow { animation: pulse-selected 2s ease-in-out infinite; }
 
-/* Node styling */
+/* Node styling — type is expressed by a left accent bar:
+   root = accent, explore branch = warm, continuation = none. */
 .thought-node {
   background: var(--color-card);
   border: 1px solid var(--color-line);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
-  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.05);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  overflow: hidden; /* clip the type bar to the rounded corners */
+  position: relative;
+}
+
+.thought-node::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: transparent;
 }
 
 .thought-node:hover {
   border-color: var(--color-line-strong);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 2px 4px rgba(0,0,0,0.06);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.09), 0 2px 4px rgba(0,0,0,0.05);
   transform: translateY(-1px);
 }
 
-.root-node {
-  border-color: var(--color-line-strong);
+.root-node::before {
+  background: var(--color-accent);
 }
 
-.branch-node {
-  border-color: var(--color-line);
+.orange-node::before {
+  background: var(--color-warm);
 }
 
 .orange-node {
-  border-color: color-mix(in srgb, var(--color-warm) 25%, transparent);
-  background: linear-gradient(135deg, var(--color-card) 0%, #FDF8F3 100%);
-}
-
-.orange-node:hover {
-  border-color: color-mix(in srgb, var(--color-warm) 38%, transparent);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1), 0 0 0 1px rgba(224, 138, 60, 0.1);
+  border-color: color-mix(in srgb, var(--color-warm) 30%, var(--color-line));
 }
 
 /* Markdown body styles */

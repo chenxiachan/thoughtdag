@@ -55,12 +55,12 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
       ...(isBranch ? {
         style: { stroke: COLORS.warm, strokeWidth: 2, strokeDasharray: '6 3' },
         animated: true,
-        markerEnd: { type: 'arrowclosed' as const, color: COLORS.warm, width: 16, height: 16 },
+        markerEnd: { type: 'arrowclosed' as const, color: COLORS.warm, width: 18, height: 18 },
         data: { isBranchFromSelection: true, branchYRatio: branchYRatio ?? 0.5 },
       } : {
         style: { stroke: COLORS.accent, strokeWidth: 2 },
         animated: false,
-        markerEnd: { type: 'arrowclosed' as const, color: COLORS.accent, width: 16, height: 16 },
+        markerEnd: { type: 'arrowclosed' as const, color: COLORS.accent, width: 18, height: 18 },
         data: {},
       }),
     } : null;
@@ -231,7 +231,7 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
       type: 'smoothstep',
       style: { stroke: COLORS.accent, strokeWidth: 2 },
       animated: false,
-      markerEnd: { type: 'arrowclosed' as const, color: COLORS.accent, width: 16, height: 16 },
+      markerEnd: { type: 'arrowclosed' as const, color: COLORS.accent, width: 18, height: 18 },
       data: {},
     } : null;
 
@@ -305,7 +305,7 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
       target: id,
       type: 'smoothstep',
       style: { stroke: COLORS.accent, strokeWidth: 2 },
-      markerEnd: { type: 'arrowclosed' as const, color: COLORS.accent, width: 16, height: 16 },
+      markerEnd: { type: 'arrowclosed' as const, color: COLORS.accent, width: 18, height: 18 },
     } : null;
 
     get().pushHistory();

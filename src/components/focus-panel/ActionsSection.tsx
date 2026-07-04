@@ -50,14 +50,8 @@ export default function ActionsSection({
   return (
     <div className={`px-4 py-3 border-b border-line ${dimmed ? 'opacity-40 pointer-events-none' : ''}`}>
       <label className="text-xs text-ink-faint uppercase tracking-wider font-medium mb-2 block">Actions</label>
-      <div className="flex flex-wrap gap-2">
-        <button
-          onClick={() => regenerate(nodeId)}
-          className="text-xs bg-wash hover:bg-line text-ink-muted px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
-        >
-          <RefreshCw size={14} strokeWidth={1.75} />
-          Regenerate
-        </button>
+      <div className="flex flex-wrap items-center gap-2">
+        {/* Primary */}
         {isLoading ? (
           <button
             onClick={() => stopGeneration(nodeId)}
@@ -68,20 +62,21 @@ export default function ActionsSection({
           </button>
         ) : (
           <button
-            onClick={() => duplicateNode(nodeId)}
-            className="text-xs bg-wash hover:bg-line text-ink-muted px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
+            onClick={() => regenerate(nodeId)}
+            className="text-xs bg-accent/10 hover:bg-accent/20 text-accent font-medium px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
           >
-            <Copy size={14} strokeWidth={1.75} />
-            Duplicate
+            <RefreshCw size={14} strokeWidth={1.75} />
+            Regenerate
           </button>
         )}
+        {/* Secondary */}
         <button
-          onClick={() => { deleteNode(nodeId); setSelectedNodeId(null); }}
-          className="text-xs bg-red-50 hover:bg-red-100 text-red-500 px-3 py-2 rounded-lg transition-colors"
+          onClick={() => duplicateNode(nodeId)}
+          className="text-xs bg-wash hover:bg-line text-ink-muted px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
         >
-          <Trash2 size={14} strokeWidth={1.75} className="inline" /> Delete
+          <Copy size={14} strokeWidth={1.75} />
+          Duplicate
         </button>
-        <div className="w-px h-5 bg-line self-center" />
         <button
           onClick={() => downloadMarkdown(contextChainMarkdown(nodeId))}
           title="Export this node's context chain as a Markdown document"
@@ -95,6 +90,13 @@ export default function ActionsSection({
           className="text-xs bg-wash hover:bg-line text-ink-muted px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
         >
           <ClipboardCopy size={14} strokeWidth={1.75} /> Copy .md
+        </button>
+        {/* Destructive, kept apart on the right */}
+        <button
+          onClick={() => { deleteNode(nodeId); setSelectedNodeId(null); }}
+          className="ml-auto text-xs text-red-500 hover:bg-red-50 px-3 py-2 rounded-lg transition-colors"
+        >
+          <Trash2 size={14} strokeWidth={1.75} className="inline" /> Delete
         </button>
       </div>
       {showBranchInput && (

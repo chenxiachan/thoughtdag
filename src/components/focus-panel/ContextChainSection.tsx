@@ -29,7 +29,7 @@ export default function ContextChainSection({
       </button>
 
       {contextOpen && (
-        <div className="space-y-1.5">
+        <div>
           {ancestors.length === 0 ? (
             <p className="text-xs text-ink-faint italic">Root node — no ancestors</p>
           ) : (
@@ -37,17 +37,15 @@ export default function ContextChainSection({
               <button
                 key={ancestor.id}
                 onClick={() => { setSelectedNodeId(ancestor.id); onFocusNode?.(ancestor.id); }}
-                className="w-full text-left border border-line hover:border-accent/40 rounded-lg p-2.5 transition-colors group"
+                className="w-full text-left rounded-lg px-2 py-1.5 hover:bg-wash transition-colors group flex items-center gap-2 text-xs"
               >
-                <div className="flex items-center gap-1.5 text-xs">
-                  <span className="text-ink-faint">{i === 0 ? <Sprout size={14} strokeWidth={1.75} /> : <CornerDownRight size={14} strokeWidth={1.75} />}</span>
-                  <span className="text-ink group-hover:text-accent transition-colors truncate">
-                    {ancestor.data.question.slice(0, 60)}{ancestor.data.question.length > 60 ? '…' : ''}
-                  </span>
-                  <span className="text-ink-faint font-mono shrink-0 ml-auto">
-                    {countTokens(ancestor.data.question + ancestor.data.response)} tok
-                  </span>
-                </div>
+                <span className="text-ink-faint shrink-0">{i === 0 ? <Sprout size={14} strokeWidth={1.75} /> : <CornerDownRight size={14} strokeWidth={1.75} />}</span>
+                <span className="text-ink-muted group-hover:text-accent transition-colors truncate flex-1">
+                  {ancestor.data.question.slice(0, 70)}{ancestor.data.question.length > 70 ? '…' : ''}
+                </span>
+                <span className="text-2xs text-ink-faint font-mono shrink-0">
+                  {countTokens(ancestor.data.question + ancestor.data.response)}
+                </span>
               </button>
             ))
           )}

@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { Handle, Position, type NodeProps } from '@xyflow/react';
+import { Handle, Position, useStore as useRfStore, type NodeProps } from '@xyflow/react';
 import { AlertTriangle, ChevronDown, ChevronLeft, ChevronRight, GitBranch, Paperclip, RefreshCw, Send, Star, Trash2, X } from 'lucide-react';
 import 'katex/dist/katex.min.css';
 import type { ThoughtNode as ThoughtNodeType } from '../types';
@@ -25,6 +25,8 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   const responseRef = useRef<HTMLDivElement>(null);
   const nodeRef = useRef<HTMLDivElement>(null);
   const addQuestion = useStore((s) => s.addQuestion);
+  // Semantic zoom: below this level cards render as large-type thumbnails
+  const zoomedOut = useRfStore((s) => s.transform[2] < 0.55);
 
   // Sync local edit buffer when the response changes externally (streaming, undo)
   const [prevResponse, setPrevResponse] = useState(data.response);
@@ -139,7 +141,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
       ref={nodeRef}
       className={`thought-node rounded-xl w-[520px] animate-fade-in transition-all duration-200 ${
         isBranch ? 'orange-node' : isRoot ? 'root-node' : 'branch-node'
-      } ${data.isLoading ? 'loading-border' : ''} ${selectedNodeId === id ? 'ring-4 ring-accent selected-glow' : ''} ${isDropTarget ? 'ring-4 ring-accent/50 ring-dashed' : ''}`}
+      } ${data.isLoading ? 'loading-border' : ''} ${selectedNodeId === id ? 'ring-2 ring-accent !border-accent selected-glow' : ''} ${isDropTarget ? 'ring-2 ring-accent/50 ring-dashed' : ''}`}
       onClick={() => setSelectedNodeId(id)}
       onDrop={async (e) => {
         e.preventDefault();
@@ -159,6 +161,20 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
       <Handle type="target" position={Position.Top} id="top" className="!bg-accent !w-3 !h-3 !border-2 !border-white" />
       <Handle type="target" position={Position.Left} id="left" className="!bg-warm !w-3 !h-3 !border-2 !border-white" style={{ top: '40%' }} />
 
+      {zoomedOut ? (
+        // Semantic zoom thumbnail: large type that stays legible from afar
+        <div className="drag-handle cursor-grab active:cursor-grabbing px-6 py-5">
+          <div className="text-2xl font-semibold text-ink leading-snug line-clamp-3">
+            {data.question}
+          </div>
+          {(data.summary || data.response) && (
+            <div className="text-lg text-ink-faint mt-2 leading-snug line-clamp-2">
+              {data.summary || data.response.replace(/[#*`>-]/g, '').slice(0, 140)}
+            </div>
+          )}
+        </div>
+      ) : (
+      <>
       {/* Header */}
       <div className="flex items-center justify-between px-6 py-3 border-b border-line cursor-grab active:cursor-grabbing drag-handle">
         <div className="flex items-center gap-2">
@@ -331,7 +347,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
       {/* Collapsed view — question + summary */}
       {data.isCollapsed && (
         <div className="px-5 py-3">
-          <div className="text-sm text-accent font-medium truncate flex items-center gap-1.5">
+          <div className="text-sm text-accent font-semibold truncate flex items-center gap-1.5">
             {data.question.slice(0, 80)}{data.question.length > 80 ? '…' : ''}
             {(data.attachments?.length > 0) && (
               <span className="text-2xs bg-wash text-ink-muted px-1.5 py-0.5 rounded-full shrink-0"><Paperclip size={12} strokeWidth={1.75} className="inline" />{data.attachments.length}</span>
@@ -347,6 +363,9 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
             </div>
           ) : null}
         </div>
+      )}
+
+      </>
       )}
 
       <Handle type="source" position={Position.Bottom} id="continue" className="!bg-accent !w-3 !h-3 !border-2 !border-white" />

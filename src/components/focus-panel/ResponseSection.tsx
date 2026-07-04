@@ -117,7 +117,7 @@ export default function ResponseSection({
           <span className="animate-pulse text-accent">●</span> Thinking...
         </div>
       ) : data.isLoading && data.response ? (
-        <div className="markdown-body text-sm text-ink leading-relaxed max-h-[500px] overflow-y-auto px-3 py-2.5 bg-surface rounded-xl">
+        <div className="markdown-body text-sm text-ink leading-relaxed max-h-[500px] overflow-y-auto py-1">
           <Markdown>{data.response}</Markdown>
           <span className="inline-block w-2 h-4 bg-accent animate-pulse rounded-sm ml-0.5 align-text-bottom" />
         </div>
@@ -138,7 +138,7 @@ export default function ResponseSection({
         </div>
       ) : (
         <div ref={responseRef} onDoubleClick={handleDoubleClickResponse} className="relative">
-          <div className="markdown-body text-sm text-ink leading-relaxed cursor-text px-3 py-2.5 bg-surface rounded-xl">
+          <div className="markdown-body text-sm text-ink leading-relaxed cursor-text py-1">
             {highlightedTexts.size > 0 ? (
               <HighlightedMarkdown content={data.response} highlights={highlightedTexts} />
             ) : (
