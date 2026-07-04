@@ -24,6 +24,20 @@ function flush() {
   }
 }
 
+// Awaitable flush — used before switching projects so the outgoing
+// project's debounced write lands under its own key.
+export async function flushPendingWrites(): Promise<void> {
+  if (timer) {
+    clearTimeout(timer);
+    timer = null;
+  }
+  if (pending) {
+    const { name, value } = pending;
+    pending = null;
+    await idbSet(name, value);
+  }
+}
+
 if (typeof window !== 'undefined') {
   window.addEventListener('pagehide', flush);
   document.addEventListener('visibilitychange', () => {

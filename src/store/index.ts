@@ -13,7 +13,7 @@ import { createAttachmentSlice } from './slices/attachments';
 
 // Reset transient UI flags — applied both when persisting and when rehydrating,
 // so a refresh mid-stream/mid-edit never restores a node stuck in loading state.
-function stripTransient(nodes: ThoughtNode[]): ThoughtNode[] {
+export function stripTransient(nodes: ThoughtNode[]): ThoughtNode[] {
   return nodes.map((n) => ({
     ...n,
     selected: false,
@@ -37,8 +37,11 @@ export const useStore = create<StoreState>()(persist((...a) => ({
   ...createHighlightSlice(...a),
   ...createAttachmentSlice(...a),
 }), {
+  // Placeholder name — bootProjects() (src/store/projects.ts) points this at
+  // the active project's key via persist.setOptions() before rehydrating.
   name: 'thoughtdag',
   version: 1,
+  skipHydration: true,
   storage: createJSONStorage(() => idbStorage),
   // Persist only the graph. Undo history (full-graph snapshots ×50) and
   // selection are session-scoped and would bloat the stored payload.
