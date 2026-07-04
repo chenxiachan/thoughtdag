@@ -2,7 +2,7 @@ import type { StateCreator } from 'zustand';
 import type { ThoughtNode, ThoughtEdge } from '../../types';
 import { generateId, countTokens } from '../../utils';
 import { COLORS } from '../../lib/constants';
-import { autoLayout, estimateNodeHeight } from '../../lib/layout';
+import { autoLayout, estimateNodeHeight, nodeHeight } from '../../lib/layout';
 import { getDescendantIds } from '../../lib/graph';
 import type { StoreState, NodeSlice } from '../types';
 
@@ -64,8 +64,8 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
     const node = get().nodes.find((n) => n.id === nodeId);
     if (!node) return;
 
-    // Estimate height before and after toggle
-    const oldHeight = estimateNodeHeight(node);
+    // Current height is measured; the post-toggle height must be estimated
+    const oldHeight = nodeHeight(node);
     const newHeight = estimateNodeHeight({ ...node, data: { ...node.data, isCollapsed: !node.data.isCollapsed } });
     const delta = newHeight - oldHeight;
 
@@ -198,17 +198,33 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
     get().pushHistory();
     set((state) => {
       const laid = autoLayout(state.nodes, state.edges);
-      // Evaluators skip the column tree — seat them beside their watched
-      // node, stacking downward when several watch the same node.
-      const stacked = new Map<string, number>();
+      // Evaluators skip the column tree — seat them in their own column to
+      // the right of the whole graph (grid-aligned so nothing overlaps),
+      // vertically aligned with their watched node, pushed down on collision.
+      const mainNodes = laid.filter((n) => !n.data.isEvaluator);
+      const maxX = mainNodes.length > 0 ? Math.max(...mainNodes.map((n) => n.position.x)) : 0;
+      const evaluatorX = maxX + 620; // one full column pitch to the right
+
+      const evaluators = laid
+        .filter((n) => n.data.isEvaluator)
+        .map((n) => {
+          const watchEdge = state.edges.find((e) => e.target === n.id && e.data?.isWatch);
+          const watched = watchEdge ? laid.find((x) => x.id === watchEdge.source) : undefined;
+          return { node: n, y: watched?.position.y ?? n.position.y };
+        })
+        .sort((a, b) => a.y - b.y);
+
+      const placed = new Map<string, { x: number; y: number }>();
+      let lastBottom = -Infinity;
+      for (const { node, y } of evaluators) {
+        const top = Math.max(y, lastBottom + 30);
+        placed.set(node.id, { x: evaluatorX, y: top });
+        lastBottom = top + nodeHeight(node);
+      }
+
       const nodes = laid.map((n) => {
-        if (!n.data.isEvaluator) return n;
-        const watchEdge = state.edges.find((e) => e.target === n.id && e.data?.isWatch);
-        const watched = watchEdge ? laid.find((x) => x.id === watchEdge.source) : undefined;
-        if (!watched) return n;
-        const offset = stacked.get(watched.id) ?? 0;
-        stacked.set(watched.id, offset + 1);
-        return { ...n, position: { x: watched.position.x + 640, y: watched.position.y + offset * 280 } };
+        const pos = placed.get(n.id);
+        return pos ? { ...n, position: pos } : n;
       });
       return { nodes };
     });

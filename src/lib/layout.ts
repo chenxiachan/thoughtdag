@@ -2,12 +2,24 @@ import type { ThoughtNode, ThoughtEdge } from '../types';
 import { getDescendantIds } from './graph';
 import { COLLAPSED_NODE_HEIGHT, LAYOUT_COL_WIDTH, LAYOUT_H_GAP, LAYOUT_V_GAP } from './constants';
 
-// Estimated rendered height of a node — used for layout and collapse shifting.
+// Estimated rendered height of a node — fallback when React Flow hasn't
+// measured the DOM yet (fresh nodes) and for collapse shifting.
 export function estimateNodeHeight(node: ThoughtNode): number {
   if (node.data.isCollapsed) return COLLAPSED_NODE_HEIGHT;
   const responseLen = (node.data.response || '').length;
-  const estimated = 150 + (responseLen / 3);
-  return Math.max(220, Math.min(600, estimated));
+  // header + question + response body + follow-up input, at the current type scale
+  const estimated = 230 + (responseLen / 2.6);
+  return Math.max(260, Math.min(820, estimated));
+}
+
+// Height used for layout: the larger of the measured DOM height (React
+// Flow's ResizeObserver writes `measured` back through onNodesChange) and
+// the estimate. The max matters: while zoomed out, semantic zoom renders
+// small thumbnail cards, so `measured` under-reports the full-size height —
+// laying out with it would overlap once the user zooms back in. Slightly
+// generous spacing beats overlapping cards.
+export function nodeHeight(node: ThoughtNode): number {
+  return Math.max(node.measured?.height ?? 0, estimateNodeHeight(node));
 }
 
 /**
@@ -114,7 +126,7 @@ export function autoLayout(allNodes: ThoughtNode[], edges: ThoughtEdge[]): Thoug
   // --- Pass 2: Vertical positioning ---
   const nodeHeightMap = new Map<string, number>();
   for (const node of nodes) {
-    nodeHeightMap.set(node.id, estimateNodeHeight(node));
+    nodeHeightMap.set(node.id, nodeHeight(node));
   }
 
   const positioned = new Map<string, { x: number; y: number }>();
