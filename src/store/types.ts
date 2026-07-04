@@ -33,6 +33,8 @@ export interface NodeSlice {
   navigateVersion: (nodeId: string, direction: 'prev' | 'next') => void;
   deleteVersion: (nodeId: string, versionIndex: number) => void;
   batchDelete: (nodeIds: string[]) => void;
+  /** Re-run the column-tree layout over the whole graph (undoable). */
+  relayout: () => void;
 }
 
 export interface AddQuestionOptions {

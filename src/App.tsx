@@ -15,7 +15,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import 'highlight.js/styles/github.css';
-import { CircleHelp, FileText, GitBranch, Loader2, Paperclip, Redo2, Scissors, Trash2, Undo2, Workflow, X } from 'lucide-react';
+import { CircleHelp, FileText, GitBranch, LayoutGrid, Loader2, Paperclip, Redo2, Scissors, Trash2, Undo2, Workflow, X } from 'lucide-react';
 import './index.css';
 import ThoughtNode from './components/ThoughtNode';
 import ThoughtEdgeView from './components/ThoughtEdgeView';
@@ -55,7 +55,7 @@ export default function App() {
 }
 
 function Canvas() {
-  const { nodes, edges, setNodes, setEdges, addQuestion, undo, redo, addCrossLink, setSelectedNodeId, setSelectedNodeIds, history, historyIndex } = useStore();
+  const { nodes, edges, setNodes, setEdges, addQuestion, undo, redo, addCrossLink, setSelectedNodeId, setSelectedNodeIds, history, historyIndex, relayout } = useStore();
   const t = useT();
   const setTutorialOpen = useUiStore((s) => s.setTutorialOpen);
   const [inputValue, setInputValue] = useState('');
@@ -562,7 +562,7 @@ function Canvas() {
         setTimeout(() => rfInstance.current?.fitView({ duration: 300, padding: 0.2 }), 50);
       }} />
 
-      {/* Toolbar: language, tutorial, undo/redo */}
+      {/* Toolbar: language, tutorial, relayout, undo/redo */}
       <div className="absolute top-4 right-4 z-10 flex gap-1.5 items-center">
         <LangSwitch />
         <button
@@ -572,6 +572,18 @@ function Canvas() {
         >
           <CircleHelp size={15} strokeWidth={1.75} />
         </button>
+        {hasNodes && (
+          <button
+            onClick={() => {
+              relayout();
+              setTimeout(() => rfInstance.current?.fitView({ duration: 400, padding: 0.15 }), 50);
+            }}
+            className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors text-ink-muted hover:text-accent"
+            title={t('toolbar.relayout')}
+          >
+            <LayoutGrid size={15} strokeWidth={1.75} />
+          </button>
+        )}
         <button
           onClick={undo}
           disabled={historyIndex <= 0}

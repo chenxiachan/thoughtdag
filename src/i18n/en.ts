@@ -223,4 +223,7 @@ export const en = {
   'evaluator.autoTitle': 'Re-critiques automatically when the watched thread grows',
   'evaluator.manualTitle': 'Only critiques when you press Evaluate',
   'evaluator.critiqueN': 'Critique #{n}',
+
+  // Toolbar
+  'toolbar.relayout': 'Tidy layout',
 } as const;

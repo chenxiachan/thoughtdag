@@ -223,4 +223,7 @@ export const zh: Record<keyof typeof en, string> = {
   'evaluator.autoTitle': '被监听的思路链有新内容时自动重新评审',
   'evaluator.manualTitle': '只在你点击「立即评审」时评审',
   'evaluator.critiqueN': '第 {n} 轮评审',
+
+  // Toolbar
+  'toolbar.relayout': '一键排版',
 };

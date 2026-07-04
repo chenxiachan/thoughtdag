@@ -194,6 +194,27 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
     get().pushHistory();
   },
 
+  relayout: () => {
+    get().pushHistory();
+    set((state) => {
+      const laid = autoLayout(state.nodes, state.edges);
+      // Evaluators skip the column tree — seat them beside their watched
+      // node, stacking downward when several watch the same node.
+      const stacked = new Map<string, number>();
+      const nodes = laid.map((n) => {
+        if (!n.data.isEvaluator) return n;
+        const watchEdge = state.edges.find((e) => e.target === n.id && e.data?.isWatch);
+        const watched = watchEdge ? laid.find((x) => x.id === watchEdge.source) : undefined;
+        if (!watched) return n;
+        const offset = stacked.get(watched.id) ?? 0;
+        stacked.set(watched.id, offset + 1);
+        return { ...n, position: { x: watched.position.x + 640, y: watched.position.y + offset * 280 } };
+      });
+      return { nodes };
+    });
+    get().pushHistory();
+  },
+
   batchDelete: (nodeIds: string[]) => {
     get().pushHistory();
     const removeSet = new Set(nodeIds);
