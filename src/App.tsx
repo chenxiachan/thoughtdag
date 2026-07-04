@@ -21,6 +21,7 @@ import ThoughtNode from './components/ThoughtNode';
 import ThoughtEdgeView from './components/ThoughtEdgeView';
 import FocusPanel from './components/focus-panel';
 import SelectionToolbar from './components/SelectionToolbar';
+import ProjectSwitcher from './components/ProjectSwitcher';
 import { useStore } from './store';
 import type { Attachment, ThoughtNode as ThoughtNodeType, ThoughtEdge } from './types';
 import { processFile, FILE_INPUT_ACCEPT } from './lib/attachments';
@@ -473,6 +474,12 @@ function Canvas() {
           </div>
         </div>
       )}
+
+      {/* Project switcher */}
+      <ProjectSwitcher onSwitched={() => {
+        prevNodeCount.current = useStore.getState().nodes.length;
+        setTimeout(() => rfInstance.current?.fitView({ duration: 300, padding: 0.2 }), 50);
+      }} />
 
       {/* Undo/Redo buttons */}
       <div className="absolute top-4 right-4 z-10 flex gap-1">

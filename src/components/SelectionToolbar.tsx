@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
-import { ClipboardList, GitBranch, Star, Trash2 } from 'lucide-react';
+import { ClipboardList, FileDown, GitBranch, Star, Trash2 } from 'lucide-react';
 import { useStore } from '../store';
 import { confirmDialog } from '../lib/ui-store';
+import { selectionMarkdown, downloadMarkdown } from '../lib/export';
 
 export default function SelectionToolbar() {
   const { selectedNodeIds, nodes, batchDelete, batchMergeSummarize, addQuestion } = useStore();
@@ -103,6 +104,14 @@ export default function SelectionToolbar() {
             title="Ask a question about selected nodes"
           >
             <GitBranch size={14} strokeWidth={1.75} className="inline" /> Explore
+          </button>
+
+          <button
+            onClick={() => downloadMarkdown(selectionMarkdown(selectedNodeIds))}
+            className="text-xs bg-wash hover:bg-line text-ink-muted px-3 py-1.5 rounded-lg transition-colors"
+            title="Export selected nodes as a Markdown document"
+          >
+            <FileDown size={14} strokeWidth={1.75} className="inline" /> Export .md
           </button>
 
           <div className="w-px h-5 bg-line" />

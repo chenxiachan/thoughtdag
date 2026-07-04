@@ -1,0 +1,158 @@
+import { useEffect, useRef, useState } from 'react';
+import { ChevronDown, Download, FolderOpen, Loader2, Pencil, Plus, Trash2, Upload } from 'lucide-react';
+import { useProjects, switchProject, createProject, renameProject, deleteProject } from '../store/projects';
+import { exportActiveProjectJson, importProjectFromFile } from '../lib/export';
+import { confirmDialog } from '../lib/ui-store';
+
+function relativeTime(ts: number): string {
+  const diff = Date.now() - ts;
+  const min = Math.floor(diff / 60000);
+  if (min < 1) return 'just now';
+  if (min < 60) return `${min}m ago`;
+  const h = Math.floor(min / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  if (d < 30) return `${d}d ago`;
+  return new Date(ts).toLocaleDateString();
+}
+
+export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void }) {
+  const projects = useProjects((s) => s.projects);
+  const activeId = useProjects((s) => s.activeId);
+  const switching = useProjects((s) => s.switching);
+  const [open, setOpen] = useState(false);
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState('');
+  const importFileRef = useRef<HTMLInputElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  const active = projects.find((p) => p.id === activeId);
+  const sorted = [...projects].sort((a, b) => b.updatedAt - a.updatedAt);
+
+  // Close on outside click
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: MouseEvent) => {
+      if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
+    };
+    window.addEventListener('mousedown', handler);
+    return () => window.removeEventListener('mousedown', handler);
+  }, [open]);
+
+  const doSwitch = async (id: string) => {
+    setOpen(false);
+    await switchProject(id);
+    onSwitched();
+  };
+
+  return (
+    <div ref={rootRef} className="absolute top-4 left-4 z-10">
+      <button
+        onClick={() => setOpen(!open)}
+        disabled={switching}
+        className="bg-card/90 backdrop-blur border border-line rounded-xl px-3.5 py-2 shadow-sm hover:bg-wash transition-colors flex items-center gap-2 text-sm text-ink max-w-[240px] disabled:opacity-60"
+      >
+        {switching
+          ? <Loader2 size={16} strokeWidth={1.75} className="animate-spin shrink-0 text-accent" />
+          : <FolderOpen size={16} strokeWidth={1.75} className="shrink-0 text-ink-muted" />}
+        <span className="truncate font-medium">{active?.name ?? '…'}</span>
+        <ChevronDown size={14} strokeWidth={1.75} className="shrink-0 text-ink-faint" />
+      </button>
+
+      {open && (
+        <div className="mt-1.5 bg-card border border-line rounded-xl shadow-lg py-1.5 w-[280px] animate-fade-in">
+          <div className="max-h-[320px] overflow-y-auto">
+            {sorted.map((p) => (
+              <div
+                key={p.id}
+                className={`group flex items-center gap-1 px-3 py-2 hover:bg-wash cursor-pointer transition-colors ${p.id === activeId ? 'bg-accent/5' : ''}`}
+                onClick={() => { if (renamingId !== p.id && p.id !== activeId) void doSwitch(p.id); }}
+              >
+                {renamingId === p.id ? (
+                  <input
+                    autoFocus
+                    value={renameValue}
+                    onChange={(e) => setRenameValue(e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && renameValue.trim()) {
+                        void renameProject(p.id, renameValue.trim());
+                        setRenamingId(null);
+                      }
+                      if (e.key === 'Escape') setRenamingId(null);
+                    }}
+                    onBlur={() => setRenamingId(null)}
+                    className="flex-1 text-sm text-ink border border-accent/40 rounded-lg px-2 py-1 bg-surface focus:outline-none"
+                  />
+                ) : (
+                  <>
+                    <div className="flex-1 min-w-0">
+                      <div className={`text-sm truncate ${p.id === activeId ? 'text-accent font-medium' : 'text-ink'}`}>
+                        {p.name}
+                      </div>
+                      <div className="text-2xs text-ink-faint">{relativeTime(p.updatedAt)}</div>
+                    </div>
+                    <button
+                      title="Rename"
+                      className="opacity-0 group-hover:opacity-100 text-ink-faint hover:text-ink p-1 rounded transition-all shrink-0"
+                      onClick={(e) => { e.stopPropagation(); setRenamingId(p.id); setRenameValue(p.name); }}
+                    >
+                      <Pencil size={14} strokeWidth={1.75} />
+                    </button>
+                    <button
+                      title="Delete"
+                      className="opacity-0 group-hover:opacity-100 text-ink-faint hover:text-red-500 p-1 rounded transition-all shrink-0"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        void confirmDialog({
+                          title: 'Delete canvas',
+                          message: `Delete "${p.name}" and all its nodes? This cannot be undone.`,
+                          confirmLabel: 'Delete',
+                          danger: true,
+                        }).then((ok) => { if (ok) void deleteProject(p.id).then(onSwitched); });
+                      }}
+                    >
+                      <Trash2 size={14} strokeWidth={1.75} />
+                    </button>
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="border-t border-line mt-1 pt-1">
+            <button
+              onClick={() => { setOpen(false); void createProject().then(onSwitched); }}
+              className="w-full text-left px-3 py-2 text-sm text-accent hover:bg-wash transition-colors flex items-center gap-2"
+            >
+              <Plus size={15} strokeWidth={1.75} /> New canvas
+            </button>
+            <button
+              onClick={() => { exportActiveProjectJson(); setOpen(false); }}
+              className="w-full text-left px-3 py-2 text-sm text-ink-muted hover:bg-wash transition-colors flex items-center gap-2"
+            >
+              <Download size={15} strokeWidth={1.75} /> Export backup (.json)
+            </button>
+            <button
+              onClick={() => importFileRef.current?.click()}
+              className="w-full text-left px-3 py-2 text-sm text-ink-muted hover:bg-wash transition-colors flex items-center gap-2"
+            >
+              <Upload size={15} strokeWidth={1.75} /> Import backup
+            </button>
+            <input
+              ref={importFileRef}
+              type="file"
+              accept=".json,application/json"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) void importProjectFromFile(f).then((ok) => { if (ok) { setOpen(false); onSwitched(); } });
+                e.target.value = '';
+              }}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

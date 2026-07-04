@@ -1,5 +1,6 @@
-import { CornerDownLeft, Copy, GitBranch, RefreshCw, Square, Trash2 } from 'lucide-react';
+import { ClipboardCopy, CornerDownLeft, Copy, FileDown, GitBranch, RefreshCw, Square, Trash2 } from 'lucide-react';
 import { useStore } from '../../store';
+import { contextChainMarkdown, downloadMarkdown, copyText } from '../../lib/export';
 
 export default function ActionsSection({
   nodeId,
@@ -79,6 +80,21 @@ export default function ActionsSection({
           className="text-xs bg-red-50 hover:bg-red-100 text-red-500 px-3 py-2 rounded-lg transition-colors"
         >
           <Trash2 size={14} strokeWidth={1.75} className="inline" /> Delete
+        </button>
+        <div className="w-px h-5 bg-line self-center" />
+        <button
+          onClick={() => downloadMarkdown(contextChainMarkdown(nodeId))}
+          title="Export this node's context chain as a Markdown document"
+          className="text-xs bg-wash hover:bg-line text-ink-muted px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
+        >
+          <FileDown size={14} strokeWidth={1.75} /> Export .md
+        </button>
+        <button
+          onClick={() => void copyText(contextChainMarkdown(nodeId))}
+          title="Copy this node's context chain as Markdown"
+          className="text-xs bg-wash hover:bg-line text-ink-muted px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
+        >
+          <ClipboardCopy size={14} strokeWidth={1.75} /> Copy .md
         </button>
       </div>
       {showBranchInput && (
