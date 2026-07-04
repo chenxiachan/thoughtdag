@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Handle, Position, type NodeProps } from '@xyflow/react';
-import { ChevronDown, ChevronLeft, ChevronRight, GitBranch, Paperclip, RefreshCw, Send, Star, Trash2, X } from 'lucide-react';
+import { AlertTriangle, ChevronDown, ChevronLeft, ChevronRight, GitBranch, Paperclip, RefreshCw, Send, Star, Trash2, X } from 'lucide-react';
 import 'katex/dist/katex.min.css';
 import type { ThoughtNode as ThoughtNodeType } from '../types';
 import { useStore } from '../store';
@@ -241,9 +241,17 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
 
           {/* Response */}
           {data.isLoading ? (
-            <div className="flex items-center gap-2 text-sm text-ink-muted">
-              <span className="animate-pulse text-accent">●</span> Thinking...
-            </div>
+            data.response ? (
+              // Streaming: show the live tail of the response on the canvas
+              <div className="text-sm text-ink-muted leading-relaxed px-3 py-2.5 bg-surface rounded-xl max-h-[180px] overflow-hidden flex flex-col justify-end whitespace-pre-wrap break-words">
+                {data.response.length > 400 ? '…' + data.response.slice(-400) : data.response}
+                <span className="inline-block w-2 h-4 bg-accent animate-pulse rounded-sm" />
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 text-sm text-ink-muted">
+                <span className="animate-pulse text-accent">●</span> Thinking...
+              </div>
+            )
           ) : data.isEditingResponse ? (
             <div>
               <textarea
@@ -270,6 +278,20 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
               ) : (
                 <Markdown>{data.response}</Markdown>
               )}
+            </div>
+          )}
+
+          {/* Failed generation: retry in place */}
+          {data.generationFailed && !data.isLoading && (
+            <div className="mt-2 flex items-center gap-2 text-xs text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
+              <AlertTriangle size={14} strokeWidth={1.75} className="shrink-0" />
+              Generation failed
+              <button
+                onClick={(e) => { e.stopPropagation(); editQuestion(id, data.question); }}
+                className="ml-auto bg-card border border-red-200 hover:bg-red-100 text-red-600 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1"
+              >
+                <RefreshCw size={12} strokeWidth={1.75} /> Retry
+              </button>
             </div>
           )}
 

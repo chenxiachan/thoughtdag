@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, GitBranch, Star, Trash2 } from 'lucide-react';
+import { AlertTriangle, ChevronLeft, ChevronRight, GitBranch, RefreshCw, Star, Trash2 } from 'lucide-react';
 import { useStore } from '../../store';
 import { generateId } from '../../utils';
 import { Markdown, HighlightedMarkdown } from '../Markdown';
@@ -19,6 +19,7 @@ export default function ResponseSection({
   onExploreSelection: (text: string) => void;
 }) {
   const editResponse = useStore((s) => s.editResponse);
+  const editQuestion = useStore((s) => s.editQuestion);
   const setEditingResponse = useStore((s) => s.setEditingResponse);
   const navigateVersion = useStore((s) => s.navigateVersion);
   const deleteVersion = useStore((s) => s.deleteVersion);
@@ -173,6 +174,20 @@ export default function ResponseSection({
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Failed generation: retry in place */}
+      {data.generationFailed && !data.isLoading && (
+        <div className="mt-2 flex items-center gap-2 text-xs text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
+          <AlertTriangle size={14} strokeWidth={1.75} className="shrink-0" />
+          Generation failed
+          <button
+            onClick={() => editQuestion(nodeId, data.question)}
+            className="ml-auto bg-card border border-red-200 hover:bg-red-100 text-red-600 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1"
+          >
+            <RefreshCw size={12} strokeWidth={1.75} /> Retry
+          </button>
         </div>
       )}
     </div>

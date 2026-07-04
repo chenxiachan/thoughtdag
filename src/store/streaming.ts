@@ -44,12 +44,21 @@ export async function runNodeGeneration(
   const abortController = new AbortController();
   activeAbortControllers.set(nodeId, abortController);
 
-  const writeFinal = (response: string) => {
+  // A retry is starting — clear any previous failure flag
+  set((state) => ({
+    nodes: state.nodes.map((n) =>
+      n.id === nodeId && n.data.generationFailed
+        ? { ...n, data: { ...n.data, generationFailed: undefined } }
+        : n
+    ),
+  }));
+
+  const writeFinal = (response: string, failed = false) => {
     const tokenCount = countTokens(question + response);
     set((state) => ({
       nodes: state.nodes.map((n) =>
         n.id === nodeId
-          ? { ...n, data: { ...n.data, response, responses: [response], responseIndex: 0, isLoading: false, isCollapsed: true, tokenCount } }
+          ? { ...n, data: { ...n.data, response, responses: [response], responseIndex: 0, isLoading: false, isCollapsed: true, tokenCount, generationFailed: failed || undefined } }
           : n
       ),
     }));
@@ -76,10 +85,10 @@ export async function runNodeGeneration(
       // User pressed Stop — keep whatever streamed, no error surfacing
       writeFinal(partial || '(generation stopped)');
     } else {
-      // Real failure: details go to a toast, not into the answer text
+      // Real failure: details go to a toast, the node gets a Retry affordance
       const message = err instanceof Error ? err.message : 'Unknown error';
       toast('error', `Generation failed: ${message}`);
-      writeFinal(partial || 'Generation failed — edit the question or press Regenerate to retry.');
+      writeFinal(partial || '_Generation failed._', true);
     }
     get().pushHistory();
   }

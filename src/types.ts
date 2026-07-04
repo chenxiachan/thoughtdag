@@ -28,6 +28,7 @@ export interface ThoughtData extends Record<string, unknown> {
   isEditing: boolean;
   isEditingResponse: boolean;
   isLoading: boolean;
+  generationFailed?: boolean; // set on LLM failure; cleared on retry/success (persisted so Retry survives refresh)
   tokenCount: number;
   branchContext?: string;
   highlights: Highlight[];
