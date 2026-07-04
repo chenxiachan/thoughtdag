@@ -1,7 +1,9 @@
-import { ClipboardCopy, CornerDownLeft, Copy, FileDown, GitBranch, RefreshCw, Square, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import { ClipboardCopy, CornerDownLeft, Copy, Eye, FileDown, GitBranch, RefreshCw, Square, Trash2 } from 'lucide-react';
 import { useStore } from '../../store';
 import { contextChainMarkdown, downloadMarkdown, copyText } from '../../lib/export';
-import { useT } from '../../i18n';
+import { ROLE_TEMPLATES } from '../../lib/role-templates';
+import { useT, useI18n } from '../../i18n';
 
 export default function ActionsSection({
   nodeId,
@@ -34,7 +36,11 @@ export default function ActionsSection({
   const duplicateNode = useStore((s) => s.duplicateNode);
   const stopGeneration = useStore((s) => s.stopGeneration);
   const setSelectedNodeId = useStore((s) => s.setSelectedNodeId);
+  const attachEvaluator = useStore((s) => s.attachEvaluator);
   const t = useT();
+  const lang = useI18n((s) => s.lang);
+  const [evaluatorPickerOpen, setEvaluatorPickerOpen] = useState(false);
+  const [customRole, setCustomRole] = useState('');
 
   const handleBranchSubmit = () => {
     if (!branchInput.trim()) return;
@@ -93,6 +99,15 @@ export default function ActionsSection({
         >
           <ClipboardCopy size={14} strokeWidth={1.75} /> {t('actions.copyMd')}
         </button>
+        <button
+          onClick={() => setEvaluatorPickerOpen((v) => !v)}
+          title={t('evaluator.attachTitle')}
+          className={`text-xs px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5 ${
+            evaluatorPickerOpen ? 'bg-watch/10 text-watch' : 'bg-wash hover:bg-line text-ink-muted'
+          }`}
+        >
+          <Eye size={14} strokeWidth={1.75} /> {t('evaluator.attach')}
+        </button>
         {/* Destructive, kept apart on the right */}
         <button
           onClick={() => { deleteNode(nodeId); setSelectedNodeId(null); }}
@@ -101,6 +116,52 @@ export default function ActionsSection({
           <Trash2 size={14} strokeWidth={1.75} className="inline" /> {t('common.delete')}
         </button>
       </div>
+      {evaluatorPickerOpen && (
+        <div className="mt-3 border border-line rounded-xl p-3 space-y-1.5 bg-surface/50">
+          <p className="text-2xs text-ink-faint uppercase tracking-wider font-medium mb-2">{t('evaluator.pickRole')}</p>
+          {ROLE_TEMPLATES.map((tpl) => (
+            <button
+              key={tpl.id}
+              onClick={() => {
+                setEvaluatorPickerOpen(false);
+                void attachEvaluator(nodeId, tpl.prompt, lang === 'zh' ? tpl.nameZh : tpl.nameEn);
+              }}
+              className="w-full text-left text-xs text-ink hover:bg-wash rounded-lg px-3 py-2 transition-colors flex items-center gap-2"
+            >
+              <Eye size={13} strokeWidth={1.75} className="text-watch shrink-0" />
+              {lang === 'zh' ? tpl.nameZh : tpl.nameEn}
+            </button>
+          ))}
+          <div className="flex gap-1.5 pt-1.5 border-t border-line/60">
+            <input
+              type="text"
+              value={customRole}
+              onChange={(e) => setCustomRole(e.target.value)}
+              placeholder={t('evaluator.customPlaceholder')}
+              className="flex-1 text-xs border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-watch/50 bg-card"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && customRole.trim()) {
+                  setEvaluatorPickerOpen(false);
+                  void attachEvaluator(nodeId, customRole.trim(), t('evaluator.badge'));
+                  setCustomRole('');
+                }
+              }}
+            />
+            <button
+              onClick={() => {
+                if (!customRole.trim()) return;
+                setEvaluatorPickerOpen(false);
+                void attachEvaluator(nodeId, customRole.trim(), t('evaluator.badge'));
+                setCustomRole('');
+              }}
+              disabled={!customRole.trim()}
+              className="text-xs bg-watch/90 hover:bg-watch text-white px-3 py-2 rounded-lg transition-colors disabled:opacity-30 shrink-0"
+            >
+              {t('evaluator.create')}
+            </button>
+          </div>
+        </div>
+      )}
       {showBranchInput && (
         <div className="mt-3">
           {branchContext && (

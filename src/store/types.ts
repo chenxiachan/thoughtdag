@@ -70,6 +70,14 @@ export interface HighlightSlice {
   setSummary: (nodeId: string, summary: string) => void;
 }
 
+export interface EvaluatorSlice {
+  /** Create an evaluator node watching the given node, then run its first critique. */
+  attachEvaluator: (watchedNodeId: string, rolePrompt: string, roleName: string) => Promise<void>;
+  /** Re-run the critique against the current state of the watched thread. */
+  evaluateNow: (evaluatorId: string) => Promise<void>;
+  setEvaluatorTrigger: (nodeId: string, mode: 'auto' | 'manual') => void;
+}
+
 export interface AttachmentSlice {
   addAttachment: (nodeId: string, attachment: Attachment) => void;
   removeAttachment: (nodeId: string, attachmentId: string) => void;
@@ -79,6 +87,6 @@ export interface AttachmentSlice {
   getInheritedAttachments: (nodeId: string) => { attachment: Attachment; sourceNodeId: string; sourceQuestion: string; excludedByAncestor: boolean }[];
 }
 
-export type StoreState = HistorySlice & NodeSlice & LlmSlice & RoleSlice & HighlightSlice & AttachmentSlice;
+export type StoreState = HistorySlice & NodeSlice & LlmSlice & RoleSlice & HighlightSlice & AttachmentSlice & EvaluatorSlice;
 
 export type PersistedState = { nodes: ThoughtNode[]; edges: ThoughtEdge[] };

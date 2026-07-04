@@ -208,4 +208,19 @@ export const en = {
   'export.contextChain': 'Context chain',
   'export.selectedNodes': 'Selected nodes',
   'export.attachmentsLabel': 'Attachments:',
+
+  // Evaluator
+  'evaluator.attach': 'Add Evaluator',
+  'evaluator.attachTitle': 'Attach a critic that auto-reviews this thread',
+  'evaluator.pickRole': 'Choose a critic role',
+  'evaluator.customRole': 'Custom role...',
+  'evaluator.customPlaceholder': 'Describe the critic, e.g. You are a harsh methods reviewer...',
+  'evaluator.create': 'Create',
+  'evaluator.badge': 'Evaluator',
+  'evaluator.evaluateNow': 'Evaluate now',
+  'evaluator.auto': 'Auto',
+  'evaluator.manual': 'Manual',
+  'evaluator.autoTitle': 'Re-critiques automatically when the watched thread grows',
+  'evaluator.manualTitle': 'Only critiques when you press Evaluate',
+  'evaluator.critiqueN': 'Critique #{n}',
 } as const;

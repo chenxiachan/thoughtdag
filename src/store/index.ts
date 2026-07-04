@@ -10,6 +10,7 @@ import { createLlmSlice } from './slices/llm';
 import { createRoleSlice } from './slices/roles';
 import { createHighlightSlice } from './slices/highlights';
 import { createAttachmentSlice } from './slices/attachments';
+import { createEvaluatorSlice } from './slices/evaluator';
 
 // Reset transient UI flags — applied both when persisting and when rehydrating,
 // so a refresh mid-stream/mid-edit never restores a node stuck in loading state.
@@ -36,6 +37,7 @@ export const useStore = create<StoreState>()(persist((...a) => ({
   ...createRoleSlice(...a),
   ...createHighlightSlice(...a),
   ...createAttachmentSlice(...a),
+  ...createEvaluatorSlice(...a),
 }), {
   // Placeholder name — bootProjects() (src/store/projects.ts) points this at
   // the active project's key via persist.setOptions() before rehydrating.

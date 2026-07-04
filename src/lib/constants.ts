@@ -31,4 +31,5 @@ export const COLORS = {
   accent: '#6B5CE7',   // continue edges, primary actions
   warm: '#E08A3C',     // explore branch edges
   trace: '#F59E0B',    // ancestor-path highlight
+  watch: '#DC2626',    // evaluator watch edges
 } as const;

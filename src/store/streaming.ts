@@ -37,11 +37,13 @@ export async function runNodeGeneration(
     question: string;
     messages: ContextMessage[];
     images?: ImageAttachment[];
+    /** append = keep earlier responses as versions (evaluator critique history). */
+    versionMode?: 'replace' | 'append';
     /** Extra work after the final state write, before pushHistory (e.g. re-layout). */
     onSuccess?: (response: string) => void;
   },
 ): Promise<void> {
-  const { question, messages, images, onSuccess } = opts;
+  const { question, messages, images, onSuccess, versionMode = 'replace' } = opts;
   const abortController = new AbortController();
   activeAbortControllers.set(nodeId, abortController);
 
@@ -57,11 +59,13 @@ export async function runNodeGeneration(
   const writeFinal = (response: string, failed = false) => {
     const tokenCount = countTokens(question + response);
     set((state) => ({
-      nodes: state.nodes.map((n) =>
-        n.id === nodeId
-          ? { ...n, data: { ...n.data, response, responses: [response], responseIndex: 0, isLoading: false, isCollapsed: true, tokenCount, generationFailed: failed || undefined } }
-          : n
-      ),
+      nodes: state.nodes.map((n) => {
+        if (n.id !== nodeId) return n;
+        const responses = versionMode === 'append'
+          ? [...n.data.responses.filter((r) => r), response]
+          : [response];
+        return { ...n, data: { ...n.data, response, responses, responseIndex: responses.length - 1, isLoading: false, isCollapsed: true, tokenCount, generationFailed: failed || undefined } };
+      }),
     }));
   };
 
@@ -78,6 +82,7 @@ export async function runNodeGeneration(
     onSuccess?.(response);
     get().pushHistory();
     generateSummary(nodeId, question, response, get().setSummary);
+    triggerWatchers(get, nodeId);
   } catch (err) {
     activeAbortControllers.delete(nodeId);
     const partial = get().nodes.find((n) => n.id === nodeId)?.data.response || '';
@@ -92,5 +97,40 @@ export async function runNodeGeneration(
       writeFinal(partial || t('node.failedPlaceholder'), true);
     }
     get().pushHistory();
+  }
+}
+
+/**
+ * After a node finishes generating, wake any auto-mode evaluators watching
+ * it or one of its STRUCTURAL ancestors. Watch edges are cross-links, so
+ * this walk can't loop back through an evaluator; an evaluator finishing
+ * its own critique has no structural ancestors and cascades no further
+ * (unless it is itself watched — multi-level review is allowed).
+ */
+function triggerWatchers(get: Get, completedNodeId: string): void {
+  const { nodes, edges } = get();
+
+  // Structural ancestors of the completed node, including itself
+  const chain = new Set<string>([completedNodeId]);
+  const queue = [completedNodeId];
+  while (queue.length > 0) {
+    const current = queue.shift()!;
+    for (const e of edges) {
+      if (e.target === current && !e.data?.isCrossLink && !chain.has(e.source)) {
+        chain.add(e.source);
+        queue.push(e.source);
+      }
+    }
+  }
+
+  const woken = new Set<string>();
+  for (const e of edges) {
+    if (!e.data?.isWatch || !chain.has(e.source) || woken.has(e.target)) continue;
+    const evaluator = nodes.find((n) => n.id === e.target);
+    if (!evaluator?.data.isEvaluator) continue;
+    if (evaluator.data.evaluatorTrigger !== 'auto') continue;
+    if (evaluator.data.isLoading || activeAbortControllers.has(evaluator.id)) continue;
+    woken.add(evaluator.id);
+    void get().evaluateNow(evaluator.id);
   }
 }

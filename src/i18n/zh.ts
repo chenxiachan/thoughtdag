@@ -208,4 +208,19 @@ export const zh: Record<keyof typeof en, string> = {
   'export.contextChain': '上下文链',
   'export.selectedNodes': '选中节点',
   'export.attachmentsLabel': '附件：',
+
+  // Evaluator
+  'evaluator.attach': '添加评审者',
+  'evaluator.attachTitle': '挂一个自动评审此思路链的批评者',
+  'evaluator.pickRole': '选择评审角色',
+  'evaluator.customRole': '自定义角色…',
+  'evaluator.customPlaceholder': '描述这位批评者，例如：你是一位严苛的方法论审稿人…',
+  'evaluator.create': '创建',
+  'evaluator.badge': '评审者',
+  'evaluator.evaluateNow': '立即评审',
+  'evaluator.auto': '自动',
+  'evaluator.manual': '手动',
+  'evaluator.autoTitle': '被监听的思路链有新内容时自动重新评审',
+  'evaluator.manualTitle': '只在你点击「立即评审」时评审',
+  'evaluator.critiqueN': '第 {n} 轮评审',
 };

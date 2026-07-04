@@ -28,8 +28,12 @@ export function estimateNodeHeight(node: ThoughtNode): number {
  *   - Any overlap (bbox intersection + padding) pushes the lower node down.
  *   - Iterates until stable (max 5 passes).
  */
-export function autoLayout(nodes: ThoughtNode[], edges: ThoughtEdge[]): ThoughtNode[] {
-  if (nodes.length === 0) return nodes;
+export function autoLayout(allNodes: ThoughtNode[], edges: ThoughtEdge[]): ThoughtNode[] {
+  if (allNodes.length === 0) return allNodes;
+  // Evaluators sit beside the thread they watch and keep their manual
+  // position — they never join the column tree.
+  const nodes = allNodes.filter((n) => !n.data.isEvaluator);
+  if (nodes.length === 0) return allNodes;
 
   const NODE_WIDTH = LAYOUT_COL_WIDTH;
   const H_GAP = LAYOUT_H_GAP;
@@ -221,7 +225,8 @@ export function autoLayout(nodes: ThoughtNode[], edges: ThoughtEdge[]): ThoughtN
     if (!moved) break;
   }
 
-  return nodes.map((node) => {
+  return allNodes.map((node) => {
+    if (node.data.isEvaluator) return node;
     const pos = positioned.get(node.id);
     return pos ? { ...node, position: pos } : node;
   });

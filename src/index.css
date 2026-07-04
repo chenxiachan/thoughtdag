@@ -32,6 +32,7 @@
   --color-accent-strong: #5A4BD6;/* accent hover                   */
   --color-warm: #E08A3C;         /* explore branches               */
   --color-trace: #F59E0B;        /* ancestor-path edge highlight   */
+  --color-watch: #DC2626;        /* evaluator watch edges          */
 }
 
 :root {
@@ -177,6 +178,14 @@ summary:focus-visible {
 
 .orange-node {
   border-color: color-mix(in srgb, var(--color-warm) 30%, var(--color-line));
+}
+
+.evaluator-node::before {
+  background: var(--color-watch);
+}
+
+.evaluator-node {
+  border-color: color-mix(in srgb, var(--color-watch) 25%, var(--color-line));
 }
 
 /* Markdown body styles */

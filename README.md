@@ -133,7 +133,7 @@ ThoughtDAG 把 LLM 对话从线性聊天变成空间化、可编辑的 DAG（有
 - [ ] **框选 Group/Ungroup** — 框选多节点 → 右键菜单 Group 打包为可折叠组（视觉分组 + 折叠为摘要），Ungroup 解散
 - [ ] **键盘快捷键** — Tab=追问, Space=折叠/展开, Esc=逐级退出, Delete=删除, R=重新生成, Cmd+D=复制, Cmd+E=编辑问题, ↑↓←→=DAG 导航（父子/兄弟）
 - [ ] **搜索节点** — Cmd+F 打开搜索框，匹配节点内容并定位画布居中
-- [ ] **画布新建 Root** — 双击画布空白处创建新 root 节点（独立 DAG 起点）；多棵 DAG 树共存于同一画布，之后可通过拖线 cross-link 合并到其他节点的上下文中
+- [x] **画布新建 Root** — ✅ 双击画布空白处开始新提问；多棵 DAG 树共存，可拖线 cross-link 合并
 
 #### P2.5 — 节点角色系统
 - [x] **节点级 System Prompt** — 三种模式：Inherit from previous / Set for next ↓ / Reset for this node
@@ -141,10 +141,10 @@ ThoughtDAG 把 LLM 对话从线性聊天变成空间化、可编辑的 DAG（有
 - [x] **Landing page / New root 可设 optional role**
 - [x] **Inherit role checkbox** — Continue / Branch / Highlight Explore 输入框下方
 - [x] **多 Role 冲突解决** — DAG 多父节点 role 不同时，FocusPanel Radio 选择器，默认主边优先
-- [ ] **角色模板** — 预设角色库（论文审稿人、Python 专家、魔鬼代言人、教师等），一键应用到节点
+- [x] **角色模板** — ✅ 预设角色库（审稿人/魔鬼代言人/统计顾问/Code Reviewer/导师），Evaluator 创建时一键应用
 
 #### P3 — 差异化功能
-- [ ] **Evaluator 节点（对抗式推理）⭐** — GAN 式对抗结构，ThoughtDAG 核心差异化特性：
+- [x] **Evaluator 节点（对抗式推理）⭐ ✅ 核心闭环已实现** — GAN 式对抗结构，ThoughtDAG 核心差异化特性：
   - 🔴 **监听边（红色）**：新的边类型，Evaluator 节点"订阅"主线，主线每产生新内容自动触发评判
   - **角色驱动**：使用节点级 rolePrompt（审稿人、debug 专家、魔鬼代言人等）
   - **上下文语义**：Evaluator 的 context = 自身历史 + 监听的主线内容
@@ -152,7 +152,7 @@ ThoughtDAG 把 LLM 对话从线性聊天变成空间化、可编辑的 DAG（有
   - **应用场景**：论文+审稿人、代码+reviewer、辩论正反方、翻译+质检、教学+导师
   - **预设模板**：一键开启"辩论模式""审稿模式""Code Review 模式"
 - [ ] **节点级多模型切换** — 每个节点可选择不同 LLM（Claude/GPT/Qwen/DeepSeek），发挥不同模型在不同任务的优势
-- [ ] **节点簇合并摘要** — 框选多节点 → 总结为摘要节点，原始折叠
+- [x] **节点簇合并摘要** — ✅ 多选 Merge Summary / Merge & Delete
 - [ ] **导出为文件** — 多选节点 → LLM 整理为代码文件/文档/论文大纲 → 下载。轻量的产出物方案
 - [ ] **代码块增强** — 代码块加 Copy/Run 按钮，Open in Editor 弹出可编辑面板
 

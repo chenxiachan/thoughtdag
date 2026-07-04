@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Handle, Position, useStore as useRfStore, type NodeProps } from '@xyflow/react';
-import { AlertTriangle, ChevronDown, ChevronLeft, ChevronRight, GitBranch, Paperclip, RefreshCw, Send, Star, Trash2, X } from 'lucide-react';
+import { AlertTriangle, ChevronDown, ChevronLeft, ChevronRight, Eye, GitBranch, Paperclip, RefreshCw, Send, Star, Trash2, X } from 'lucide-react';
 import 'katex/dist/katex.min.css';
 import type { ThoughtNode as ThoughtNodeType } from '../types';
 import { useStore } from '../store';
@@ -13,7 +13,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   const {
     deleteNode, toggleCollapse, setEditing, editQuestion, regenerate,
     setEditingResponse, editResponse, addHighlight, navigateVersion, deleteVersion,
-    setSelectedNodeId, selectedNodeId, addAttachment,
+    setSelectedNodeId, selectedNodeId, addAttachment, evaluateNow, setEvaluatorTrigger,
   } = useStore();
   const t = useT();
   const [isDropTarget, setIsDropTarget] = useState(false);
@@ -142,7 +142,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
     <div
       ref={nodeRef}
       className={`thought-node rounded-xl w-[520px] animate-fade-in transition-all duration-200 ${
-        isBranch ? 'orange-node' : isRoot ? 'root-node' : 'branch-node'
+        data.isEvaluator ? 'evaluator-node' : isBranch ? 'orange-node' : isRoot ? 'root-node' : 'branch-node'
       } ${data.isLoading ? 'loading-border' : ''} ${selectedNodeId === id ? 'ring-2 ring-accent !border-accent selected-glow' : ''} ${isDropTarget ? 'ring-2 ring-accent/50 ring-dashed' : ''}`}
       onClick={() => setSelectedNodeId(id)}
       onDrop={async (e) => {
@@ -184,7 +184,11 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
             {data.isCollapsed ? <ChevronRight size={18} strokeWidth={1.75} /> : <ChevronDown size={18} strokeWidth={1.75} />}
           </button>
           <span className="text-xs text-ink-faint font-mono">{data.tokenCount} tok</span>
-          {data.appliedRole && (
+          {data.isEvaluator ? (
+            <span className="text-2xs bg-watch/10 text-watch px-1.5 py-0.5 rounded-md flex items-center gap-1 font-medium">
+              <Eye size={12} strokeWidth={1.75} /> {t('evaluator.badge')}
+            </span>
+          ) : data.appliedRole && (
             <span className="text-2xs bg-accent/10 text-accent px-1.5 py-0.5 rounded-md truncate max-w-[120px]" title={data.appliedRole}>
               {data.appliedRole.slice(0, 20)}{data.appliedRole.length > 20 ? '…' : ''}
             </span>
@@ -207,9 +211,34 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
           )}
         </div>
         <div className="flex items-center gap-0.5">
-          <button onClick={() => regenerate(id)} className="text-ink-faint hover:text-accent hover:bg-wash rounded-full w-7 h-7 flex items-center justify-center transition-colors" title={t('common.regenerate')}>
-            <RefreshCw size={16} strokeWidth={1.75} />
-          </button>
+          {data.isEvaluator ? (
+            <>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEvaluatorTrigger(id, data.evaluatorTrigger === 'auto' ? 'manual' : 'auto');
+                }}
+                className={`text-2xs px-2 h-6 rounded-full font-medium transition-colors ${
+                  data.evaluatorTrigger === 'auto' ? 'bg-watch/10 text-watch' : 'bg-wash text-ink-faint'
+                }`}
+                title={data.evaluatorTrigger === 'auto' ? t('evaluator.autoTitle') : t('evaluator.manualTitle')}
+              >
+                {data.evaluatorTrigger === 'auto' ? t('evaluator.auto') : t('evaluator.manual')}
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); void evaluateNow(id); }}
+                disabled={data.isLoading}
+                className="text-ink-faint hover:text-watch hover:bg-red-50 rounded-full w-7 h-7 flex items-center justify-center transition-colors disabled:opacity-30"
+                title={t('evaluator.evaluateNow')}
+              >
+                <RefreshCw size={16} strokeWidth={1.75} className={data.isLoading ? 'animate-spin' : ''} />
+              </button>
+            </>
+          ) : (
+            <button onClick={() => regenerate(id)} className="text-ink-faint hover:text-accent hover:bg-wash rounded-full w-7 h-7 flex items-center justify-center transition-colors" title={t('common.regenerate')}>
+              <RefreshCw size={16} strokeWidth={1.75} />
+            </button>
+          )}
           <button onClick={() => deleteNode(id)} className="text-ink-faint hover:text-red-500 hover:bg-red-50 rounded-full w-7 h-7 flex items-center justify-center transition-colors" title={t('common.delete')}>
             <X size={16} strokeWidth={1.75} />
           </button>

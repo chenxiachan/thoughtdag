@@ -43,6 +43,10 @@ export interface ThoughtData extends Record<string, unknown> {
   includedAttachmentIds: string[]; // override ancestor exclusions (re-include)
   isRoot: boolean;
   isBranch: boolean;
+  /** Evaluator nodes subscribe to a thread via watch edges and critique it. */
+  isEvaluator?: boolean;
+  /** auto = re-critique whenever the watched subtree produces new content. */
+  evaluatorTrigger?: 'auto' | 'manual';
 }
 
 export type ThoughtNode = Node<ThoughtData, 'thought'>;
@@ -51,6 +55,9 @@ export interface ThoughtEdge extends Edge {
   data?: {
     isCrossLink?: boolean;
     isBranchFromSelection?: boolean;
+    /** Watch edge: watched node → evaluator. Treated as a cross-link for
+        layout (no tree structure) but feeds context like any incoming edge. */
+    isWatch?: boolean;
   };
 }
 
