@@ -120,6 +120,13 @@ summary:focus-visible {
 
 .animate-fade-in { animation: fadeIn 0.3s ease-out; }
 
+/* Landing logo: nodes and edges light up in sequence */
+@keyframes dag-pop {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.dag-pop { animation: dag-pop 0.45s ease-out backwards; }
+
 @keyframes pulse-border {
   0%, 100% { border-color: var(--color-line); }
   50% { border-color: var(--color-accent); }

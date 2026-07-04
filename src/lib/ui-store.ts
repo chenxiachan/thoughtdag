@@ -21,18 +21,22 @@ interface ConfirmRequest {
 interface UiState {
   toasts: ToastItem[];
   confirmRequest: ConfirmRequest | null;
+  tutorialOpen: boolean;
   dismissToast: (id: string) => void;
   resolveConfirm: (ok: boolean) => void;
+  setTutorialOpen: (open: boolean) => void;
 }
 
 export const useUiStore = create<UiState>((set, get) => ({
   toasts: [],
   confirmRequest: null,
+  tutorialOpen: false,
   dismissToast: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
   resolveConfirm: (ok) => {
     get().confirmRequest?.resolve(ok);
     set({ confirmRequest: null });
   },
+  setTutorialOpen: (open) => set({ tutorialOpen: open }),
 }));
 
 let toastCounter = 0;

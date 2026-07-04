@@ -15,7 +15,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import 'highlight.js/styles/github.css';
-import { FileText, Loader2, Paperclip, Redo2, Trash2, Undo2, X } from 'lucide-react';
+import { CircleHelp, FileText, GitBranch, Loader2, Paperclip, Redo2, Scissors, Trash2, Undo2, Workflow, X } from 'lucide-react';
 import './index.css';
 import ThoughtNode from './components/ThoughtNode';
 import ThoughtEdgeView from './components/ThoughtEdgeView';
@@ -30,6 +30,9 @@ import { COLORS } from './lib/constants';
 import { confirmDialog, useUiStore } from './lib/ui-store';
 import ConfirmDialog from './components/ui/ConfirmDialog';
 import Toaster from './components/ui/Toaster';
+import LangSwitch from './components/ui/LangSwitch';
+import Tutorial from './components/Tutorial';
+import { useT } from './i18n';
 
 const nodeTypes = { thought: ThoughtNode };
 // Overrides the built-in smoothstep so persisted edges need no migration
@@ -46,12 +49,15 @@ export default function App() {
       {hydrated && <Canvas />}
       <Toaster />
       <ConfirmDialog />
+      <Tutorial />
     </>
   );
 }
 
 function Canvas() {
   const { nodes, edges, setNodes, setEdges, addQuestion, undo, redo, addCrossLink, setSelectedNodeId, setSelectedNodeIds, history, historyIndex } = useStore();
+  const t = useT();
+  const setTutorialOpen = useUiStore((s) => s.setTutorialOpen);
   const [inputValue, setInputValue] = useState('');
   const [rootRole, setRootRole] = useState('');
   const [showRootRole, setShowRootRole] = useState(false);
@@ -308,21 +314,39 @@ function Canvas() {
 
       {/* Initial input */}
       {!hasNodes && (
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div className="pointer-events-auto w-[520px] animate-fade-in">
-            <div className="text-center mb-7">
-              {/* Mark: a tiny DAG — main chain in accent, explore branch in warm */}
-              <svg width="44" height="44" viewBox="0 0 44 44" className="mx-auto mb-4" aria-hidden>
-                <line x1="22" y1="11" x2="22" y2="19" stroke={COLORS.accent} strokeWidth="2" strokeLinecap="round" />
-                <line x1="22" y1="25" x2="22" y2="33" stroke={COLORS.accent} strokeWidth="2" strokeLinecap="round" />
-                <line x1="25.5" y1="23.5" x2="33" y2="28.5" stroke={COLORS.warm} strokeWidth="2" strokeLinecap="round" strokeDasharray="3 3" />
-                <circle cx="22" cy="7" r="3.5" fill={COLORS.accent} />
-                <circle cx="22" cy="22" r="3.5" fill="none" stroke={COLORS.accent} strokeWidth="2.5" />
-                <circle cx="22" cy="37" r="3.5" fill={COLORS.accent} opacity="0.35" />
-                <circle cx="36" cy="30" r="3.5" fill={COLORS.warm} />
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
+          {/* Watermark: faint DAG sketches anchoring the corners */}
+          <svg className="absolute -left-10 top-[8%] w-[360px] h-[300px] opacity-[0.35] pointer-events-none" viewBox="0 0 360 300" aria-hidden>
+            <path d="M80 40 C80 90 80 90 80 130 M80 170 C80 210 80 210 80 250" stroke={COLORS.line} strokeWidth="2" fill="none" />
+            <path d="M95 150 C150 150 150 90 205 88" stroke={COLORS.line} strokeWidth="2" strokeDasharray="6 5" fill="none" />
+            <circle cx="80" cy="30" r="7" fill={COLORS.line} />
+            <circle cx="80" cy="150" r="7" fill="none" stroke={COLORS.line} strokeWidth="2.5" />
+            <circle cx="80" cy="262" r="7" fill={COLORS.line} />
+            <circle cx="218" cy="88" r="7" fill={COLORS.line} />
+          </svg>
+          <svg className="absolute right-[-30px] bottom-[10%] w-[320px] h-[280px] opacity-[0.35] pointer-events-none" viewBox="0 0 320 280" aria-hidden>
+            <path d="M240 30 C240 80 240 80 240 120 M240 160 C240 200 240 200 240 240" stroke={COLORS.line} strokeWidth="2" fill="none" />
+            <path d="M225 140 C170 140 170 210 115 212" stroke={COLORS.line} strokeWidth="2" strokeDasharray="6 5" fill="none" />
+            <circle cx="240" cy="20" r="7" fill={COLORS.line} />
+            <circle cx="240" cy="140" r="7" fill="none" stroke={COLORS.line} strokeWidth="2.5" />
+            <circle cx="240" cy="252" r="7" fill={COLORS.line} />
+            <circle cx="102" cy="212" r="7" fill={COLORS.line} />
+          </svg>
+
+          <div className="pointer-events-auto w-[560px] animate-fade-in relative">
+            <div className="text-center mb-8">
+              {/* Mark: a tiny DAG lighting up — main chain in accent, explore branch in warm */}
+              <svg width="52" height="52" viewBox="0 0 44 44" className="mx-auto mb-4" aria-hidden>
+                <circle className="dag-pop" style={{ animationDelay: '0.05s' }} cx="22" cy="7" r="3.5" fill={COLORS.accent} />
+                <line className="dag-pop" style={{ animationDelay: '0.2s' }} x1="22" y1="11" x2="22" y2="19" stroke={COLORS.accent} strokeWidth="2" strokeLinecap="round" />
+                <circle className="dag-pop" style={{ animationDelay: '0.35s' }} cx="22" cy="22" r="3.5" fill="none" stroke={COLORS.accent} strokeWidth="2.5" />
+                <line className="dag-pop" style={{ animationDelay: '0.5s' }} x1="22" y1="25" x2="22" y2="33" stroke={COLORS.accent} strokeWidth="2" strokeLinecap="round" />
+                <circle className="dag-pop" style={{ animationDelay: '0.65s' }} cx="22" cy="37" r="3.5" fill={COLORS.accent} opacity="0.35" />
+                <line className="dag-pop" style={{ animationDelay: '0.8s' }} x1="25.5" y1="23.5" x2="33" y2="28.5" stroke={COLORS.warm} strokeWidth="2" strokeLinecap="round" strokeDasharray="3 3" />
+                <circle className="dag-pop" style={{ animationDelay: '0.95s' }} cx="36" cy="30" r="3.5" fill={COLORS.warm} />
               </svg>
-              <h1 className="text-3xl font-semibold tracking-tight text-ink mb-2">ThoughtDAG</h1>
-              <p className="text-sm text-ink-muted">Explore ideas as branching conversations</p>
+              <h1 className="text-4xl font-semibold tracking-tight text-ink mb-2.5">ThoughtDAG</h1>
+              <p className="text-sm text-ink-muted">{t('landing.tagline')}</p>
             </div>
             <div
               className={`bg-card border rounded-xl px-5 py-4 shadow-lg transition-all ${isDraggingLanding ? 'border-accent ring-2 ring-accent/20' : 'border-line'}`}
@@ -338,7 +362,7 @@ function Canvas() {
                   const files = Array.from(e.clipboardData.items).filter(i => i.kind === 'file').map(i => i.getAsFile()!).filter(Boolean);
                   if (files.length) handleFileUpload(files);
                 }}
-                placeholder="What would you like to explore?"
+                placeholder={t('landing.placeholder')}
                 className="w-full bg-transparent text-ink text-sm leading-relaxed resize-none focus:outline-none placeholder-ink-faint"
                 rows={3}
                 autoFocus
@@ -371,18 +395,18 @@ function Canvas() {
                     onClick={() => setShowRootRole(true)}
                     className="text-xs text-ink-faint hover:text-ink-muted transition-colors flex items-center gap-1"
                   >
-                    Set role (optional)
+                    {t('landing.setRole')}
                   </button>
                 ) : (
                   <div className="space-y-1">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs text-ink-muted font-medium">Role (System Prompt)</span>
+                      <span className="text-xs text-ink-muted font-medium">{t('landing.roleLabel')}</span>
                       <button onClick={() => { setShowRootRole(false); setRootRole(''); }} className="text-xs text-ink-faint hover:text-ink-muted"><X size={14} strokeWidth={1.75} /></button>
                     </div>
                     <textarea
                       value={rootRole}
                       onChange={(e) => setRootRole(e.target.value)}
-                      placeholder="e.g. You are a physicist. Explain using first principles."
+                      placeholder={t('landing.rolePlaceholder')}
                       className="w-full text-xs border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-accent bg-surface resize-none leading-relaxed"
                       rows={2}
                     />
@@ -410,17 +434,33 @@ function Canvas() {
                   disabled={!inputValue.trim() || pendingAttachments.some(a => a.isExtracting)}
                   className="bg-accent hover:bg-accent-strong disabled:opacity-30 disabled:cursor-not-allowed text-white text-sm px-5 py-2 rounded-xl transition-all"
                 >
-                  {pendingAttachments.some(a => a.isExtracting) ? 'Extracting...' : 'Send'}
+                  {pendingAttachments.some(a => a.isExtracting) ? t('landing.extracting') : t('landing.send')}
                 </button>
               </div>
             </div>
-            {/* What makes this different — one quiet line */}
-            <div className="flex items-center justify-center gap-5 mt-5 text-2xs text-ink-faint">
-              <span>Branch from any selection</span>
-              <span className="w-1 h-1 rounded-full bg-line-strong" />
-              <span>Every edge feeds context</span>
-              <span className="w-1 h-1 rounded-full bg-line-strong" />
-              <span>Delete an edge to prune</span>
+
+            {/* What makes this different — three quiet cards */}
+            <div className="grid grid-cols-3 gap-3 mt-6">
+              {([
+                { icon: GitBranch, title: 'landing.feature1.title', desc: 'landing.feature1.desc' },
+                { icon: Workflow, title: 'landing.feature2.title', desc: 'landing.feature2.desc' },
+                { icon: Scissors, title: 'landing.feature3.title', desc: 'landing.feature3.desc' },
+              ] as const).map(({ icon: Icon, title, desc }) => (
+                <div key={title} className="bg-card/70 backdrop-blur border border-line/70 rounded-xl px-4 py-3.5 hover:border-line-strong hover:-translate-y-0.5 transition-all">
+                  <Icon size={16} strokeWidth={1.75} className="text-accent mb-2" />
+                  <h3 className="text-xs font-semibold text-ink mb-1">{t(title)}</h3>
+                  <p className="text-2xs text-ink-faint leading-relaxed">{t(desc)}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="text-center mt-5">
+              <button
+                onClick={() => setTutorialOpen(true)}
+                className="text-xs text-ink-muted hover:text-accent transition-colors inline-flex items-center gap-1.5"
+              >
+                <CircleHelp size={14} strokeWidth={1.75} /> {t('landing.howItWorks')}
+              </button>
             </div>
           </div>
         </div>
@@ -522,8 +562,16 @@ function Canvas() {
         setTimeout(() => rfInstance.current?.fitView({ duration: 300, padding: 0.2 }), 50);
       }} />
 
-      {/* Undo/Redo buttons */}
-      <div className="absolute top-4 right-4 z-10 flex gap-1">
+      {/* Toolbar: language, tutorial, undo/redo */}
+      <div className="absolute top-4 right-4 z-10 flex gap-1.5 items-center">
+        <LangSwitch />
+        <button
+          onClick={() => setTutorialOpen(true)}
+          className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors text-ink-muted hover:text-accent"
+          title={t('landing.howItWorks')}
+        >
+          <CircleHelp size={15} strokeWidth={1.75} />
+        </button>
         <button
           onClick={undo}
           disabled={historyIndex <= 0}
