@@ -7,6 +7,7 @@ import { useStore } from '../store';
 import { generateId } from '../utils';
 import { processFile } from '../lib/attachments';
 import { Markdown, HighlightedMarkdown } from './Markdown';
+import { useT } from '../i18n';
 
 export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   const {
@@ -14,6 +15,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
     setEditingResponse, editResponse, addHighlight, navigateVersion, deleteVersion,
     setSelectedNodeId, selectedNodeId, addAttachment,
   } = useStore();
+  const t = useT();
   const [isDropTarget, setIsDropTarget] = useState(false);
   const [selectedText, setSelectedText] = useState('');
   const [selectionPos, setSelectionPos] = useState<{ x: number; y: number } | null>(null);
@@ -196,7 +198,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
                 <button
                   onClick={() => deleteVersion(id, data.responseIndex)}
                   className="text-ink-faint hover:text-red-500 hover:bg-red-50 rounded-full w-5 h-5 flex items-center justify-center transition-colors ml-0.5"
-                  title="Delete this version"
+                  title={t('common.deleteVersion')}
                 >
                   <Trash2 size={14} strokeWidth={1.75} />
                 </button>
@@ -205,10 +207,10 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
           )}
         </div>
         <div className="flex items-center gap-0.5">
-          <button onClick={() => regenerate(id)} className="text-ink-faint hover:text-accent hover:bg-wash rounded-full w-7 h-7 flex items-center justify-center transition-colors" title="Regenerate">
+          <button onClick={() => regenerate(id)} className="text-ink-faint hover:text-accent hover:bg-wash rounded-full w-7 h-7 flex items-center justify-center transition-colors" title={t('common.regenerate')}>
             <RefreshCw size={16} strokeWidth={1.75} />
           </button>
-          <button onClick={() => deleteNode(id)} className="text-ink-faint hover:text-red-500 hover:bg-red-50 rounded-full w-7 h-7 flex items-center justify-center transition-colors" title="Delete">
+          <button onClick={() => deleteNode(id)} className="text-ink-faint hover:text-red-500 hover:bg-red-50 rounded-full w-7 h-7 flex items-center justify-center transition-colors" title={t('common.delete')}>
             <X size={16} strokeWidth={1.75} />
           </button>
         </div>
@@ -239,7 +241,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
           {/* Branch context */}
           {data.branchContext && (
             <div className="text-xs text-ink-muted italic mb-3 pl-3 border-l-2 border-warm/40 bg-warm/15 rounded-r py-1.5 pr-2">
-              <GitBranch size={14} strokeWidth={1.75} className="inline" /> Explored from: &ldquo;{data.branchContext.slice(0, 100)}{data.branchContext.length > 100 ? '...' : ''}&rdquo;
+              <GitBranch size={14} strokeWidth={1.75} className="inline" /> {t('node.exploredFrom')} &ldquo;{data.branchContext.slice(0, 100)}{data.branchContext.length > 100 ? '...' : ''}&rdquo;
             </div>
           )}
 
@@ -265,7 +267,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
               </div>
             ) : (
               <div className="flex items-center gap-2 text-sm text-ink-muted">
-                <span className="animate-pulse text-accent">●</span> Thinking...
+                <span className="animate-pulse text-accent">●</span> {t('common.thinking')}
               </div>
             )
           ) : data.isEditingResponse ? (
@@ -279,8 +281,8 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
                 autoFocus
               />
               <div className="flex justify-end gap-2 mt-2">
-                <button onClick={() => setEditingResponse(id, false)} className="text-xs text-ink-muted hover:text-ink px-3 py-1.5 rounded-lg hover:bg-wash transition-colors">Cancel</button>
-                <button onClick={handleResponseEditSubmit} className="text-xs bg-accent hover:bg-accent-strong text-white px-4 py-1.5 rounded-lg transition-colors">Save</button>
+                <button onClick={() => setEditingResponse(id, false)} className="text-xs text-ink-muted hover:text-ink px-3 py-1.5 rounded-lg hover:bg-wash transition-colors">{t('common.cancel')}</button>
+                <button onClick={handleResponseEditSubmit} className="text-xs bg-accent hover:bg-accent-strong text-white px-4 py-1.5 rounded-lg transition-colors">{t('common.save')}</button>
               </div>
             </div>
           ) : (
@@ -301,12 +303,12 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
           {data.generationFailed && !data.isLoading && (
             <div className="mt-2 flex items-center gap-2 text-xs text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
               <AlertTriangle size={14} strokeWidth={1.75} className="shrink-0" />
-              Generation failed
+              {t('common.generationFailed')}
               <button
                 onClick={(e) => { e.stopPropagation(); editQuestion(id, data.question); }}
                 className="ml-auto bg-card border border-red-200 hover:bg-red-100 text-red-600 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1"
               >
-                <RefreshCw size={12} strokeWidth={1.75} /> Retry
+                <RefreshCw size={12} strokeWidth={1.75} /> {t('common.retry')}
               </button>
             </div>
           )}
@@ -314,7 +316,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
           {/* Branch context indicator when branching from selection */}
           {branchFromText && (
             <div className="mt-3 text-xs pl-3 py-2 pr-2 border-l-3 border-accent bg-accent/5 rounded-r">
-              <span className="text-accent font-medium"><GitBranch size={14} strokeWidth={1.75} className="inline" /> Exploring from selection:</span>
+              <span className="text-accent font-medium"><GitBranch size={14} strokeWidth={1.75} className="inline" /> {t('node.exploringFrom')}</span>
               <p className="text-ink-muted mt-1 leading-relaxed">&ldquo;{branchFromText.slice(0, 150)}{branchFromText.length > 150 ? '...' : ''}&rdquo;</p>
             </div>
           )}
@@ -328,7 +330,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={handleInputKeyDown}
-                  placeholder="Follow up..."
+                  placeholder={t('common.followUp')}
                   className="flex-1 bg-transparent text-sm text-ink placeholder-ink-faint focus:outline-none nopan nodrag"
                 />
                 <button
@@ -394,13 +396,13 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
               onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); handleBranch(); }}
               className="bg-accent hover:bg-accent-strong text-white text-xs px-3 py-1.5 rounded-lg transition-all whitespace-nowrap cursor-pointer"
             >
-              <GitBranch size={14} strokeWidth={1.75} className="inline" /> Explore
+              <GitBranch size={14} strokeWidth={1.75} className="inline" /> {t('common.explore')}
             </button>
             <button
               onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); handleHighlight(); }}
               className="bg-amber-500 hover:bg-amber-400 text-white text-xs px-3 py-1.5 rounded-lg transition-all whitespace-nowrap cursor-pointer"
             >
-              <Star size={14} strokeWidth={1.75} className="inline" /> Highlight
+              <Star size={14} strokeWidth={1.75} className="inline" /> {t('common.highlight')}
             </button>
           </div>
         </div>

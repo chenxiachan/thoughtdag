@@ -4,6 +4,7 @@ import { useProjects, projectStorageKey, adoptImportedProject } from '../store/p
 import { getContextPath } from './graph';
 import { countTokens } from '../utils';
 import { toast } from './ui-store';
+import { t, fmt } from '../i18n';
 import type { ThoughtNode, ThoughtEdge } from '../types';
 
 const EXPORT_FORMAT_VERSION = 1;
@@ -24,7 +25,7 @@ export function downloadFile(filename: string, content: string, mime: string): v
 
 export async function copyText(text: string): Promise<void> {
   await navigator.clipboard.writeText(text);
-  toast('success', 'Copied to clipboard');
+  toast('success', t('toast.copied'));
 }
 
 function activeProjectName(): string {
@@ -44,7 +45,7 @@ export function exportActiveProjectJson(): void {
     edges,
   });
   downloadFile(`${sanitizeFilename(name)}.thoughtdag.json`, payload, 'application/json');
-  toast('success', `Exported "${name}"`);
+  toast('success', fmt(t('toast.exported'), { name }));
 }
 
 export async function importProjectFromFile(file: File): Promise<boolean> {
@@ -52,11 +53,11 @@ export async function importProjectFromFile(file: File): Promise<boolean> {
   try {
     parsed = JSON.parse(await file.text());
   } catch {
-    toast('error', 'Import failed: not valid JSON');
+    toast('error', t('toast.importFailedJson'));
     return false;
   }
   if (!Array.isArray(parsed.nodes) || !Array.isArray(parsed.edges)) {
-    toast('error', 'Import failed: missing nodes/edges arrays');
+    toast('error', t('toast.importFailedMissing'));
     return false;
   }
   const id = crypto.randomUUID();
@@ -67,7 +68,7 @@ export async function importProjectFromFile(file: File): Promise<boolean> {
   }));
   const name = parsed.name?.trim() || file.name.replace(/\.thoughtdag\.json$|\.json$/i, '') || 'Imported canvas';
   await adoptImportedProject(id, name);
-  toast('success', `Imported "${name}" (${parsed.nodes.length} nodes)`);
+  toast('success', fmt(t('toast.imported'), { name, n: parsed.nodes.length }));
   return true;
 }
 
@@ -75,7 +76,7 @@ export async function importProjectFromFile(file: File): Promise<boolean> {
 function nodeToMd(n: ThoughtNode): string {
   const parts = [`## Q: ${n.data.question}`, ''];
   const atts = n.data.attachments || [];
-  if (atts.length > 0) parts.push(`> Attachments: ${atts.map((a) => a.name).join(', ')}`, '');
+  if (atts.length > 0) parts.push(`> ${t('export.attachmentsLabel')} ${atts.map((a) => a.name).join(', ')}`, '');
   if (n.data.branchContext) parts.push(`> Exploring from: "${n.data.branchContext.slice(0, 120)}"`, '');
   parts.push(n.data.response || '_(no response)_', '');
   return parts.join('\n');
@@ -96,7 +97,7 @@ export function nodesToMarkdown(ordered: ThoughtNode[], subtitle: string): strin
 export function contextChainMarkdown(nodeId: string): string {
   const { nodes, edges } = useStore.getState();
   const ordered = getContextPath(nodeId, nodes, edges);
-  return nodesToMarkdown(ordered, 'Context chain');
+  return nodesToMarkdown(ordered, t('export.contextChain'));
 }
 
 // Entry ②: a multi-selection, in reading order (top-to-bottom, then left-to-right)
@@ -106,7 +107,7 @@ export function selectionMarkdown(selectedIds: string[]): string {
     .map((id) => nodes.find((n) => n.id === id))
     .filter((n): n is ThoughtNode => !!n)
     .sort((a, b) => a.position.y - b.position.y || a.position.x - b.position.x);
-  return nodesToMarkdown(ordered, 'Selected nodes');
+  return nodesToMarkdown(ordered, t('export.selectedNodes'));
 }
 
 export function downloadMarkdown(md: string): void {

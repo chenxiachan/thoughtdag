@@ -3,6 +3,7 @@ import { AlertTriangle, ChevronLeft, ChevronRight, GitBranch, RefreshCw, Star, T
 import { useStore } from '../../store';
 import { generateId } from '../../utils';
 import { Markdown, HighlightedMarkdown } from '../Markdown';
+import { useT } from '../../i18n';
 import type { ThoughtData } from '../../types';
 
 export default function ResponseSection({
@@ -24,6 +25,7 @@ export default function ResponseSection({
   const navigateVersion = useStore((s) => s.navigateVersion);
   const deleteVersion = useStore((s) => s.deleteVersion);
   const addHighlight = useStore((s) => s.addHighlight);
+  const t = useT();
 
   const [editResponseValue, setEditResponseValue] = useState('');
   const [selectedText, setSelectedText] = useState('');
@@ -93,7 +95,7 @@ export default function ResponseSection({
   return (
     <div className="px-4 py-3 border-b border-line">
       <div className="flex items-center justify-between mb-1.5">
-        <label className="text-xs text-ink-faint uppercase tracking-wider font-medium">Response</label>
+        <label className="text-xs text-ink-faint uppercase tracking-wider font-medium">{t('panel.response')}</label>
         {hasMultipleVersions && (
           <div className="flex items-center gap-1 text-xs text-ink-muted">
             <button onClick={() => navigateVersion(nodeId, 'prev')} className="hover:text-accent hover:bg-wash rounded-full w-5 h-5 flex items-center justify-center transition-colors"><ChevronLeft size={14} strokeWidth={1.75} /></button>
@@ -103,7 +105,7 @@ export default function ResponseSection({
               <button
                 onClick={() => deleteVersion(nodeId, data.responseIndex)}
                 className="text-ink-faint hover:text-red-500 hover:bg-red-50 rounded-full w-5 h-5 flex items-center justify-center transition-colors ml-0.5"
-                title="Delete this version"
+                title={t('common.deleteVersion')}
               >
                 <Trash2 size={14} strokeWidth={1.75} />
               </button>
@@ -114,7 +116,7 @@ export default function ResponseSection({
 
       {data.isLoading && !data.response ? (
         <div className="flex items-center gap-2 text-sm text-ink-muted">
-          <span className="animate-pulse text-accent">●</span> Thinking...
+          <span className="animate-pulse text-accent">●</span> {t('common.thinking')}
         </div>
       ) : data.isLoading && data.response ? (
         <div className="markdown-body text-sm text-ink leading-relaxed max-h-[500px] overflow-y-auto py-1">
@@ -132,8 +134,8 @@ export default function ResponseSection({
             autoFocus
           />
           <div className="flex justify-end gap-2 mt-2">
-            <button onClick={() => setEditingResponse(nodeId, false)} className="text-xs text-ink-muted hover:text-ink px-3 py-1.5 rounded-lg hover:bg-wash transition-colors">Cancel</button>
-            <button onClick={handleResponseEditSubmit} className="text-xs bg-accent hover:bg-accent-strong text-white px-4 py-1.5 rounded-lg transition-colors">Save</button>
+            <button onClick={() => setEditingResponse(nodeId, false)} className="text-xs text-ink-muted hover:text-ink px-3 py-1.5 rounded-lg hover:bg-wash transition-colors">{t('common.cancel')}</button>
+            <button onClick={handleResponseEditSubmit} className="text-xs bg-accent hover:bg-accent-strong text-white px-4 py-1.5 rounded-lg transition-colors">{t('common.save')}</button>
           </div>
         </div>
       ) : (
@@ -163,13 +165,13 @@ export default function ResponseSection({
                   onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); handleBranchFromSelection(); }}
                   className="bg-accent hover:bg-accent-strong text-white text-xs px-3 py-1.5 rounded-lg transition-all whitespace-nowrap cursor-pointer"
                 >
-                  <GitBranch size={14} strokeWidth={1.75} className="inline" /> Explore
+                  <GitBranch size={14} strokeWidth={1.75} className="inline" /> {t('common.explore')}
                 </button>
                 <button
                   onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); handleHighlight(); }}
                   className="bg-amber-500 hover:bg-amber-400 text-white text-xs px-3 py-1.5 rounded-lg transition-all whitespace-nowrap cursor-pointer"
                 >
-                  <Star size={14} strokeWidth={1.75} className="inline" /> Highlight
+                  <Star size={14} strokeWidth={1.75} className="inline" /> {t('common.highlight')}
                 </button>
               </div>
             </div>
@@ -181,12 +183,12 @@ export default function ResponseSection({
       {data.generationFailed && !data.isLoading && (
         <div className="mt-2 flex items-center gap-2 text-xs text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
           <AlertTriangle size={14} strokeWidth={1.75} className="shrink-0" />
-          Generation failed
+          {t('common.generationFailed')}
           <button
             onClick={() => editQuestion(nodeId, data.question)}
             className="ml-auto bg-card border border-red-200 hover:bg-red-100 text-red-600 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1"
           >
-            <RefreshCw size={12} strokeWidth={1.75} /> Retry
+            <RefreshCw size={12} strokeWidth={1.75} /> {t('common.retry')}
           </button>
         </div>
       )}

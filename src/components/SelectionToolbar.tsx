@@ -3,9 +3,11 @@ import { ClipboardList, FileDown, GitBranch, Star, Trash2 } from 'lucide-react';
 import { useStore } from '../store';
 import { confirmDialog } from '../lib/ui-store';
 import { selectionMarkdown, downloadMarkdown } from '../lib/export';
+import { useT, t as ti, fmt } from '../i18n';
 
 export default function SelectionToolbar() {
   const { selectedNodeIds, nodes, batchDelete, batchMergeSummarize, addQuestion } = useStore();
+  const t = useT();
   const [exploreOpen, setExploreOpen] = useState(false);
   const [exploreInput, setExploreInput] = useState('');
   const exploreRef = useRef<HTMLInputElement>(null);
@@ -52,9 +54,9 @@ export default function SelectionToolbar() {
         {/* Header */}
         <div className="flex items-center gap-3">
           <span className="text-sm text-ink-muted font-medium">
-            {selectedNodeIds.length} nodes selected
+            {fmt(t('toolbar.nodesSelected'), { n: selectedNodeIds.length })}
             <span className="text-xs text-ink-faint ml-1.5">
-              ({totalTokens} tokens{allHighlights.length > 0 ? ` · ${allHighlights.length} highlights` : ''})
+              ({fmt(t('toolbar.tokens'), { n: totalTokens })}{allHighlights.length > 0 ? fmt(t('toolbar.highlightCount'), { n: allHighlights.length }) : ''})
             </span>
           </span>
         </div>
@@ -72,26 +74,26 @@ export default function SelectionToolbar() {
                 );
               }}
               className="text-xs bg-amber-50 hover:bg-amber-100 text-amber-700 px-3 py-1.5 rounded-lg transition-colors"
-              title="Summarize all highlights from selected nodes"
+              title={t('toolbar.summaryHighlightsTitle')}
             >
-              <Star size={14} strokeWidth={1.75} className="inline" /> Summary Highlights
+              <Star size={14} strokeWidth={1.75} className="inline" /> {t('toolbar.summaryHighlights')}
             </button>
           )}
 
           <button
             onClick={() => batchMergeSummarize(selectedNodeIds)}
             className="text-xs bg-blue-50 hover:bg-blue-100 text-blue-600 px-3 py-1.5 rounded-lg transition-colors"
-            title="Merge content into a summary node"
+            title={t('toolbar.mergeSummaryTitle')}
           >
-            <ClipboardList size={14} strokeWidth={1.75} className="inline" /> Merge Summary
+            <ClipboardList size={14} strokeWidth={1.75} className="inline" /> {t('toolbar.mergeSummary')}
           </button>
 
           <button
             onClick={() => batchMergeSummarize(selectedNodeIds, true)}
             className="text-xs bg-accent/10 hover:bg-accent/20 text-accent px-3 py-1.5 rounded-lg transition-colors"
-            title="Merge summary then delete original nodes"
+            title={t('toolbar.mergeDeleteTitle')}
           >
-            <ClipboardList size={14} strokeWidth={1.75} className="inline" /> Merge & Delete
+            <ClipboardList size={14} strokeWidth={1.75} className="inline" /> {t('toolbar.mergeDelete')}
           </button>
 
           <button
@@ -101,17 +103,17 @@ export default function SelectionToolbar() {
                 ? 'bg-accent text-white'
                 : 'bg-accent/10 hover:bg-accent/20 text-accent'
             }`}
-            title="Ask a question about selected nodes"
+            title={t('toolbar.exploreTitle')}
           >
-            <GitBranch size={14} strokeWidth={1.75} className="inline" /> Explore
+            <GitBranch size={14} strokeWidth={1.75} className="inline" /> {t('common.explore')}
           </button>
 
           <button
             onClick={() => downloadMarkdown(selectionMarkdown(selectedNodeIds))}
             className="text-xs bg-wash hover:bg-line text-ink-muted px-3 py-1.5 rounded-lg transition-colors"
-            title="Export selected nodes as a Markdown document"
+            title={t('toolbar.exportTitle')}
           >
-            <FileDown size={14} strokeWidth={1.75} className="inline" /> Export .md
+            <FileDown size={14} strokeWidth={1.75} className="inline" /> {t('common.exportMd')}
           </button>
 
           <div className="w-px h-5 bg-line" />
@@ -119,15 +121,15 @@ export default function SelectionToolbar() {
           <button
             onClick={() => {
               void confirmDialog({
-                title: 'Delete nodes',
-                message: `Delete ${selectedNodeIds.length} selected nodes?`,
-                confirmLabel: 'Delete',
+                title: ti('confirm.deleteNodesTitle'),
+                message: fmt(ti('confirm.deleteNodes'), { n: selectedNodeIds.length }),
+                confirmLabel: ti('common.delete'),
                 danger: true,
               }).then((ok) => { if (ok) batchDelete(selectedNodeIds); });
             }}
             className="text-xs bg-red-50 hover:bg-red-100 text-red-600 px-3 py-1.5 rounded-lg transition-colors"
           >
-            <Trash2 size={14} strokeWidth={1.75} className="inline" /> Delete All
+            <Trash2 size={14} strokeWidth={1.75} className="inline" /> {t('toolbar.deleteAll')}
           </button>
         </div>
 
@@ -143,7 +145,7 @@ export default function SelectionToolbar() {
                 if (e.key === 'Enter' && exploreInput.trim()) handleExplore();
                 if (e.key === 'Escape') { setExploreOpen(false); setExploreInput(''); }
               }}
-              placeholder="What do you want to explore about these nodes?"
+              placeholder={t('toolbar.explorePlaceholder')}
               className="flex-1 text-xs border border-accent/30 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-accent bg-accent/5 min-w-[300px]"
             />
             <button
@@ -151,7 +153,7 @@ export default function SelectionToolbar() {
               disabled={!exploreInput.trim()}
               className="text-xs bg-accent text-white px-3 py-2 rounded-lg hover:bg-accent-strong transition-colors shrink-0 disabled:opacity-30"
             >
-              Go
+              {t('common.go')}
             </button>
           </div>
         )}

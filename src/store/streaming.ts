@@ -2,6 +2,7 @@ import type { StoreApi } from 'zustand';
 import { llmCall, llmCallStream, type ContextMessage, type ImageAttachment } from '../lib/api';
 import { countTokens } from '../utils';
 import { toast } from '../lib/ui-store';
+import { t, fmt } from '../i18n';
 import type { StoreState } from './types';
 
 // Background summary generation — fire and forget
@@ -83,12 +84,12 @@ export async function runNodeGeneration(
     const isAbort = err instanceof DOMException && err.name === 'AbortError';
     if (isAbort) {
       // User pressed Stop — keep whatever streamed, no error surfacing
-      writeFinal(partial || '(generation stopped)');
+      writeFinal(partial || t('node.stoppedPlaceholder'));
     } else {
       // Real failure: details go to a toast, the node gets a Retry affordance
-      const message = err instanceof Error ? err.message : 'Unknown error';
-      toast('error', `Generation failed: ${message}`);
-      writeFinal(partial || '_Generation failed._', true);
+      const message = err instanceof Error ? err.message : t('toast.unknownError');
+      toast('error', fmt(t('toast.generationFailed'), { message }));
+      writeFinal(partial || t('node.failedPlaceholder'), true);
     }
     get().pushHistory();
   }

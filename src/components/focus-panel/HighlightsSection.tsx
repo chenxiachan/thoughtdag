@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { ClipboardList, FileText, GitBranch, Scissors, Sparkles, Star, Tag, X } from 'lucide-react';
 import { useStore } from '../../store';
+import { useT } from '../../i18n';
 import type { Highlight } from '../../types';
 
 export default function HighlightsSection({
@@ -18,6 +19,7 @@ export default function HighlightsSection({
   const removeHighlight = useStore((s) => s.removeHighlight);
   const setHighlightMode = useStore((s) => s.setHighlightMode);
   const distillRegenerate = useStore((s) => s.distillRegenerate);
+  const t = useT();
 
   const [highlightExploreContext, setHighlightExploreContext] = useState('');
   const [highlightExploreInput, setHighlightExploreInput] = useState('');
@@ -34,16 +36,16 @@ export default function HighlightsSection({
   return (
     <div className={`px-4 py-3 border-b border-line ${dimmed ? 'opacity-40 pointer-events-none' : ''}`}>
       <div className="flex items-center justify-between mb-2">
-        <label className="text-xs text-ink-faint uppercase tracking-wider font-medium">Highlights</label>
+        <label className="text-xs text-ink-faint uppercase tracking-wider font-medium">{t('highlight.title')}</label>
         {highlights.length > 0 && (
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => distillRegenerate(nodeId)}
               className="text-xs bg-amber-50 hover:bg-amber-100 text-amber-700 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1"
-              title="Distill: keep highlights, remove redundancy"
+              title={t('highlight.distillTitle')}
             >
               <Sparkles size={14} strokeWidth={1.75} />
-              Distill
+              {t('highlight.distill')}
             </button>
             <button
               onClick={() => {
@@ -51,10 +53,10 @@ export default function HighlightsSection({
                 addQuestion(`Summarize the following key points concisely:\n\n${highlightTexts}`, { parentId: nodeId, branchContext: highlightTexts });
               }}
               className="text-xs bg-blue-50 hover:bg-blue-100 text-blue-600 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1"
-              title="Summarize highlighted content in a new branch"
+              title={t('highlight.summaryTitle')}
             >
               <ClipboardList size={14} strokeWidth={1.75} />
-              Summary
+              {t('highlight.summary')}
             </button>
             <button
               onClick={() => {
@@ -62,16 +64,16 @@ export default function HighlightsSection({
                 setHighlightExploreContext(highlightTexts);
               }}
               className="text-xs bg-accent/10 hover:bg-accent/20 text-accent px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1"
-              title="Ask a follow-up question about highlighted content"
+              title={t('highlight.exploreTitle')}
             >
               <GitBranch size={14} strokeWidth={1.75} />
-              Explore
+              {t('common.explore')}
             </button>
           </div>
         )}
       </div>
       {highlights.length === 0 ? (
-        <p className="text-xs text-ink-faint italic">No highlights yet — select text above to highlight</p>
+        <p className="text-xs text-ink-faint italic">{t('highlight.empty')}</p>
       ) : (
         <>
           <div className="space-y-1.5 mb-3">
@@ -91,12 +93,12 @@ export default function HighlightsSection({
           </div>
           {/* Highlight context mode */}
           <div className="space-y-2">
-            <span className="text-xs text-ink-faint font-medium">Pass to downstream</span>
+            <span className="text-xs text-ink-faint font-medium">{t('highlight.passDownstream')}</span>
             <div className="flex items-center gap-1.5">
               {([
-                { mode: 'tag' as const, icon: <Tag size={14} strokeWidth={1.75} />, label: 'Tag important' },
-                { mode: 'filter' as const, icon: <Scissors size={14} strokeWidth={1.75} />, label: 'Highlights only' },
-                { mode: 'off' as const, icon: <FileText size={14} strokeWidth={1.75} />, label: 'Full text' },
+                { mode: 'tag' as const, icon: <Tag size={14} strokeWidth={1.75} />, label: t('highlight.modeTag') },
+                { mode: 'filter' as const, icon: <Scissors size={14} strokeWidth={1.75} />, label: t('highlight.modeFilter') },
+                { mode: 'off' as const, icon: <FileText size={14} strokeWidth={1.75} />, label: t('highlight.modeOff') },
               ]).map(({ mode, icon, label }) => (
                 <button
                   key={mode}
@@ -112,15 +114,15 @@ export default function HighlightsSection({
               ))}
             </div>
             <p className="text-2xs text-ink-faint leading-relaxed">
-              {highlightMode === 'off' && 'Downstream nodes receive the full response'}
-              {highlightMode === 'tag' && 'Highlighted parts wrapped with [Important] tags to guide AI focus'}
-              {highlightMode === 'filter' && 'Downstream nodes only receive highlighted content, rest discarded'}
+              {highlightMode === 'off' && t('highlight.hintOff')}
+              {highlightMode === 'tag' && t('highlight.hintTag')}
+              {highlightMode === 'filter' && t('highlight.hintFilter')}
             </p>
           </div>
           {/* Highlight Explore input */}
           {highlightExploreContext && (
             <div className="mt-3 space-y-1.5">
-              <span className="text-xs text-accent font-medium"><GitBranch size={14} strokeWidth={1.75} className="inline" /> Ask about highlights:</span>
+              <span className="text-xs text-accent font-medium"><GitBranch size={14} strokeWidth={1.75} className="inline" /> {t('highlight.askAbout')}</span>
               <div className="flex gap-1.5">
                 <input
                   ref={highlightExploreRef}
@@ -139,7 +141,7 @@ export default function HighlightsSection({
                       setHighlightExploreInput('');
                     }
                   }}
-                  placeholder="What do you want to explore about these highlights?"
+                  placeholder={t('highlight.explorePlaceholder')}
                   className="flex-1 text-xs border border-accent/30 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-accent bg-accent/5"
                 />
                 <button
@@ -153,7 +155,7 @@ export default function HighlightsSection({
                   }}
                   className="text-xs bg-accent text-white px-3 py-2 rounded-lg hover:bg-accent-strong transition-colors shrink-0"
                 >
-                  Go
+                  {t('common.go')}
                 </button>
                 <button
                   onClick={() => { setHighlightExploreContext(''); setHighlightExploreInput(''); }}
@@ -164,7 +166,7 @@ export default function HighlightsSection({
               </div>
               <label className="flex items-center gap-2 text-xs text-ink-muted cursor-pointer select-none">
                 <input type="checkbox" checked={exploreInheritRole} onChange={(e) => setExploreInheritRole(e.target.checked)} className="rounded border-line text-accent focus:ring-accent w-3 h-3" />
-                Inherit role
+                {t('common.inheritRole')}
               </label>
             </div>
           )}

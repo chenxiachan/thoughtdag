@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useStore } from '../../store';
+import { useT } from '../../i18n';
 
 export default function QuestionSection({
   nodeId,
@@ -12,6 +13,7 @@ export default function QuestionSection({
 }) {
   const editQuestion = useStore((s) => s.editQuestion);
   const setEditing = useStore((s) => s.setEditing);
+  const t = useT();
 
   const [editValue, setEditValue] = useState('');
 
@@ -33,7 +35,7 @@ export default function QuestionSection({
 
   return (
     <div className="px-4 py-3 border-b border-line">
-      <label className="text-xs text-ink-faint uppercase tracking-wider font-medium mb-1.5 block">Question</label>
+      <label className="text-xs text-ink-faint uppercase tracking-wider font-medium mb-1.5 block">{t('panel.question')}</label>
       {isEditing ? (
         <textarea
           value={editValue}

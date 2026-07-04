@@ -123,7 +123,7 @@ ThoughtDAG 把 LLM 对话从线性聊天变成空间化、可编辑的 DAG（有
 - [x] **节点自动摘要** — ✅ 已实现
 
 #### P2 — 效率提升
-- [ ] **i18n 语言切换** — 中/英切换，UI 文案 + LLM prompt 抽取为语言包
+- [x] **i18n 语言切换** — ✅ 中/英切换（自动检测浏览器语言），172 条 UI 文案语言包；LLM prompt 保持内容语言自适应
 - [x] **节点碰撞检测** — Column-Tree 布局 + 碰撞推挤
 - [x] **多选操作** — 左键拖框选，Merge Summary / Merge & Delete / Explore / Delete All
 - [x] **停止生成** — 生成中显示 Stop 按钮，保留已生成内容

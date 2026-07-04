@@ -2,6 +2,7 @@ import { useState, useRef, useCallback } from 'react';
 import { ChevronRight, FileText, Loader2, Paperclip, X } from 'lucide-react';
 import { useStore } from '../../store';
 import { processFile, FILE_INPUT_ACCEPT } from '../../lib/attachments';
+import { useT, fmt } from '../../i18n';
 import type { Attachment } from '../../types';
 
 export default function AttachmentsSection({
@@ -25,6 +26,7 @@ export default function AttachmentsSection({
   setAttachmentRenderMode: (nodeId: string, attachmentId: string, mode: 'full' | 'text-only') => void;
   getInheritedAttachments: (nodeId: string) => { attachment: Attachment; sourceNodeId: string; sourceQuestion: string; excludedByAncestor: boolean }[];
 }) {
+  const t = useT();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const inherited = getInheritedAttachments(nodeId);
@@ -61,10 +63,10 @@ export default function AttachmentsSection({
       <details className="group" open={hasContent}>
         <summary className="text-xs text-ink-faint uppercase tracking-wider font-medium cursor-pointer hover:text-ink-muted transition-colors flex items-center gap-1.5 select-none">
           <ChevronRight size={12} strokeWidth={1.75} className="transition-transform group-open:rotate-90" />
-          Attachments
+          {t('attach.title')}
           {hasContent && (
             <span className="text-accent/60 font-medium normal-case ml-1">
-              {attachments.length} local{inherited.length > 0 ? ` + ${inherited.length} inherited` : ''}
+              {fmt(t('attach.local'), { n: attachments.length })}{inherited.length > 0 ? ` ${fmt(t('attach.inheritedBadge'), { n: inherited.length })}` : ''}
             </span>
           )}
         </summary>
@@ -83,9 +85,9 @@ export default function AttachmentsSection({
             }`}
           >
             <p className="text-xs text-ink-faint">
-              {isDragging ? 'Drop files here' : <><Paperclip size={14} strokeWidth={1.75} className="inline" /> Drop, paste, or click to upload</>}
+              {isDragging ? t('attach.dropHere') : <><Paperclip size={14} strokeWidth={1.75} className="inline" /> {t('attach.upload')}</>}
             </p>
-            <p className="text-2xs text-ink-faint/60 mt-0.5">Images (Vision) • PDF • Text files (txt/md/code)</p>
+            <p className="text-2xs text-ink-faint/60 mt-0.5">{t('attach.types')}</p>
             <input
               ref={fileInputRef}
               type="file"
@@ -104,7 +106,7 @@ export default function AttachmentsSection({
           {/* Local attachments */}
           {attachments.length > 0 && (
             <div className="space-y-1.5">
-              <span className="text-2xs text-ink-faint font-medium uppercase">This node</span>
+              <span className="text-2xs text-ink-faint font-medium uppercase">{t('attach.thisNode')}</span>
               {attachments.map((att) => (
                 <div key={att.id} className="flex items-center gap-2 bg-wash rounded-lg px-3 py-2 group">
                   {att.thumbnailUrl ? (
@@ -116,14 +118,14 @@ export default function AttachmentsSection({
                     <p className="text-xs text-ink truncate">{att.name}</p>
                     <p className="text-2xs text-ink-faint">
                       {(att.size / 1024).toFixed(1)} KB
-                      {att.isExtracting && <span className="ml-1 text-accent"><Loader2 className="animate-spin inline" size={12} strokeWidth={1.75} /> Extracting...</span>}
-                      {att.numPages != null && <span className="ml-1 text-ink-muted">• {att.numPages} pages</span>}
-                      {att.renderMode && <span className="ml-1 text-ink-muted">• {att.renderMode === 'full' ? 'Text + Vision' : 'Text only'}</span>}
+                      {att.isExtracting && <span className="ml-1 text-accent"><Loader2 className="animate-spin inline" size={12} strokeWidth={1.75} /> {t('attach.extracting')}</span>}
+                      {att.numPages != null && <span className="ml-1 text-ink-muted">• {fmt(t('attach.pages'), { n: att.numPages })}</span>}
+                      {att.renderMode && <span className="ml-1 text-ink-muted">• {att.renderMode === 'full' ? t('attach.textVision') : t('attach.textOnly')}</span>}
                     </p>
                     {/* Render mode toggle for PDFs with >10 pages */}
                     {att.type === 'application/pdf' && att.numPages != null && att.numPages > 10 && !att.isExtracting && (
                       <div className="mt-1 flex items-center gap-1.5">
-                        <span className="text-2xs text-amber-600">⚠ {att.numPages} pages (~{(att.numPages * 1500).toLocaleString()} tokens with Vision)</span>
+                        <span className="text-2xs text-amber-600">{fmt(t('attach.pagesWarning'), { n: att.numPages, tok: (att.numPages * 1500).toLocaleString() })}</span>
                         <button
                           onClick={() => setAttachmentRenderMode(nodeId, att.id, att.renderMode === 'full' ? 'text-only' : 'full')}
                           className={`text-2xs px-2 py-0.5 rounded-lg transition-colors ${
@@ -132,7 +134,7 @@ export default function AttachmentsSection({
                               : 'bg-line text-ink-muted'
                           }`}
                         >
-                          {att.renderMode === 'full' ? 'Switch to Text only' : 'Enable Vision'}
+                          {att.renderMode === 'full' ? t('attach.switchTextOnly') : t('attach.enableVision')}
                         </button>
                       </div>
                     )}
@@ -151,7 +153,7 @@ export default function AttachmentsSection({
           {/* Inherited attachments */}
           {inherited.length > 0 && (
             <div className="space-y-1.5">
-              <span className="text-2xs text-ink-faint font-medium uppercase">Inherited from ancestors</span>
+              <span className="text-2xs text-ink-faint font-medium uppercase">{t('attach.inheritedFrom')}</span>
               {inherited.map(({ attachment: att, sourceQuestion, excludedByAncestor }) => {
                 const isExcludedSelf = excludeSet.has(att.id);
                 const includeSet = new Set(includedAttachmentIds);
@@ -168,8 +170,8 @@ export default function AttachmentsSection({
                       <p className={`text-xs truncate ${isEffectivelyExcluded ? 'text-ink-faint line-through' : 'text-ink'}`}>{att.name}</p>
                       <p className="text-2xs text-ink-faint truncate">
                         ← {sourceQuestion.slice(0, 40)}{sourceQuestion.length > 40 ? '…' : ''}
-                        {excludedByAncestor && !isOverridden && !isExcludedSelf && <span className="ml-1 text-amber-500">• excluded upstream</span>}
-                        {isOverridden && <span className="ml-1 text-green-500">• re-included</span>}
+                        {excludedByAncestor && !isOverridden && !isExcludedSelf && <span className="ml-1 text-amber-500">• {t('attach.excludedUpstream')}</span>}
+                        {isOverridden && <span className="ml-1 text-green-500">• {t('attach.reIncluded')}</span>}
                       </p>
                     </div>
                     <button
@@ -181,9 +183,9 @@ export default function AttachmentsSection({
                           ? 'bg-green-100 text-green-600 hover:bg-green-200'
                           : 'bg-line text-ink-muted hover:bg-accent/10 hover:text-accent'
                       }`}
-                      title={excludedByAncestor && !isOverridden ? 'Excluded upstream — click to re-include' : isOverridden ? 'Re-included (override) — click to respect upstream exclusion' : isExcludedSelf ? 'Include in context' : 'Exclude from context'}
+                      title={excludedByAncestor && !isOverridden ? t('attach.titleExcludedUpstream') : isOverridden ? t('attach.titleReIncluded') : isExcludedSelf ? t('attach.titleInclude') : t('attach.titleExclude')}
                     >
-                      {excludedByAncestor && !isOverridden && !isExcludedSelf ? 'Upstream ✕' : isOverridden ? 'Re-included' : isExcludedSelf ? 'Excluded' : 'Included'}
+                      {excludedByAncestor && !isOverridden && !isExcludedSelf ? t('attach.btnUpstream') : isOverridden ? t('attach.btnReIncluded') : isExcludedSelf ? t('attach.btnExcluded') : t('attach.btnIncluded')}
                     </button>
                   </div>
                 );
@@ -192,7 +194,7 @@ export default function AttachmentsSection({
           )}
 
           {!hasContent && (
-            <p className="text-2xs text-ink-faint italic">No attachments. Upload files or they'll be inherited from ancestor nodes.</p>
+            <p className="text-2xs text-ink-faint italic">{t('attach.empty')}</p>
           )}
         </div>
       </details>

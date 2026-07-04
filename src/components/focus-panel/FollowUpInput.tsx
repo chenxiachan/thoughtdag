@@ -3,6 +3,7 @@ import { ChevronUp, Send } from 'lucide-react';
 import { useStore } from '../../store';
 import { buildContext } from '../../store/context-builder';
 import { countTokens } from '../../utils';
+import { useT, fmt } from '../../i18n';
 
 const ROLE_STYLES: Record<string, string> = {
   system: 'bg-accent/10 text-accent',
@@ -20,6 +21,7 @@ export default function FollowUpInput({
   const addQuestion = useStore((s) => s.addQuestion);
   const nodes = useStore((s) => s.nodes);
   const edges = useStore((s) => s.edges);
+  const t = useT();
 
   const [continueInput, setContinueInput] = useState('');
   const [continueInheritRole, setContinueInheritRole] = useState(true);
@@ -63,10 +65,10 @@ export default function FollowUpInput({
       {previewOpen && (
         <div className="absolute bottom-full left-4 right-4 mb-1.5 bg-card border border-line rounded-xl shadow-lg max-h-72 overflow-y-auto py-1.5 animate-fade-in z-30">
           <div className="px-3 py-1.5 text-2xs text-ink-faint uppercase tracking-wider font-medium border-b border-line">
-            Context sent with the next follow-up
+            {t('followup.contextTitle')}
           </div>
           {preview.items.length === 0 ? (
-            <p className="px-3 py-2 text-xs text-ink-faint italic">Empty — this will start a fresh context.</p>
+            <p className="px-3 py-2 text-xs text-ink-faint italic">{t('followup.empty')}</p>
           ) : (
             preview.items.map((m, i) => (
               <div key={i} className="flex items-start gap-2 px-3 py-1.5 text-xs border-b border-line/50 last:border-0">
@@ -85,10 +87,10 @@ export default function FollowUpInput({
       <button
         onClick={() => setPreviewOpen((v) => !v)}
         className="flex items-center gap-1 text-2xs text-ink-faint hover:text-ink-muted transition-colors mb-1.5 font-mono"
-        title="Preview the exact context that will be sent"
+        title={t('followup.previewTitle')}
       >
         <ChevronUp size={12} strokeWidth={1.75} className={`transition-transform ${previewOpen ? 'rotate-180' : ''}`} />
-        will send ~{preview.totalTokens} tok · {preview.items.length} messages{preview.fileCount > 0 ? ` · ${preview.fileCount} files` : ''}
+        {fmt(t('followup.willSend'), { n: preview.totalTokens, m: preview.items.length })}{preview.fileCount > 0 ? fmt(t('followup.files'), { k: preview.fileCount }) : ''}
       </button>
 
       <div className="flex items-center gap-2 bg-wash rounded-xl px-4 py-2.5">
@@ -103,7 +105,7 @@ export default function FollowUpInput({
               submit();
             }
           }}
-          placeholder="Follow up..."
+          placeholder={t('common.followUp')}
           className="flex-1 bg-transparent text-sm text-ink placeholder-ink-faint focus:outline-none"
         />
         <button
@@ -117,11 +119,11 @@ export default function FollowUpInput({
       <div className="flex gap-4 mt-1.5 px-1">
         <label className="flex items-center gap-2 text-xs text-ink-muted cursor-pointer select-none">
           <input type="checkbox" checked={continueInheritRole} onChange={(e) => setContinueInheritRole(e.target.checked)} className="rounded border-line text-accent focus:ring-accent w-3 h-3" />
-          Inherit role
+          {t('common.inheritRole')}
         </label>
         <label className="flex items-center gap-2 text-xs text-ink-muted cursor-pointer select-none">
           <input type="checkbox" checked={continueInheritAttachments} onChange={(e) => setContinueInheritAttachments(e.target.checked)} className="rounded border-line text-accent focus:ring-accent w-3 h-3" />
-          Inherit attachments
+          {t('followup.inheritAttachments')}
         </label>
       </div>
     </div>

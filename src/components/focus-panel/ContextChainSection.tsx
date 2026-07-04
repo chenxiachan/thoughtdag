@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ChevronDown, ChevronRight, CornerDownRight, Sprout } from 'lucide-react';
 import { useStore } from '../../store';
 import { countTokens } from '../../utils';
+import { useT } from '../../i18n';
 import type { ThoughtNode } from '../../types';
 
 export default function ContextChainSection({
@@ -14,6 +15,7 @@ export default function ContextChainSection({
   onFocusNode?: (id: string) => void;
 }) {
   const setSelectedNodeId = useStore((s) => s.setSelectedNodeId);
+  const t = useT();
 
   const [contextOpen, setContextOpen] = useState(true);
 
@@ -24,14 +26,14 @@ export default function ContextChainSection({
         className="flex items-center gap-1.5 text-xs text-ink-faint uppercase tracking-wider font-medium mb-2 hover:text-ink-muted transition-colors w-full"
       >
         <span>{contextOpen ? <ChevronDown size={14} strokeWidth={1.75} /> : <ChevronRight size={14} strokeWidth={1.75} />}</span>
-        <span>Context Chain</span>
+        <span>{t('chain.title')}</span>
         <span className="text-ink-muted font-mono normal-case ml-auto">{totalContextTokens} tok</span>
       </button>
 
       {contextOpen && (
         <div>
           {ancestors.length === 0 ? (
-            <p className="text-xs text-ink-faint italic">Root node — no ancestors</p>
+            <p className="text-xs text-ink-faint italic">{t('chain.rootNode')}</p>
           ) : (
             ancestors.map((ancestor, i) => (
               <button

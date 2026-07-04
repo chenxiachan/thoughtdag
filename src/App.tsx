@@ -32,7 +32,7 @@ import ConfirmDialog from './components/ui/ConfirmDialog';
 import Toaster from './components/ui/Toaster';
 import LangSwitch from './components/ui/LangSwitch';
 import Tutorial from './components/Tutorial';
-import { useT } from './i18n';
+import { useT, t as ti, fmt } from './i18n';
 
 const nodeTypes = { thought: ThoughtNode };
 // Overrides the built-in smoothstep so persisted edges need no migration
@@ -166,9 +166,9 @@ function Canvas() {
         if (selectedNodeIds.length > 1) {
           e.preventDefault();
           void confirmDialog({
-            title: 'Delete nodes',
-            message: `Delete ${selectedNodeIds.length} selected nodes?`,
-            confirmLabel: 'Delete',
+            title: ti('confirm.deleteNodesTitle'),
+            message: fmt(ti('confirm.deleteNodes'), { n: selectedNodeIds.length }),
+            confirmLabel: ti('common.delete'),
             danger: true,
           }).then((ok) => { if (ok) batchDelete(selectedNodeIds); });
         } else {
@@ -417,7 +417,7 @@ function Canvas() {
                 <button
                   onClick={() => landingFileRef.current?.click()}
                   className="text-ink-faint hover:text-accent hover:bg-wash rounded-xl px-3 py-2 transition-colors text-sm"
-                  title="Attach files"
+                  title={t('landing.attach')}
                 >
                   <Paperclip size={16} strokeWidth={1.75} />
                 </button>
@@ -484,14 +484,14 @@ function Canvas() {
                   const files = Array.from(e.clipboardData.items).filter(i => i.kind === 'file').map(i => i.getAsFile()!).filter(Boolean);
                   if (files.length) handleFileUpload(files);
                 }}
-                placeholder="New root question..."
+                placeholder={t('canvas.newRootPlaceholder')}
                 className="flex-1 bg-transparent text-ink text-sm resize-none focus:outline-none placeholder-ink-faint"
                 rows={1}
               />
               <button
                 onClick={() => floatingFileRef.current?.click()}
                 className="text-ink-faint hover:text-accent transition-colors shrink-0 text-sm"
-                title="Attach files"
+                title={t('common.attachFiles')}
               >
                 <Paperclip size={16} strokeWidth={1.75} />
               </button>
@@ -508,7 +508,7 @@ function Canvas() {
                 disabled={!inputValue.trim()}
                 className="bg-accent hover:bg-accent-strong disabled:opacity-30 text-white text-xs px-3 py-1.5 rounded-xl transition-all shrink-0"
               >
-                Send
+                {t('common.send')}
               </button>
             </div>
             {/* Pending attachments preview */}
@@ -535,19 +535,19 @@ function Canvas() {
                 onClick={() => setShowRootRole(true)}
                 className="text-2xs text-ink-faint hover:text-ink-muted transition-colors mt-1.5 flex items-center gap-1"
               >
-                Set role
+                {t('canvas.setRole')}
               </button>
             ) : (
               <div className="mt-1.5 space-y-1">
                 <div className="flex items-center justify-between">
-                  <span className="text-2xs text-ink-muted">Role</span>
+                  <span className="text-2xs text-ink-muted">{t('canvas.role')}</span>
                   <button onClick={() => { setShowRootRole(false); setRootRole(''); }} className="text-2xs text-ink-faint hover:text-ink-muted"><X size={14} strokeWidth={1.75} /></button>
                 </div>
                 <input
                   type="text"
                   value={rootRole}
                   onChange={(e) => setRootRole(e.target.value)}
-                  placeholder="e.g. You are a physicist."
+                  placeholder={t('canvas.rolePlaceholder')}
                   className="w-full text-xs border border-line rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-accent bg-surface"
                 />
               </div>
@@ -576,7 +576,7 @@ function Canvas() {
           onClick={undo}
           disabled={historyIndex <= 0}
           className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors disabled:opacity-20 disabled:cursor-not-allowed"
-          title="Undo (Cmd+Z)"
+          title={t('canvas.undo')}
         >
           <Undo2 size={16} strokeWidth={1.75} />
         </button>
@@ -584,7 +584,7 @@ function Canvas() {
           onClick={redo}
           disabled={historyIndex >= history.length - 1}
           className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors disabled:opacity-20 disabled:cursor-not-allowed"
-          title="Redo (Cmd+Shift+Z)"
+          title={t('canvas.redo')}
         >
           <Redo2 size={16} strokeWidth={1.75} />
         </button>
@@ -604,7 +604,7 @@ function Canvas() {
             className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors flex items-center gap-1.5"
           >
             <Trash2 size={14} strokeWidth={1.75} />
-            Delete edge
+            {t('canvas.deleteEdge')}
           </button>
         </div>
       )}

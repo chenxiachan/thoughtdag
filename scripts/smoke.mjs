@@ -9,7 +9,9 @@ const CHROME = process.env.CHROME_PATH
 const URL = process.env.APP_URL ?? 'http://localhost:5173';
 
 const browser = await chromium.launch({ executablePath: CHROME, headless: true });
-const ctx = await browser.newContext();
+// Pin the locale: the app auto-detects navigator.language for i18n, and this
+// test asserts against the English landing placeholder.
+const ctx = await browser.newContext({ locale: 'en-US' });
 const page = await ctx.newPage();
 
 const errors = [];

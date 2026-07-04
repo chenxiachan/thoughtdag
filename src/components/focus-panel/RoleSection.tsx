@@ -1,5 +1,6 @@
 import { ChevronRight, RefreshCw } from 'lucide-react';
 import { useStore } from '../../store';
+import { useT } from '../../i18n';
 import type { ThoughtData } from '../../types';
 
 export default function RoleSection({
@@ -25,15 +26,16 @@ export default function RoleSection({
   const setRoleSource = useStore((s) => s.setRoleSource);
   const setRolePrompt = useStore((s) => s.setRolePrompt);
   const regenerate = useStore((s) => s.regenerate);
+  const t = useT();
 
   return (
     <div className="px-4 py-3 border-b border-line">
       <details className="group" open={roleMode !== 'inherit'}>
         <summary className="text-xs text-ink-faint uppercase tracking-wider font-medium cursor-pointer hover:text-ink-muted transition-colors flex items-center gap-1.5 select-none">
           <ChevronRight size={12} strokeWidth={1.75} className="transition-transform group-open:rotate-90" />
-          Role (System Prompt)
-          {roleMode === 'set-next' && <span className="text-accent font-medium normal-case ml-1">Set for next ↓</span>}
-          {roleMode === 'reset' && <span className="text-amber-600 font-medium normal-case ml-1">Reset</span>}
+          {t('role.title')}
+          {roleMode === 'set-next' && <span className="text-accent font-medium normal-case ml-1">{t('role.setForNext')}</span>}
+          {roleMode === 'reset' && <span className="text-amber-600 font-medium normal-case ml-1">{t('role.resetBadge')}</span>}
           {roleMode === 'inherit' && (data.rolePrompt || inheritedRole) && (
             <span className="text-accent/60 font-medium normal-case ml-1 truncate max-w-[200px]">
               {data.rolePrompt ? data.rolePrompt.slice(0, 30) : `← ${inheritedRole.slice(0, 30)}`}{(data.rolePrompt || inheritedRole).length > 30 ? '…' : ''}
@@ -44,9 +46,9 @@ export default function RoleSection({
           {/* Three-mode radio */}
           <div className="flex gap-1">
             {([
-              { mode: 'inherit' as const, label: 'Inherit from previous' },
-              { mode: 'set-next' as const, label: 'Set for next ↓' },
-              { mode: 'reset' as const, label: 'Reset for this node' },
+              { mode: 'inherit' as const, label: t('role.inheritFromPrevious') },
+              { mode: 'set-next' as const, label: t('role.setForNext') },
+              { mode: 'reset' as const, label: t('role.resetForThisNode') },
             ]).map(({ mode, label }) => (
               <button
                 key={mode}
@@ -70,13 +72,13 @@ export default function RoleSection({
                 {data.rolePrompt || inheritedRole}
               </div>
             ) : (
-              <p className="text-xs text-ink-faint italic">No role set</p>
+              <p className="text-xs text-ink-faint italic">{t('role.noRoleSet')}</p>
             )
           )}
           {/* Multi-role source selector */}
           {roleMode === 'inherit' && hasRoleConflict && (
             <div className="space-y-1.5">
-              <p className="text-2xs text-amber-600 font-medium">Multiple roles from incoming edges:</p>
+              <p className="text-2xs text-amber-600 font-medium">{t('role.multipleRoles')}</p>
               {availableRoles.map((r) => {
                 const isSelected = data.roleSourceNodeId === r.nodeId || (!data.roleSourceNodeId && r.isPrimary);
                 return (
@@ -91,7 +93,7 @@ export default function RoleSection({
                     <div className="min-w-0">
                       <div className="flex items-center gap-1.5">
                         <span className={`text-2xs px-1.5 py-0.5 rounded ${r.isPrimary ? 'bg-accent/15 text-accent' : 'bg-line text-ink-muted'}`}>
-                          {r.isPrimary ? 'Primary' : 'Cross-link'}
+                          {r.isPrimary ? t('role.primary') : t('role.crossLink')}
                         </span>
                         <span className="text-ink-muted truncate">{r.label}</span>
                       </div>
@@ -108,7 +110,7 @@ export default function RoleSection({
                   onChange={() => setRoleSource(nodeId, '__none__')}
                   className="mt-0.5 text-accent focus:ring-accent"
                 />
-                <span className="text-ink-muted">None (no role)</span>
+                <span className="text-ink-muted">{t('role.none')}</span>
               </label>
             </div>
           )}
@@ -120,7 +122,7 @@ export default function RoleSection({
                 setRolePrompt(nodeId, e.target.value);
                 setRoleChanged(true);
               }}
-              placeholder="e.g. You are a strict paper reviewer. Be critical and specific."
+              placeholder={t('role.placeholder')}
               className="w-full text-xs border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-accent bg-surface text-ink resize-none leading-relaxed"
               rows={2}
               autoFocus
@@ -133,18 +135,18 @@ export default function RoleSection({
               className="w-full text-xs bg-accent hover:bg-accent-strong text-white px-3 py-2 rounded-lg transition-colors flex items-center justify-center gap-1.5"
             >
               <RefreshCw size={14} strokeWidth={1.75} />
-              Regenerate with new role
+              {t('role.regenerateWithNewRole')}
             </button>
           )}
           {roleChanged && roleMode === 'set-next' && !!data.response && !data.isLoading && (
-            <p className="text-2xs text-accent">Role will apply to new child nodes from here.</p>
+            <p className="text-2xs text-accent">{t('role.willApply')}</p>
           )}
           <p className="text-2xs text-ink-faint leading-relaxed">
-            {roleMode === 'inherit' && !data.rolePrompt && !inheritedRole && 'No role set. Use Set for next or Reset to define one.'}
-            {roleMode === 'inherit' && !data.rolePrompt && inheritedRole && 'Inherited from ancestor.'}
-            {roleMode === 'inherit' && data.rolePrompt && 'Role active. Applies here and passes to descendants.'}
-            {roleMode === 'set-next' && 'Sets the role for this node\'s descendants. Current response is unchanged.'}
-            {roleMode === 'reset' && 'Resets this node\'s role. Regenerate to apply. Descendants won\'t inherit.'}
+            {roleMode === 'inherit' && !data.rolePrompt && !inheritedRole && t('role.hintNoRole')}
+            {roleMode === 'inherit' && !data.rolePrompt && inheritedRole && t('role.hintInherited')}
+            {roleMode === 'inherit' && data.rolePrompt && t('role.hintActive')}
+            {roleMode === 'set-next' && t('role.hintSetNext')}
+            {roleMode === 'reset' && t('role.hintReset')}
           </p>
         </div>
       </details>

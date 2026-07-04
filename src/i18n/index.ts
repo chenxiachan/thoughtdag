@@ -43,3 +43,8 @@ export function t(key: MessageKey): string {
   const { lang } = useI18n.getState();
   return DICTS[lang][key] ?? en[key] ?? key;
 }
+
+/** Interpolate {placeholders} in a dictionary template. */
+export function fmt(template: string, params: Record<string, string | number>): string {
+  return template.replace(/\{(\w+)\}/g, (_, k) => String(params[k] ?? ''));
+}

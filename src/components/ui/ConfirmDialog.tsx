@@ -1,9 +1,11 @@
 import { useEffect } from 'react';
 import { useUiStore } from '../../lib/ui-store';
+import { useT } from '../../i18n';
 
 export default function ConfirmDialog() {
   const request = useUiStore((s) => s.confirmRequest);
   const resolveConfirm = useUiStore((s) => s.resolveConfirm);
+  const t = useT();
 
   useEffect(() => {
     if (!request) return;
@@ -38,7 +40,7 @@ export default function ConfirmDialog() {
             onClick={() => resolveConfirm(false)}
             className="text-xs text-ink-muted hover:text-ink px-4 py-2 rounded-lg hover:bg-wash transition-colors"
           >
-            Cancel
+            {t('common.cancel')}
           </button>
           <button
             onClick={() => resolveConfirm(true)}
@@ -47,7 +49,7 @@ export default function ConfirmDialog() {
               request.danger ? 'bg-red-500 hover:bg-red-600' : 'bg-accent hover:bg-accent-strong'
             }`}
           >
-            {request.confirmLabel ?? 'Confirm'}
+            {request.confirmLabel ?? t('common.confirm')}
           </button>
         </div>
       </div>

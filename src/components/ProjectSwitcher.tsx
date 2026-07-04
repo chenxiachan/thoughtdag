@@ -3,20 +3,22 @@ import { ChevronDown, Download, FolderOpen, Loader2, Pencil, Plus, Trash2, Uploa
 import { useProjects, switchProject, createProject, renameProject, deleteProject } from '../store/projects';
 import { exportActiveProjectJson, importProjectFromFile } from '../lib/export';
 import { confirmDialog } from '../lib/ui-store';
+import { useT, t as ti, fmt } from '../i18n';
 
 function relativeTime(ts: number): string {
   const diff = Date.now() - ts;
   const min = Math.floor(diff / 60000);
-  if (min < 1) return 'just now';
-  if (min < 60) return `${min}m ago`;
+  if (min < 1) return ti('switcher.justNow');
+  if (min < 60) return fmt(ti('switcher.minAgo'), { n: min });
   const h = Math.floor(min / 60);
-  if (h < 24) return `${h}h ago`;
+  if (h < 24) return fmt(ti('switcher.hourAgo'), { n: h });
   const d = Math.floor(h / 24);
-  if (d < 30) return `${d}d ago`;
+  if (d < 30) return fmt(ti('switcher.dayAgo'), { n: d });
   return new Date(ts).toLocaleDateString();
 }
 
 export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void }) {
+  const t = useT();
   const projects = useProjects((s) => s.projects);
   const activeId = useProjects((s) => s.activeId);
   const switching = useProjects((s) => s.switching);
@@ -93,21 +95,21 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
                       <div className="text-2xs text-ink-faint">{relativeTime(p.updatedAt)}</div>
                     </div>
                     <button
-                      title="Rename"
+                      title={t('switcher.rename')}
                       className="opacity-0 group-hover:opacity-100 text-ink-faint hover:text-ink p-1 rounded transition-all shrink-0"
                       onClick={(e) => { e.stopPropagation(); setRenamingId(p.id); setRenameValue(p.name); }}
                     >
                       <Pencil size={14} strokeWidth={1.75} />
                     </button>
                     <button
-                      title="Delete"
+                      title={t('common.delete')}
                       className="opacity-0 group-hover:opacity-100 text-ink-faint hover:text-red-500 p-1 rounded transition-all shrink-0"
                       onClick={(e) => {
                         e.stopPropagation();
                         void confirmDialog({
-                          title: 'Delete canvas',
-                          message: `Delete "${p.name}" and all its nodes? This cannot be undone.`,
-                          confirmLabel: 'Delete',
+                          title: ti('confirm.deleteCanvasTitle'),
+                          message: fmt(ti('confirm.deleteCanvas'), { name: p.name }),
+                          confirmLabel: ti('common.delete'),
                           danger: true,
                         }).then((ok) => { if (ok) void deleteProject(p.id).then(onSwitched); });
                       }}
@@ -125,19 +127,19 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
               onClick={() => { setOpen(false); void createProject().then(onSwitched); }}
               className="w-full text-left px-3 py-2 text-sm text-accent hover:bg-wash transition-colors flex items-center gap-2"
             >
-              <Plus size={15} strokeWidth={1.75} /> New canvas
+              <Plus size={15} strokeWidth={1.75} /> {t('switcher.newCanvas')}
             </button>
             <button
               onClick={() => { exportActiveProjectJson(); setOpen(false); }}
               className="w-full text-left px-3 py-2 text-sm text-ink-muted hover:bg-wash transition-colors flex items-center gap-2"
             >
-              <Download size={15} strokeWidth={1.75} /> Export backup (.json)
+              <Download size={15} strokeWidth={1.75} /> {t('switcher.exportBackup')}
             </button>
             <button
               onClick={() => importFileRef.current?.click()}
               className="w-full text-left px-3 py-2 text-sm text-ink-muted hover:bg-wash transition-colors flex items-center gap-2"
             >
-              <Upload size={15} strokeWidth={1.75} /> Import backup
+              <Upload size={15} strokeWidth={1.75} /> {t('switcher.importBackup')}
             </button>
             <input
               ref={importFileRef}

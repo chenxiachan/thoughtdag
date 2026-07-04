@@ -1,6 +1,7 @@
 import { ClipboardCopy, CornerDownLeft, Copy, FileDown, GitBranch, RefreshCw, Square, Trash2 } from 'lucide-react';
 import { useStore } from '../../store';
 import { contextChainMarkdown, downloadMarkdown, copyText } from '../../lib/export';
+import { useT } from '../../i18n';
 
 export default function ActionsSection({
   nodeId,
@@ -33,6 +34,7 @@ export default function ActionsSection({
   const duplicateNode = useStore((s) => s.duplicateNode);
   const stopGeneration = useStore((s) => s.stopGeneration);
   const setSelectedNodeId = useStore((s) => s.setSelectedNodeId);
+  const t = useT();
 
   const handleBranchSubmit = () => {
     if (!branchInput.trim()) return;
@@ -49,7 +51,7 @@ export default function ActionsSection({
 
   return (
     <div className={`px-4 py-3 border-b border-line ${dimmed ? 'opacity-40 pointer-events-none' : ''}`}>
-      <label className="text-xs text-ink-faint uppercase tracking-wider font-medium mb-2 block">Actions</label>
+      <label className="text-xs text-ink-faint uppercase tracking-wider font-medium mb-2 block">{t('actions.title')}</label>
       <div className="flex flex-wrap items-center gap-2">
         {/* Primary */}
         {isLoading ? (
@@ -58,7 +60,7 @@ export default function ActionsSection({
             className="text-xs bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
           >
             <Square size={12} strokeWidth={1.75} fill="currentColor" />
-            Stop
+            {t('actions.stop')}
           </button>
         ) : (
           <button
@@ -66,7 +68,7 @@ export default function ActionsSection({
             className="text-xs bg-accent/10 hover:bg-accent/20 text-accent font-medium px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
           >
             <RefreshCw size={14} strokeWidth={1.75} />
-            Regenerate
+            {t('common.regenerate')}
           </button>
         )}
         {/* Secondary */}
@@ -75,35 +77,35 @@ export default function ActionsSection({
           className="text-xs bg-wash hover:bg-line text-ink-muted px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
         >
           <Copy size={14} strokeWidth={1.75} />
-          Duplicate
+          {t('common.duplicate')}
         </button>
         <button
           onClick={() => downloadMarkdown(contextChainMarkdown(nodeId))}
-          title="Export this node's context chain as a Markdown document"
+          title={t('actions.exportTitle')}
           className="text-xs bg-wash hover:bg-line text-ink-muted px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
         >
-          <FileDown size={14} strokeWidth={1.75} /> Export .md
+          <FileDown size={14} strokeWidth={1.75} /> {t('common.exportMd')}
         </button>
         <button
           onClick={() => void copyText(contextChainMarkdown(nodeId))}
-          title="Copy this node's context chain as Markdown"
+          title={t('actions.copyTitle')}
           className="text-xs bg-wash hover:bg-line text-ink-muted px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
         >
-          <ClipboardCopy size={14} strokeWidth={1.75} /> Copy .md
+          <ClipboardCopy size={14} strokeWidth={1.75} /> {t('actions.copyMd')}
         </button>
         {/* Destructive, kept apart on the right */}
         <button
           onClick={() => { deleteNode(nodeId); setSelectedNodeId(null); }}
           className="ml-auto text-xs text-red-500 hover:bg-red-50 px-3 py-2 rounded-lg transition-colors"
         >
-          <Trash2 size={14} strokeWidth={1.75} className="inline" /> Delete
+          <Trash2 size={14} strokeWidth={1.75} className="inline" /> {t('common.delete')}
         </button>
       </div>
       {showBranchInput && (
         <div className="mt-3">
           {branchContext && (
             <div className="text-xs pl-3 py-1.5 pr-2 mb-2 border-l-2 border-accent bg-accent/5 rounded-r text-ink-muted">
-              <span className="text-accent font-medium"><GitBranch size={14} strokeWidth={1.75} className="inline" /> Exploring from selection:</span>
+              <span className="text-accent font-medium"><GitBranch size={14} strokeWidth={1.75} className="inline" /> {t('node.exploringFrom')}</span>
               &ldquo;{branchContext.slice(0, 100)}{branchContext.length > 100 ? '…' : ''}&rdquo;
             </div>
           )}
@@ -116,7 +118,7 @@ export default function ActionsSection({
                 if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleBranchSubmit(); }
                 if (e.key === 'Escape') { setShowBranchInput(false); setBranchContext(''); }
               }}
-              placeholder="Explore question..."
+              placeholder={t('actions.explorePlaceholder')}
               className="flex-1 bg-transparent text-sm text-ink placeholder-ink-faint focus:outline-none"
               autoFocus
             />
@@ -130,7 +132,7 @@ export default function ActionsSection({
           </div>
           <label className="flex items-center gap-2 text-xs text-ink-muted mt-1.5 cursor-pointer select-none">
             <input type="checkbox" checked={branchInheritRole} onChange={(e) => setBranchInheritRole(e.target.checked)} className="rounded border-line text-accent focus:ring-accent w-3 h-3" />
-            Inherit role
+            {t('common.inheritRole')}
           </label>
         </div>
       )}

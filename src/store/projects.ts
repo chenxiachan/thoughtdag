@@ -4,6 +4,7 @@ import { useStore } from './index';
 import { activeAbortControllers } from './streaming';
 import { flushPendingWrites } from '../lib/persistence';
 import { toast } from '../lib/ui-store';
+import { t } from '../i18n';
 
 // Project layer: each canvas persists under its own IndexedDB key; this
 // module owns the metadata list and the switching choreography.
@@ -64,7 +65,7 @@ export function bootProjects(): Promise<void> {
     await useStore.persist.rehydrate(); // fires onFinishHydration → App gate opens
   })().catch(async (e) => {
     console.error('[thoughtdag] project boot failed:', e);
-    toast('error', 'Failed to load projects — starting with an empty canvas');
+    toast('error', t('toast.projectsLoadFailed'));
     useStore.persist.setOptions({ name: projectStorageKey('recovery') });
     await useStore.persist.rehydrate();
   });

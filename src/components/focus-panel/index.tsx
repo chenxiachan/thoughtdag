@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 import { useStore } from '../../store';
 import { countTokens } from '../../utils';
 import { getContextPath } from '../../lib/graph';
+import { useT } from '../../i18n';
 
 const PANEL_WIDTH_KEY = 'thoughtdag.panelWidth';
 const PANEL_MIN_WIDTH = 380;
@@ -27,6 +28,7 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
     getAvailableRoles,
     addAttachment, removeAttachment, toggleExcludeAttachment, setAttachmentRenderMode, getInheritedAttachments,
   } = useStore();
+  const t = useT();
 
   const [branchInput, setBranchInput] = useState('');
   const [showBranchInput, setShowBranchInput] = useState(false);
@@ -149,7 +151,7 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
         onPointerUp={onResizePointerUp}
         onDoubleClick={onResizeDoubleClick}
         className={`absolute left-0 top-0 h-full w-[5px] -ml-[2px] z-20 cursor-col-resize hover:bg-accent/30 transition-colors ${resizing ? 'bg-accent/40' : ''}`}
-        title="Drag to resize · double-click to reset"
+        title={t('panel.resizeTitle')}
       />
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-line shrink-0">
