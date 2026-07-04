@@ -59,6 +59,7 @@ function Canvas() {
   const [isDraggingLanding, setIsDraggingLanding] = useState(false);
   const landingFileRef = useRef<HTMLInputElement>(null);
   const floatingFileRef = useRef<HTMLInputElement>(null);
+  const floatingInputRef = useRef<HTMLTextAreaElement>(null);
   const hasNodes = nodes.length > 0;
   const rfInstance = useRef<ReactFlowInstance<ThoughtNodeType, ThoughtEdge> | null>(null);
   const prevNodeCount = useRef(nodes.length);
@@ -141,6 +142,17 @@ function Canvas() {
         if (e.shiftKey) { e.preventDefault(); redo(); }
         else { e.preventDefault(); undo(); }
       }
+      // Esc: step out — clear multi-selection first, then close the panel
+      if (e.key === 'Escape') {
+        const target = e.target as HTMLElement;
+        if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
+        if (selectedNodeIds.length > 1) {
+          setSelectedNodeIds([]);
+        } else if (selectedNodeId) {
+          setSelectedNodeId(null);
+        }
+        return;
+      }
       // Delete/Backspace: multi-selected nodes (confirm) or selected edges
       if (e.key === 'Delete' || e.key === 'Backspace') {
         const target = e.target as HTMLElement;
@@ -164,7 +176,7 @@ function Canvas() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [undo, redo, selectedNodeIds, batchDelete, edges, deleteEdges]);
+  }, [undo, redo, selectedNodeId, selectedNodeIds, setSelectedNodeId, setSelectedNodeIds, batchDelete, edges, deleteEdges]);
 
   const handleSubmit = () => {
     if (!inputValue.trim()) return;
@@ -241,7 +253,15 @@ function Canvas() {
   return (
     <div className="w-full h-full flex">
       {/* Canvas — takes the remaining width when the panel is open */}
-      <div className={`relative h-full ${panelOpen ? 'flex-1 min-w-0' : 'w-full'}`}>
+      <div
+        className={`relative h-full ${panelOpen ? 'flex-1 min-w-0' : 'w-full'}`}
+        onDoubleClick={(e) => {
+          // Double-click on empty canvas → start a new root question
+          if ((e.target as HTMLElement).classList.contains('react-flow__pane')) {
+            floatingInputRef.current?.focus();
+          }
+        }}
+      >
       <ReactFlow
         onInit={(instance) => { rfInstance.current = instance; }}
         nodes={nodes}
@@ -267,6 +287,7 @@ function Canvas() {
         selectionMode={SelectionMode.Partial}
         selectionOnDrag
         panOnDrag={[1, 2]}
+        zoomOnDoubleClick={false}
         connectionLineStyle={{ stroke: COLORS.accent, strokeDasharray: '8 4', strokeWidth: 2 }}
         onSelectionChange={onSelectionChange}
         onPaneClick={() => { setSelectedNodeId(null); setSelectedNodeIds([]); }}
@@ -396,6 +417,7 @@ function Canvas() {
           >
             <div className="flex gap-2 items-end">
               <textarea
+                ref={floatingInputRef}
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}
