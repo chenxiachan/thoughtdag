@@ -231,6 +231,48 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
     get().pushHistory();
   },
 
+  alignSelection: (nodeIds: string[]) => {
+    if (nodeIds.length < 2) return;
+    const selected = new Set(nodeIds);
+    const { nodes, edges } = get();
+
+    // Conversation order: within the selection, an arrow-ancestor comes
+    // before its descendants (structural + adopted links); ties break by y.
+    const depth = new Map<string, number>();
+    const structural = edges.filter((e) => !e.data?.isWatch);
+    const depthOf = (id: string, seen: Set<string>): number => {
+      if (depth.has(id)) return depth.get(id)!;
+      if (seen.has(id)) return 0;
+      seen.add(id);
+      const parents = structural.filter((e) => e.target === id && selected.has(e.source));
+      const d = parents.length === 0 ? 0 : 1 + Math.max(...parents.map((e) => depthOf(e.source, seen)));
+      depth.set(id, d);
+      return d;
+    };
+    const ordered = nodeIds
+      .map((id) => nodes.find((n) => n.id === id))
+      .filter((n): n is ThoughtNode => !!n)
+      .sort((a, b) =>
+        (depthOf(a.id, new Set()) - depthOf(b.id, new Set())) || (a.position.y - b.position.y)
+      );
+
+    get().pushHistory();
+    const anchor = ordered[0].position;
+    let y = anchor.y;
+    const placed = new Map<string, { x: number; y: number }>();
+    for (const n of ordered) {
+      placed.set(n.id, { x: anchor.x, y });
+      y += nodeHeight(n) + 40;
+    }
+    set((state) => ({
+      nodes: state.nodes.map((n) => {
+        const pos = placed.get(n.id);
+        return pos ? { ...n, position: pos } : n;
+      }),
+    }));
+    get().pushHistory();
+  },
+
   batchDelete: (nodeIds: string[]) => {
     get().pushHistory();
     const removeSet = new Set(nodeIds);

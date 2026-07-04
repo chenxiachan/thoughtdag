@@ -1,12 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
-import { ClipboardList, FileDown, GitBranch, Star, Trash2 } from 'lucide-react';
+import { AlignVerticalJustifyStart, ClipboardList, FileDown, GitBranch, Star, Trash2 } from 'lucide-react';
 import { useStore } from '../store';
 import { confirmDialog } from '../lib/ui-store';
 import { selectionMarkdown, downloadMarkdown } from '../lib/export';
 import { useT, t as ti, fmt } from '../i18n';
 
 export default function SelectionToolbar() {
-  const { selectedNodeIds, nodes, batchDelete, batchMergeSummarize, addQuestion } = useStore();
+  const { selectedNodeIds, nodes, batchDelete, batchMergeSummarize, addQuestion, alignSelection } = useStore();
   const t = useT();
   const [exploreOpen, setExploreOpen] = useState(false);
   const [exploreInput, setExploreInput] = useState('');
@@ -106,6 +106,20 @@ export default function SelectionToolbar() {
             title={t('toolbar.exploreTitle')}
           >
             <GitBranch size={14} strokeWidth={1.75} className="inline" /> {t('common.explore')}
+          </button>
+
+          <button
+            onClick={() => {
+              void confirmDialog({
+                title: t('confirm.alignTitle'),
+                message: fmt(t('confirm.alignMsg'), { n: selectedNodeIds.length }),
+                confirmLabel: t('common.confirmAlign'),
+              }).then((ok) => { if (ok) alignSelection(selectedNodeIds); });
+            }}
+            className="text-xs bg-wash hover:bg-line text-ink-muted px-3 py-1.5 rounded-lg transition-colors"
+            title={t('confirm.alignTitle')}
+          >
+            <AlignVerticalJustifyStart size={14} strokeWidth={1.75} className="inline" /> {t('toolbar.align')}
           </button>
 
           <button

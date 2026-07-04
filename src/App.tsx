@@ -575,8 +575,15 @@ function Canvas() {
         {hasNodes && (
           <button
             onClick={() => {
-              relayout();
-              setTimeout(() => rfInstance.current?.fitView({ duration: 400, padding: 0.15 }), 50);
+              void confirmDialog({
+                title: t('confirm.relayoutTitle'),
+                message: t('confirm.relayoutMsg'),
+                confirmLabel: t('toolbar.relayout'),
+              }).then((ok) => {
+                if (!ok) return;
+                relayout();
+                setTimeout(() => rfInstance.current?.fitView({ duration: 400, padding: 0.15 }), 50);
+              });
             }}
             className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors text-ink-muted hover:text-accent"
             title={t('toolbar.relayout')}

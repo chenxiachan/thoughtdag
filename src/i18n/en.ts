@@ -226,4 +226,10 @@ export const en = {
 
   // Toolbar
   'toolbar.relayout': 'Tidy layout',
+  'toolbar.align': 'Align',
+  'confirm.relayoutTitle': 'Tidy layout',
+  'confirm.relayoutMsg': 'Rearrange all nodes by their arrow order? Your manual positions will be replaced (Cmd+Z to undo).',
+  'confirm.alignTitle': 'Align selection',
+  'confirm.alignMsg': 'Stack the {n} selected nodes into one column, in conversation order? (Cmd+Z to undo)',
+  'common.confirmAlign': 'Align',
 } as const;

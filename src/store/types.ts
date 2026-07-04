@@ -35,6 +35,8 @@ export interface NodeSlice {
   batchDelete: (nodeIds: string[]) => void;
   /** Re-run the column-tree layout over the whole graph (undoable). */
   relayout: () => void;
+  /** Stack the selected nodes into one vertical column, in conversation order (undoable). */
+  alignSelection: (nodeIds: string[]) => void;
 }
 
 export interface AddQuestionOptions {

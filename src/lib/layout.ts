@@ -53,7 +53,19 @@ export function autoLayout(allNodes: ThoughtNode[], edges: ThoughtEdge[]): Thoug
   const V_PAD = 30; // extra vertical padding for collision
 
   // --- Structural edges (no cross-links) ---
+  // Structural edges drive the column tree. Cross-links normally don't —
+  // BUT if a node's ONLY incoming edge is a cross-link (user deleted the
+  // original edge and re-wired by dragging), that link IS its parent chain:
+  // adopt it so the node still stacks below its arrow-parent instead of
+  // being treated as a detached root. Watch edges are never adopted.
   const structuralEdges = edges.filter((e) => !e.data?.isCrossLink);
+  const hasStructuralParent = new Set(structuralEdges.map((e) => e.target));
+  for (const e of edges) {
+    if (e.data?.isCrossLink && !e.data?.isWatch && !hasStructuralParent.has(e.target)) {
+      structuralEdges.push(e);
+      hasStructuralParent.add(e.target);
+    }
+  }
   const targetIds = new Set(structuralEdges.map((e) => e.target));
   const roots = nodes.filter((n) => !targetIds.has(n.id));
 

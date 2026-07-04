@@ -226,4 +226,10 @@ export const zh: Record<keyof typeof en, string> = {
 
   // Toolbar
   'toolbar.relayout': '一键排版',
+  'toolbar.align': '对齐',
+  'confirm.relayoutTitle': '一键排版',
+  'confirm.relayoutMsg': '按箭头顺序重新排列全部节点？手动摆放的位置将被替换（可 Cmd+Z 撤销）。',
+  'confirm.alignTitle': '对齐所选节点',
+  'confirm.alignMsg': '将选中的 {n} 个节点按对话顺序竖向排成一列？（可 Cmd+Z 撤销）',
+  'common.confirmAlign': '对齐',
 };
