@@ -13,6 +13,8 @@ const browser = await chromium.launch({ executablePath: CHROME, headless: true }
 // test asserts against the English landing placeholder.
 const ctx = await browser.newContext({ locale: 'en-US' });
 const page = await ctx.newPage();
+// Suppress first-run example seeding — this test asserts the EMPTY landing.
+await page.addInitScript(() => localStorage.setItem('thoughtdag.seeded', 'yes'));
 
 const errors = [];
 page.on('pageerror', (e) => errors.push('pageerror: ' + e.message));
