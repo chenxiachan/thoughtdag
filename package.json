@@ -12,6 +12,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^4.0.8",
+    "@ai-sdk/deepseek": "^3.0.5",
+    "@ai-sdk/google": "^4.0.8",
+    "@ai-sdk/openai": "^4.0.7",
     "@ai-sdk/openai-compatible": "^3.0.5",
     "@fontsource-variable/inter": "^5.2.8",
     "@fontsource-variable/jetbrains-mono": "^5.2.8",

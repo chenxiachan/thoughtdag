@@ -237,6 +237,8 @@ export const en = {
   'refs.title': 'References',
   'toolbar.webSearch': 'Web search: the model decides when to search',
   'toolbar.webSearchOff': 'Web search off',
+  'toolbar.model': 'Model — applies to new generations',
+  'model.vision': 'vision',
   'toolbar.scholarSearch': 'Scholar search (arXiv + Semantic Scholar): the model decides when to search',
   'toolbar.scholarSearchOff': 'Scholar search off',
 } as const;

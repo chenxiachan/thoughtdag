@@ -4,6 +4,10 @@ import { streamText, generateText, tool, stepCountIs } from 'ai';
 import { z } from 'zod';
 import { createZhipu } from 'zhipu-ai-provider';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
+import { createOpenAI } from '@ai-sdk/openai';
+import { createAnthropic } from '@ai-sdk/anthropic';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import { createDeepSeek } from '@ai-sdk/deepseek';
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
 import { execSync } from 'child_process';
 import fs from 'fs';
@@ -23,16 +27,6 @@ const ZHIPU_KEY = process.env.ZHIPU_API_KEY;
 const QWEN_KEY = process.env.DASHSCOPE_API_KEY;
 const PORT = Number(process.env.PORT) || 3001;
 
-if (!ZHIPU_KEY && !QWEN_KEY) {
-  console.error(
-    '\n✗ No LLM API key found. 未找到任何 LLM API key。\n' +
-    '  请执行 cp .env.example .env，然后至少填入一把 key：\n' +
-    '    ZHIPU_API_KEY     — 智谱 GLM（免费，推荐）https://open.bigmodel.cn/\n' +
-    '    DASHSCOPE_API_KEY — 通义千问 https://dashscope.console.aliyun.com/\n'
-  );
-  process.exit(1);
-}
-
 // Optional dependency: poppler's pdftoppm renders PDF pages as images for Vision.
 // Without it, PDF attachments fall back to extracted text only.
 let POPPLER_AVAILABLE = true;
@@ -45,61 +39,114 @@ try {
 }
 
 // ─── Model Configuration (Vercel AI SDK providers) ──────────────
-// Providers register only when the matching API key is present. Adding
-// another backend (Anthropic/DeepSeek/Ollama/...) is one createXxx() call.
+// Every provider registers only when its API key is present in .env.
+// Default model IDs can be overridden per provider with <PREFIX>_MODELS
+// (comma-separated), so new model releases never require a code change:
+//   OPENAI_MODELS="gpt-5.2,gpt-5.2-mini"  ANTHROPIC_MODELS="claude-opus-4-8"
 
-const zhipu = ZHIPU_KEY
-  ? createZhipu({ apiKey: ZHIPU_KEY, baseURL: 'https://open.bigmodel.cn/api/paas/v4' })
-  : null;
-const qwen = QWEN_KEY
-  ? createOpenAICompatible({
-      name: 'dashscope',
-      apiKey: QWEN_KEY,
-      baseURL: 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1',
-    })
-  : null;
-
-// id → { name, vision, visionFallback?, model(), providerOptions? }
+// id → { name, provider, vision, visionFallback?, model(), providerOptions? }
 const modelRegistry = {};
 
-if (zhipu) {
+const envModels = (prefix, fallback) => {
+  const raw = process.env[`${prefix}_MODELS`];
+  return raw ? raw.split(',').map((s) => s.trim()).filter(Boolean) : fallback;
+};
+const register = (ids, provider, make, opts = {}) => {
+  for (const id of ids) {
+    modelRegistry[id] = { name: `${id} (${provider})`, provider, vision: opts.vision ?? true, model: () => make(id), ...opts, ...(opts.perId?.[id] || {}) };
+  }
+};
+
+if (ZHIPU_KEY) {
+  const zhipu = createZhipu({ apiKey: ZHIPU_KEY, baseURL: 'https://open.bigmodel.cn/api/paas/v4' });
   modelRegistry['glm-4.5-flash'] = {
-    name: 'GLM-4.5 Flash (Zhipu, free)',
-    vision: false,
-    visionFallback: 'glm-4v-flash',
+    name: 'GLM-4.5 Flash · free', provider: 'Zhipu', vision: false, visionFallback: 'glm-4v-flash',
     model: () => zhipu('glm-4.5-flash'),
     // GLM-4.5 defaults to hidden "thinking" — disable for fast first tokens
     providerOptions: { zhipu: { thinking: { type: 'disabled' } } },
   };
   modelRegistry['glm-4v-flash'] = {
-    name: 'GLM-4V Flash (Zhipu, free vision)',
-    vision: true,
-    model: () => zhipu('glm-4v-flash'),
+    name: 'GLM-4V Flash · free vision', provider: 'Zhipu', vision: true, model: () => zhipu('glm-4v-flash'),
   };
 }
 
-if (qwen) {
+if (QWEN_KEY) {
+  const qwen = createOpenAICompatible({
+    name: 'dashscope', apiKey: QWEN_KEY,
+    baseURL: 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1',
+  });
   modelRegistry['qwen-plus'] = {
-    name: 'Qwen Plus (DashScope)',
-    vision: false,
-    visionFallback: 'qwen-vl-plus',
-    model: () => qwen('qwen-plus'),
+    name: 'Qwen Plus', provider: 'Qwen', vision: false, visionFallback: 'qwen-vl-plus', model: () => qwen('qwen-plus'),
   };
   modelRegistry['qwen-vl-plus'] = {
-    name: 'Qwen VL Plus (DashScope)',
-    vision: true,
-    model: () => qwen('qwen-vl-plus'),
+    name: 'Qwen VL Plus', provider: 'Qwen', vision: true, model: () => qwen('qwen-vl-plus'),
   };
 }
 
-const DEFAULT_MODEL = ZHIPU_KEY ? 'glm-4.5-flash' : 'qwen-plus';
+if (process.env.OPENAI_API_KEY) {
+  const openai = createOpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  register(envModels('OPENAI', ['gpt-5.1', 'gpt-5-mini']), 'OpenAI', (id) => openai(id));
+}
+
+if (process.env.ANTHROPIC_API_KEY) {
+  const anthropic = createAnthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  register(envModels('ANTHROPIC', ['claude-sonnet-5', 'claude-haiku-4-5']), 'Anthropic', (id) => anthropic(id));
+}
+
+if (process.env.GOOGLE_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+  const google = createGoogleGenerativeAI({
+    apiKey: process.env.GOOGLE_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY,
+  });
+  register(envModels('GOOGLE', ['gemini-2.5-pro', 'gemini-2.5-flash']), 'Google', (id) => google(id));
+}
+
+if (process.env.DEEPSEEK_API_KEY) {
+  const deepseek = createDeepSeek({ apiKey: process.env.DEEPSEEK_API_KEY });
+  register(envModels('DEEPSEEK', ['deepseek-chat', 'deepseek-reasoner']), 'DeepSeek', (id) => deepseek(id), { vision: false });
+}
+
+if (process.env.OPENROUTER_API_KEY) {
+  // Gateway to 300+ models — put any "vendor/model" slugs in OPENROUTER_MODELS
+  const openrouter = createOpenAICompatible({
+    name: 'openrouter', apiKey: process.env.OPENROUTER_API_KEY,
+    baseURL: 'https://openrouter.ai/api/v1',
+  });
+  register(envModels('OPENROUTER', ['openrouter/auto']), 'OpenRouter', (id) => openrouter(id));
+}
+
+if (process.env.OLLAMA_MODELS) {
+  // Local models, fully offline — e.g. OLLAMA_MODELS="qwen3:8b,llama3.2"
+  const ollama = createOpenAICompatible({
+    name: 'ollama', apiKey: 'ollama',
+    baseURL: (process.env.OLLAMA_BASE_URL || 'http://localhost:11434') + '/v1',
+  });
+  register(envModels('OLLAMA', []), 'Ollama', (id) => ollama(id), { vision: false });
+}
+
+if (Object.keys(modelRegistry).length === 0) {
+  console.error(
+    '\n✗ No LLM API key found. 未找到任何 LLM API key。\n' +
+    '  请执行 cp .env.example .env，然后至少填入一把 key：\n' +
+    '    ZHIPU_API_KEY     — 智谱 GLM（免费，推荐）https://open.bigmodel.cn/\n' +
+    '    DASHSCOPE_API_KEY — 通义千问 / OPENAI_API_KEY / ANTHROPIC_API_KEY /\n' +
+    '    GOOGLE_API_KEY / DEEPSEEK_API_KEY / OPENROUTER_API_KEY / OLLAMA_MODELS\n'
+  );
+  process.exit(1);
+}
+
+const DEFAULT_MODEL = ZHIPU_KEY ? 'glm-4.5-flash' : Object.keys(modelRegistry)[0];
 
 // Choose model entry: if images are attached and the model is text-only,
-// switch to its provider's vision counterpart.
+// switch to its provider's vision counterpart — or, failing that, any
+// registered vision-capable model.
 function resolveModel(modelId, hasImages) {
   const entry = modelRegistry[modelId] || modelRegistry[DEFAULT_MODEL];
-  if (hasImages && !entry.vision && entry.visionFallback && modelRegistry[entry.visionFallback]) {
-    return modelRegistry[entry.visionFallback];
+  if (hasImages && !entry.vision) {
+    if (entry.visionFallback && modelRegistry[entry.visionFallback]) {
+      return modelRegistry[entry.visionFallback];
+    }
+    const anyVision = Object.values(modelRegistry).find((m) => m.vision);
+    if (anyVision) return anyVision;
   }
   return entry;
 }
@@ -331,8 +378,8 @@ app.get('/api/models', (req, res) => {
   const models = Object.entries(modelRegistry).map(([id, m]) => ({
     id,
     name: m.name,
+    provider: m.provider,
     vision: m.vision,
-    reasoning: false,
   }));
   res.json({ models, default: DEFAULT_MODEL });
 });

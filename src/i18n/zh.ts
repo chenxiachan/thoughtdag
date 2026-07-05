@@ -237,6 +237,8 @@ export const zh: Record<keyof typeof en, string> = {
   'refs.title': '参考来源',
   'toolbar.webSearch': '联网搜索：模型自行判断何时搜索',
   'toolbar.webSearchOff': '联网搜索已关闭',
+  'toolbar.model': '模型 — 对新的生成生效',
+  'model.vision': '视觉',
   'toolbar.scholarSearch': '学术检索（arXiv + Semantic Scholar）：模型自行判断何时检索',
   'toolbar.scholarSearchOff': '学术检索已关闭',
 };

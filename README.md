@@ -133,6 +133,21 @@ npm run dev            # in another terminal, start the dev server
 >
 > **Data storage:** Canvases live in browser IndexedDB. To wipe: run `indexedDB.deleteDatabase('keyval-store')` in the DevTools console and refresh.
 
+## Supported models
+
+Built on the Vercel AI SDK: **every provider below activates automatically when its key is in `.env`** — no code changes, no config files. A toolbar picker switches models at any time; when a text-only model receives images, the proxy silently reroutes to a vision-capable one. Default model IDs can be overridden per provider (e.g. `OPENAI_MODELS=gpt-5.2`), so new releases never require an update.
+
+| Provider | Default models | `.env` key | Notes |
+|----------|----------------|------------|-------|
+| **Zhipu GLM** | glm-4.5-flash · glm-4v-flash | `ZHIPU_API_KEY` | **Free**, CN-direct; powers web search |
+| **Qwen** (DashScope) | qwen-plus · qwen-vl-plus | `DASHSCOPE_API_KEY` | CN-direct |
+| **OpenAI** | gpt-5.1 · gpt-5-mini | `OPENAI_API_KEY` | override via `OPENAI_MODELS` |
+| **Anthropic** | claude-sonnet-5 · claude-haiku-4-5 | `ANTHROPIC_API_KEY` | override via `ANTHROPIC_MODELS` |
+| **Google** | gemini-2.5-pro · gemini-2.5-flash | `GOOGLE_API_KEY` | override via `GOOGLE_MODELS` |
+| **DeepSeek** | deepseek-chat · deepseek-reasoner | `DEEPSEEK_API_KEY` | text-only (auto vision reroute) |
+| **OpenRouter** | openrouter/auto | `OPENROUTER_API_KEY` | gateway to 300+ models — list any `vendor/model` slugs in `OPENROUTER_MODELS` |
+| **Ollama** | (yours) | `OLLAMA_MODELS=qwen3:8b,…` | fully local & offline |
+
 ## Tech Stack & Architecture
 
 | Layer | Technology |
@@ -141,7 +156,7 @@ npm run dev            # in another terminal, start the dev server
 | Canvas | @xyflow/react (React Flow) |
 | State | Zustand (persist → IndexedDB via idb-keyval) |
 | Styling | Tailwind CSS v4 |
-| LLM | Vercel AI SDK multi-backend: Zhipu GLM (free), Qwen — auto-registered from `.env` keys; Anthropic/OpenAI/DeepSeek/Ollama are one line away |
+| LLM | Vercel AI SDK — 8 provider families, auto-registered from `.env` keys (see [Supported models](#supported-models)) |
 | Proxy | Express + Vercel AI SDK (server.mjs, default port 3001) |
 
 ```
@@ -160,7 +175,7 @@ Browser (localhost:5173)
 ## Roadmap
 
 **Near term**
-- [ ] Per-node model switching — cheap Flash for exploration, flagship models for the hard steps
+- [ ] Per-node model switching — the global picker shipped; next: per-node override (cheap Flash for exploration, flagship for the hard steps)
 - [ ] MCP tool ecosystem — arXiv retrieval, full-page web reading, and other research tools
 - [ ] Keyboard shortcuts + Cmd+F node search
 - [ ] Edge-crossing minimization, hover-＋ blank child nodes, group/ungroup

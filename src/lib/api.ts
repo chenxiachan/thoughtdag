@@ -1,4 +1,5 @@
 import { API_BASE } from './constants';
+import { useUiStore } from './ui-store';
 
 const API_URL = `${API_BASE}/api/claude`;
 const STREAM_URL = `${API_BASE}/api/stream`;
@@ -53,7 +54,11 @@ export async function llmCall(contextMessages: ContextMessage[], images?: ImageA
     const res = await fetch(API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: contextMessages, images: images?.length ? images : undefined }),
+      body: JSON.stringify({
+        messages: contextMessages,
+        images: images?.length ? images : undefined,
+        model: useUiStore.getState().selectedModel || undefined,
+      }),
     });
 
     if (!res.ok) {
@@ -98,6 +103,7 @@ export async function llmCallStream(
         images: images?.length ? images : undefined,
         webSearch: toolPrefs?.web,
         scholarSearch: toolPrefs?.scholar,
+        model: useUiStore.getState().selectedModel || undefined,
       }),
       signal,
     });

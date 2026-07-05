@@ -133,6 +133,21 @@ npm run dev            # 另开终端，启动开发服务器
 >
 > **数据存储：** 画布保存在浏览器 IndexedDB；清空存档：DevTools Console 执行 `indexedDB.deleteDatabase('keyval-store')` 后刷新。
 
+## 支持的模型
+
+基于 Vercel AI SDK：**下表任何一家，把 key 填进 `.env` 即自动激活**——不改代码、不写配置。工具栏模型选择器随时切换；纯文本模型收到图片时自动改走视觉模型。各家默认模型 id 可用环境变量覆盖（如 `OPENAI_MODELS=gpt-5.2`），新模型发布无需升级代码。
+
+| 提供商 | 默认模型 | `.env` key | 说明 |
+|--------|----------|------------|------|
+| **智谱 GLM** | glm-4.5-flash · glm-4v-flash | `ZHIPU_API_KEY` | **免费**、国内直连；联网搜索由它驱动 |
+| **通义千问** (DashScope) | qwen-plus · qwen-vl-plus | `DASHSCOPE_API_KEY` | 国内直连 |
+| **OpenAI** | gpt-5.1 · gpt-5-mini | `OPENAI_API_KEY` | 可用 `OPENAI_MODELS` 覆盖 |
+| **Anthropic** | claude-sonnet-5 · claude-haiku-4-5 | `ANTHROPIC_API_KEY` | 可用 `ANTHROPIC_MODELS` 覆盖 |
+| **Google** | gemini-2.5-pro · gemini-2.5-flash | `GOOGLE_API_KEY` | 可用 `GOOGLE_MODELS` 覆盖 |
+| **DeepSeek** | deepseek-chat · deepseek-reasoner | `DEEPSEEK_API_KEY` | 纯文本（有图自动改道视觉模型）|
+| **OpenRouter** | openrouter/auto | `OPENROUTER_API_KEY` | 一把 key 通 300+ 模型，`OPENROUTER_MODELS` 填任意 `vendor/model` |
+| **Ollama** | （你本地的）| `OLLAMA_MODELS=qwen3:8b,…` | 完全本地离线 |
+
 ## 技术栈与架构
 
 | 层级 | 技术 |
@@ -141,7 +156,7 @@ npm run dev            # 另开终端，启动开发服务器
 | 画布 | @xyflow/react (React Flow) |
 | 状态 | Zustand（persist → IndexedDB via idb-keyval）|
 | 样式 | Tailwind CSS v4 |
-| 大模型 | Vercel AI SDK 多后端：智谱 GLM（免费）、通义千问，按 .env key 自动注册；Anthropic/OpenAI/DeepSeek/Ollama 一行接入 |
+| 大模型 | Vercel AI SDK —— 8 家 provider，按 .env key 自动注册（见[支持的模型](#支持的模型)）|
 | 代理 | Express + Vercel AI SDK（server.mjs，默认端口 3001）|
 
 ```
@@ -160,7 +175,7 @@ npm run dev            # 另开终端，启动开发服务器
 ## Roadmap
 
 **近期**
-- [ ] 节点级多模型切换 — 每个节点选不同 LLM，探索用 Flash、关键推理用旗舰
+- [ ] 节点级多模型切换 — 全局选择器已上线；下一步：节点级覆盖（探索用 Flash、关键推理用旗舰）
 - [ ] MCP 工具生态接入 — arXiv 检索、网页全文阅读等科研工具
 - [ ] 键盘快捷键 + Cmd+F 节点搜索
 - [ ] 边交叉最小化、Hover ＋ 空白子节点、框选 Group/Ungroup

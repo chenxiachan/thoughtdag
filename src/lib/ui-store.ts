@@ -20,6 +20,7 @@ interface ConfirmRequest {
 
 const WEB_SEARCH_KEY = 'thoughtdag.webSearch';
 const SCHOLAR_SEARCH_KEY = 'thoughtdag.scholarSearch';
+const MODEL_KEY = 'thoughtdag.model';
 
 interface UiState {
   toasts: ToastItem[];
@@ -28,11 +29,14 @@ interface UiState {
   /** Global switches: expose tool groups to the model (it still decides when to use them). */
   webSearchEnabled: boolean;
   scholarSearchEnabled: boolean;
+  /** Selected LLM id; null = server default. */
+  selectedModel: string | null;
   dismissToast: (id: string) => void;
   resolveConfirm: (ok: boolean) => void;
   setTutorialOpen: (open: boolean) => void;
   setWebSearchEnabled: (enabled: boolean) => void;
   setScholarSearchEnabled: (enabled: boolean) => void;
+  setSelectedModel: (model: string | null) => void;
 }
 
 export const useUiStore = create<UiState>((set, get) => ({
@@ -41,6 +45,7 @@ export const useUiStore = create<UiState>((set, get) => ({
   tutorialOpen: false,
   webSearchEnabled: localStorage.getItem(WEB_SEARCH_KEY) !== 'off',
   scholarSearchEnabled: localStorage.getItem(SCHOLAR_SEARCH_KEY) !== 'off',
+  selectedModel: localStorage.getItem(MODEL_KEY) || null,
   dismissToast: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
   resolveConfirm: (ok) => {
     get().confirmRequest?.resolve(ok);
@@ -54,6 +59,11 @@ export const useUiStore = create<UiState>((set, get) => ({
   setScholarSearchEnabled: (enabled) => {
     localStorage.setItem(SCHOLAR_SEARCH_KEY, enabled ? 'on' : 'off');
     set({ scholarSearchEnabled: enabled });
+  },
+  setSelectedModel: (model) => {
+    if (model) localStorage.setItem(MODEL_KEY, model);
+    else localStorage.removeItem(MODEL_KEY);
+    set({ selectedModel: model });
   },
 }));
 

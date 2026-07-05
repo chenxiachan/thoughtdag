@@ -31,6 +31,7 @@ import { confirmDialog, useUiStore } from './lib/ui-store';
 import ConfirmDialog from './components/ui/ConfirmDialog';
 import Toaster from './components/ui/Toaster';
 import LangSwitch from './components/ui/LangSwitch';
+import ModelPicker from './components/ui/ModelPicker';
 import Tutorial from './components/Tutorial';
 import { useT, t as ti, fmt } from './i18n';
 
@@ -569,6 +570,7 @@ function Canvas() {
 
       {/* Toolbar: web search, language, tutorial, relayout, undo/redo */}
       <div className="absolute top-4 right-4 z-10 flex gap-1.5 items-center">
+        <ModelPicker />
         <button
           onClick={() => setWebSearchEnabled(!webSearchEnabled)}
           className={`bg-card/90 backdrop-blur border rounded-lg w-8 h-8 flex items-center justify-center shadow-sm transition-colors ${
