@@ -179,6 +179,30 @@ export default function ResponseSection({
         </div>
       )}
 
+      {/* Web references consulted for this response */}
+      {data.references && data.references.length > 0 && !data.isLoading && (
+        <div className="mt-3 pt-2 border-t border-line/60">
+          <p className="text-2xs text-ink-faint uppercase tracking-wider font-medium mb-1.5">{t('refs.title')}</p>
+          <ol className="space-y-1">
+            {data.references.map((r, i) => (
+              <li key={i} className="flex items-start gap-2 text-xs leading-snug">
+                <span className="shrink-0 text-2xs text-ink-faint font-mono mt-0.5">[{i + 1}]</span>
+                {r.url ? (
+                  <a href={r.url} target="_blank" rel="noreferrer" className="text-accent hover:text-accent-strong hover:underline break-all">
+                    {r.title}
+                  </a>
+                ) : (
+                  <span className="text-ink-muted">{r.title}</span>
+                )}
+                {(r.media || r.date) && (
+                  <span className="shrink-0 text-2xs text-ink-faint">{[r.media, r.date].filter(Boolean).join(' · ')}</span>
+                )}
+              </li>
+            ))}
+          </ol>
+        </div>
+      )}
+
       {/* Failed generation: retry in place */}
       {data.generationFailed && !data.isLoading && (
         <div className="mt-2 flex items-center gap-2 text-xs text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">

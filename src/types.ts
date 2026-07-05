@@ -19,6 +19,14 @@ export interface Highlight {
   text: string;
 }
 
+/** A web source the model consulted while generating a response. */
+export interface Reference {
+  title: string;
+  url?: string;
+  media?: string;
+  date?: string;
+}
+
 export interface ThoughtData extends Record<string, unknown> {
   question: string;
   response: string;
@@ -29,6 +37,7 @@ export interface ThoughtData extends Record<string, unknown> {
   isEditingResponse: boolean;
   isLoading: boolean;
   generationFailed?: boolean; // set on LLM failure; cleared on retry/success (persisted so Retry survives refresh)
+  references?: Reference[]; // web sources cited by the current response ([n] markers)
   tokenCount: number;
   branchContext?: string;
   highlights: Highlight[];

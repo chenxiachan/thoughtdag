@@ -68,18 +68,31 @@ export async function llmCall(contextMessages: ContextMessage[], images?: ImageA
   }
 }
 
+export interface StreamCallbacks {
+  /** The model started a web search with this query. */
+  onToolCall?: (name: string, query: string) => void;
+  /** All web sources consulted during generation (sent once, at the end). */
+  onSources?: (sources: import('../types').Reference[]) => void;
+}
+
 // Streaming call — invokes onChunk with each text delta, returns full text
 export async function llmCallStream(
   contextMessages: ContextMessage[],
   onChunk: (chunk: string, fullSoFar: string) => void,
   signal?: AbortSignal,
   images?: ImageAttachment[],
+  callbacks?: StreamCallbacks,
+  webSearch?: boolean,
 ): Promise<string> {
   try {
     const res = await fetch(STREAM_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ messages: contextMessages, images: images?.length ? images : undefined }),
+      body: JSON.stringify({
+        messages: contextMessages,
+        images: images?.length ? images : undefined,
+        webSearch,
+      }),
       signal,
     });
 
@@ -112,6 +125,12 @@ export async function llmCallStream(
           if (parsed.text) {
             full += parsed.text;
             onChunk(parsed.text, full);
+          }
+          if (parsed.tool?.query) {
+            callbacks?.onToolCall?.(parsed.tool.name, parsed.tool.query);
+          }
+          if (Array.isArray(parsed.sources)) {
+            callbacks?.onSources?.(parsed.sources);
           }
         } catch (e) {
           if (e instanceof Error && e.message !== data) throw e;

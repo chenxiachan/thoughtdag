@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
-import { streamText, generateText } from 'ai';
+import { streamText, generateText, tool, stepCountIs } from 'ai';
+import { z } from 'zod';
 import { createZhipu } from 'zhipu-ai-provider';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
@@ -125,6 +126,54 @@ function toSdkMessages(messages, images) {
   return out;
 }
 
+// ─── Web search tool (Zhipu Web Search API, ¥0.01/query) ───────
+// Registered as an AI SDK tool: the MODEL decides when to search.
+
+async function zhipuWebSearch(query, count = 5) {
+  const r = await fetch('https://open.bigmodel.cn/api/paas/v4/web_search', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${ZHIPU_KEY}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ search_engine: 'search_std', search_query: query, count }),
+  });
+  if (!r.ok) throw new Error(`web_search HTTP ${r.status}`);
+  const data = await r.json();
+  return (data.search_result || []).map((s) => ({
+    title: s.title || s.link,
+    url: s.link,
+    content: (s.content || '').slice(0, 600),
+    media: s.media || undefined,
+    date: s.publish_date || undefined,
+  }));
+}
+
+// Build the tools map for one request. `sources` accumulates every result
+// so the route can stream them back to the client; numbering is global
+// across multiple searches within the same generation.
+function makeSearchTools(sources, onSearch) {
+  if (!ZHIPU_KEY) return undefined;
+  return {
+    web_search: tool({
+      description:
+        'Search the web for current events, specific facts, papers, or anything you are not certain about. ' +
+        'Results are numbered [1], [2], ... — when you use information from a result, cite it inline as [n]. ' +
+        'Do not search for things you already know well.',
+      inputSchema: z.object({
+        query: z.string().describe('The search query, in the language most likely to find good results'),
+      }),
+      execute: async ({ query }) => {
+        onSearch?.(query);
+        const results = await zhipuWebSearch(query);
+        const start = sources.length;
+        sources.push(...results);
+        if (results.length === 0) return 'No results found.';
+        return results
+          .map((r, i) => `[${start + i + 1}] ${r.title}${r.date ? ` (${r.date})` : ''}\n${r.url}\n${r.content}`)
+          .join('\n\n');
+      },
+    }),
+  };
+}
+
 // ─── Express App ────────────────────────────────────────────────
 const app = express();
 app.use(cors());
@@ -224,9 +273,10 @@ app.post('/api/claude', async (req, res) => {
   }
 });
 
-// SSE streaming endpoint
+// SSE streaming endpoint. `webSearch: false` disables the tool; otherwise
+// the model decides on its own whether (and how often) to search.
 app.post('/api/stream', async (req, res) => {
-  const { messages, model: modelId, images } = req.body;
+  const { messages, model: modelId, images, webSearch } = req.body;
   const entry = resolveModel(modelId || DEFAULT_MODEL, images && images.length > 0);
 
   res.writeHead(200, {
@@ -235,15 +285,29 @@ app.post('/api/stream', async (req, res) => {
     Connection: 'keep-alive',
   });
 
+  const sources = [];
+  const tools = webSearch !== false
+    ? makeSearchTools(sources, (query) => {
+        // Progress ping so the UI can show what's being searched
+        res.write(`data: ${JSON.stringify({ tool: { name: 'web_search', query } })}\n\n`);
+      })
+    : undefined;
+
   try {
     const result = streamText({
       model: entry.model(),
       messages: toSdkMessages(messages, images),
       providerOptions: entry.providerOptions,
+      tools,
+      stopWhen: stepCountIs(5),
     });
 
     for await (const delta of result.textStream) {
       res.write(`data: ${JSON.stringify({ text: delta })}\n\n`);
+    }
+
+    if (sources.length > 0) {
+      res.write(`data: ${JSON.stringify({ sources })}\n\n`);
     }
 
     const usage = await result.totalUsage;

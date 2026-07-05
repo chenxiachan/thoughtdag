@@ -1,8 +1,9 @@
 import type { StoreApi } from 'zustand';
 import { llmCall, llmCallStream, type ContextMessage, type ImageAttachment } from '../lib/api';
 import { countTokens } from '../utils';
-import { toast } from '../lib/ui-store';
+import { toast, useUiStore } from '../lib/ui-store';
 import { t, fmt } from '../i18n';
+import type { Reference } from '../types';
 import type { StoreState } from './types';
 
 // Background summary generation — fire and forget
@@ -56,6 +57,8 @@ export async function runNodeGeneration(
     ),
   }));
 
+  let references: Reference[] | undefined;
+
   const writeFinal = (response: string, failed = false) => {
     const tokenCount = countTokens(question + response);
     set((state) => ({
@@ -64,7 +67,7 @@ export async function runNodeGeneration(
         const responses = versionMode === 'append'
           ? [...n.data.responses.filter((r) => r), response]
           : [response];
-        return { ...n, data: { ...n.data, response, responses, responseIndex: responses.length - 1, isLoading: false, isCollapsed: true, tokenCount, generationFailed: failed || undefined } };
+        return { ...n, data: { ...n.data, response, responses, responseIndex: responses.length - 1, isLoading: false, isCollapsed: true, tokenCount, generationFailed: failed || undefined, references } };
       }),
     }));
   };
@@ -76,7 +79,19 @@ export async function runNodeGeneration(
           n.id === nodeId ? { ...n, data: { ...n.data, response: fullSoFar } } : n
         ),
       }));
-    }, abortController.signal, images);
+    }, abortController.signal, images, {
+      onToolCall: (_name, query) => {
+        // Show what's being searched while the answer hasn't started streaming
+        set((state) => ({
+          nodes: state.nodes.map((n) =>
+            n.id === nodeId && !n.data.response
+              ? { ...n, data: { ...n.data, response: `🔍 ${query}…` } }
+              : n
+          ),
+        }));
+      },
+      onSources: (sources) => { references = sources; },
+    }, useUiStore.getState().webSearchEnabled);
     activeAbortControllers.delete(nodeId);
     writeFinal(response);
     onSuccess?.(response);

@@ -232,4 +232,9 @@ export const zh: Record<keyof typeof en, string> = {
   'confirm.alignTitle': '对齐所选节点',
   'confirm.alignMsg': '将选中的 {n} 个节点按对话顺序竖向排成一列？（可 Cmd+Z 撤销）',
   'common.confirmAlign': '对齐',
+
+  // Web search / references
+  'refs.title': '参考来源',
+  'toolbar.webSearch': '联网搜索：模型自行判断何时搜索',
+  'toolbar.webSearchOff': '联网搜索已关闭',
 };

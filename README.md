@@ -105,8 +105,8 @@ ThoughtDAG 把 LLM 对话从线性聊天变成空间化、可编辑的 DAG（有
 - ✅ **图片 + Vision** — 有图自动切换 Qwen-VL
 - ✅ **文本文件** — txt/md/code 直接注入 context
 - ✅ **PDF** — 服务端 pdfjs 抽文本 + poppler 渲染页图；>10 页默认 Text-only（可切换 Vision）；无 poppler 时自动降级纯文本
-- **Phase 2（待做）**: DOCX + Web Search
-- **Phase 3（待做）**: LLM Tool Use（自主搜索）
+- ✅ **Agentic 联网搜索** — 模型自主判断何时搜索（AI SDK 工具循环 + 智谱搜索 API），回答带 [n] 行内引用 + References 来源列表；工具栏地球开关可全局关闭
+- **Phase 2（待做）**: DOCX 解析、MCP 工具生态接入（arXiv/网页阅读等）
 
 ### 📋 Roadmap
 

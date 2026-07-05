@@ -232,4 +232,9 @@ export const en = {
   'confirm.alignTitle': 'Align selection',
   'confirm.alignMsg': 'Stack the {n} selected nodes into one column, in conversation order? (Cmd+Z to undo)',
   'common.confirmAlign': 'Align',
+
+  // Web search / references
+  'refs.title': 'References',
+  'toolbar.webSearch': 'Web search: the model decides when to search',
+  'toolbar.webSearchOff': 'Web search off',
 } as const;

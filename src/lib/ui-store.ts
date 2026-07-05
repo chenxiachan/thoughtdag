@@ -18,25 +18,35 @@ interface ConfirmRequest {
   resolve: (ok: boolean) => void;
 }
 
+const WEB_SEARCH_KEY = 'thoughtdag.webSearch';
+
 interface UiState {
   toasts: ToastItem[];
   confirmRequest: ConfirmRequest | null;
   tutorialOpen: boolean;
+  /** Global switch: expose the web_search tool to the model (it still decides when to use it). */
+  webSearchEnabled: boolean;
   dismissToast: (id: string) => void;
   resolveConfirm: (ok: boolean) => void;
   setTutorialOpen: (open: boolean) => void;
+  setWebSearchEnabled: (enabled: boolean) => void;
 }
 
 export const useUiStore = create<UiState>((set, get) => ({
   toasts: [],
   confirmRequest: null,
   tutorialOpen: false,
+  webSearchEnabled: localStorage.getItem(WEB_SEARCH_KEY) !== 'off',
   dismissToast: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
   resolveConfirm: (ok) => {
     get().confirmRequest?.resolve(ok);
     set({ confirmRequest: null });
   },
   setTutorialOpen: (open) => set({ tutorialOpen: open }),
+  setWebSearchEnabled: (enabled) => {
+    localStorage.setItem(WEB_SEARCH_KEY, enabled ? 'on' : 'off');
+    set({ webSearchEnabled: enabled });
+  },
 }));
 
 let toastCounter = 0;

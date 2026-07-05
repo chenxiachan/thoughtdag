@@ -15,7 +15,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import 'highlight.js/styles/github.css';
-import { CircleHelp, FileText, GitBranch, LayoutGrid, Loader2, Paperclip, Redo2, Scissors, Trash2, Undo2, Workflow, X } from 'lucide-react';
+import { CircleHelp, FileText, GitBranch, Globe, LayoutGrid, Loader2, Paperclip, Redo2, Scissors, Trash2, Undo2, Workflow, X } from 'lucide-react';
 import './index.css';
 import ThoughtNode from './components/ThoughtNode';
 import ThoughtEdgeView from './components/ThoughtEdgeView';
@@ -58,6 +58,8 @@ function Canvas() {
   const { nodes, edges, setNodes, setEdges, addQuestion, undo, redo, addCrossLink, setSelectedNodeId, setSelectedNodeIds, history, historyIndex, relayout } = useStore();
   const t = useT();
   const setTutorialOpen = useUiStore((s) => s.setTutorialOpen);
+  const webSearchEnabled = useUiStore((s) => s.webSearchEnabled);
+  const setWebSearchEnabled = useUiStore((s) => s.setWebSearchEnabled);
   const [inputValue, setInputValue] = useState('');
   const [rootRole, setRootRole] = useState('');
   const [showRootRole, setShowRootRole] = useState(false);
@@ -562,8 +564,19 @@ function Canvas() {
         setTimeout(() => rfInstance.current?.fitView({ duration: 300, padding: 0.2 }), 50);
       }} />
 
-      {/* Toolbar: language, tutorial, relayout, undo/redo */}
+      {/* Toolbar: web search, language, tutorial, relayout, undo/redo */}
       <div className="absolute top-4 right-4 z-10 flex gap-1.5 items-center">
+        <button
+          onClick={() => setWebSearchEnabled(!webSearchEnabled)}
+          className={`bg-card/90 backdrop-blur border rounded-lg w-8 h-8 flex items-center justify-center shadow-sm transition-colors ${
+            webSearchEnabled
+              ? 'border-accent/40 text-accent hover:bg-accent/10'
+              : 'border-line text-ink-faint hover:bg-wash'
+          }`}
+          title={webSearchEnabled ? t('toolbar.webSearch') : t('toolbar.webSearchOff')}
+        >
+          <Globe size={15} strokeWidth={1.75} />
+        </button>
         <LangSwitch />
         <button
           onClick={() => setTutorialOpen(true)}
