@@ -93,7 +93,7 @@ export default function FollowUpInput({
         {fmt(t('followup.willSend'), { n: preview.totalTokens, m: preview.items.length })}{preview.fileCount > 0 ? fmt(t('followup.files'), { k: preview.fileCount }) : ''}
       </button>
 
-      <div className="flex items-center gap-2 bg-wash rounded-xl px-4 py-2.5">
+      <div className="flex items-center gap-2 bg-wash rounded-xl px-4 py-2.5 transition-shadow focus-within:ring-1 focus-within:ring-accent/40">
         <input
           ref={continueRef}
           type="text"

@@ -353,7 +353,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
           {/* Inline continue input — always visible at bottom */}
           {!data.isLoading && !data.isEditingResponse && (
             <div className="mt-3 pt-3 border-t border-line">
-              <div className="flex items-center gap-2 bg-wash rounded-xl px-4 py-2.5">
+              <div className="flex items-center gap-2 bg-wash rounded-xl px-4 py-2.5 transition-shadow focus-within:ring-1 focus-within:ring-accent/40">
                 <input
                   type="text"
                   value={inputValue}

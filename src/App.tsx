@@ -351,7 +351,7 @@ function Canvas() {
               <p className="text-sm text-ink-muted">{t('landing.tagline')}</p>
             </div>
             <div
-              className={`bg-card border rounded-xl px-5 py-4 shadow-lg transition-all ${isDraggingLanding ? 'border-accent ring-2 ring-accent/20' : 'border-line'}`}
+              className={`bg-card border rounded-xl px-5 py-4 shadow-lg transition-all focus-within:border-accent/50 focus-within:shadow-xl ${isDraggingLanding ? 'border-accent ring-2 ring-accent/20' : 'border-line'}`}
               onDrop={(e) => { e.preventDefault(); e.stopPropagation(); setIsDraggingLanding(false); handleFileUpload(e.dataTransfer.files); }}
               onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setIsDraggingLanding(true); }}
               onDragLeave={() => setIsDraggingLanding(false)}
@@ -472,7 +472,7 @@ function Canvas() {
       {hasNodes && (
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10">
           <div
-            className="bg-card/90 backdrop-blur border border-line rounded-xl px-4 py-3 shadow-lg w-[400px]"
+            className="bg-card/90 backdrop-blur border border-line rounded-xl px-4 py-3 shadow-lg w-[400px] transition-colors focus-within:border-accent/50"
             onDrop={(e) => { e.preventDefault(); handleFileUpload(e.dataTransfer.files); }}
             onDragOver={(e) => e.preventDefault()}
           >

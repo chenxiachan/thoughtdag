@@ -104,13 +104,19 @@ code, pre {
 /* Selection highlight */
 ::selection { background: rgba(107, 92, 231, 0.2); }
 
-/* Consistent keyboard-focus ring on all interactive elements */
+/* Consistent keyboard-focus ring on buttons and disclosure controls.
+   Text inputs are embedded borderless fields — their containers carry the
+   focus styling and the caret itself marks focus, so no ring (it would
+   hug the text with no padding). */
 button:focus-visible,
-input:focus-visible,
-textarea:focus-visible,
 summary:focus-visible {
   outline: 2px solid color-mix(in srgb, var(--color-accent) 45%, transparent);
   outline-offset: 2px;
+}
+
+input:focus-visible,
+textarea:focus-visible {
+  outline: none;
 }
 
 /* Animations */

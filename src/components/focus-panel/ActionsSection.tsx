@@ -170,7 +170,7 @@ export default function ActionsSection({
               &ldquo;{branchContext.slice(0, 100)}{branchContext.length > 100 ? '…' : ''}&rdquo;
             </div>
           )}
-          <div className="flex items-center gap-2 bg-wash rounded-xl px-3 py-2">
+          <div className="flex items-center gap-2 bg-wash rounded-xl px-3 py-2 transition-shadow focus-within:ring-1 focus-within:ring-accent/40">
             <input
               type="text"
               value={branchInput}

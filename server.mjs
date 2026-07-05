@@ -163,7 +163,7 @@ function makeSearchTools(sources, onSearch) {
       description:
         'Search the web for current events, specific facts, papers, or anything you are not certain about. ' +
         'Results are numbered [1], [2], ... — when you use information from a result, cite it inline as [n]. ' +
-        'Do not search for things you already know well.',
+        'Do not search for things you already know well. At most 3 searches per answer.',
       inputSchema: z.object({
         query: z.string().describe('The search query, in the language most likely to find good results'),
       }),
@@ -304,9 +304,16 @@ app.post('/api/stream', async (req, res) => {
 
   const prompt = toSdkPrompt(messages, images);
   if (tools) {
-    // Make sure the model always synthesizes after searching
-    const directive =
-      'When you use web_search, you MUST follow up with a complete answer that synthesizes the search results, citing sources inline as [n]. Never end your turn immediately after a search.';
+    // Make sure the model always synthesizes after searching, with citation
+    // numbers that match THIS answer's search results (earlier messages in
+    // the thread may contain their own [n] citations — those must not
+    // continue the numbering).
+    const directive = [
+      'When you use web_search, you MUST follow up with a complete answer that SYNTHESIZES the results in your own words — analyze and conclude, never just list the search results.',
+      'Cite sources inline as [n], using EXACTLY the bracket numbers shown in this turn\'s search results (they always start at [1]). Ignore any citation numbers appearing in earlier conversation messages — they refer to different sources.',
+      'If the search results are not actually relevant to the question, say so explicitly and answer from your own knowledge instead of forcing citations.',
+      'Never end your turn immediately after a search.',
+    ].join(' ');
     prompt.system = prompt.system ? `${prompt.system}\n\n${directive}` : directive;
   }
 
@@ -317,14 +324,85 @@ app.post('/api/stream', async (req, res) => {
       messages: prompt.messages,
       providerOptions: entry.providerOptions,
       tools,
-      stopWhen: stepCountIs(6),
-      // Force a synthesis step: from step 4 on, tools are disabled so the
-      // model can only write text — a run can never end on a bare search.
-      prepareStep: ({ stepNumber }) => (stepNumber >= 4 ? { activeTools: [] } : undefined),
+      stopWhen: stepCountIs(5),
+      // Force a synthesis step: from step 4 on, tools are disabled AND the
+      // instructions switch to "write the final answer now" — GLM otherwise
+      // keeps trying to search and leaks raw <tool_call> text into the answer.
+      prepareStep: ({ stepNumber }) =>
+        stepNumber >= 3 && tools
+          ? {
+              activeTools: [],
+              instructions:
+                (prompt.system ? prompt.system + '\n\n' : '') +
+                'The search tool is NO LONGER available. Based on the search results above, write your FINAL synthesized answer now, citing sources as [n]. Do not attempt any further searches and do not emit tool-call syntax.',
+            }
+          : undefined,
     });
 
+    // GLM occasionally leaks raw "<tool_call>...</tool_call>" markup into the
+    // text stream (e.g. when it wants to search but tools are disabled).
+    // Filter it out, holding back a possible partial tag at the chunk tail.
+    let holdback = '';
+    let emittedChars = 0;
+    const emitFiltered = (chunk) => {
+      let buf = holdback + chunk;
+      holdback = '';
+      buf = buf.replace(/<tool_call>[\s\S]*?<\/tool_call>\n?/g, '');
+      const open = buf.search(/<tool_call/);
+      if (open !== -1) {
+        holdback = buf.slice(open);
+        buf = buf.slice(0, open);
+      } else {
+        // hold a tail that could be the start of "<tool_call>"
+        for (let k = Math.min(buf.length, 10); k > 0; k--) {
+          if ('<tool_call'.startsWith(buf.slice(-k))) {
+            holdback = buf.slice(-k);
+            buf = buf.slice(0, -k);
+            break;
+          }
+        }
+      }
+      if (buf) {
+        emittedChars += buf.length;
+        res.write(`data: ${JSON.stringify({ text: buf })}\n\n`);
+      }
+    };
+
     for await (const delta of result.textStream) {
-      res.write(`data: ${JSON.stringify({ text: delta })}\n\n`);
+      emitFiltered(delta);
+    }
+    if (holdback && !holdback.startsWith('<tool_call')) {
+      emittedChars += holdback.length;
+      res.write(`data: ${JSON.stringify({ text: holdback })}\n\n`);
+    }
+
+    // Deterministic synthesis fallback: if the model searched but produced
+    // (almost) no prose — GLM sometimes stalls once tools are disabled —
+    // run one tool-free pass that can only answer.
+    if (sources.length > 0 && emittedChars < 80) {
+      const numbered = sources
+        .map((r, i) => `[${i + 1}] ${r.title}${r.date ? ` (${r.date})` : ''}\n${r.url ?? ''}\n${r.content}`)
+        .join('\n\n');
+      const lastUser = [...messages].reverse().find((m) => m.role === 'user');
+      const synth = streamText({
+        model: entry.model(),
+        system: prompt.system,
+        messages: [
+          ...prompt.messages,
+          {
+            role: 'user',
+            content:
+              `Web search results:\n\n${numbered}\n\n` +
+              `Based on these results and your own knowledge, write the final synthesized answer to my previous question` +
+              `${lastUser ? ` ("${String(lastUser.content).slice(0, 200)}")` : ''}. ` +
+              'Analyze rather than list; cite sources inline as [n] using the numbers above; if the results are not relevant, say so and answer from your own knowledge.',
+          },
+        ],
+        providerOptions: entry.providerOptions,
+      });
+      for await (const delta of synth.textStream) {
+        res.write(`data: ${JSON.stringify({ text: delta })}\n\n`);
+      }
     }
 
     if (sources.length > 0) {
