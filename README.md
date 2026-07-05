@@ -18,11 +18,15 @@
 
 <img src="docs/hero.png" alt="ThoughtDAG canvas: purple main chain, orange explore branch, red evaluator watch edge, answers with cited references" width="100%"/>
 
-<img src="docs/demo.gif" alt="Select text in an answer, branch from it, and watch the exploration node generate" width="88%"/>
-
 </div>
 
 ---
+
+## See it in action
+
+<img src="docs/demo.gif" alt="Select text in an answer, hit Explore, and an orange branch node streams in with the selection as context" width="100%"/>
+
+*The core gesture: select any passage in an answer → **Explore** → an orange branch grows out of exactly that text, streams its answer, and never pollutes the main chain.*
 
 ## Get running in 2 minutes
 
@@ -67,6 +71,8 @@ ThoughtDAG answers with a different data structure: a conversation isn't a list.
 **Seeing is believing** — the example canvas ships with this experiment: the same summary question asked twice. Node A inherits an off-topic cooking chat and it leaks straight into the answer; node B's edge to the noise is deleted, and the answer comes back clean:
 
 <img src="docs/context-compare.png" alt="Same question, two contexts: with the noise edge the answer absorbs dinner plans; with it deleted the summary stays technical" width="100%"/>
+
+*Left: an off-topic node feeding into question A. Right: A's answer absorbs the noise (bold), while B — same question, noise edge deleted — stays clean.*
 
 ## Features
 
