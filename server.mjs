@@ -1,12 +1,13 @@
 import express from 'express';
 import cors from 'cors';
-import { stream, complete, getProviders, getModels } from '@mariozechner/pi-ai';
+import { streamText, generateText } from 'ai';
+import { createZhipu } from 'zhipu-ai-provider';
+import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
 import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
-// pdf-parse removed - using pdfjs-dist for both text and image extraction
 
 // ─── Environment ────────────────────────────────────────────────
 // Minimal .env loader (avoids dotenv dependency and Node --env-file version quirks)
@@ -42,136 +43,86 @@ try {
   console.warn('  Install with: brew install poppler');
 }
 
-// ─── Model Configuration ────────────────────────────────────────
-// Providers register their models only when the matching API key is present.
-// Every model is OpenAI-compatible via pi-ai; each entry carries its own
-// apiKey, and text models name a visionFallback used when images are attached.
+// ─── Model Configuration (Vercel AI SDK providers) ──────────────
+// Providers register only when the matching API key is present. Adding
+// another backend (Anthropic/DeepSeek/Ollama/...) is one createXxx() call.
 
-const OPENAI_COMPAT = {
-  api: 'openai-completions',
-  reasoning: false,
-  compat: {
-    supportsStore: false,
-    supportsDeveloperRole: false,
-    supportsReasoningEffort: false,
-    supportsStrictMode: false,
-    maxTokensField: 'max_tokens',
-  },
-};
+const zhipu = ZHIPU_KEY
+  ? createZhipu({ apiKey: ZHIPU_KEY, baseURL: 'https://open.bigmodel.cn/api/paas/v4' })
+  : null;
+const qwen = QWEN_KEY
+  ? createOpenAICompatible({
+      name: 'dashscope',
+      apiKey: QWEN_KEY,
+      baseURL: 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1',
+    })
+  : null;
 
-const ZHIPU_BASE = 'https://open.bigmodel.cn/api/paas/v4';
-const DASHSCOPE_BASE = 'https://dashscope-intl.aliyuncs.com/compatible-mode/v1';
-
-// Model registry — add more providers/models here
+// id → { name, vision, visionFallback?, model(), providerOptions? }
 const modelRegistry = {};
 
-if (ZHIPU_KEY) {
+if (zhipu) {
   modelRegistry['glm-4.5-flash'] = {
-    ...OPENAI_COMPAT,
-    id: 'glm-4.5-flash',
     name: 'GLM-4.5 Flash (Zhipu, free)',
-    provider: 'zhipu',
-    baseUrl: ZHIPU_BASE,
-    apiKey: ZHIPU_KEY,
-    input: ['text'],
+    vision: false,
     visionFallback: 'glm-4v-flash',
-    cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
-    contextWindow: 131072,
-    maxTokens: 8192,
-    // GLM-4.5 defaults to hidden "thinking" (burns seconds + tokens before
-    // the first visible character). reasoning + thinkingFormat let pi-ai
-    // send thinking: {type: "disabled"} explicitly.
-    reasoning: true,
-    compat: { ...OPENAI_COMPAT.compat, thinkingFormat: 'zai' },
+    model: () => zhipu('glm-4.5-flash'),
+    // GLM-4.5 defaults to hidden "thinking" — disable for fast first tokens
+    providerOptions: { zhipu: { thinking: { type: 'disabled' } } },
   };
   modelRegistry['glm-4v-flash'] = {
-    ...OPENAI_COMPAT,
-    id: 'glm-4v-flash',
     name: 'GLM-4V Flash (Zhipu, free vision)',
-    provider: 'zhipu',
-    baseUrl: ZHIPU_BASE,
-    apiKey: ZHIPU_KEY,
-    input: ['text', 'image'],
-    cost: { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 },
-    contextWindow: 8192,
-    maxTokens: 4096,
+    vision: true,
+    model: () => zhipu('glm-4v-flash'),
   };
 }
 
-if (QWEN_KEY) {
+if (qwen) {
   modelRegistry['qwen-plus'] = {
-    ...OPENAI_COMPAT,
-    id: 'qwen-plus',
     name: 'Qwen Plus (DashScope)',
-    provider: 'dashscope',
-    baseUrl: DASHSCOPE_BASE,
-    apiKey: QWEN_KEY,
-    input: ['text'],
+    vision: false,
     visionFallback: 'qwen-vl-plus',
-    cost: { input: 0.8, output: 2, cacheRead: 0, cacheWrite: 0 },
-    contextWindow: 131072,
-    maxTokens: 8192,
+    model: () => qwen('qwen-plus'),
   };
   modelRegistry['qwen-vl-plus'] = {
-    ...OPENAI_COMPAT,
-    id: 'qwen-vl-plus',
     name: 'Qwen VL Plus (DashScope)',
-    provider: 'dashscope',
-    baseUrl: DASHSCOPE_BASE,
-    apiKey: QWEN_KEY,
-    input: ['text', 'image'],
-    cost: { input: 1.5, output: 4, cacheRead: 0, cacheWrite: 0 },
-    contextWindow: 131072,
-    maxTokens: 8192,
+    vision: true,
+    model: () => qwen('qwen-vl-plus'),
   };
 }
 
 const DEFAULT_MODEL = ZHIPU_KEY ? 'glm-4.5-flash' : 'qwen-plus';
 
-// ─── Helpers ────────────────────────────────────────────────────
-
-// Convert our simple message format to pi-ai Context
-function buildPiContext(messages, images) {
-  let systemPrompt = undefined;
-  const piMessages = [];
-
-  for (const msg of messages) {
-    if (msg.role === 'system') {
-      systemPrompt = msg.content;
-      continue;
-    }
-
-    // Check if this is the last user message and has images
-    const isLastUser = msg === messages[messages.length - 1] && msg.role === 'user';
-
-    if (isLastUser && images && images.length > 0) {
-      // Multimodal: text + images
-      const content = [
-        { type: 'text', text: msg.content },
-        ...images.map((img) => ({
-          type: 'image',
-          data: img.data, // base64
-          mimeType: img.mimeType || 'image/png',
-        })),
-      ];
-      piMessages.push({ role: 'user', content });
-    } else {
-      // pi-ai expects content as array of content blocks for all messages
-      piMessages.push({ role: msg.role, content: [{ type: 'text', text: msg.content }] });
-    }
-  }
-
-  return { systemPrompt, messages: piMessages };
-}
-
-// Choose model: if images are attached and the model is text-only,
+// Choose model entry: if images are attached and the model is text-only,
 // switch to its provider's vision counterpart.
 function resolveModel(modelId, hasImages) {
-  const model = modelRegistry[modelId] || modelRegistry[DEFAULT_MODEL];
-  if (hasImages && !model.input.includes('image') && model.visionFallback && modelRegistry[model.visionFallback]) {
-    return modelRegistry[model.visionFallback];
+  const entry = modelRegistry[modelId] || modelRegistry[DEFAULT_MODEL];
+  if (hasImages && !entry.vision && entry.visionFallback && modelRegistry[entry.visionFallback]) {
+    return modelRegistry[entry.visionFallback];
   }
-  return model;
+  return entry;
+}
+
+// Convert our wire format ({role, content}[] + images[]) to AI SDK messages —
+// images attach to the last user message, like the previous pi-ai bridge.
+function toSdkMessages(messages, images) {
+  const out = [];
+  for (let i = 0; i < messages.length; i++) {
+    const m = messages[i];
+    const isLastUser = i === messages.length - 1 && m.role === 'user';
+    if (isLastUser && images && images.length > 0) {
+      out.push({
+        role: 'user',
+        content: [
+          { type: 'text', text: m.content },
+          ...images.map((img) => ({ type: 'image', image: img.data, mediaType: img.mimeType || 'image/png' })),
+        ],
+      });
+    } else {
+      out.push({ role: m.role, content: m.content });
+    }
+  }
+  return out;
 }
 
 // ─── Express App ────────────────────────────────────────────────
@@ -218,7 +169,6 @@ app.post('/api/pdf-extract', async (req, res) => {
       try {
         const outPrefix = path.join(tmpDir, 'page');
         execSync(`pdftoppm -png -r ${dpi} "${pdfPath}" "${outPrefix}"`, { timeout: 60000 });
-        // pdftoppm outputs page-01.png, page-02.png, etc.
         const files = fs.readdirSync(tmpDir).filter(f => f.startsWith('page-') && f.endsWith('.png')).sort();
         for (const f of files) {
           const imgBuf = fs.readFileSync(path.join(tmpDir, f));
@@ -250,31 +200,26 @@ app.get('/api/models', (req, res) => {
   const models = Object.entries(modelRegistry).map(([id, m]) => ({
     id,
     name: m.name,
-    vision: m.input.includes('image'),
-    reasoning: m.reasoning,
+    vision: m.vision,
+    reasoning: false,
   }));
   res.json({ models, default: DEFAULT_MODEL });
 });
 
-// Non-streaming endpoint
+// Non-streaming endpoint (background summaries)
 app.post('/api/claude', async (req, res) => {
   const { messages, model: modelId, images } = req.body;
-  const hasImages = images && images.length > 0;
-  const model = resolveModel(modelId || DEFAULT_MODEL, hasImages);
-  const context = buildPiContext(messages, images);
+  const entry = resolveModel(modelId || DEFAULT_MODEL, images && images.length > 0);
 
   try {
-    const response = await complete(model, context, { apiKey: model.apiKey });
-    const text = response.content
-      .filter((b) => b.type === 'text')
-      .map((b) => b.text)
-      .join('');
-    res.json({
-      text,
-      usage: response.usage,
+    const { text, usage } = await generateText({
+      model: entry.model(),
+      messages: toSdkMessages(messages, images),
+      providerOptions: entry.providerOptions,
     });
+    res.json({ text, usage });
   } catch (err) {
-    console.error('Complete error:', err);
+    console.error('Generate error:', err);
     res.status(500).json({ error: err.message });
   }
 });
@@ -282,9 +227,7 @@ app.post('/api/claude', async (req, res) => {
 // SSE streaming endpoint
 app.post('/api/stream', async (req, res) => {
   const { messages, model: modelId, images } = req.body;
-  const hasImages = images && images.length > 0;
-  const model = resolveModel(modelId || DEFAULT_MODEL, hasImages);
-  const context = buildPiContext(messages, images);
+  const entry = resolveModel(modelId || DEFAULT_MODEL, images && images.length > 0);
 
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
@@ -293,37 +236,32 @@ app.post('/api/stream', async (req, res) => {
   });
 
   try {
-    const s = stream(model, context, { apiKey: model.apiKey });
+    const result = streamText({
+      model: entry.model(),
+      messages: toSdkMessages(messages, images),
+      providerOptions: entry.providerOptions,
+    });
 
-    for await (const event of s) {
-      switch (event.type) {
-        case 'text_delta':
-          res.write(`data: ${JSON.stringify({ text: event.delta })}\n\n`);
-          break;
-        case 'error':
-          res.write(`data: ${JSON.stringify({ error: event.error?.errorMessage || 'Unknown error' })}\n\n`);
-          break;
-        case 'done':
-          // Send usage info before DONE
-          const result = await s.result();
-          if (result.usage) {
-            res.write(`data: ${JSON.stringify({ usage: result.usage })}\n\n`);
-          }
-          break;
-      }
+    for await (const delta of result.textStream) {
+      res.write(`data: ${JSON.stringify({ text: delta })}\n\n`);
+    }
+
+    const usage = await result.totalUsage;
+    if (usage) {
+      res.write(`data: ${JSON.stringify({ usage })}\n\n`);
     }
 
     res.write('data: [DONE]\n\n');
     res.end();
   } catch (err) {
     console.error('Stream error:', err);
-    res.write(`data: ${JSON.stringify({ error: err.message })}\n\n`);
+    res.write(`data: ${JSON.stringify({ error: err.message || 'LLM request failed' })}\n\n`);
     res.write('data: [DONE]\n\n');
     res.end();
   }
 });
 
 app.listen(PORT, () => {
-  console.log(`ThoughtDAG proxy (pi-ai) running on http://localhost:${PORT}`);
+  console.log(`ThoughtDAG proxy (Vercel AI SDK) running on http://localhost:${PORT}`);
   console.log(`Models: ${Object.keys(modelRegistry).join(', ')}`);
 });

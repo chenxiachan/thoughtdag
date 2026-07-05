@@ -12,11 +12,12 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ai-sdk/openai-compatible": "^3.0.5",
     "@fontsource-variable/inter": "^5.2.8",
     "@fontsource-variable/jetbrains-mono": "^5.2.8",
-    "@mariozechner/pi-ai": "^0.54.0",
     "@tailwindcss/vite": "^4.1.18",
     "@xyflow/react": "^12.10.0",
+    "ai": "^7.0.15",
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "highlight.js": "^11.11.1",
@@ -33,6 +34,7 @@
     "remark-gfm": "^4.0.1",
     "remark-math": "^6.0.0",
     "tailwindcss": "^4.1.18",
+    "zhipu-ai-provider": "^0.3.1",
     "zustand": "^5.0.11"
   },
   "devDependencies": {

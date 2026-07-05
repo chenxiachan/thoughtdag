@@ -175,8 +175,8 @@ The context sent to the LLM is determined by a simple rule: **walk up all incomi
 | Canvas | @xyflow/react (React Flow) |
 | State | Zustand (persist → IndexedDB via idb-keyval) |
 | Styling | Tailwind CSS v4 |
-| LLM | Zhipu GLM-4.5-Flash / GLM-4V-Flash (free) or Qwen Plus / Qwen-VL — registered automatically based on which keys are in .env (through @mariozechner/pi-ai) |
-| Proxy | Express (server.mjs, default port 3001) |
+| LLM | Vercel AI SDK multi-backend: Zhipu GLM-4.5-Flash / GLM-4V-Flash (free), Qwen — auto-registered from .env keys; any provider (Anthropic/OpenAI/DeepSeek/Ollama) is one line away |
+| Proxy | Express + Vercel AI SDK (server.mjs, default port 3001) |
 
 ## Quick Start
 

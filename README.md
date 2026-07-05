@@ -182,8 +182,8 @@ ThoughtDAG 把 LLM 对话从线性聊天变成空间化、可编辑的 DAG（有
 | 画布 | @xyflow/react (React Flow) |
 | 状态 | Zustand（persist → IndexedDB via idb-keyval）|
 | 样式 | Tailwind CSS v4 |
-| 大模型 | 智谱 GLM-4.5-Flash / GLM-4V-Flash（免费）或 通义千问 Qwen Plus / Qwen-VL，按 .env 中的 key 自动注册（经 @mariozechner/pi-ai）|
-| 代理 | Express (server.mjs, 默认端口 3001) |
+| 大模型 | Vercel AI SDK 多后端：智谱 GLM-4.5-Flash / GLM-4V-Flash（免费）、通义千问 Qwen，按 .env key 自动注册；可一行扩展 Anthropic/OpenAI/DeepSeek/Ollama 等任意 provider |
+| 代理 | Express + Vercel AI SDK (server.mjs, 默认端口 3001) |
 
 ## 快速开始
 
