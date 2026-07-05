@@ -19,17 +19,20 @@ interface ConfirmRequest {
 }
 
 const WEB_SEARCH_KEY = 'thoughtdag.webSearch';
+const SCHOLAR_SEARCH_KEY = 'thoughtdag.scholarSearch';
 
 interface UiState {
   toasts: ToastItem[];
   confirmRequest: ConfirmRequest | null;
   tutorialOpen: boolean;
-  /** Global switch: expose the web_search tool to the model (it still decides when to use it). */
+  /** Global switches: expose tool groups to the model (it still decides when to use them). */
   webSearchEnabled: boolean;
+  scholarSearchEnabled: boolean;
   dismissToast: (id: string) => void;
   resolveConfirm: (ok: boolean) => void;
   setTutorialOpen: (open: boolean) => void;
   setWebSearchEnabled: (enabled: boolean) => void;
+  setScholarSearchEnabled: (enabled: boolean) => void;
 }
 
 export const useUiStore = create<UiState>((set, get) => ({
@@ -37,6 +40,7 @@ export const useUiStore = create<UiState>((set, get) => ({
   confirmRequest: null,
   tutorialOpen: false,
   webSearchEnabled: localStorage.getItem(WEB_SEARCH_KEY) !== 'off',
+  scholarSearchEnabled: localStorage.getItem(SCHOLAR_SEARCH_KEY) !== 'off',
   dismissToast: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
   resolveConfirm: (ok) => {
     get().confirmRequest?.resolve(ok);
@@ -46,6 +50,10 @@ export const useUiStore = create<UiState>((set, get) => ({
   setWebSearchEnabled: (enabled) => {
     localStorage.setItem(WEB_SEARCH_KEY, enabled ? 'on' : 'off');
     set({ webSearchEnabled: enabled });
+  },
+  setScholarSearchEnabled: (enabled) => {
+    localStorage.setItem(SCHOLAR_SEARCH_KEY, enabled ? 'on' : 'off');
+    set({ scholarSearchEnabled: enabled });
   },
 }));
 

@@ -153,32 +153,107 @@ async function zhipuWebSearch(query, count = 5) {
   }));
 }
 
+// ─── Scholarly search (free open APIs, no keys) ─────────────────
+
+// arXiv Atom API — regex-parse the stable entry fields (no XML dep needed)
+async function arxivSearch(query, maxResults = 5) {
+  const url = `https://export.arxiv.org/api/query?search_query=all:${encodeURIComponent(query)}&max_results=${maxResults}&sortBy=relevance`;
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`arXiv HTTP ${r.status}`);
+  const xml = await r.text();
+  const entries = [...xml.matchAll(/<entry>([\s\S]*?)<\/entry>/g)].map((m) => m[1]);
+  const field = (s, tag) => {
+    const m = s.match(new RegExp(`<${tag}[^>]*>([\\s\\S]*?)</${tag}>`));
+    return m ? m[1].replace(/\s+/g, ' ').trim() : '';
+  };
+  return entries.map((e) => ({
+    title: field(e, 'title'),
+    url: field(e, 'id').replace('http://', 'https://'),
+    content: field(e, 'summary').slice(0, 600),
+    media: 'arXiv',
+    date: field(e, 'published').slice(0, 10) || undefined,
+    authors: [...e.matchAll(/<name>([^<]+)<\/name>/g)].map((m) => m[1]).slice(0, 3).join(', '),
+  }));
+}
+
+// Semantic Scholar Graph API — free tier, no key (rate-limited but ample)
+async function semanticScholarSearch(query, limit = 5) {
+  const url = `https://api.semanticscholar.org/graph/v1/paper/search?query=${encodeURIComponent(query)}&limit=${limit}&fields=title,abstract,year,citationCount,url,authors`;
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`Semantic Scholar HTTP ${r.status}`);
+  const data = await r.json();
+  return (data.data || []).map((p) => ({
+    title: p.title,
+    url: p.url || undefined,
+    content: `${(p.abstract || '').slice(0, 500)}${p.citationCount != null ? ` (cited ${p.citationCount}×)` : ''}`,
+    media: 'Semantic Scholar',
+    date: p.year ? String(p.year) : undefined,
+    authors: (p.authors || []).map((a) => a.name).slice(0, 3).join(', '),
+  }));
+}
+
 // Build the tools map for one request. `sources` accumulates every result
 // so the route can stream them back to the client; numbering is global
-// across multiple searches within the same generation.
-function makeSearchTools(sources, onSearch) {
-  if (!ZHIPU_KEY) return undefined;
-  return {
-    web_search: tool({
+// across all tools within the same generation. The MODEL decides which
+// tool to call and when; `prefs` lets the user hide whole tool groups.
+function makeTools(sources, onSearch, prefs = {}) {
+  const pushNumbered = (results) => {
+    const start = sources.length;
+    sources.push(...results);
+    if (results.length === 0) return 'No results found.';
+    return results
+      .map((r, i) =>
+        `[${start + i + 1}] ${r.title}${r.authors ? ` — ${r.authors}` : ''}${r.date ? ` (${r.date})` : ''}\n${r.url ?? ''}\n${r.content}`)
+      .join('\n\n');
+  };
+  const tools = {};
+
+  if (prefs.web !== false && ZHIPU_KEY) {
+    tools.web_search = tool({
       description:
-        'Search the web for current events, specific facts, papers, or anything you are not certain about. ' +
+        'Search the web for current events, specific facts, or anything you are not certain about. ' +
         'Results are numbered [1], [2], ... — when you use information from a result, cite it inline as [n]. ' +
         'Do not search for things you already know well. At most 3 searches per answer.',
       inputSchema: z.object({
         query: z.string().describe('The search query, in the language most likely to find good results'),
       }),
       execute: async ({ query }) => {
-        onSearch?.(query);
-        const results = await zhipuWebSearch(query);
-        const start = sources.length;
-        sources.push(...results);
-        if (results.length === 0) return 'No results found.';
-        return results
-          .map((r, i) => `[${start + i + 1}] ${r.title}${r.date ? ` (${r.date})` : ''}\n${r.url}\n${r.content}`)
-          .join('\n\n');
+        onSearch?.('web_search', query);
+        try { return pushNumbered(await zhipuWebSearch(query)); }
+        catch (e) { return `Search failed (${e.message}) — try a different tool or answer from your knowledge.`; }
       },
-    }),
-  };
+    });
+  }
+
+  if (prefs.scholar !== false) {
+    tools.arxiv_search = tool({
+      description:
+        'Search arXiv for academic papers and preprints (physics, math, CS, ML, stats…). ' +
+        'Use when the user asks about papers, methods, or research literature. Returns title, authors, abstract, and link, numbered for [n] citations.',
+      inputSchema: z.object({
+        query: z.string().describe('Search terms — paper title, topic, method, or author. English works best on arXiv.'),
+      }),
+      execute: async ({ query }) => {
+        onSearch?.('arxiv_search', query);
+        try { return pushNumbered(await arxivSearch(query)); }
+        catch (e) { return `arXiv search failed (${e.message}) — try semantic_scholar or answer from your knowledge.`; }
+      },
+    });
+    tools.semantic_scholar = tool({
+      description:
+        'Search Semantic Scholar across all scholarly fields — includes citation counts, useful for judging impact and finding published (peer-reviewed) work beyond preprints. Numbered for [n] citations.',
+      inputSchema: z.object({
+        query: z.string().describe('Search terms — topic, title, or author, in English'),
+      }),
+      execute: async ({ query }) => {
+        onSearch?.('semantic_scholar', query);
+        try { return pushNumbered(await semanticScholarSearch(query)); }
+        catch (e) { return `Semantic Scholar search failed (${e.message}) — try arxiv_search or answer from your knowledge.`; }
+      },
+    });
+  }
+
+  return Object.keys(tools).length > 0 ? tools : undefined;
 }
 
 // ─── Express App ────────────────────────────────────────────────
@@ -282,10 +357,10 @@ app.post('/api/claude', async (req, res) => {
   }
 });
 
-// SSE streaming endpoint. `webSearch: false` disables the tool; otherwise
-// the model decides on its own whether (and how often) to search.
+// SSE streaming endpoint. The model decides on its own which tools to use
+// and when; `webSearch: false` / `scholarSearch: false` hide tool groups.
 app.post('/api/stream', async (req, res) => {
-  const { messages, model: modelId, images, webSearch } = req.body;
+  const { messages, model: modelId, images, webSearch, scholarSearch } = req.body;
   const entry = resolveModel(modelId || DEFAULT_MODEL, images && images.length > 0);
 
   res.writeHead(200, {
@@ -295,12 +370,21 @@ app.post('/api/stream', async (req, res) => {
   });
 
   const sources = [];
-  const tools = webSearch !== false
-    ? makeSearchTools(sources, (query) => {
-        // Progress ping so the UI can show what's being searched
-        res.write(`data: ${JSON.stringify({ tool: { name: 'web_search', query } })}\n\n`);
-      })
-    : undefined;
+  // Tracks how much prose has streamed out since the LAST tool call — the
+  // synthesis-fallback trigger. (An opening line before the first search
+  // must not count as "the answer".)
+  let emittedChars = 0;
+  let charsAtLastSearch = 0;
+
+  const tools = makeTools(
+    sources,
+    (name, query) => {
+      charsAtLastSearch = emittedChars;
+      // Progress ping so the UI can show what's being searched
+      res.write(`data: ${JSON.stringify({ tool: { name, query } })}\n\n`);
+    },
+    { web: webSearch !== false, scholar: scholarSearch !== false }
+  );
 
   const prompt = toSdkPrompt(messages, images);
   if (tools) {
@@ -309,7 +393,7 @@ app.post('/api/stream', async (req, res) => {
     // the thread may contain their own [n] citations — those must not
     // continue the numbering).
     const directive = [
-      'When you use web_search, you MUST follow up with a complete answer that SYNTHESIZES the results in your own words — analyze and conclude, never just list the search results.',
+      'After using any search tool, you MUST follow up with a complete answer that SYNTHESIZES the results in your own words — analyze and conclude, never just list the results.',
       'Cite sources inline as [n], using EXACTLY the bracket numbers shown in this turn\'s search results (they always start at [1]). Ignore any citation numbers appearing in earlier conversation messages — they refer to different sources.',
       'If the search results are not actually relevant to the question, say so explicitly and answer from your own knowledge instead of forcing citations.',
       'Never end your turn immediately after a search.',
@@ -343,7 +427,6 @@ app.post('/api/stream', async (req, res) => {
     // text stream (e.g. when it wants to search but tools are disabled).
     // Filter it out, holding back a possible partial tag at the chunk tail.
     let holdback = '';
-    let emittedChars = 0;
     const emitFiltered = (chunk) => {
       let buf = holdback + chunk;
       holdback = '';
@@ -376,12 +459,13 @@ app.post('/api/stream', async (req, res) => {
       res.write(`data: ${JSON.stringify({ text: holdback })}\n\n`);
     }
 
-    // Deterministic synthesis fallback: if the model searched but produced
-    // (almost) no prose — GLM sometimes stalls once tools are disabled —
-    // run one tool-free pass that can only answer.
-    if (sources.length > 0 && emittedChars < 80) {
+    // Deterministic synthesis fallback: if the model searched but wrote
+    // almost nothing AFTER its last search (an opening "I'll look that up"
+    // before the search doesn't count), run one tool-free pass that can
+    // only answer.
+    if (sources.length > 0 && emittedChars - charsAtLastSearch < 200) {
       const numbered = sources
-        .map((r, i) => `[${i + 1}] ${r.title}${r.date ? ` (${r.date})` : ''}\n${r.url ?? ''}\n${r.content}`)
+        .map((r, i) => `[${i + 1}] ${r.title}${r.authors ? ` — ${r.authors}` : ''}${r.date ? ` (${r.date})` : ''}\n${r.url ?? ''}\n${r.content}`)
         .join('\n\n');
       const lastUser = [...messages].reverse().find((m) => m.role === 'user');
       const synth = streamText({
@@ -392,7 +476,7 @@ app.post('/api/stream', async (req, res) => {
           {
             role: 'user',
             content:
-              `Web search results:\n\n${numbered}\n\n` +
+              `Search results:\n\n${numbered}\n\n` +
               `Based on these results and your own knowledge, write the final synthesized answer to my previous question` +
               `${lastUser ? ` ("${String(lastUser.content).slice(0, 200)}")` : ''}. ` +
               'Analyze rather than list; cite sources inline as [n] using the numbers above; if the results are not relevant, say so and answer from your own knowledge.',

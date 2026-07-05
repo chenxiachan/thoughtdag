@@ -62,8 +62,8 @@ Select any passage in an answer → grow an exploration branch to the right; wir
 ### 👁️ Evaluator nodes
 Attach an adversarial "reviewer" to any line of thought (red watch edge): every time the main chain produces new content, a paper reviewer / devil's advocate / statistician fires a critique automatically. Critique history is versioned. GAN-style human-in-the-loop reasoning.
 
-### 🔍 Agentic web search
-The model decides when to search (common knowledge: never; time-sensitive facts: always), answers carry inline `[n]` citations, and the references persist with the node — every claim has a clickable source. One globe toggle to go offline.
+### 🔍 Agentic search — web & scholarly
+The model decides when to search and which tool fits: web search for facts and current events, **arXiv + Semantic Scholar for papers** (abstracts, authors, citation counts). Answers carry inline `[n]` citations and the references persist with the node — every claim has a clickable source. Toolbar toggles turn each tool group off.
 
 ### ✂️ Editing built for deep reading
 Everything is editable, answers keep multiple versions, LaTeX and syntax highlighting render inline, semantic zoom swaps cards for large-type thumbnails when zoomed out, and one-click tidy layout re-organizes the whole graph by arrow order.
@@ -104,7 +104,7 @@ Multi-canvas projects (one topic, one graph), IndexedDB auto-save, JSON backup/i
 - **Node role system** — per-node system prompt with three modes (inherit / set for next / reset here), `appliedRole` recorded at generation time, radio picker for multi-parent conflicts
 - **Role template library** — Reviewer / Devil's Advocate / Statistician / Code Reviewer / Tutor
 - **Evaluator nodes** — red watch edges subscribe to a thread, auto/manual critique, versioned critique history
-- **Agentic web search** — AI SDK tool loop + Zhipu search API, `[n]` citations + persisted references, guaranteed synthesis fallback
+- **Agentic search** — AI SDK tool loop: Zhipu web search + arXiv + Semantic Scholar (free APIs), `[n]` citations + persisted references, guaranteed synthesis fallback, per-group toolbar toggles
 - **Data persistence** — IndexedDB auto-save (1s debounce), survives refresh
 - **Multi-canvas projects** — create/switch/rename/delete, each saved independently
 - **Export system** — whole-graph JSON backup and import; context-chain / multi-select Markdown export

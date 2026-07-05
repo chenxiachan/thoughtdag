@@ -80,18 +80,22 @@ export async function runNodeGeneration(
         ),
       }));
     }, abortController.signal, images, {
-      onToolCall: (_name, query) => {
+      onToolCall: (name, query) => {
         // Show what's being searched while the answer hasn't started streaming
+        const icon = name === 'arxiv_search' ? '📚' : name === 'semantic_scholar' ? '🎓' : '🔍';
         set((state) => ({
           nodes: state.nodes.map((n) =>
             n.id === nodeId && !n.data.response
-              ? { ...n, data: { ...n.data, response: `🔍 ${query}…` } }
+              ? { ...n, data: { ...n.data, response: `${icon} ${query}…` } }
               : n
           ),
         }));
       },
       onSources: (sources) => { references = sources; },
-    }, useUiStore.getState().webSearchEnabled);
+    }, {
+      web: useUiStore.getState().webSearchEnabled,
+      scholar: useUiStore.getState().scholarSearchEnabled,
+    });
     activeAbortControllers.delete(nodeId);
     writeFinal(response);
     onSuccess?.(response);

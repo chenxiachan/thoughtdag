@@ -69,10 +69,15 @@ export async function llmCall(contextMessages: ContextMessage[], images?: ImageA
 }
 
 export interface StreamCallbacks {
-  /** The model started a web search with this query. */
+  /** The model started a tool call (web_search / arxiv_search / semantic_scholar). */
   onToolCall?: (name: string, query: string) => void;
-  /** All web sources consulted during generation (sent once, at the end). */
+  /** All sources consulted during generation (sent once, at the end). */
   onSources?: (sources: import('../types').Reference[]) => void;
+}
+
+export interface ToolPrefs {
+  web?: boolean;
+  scholar?: boolean;
 }
 
 // Streaming call — invokes onChunk with each text delta, returns full text
@@ -82,7 +87,7 @@ export async function llmCallStream(
   signal?: AbortSignal,
   images?: ImageAttachment[],
   callbacks?: StreamCallbacks,
-  webSearch?: boolean,
+  toolPrefs?: ToolPrefs,
 ): Promise<string> {
   try {
     const res = await fetch(STREAM_URL, {
@@ -91,7 +96,8 @@ export async function llmCallStream(
       body: JSON.stringify({
         messages: contextMessages,
         images: images?.length ? images : undefined,
-        webSearch,
+        webSearch: toolPrefs?.web,
+        scholarSearch: toolPrefs?.scholar,
       }),
       signal,
     });
