@@ -18,3 +18,4 @@ dist-ssr
 *.sw?
 mcp.config.json
 CLAUDE.md
+DOGFOOD.md

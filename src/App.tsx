@@ -27,6 +27,7 @@ import { useStore } from './store';
 import type { Attachment, ThoughtNode as ThoughtNodeType, ThoughtEdge } from './types';
 import { processFile, FILE_INPUT_ACCEPT } from './lib/attachments';
 import { walkUpAncestors } from './lib/graph';
+import { buildExampleGraph } from './lib/example-graph';
 import { COLORS } from './lib/constants';
 import { confirmDialog, useUiStore } from './lib/ui-store';
 import { useMcpServers } from './lib/use-mcp';
@@ -35,7 +36,7 @@ import Toaster from './components/ui/Toaster';
 import LangSwitch from './components/ui/LangSwitch';
 import ModelPicker from './components/ui/ModelPicker';
 import Tutorial from './components/Tutorial';
-import { useT, t as ti, fmt } from './i18n';
+import { useT, t as ti, fmt, useI18n } from './i18n';
 
 const nodeTypes = { thought: ThoughtNode };
 // Overrides the built-in smoothstep so persisted edges need no migration
@@ -80,6 +81,26 @@ function Canvas() {
   const hasNodes = nodes.length > 0;
   const rfInstance = useRef<ReactFlowInstance<ThoughtNodeType, ThoughtEdge> | null>(null);
   const prevNodeCount = useRef(nodes.length);
+  const lang = useI18n((s) => s.lang);
+
+  const loadExample = useCallback(() => {
+    const { nodes: exNodes, edges: exEdges } = buildExampleGraph(lang);
+    const st = useStore.getState();
+    st.setNodes([...st.nodes, ...exNodes.filter((n) => !st.nodes.some((x) => x.id === n.id))]);
+    st.setEdges([...st.edges, ...exEdges.filter((e) => !st.edges.some((x) => x.id === e.id))]);
+    st.pushHistory();
+    setTimeout(() => rfInstance.current?.fitView({ duration: 500, padding: 0.1 }), 100);
+  }, [lang]);
+
+  // First run ever: seed the example canvas so newcomers land on a living
+  // graph (incl. the context-pruning ⚖️ demo) instead of a blank page.
+  useEffect(() => {
+    if (nodes.length === 0 && !localStorage.getItem('thoughtdag.seeded')) {
+      localStorage.setItem('thoughtdag.seeded', 'yes');
+      loadExample();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (nodes.length > prevNodeCount.current && rfInstance.current) {
@@ -516,7 +537,13 @@ function Canvas() {
               ))}
             </div>
 
-            <div className="text-center mt-5">
+            <div className="text-center mt-5 flex items-center justify-center gap-5">
+              <button
+                onClick={loadExample}
+                className="text-xs text-accent hover:text-accent-strong font-medium transition-colors inline-flex items-center gap-1.5"
+              >
+                <Workflow size={14} strokeWidth={1.75} /> {t('landing.loadExample')}
+              </button>
               <button
                 onClick={() => setTutorialOpen(true)}
                 className="text-xs text-ink-muted hover:text-accent transition-colors inline-flex items-center gap-1.5"

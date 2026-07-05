@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { ChevronDown, Download, FolderOpen, Loader2, Pencil, Plus, Trash2, Upload } from 'lucide-react';
 import { useProjects, switchProject, createProject, renameProject, deleteProject } from '../store/projects';
-import { exportActiveProjectJson, importProjectFromFile } from '../lib/export';
+import { exportActiveProjectJson, parseImportFile } from '../lib/export';
+import ImportChatModal from './ImportChatModal';
+import type { ImportableConversation } from '../lib/import-chat';
 import { confirmDialog } from '../lib/ui-store';
 import { useT, t as ti, fmt } from '../i18n';
 
@@ -23,6 +25,7 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
   const activeId = useProjects((s) => s.activeId);
   const switching = useProjects((s) => s.switching);
   const [open, setOpen] = useState(false);
+  const [chatImport, setChatImport] = useState<ImportableConversation[] | null>(null);
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const importFileRef = useRef<HTMLInputElement>(null);
@@ -148,12 +151,24 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
               className="hidden"
               onChange={(e) => {
                 const f = e.target.files?.[0];
-                if (f) void importProjectFromFile(f).then((ok) => { if (ok) { setOpen(false); onSwitched(); } });
+                if (f) {
+                  void parseImportFile(f).then((r) => {
+                    if (r.kind === 'own' && r.ok) { setOpen(false); onSwitched(); }
+                    else if (r.kind === 'chat') { setOpen(false); setChatImport(r.conversations); }
+                  });
+                }
                 e.target.value = '';
               }}
             />
           </div>
         </div>
+      )}
+      {chatImport && (
+        <ImportChatModal
+          conversations={chatImport}
+          onClose={() => setChatImport(null)}
+          onDone={() => { setChatImport(null); onSwitched(); }}
+        />
       )}
     </div>
   );

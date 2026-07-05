@@ -1,6 +1,7 @@
 import { set as idbSet } from 'idb-keyval';
 import { useStore, stripTransient } from '../store';
 import { useProjects, projectStorageKey, adoptImportedProject } from '../store/projects';
+import { detectFormat, listConversations, type ImportableConversation } from './import-chat';
 import { getContextPath } from './graph';
 import { countTokens } from '../utils';
 import { toast } from './ui-store';
@@ -48,10 +49,58 @@ export function exportActiveProjectJson(): void {
   toast('success', fmt(t('toast.exported'), { name }));
 }
 
-export async function importProjectFromFile(file: File): Promise<boolean> {
-  let parsed: { name?: string; nodes?: ThoughtNode[]; edges?: ThoughtEdge[] };
+/**
+ * Parse any supported file. Returns 'own' after importing a ThoughtDAG
+ * backup directly, or the conversation list of a ChatGPT/Claude export so
+ * the caller can show a picker.
+ */
+export async function parseImportFile(file: File): Promise<
+  { kind: 'own'; ok: boolean } | { kind: 'chat'; conversations: ImportableConversation[] } | { kind: 'error' }
+> {
+  let parsed: unknown;
   try {
     parsed = JSON.parse(await file.text());
+  } catch {
+    toast('error', t('toast.importFailedJson'));
+    return { kind: 'error' };
+  }
+  const format = detectFormat(parsed);
+  if (format === 'chatgpt' || format === 'claude') {
+    const conversations = listConversations(parsed);
+    if (conversations.length === 0) {
+      toast('error', t('toast.importNoConversations'));
+      return { kind: 'error' };
+    }
+    return { kind: 'chat', conversations };
+  }
+  return { kind: 'own', ok: await importProjectFromFile(file, parsed) };
+}
+
+/** Convert selected chat conversations, one new project each. */
+export async function importChatConversations(convs: ImportableConversation[]): Promise<void> {
+  let firstId: string | null = null;
+  let total = 0;
+  for (const conv of convs) {
+    const { nodes, edges } = conv.build();
+    if (nodes.length === 0) continue;
+    const id = crypto.randomUUID();
+    await idbSet(projectStorageKey(id), JSON.stringify({
+      state: { nodes: stripTransient(nodes), edges },
+      version: PERSIST_VERSION,
+    }));
+    await adoptImportedProject(id, conv.title.slice(0, 60));
+    firstId ??= id;
+    total += nodes.length;
+  }
+  if (firstId) {
+    toast('success', fmt(t('toast.importedChats'), { n: convs.length, m: total }));
+  }
+}
+
+export async function importProjectFromFile(file: File, pre?: unknown): Promise<boolean> {
+  let parsed: { name?: string; nodes?: ThoughtNode[]; edges?: ThoughtEdge[] };
+  try {
+    parsed = (pre ?? JSON.parse(await file.text())) as typeof parsed;
   } catch {
     toast('error', t('toast.importFailedJson'));
     return false;

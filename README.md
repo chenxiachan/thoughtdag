@@ -69,7 +69,7 @@ The model decides when to search and which tool fits: web search for facts and c
 Everything is editable, answers keep multiple versions, LaTeX and syntax highlighting render inline, semantic zoom swaps cards for large-type thumbnails when zoomed out, and one-click tidy layout re-organizes the whole graph by arrow order.
 
 ### 🗂️ Research-grade workflow
-Multi-canvas projects (one topic, one graph), IndexedDB auto-save, JSON backup/import, one-click Markdown export of any context chain, an attachment system (image Vision / dual-channel PDF / precise inheritance control), a bilingual EN/中 interface, and a built-in five-step tutorial.
+Multi-canvas projects (one topic, one graph), IndexedDB auto-save, JSON backup/import, **ChatGPT/Claude history import** (branches preserved), one-click Markdown export of any context chain, an attachment system (image Vision / dual-channel PDF / precise inheritance control), a bilingual EN/中 interface, and a built-in five-step tutorial.
 
 <details>
 <summary><b>📜 Full feature list (50+)</b></summary>
@@ -117,6 +117,8 @@ Multi-canvas projects (one topic, one graph), IndexedDB auto-save, JSON backup/i
 - **Bilingual UI** — auto-detects browser language, one-click EN/中 switch
 - **Built-in tutorial** — five-step illustrated walkthrough
 - **New root anywhere** — double-click empty canvas; multiple trees coexist
+- **Example canvas on first run** — a seeded graph (with a context-pruning ⚖️ side-by-side demo) instead of a blank page; reload it anytime from the landing screen
+- **Import ChatGPT / Claude exports** — drop conversations.json into Import; ChatGPT's edit/regenerate branches are preserved as graph forks, each conversation becomes its own canvas
 - **Environment-based config** — keys live in `.env`; available models register automatically per key
 
 </details>
