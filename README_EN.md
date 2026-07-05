@@ -85,6 +85,19 @@ The context sent to the LLM is determined by a simple rule: **walk up all incomi
 - **Ancestor edge highlighting** — selected node's path to root highlighted in gold (#F59E0B), other edges dimmed
 - **Node role system** — Per-node system prompt (Role) with 3 modes: Inherit from previous / Set for next ↓ / Reset for this node; `appliedRole` records the role used at generation time (editing doesn't affect badge)
 - **Multi-role conflict resolution** — When a DAG node has multiple incoming edges with different roles, FocusPanel shows a radio selector (Primary / Cross-link labels); defaults to primary edge, user can override
+- **Data persistence** — canvas auto-saves to IndexedDB (1s debounce), survives refresh; the restored graph becomes the base of the undo stack
+- **Multi-canvas project management** — project switcher in the top-left corner: create/switch/rename/delete canvases, each saved independently — one topic, one graph
+- **Export system** — whole-graph JSON backup with import restore; one-click Markdown export of a node's context chain or any multi-selection as a Q&A document
+- **Context send preview** — before asking, a live "will send ~N tok · M messages · K files" readout; expand it to preview every message about to be sent
+- **Retry in place** — nodes whose LLM call failed show a Retry button for in-place retry; error details go to a toast instead of polluting the response
+- **Click-to-delete edges** — click an edge to select it and a delete button floats at its midpoint; Delete key works, Cmd+Z undoes
+- **Resizable panel** — drag the FocusPanel's left edge to adjust width, double-click to reset; preference remembered automatically
+- **Environment-based config** — API keys live in `.env` (never committed); proxy port and frontend API URL are configurable; Zhipu GLM free backend / Qwen auto-registered per key
+- **Tidy layout / Align selection** — Tidy Layout rearranges the whole graph by arrow order (confirmation dialog, Cmd+Z to undo); Align stacks multi-selected nodes into one column in conversation order
+- **Bilingual UI (i18n)** — auto-detects browser language; one-click EN/中 toggle
+- **Built-in tutorial** — "How it works" five-step illustrated guide: ask → follow up → branch from a selection → prune & rewire → control the context
+- **Semantic zoom** — when zoomed out, nodes switch to large-type thumbnail cards so every node's topic stays legible from afar
+- **Evaluator nodes** — attach a "critic" to any thread (subscribed via red watch edges); critiques trigger automatically or manually as the watched thread grows; preset role templates (reviewer / devil's advocate, etc.) or custom roles
 
 ### 📎 Attachment System (Phase 1 implemented)
 
@@ -97,14 +110,14 @@ The context sent to the LLM is determined by a simple rule: **walk up all incomi
 - ✅ **Images + Vision** — automatically switches to Qwen-VL when images are present
 - ✅ **Text files** — txt/md/code injected directly into context
 - ✅ **PDF** — server-side text extraction (pdfjs) + page rendering (poppler); >10 pages defaults to text-only (Vision toggleable); degrades to text-only when poppler is absent
-- **Phase 2 (todo)**: DOCX + Web Search
-- **Phase 3 (todo)**: LLM Tool Use (autonomous search)
+- ✅ **Agentic web search** — the model decides on its own when to search (AI SDK tool loop + Zhipu search API); answers carry inline [n] citations plus a References source list; a globe toggle in the toolbar turns it off globally
+- **Phase 2 (todo)**: DOCX parsing, MCP tool ecosystem integration (arXiv, web reading, etc.)
 
 ### 📋 Roadmap
 
 #### P0 — Core UX
 - [x] **Data persistence** — ✅ auto-save to IndexedDB, survives refresh (undo history and selection stay session-scoped)
-- [ ] **Multi-project switching** — project list management (create/switch/rename/delete), each saved independently
+- [x] **Multi-project switching** — ✅ project switcher: create/switch/rename/delete, each canvas saved independently, legacy data auto-migrated
 - [x] **Streaming responses** — SSE streaming with real-time markdown rendering + blinking cursor in FocusPanel
 
 #### P1 — Deep Node Editing
@@ -115,7 +128,7 @@ The context sent to the LLM is determined by a simple rule: **walk up all incomi
 - [x] **Auto-summary per node** — ✅ Implemented
 
 #### P2 — Efficiency
-- [ ] **i18n** — Chinese/English language switching; UI strings + LLM prompt templates extracted to language packs
+- [x] **i18n** — ✅ Chinese/English toggle (auto-detects browser language), 172 UI strings in language packs; LLM prompts stay adaptive to content language
 - [x] **Collision detection** — Column-Tree layout + collision nudging
 - [x] **Multi-select** — box-select with Merge Summary / Merge & Delete / Explore / Delete All
 - [x] **Stop generation** — Stop button during streaming, keeps partial content
@@ -125,7 +138,7 @@ The context sent to the LLM is determined by a simple rule: **walk up all incomi
 - [ ] **Group/Ungroup on multi-select** — box-select nodes → right-click context menu with Group (visual grouping, collapsible into summary node) and Ungroup
 - [ ] **Keyboard shortcuts** — Tab=continue, Space=collapse/expand, Esc=cascading dismiss, Delete=remove, R=regenerate, Cmd+D=duplicate, Cmd+E=edit question, ↑↓←→=DAG navigation (parent-child / siblings)
 - [ ] **Node search** — Cmd+F opens search, matches node content, centers canvas on result
-- [ ] **Canvas new root** — Double-click empty canvas to create a new root node (independent DAG origin); multiple DAG trees coexist on one canvas, later cross-linkable into other nodes' context
+- [x] **Canvas new root** — ✅ double-click empty canvas to start a new question; multiple DAG trees coexist, mergeable via drag-to-cross-link
 
 #### P2.5 — Node Role System
 - [x] **Per-node System Prompt** — 3 modes: Inherit from previous / Set for next ↓ / Reset for this node
@@ -133,19 +146,18 @@ The context sent to the LLM is determined by a simple rule: **walk up all incomi
 - [x] **Landing page / New root optional role**
 - [x] **Inherit role checkbox** — on Continue / Branch / Highlight Explore inputs
 - [x] **Multi-role conflict resolution** — When DAG node has multiple parents with different roles, FocusPanel shows radio selector (Primary vs Cross-link), defaults to primary edge
-- [ ] **Role templates** — Preset role library (paper reviewer, Python expert, devil's advocate, teacher etc.), one-click apply to node
+- [x] **Role templates** — ✅ preset role library (paper reviewer / devil's advocate / statistics consultant / code reviewer / mentor), one-click apply when creating an Evaluator
 
 #### P3 — Differentiation
-- [ ] **Evaluator Nodes (Adversarial Reasoning) ⭐** — GAN-style adversarial structure, ThoughtDAG's core differentiator:
-  - 🔴 **Watch edges (red)**: New edge type — Evaluator nodes "subscribe" to main-chain nodes; auto-triggered when main chain produces new content
+- [x] **Evaluator Nodes (Adversarial Reasoning) ⭐ ✅ core loop implemented** — GAN-style adversarial structure, ThoughtDAG's core differentiator:
+  - 🔴 **Watch edges (red)**: New edge type — Evaluator nodes "subscribe" to a main chain; every new piece of main-chain content auto-triggers a critique
   - **Role-driven**: Uses per-node rolePrompt (paper reviewer, debug expert, devil's advocate, etc.)
-  - **Context semantics**: Evaluator context = own history + watched main-chain content (via red-edge DAG traversal)
-  - **Human-in-the-loop**: After each evaluation, user can edit, skip, change role, or adjust trigger frequency (manual / every turn / every N turns)
-  - **Visual layout**: Main chain flows down, Evaluator runs in parallel column, red dashed edges connect corresponding rounds horizontally
+  - **Context semantics**: Evaluator context = own history + watched main-chain content
+  - **Human-in-the-loop**: After each critique, user can edit, skip, change role, or adjust trigger frequency
   - **Use cases**: Paper writing + reviewer, coding + code reviewer, debate (pro vs con), translation + QA, teaching + tutor
   - **Preset templates**: One-click "Debate Mode" / "Paper Review Mode" / "Code Review Mode"
 - [ ] **Per-node multi-model switching** — Choose different LLMs per node (Claude/GPT/Qwen/DeepSeek); leverage each model's strengths
-- [ ] **Cluster summarization** — Select multiple nodes → summarize into one; originals collapse
+- [x] **Cluster summarization** — ✅ multi-select Merge Summary / Merge & Delete
 - [ ] **Export to file** — Multi-select nodes → LLM organizes into code file / document / paper outline → download. Lightweight output approach
 - [ ] **Code block enhancement** — Copy/Run buttons on code blocks, "Open in Editor" with Monaco editor, save back to node
 
