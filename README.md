@@ -1,194 +1,121 @@
+<div align="center">
+
+<img src="public/favicon.svg" width="88" alt="ThoughtDAG logo"/>
+
 # ThoughtDAG
 
-**在无限画布上，把 AI 对话变成可编辑的思维 DAG。**
+### 让思考长成图，而不是一条线
 
-[English](./README_EN.md)
+**在无限画布上，把 AI 对话变成可编辑的思维图谱 —— 模型看到什么，由你决定。**
 
-ThoughtDAG 把 LLM 对话从线性聊天变成空间化、可编辑的 DAG（有向无环图）。像 Figma 遇上 ChatGPT — 你可以分支、裁剪、合并，精确控制 AI 看到的上下文。
+![React](https://img.shields.io/badge/React_19-087EA4?logo=react&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![Vercel AI SDK](https://img.shields.io/badge/Vercel_AI_SDK-000000?logo=vercel&logoColor=white)
+![React Flow](https://img.shields.io/badge/React_Flow-FF0072)
+![Status](https://img.shields.io/badge/状态-活跃开发中-6B5CE7)
 
-![Status](https://img.shields.io/badge/状态-原型-orange) ![License](https://img.shields.io/badge/许可-私有-lightgrey)
+[English](./README_EN.md) · [快速开始](#快速开始) · [核心特性](#核心特性) · [Roadmap](#roadmap)
 
-## 问题
+<img src="docs/hero.png" alt="ThoughtDAG 画布：紫色主链、橙色探索分支、红色评审者监听边、带引用来源的回答" width="100%"/>
 
-现有的 LLM 对话界面是**线性的、只能追加的、不透明的**：
+</div>
 
-- 对话越长，上下文越被无关内容稀释
-- 想探索多个方向？只能开多个聊天窗口，丢失关联
-- 无法从 AI 的记忆中删掉一个糟糕的回答或无关的岔路
-- 没法"圈一段话继续深挖"，只能复制粘贴
-- **用户对 context window 没有任何控制权**
+---
 
-## 核心思路
+## 为什么需要 ThoughtDAG？
 
-如果对话是画布上的**图**而不是滚动列表呢？
+所有主流 LLM 界面都是**线性的、只能追加的、不透明的**：
 
-- **节点** = 一轮问答（用户提问 + AI 回答）
-- **边** = 上下文流（箭头表示 AI 能"看到"什么）
-- **加一条边** = 注入上下文。**删一条边** = 裁剪上下文。
-- 从任意文字选中处**分支**，探索岔路
-- 通过连线**合并**不同分支
+- 对话越长，上下文被无关内容稀释得越厉害 —— 而你删不掉任何一句
+- 想同时探索三个方向？开三个窗口，然后眼睁睁看着它们失去关联
+- 「圈住这段话继续深挖」这个最自然的动作，只能靠复制粘贴模拟
+- 最关键的：**你对 context window 里有什么，没有任何控制权**
 
-发送给 LLM 的上下文由一条简单规则决定：**沿所有入边递归向上遍历（DAG 遍历）**。你控制图，就控制了上下文。
+ThoughtDAG 换了一个数据结构来回答这个问题：对话不是列表，是**图**。
 
-## 演示
+## 一条规则，掌控上下文
+
+- **节点** = 一轮问答 · **边** = 上下文的流向
+- 发送给模型的上下文由一条规则决定：**沿所有入边递归向上遍历**
+- 于是：**加一条边 = 注入上下文，删一条边 = 裁剪上下文**
 
 ```
-[什么是ML?] ──蓝色──▶ [什么是DL?] ──蓝色──▶ [什么是Transformer?]
-                            │
-                       橙色（分支）
-                            │
-                            ▼
-                  [具体解释一下CNN]
+[什么是ML?] ──紫──▶ [什么是DL?] ──紫──▶ [什么是Transformer?]
+                        │
+                    橙（选中文字分支）
+                        ▼
+              [具体解释一下 CNN]
 ```
 
-- 节点3（"Transformer"）的上下文包含节点 1 + 2
-- 删掉 1→2 的边，直接连 1→3 → 节点3只看到节点1
-- 分支节点（"CNN"）看到 1 + 2 + 选中文字，但不会污染主链
+- 「Transformer」节点看到节点 1 + 2；删掉 1→2、直连 1→3，它就只看到节点 1
+- 分支节点带着选中的文字去探索，却不污染主链
+- 提问前实时预览「将发送 ~N tok · M messages · K files」—— 上下文从黑箱变成仪表盘
 
-## 功能状态
+## 核心特性
 
-### ✅ 已实现
+### 🧠 上下文，可见且可塑
+每条边都是一次上下文决策：拖线合并分支、点选删除裁剪记忆、折叠节点自动改传摘要（上下文压缩）。发送预览让每次提问前都知道模型将看到什么。
+
+### 🌿 随处分支，自由收敛
+选中回答里的任意文字 → 向右生长出一条探索分支；跨分支拖线合并结论；Regenerate 生成兄弟版本对比择优；高亮关键段落做「蒸馏重生成」，去冗余保重点。
+
+### 👁️ Evaluator 评审节点
+给任意思路线挂一个对抗式「评审者」（红色监听边）：主线每产生新内容，审稿人 / 魔鬼代言人 / 统计顾问自动出批评，批评历史成版本可回溯。GAN 式的人机协作推理。
+
+### 🔍 Agentic 联网搜索
+模型自主判断何时需要搜索（常识不搜、时效必搜），回答带 `[n]` 行内引用，References 列表随节点持久化 —— 每个结论都有出处可点。工具栏地球开关一键离线。
+
+### ✂️ 为深读设计的编辑
+问答全部可编辑、回答多版本管理、LaTeX 公式、代码高亮、语义缩放（缩小画布自动切大字缩略卡）、一键排版按箭头顺序整理全图。
+
+### 🗂️ 科研级工作流
+多画布项目管理（一个课题一张图）、IndexedDB 自动保存、JSON 备份 / 导入、上下文链一键导出 Markdown、附件系统（图片 Vision / PDF 双通道 / 继承精确控制）、中英双语界面、内置五步教程。
+
+<details>
+<summary><b>📜 完整功能清单（50+ 项）</b></summary>
 
 - **无限画布** — 平移、缩放、自由拖拽节点（React Flow）
-- **LLM 集成** — 通义千问 Qwen Plus（DashScope 国际版 API，模型可替换）
 - **DAG 上下文引擎** — `buildContext()` 遍历所有入边，拓扑序构建对话历史
-- **蓝色边**（继续追问）— 继承完整祖先上下文
+- **紫色边**（继续追问）— 继承完整祖先上下文
 - **橙色边**（分支探索）— 选中文字 → 向右分支，探索性提问
 - **跨分支连线** — 拖拽连接任意节点，合并上下文
-- **右键删除边** — 右键点击边 → 删除，立即裁剪上下文
+- **连线点选删除** — 点击连线选中，浮出删除按钮；右键菜单同样可删；Cmd+Z 撤销
 - **重新生成** — 创建兄弟节点（树形分支，不是原地替换）
 - **全部可编辑** — 双击编辑问题或回答
 - **文字选择工具栏** — 选中回答中的文字 → 分支 / 高亮
-- **Markdown 渲染** — 完整 markdown + 代码高亮
+- **Markdown + LaTeX 渲染** — 完整 markdown、代码高亮、行内与块级公式
 - **版本管理** — 在回答版本间导航，删除差的版本
-- **Focus 侧栏面板** — 点选节点弹出 480px 侧栏：完整问答编辑、版本导航、高亮管理、context chain（DAG 遍历 + 点击定位）、追问输入
-- **高亮系统** — 选中文字 ⭐ 高亮，三种下游传递模式：📄 全文 / 🏷️ 标记重点 / ✂️ 仅传高亮
-- **精炼重生成（Distill）** — 高亮关键段落后一键让 LLM 保留高亮去冗余，创建精炼兄弟节点
-- **编辑自动清理高亮** — 修改回答后，失效的高亮自动移除
-- **节点选中高亮** — 选中节点显示紫色高亮环，context chain 点击定位画布
-- **撤销/重做** — Cmd+Z / Cmd+Shift+Z，完整状态快照 + 画布 Undo/Redo 按钮
-- **自动布局** — 蓝色边向下、橙色边向右，动态高度防重叠
-- **折叠/展开** — 收起节点节省空间
-- **Token 计数** — 每个节点显示 token 用量
-- **流式响应** — SSE streaming，FocusPanel 实时逐字渲染 + 闪烁光标
-- **LaTeX 渲染** — 支持行内 `$...$` 和块级 `$$...$$` 数学公式
-- **节点复制** — Duplicate 按钮，保留问答和高亮，连到同一父节点
-- **Explore 高亮** — 对高亮内容输入追问，高亮作为上下文创建探索分支
-- **Summary 高亮** — 对高亮内容一键总结，创建总结分支节点
-- **Column-Tree 布局** — 主链向下、分支向右分列；regenerate 兄弟紧贴主轴同行排列
-- **碰撞检测** — 同列节点自动推挤避免重叠，级联后代节点
-- **节点自动摘要** — 后台 LLM 生成摘要，折叠态显示，折叠节点传摘要不传全文（context 压缩）
-- **展开/折叠动态布局** — 折叠节点紧凑，展开后下游自动平移，不重置手动拖拽位置
-- **选中呼吸灯** — 选中节点紫色脉冲光晕
-- **多选操作** — 左键拖画布框选多节点，顶部工具栏：Merge Summary / Merge & Delete / Summary Highlights / Explore / Delete All
-- **停止生成** — 生成过程中 Actions 显示 Stop 按钮，停止后保留已生成内容
-- **选中边高亮** — 选中节点时祖先路径上的边变金色加粗（#F59E0B），其余边淡化
-- **节点角色系统** — 每个节点可设 System Prompt（Role），三种模式：Inherit from previous / Set for next ↓ / Reset for this node；子节点自动继承，可覆盖。`appliedRole` 记录生成时使用的角色（编辑不影响 badge）
-- **多 Role 冲突解决** — DAG 多父节点场景下，如果多条入边带有不同 Role，FocusPanel 显示 Radio 选择器（Primary / Cross-link 标签），默认主边优先，用户可手动切换
-- **数据持久化** — 画布自动保存到 IndexedDB（防抖 1s），刷新不丢数据；恢复的图作为 undo 栈基底
-- **多画布项目管理** — 左上角项目切换器：新建/切换/重命名/删除画布，每张独立保存，一个课题一张图
-- **导出体系** — 整图 JSON 备份与导入恢复；节点上下文链或多选节点一键导出 Markdown 问答文档
-- **Context 发送预览** — 追问前实时显示「将发送 ~N tok · M messages · K files」，点开可逐条预览即将发送的消息
-- **失败原地重试** — LLM 生成失败的节点显示 Retry 按钮原地重试；错误详情走 toast 不污染回答
-- **连线点选删除** — 点击连线选中，中央浮出删除按钮，Delete 键可删，Cmd+Z 可撤销
-- **面板宽度拖拽** — FocusPanel 左缘拖拽调宽，双击重置，偏好自动记忆
-- **环境变量配置** — API key 走 `.env`（不入库），代理端口与前端 API 地址均可配置；智谱 GLM 免费后端/通义千问按 key 自动注册
-- **一键排版 / 圈选对齐** — Tidy Layout 按箭头顺序整理全图（确认框防误触，Cmd+Z 可撤销）；多选节点 Align 按对话顺序堆叠成一列
-- **中英双语 UI（i18n）** — 自动检测浏览器语言，界面 EN/中 一键切换
-- **内置教程** — 「How it works」五步图解：提问 → 追问 → 选中分支 → 裁剪重连 → 控制上下文
-- **语义缩放** — 缩小画布时节点自动切换为大字号缩略卡，远距离浏览也能看清每个节点的主题
-- **Evaluator 评审节点** — 给任意思路线挂一个「评审者」（红色监听边订阅），主线更新时自动/手动触发评判；预设角色模板（审稿人/魔鬼代言人等）或自定义角色
+- **Focus 侧栏面板** — 完整问答编辑、版本导航、高亮管理、context chain 可视化、追问输入；宽度可拖拽
+- **高亮系统** — 三种下游传递模式：📄 全文 / 🏷️ 标记重点 / ✂️ 仅传高亮
+- **精炼重生成（Distill）** — 高亮关键段落后一键创建精炼兄弟节点
+- **编辑自动清理失效高亮**
+- **撤销/重做** — Cmd+Z / Cmd+Shift+Z，完整状态快照
+- **Column-Tree 自动布局** — 主链向下、分支向右分列，真实测量高度防重叠
+- **一键排版 / 圈选对齐** — 按箭头顺序整理全图（确认框防误触）；多选 Align 堆叠成列
+- **折叠/展开** — 折叠节点传摘要不传全文（上下文压缩），下游自动平移
+- **节点自动摘要** — 后台 LLM 生成，折叠态显示
+- **语义缩放** — 缩小画布节点切大字缩略卡
+- **Token 计数** — 每节点显示用量
+- **流式响应** — SSE 逐字渲染 + 闪烁光标，节点与面板同步
+- **停止生成** — 保留已生成内容
+- **失败原地重试** — Retry 按钮原地重试，错误走 toast 不污染回答
+- **选中边高亮** — 祖先路径金色加粗，其余淡化
+- **多选操作** — 框选节点：Merge Summary / Merge & Delete / Align / Export / Delete
+- **节点角色系统** — 节点级 System Prompt 三模式（继承/向下设置/本节点重置），`appliedRole` 记录生成时角色，多父冲突 Radio 选择
+- **角色模板库** — 审稿人 / 魔鬼代言人 / 统计顾问 / Code Reviewer / 导师
+- **Evaluator 评审节点** — 红色监听边订阅主线，自动/手动评判，批评历史版本化
+- **Agentic 联网搜索** — AI SDK 工具循环 + 智谱搜索 API，`[n]` 引用 + References 持久化，强制总结兜底
+- **数据持久化** — IndexedDB 自动保存（1s 防抖），刷新不丢
+- **多画布项目管理** — 新建/切换/重命名/删除，每张独立保存
+- **导出体系** — 整图 JSON 备份导入；上下文链/多选导出 Markdown
+- **Context 发送预览** — 「~N tok · M messages · K files」实时预览
+- **附件系统** — 节点局部附件（拖拽/粘贴/上传）、继承 include/exclude 精确控制、指纹去重、图片 Vision 自动切换、PDF 文本+页图双通道
+- **中英双语 UI** — 自动检测浏览器语言，一键切换
+- **内置教程** — 五步图解快速上手
+- **画布新建 Root** — 双击空白处提问，多棵树共存
+- **环境变量配置** — key 走 `.env`，按 key 自动注册可用模型
 
-### 📎 附件系统（Phase 1 已实现）
-
-**核心差异化**：与线性聊天不同，ThoughtDAG 允许在下游节点中精确控制附件的继承。
-
-- ✅ **节点局部附件** — 文件绑定在具体节点上，不是全局对话历史；拖拽/粘贴/点击上传
-- ✅ **继承附件控制** — FocusPanel 显示上游所有附件，每个附件可 toggle include/exclude（`excludedAttachmentIds` / `includedAttachmentIds` 覆盖机制）
-- ✅ **用户完全透明** — 提问前就能看到"这个节点的 LLM 会看到哪些文件"
-- ✅ **附件只传一次** — 附件在原始节点的消息位置出现，下游节点通过 DAG 遍历自然继承；指纹去重保证多路径合并时只出现一次
-- ✅ **图片 + Vision** — 有图自动切换 Qwen-VL
-- ✅ **文本文件** — txt/md/code 直接注入 context
-- ✅ **PDF** — 服务端 pdfjs 抽文本 + poppler 渲染页图；>10 页默认 Text-only（可切换 Vision）；无 poppler 时自动降级纯文本
-- ✅ **Agentic 联网搜索** — 模型自主判断何时搜索（AI SDK 工具循环 + 智谱搜索 API），回答带 [n] 行内引用 + References 来源列表；工具栏地球开关可全局关闭
-- **Phase 2（待做）**: DOCX 解析、MCP 工具生态接入（arXiv/网页阅读等）
-
-### 📋 Roadmap
-
-#### P0 — 基础体验
-- [x] **数据持久化** — ✅ 自动保存到 IndexedDB，刷新不丢数据（undo 历史与选中态不持久化）
-- [x] **多项目切换** — ✅ 项目切换器：新建/切换/重命名/删除，每张画布独立保存，旧数据自动迁移
-- [x] **流式响应** — LLM 回答逐字输出（SSE streaming），FocusPanel 实时渲染 + 闪烁光标
-
-#### P1 — 节点深度编辑
-- [x] **侧栏 Focus 面板** — 480px 侧栏，完整问答编辑、版本管理、高亮管理、context chain DAG 遍历可视化 + 点击定位
-- [x] **高亮→精炼重生成（Distill）** — 高亮关键段落 → 一键创建精炼兄弟节点
-- [x] **高亮上下文传递** — 三模式：Full text / Tag important / Highlights only，节点级设置
-- [x] **编辑自动清理失效高亮**
-- [x] **节点自动摘要** — ✅ 已实现
-
-#### P2 — 效率提升
-- [x] **i18n 语言切换** — ✅ 中/英切换（自动检测浏览器语言），172 条 UI 文案语言包；LLM prompt 保持内容语言自适应
-- [x] **节点碰撞检测** — Column-Tree 布局 + 碰撞推挤
-- [x] **多选操作** — 左键拖框选，Merge Summary / Merge & Delete / Explore / Delete All
-- [x] **停止生成** — 生成中显示 Stop 按钮，保留已生成内容
-- [x] **选中边高亮** — 祖先路径金色加粗，其余淡化
-- [ ] **边交叉最小化** — 优化跨列连线路径，减少视觉交叉
-- [ ] **节点底部 Hover ＋ 按钮** — 悬浮节点下方出现加号按钮，点击创建空白子节点（无问题、无回答），可用于预连接上下文、设置 Role、手动拖线
-- [ ] **框选 Group/Ungroup** — 框选多节点 → 右键菜单 Group 打包为可折叠组（视觉分组 + 折叠为摘要），Ungroup 解散
-- [ ] **键盘快捷键** — Tab=追问, Space=折叠/展开, Esc=逐级退出, Delete=删除, R=重新生成, Cmd+D=复制, Cmd+E=编辑问题, ↑↓←→=DAG 导航（父子/兄弟）
-- [ ] **搜索节点** — Cmd+F 打开搜索框，匹配节点内容并定位画布居中
-- [x] **画布新建 Root** — ✅ 双击画布空白处开始新提问；多棵 DAG 树共存，可拖线 cross-link 合并
-
-#### P2.5 — 节点角色系统
-- [x] **节点级 System Prompt** — 三种模式：Inherit from previous / Set for next ↓ / Reset for this node
-- [x] **`appliedRole`** — 生成时记录使用的角色，节点 badge 显示，编辑不影响
-- [x] **Landing page / New root 可设 optional role**
-- [x] **Inherit role checkbox** — Continue / Branch / Highlight Explore 输入框下方
-- [x] **多 Role 冲突解决** — DAG 多父节点 role 不同时，FocusPanel Radio 选择器，默认主边优先
-- [x] **角色模板** — ✅ 预设角色库（审稿人/魔鬼代言人/统计顾问/Code Reviewer/导师），Evaluator 创建时一键应用
-
-#### P3 — 差异化功能
-- [x] **Evaluator 节点（对抗式推理）⭐ ✅ 核心闭环已实现** — GAN 式对抗结构，ThoughtDAG 核心差异化特性：
-  - 🔴 **监听边（红色）**：新的边类型，Evaluator 节点"订阅"主线，主线每产生新内容自动触发评判
-  - **角色驱动**：使用节点级 rolePrompt（审稿人、debug 专家、魔鬼代言人等）
-  - **上下文语义**：Evaluator 的 context = 自身历史 + 监听的主线内容
-  - **人为干预**：每轮评判后可编辑、跳过、修改角色、调整触发频率
-  - **应用场景**：论文+审稿人、代码+reviewer、辩论正反方、翻译+质检、教学+导师
-  - **预设模板**：一键开启"辩论模式""审稿模式""Code Review 模式"
-- [ ] **节点级多模型切换** — 每个节点可选择不同 LLM（Claude/GPT/Qwen/DeepSeek），发挥不同模型在不同任务的优势
-- [x] **节点簇合并摘要** — ✅ 多选 Merge Summary / Merge & Delete
-- [ ] **导出为文件** — 多选节点 → LLM 整理为代码文件/文档/论文大纲 → 下载。轻量的产出物方案
-- [ ] **代码块增强** — 代码块加 Copy/Run 按钮，Open in Editor 弹出可编辑面板
-
-#### P0.5 — 附件系统 Phase 1 ✅ 已完成
-- [x] **图片上传 + Vision** — Qwen-VL-Plus 理解图片内容
-- [x] **文本文件上传** — txt/md/code 直接注入 context
-- [x] **PDF 上传** — 服务端抽文本 + 渲染页图，>10 页默认 Text-only
-- [x] **FocusPanel 附件区** — 上传 + 继承附件列表 + include/exclude toggle
-- [x] **buildContext 附件过滤** — `excludedAttachmentIds` 控制哪些上游附件被排除
-
-#### P4 — 长期愿景
-- [ ] **附件系统 Phase 2/3** — PDF/DOCX 解析、Web Search、LLM Tool Use
-- [ ] **协作模式** — 多人实时编辑同一个 DAG，支持光标同步和冲突解决
-- [ ] **导入历史对话** — 从 ChatGPT/Claude 导出的 JSON 自动转为 DAG 结构
-- [ ] **模板系统** — 预设 DAG 结构（论文研究、代码审查等），与 Evaluator 模板整合
-- [ ] **本地 LLM** — 接入 Ollama，完全离线使用
-- [ ] **多 Evaluator 协作** — 同一主线挂载多个不同角色的 Evaluator（审稿人 + 统计顾问 + 语言编辑）
-- [ ] **Artifact 节点** — 画布上的特殊文件节点，🟢绿色贡献边连接源节点，手动 Sync 触发 LLM 合并，内置 Monaco 编辑器，版本历史
-- [ ] **本地文件映射** — Artifact 节点映射到本地文件（Save/Load/Watch），按需实现
-- [ ] **Context 面板增强** — 手动勾选/排除祖先、token 预算条、点击定位
-
-## 技术栈
-
-| 层级 | 技术 |
-|------|------|
-| 界面 | React 19 + TypeScript + Vite 7 |
-| 画布 | @xyflow/react (React Flow) |
-| 状态 | Zustand（persist → IndexedDB via idb-keyval）|
-| 样式 | Tailwind CSS v4 |
-| 大模型 | Vercel AI SDK 多后端：智谱 GLM-4.5-Flash / GLM-4V-Flash（免费）、通义千问 Qwen，按 .env key 自动注册；可一行扩展 Anthropic/OpenAI/DeepSeek/Ollama 等任意 provider |
-| 代理 | Express + Vercel AI SDK (server.mjs, 默认端口 3001) |
+</details>
 
 ## 快速开始
 
@@ -200,13 +127,22 @@ npm run dev            # 另开终端，启动开发服务器
 # 打开 http://localhost:5173
 ```
 
-> **免费用法：** 到 [open.bigmodel.cn](https://open.bigmodel.cn/) 注册智谱账号（手机号即可），生成 API key 填入 `ZHIPU_API_KEY`。GLM-4.5-Flash（文本）和 GLM-4V-Flash（图片/PDF 视觉）均免费，有智谱 key 时自动作为默认模型。
-
-> **可选依赖：** PDF 页图渲染需要 poppler（`brew install poppler`）。没有它 PDF 附件自动降级为纯文本模式。
+> **免费用法：** 到 [open.bigmodel.cn](https://open.bigmodel.cn/) 注册智谱账号（手机号即可），生成 API key 填入 `ZHIPU_API_KEY`。GLM-4.5-Flash（文本）与 GLM-4V-Flash（视觉）免费，联网搜索约 ¥0.01/次。
 >
-> **数据存储：** 画布自动保存在浏览器 IndexedDB。如需清空存档，在 DevTools Console 执行 `indexedDB.deleteDatabase('keyval-store')` 后刷新。
+> **可选依赖：** PDF 页图渲染需要 poppler（`brew install poppler`），缺失时自动降级纯文本。
+>
+> **数据存储：** 画布保存在浏览器 IndexedDB；清空存档：DevTools Console 执行 `indexedDB.deleteDatabase('keyval-store')` 后刷新。
 
-## 架构
+## 技术栈与架构
+
+| 层级 | 技术 |
+|------|------|
+| 界面 | React 19 + TypeScript + Vite 7 |
+| 画布 | @xyflow/react (React Flow) |
+| 状态 | Zustand（persist → IndexedDB via idb-keyval）|
+| 样式 | Tailwind CSS v4 |
+| 大模型 | Vercel AI SDK 多后端：智谱 GLM（免费）、通义千问，按 .env key 自动注册；Anthropic/OpenAI/DeepSeek/Ollama 一行接入 |
+| 代理 | Express + Vercel AI SDK（server.mjs，默认端口 3001）|
 
 ```
 浏览器 (localhost:5173)
@@ -214,16 +150,27 @@ npm run dev            # 另开终端，启动开发服务器
       └─ Zustand store (nodes, edges, history) ⇄ IndexedDB（自动保存）
           ├─ buildContext(nodeId) → 遍历 DAG → ContextMessage[] + images
           └─ src/lib/api.ts
-              ├─ llmCallStream(messages) → POST /api/stream（SSE 流式）
+              ├─ llmCallStream(messages) → POST /api/stream（SSE 流式 + 工具事件）
               ├─ llmCall(messages)       → POST /api/claude（非流式，用于摘要）
               └─ extractPdf(base64)      → POST /api/pdf-extract
-                        └─ Express 代理 (server.mjs) → DashScope API（Qwen Plus / 有图切 Qwen-VL）
+                        └─ Express + AI SDK (server.mjs) → 智谱 / 通义千问 / 任意 provider
+                             └─ web_search 工具（模型自主调用，引用回流）
 ```
+
+## Roadmap
+
+**近期**
+- [ ] 节点级多模型切换 — 每个节点选不同 LLM，探索用 Flash、关键推理用旗舰
+- [ ] MCP 工具生态接入 — arXiv 检索、网页全文阅读等科研工具
+- [ ] 键盘快捷键 + Cmd+F 节点搜索
+- [ ] 边交叉最小化、Hover ＋ 空白子节点、框选 Group/Ungroup
+
+**远期**
+- [ ] 多 Evaluator 协作（审稿人 + 统计顾问 + 语言编辑同挂一条主线）
+- [ ] Artifact 节点（画布上的文件产出物，Monaco 编辑器 + 版本历史）
+- [ ] 导入 ChatGPT/Claude 历史对话自动转 DAG
+- [ ] 协作模式、模板系统、本地 LLM（Ollama）、DOCX 解析
 
 ## 许可
 
 Private，暂未开源。
-
----
-
-*Xia & Claw 🐾 共同构建*

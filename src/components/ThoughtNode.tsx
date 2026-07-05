@@ -328,6 +328,23 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
             </div>
           )}
 
+          {/* Web references consulted for this response (compact) */}
+          {(data.references?.length ?? 0) > 0 && !data.isLoading && !data.isEditingResponse && (
+            <div className="mt-2 px-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-2xs text-ink-faint">
+              <Globe size={11} strokeWidth={1.75} className="shrink-0" />
+              {data.references!.slice(0, 3).map((r, i) =>
+                r.url ? (
+                  <a key={i} href={r.url} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} className="text-accent/80 hover:text-accent hover:underline nopan">
+                    [{i + 1}] {r.title.length > 44 ? r.title.slice(0, 44) + '…' : r.title}
+                  </a>
+                ) : (
+                  <span key={i}>[{i + 1}] {r.title.slice(0, 44)}</span>
+                )
+              )}
+              {data.references!.length > 3 && <span>+{data.references!.length - 3}</span>}
+            </div>
+          )}
+
           {/* Failed generation: retry in place */}
           {data.generationFailed && !data.isLoading && (
             <div className="mt-2 flex items-center gap-2 text-xs text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">

@@ -468,9 +468,10 @@ function Canvas() {
         </div>
       )}
 
-      {/* Floating input */}
+      {/* Floating input — centered on the full canvas; docks below the project
+          switcher when the panel narrows the canvas (avoids toolbar collision) */}
       {hasNodes && (
-        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-10">
+        <div className={`absolute z-10 ${panelOpen ? 'top-16 left-4' : 'top-4 left-1/2 -translate-x-1/2'}`}>
           <div
             className="bg-card/90 backdrop-blur border border-line rounded-xl px-4 py-3 shadow-lg w-[400px] transition-colors focus-within:border-accent/50"
             onDrop={(e) => { e.preventDefault(); handleFileUpload(e.dataTransfer.files); }}

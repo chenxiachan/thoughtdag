@@ -1,229 +1,176 @@
+<div align="center">
+
+<img src="public/favicon.svg" width="88" alt="ThoughtDAG logo"/>
+
 # ThoughtDAG
 
-**Explore ideas as branching conversations on an infinite canvas.**
+### Think in branches, not threads
 
-[中文](./README.md)
+**An infinite canvas that turns LLM conversations into an editable thought graph — you decide exactly what the model sees.**
 
-ThoughtDAG turns LLM conversations from linear chat threads into a spatial, editable DAG (Directed Acyclic Graph). Think Figma meets ChatGPT — you can branch, prune, merge, and precisely control what context the AI sees.
+![React](https://img.shields.io/badge/React_19-087EA4?logo=react&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![Vercel AI SDK](https://img.shields.io/badge/Vercel_AI_SDK-000000?logo=vercel&logoColor=white)
+![React Flow](https://img.shields.io/badge/React_Flow-FF0072)
+![Status](https://img.shields.io/badge/status-active_development-6B5CE7)
 
-![Status](https://img.shields.io/badge/status-prototype-orange) ![License](https://img.shields.io/badge/license-private-lightgrey)
+[中文](./README.md) · [Quick Start](#quick-start) · [Features](#features) · [Roadmap](#roadmap)
 
-## The Problem
+<img src="docs/hero.png" alt="ThoughtDAG canvas: purple main chain, orange explore branch, red evaluator watch edge, answers with cited references" width="100%"/>
 
-Current LLM interfaces are **linear, append-only, and opaque**:
+</div>
 
-- Conversations get diluted as they grow — context fills with irrelevant history
-- Exploring multiple directions means opening multiple chats, losing connections
-- You can't remove a bad response or an irrelevant tangent from the AI's memory
-- No way to "select a paragraph and dig deeper" without copy-pasting
-- **Users have zero control over the context window**
+---
 
-## The Idea
+## Why ThoughtDAG?
 
-What if conversations were a **graph on a canvas** instead of a scroll?
+Every mainstream LLM interface is **linear, append-only, and opaque**:
 
-- **Nodes** = one round of Q&A (user question + AI response)
-- **Edges** = context flow (arrows show what the AI can "see")
-- **Add an edge** = inject context. **Delete an edge** = prune context.
-- **Branch** from any text selection to explore a tangent
-- **Merge** branches by connecting nodes across paths
+- The longer a conversation runs, the more your context dilutes — and you can't delete a single line of it
+- Want to explore three directions at once? Open three windows and watch them lose all connection
+- "Circle this passage and dig deeper" — the most natural gesture there is — can only be faked with copy-paste
+- Above all: **you have zero control over what's in the context window**
 
-The context sent to the LLM is determined by a simple rule: **walk up all incoming edges recursively (DAG traversal)**. You control the graph, you control the context.
+ThoughtDAG answers with a different data structure: a conversation isn't a list. It's a **graph**.
 
-## Demo
+## One rule to own your context
+
+- **Node** = one Q&A turn · **Edge** = where context flows
+- The context sent to the model follows a single rule: **walk all incoming edges, recursively**
+- Which means: **adding an edge injects context; deleting an edge prunes it**
 
 ```
-[What is ML?] ──blue──▶ [What is DL?] ──blue──▶ [What is a Transformer?]
+[What is ML?] ──purple──▶ [What is DL?] ──purple──▶ [What is a Transformer?]
                               │
-                         orange (branch)
-                              │
+                        orange (branch from selection)
                               ▼
-                   [Explain CNNs specifically]
+                    [Explain CNNs specifically]
 ```
 
-- Node 3 ("Transformer") sees context from nodes 1 + 2
-- Delete the edge 1→2, connect 1→3 directly → node 3 now sees only node 1
-- The branch node ("CNNs") sees nodes 1 + 2 + selected text, but doesn't pollute the main chain
+- The "Transformer" node sees nodes 1 + 2; delete 1→2 and wire 1→3 directly — now it sees only node 1
+- A branch carries the selected text off to explore without polluting the main chain
+- Before every question, a live preview shows "~N tok · M messages · K files" — the context window becomes a dashboard instead of a black box
 
 ## Features
 
-### ✅ Implemented
+### 🧠 Context you can see and shape
+Every edge is a context decision: drag to merge branches, click-delete to prune memory, collapse a node and it passes its summary instead of full text (context compression). The send preview tells you what the model will see, before you ask.
+
+### 🌿 Branch anywhere, converge anywhere
+Select any passage in an answer → grow an exploration branch to the right; wire branches back together to merge conclusions; regenerate as sibling versions and keep the best; highlight key passages and "distill-regenerate" to strip the noise.
+
+### 👁️ Evaluator nodes
+Attach an adversarial "reviewer" to any line of thought (red watch edge): every time the main chain produces new content, a paper reviewer / devil's advocate / statistician fires a critique automatically. Critique history is versioned. GAN-style human-in-the-loop reasoning.
+
+### 🔍 Agentic web search
+The model decides when to search (common knowledge: never; time-sensitive facts: always), answers carry inline `[n]` citations, and the references persist with the node — every claim has a clickable source. One globe toggle to go offline.
+
+### ✂️ Editing built for deep reading
+Everything is editable, answers keep multiple versions, LaTeX and syntax highlighting render inline, semantic zoom swaps cards for large-type thumbnails when zoomed out, and one-click tidy layout re-organizes the whole graph by arrow order.
+
+### 🗂️ Research-grade workflow
+Multi-canvas projects (one topic, one graph), IndexedDB auto-save, JSON backup/import, one-click Markdown export of any context chain, an attachment system (image Vision / dual-channel PDF / precise inheritance control), a bilingual EN/中 interface, and a built-in five-step tutorial.
+
+<details>
+<summary><b>📜 Full feature list (50+)</b></summary>
 
 - **Infinite canvas** — pan, zoom, drag nodes freely (React Flow)
-- **LLM integration** — Qwen Plus via DashScope API (model-agnostic architecture)
-- **DAG context engine** — `buildContext()` walks all incoming edges recursively; topological ordering
-- **Blue edges** (continue) — ask a follow-up, inherits full ancestor context
-- **Orange edges** (branch) — select text → branch to the right, exploratory
-- **Cross-linking** — drag to connect any two nodes; merges their context
-- **Edge deletion** — right-click any edge → delete; instantly prunes context
-- **Regenerate** — creates sibling node (tree branching, not in-place replace)
+- **DAG context engine** — `buildContext()` walks all incoming edges, builds history in topological order
+- **Purple edges** (continue) — inherit the full ancestor context
+- **Orange edges** (explore) — select text → branch right with the selection as context
+- **Cross-linking** — drag to connect any two nodes and merge their context
+- **Click-to-delete edges** — select an edge for a floating delete button; right-click menu works too; Cmd+Z undoes
+- **Regenerate** — creates a sibling node (tree branching, not in-place replacement)
 - **Edit everything** — double-click to edit questions or responses
-- **Text selection toolbar** — select text in a response → Branch or Highlight
-- **Markdown rendering** — full markdown + syntax highlighting in responses
-- **Version management** — navigate between response versions, delete bad ones
-- **Focus sidebar panel** — 480px side panel: full Q&A editing, version navigation, highlight management, context chain (DAG traversal + click-to-pan), continue input
-- **Highlight system** — select text to ⭐ highlight; 3 downstream propagation modes: 📄 Full text / 🏷️ Tag important / ✂️ Highlights only
-- **Distill-regenerate** — highlight key passages → one-click LLM creates refined sibling node
-- **Auto-clean stale highlights** — editing a response auto-removes highlights no longer in text
-- **Node selection ring** — selected node shows purple highlight ring; context chain click pans canvas
-- **Undo/Redo** — Cmd+Z / Cmd+Shift+Z + visible Undo/Redo buttons on canvas
-- **Auto-layout** — nodes positioned automatically (blue↓, orange→), dynamic height
-- **Collapse/Expand** — fold nodes to save space
-- **Token counting** — per-node token usage display
-- **Streaming responses** — SSE streaming, real-time token-by-token rendering in FocusPanel + blinking cursor
-- **LaTeX rendering** — inline `$...$` and block `$$...$$` math via KaTeX
-- **Duplicate node** — copy node with Q&A + highlights, attached to same parent
-- **Explore highlights** — click Explore on highlights → input box for follow-up question, highlights injected as branch context
-- **Summary highlights** — one-click summarize highlighted content into a new branch node
-- **Column-Tree layout** — main chain flows down, branches fork into columns to the right; regenerate siblings align on the same row adjacent to the main axis
-- **Collision detection** — same-column nodes auto-nudge to avoid overlap, cascading to descendants
-- **Auto-summary per node** — background LLM generates summary; collapsed view shows summary; collapsed nodes pass summary only (context compression)
-- **Dynamic collapse layout** — collapsed nodes compact (80px), expanding shifts downstream nodes, preserves manual drag positions
-- **Selected node glow** — pulsing purple ring on selected node
-- **Multi-select** — left-click drag on canvas to box-select nodes; toolbar: Merge Summary / Merge & Delete / Summary Highlights / Explore / Delete All
-- **Stop generation** — Stop button replaces Duplicate during generation; keeps partial content on stop
-- **Ancestor edge highlighting** — selected node's path to root highlighted in gold (#F59E0B), other edges dimmed
-- **Node role system** — Per-node system prompt (Role) with 3 modes: Inherit from previous / Set for next ↓ / Reset for this node; `appliedRole` records the role used at generation time (editing doesn't affect badge)
-- **Multi-role conflict resolution** — When a DAG node has multiple incoming edges with different roles, FocusPanel shows a radio selector (Primary / Cross-link labels); defaults to primary edge, user can override
-- **Data persistence** — canvas auto-saves to IndexedDB (1s debounce), survives refresh; the restored graph becomes the base of the undo stack
-- **Multi-canvas project management** — project switcher in the top-left corner: create/switch/rename/delete canvases, each saved independently — one topic, one graph
-- **Export system** — whole-graph JSON backup with import restore; one-click Markdown export of a node's context chain or any multi-selection as a Q&A document
-- **Context send preview** — before asking, a live "will send ~N tok · M messages · K files" readout; expand it to preview every message about to be sent
-- **Retry in place** — nodes whose LLM call failed show a Retry button for in-place retry; error details go to a toast instead of polluting the response
-- **Click-to-delete edges** — click an edge to select it and a delete button floats at its midpoint; Delete key works, Cmd+Z undoes
-- **Resizable panel** — drag the FocusPanel's left edge to adjust width, double-click to reset; preference remembered automatically
-- **Environment-based config** — API keys live in `.env` (never committed); proxy port and frontend API URL are configurable; Zhipu GLM free backend / Qwen auto-registered per key
-- **Tidy layout / Align selection** — Tidy Layout rearranges the whole graph by arrow order (confirmation dialog, Cmd+Z to undo); Align stacks multi-selected nodes into one column in conversation order
-- **Bilingual UI (i18n)** — auto-detects browser language; one-click EN/中 toggle
-- **Built-in tutorial** — "How it works" five-step illustrated guide: ask → follow up → branch from a selection → prune & rewire → control the context
-- **Semantic zoom** — when zoomed out, nodes switch to large-type thumbnail cards so every node's topic stays legible from afar
-- **Evaluator nodes** — attach a "critic" to any thread (subscribed via red watch edges); critiques trigger automatically or manually as the watched thread grows; preset role templates (reviewer / devil's advocate, etc.) or custom roles
+- **Text selection toolbar** — select response text → Branch or Highlight
+- **Markdown + LaTeX** — full markdown, syntax highlighting, inline and block math
+- **Version management** — navigate response versions, delete bad ones
+- **Focus side panel** — full Q&A editing, version navigation, highlight management, context-chain visualization, follow-up input; drag-resizable width
+- **Highlight system** — three downstream modes: 📄 Full text / 🏷️ Tag important / ✂️ Highlights only
+- **Distill-regenerate** — highlight key passages → refined sibling node in one click
+- **Auto-clean stale highlights on edit**
+- **Undo/Redo** — Cmd+Z / Cmd+Shift+Z, full state snapshots
+- **Column-Tree auto-layout** — main chain flows down, branches fork right; real measured heights prevent overlap
+- **Tidy layout / Align selection** — re-organize the whole graph by arrow order (with confirm); stack selected nodes into a column
+- **Collapse/Expand** — collapsed nodes pass summaries instead of full text (context compression); downstream shifts automatically
+- **Auto-summary per node** — generated in the background, shown when collapsed
+- **Semantic zoom** — cards become large-type thumbnails when zoomed out
+- **Token counting** — per-node usage display
+- **Streaming responses** — SSE token-by-token rendering with blinking cursor, in node and panel
+- **Stop generation** — keeps partial content
+- **Retry in place** — failed generations show a Retry button; errors go to toasts, never into answers
+- **Ancestor edge highlighting** — the selected node's path to root turns gold, others dim
+- **Multi-select** — box-select nodes: Merge Summary / Merge & Delete / Align / Export / Delete
+- **Node role system** — per-node system prompt with three modes (inherit / set for next / reset here), `appliedRole` recorded at generation time, radio picker for multi-parent conflicts
+- **Role template library** — Reviewer / Devil's Advocate / Statistician / Code Reviewer / Tutor
+- **Evaluator nodes** — red watch edges subscribe to a thread, auto/manual critique, versioned critique history
+- **Agentic web search** — AI SDK tool loop + Zhipu search API, `[n]` citations + persisted references, guaranteed synthesis fallback
+- **Data persistence** — IndexedDB auto-save (1s debounce), survives refresh
+- **Multi-canvas projects** — create/switch/rename/delete, each saved independently
+- **Export system** — whole-graph JSON backup and import; context-chain / multi-select Markdown export
+- **Context send preview** — live "~N tok · M messages · K files" before asking
+- **Attachment system** — node-local attachments (drag/paste/upload), inherited include/exclude control, fingerprint dedup, automatic Vision switching for images, dual-channel PDF (text + rendered pages)
+- **Bilingual UI** — auto-detects browser language, one-click EN/中 switch
+- **Built-in tutorial** — five-step illustrated walkthrough
+- **New root anywhere** — double-click empty canvas; multiple trees coexist
+- **Environment-based config** — keys live in `.env`; available models register automatically per key
 
-### 📎 Attachment System (Phase 1 implemented)
-
-**Core differentiator**: Unlike linear chat UIs, ThoughtDAG lets you precisely control attachment inheritance in downstream nodes.
-
-- ✅ **Node-local attachments** — files bind to specific nodes, not global conversation history; drag-drop / paste / click to upload
-- ✅ **Inherited attachment control** — FocusPanel shows all upstream attachments with per-file include/exclude toggle (`excludedAttachmentIds` / `includedAttachmentIds` override mechanism)
-- ✅ **Full transparency** — see exactly which files the LLM will receive before asking
-- ✅ **Single-origin attachment** — attachments appear once at the originating node's position; downstream nodes inherit via DAG traversal; fingerprint dedup keeps them unique across merged paths
-- ✅ **Images + Vision** — automatically switches to Qwen-VL when images are present
-- ✅ **Text files** — txt/md/code injected directly into context
-- ✅ **PDF** — server-side text extraction (pdfjs) + page rendering (poppler); >10 pages defaults to text-only (Vision toggleable); degrades to text-only when poppler is absent
-- ✅ **Agentic web search** — the model decides on its own when to search (AI SDK tool loop + Zhipu search API); answers carry inline [n] citations plus a References source list; a globe toggle in the toolbar turns it off globally
-- **Phase 2 (todo)**: DOCX parsing, MCP tool ecosystem integration (arXiv, web reading, etc.)
-
-### 📋 Roadmap
-
-#### P0 — Core UX
-- [x] **Data persistence** — ✅ auto-save to IndexedDB, survives refresh (undo history and selection stay session-scoped)
-- [x] **Multi-project switching** — ✅ project switcher: create/switch/rename/delete, each canvas saved independently, legacy data auto-migrated
-- [x] **Streaming responses** — SSE streaming with real-time markdown rendering + blinking cursor in FocusPanel
-
-#### P1 — Deep Node Editing
-- [x] **Focus sidebar panel** — 480px side panel with full Q&A editing, version management, highlight management, context chain DAG visualization + click-to-pan
-- [x] **Distill-regenerate** — highlight key passages → one-click creates refined sibling node
-- [x] **Highlight context propagation** — 3 modes: Full text / Tag important / Highlights only (per-node setting)
-- [x] **Auto-clean stale highlights on edit**
-- [x] **Auto-summary per node** — ✅ Implemented
-
-#### P2 — Efficiency
-- [x] **i18n** — ✅ Chinese/English toggle (auto-detects browser language), 172 UI strings in language packs; LLM prompts stay adaptive to content language
-- [x] **Collision detection** — Column-Tree layout + collision nudging
-- [x] **Multi-select** — box-select with Merge Summary / Merge & Delete / Explore / Delete All
-- [x] **Stop generation** — Stop button during streaming, keeps partial content
-- [x] **Ancestor edge highlighting** — gold path to root on selection, dimmed others
-- [ ] **Edge crossing minimization** — optimize cross-column edge routing to reduce visual crossings
-- [ ] **Hover ＋ button below nodes** — hover below a node to reveal a ＋ button; click to create an empty child node (no question, no response) for pre-connecting context, setting roles, or manual edge wiring
-- [ ] **Group/Ungroup on multi-select** — box-select nodes → right-click context menu with Group (visual grouping, collapsible into summary node) and Ungroup
-- [ ] **Keyboard shortcuts** — Tab=continue, Space=collapse/expand, Esc=cascading dismiss, Delete=remove, R=regenerate, Cmd+D=duplicate, Cmd+E=edit question, ↑↓←→=DAG navigation (parent-child / siblings)
-- [ ] **Node search** — Cmd+F opens search, matches node content, centers canvas on result
-- [x] **Canvas new root** — ✅ double-click empty canvas to start a new question; multiple DAG trees coexist, mergeable via drag-to-cross-link
-
-#### P2.5 — Node Role System
-- [x] **Per-node System Prompt** — 3 modes: Inherit from previous / Set for next ↓ / Reset for this node
-- [x] **`appliedRole`** — Records role used at generation time; shown on node badge, unaffected by editing
-- [x] **Landing page / New root optional role**
-- [x] **Inherit role checkbox** — on Continue / Branch / Highlight Explore inputs
-- [x] **Multi-role conflict resolution** — When DAG node has multiple parents with different roles, FocusPanel shows radio selector (Primary vs Cross-link), defaults to primary edge
-- [x] **Role templates** — ✅ preset role library (paper reviewer / devil's advocate / statistics consultant / code reviewer / mentor), one-click apply when creating an Evaluator
-
-#### P3 — Differentiation
-- [x] **Evaluator Nodes (Adversarial Reasoning) ⭐ ✅ core loop implemented** — GAN-style adversarial structure, ThoughtDAG's core differentiator:
-  - 🔴 **Watch edges (red)**: New edge type — Evaluator nodes "subscribe" to a main chain; every new piece of main-chain content auto-triggers a critique
-  - **Role-driven**: Uses per-node rolePrompt (paper reviewer, debug expert, devil's advocate, etc.)
-  - **Context semantics**: Evaluator context = own history + watched main-chain content
-  - **Human-in-the-loop**: After each critique, user can edit, skip, change role, or adjust trigger frequency
-  - **Use cases**: Paper writing + reviewer, coding + code reviewer, debate (pro vs con), translation + QA, teaching + tutor
-  - **Preset templates**: One-click "Debate Mode" / "Paper Review Mode" / "Code Review Mode"
-- [ ] **Per-node multi-model switching** — Choose different LLMs per node (Claude/GPT/Qwen/DeepSeek); leverage each model's strengths
-- [x] **Cluster summarization** — ✅ multi-select Merge Summary / Merge & Delete
-- [ ] **Export to file** — Multi-select nodes → LLM organizes into code file / document / paper outline → download. Lightweight output approach
-- [ ] **Code block enhancement** — Copy/Run buttons on code blocks, "Open in Editor" with Monaco editor, save back to node
-
-#### P0.5 — Attachment System Phase 1 ✅ Done
-- [x] **Image upload + Vision** — Qwen-VL-Plus for image understanding
-- [x] **Text file upload** — txt/md/code injected directly into context
-- [x] **PDF upload** — server-side text extraction + page rendering, >10 pages defaults to text-only
-- [x] **FocusPanel attachment area** — upload zone + inherited attachment list with include/exclude toggles
-- [x] **buildContext attachment filtering** — `excludedAttachmentIds` controls which upstream attachments are excluded
-
-#### P4 — Long-term
-- [ ] **Attachment System Phase 2/3** — PDF/DOCX parsing, Web Search, LLM Tool Use
-- [ ] **Collaboration** — Real-time multi-user editing on the same DAG with cursor sync and conflict resolution
-- [ ] **Import chat history** — Auto-convert ChatGPT/Claude JSON exports into DAG structure
-- [ ] **Template system** — Preset DAG structures (research, code review, brainstorm); integrates with Evaluator templates
-- [ ] **Local LLM** — Ollama integration for fully offline, privacy-sensitive use
-- [ ] **Multi-Evaluator collaboration** — Multiple Evaluators with different roles on the same main chain (reviewer + statistician + language editor)
-- [ ] **Artifact nodes** — Special file nodes on canvas with 🟢 green contribute edges from source nodes; manual Sync triggers LLM merge; built-in Monaco editor; version history traces back to source nodes. No auto-trigger — user has full control
-- [ ] **Local file mapping** — Artifact nodes map to local filesystem (Save/Load/Watch); implement only when user feedback proves the need
-- [ ] **Context panel enhancement** — Manual include/exclude ancestors, token budget bar, click-to-locate
-
-## Tech Stack
-
-| Layer | Tech |
-|-------|------|
-| UI | React 19 + TypeScript + Vite 7 |
-| Canvas | @xyflow/react (React Flow) |
-| State | Zustand (persist → IndexedDB via idb-keyval) |
-| Styling | Tailwind CSS v4 |
-| LLM | Vercel AI SDK multi-backend: Zhipu GLM-4.5-Flash / GLM-4V-Flash (free), Qwen — auto-registered from .env keys; any provider (Anthropic/OpenAI/DeepSeek/Ollama) is one line away |
-| Proxy | Express + Vercel AI SDK (server.mjs, default port 3001) |
+</details>
 
 ## Quick Start
 
 ```bash
 npm install
 cp .env.example .env   # fill in at least one key: ZHIPU_API_KEY (free) or DASHSCOPE_API_KEY
-npm run server         # start the LLM proxy (fails fast with a hint if no key is present)
+npm run server         # start the LLM proxy (fails friendly without a key)
 npm run dev            # in another terminal, start the dev server
-# Open http://localhost:5173
+# open http://localhost:5173
 ```
 
-> **Free tier:** register at [open.bigmodel.cn](https://open.bigmodel.cn/) (phone number only), create an API key and put it in `ZHIPU_API_KEY`. GLM-4.5-Flash (text) and GLM-4V-Flash (vision for images/PDF) are both free and become the default when the key is present.
-
-> **Optional dependency:** PDF page rendering needs poppler (`brew install poppler`). Without it, PDF attachments fall back to text-only mode.
+> **Free tier:** Register at [open.bigmodel.cn](https://open.bigmodel.cn/) (phone number suffices), create an API key, and set `ZHIPU_API_KEY`. GLM-4.5-Flash (text) and GLM-4V-Flash (vision) are free; web search costs ~¥0.01/query.
 >
-> **Data storage:** The canvas auto-saves to browser IndexedDB. To wipe the save, run `indexedDB.deleteDatabase('keyval-store')` in the DevTools console and refresh.
+> **Optional dependency:** PDF page rendering needs poppler (`brew install poppler`); without it PDFs degrade gracefully to text-only.
+>
+> **Data storage:** Canvases live in browser IndexedDB. To wipe: run `indexedDB.deleteDatabase('keyval-store')` in the DevTools console and refresh.
 
-## Architecture
+## Tech Stack & Architecture
+
+| Layer | Technology |
+|-------|------------|
+| UI | React 19 + TypeScript + Vite 7 |
+| Canvas | @xyflow/react (React Flow) |
+| State | Zustand (persist → IndexedDB via idb-keyval) |
+| Styling | Tailwind CSS v4 |
+| LLM | Vercel AI SDK multi-backend: Zhipu GLM (free), Qwen — auto-registered from `.env` keys; Anthropic/OpenAI/DeepSeek/Ollama are one line away |
+| Proxy | Express + Vercel AI SDK (server.mjs, default port 3001) |
 
 ```
 Browser (localhost:5173)
   └─ React + React Flow canvas
       └─ Zustand store (nodes, edges, history) ⇄ IndexedDB (auto-save)
-          ├─ buildContext(nodeId) → walks DAG → ContextMessage[] + images
+          ├─ buildContext(nodeId) → walk DAG → ContextMessage[] + images
           └─ src/lib/api.ts
-              ├─ llmCallStream(messages) → POST /api/stream (SSE streaming)
+              ├─ llmCallStream(messages) → POST /api/stream (SSE + tool events)
               ├─ llmCall(messages)       → POST /api/claude (non-streaming, summaries)
               └─ extractPdf(base64)      → POST /api/pdf-extract
-                        └─ Express proxy (server.mjs) → DashScope API (Qwen Plus, Qwen-VL for images)
+                        └─ Express + AI SDK (server.mjs) → Zhipu / Qwen / any provider
+                             └─ web_search tool (model-invoked, citations flow back)
 ```
+
+## Roadmap
+
+**Near term**
+- [ ] Per-node model switching — cheap Flash for exploration, flagship models for the hard steps
+- [ ] MCP tool ecosystem — arXiv retrieval, full-page web reading, and other research tools
+- [ ] Keyboard shortcuts + Cmd+F node search
+- [ ] Edge-crossing minimization, hover-＋ blank child nodes, group/ungroup
+
+**Long term**
+- [ ] Multi-evaluator collaboration (reviewer + statistician + language editor on one thread)
+- [ ] Artifact nodes (file deliverables on canvas, Monaco editor + version history)
+- [ ] Import ChatGPT/Claude conversation exports as DAGs
+- [ ] Collaboration mode, template system, local LLMs (Ollama), DOCX parsing
 
 ## License
 
-Private. Not open source (yet).
-
----
-
-*Built by Xia & Claw 🐾*
+Private — not yet open source.
