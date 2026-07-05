@@ -49,7 +49,7 @@ function wrapError(err: unknown): Error {
 }
 
 // Non-streaming call (used for background summaries)
-export async function llmCall(contextMessages: ContextMessage[], images?: ImageAttachment[]): Promise<string> {
+export async function llmCall(contextMessages: ContextMessage[], images?: ImageAttachment[], modelOverride?: string): Promise<string> {
   try {
     const res = await fetch(API_URL, {
       method: 'POST',
@@ -57,7 +57,7 @@ export async function llmCall(contextMessages: ContextMessage[], images?: ImageA
       body: JSON.stringify({
         messages: contextMessages,
         images: images?.length ? images : undefined,
-        model: useUiStore.getState().selectedModel || undefined,
+        model: modelOverride || useUiStore.getState().selectedModel || undefined,
       }),
     });
 
@@ -93,6 +93,7 @@ export async function llmCallStream(
   images?: ImageAttachment[],
   callbacks?: StreamCallbacks,
   toolPrefs?: ToolPrefs,
+  modelOverride?: string,
 ): Promise<string> {
   try {
     const res = await fetch(STREAM_URL, {
@@ -103,7 +104,7 @@ export async function llmCallStream(
         images: images?.length ? images : undefined,
         webSearch: toolPrefs?.web,
         scholarSearch: toolPrefs?.scholar,
-        model: useUiStore.getState().selectedModel || undefined,
+        model: modelOverride || useUiStore.getState().selectedModel || undefined,
       }),
       signal,
     });

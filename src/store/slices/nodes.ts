@@ -231,6 +231,14 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
     get().pushHistory();
   },
 
+  setNodeModel: (nodeId: string, model: string | undefined) => {
+    set((state) => ({
+      nodes: state.nodes.map((n) =>
+        n.id === nodeId ? { ...n, data: { ...n.data, model } } : n
+      ),
+    }));
+  },
+
   alignSelection: (nodeIds: string[]) => {
     if (nodeIds.length < 2) return;
     const selected = new Set(nodeIds);

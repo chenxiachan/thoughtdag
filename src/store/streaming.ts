@@ -95,7 +95,7 @@ export async function runNodeGeneration(
     }, {
       web: useUiStore.getState().webSearchEnabled,
       scholar: useUiStore.getState().scholarSearchEnabled,
-    });
+    }, get().nodes.find((n) => n.id === nodeId)?.data.model);
     activeAbortControllers.delete(nodeId);
     writeFinal(response);
     onSuccess?.(response);

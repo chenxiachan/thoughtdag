@@ -38,6 +38,7 @@ export interface ThoughtData extends Record<string, unknown> {
   isLoading: boolean;
   generationFailed?: boolean; // set on LLM failure; cleared on retry/success (persisted so Retry survives refresh)
   references?: Reference[]; // web sources cited by the current response ([n] markers)
+  model?: string; // per-node LLM override; undefined = follow the global picker
   tokenCount: number;
   branchContext?: string;
   highlights: Highlight[];

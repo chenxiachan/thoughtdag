@@ -193,6 +193,11 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
               {data.appliedRole.slice(0, 20)}{data.appliedRole.length > 20 ? '…' : ''}
             </span>
           )}
+          {data.model && (
+            <span className="text-2xs bg-wash text-ink-muted px-1.5 py-0.5 rounded-md font-mono truncate max-w-[130px]" title={data.model}>
+              {data.model}
+            </span>
+          )}
           {hasMultipleVersions && (
             <div className="flex items-center gap-1 text-xs text-ink-muted">
               <button onClick={() => navigateVersion(id, 'prev')} className="hover:text-accent hover:bg-wash rounded-full w-5 h-5 flex items-center justify-center transition-colors"><ChevronLeft size={14} strokeWidth={1.75} /></button>

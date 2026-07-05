@@ -167,6 +167,7 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
         rolePrompt: node.data.rolePrompt,
         isRoot: !parentId,
         isBranch: node.data.isBranch,
+        model: node.data.model, // sibling keeps the original's model override
       },
     };
 

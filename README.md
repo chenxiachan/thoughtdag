@@ -110,6 +110,9 @@ Multi-canvas projects (one topic, one graph), IndexedDB auto-save, JSON backup/i
 - **Export system** — whole-graph JSON backup and import; context-chain / multi-select Markdown export
 - **Context send preview** — live "~N tok · M messages · K files" before asking
 - **Attachment system** — node-local attachments (drag/paste/upload), inherited include/exclude control, fingerprint dedup, automatic Vision switching for images, dual-channel PDF (text + rendered pages)
+- **Per-node model override** — any node can pin its own LLM (badge on the card, sibling regenerations inherit it); cheap models for exploration, flagship for the hard steps
+- **Cmd+F node search** — filter by question/answer/summary, arrows + Enter to jump-pan the canvas
+- **Keyboard shortcuts** — Space collapse, R regenerate, arrow keys walk the DAG, Esc steps out (legend in the tutorial)
 - **Bilingual UI** — auto-detects browser language, one-click EN/中 switch
 - **Built-in tutorial** — five-step illustrated walkthrough
 - **New root anywhere** — double-click empty canvas; multiple trees coexist
@@ -176,9 +179,7 @@ Browser (localhost:5173)
 ## Roadmap
 
 **Near term**
-- [ ] Per-node model switching — the global picker shipped; next: per-node override (cheap Flash for exploration, flagship for the hard steps)
-- [ ] MCP tool ecosystem — arXiv retrieval, full-page web reading, and other research tools
-- [ ] Keyboard shortcuts + Cmd+F node search
+- [ ] MCP tool ecosystem — Zotero library access, full-page web reading, and other research tools
 - [ ] Edge-crossing minimization, hover-＋ blank child nodes, group/ungroup
 
 **Long term**

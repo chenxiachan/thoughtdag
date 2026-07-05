@@ -37,6 +37,8 @@ export interface NodeSlice {
   relayout: () => void;
   /** Stack the selected nodes into one vertical column, in conversation order (undoable). */
   alignSelection: (nodeIds: string[]) => void;
+  /** Set/clear a per-node LLM override (undefined = follow the global picker). */
+  setNodeModel: (nodeId: string, model: string | undefined) => void;
 }
 
 export interface AddQuestionOptions {

@@ -106,6 +106,18 @@ export default function Tutorial() {
           ))}
         </div>
 
+        <div className="px-6 py-3 border-t border-line/60 shrink-0">
+          <p className="text-2xs text-ink-faint uppercase tracking-wider font-medium mb-1.5">{t('tutorial.shortcuts')}</p>
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-2xs text-ink-muted font-mono">
+            <span>\u2318F {t('shortcut.search')}</span>
+            <span>Space {t('shortcut.collapse')}</span>
+            <span>R {t('shortcut.regenerate')}</span>
+            <span>\u2191\u2193\u2190\u2192 {t('shortcut.navigate')}</span>
+            <span>\u2318Z {t('shortcut.undo')}</span>
+            <span>Esc {t('shortcut.escape')}</span>
+          </div>
+        </div>
+
         <div className="px-6 py-4 border-t border-line shrink-0 flex justify-end">
           <button
             onClick={() => setOpen(false)}

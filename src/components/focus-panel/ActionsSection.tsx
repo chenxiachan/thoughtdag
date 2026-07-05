@@ -3,6 +3,7 @@ import { ClipboardCopy, CornerDownLeft, Copy, Eye, FileDown, GitBranch, RefreshC
 import { useStore } from '../../store';
 import { contextChainMarkdown, downloadMarkdown, copyText } from '../../lib/export';
 import { ROLE_TEMPLATES } from '../../lib/role-templates';
+import ModelPicker from '../ui/ModelPicker';
 import { useT, useI18n } from '../../i18n';
 
 export default function ActionsSection({
@@ -37,6 +38,8 @@ export default function ActionsSection({
   const stopGeneration = useStore((s) => s.stopGeneration);
   const setSelectedNodeId = useStore((s) => s.setSelectedNodeId);
   const attachEvaluator = useStore((s) => s.attachEvaluator);
+  const setNodeModel = useStore((s) => s.setNodeModel);
+  const nodeModel = useStore((s) => s.nodes.find((n) => n.id === nodeId)?.data.model);
   const t = useT();
   const lang = useI18n((s) => s.lang);
   const [evaluatorPickerOpen, setEvaluatorPickerOpen] = useState(false);
@@ -108,6 +111,7 @@ export default function ActionsSection({
         >
           <Eye size={14} strokeWidth={1.75} /> {t('evaluator.attach')}
         </button>
+        <ModelPicker compact value={nodeModel} onChange={(m) => setNodeModel(nodeId, m)} />
         {/* Destructive, kept apart on the right */}
         <button
           onClick={() => { deleteNode(nodeId); setSelectedNodeId(null); }}

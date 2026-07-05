@@ -21,6 +21,7 @@ import ThoughtNode from './components/ThoughtNode';
 import ThoughtEdgeView from './components/ThoughtEdgeView';
 import FocusPanel from './components/focus-panel';
 import SelectionToolbar from './components/SelectionToolbar';
+import SearchBar from './components/SearchBar';
 import ProjectSwitcher from './components/ProjectSwitcher';
 import { useStore } from './store';
 import type { Attachment, ThoughtNode as ThoughtNodeType, ThoughtEdge } from './types';
@@ -64,6 +65,7 @@ function Canvas() {
   const scholarSearchEnabled = useUiStore((s) => s.scholarSearchEnabled);
   const setScholarSearchEnabled = useUiStore((s) => s.setScholarSearchEnabled);
   const [inputValue, setInputValue] = useState('');
+  const [searchOpen, setSearchOpen] = useState(false);
   const [rootRole, setRootRole] = useState('');
   const [showRootRole, setShowRootRole] = useState(false);
   const [pendingAttachments, setPendingAttachments] = useState<Attachment[]>([]);
@@ -152,6 +154,57 @@ function Canvas() {
       if ((e.metaKey || e.ctrlKey) && e.key === 'z') {
         if (e.shiftKey) { e.preventDefault(); redo(); }
         else { e.preventDefault(); undo(); }
+      }
+      // Cmd+F: node search (replaces browser find on the canvas)
+      if ((e.metaKey || e.ctrlKey) && e.key === 'f') {
+        e.preventDefault();
+        setSearchOpen(true);
+        return;
+      }
+      {
+        const target = e.target as HTMLElement;
+        const inField = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
+        if (!inField && selectedNodeId && !e.metaKey && !e.ctrlKey && !e.altKey) {
+          const { nodes: ns, edges: es } = useStore.getState();
+          // Space: collapse/expand the selected node
+          if (e.key === ' ') {
+            e.preventDefault();
+            useStore.getState().toggleCollapse(selectedNodeId);
+            return;
+          }
+          // R: regenerate
+          if (e.key === 'r' || e.key === 'R') {
+            e.preventDefault();
+            void useStore.getState().regenerate(selectedNodeId);
+            return;
+          }
+          // Arrow keys: walk the DAG (structural edges only)
+          if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+            const structural = es.filter((ed) => !ed.data?.isCrossLink);
+            let nextId: string | undefined;
+            if (e.key === 'ArrowUp') {
+              nextId = structural.find((ed) => ed.target === selectedNodeId)?.source;
+            } else if (e.key === 'ArrowDown') {
+              nextId = structural.find((ed) => ed.source === selectedNodeId)?.target;
+            } else {
+              const parentEdge = structural.find((ed) => ed.target === selectedNodeId);
+              const siblings = parentEdge
+                ? structural.filter((ed) => ed.source === parentEdge.source).map((ed) => ed.target)
+                : ns.filter((n) => !structural.some((ed) => ed.target === n.id)).map((n) => n.id);
+              const idx = siblings.indexOf(selectedNodeId);
+              if (idx !== -1 && siblings.length > 1) {
+                nextId = siblings[(idx + (e.key === 'ArrowRight' ? 1 : siblings.length - 1)) % siblings.length];
+              }
+            }
+            if (nextId) {
+              e.preventDefault();
+              setSelectedNodeId(nextId);
+              const target2 = ns.find((n) => n.id === nextId);
+              if (target2) rfInstance.current?.setCenter(target2.position.x + 260, target2.position.y + 110, { zoom: 1, duration: 300 });
+            }
+            return;
+          }
+        }
       }
       // Esc: step out — clear multi-selection first, then close the panel
       if (e.key === 'Escape') {
@@ -640,6 +693,20 @@ function Canvas() {
 
       {/* Multi-select toolbar */}
       {multiSelected && <SelectionToolbar />}
+
+      {/* Cmd+F node search */}
+      <SearchBar
+        open={searchOpen}
+        onClose={() => setSearchOpen(false)}
+        onLocate={(id) => {
+          const n = useStore.getState().nodes.find((x) => x.id === id);
+          if (n) {
+            setSelectedNodeId(id);
+            rfInstance.current?.setCenter(n.position.x + 260, n.position.y + 110, { zoom: 1, duration: 350 });
+          }
+          setSearchOpen(false);
+        }}
+      />
 
       {/* Edge context menu */}
       {edgeMenu && (
