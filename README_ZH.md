@@ -12,7 +12,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
 ![Vercel AI SDK](https://img.shields.io/badge/Vercel_AI_SDK-000000?logo=vercel&logoColor=white)
 ![React Flow](https://img.shields.io/badge/React_Flow-FF0072)
-![Status](https://img.shields.io/badge/状态-活跃开发中-6B5CE7)
+![License](https://img.shields.io/badge/许可-MIT-green) ![Status](https://img.shields.io/badge/状态-活跃开发中-6B5CE7)
 
 [English](./README.md) · [快速开始](#快速开始) · [核心特性](#核心特性) · [Roadmap](#roadmap)
 
@@ -205,4 +205,4 @@ stdio 型 server 用 `command`/`args`/`env`；远程 server 用 `url`（可选 `
 
 ## 许可
 
-Private，暂未开源。
+[MIT](./LICENSE) © 2026 Xia Chen

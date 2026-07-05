@@ -12,7 +12,7 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
 ![Vercel AI SDK](https://img.shields.io/badge/Vercel_AI_SDK-000000?logo=vercel&logoColor=white)
 ![React Flow](https://img.shields.io/badge/React_Flow-FF0072)
-![Status](https://img.shields.io/badge/status-active_development-6B5CE7)
+![License](https://img.shields.io/badge/license-MIT-green) ![Status](https://img.shields.io/badge/status-active_development-6B5CE7)
 
 [中文](./README_ZH.md) · [Quick Start](#quick-start) · [Features](#features) · [Roadmap](#roadmap)
 
@@ -205,4 +205,4 @@ Browser (localhost:5173)
 
 ## License
 
-Private — not yet open source.
+[MIT](./LICENSE) © 2026 Xia Chen

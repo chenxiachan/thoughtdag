@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-ThoughtDAG：把 LLM 对话变成无限画布上可编辑的思维 DAG（节点=一轮问答，边=上下文流）。React 19 + Vite + TypeScript 前端，Express 代理后端。状态：原型阶段，私有项目。
+ThoughtDAG：把 LLM 对话变成无限画布上可编辑的思维 DAG（节点=一轮问答，边=上下文流）。React 19 + Vite + TypeScript 前端，Express 代理后端。状态：活跃开发中的开放原型（github.com/chenxiachan/thoughtdag）。
 
 ## 常用命令
 
