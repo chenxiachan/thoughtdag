@@ -104,12 +104,19 @@ function resolveModel(modelId, hasImages) {
   return entry;
 }
 
-// Convert our wire format ({role, content}[] + images[]) to AI SDK messages —
-// images attach to the last user message, like the previous pi-ai bridge.
-function toSdkMessages(messages, images) {
+// Convert our wire format ({role, content}[] + images[]) to AI SDK inputs.
+// System messages are lifted into the top-level `system` option (AI SDK v7
+// rejects system roles inside `messages`); images attach to the last user
+// message, like the previous pi-ai bridge.
+function toSdkPrompt(messages, images) {
+  const systemParts = [];
   const out = [];
   for (let i = 0; i < messages.length; i++) {
     const m = messages[i];
+    if (m.role === 'system') {
+      systemParts.push(m.content);
+      continue;
+    }
     const isLastUser = i === messages.length - 1 && m.role === 'user';
     if (isLastUser && images && images.length > 0) {
       out.push({
@@ -123,7 +130,7 @@ function toSdkMessages(messages, images) {
       out.push({ role: m.role, content: m.content });
     }
   }
-  return out;
+  return { system: systemParts.length > 0 ? systemParts.join('\n\n') : undefined, messages: out };
 }
 
 // ─── Web search tool (Zhipu Web Search API, ¥0.01/query) ───────
@@ -261,9 +268,11 @@ app.post('/api/claude', async (req, res) => {
   const entry = resolveModel(modelId || DEFAULT_MODEL, images && images.length > 0);
 
   try {
+    const prompt = toSdkPrompt(messages, images);
     const { text, usage } = await generateText({
       model: entry.model(),
-      messages: toSdkMessages(messages, images),
+      system: prompt.system,
+      messages: prompt.messages,
       providerOptions: entry.providerOptions,
     });
     res.json({ text, usage });
@@ -293,13 +302,25 @@ app.post('/api/stream', async (req, res) => {
       })
     : undefined;
 
+  const prompt = toSdkPrompt(messages, images);
+  if (tools) {
+    // Make sure the model always synthesizes after searching
+    const directive =
+      'When you use web_search, you MUST follow up with a complete answer that synthesizes the search results, citing sources inline as [n]. Never end your turn immediately after a search.';
+    prompt.system = prompt.system ? `${prompt.system}\n\n${directive}` : directive;
+  }
+
   try {
     const result = streamText({
       model: entry.model(),
-      messages: toSdkMessages(messages, images),
+      system: prompt.system,
+      messages: prompt.messages,
       providerOptions: entry.providerOptions,
       tools,
-      stopWhen: stepCountIs(5),
+      stopWhen: stepCountIs(6),
+      // Force a synthesis step: from step 4 on, tools are disabled so the
+      // model can only write text — a run can never end on a bare search.
+      prepareStep: ({ stepNumber }) => (stepNumber >= 4 ? { activeTools: [] } : undefined),
     });
 
     for await (const delta of result.textStream) {
