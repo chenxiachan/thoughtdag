@@ -105,6 +105,16 @@ if (process.env.DEEPSEEK_API_KEY) {
   register(envModels('DEEPSEEK', ['deepseek-chat', 'deepseek-reasoner']), 'DeepSeek', (id) => deepseek(id), { vision: false });
 }
 
+if (process.env.MOONSHOT_API_KEY) {
+  // Kimi (Moonshot) — OpenAI-compatible; .cn endpoint by default,
+  // set MOONSHOT_BASE_URL=https://api.moonshot.ai/v1 for the intl platform
+  const moonshot = createOpenAICompatible({
+    name: 'moonshot', apiKey: process.env.MOONSHOT_API_KEY,
+    baseURL: process.env.MOONSHOT_BASE_URL || 'https://api.moonshot.cn/v1',
+  });
+  register(envModels('MOONSHOT', ['kimi-k2-turbo-preview', 'kimi-latest']), 'Kimi', (id) => moonshot(id), { vision: false });
+}
+
 if (process.env.OPENROUTER_API_KEY) {
   // Gateway to 300+ models — put any "vendor/model" slugs in OPENROUTER_MODELS
   const openrouter = createOpenAICompatible({
