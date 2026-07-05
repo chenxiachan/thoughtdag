@@ -17,3 +17,4 @@ dist-ssr
 !.vscode/extensions.json
 *.sw?
 mcp.config.json
+CLAUDE.md
