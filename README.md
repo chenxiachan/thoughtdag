@@ -18,9 +18,22 @@
 
 <img src="docs/hero.png" alt="ThoughtDAG canvas: purple main chain, orange explore branch, red evaluator watch edge, answers with cited references" width="100%"/>
 
+<img src="docs/demo.gif" alt="Select text in an answer, branch from it, and watch the exploration node generate" width="88%"/>
+
 </div>
 
 ---
+
+## Get running in 2 minutes
+
+```bash
+npm install
+cp .env.example .env   # one key is enough: ZHIPU_API_KEY is free (open.bigmodel.cn)
+npm run server         # LLM proxy
+npm run dev            # → http://localhost:5173
+```
+
+Your first launch lands on a **seeded example canvas** — including the ⚖️ context-pruning demo below — so you can feel the tool before typing anything. Have ChatGPT or Claude history? **Import your `conversations.json`** and your own conversations become editable graphs (branches preserved).
 
 ## Why ThoughtDAG?
 
@@ -51,10 +64,17 @@ ThoughtDAG answers with a different data structure: a conversation isn't a list.
 - A branch carries the selected text off to explore without polluting the main chain
 - Before every question, a live preview shows "~N tok · M messages · K files" — the context window becomes a dashboard instead of a black box
 
+**Seeing is believing** — the example canvas ships with this experiment: the same summary question asked twice. Node A inherits an off-topic cooking chat and it leaks straight into the answer; node B's edge to the noise is deleted, and the answer comes back clean:
+
+<img src="docs/context-compare.png" alt="Same question, two contexts: with the noise edge the answer absorbs dinner plans; with it deleted the summary stays technical" width="100%"/>
+
 ## Features
 
 ### 🧠 Context you can see and shape
 Every edge is a context decision: drag to merge branches, click-delete to prune memory, collapse a node and it passes its summary instead of full text (context compression). The send preview tells you what the model will see, before you ask.
+
+### 📥 Your history, unlocked
+Import ChatGPT or Claude `conversations.json` exports — every conversation becomes an editable canvas, and ChatGPT's edit/regenerate forks are preserved as visible graph branches. Years of locked-in linear chats turn into something you can prune, extend, and reason over.
 
 ### 🌿 Branch anywhere, converge anywhere
 Select any passage in an answer → grow an exploration branch to the right; wire branches back together to merge conclusions; regenerate as sibling versions and keep the best; highlight key passages and "distill-regenerate" to strip the noise.
@@ -123,21 +143,11 @@ Multi-canvas projects (one topic, one graph), IndexedDB auto-save, JSON backup/i
 
 </details>
 
-## Quick Start
+## Cost & privacy
 
-```bash
-npm install
-cp .env.example .env   # fill in at least one key: ZHIPU_API_KEY (free) or DASHSCOPE_API_KEY
-npm run server         # start the LLM proxy (fails friendly without a key)
-npm run dev            # in another terminal, start the dev server
-# open http://localhost:5173
-```
-
-> **Free tier:** Register at [open.bigmodel.cn](https://open.bigmodel.cn/) (phone number suffices), create an API key, and set `ZHIPU_API_KEY`. GLM-4.5-Flash (text) and GLM-4V-Flash (vision) are free; web search costs ~¥0.01/query.
->
-> **Optional dependency:** PDF page rendering needs poppler (`brew install poppler`); without it PDFs degrade gracefully to text-only.
->
-> **Data storage:** Canvases live in browser IndexedDB. To wipe: run `indexedDB.deleteDatabase('keyval-store')` in the DevTools console and refresh.
+- **Free to run.** The Zhipu free tier (GLM-4.5-Flash text + GLM-4V-Flash vision) covers every feature; agentic web search costs ~¥0.01/query. Or point it at any provider you already pay for — or a local Ollama model, fully offline.
+- **Your data stays with you.** Canvases live in your browser's IndexedDB; the only server is a thin proxy on your own machine. Nothing is uploaded anywhere except the LLM API you chose. Backups are plain JSON files you own.
+- Optional: PDF page rendering wants poppler (`brew install poppler`) — degrades gracefully to text without it.
 
 ## MCP tools — plug in the whole ecosystem
 
@@ -204,6 +214,14 @@ Browser (localhost:5173)
 - [ ] Artifact nodes (file deliverables on canvas, Monaco editor + version history)
 - [ ] Import ChatGPT/Claude conversation exports as DAGs
 - [ ] Collaboration mode, template system, local LLMs (Ollama), DOCX parsing
+
+## Feedback
+
+ThoughtDAG is an early, actively developed project — which is exactly when feedback matters most:
+
+- ⭐ **Star the repo** if the idea resonates — it genuinely helps
+- 🐛 Hit a bug or a rough edge? [Open an issue](https://github.com/chenxiachan/thoughtdag/issues)
+- 💡 Ideas about thinking-in-graphs? [Start a discussion](https://github.com/chenxiachan/thoughtdag/discussions)
 
 ## License
 

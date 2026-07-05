@@ -18,9 +18,22 @@
 
 <img src="docs/hero.png" alt="ThoughtDAG 画布：紫色主链、橙色探索分支、红色评审者监听边、带引用来源的回答" width="100%"/>
 
+<img src="docs/demo.gif" alt="选中回答中的文字，从它分支，看探索节点流式生成" width="88%"/>
+
 </div>
 
 ---
+
+## 两分钟跑起来
+
+```bash
+npm install
+cp .env.example .env   # 一把 key 就够：ZHIPU_API_KEY 免费（open.bigmodel.cn）
+npm run server         # LLM 代理
+npm run dev            # → http://localhost:5173
+```
+
+首次打开会载入**预置示例画布**——包括下方的 ⚖️ 上下文裁剪演示——不用输入任何东西就能感受这个工具。有 ChatGPT 或 Claude 的聊天记录？**导入 `conversations.json`**，你自己的对话立刻变成可编辑的图（分支保留）。
 
 ## 为什么需要 ThoughtDAG？
 
@@ -51,10 +64,17 @@ ThoughtDAG 换了一个数据结构来回答这个问题：对话不是列表，
 - 分支节点带着选中的文字去探索，却不污染主链
 - 提问前实时预览「将发送 ~N tok · M messages · K files」—— 上下文从黑箱变成仪表盘
 
+**眼见为实** —— 示例画布自带这个实验：同一个总结问题问了两次。A 节点继承了一段无关的做饭闲聊，它直接漏进了回答；B 节点通向噪音的边被删掉，回答干干净净：
+
+<img src="docs/context-compare.png" alt="同一个问题、两种上下文：带噪音边的回答混进了晚饭计划；删掉后总结保持纯技术" width="100%"/>
+
 ## 核心特性
 
 ### 🧠 上下文，可见且可塑
 每条边都是一次上下文决策：拖线合并分支、点选删除裁剪记忆、折叠节点自动改传摘要（上下文压缩）。发送预览让每次提问前都知道模型将看到什么。
+
+### 📥 解锁你的对话资产
+导入 ChatGPT 或 Claude 的 `conversations.json`——每个对话变成一张可编辑画布，ChatGPT 的编辑/重新生成分叉保留为可见的图分支。积累多年、被锁在线性聊天里的对话，变成可裁剪、可延伸、可推理的图。
 
 ### 🌿 随处分支，自由收敛
 选中回答里的任意文字 → 向右生长出一条探索分支；跨分支拖线合并结论；Regenerate 生成兄弟版本对比择优；高亮关键段落做「蒸馏重生成」，去冗余保重点。
@@ -123,21 +143,11 @@ ThoughtDAG 换了一个数据结构来回答这个问题：对话不是列表，
 
 </details>
 
-## 快速开始
+## 成本与隐私
 
-```bash
-npm install
-cp .env.example .env   # 至少填一把 key：ZHIPU_API_KEY（免费）或 DASHSCOPE_API_KEY
-npm run server         # 启动 LLM 代理（缺 key 会友好报错）
-npm run dev            # 另开终端，启动开发服务器
-# 打开 http://localhost:5173
-```
-
-> **免费用法：** 到 [open.bigmodel.cn](https://open.bigmodel.cn/) 注册智谱账号（手机号即可），生成 API key 填入 `ZHIPU_API_KEY`。GLM-4.5-Flash（文本）与 GLM-4V-Flash（视觉）免费，联网搜索约 ¥0.01/次。
->
-> **可选依赖：** PDF 页图渲染需要 poppler（`brew install poppler`），缺失时自动降级纯文本。
->
-> **数据存储：** 画布保存在浏览器 IndexedDB；清空存档：DevTools Console 执行 `indexedDB.deleteDatabase('keyval-store')` 后刷新。
+- **免费可用。** 智谱免费档（GLM-4.5-Flash 文本 + GLM-4V-Flash 视觉）覆盖全部功能；联网搜索约 ¥0.01/次。也可以接任何你已付费的模型，或本地 Ollama 完全离线。
+- **数据在你手里。** 画布存在浏览器 IndexedDB；唯一的服务端是你自己机器上的轻代理。除了你选择的 LLM API，任何数据不上传任何地方。备份是你完全拥有的 JSON 文件。
+- 可选：PDF 页图渲染需要 poppler（`brew install poppler`），缺失时自动降级纯文本。
 
 ## MCP 工具 —— 接入整个生态
 
@@ -204,6 +214,14 @@ stdio 型 server 用 `command`/`args`/`env`；远程 server 用 `url`（可选 `
 - [ ] Artifact 节点（画布上的文件产出物，Monaco 编辑器 + 版本历史）
 - [ ] 导入 ChatGPT/Claude 历史对话自动转 DAG
 - [ ] 协作模式、模板系统、本地 LLM（Ollama）、DOCX 解析
+
+## 反馈
+
+ThoughtDAG 是一个活跃开发中的早期项目——正是反馈最有价值的时候：
+
+- ⭐ 觉得这个思路有意思？**点个 Star**，这真的很有帮助
+- 🐛 遇到 bug 或不顺手的地方？[提个 issue](https://github.com/chenxiachan/thoughtdag/issues)
+- 💡 关于「用图思考」的想法？[来 Discussions 聊聊](https://github.com/chenxiachan/thoughtdag/discussions)
 
 ## 许可
 
