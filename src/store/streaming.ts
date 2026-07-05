@@ -82,7 +82,7 @@ export async function runNodeGeneration(
     }, abortController.signal, images, {
       onToolCall: (name, query) => {
         // Show what's being searched while the answer hasn't started streaming
-        const icon = name === 'arxiv_search' ? '📚' : name === 'semantic_scholar' ? '🎓' : '🔍';
+        const icon = name === 'arxiv_search' ? '📚' : name === 'semantic_scholar' ? '🎓' : name.startsWith('mcp:') ? '🔧' : '🔍';
         set((state) => ({
           nodes: state.nodes.map((n) =>
             n.id === nodeId && !n.data.response
@@ -95,6 +95,7 @@ export async function runNodeGeneration(
     }, {
       web: useUiStore.getState().webSearchEnabled,
       scholar: useUiStore.getState().scholarSearchEnabled,
+      mcp: useUiStore.getState().mcpEnabled,
     }, get().nodes.find((n) => n.id === nodeId)?.data.model);
     activeAbortControllers.delete(nodeId);
     writeFinal(response);

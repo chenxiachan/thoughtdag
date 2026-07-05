@@ -83,6 +83,7 @@ export interface StreamCallbacks {
 export interface ToolPrefs {
   web?: boolean;
   scholar?: boolean;
+  mcp?: boolean;
 }
 
 // Streaming call — invokes onChunk with each text delta, returns full text
@@ -104,6 +105,7 @@ export async function llmCallStream(
         images: images?.length ? images : undefined,
         webSearch: toolPrefs?.web,
         scholarSearch: toolPrefs?.scholar,
+        mcpTools: toolPrefs?.mcp,
         model: modelOverride || useUiStore.getState().selectedModel || undefined,
       }),
       signal,

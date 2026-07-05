@@ -105,6 +105,7 @@ ThoughtDAG 换了一个数据结构来回答这个问题：对话不是列表，
 - **角色模板库** — 审稿人 / 魔鬼代言人 / 统计顾问 / Code Reviewer / 导师
 - **Evaluator 评审节点** — 红色监听边订阅主线，自动/手动评判，批评历史版本化
 - **Agentic 检索** — AI SDK 工具循环：智谱网页搜索 + arXiv + Semantic Scholar（免费 API），`[n]` 引用 + References 持久化，强制总结兜底，工具分组开关
+- **MCP 工具生态** — Claude Desktop 同格式 `mcp.config.json`；支持 stdio 与 HTTP/SSE；工具进入 agentic 循环并带调用进度；自带 mock server 供验证
 - **数据持久化** — IndexedDB 自动保存（1s 防抖），刷新不丢
 - **多画布项目管理** — 新建/切换/重命名/删除，每张独立保存
 - **导出体系** — 整图 JSON 备份导入；上下文链/多选导出 Markdown
@@ -135,6 +136,21 @@ npm run dev            # 另开终端，启动开发服务器
 > **可选依赖：** PDF 页图渲染需要 poppler（`brew install poppler`），缺失时自动降级纯文本。
 >
 > **数据存储：** 画布保存在浏览器 IndexedDB；清空存档：DevTools Console 执行 `indexedDB.deleteDatabase('keyval-store')` 后刷新。
+
+## MCP 工具 —— 接入整个生态
+
+把 `mcp.config.example.json` 复制为 `mcp.config.json`，按 [MCP](https://modelcontextprotocol.io) 标准格式（与 Claude Desktop 完全一致，现成配置片段直接可用）列出你的 MCP server。它们的工具与联网/学术检索进入同一个 agentic 循环：**模型自主决定何时调用**，工具栏插头图标可整组关闭，调用时节点显示 🔧 进度。
+
+```jsonc
+{
+  "mcpServers": {
+    "zotero": { "command": "zotero-mcp", "env": { "ZOTERO_LOCAL": "true" } },  // 你的 Zotero 文献库
+    "fetch":  { "command": "uvx", "args": ["mcp-server-fetch"] }               // 网页全文阅读
+  }
+}
+```
+
+stdio 型 server 用 `command`/`args`/`env`；远程 server 用 `url`（可选 `type`、`headers`）。仓库自带测试 server（`scripts/mock-mcp.mjs`）——接上后问一句「某某的幸运数字是多少」即可验证全链路。
 
 ## 支持的模型
 
@@ -179,7 +195,6 @@ npm run dev            # 另开终端，启动开发服务器
 ## Roadmap
 
 **近期**
-- [ ] MCP 工具生态接入 — Zotero 文献库、网页全文阅读等科研工具
 - [ ] 边交叉最小化、Hover ＋ 空白子节点、框选 Group/Ungroup
 
 **远期**

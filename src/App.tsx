@@ -15,7 +15,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import 'highlight.js/styles/github.css';
-import { CircleHelp, FileText, GitBranch, Globe, GraduationCap, LayoutGrid, Loader2, Paperclip, Redo2, Scissors, Trash2, Undo2, Workflow, X } from 'lucide-react';
+import { CircleHelp, FileText, GitBranch, Globe, GraduationCap, LayoutGrid, Loader2, Paperclip, Plug, Redo2, Scissors, Trash2, Undo2, Workflow, X } from 'lucide-react';
 import './index.css';
 import ThoughtNode from './components/ThoughtNode';
 import ThoughtEdgeView from './components/ThoughtEdgeView';
@@ -29,6 +29,7 @@ import { processFile, FILE_INPUT_ACCEPT } from './lib/attachments';
 import { walkUpAncestors } from './lib/graph';
 import { COLORS } from './lib/constants';
 import { confirmDialog, useUiStore } from './lib/ui-store';
+import { useMcpServers } from './lib/use-mcp';
 import ConfirmDialog from './components/ui/ConfirmDialog';
 import Toaster from './components/ui/Toaster';
 import LangSwitch from './components/ui/LangSwitch';
@@ -64,6 +65,9 @@ function Canvas() {
   const setWebSearchEnabled = useUiStore((s) => s.setWebSearchEnabled);
   const scholarSearchEnabled = useUiStore((s) => s.scholarSearchEnabled);
   const setScholarSearchEnabled = useUiStore((s) => s.setScholarSearchEnabled);
+  const mcpEnabled = useUiStore((s) => s.mcpEnabled);
+  const setMcpEnabled = useUiStore((s) => s.setMcpEnabled);
+  const mcpServers = useMcpServers();
   const [inputValue, setInputValue] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
   const [rootRole, setRootRole] = useState('');
@@ -646,6 +650,19 @@ function Canvas() {
         >
           <GraduationCap size={15} strokeWidth={1.75} />
         </button>
+        {mcpServers.length > 0 && (
+          <button
+            onClick={() => setMcpEnabled(!mcpEnabled)}
+            className={`bg-card/90 backdrop-blur border rounded-lg w-8 h-8 flex items-center justify-center shadow-sm transition-colors ${
+              mcpEnabled
+                ? 'border-accent/40 text-accent hover:bg-accent/10'
+                : 'border-line text-ink-faint hover:bg-wash'
+            }`}
+            title={`${mcpEnabled ? t('toolbar.mcp') : t('toolbar.mcpOff')} — ${mcpServers.map((s) => `${s.name} (${s.tools.length})`).join(', ')}`}
+          >
+            <Plug size={15} strokeWidth={1.75} />
+          </button>
+        )}
         <LangSwitch />
         <button
           onClick={() => setTutorialOpen(true)}

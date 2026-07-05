@@ -105,6 +105,7 @@ Multi-canvas projects (one topic, one graph), IndexedDB auto-save, JSON backup/i
 - **Role template library** — Reviewer / Devil's Advocate / Statistician / Code Reviewer / Tutor
 - **Evaluator nodes** — red watch edges subscribe to a thread, auto/manual critique, versioned critique history
 - **Agentic search** — AI SDK tool loop: Zhipu web search + arXiv + Semantic Scholar (free APIs), `[n]` citations + persisted references, guaranteed synthesis fallback, per-group toolbar toggles
+- **MCP tool ecosystem** — Claude-Desktop-format `mcp.config.json`; stdio + HTTP/SSE transports; tools join the agentic loop with per-call progress; mock server included for testing
 - **Data persistence** — IndexedDB auto-save (1s debounce), survives refresh
 - **Multi-canvas projects** — create/switch/rename/delete, each saved independently
 - **Export system** — whole-graph JSON backup and import; context-chain / multi-select Markdown export
@@ -135,6 +136,21 @@ npm run dev            # in another terminal, start the dev server
 > **Optional dependency:** PDF page rendering needs poppler (`brew install poppler`); without it PDFs degrade gracefully to text-only.
 >
 > **Data storage:** Canvases live in browser IndexedDB. To wipe: run `indexedDB.deleteDatabase('keyval-store')` in the DevTools console and refresh.
+
+## MCP tools — plug in the whole ecosystem
+
+Copy `mcp.config.example.json` to `mcp.config.json` and list any [MCP](https://modelcontextprotocol.io) servers (the same format Claude Desktop uses — existing config snippets just work). Their tools join the same agentic loop as web/scholar search: **the model decides when to call them**, a plug toggle in the toolbar turns them off, and the node shows 🔧 while a tool runs.
+
+```jsonc
+{
+  "mcpServers": {
+    "zotero": { "command": "zotero-mcp", "env": { "ZOTERO_LOCAL": "true" } },  // your reference library
+    "fetch":  { "command": "uvx", "args": ["mcp-server-fetch"] }               // full web-page reading
+  }
+}
+```
+
+stdio servers use `command`/`args`/`env`; remote ones use `url` (+ optional `type`, `headers`). A mock server ships in `scripts/mock-mcp.mjs` — wire it up and ask for someone's "lucky number" to verify the loop end-to-end.
 
 ## Supported models
 
@@ -179,7 +195,6 @@ Browser (localhost:5173)
 ## Roadmap
 
 **Near term**
-- [ ] MCP tool ecosystem — Zotero library access, full-page web reading, and other research tools
 - [ ] Edge-crossing minimization, hover-＋ blank child nodes, group/ungroup
 
 **Long term**

@@ -16,3 +16,4 @@ dist-ssr
 .vscode/*
 !.vscode/extensions.json
 *.sw?
+mcp.config.json

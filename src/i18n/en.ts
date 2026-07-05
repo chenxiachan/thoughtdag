@@ -251,4 +251,6 @@ export const en = {
   'shortcut.escape': 'step out',
   'toolbar.scholarSearch': 'Scholar search (arXiv + Semantic Scholar): the model decides when to search',
   'toolbar.scholarSearchOff': 'Scholar search off',
+  'toolbar.mcp': 'MCP tools: the model decides when to use them',
+  'toolbar.mcpOff': 'MCP tools off',
 } as const;

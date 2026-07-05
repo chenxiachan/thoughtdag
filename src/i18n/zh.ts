@@ -251,4 +251,6 @@ export const zh: Record<keyof typeof en, string> = {
   'shortcut.escape': '逐级退出',
   'toolbar.scholarSearch': '学术检索（arXiv + Semantic Scholar）：模型自行判断何时检索',
   'toolbar.scholarSearchOff': '学术检索已关闭',
+  'toolbar.mcp': 'MCP 工具：模型自行判断何时调用',
+  'toolbar.mcpOff': 'MCP 工具已关闭',
 };

@@ -4,6 +4,8 @@ import { streamText, generateText, tool, stepCountIs } from 'ai';
 import { z } from 'zod';
 import { createZhipu } from 'zhipu-ai-provider';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
+import { createMCPClient } from '@ai-sdk/mcp';
+import { Experimental_StdioMCPTransport as StdioMCPTransport } from '@ai-sdk/mcp/mcp-stdio';
 import { createOpenAI } from '@ai-sdk/openai';
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
@@ -210,6 +212,49 @@ async function zhipuWebSearch(query, count = 5) {
   }));
 }
 
+// ─── MCP servers (optional, mcp.config.json) ────────────────────
+// Standard Claude-Desktop-style config: { "mcpServers": { name: {command,
+// args, env} | {url, type?, headers?} } }. Connected once at startup;
+// their tools join the same agentic loop as web/scholar search — the
+// model decides when to call them.
+
+const mcpToolsets = []; // [{ server, tools: ToolSet }]
+const mcpClients = [];
+
+async function loadMcpServers() {
+  let config;
+  try {
+    config = JSON.parse(fs.readFileSync(new URL('mcp.config.json', import.meta.url), 'utf8'));
+  } catch {
+    return; // no config file — MCP integration stays off
+  }
+  for (const [name, spec] of Object.entries(config.mcpServers || {})) {
+    try {
+      const transport = spec.url
+        ? { type: spec.type || 'http', url: spec.url, headers: spec.headers }
+        : new StdioMCPTransport({ command: spec.command, args: spec.args, env: spec.env, cwd: spec.cwd });
+      const client = await Promise.race([
+        createMCPClient({ transport, onUncaughtError: (e) => console.warn(`MCP [${name}]:`, e?.message || e) }),
+        new Promise((_, rej) => setTimeout(() => rej(new Error('connect timeout (10s)')), 10000)),
+      ]);
+      const tools = await client.tools();
+      mcpClients.push(client);
+      mcpToolsets.push({ server: name, tools });
+      console.log(`✓ MCP [${name}]: ${Object.keys(tools).length} tool(s) — ${Object.keys(tools).join(', ')}`);
+    } catch (e) {
+      console.warn(`⚠ MCP [${name}] failed to connect: ${e.message}`);
+    }
+  }
+}
+await loadMcpServers();
+
+for (const sig of ['SIGINT', 'SIGTERM']) {
+  process.on(sig, async () => {
+    await Promise.all(mcpClients.map((c) => c.close().catch(() => {})));
+    process.exit(0);
+  });
+}
+
 // ─── Scholarly search (free open APIs, no keys) ─────────────────
 
 // arXiv Atom API — regex-parse the stable entry fields (no XML dep needed)
@@ -310,6 +355,22 @@ function makeTools(sources, onSearch, prefs = {}) {
     });
   }
 
+  if (prefs.mcp !== false) {
+    for (const { server, tools: ts } of mcpToolsets) {
+      for (const [tname, tdef] of Object.entries(ts)) {
+        // Provider tool-name rules: [a-zA-Z0-9_-], prefixed to avoid clashes
+        const key = `${server}_${tname}`.replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 64);
+        tools[key] = {
+          ...tdef,
+          execute: async (args, opts) => {
+            onSearch?.(`mcp:${server}`, `${tname} ${JSON.stringify(args ?? {}).slice(0, 60)}`);
+            return tdef.execute(args, opts);
+          },
+        };
+      }
+    }
+  }
+
   return Object.keys(tools).length > 0 ? tools : undefined;
 }
 
@@ -384,6 +445,16 @@ app.post('/api/pdf-extract', async (req, res) => {
 });
 
 // List available models
+// Connected external tool servers — the UI shows an MCP toggle when non-empty
+app.get('/api/tools', (req, res) => {
+  res.json({
+    mcpServers: mcpToolsets.map(({ server, tools }) => ({
+      name: server,
+      tools: Object.keys(tools),
+    })),
+  });
+});
+
 app.get('/api/models', (req, res) => {
   const models = Object.entries(modelRegistry).map(([id, m]) => ({
     id,
@@ -417,7 +488,7 @@ app.post('/api/claude', async (req, res) => {
 // SSE streaming endpoint. The model decides on its own which tools to use
 // and when; `webSearch: false` / `scholarSearch: false` hide tool groups.
 app.post('/api/stream', async (req, res) => {
-  const { messages, model: modelId, images, webSearch, scholarSearch } = req.body;
+  const { messages, model: modelId, images, webSearch, scholarSearch, mcpTools } = req.body;
   const entry = resolveModel(modelId || DEFAULT_MODEL, images && images.length > 0);
 
   res.writeHead(200, {
@@ -440,7 +511,7 @@ app.post('/api/stream', async (req, res) => {
       // Progress ping so the UI can show what's being searched
       res.write(`data: ${JSON.stringify({ tool: { name, query } })}\n\n`);
     },
-    { web: webSearch !== false, scholar: scholarSearch !== false }
+    { web: webSearch !== false, scholar: scholarSearch !== false, mcp: mcpTools !== false }
   );
 
   const prompt = toSdkPrompt(messages, images);

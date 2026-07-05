@@ -1,0 +1,20 @@
+{
+  "//": "Copy to mcp.config.json and list your MCP servers (Claude-Desktop-style format). Their tools join the same agentic loop as web/scholar search — the model decides when to call them. stdio servers use command/args/env; remote servers use url (+ optional type: 'http'|'sse', headers).",
+  "mcpServers": {
+    "mock": {
+      "//": "Built-in test server — ask for someone's lucky number to verify the wiring",
+      "command": "node",
+      "args": ["scripts/mock-mcp.mjs"]
+    },
+    "//zotero": {
+      "//": "Your Zotero library (pip install zotero-mcp; needs Zotero running with the local API enabled)",
+      "command": "zotero-mcp",
+      "env": { "ZOTERO_LOCAL": "true" }
+    },
+    "//fetch": {
+      "//": "Full web-page reading (needs uv: brew install uv)",
+      "command": "uvx",
+      "args": ["mcp-server-fetch"]
+    }
+  }
+}
