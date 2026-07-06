@@ -35,6 +35,7 @@ import ConfirmDialog from './components/ui/ConfirmDialog';
 import Toaster from './components/ui/Toaster';
 import LangSwitch from './components/ui/LangSwitch';
 import ModelPicker from './components/ui/ModelPicker';
+import RoleTemplateChips from './components/ui/RoleTemplateChips';
 import Tutorial from './components/Tutorial';
 import { useT, t as ti, fmt, useI18n } from './i18n';
 
@@ -493,6 +494,7 @@ function Canvas() {
                       className="w-full text-xs border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-accent bg-surface resize-none leading-relaxed"
                       rows={2}
                     />
+                    <RoleTemplateChips onPick={setRootRole} />
                   </div>
                 )}
               </div>
@@ -640,6 +642,7 @@ function Canvas() {
                   placeholder={t('canvas.rolePlaceholder')}
                   className="w-full text-xs border border-line rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-accent bg-surface"
                 />
+                <RoleTemplateChips onPick={setRootRole} />
               </div>
             )}
           </div>

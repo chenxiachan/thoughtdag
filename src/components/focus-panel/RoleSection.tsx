@@ -1,6 +1,7 @@
 import { ChevronRight, RefreshCw } from 'lucide-react';
 import { useStore } from '../../store';
 import { useT } from '../../i18n';
+import RoleTemplateChips from '../ui/RoleTemplateChips';
 import type { ThoughtData } from '../../types';
 
 export default function RoleSection({
@@ -127,6 +128,9 @@ export default function RoleSection({
               rows={2}
               autoFocus
             />
+          )}
+          {roleMode !== 'inherit' && (
+            <RoleTemplateChips onPick={(p) => { setRolePrompt(nodeId, p); setRoleChanged(true); }} />
           )}
           {/* Regenerate button for Reset mode — show whenever reset mode is active with a prompt */}
           {roleMode === 'reset' && data.rolePrompt && !!data.response && !data.isLoading && (

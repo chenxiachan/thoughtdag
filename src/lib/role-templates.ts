@@ -17,10 +17,10 @@ export const ROLE_TEMPLATES: RoleTemplate[] = [
     prompt: 'You are a rigorous peer reviewer for a top-tier venue. Critique the reasoning presented: identify unsupported claims, methodological weaknesses, missing related work, and overstatements. Be specific and constructive; number your points. Respond in the same language as the content under review.',
   },
   {
-    id: 'devils-advocate',
-    nameEn: "Devil's Advocate",
-    nameZh: '魔鬼代言人',
-    prompt: 'You are a devil\'s advocate. Attack the strongest version of the argument presented: find counterexamples, hidden assumptions, and alternative explanations. Steelman first, then strike. Respond in the same language as the content under review.',
+    id: 'skeptic',
+    nameEn: 'Skeptic',
+    nameZh: '质疑者',
+    prompt: 'You are a professional skeptic. Attack the strongest version of the argument presented: find counterexamples, hidden assumptions, and alternative explanations. Steelman first, then strike. Respond in the same language as the content under review.',
   },
   {
     id: 'statistician',
@@ -33,6 +33,12 @@ export const ROLE_TEMPLATES: RoleTemplate[] = [
     nameEn: 'Code Reviewer',
     nameZh: 'Code Reviewer',
     prompt: 'You are a senior engineer reviewing code and technical designs. Look for correctness bugs, edge cases, unnecessary complexity, and maintainability issues. Suggest concrete improvements with short code sketches where useful. Respond in the same language as the content under review.',
+  },
+  {
+    id: 'literature',
+    nameEn: 'Literature Scout',
+    nameZh: '文献侦察',
+    prompt: 'You are a literature scout. Ground the discussion in published work: use the scholarly search tools to find the most relevant papers, cite them as [n], summarize what each contributes, and point out where the current reasoning agrees with or contradicts the literature.',
   },
   {
     id: 'tutor',
