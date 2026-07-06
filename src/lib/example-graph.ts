@@ -21,7 +21,7 @@ const CONTENT: Record<Lang, { nodes: SeedNode[] }> = {
       {
         id: 'welcome',
         q: '👋 Welcome to ThoughtDAG — read me first',
-        a: 'This canvas is a **conversation you can edit** — built from a few small blocks that combine into everything else:\n\n- **Node** = one Q&A · **Arrow** = context flow (whatever wires in, the model sees)\n- **Purple** = follow-up chain · **Orange** = a branch grown from selected text · **Red dashed** = an edge that slides forward as its thread grows\n- **🔁 Auto-refresh (Live)**: any node can regenerate whenever upstream changes. The reviewer below-right is just an ordinary node + critic role + this switch — so you can question its critique or branch from it like any node\n\n⚖️ **Don\'t miss the pair on the right** — same question, different context, different answer.\n\nDelete anything, drag anything, press `?` for the tutorial. This graph is yours now.',
+        a: 'This canvas is a **conversation you can edit** — built from a few small blocks that combine into everything else:\n\n- **Node** = one Q&A · **Arrow** = context flow (whatever wires in, the model sees)\n- **Purple** = follow-up chain · **Orange** = a branch grown from selected text\n- **Red dashed** = a reviewer's edge. It slides forward as the thread grows, and the reviewer re-critiques each new step on its own. A reviewer is an ordinary node — question its critique, branch from it, wire it anywhere\n\n⚖️ **Don\'t miss the pair on the right** — same question, different context, different answer.\n\nDelete anything, drag anything, press `?` for the tutorial. This graph is yours now.',
         x: 40, y: 30,
       },
       {
@@ -52,7 +52,7 @@ const CONTENT: Record<Lang, { nodes: SeedNode[] }> = {
       {
         id: 'evaluator',
         q: '[Reviewer] Critique the discussion above: identify overclaims, missing evidence, and unstated assumptions. Be concise.',
-        a: '**Critique:** the one-step "parity" claim is overstated — quality still trails multi-step samplers at high resolution. Cite quantitative FID gaps rather than asserting parity.\n\n*Try asking me a follow-up — I\'m an ordinary node. The red edge slides forward as the thread grows, and Auto-refresh makes me re-critique each new step.*',
+        a: '**Critique:** the one-step "parity" claim is overstated — quality still trails multi-step samplers at high resolution. Cite quantitative FID gaps rather than asserting parity.\n\n*Try asking me a follow-up — I\'m an ordinary node. The red edge slides forward as your thread grows, and I re-critique each new step on my own.*',
         x: 1360, y: 1060,
         extra: {
           isEvaluator: true, autoRerun: true,
@@ -85,7 +85,7 @@ const CONTENT: Record<Lang, { nodes: SeedNode[] }> = {
       {
         id: 'welcome',
         q: '👋 欢迎来到 ThoughtDAG —— 先读我',
-        a: '这张画布是一段**可以编辑的对话**——整个产品只是几个积木，组合出其余一切：\n\n- **节点** = 一轮问答 · **箭头** = 上下文流向（连进来的，模型就看得见）\n- **紫色** = 追问主链 · **橙色** = 从选中文字长出的分支 · **红色虚线** = 随思路延伸自动前移的跟随边\n- **🔁 自动刷新（实时）**：任何节点都能开——上游一变它就重新生成。右下角的审稿人就是「普通节点 + 批评角色 + 这个开关」，所以你可以反问它的批评、从它分支，像对任何节点一样\n\n⚖️ **别错过右侧那对节点**——同一个问题、不同上下文、不同回答。\n\n随便删、随便拖，`?` 有教程。这张图现在是你的了。',
+        a: '这张画布是一段**可以编辑的对话**——整个产品只是几个积木，组合出其余一切：\n\n- **节点** = 一轮问答 · **箭头** = 上下文流向（连进来的，模型就看得见）\n- **紫色** = 追问主链 · **橙色** = 从选中文字长出的分支\n- **红色虚线** = 审稿人的边。它随讨论延伸自动前移，审稿人对每一步新内容自动重新评审。审稿人就是普通节点——可以反问它的批评、从它分支、连到任何地方\n\n⚖️ **别错过右侧那对节点**——同一个问题、不同上下文、不同回答。\n\n随便删、随便拖，`?` 有教程。这张图现在是你的了。',
         x: 40, y: 30,
       },
       {
@@ -116,7 +116,7 @@ const CONTENT: Record<Lang, { nodes: SeedNode[] }> = {
       {
         id: 'evaluator',
         q: '[审稿人] 批评上面的讨论：指出夸大之处、缺失的证据和未言明的假设。保持简洁。',
-        a: '**批评：**「一步生成达到同等质量」的说法言过其实——高分辨率下质量仍落后于多步采样器。应引用具体的 FID 差距数据，而不是断言持平。\n\n*试着追问我——我就是个普通节点。红色跟随边会随讨论延伸自动前移，自动刷新让我对每一步新内容重新评审。*',
+        a: '**批评：**「一步生成达到同等质量」的说法言过其实——高分辨率下质量仍落后于多步采样器。应引用具体的 FID 差距数据，而不是断言持平。\n\n*试着追问我——我就是个普通节点。红色的边会随讨论延伸自动前移，每一步新内容我都会自己重新评审。*',
         x: 1360, y: 1060,
         extra: {
           isEvaluator: true, autoRerun: true,

@@ -15,7 +15,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import 'highlight.js/styles/github.css';
-import { CircleHelp, FileText, GitBranch, Globe, GraduationCap, LayoutGrid, Loader2, Paperclip, Pause, Play, Plug, Redo2, Scissors, Trash2, Undo2, Workflow, X } from 'lucide-react';
+import { CircleHelp, FileText, GitBranch, Globe, GraduationCap, LayoutGrid, Loader2, Paperclip, Plug, Redo2, Scissors, Trash2, Undo2, Workflow, X } from 'lucide-react';
 import './index.css';
 import ThoughtNode from './components/ThoughtNode';
 import ThoughtEdgeView from './components/ThoughtEdgeView';
@@ -70,9 +70,6 @@ function Canvas() {
   const mcpEnabled = useUiStore((s) => s.mcpEnabled);
   const setMcpEnabled = useUiStore((s) => s.setMcpEnabled);
   const mcpServers = useMcpServers();
-  const autoRefreshPaused = useUiStore((s) => s.autoRefreshPaused);
-  const setAutoRefreshPaused = useUiStore((s) => s.setAutoRefreshPaused);
-  const hasAutoNodes = nodes.some((n) => n.data.autoRerun ?? n.data.evaluatorTrigger === 'auto');
   const [inputValue, setInputValue] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
   const [rootRole, setRootRole] = useState('');
@@ -661,19 +658,6 @@ function Canvas() {
       {/* Toolbar: web search, language, tutorial, relayout, undo/redo */}
       <div className="absolute top-4 right-4 z-10 flex gap-1.5 items-center">
         <ModelPicker />
-        {hasAutoNodes && (
-          <button
-            onClick={() => setAutoRefreshPaused(!autoRefreshPaused)}
-            className={`bg-card/90 backdrop-blur border rounded-lg w-8 h-8 flex items-center justify-center shadow-sm transition-colors ${
-              autoRefreshPaused
-                ? 'border-amber-400/60 text-amber-600 hover:bg-amber-50'
-                : 'border-line text-ink-muted hover:bg-wash'
-            }`}
-            title={autoRefreshPaused ? t('rerun.resumeAll') : t('rerun.pauseAll')}
-          >
-            {autoRefreshPaused ? <Play size={15} strokeWidth={1.75} /> : <Pause size={15} strokeWidth={1.75} />}
-          </button>
-        )}
         <button
           onClick={() => setWebSearchEnabled(!webSearchEnabled)}
           className={`bg-card/90 backdrop-blur border rounded-lg w-8 h-8 flex items-center justify-center shadow-sm transition-colors ${

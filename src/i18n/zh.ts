@@ -251,6 +251,7 @@ export const zh: Record<keyof typeof en, string> = {
   'import.selectAll': '全选',
   'import.messages': '{n} 条消息',
   'import.confirm': '导入选中的 {n} 个',
+  'evaluator.rerun': '立即重新评审',
   'rerun.label': '自动刷新',
   'rerun.auto': '实时',
   'rerun.off': '关',

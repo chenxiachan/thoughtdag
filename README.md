@@ -85,8 +85,8 @@ Import ChatGPT or Claude `conversations.json` exports — every conversation bec
 ### 🌿 Branch anywhere, converge anywhere
 Select any passage in an answer → grow an exploration branch to the right; wire branches back together to merge conclusions; regenerate as sibling versions and keep the best; highlight key passages and "distill-regenerate" to strip the noise.
 
-### 🔁 Live nodes & bounded loops — one primitive, many tools
-Any node can be set to **auto-refresh**: it regenerates whenever anything upstream changes. Combined with roles, this one switch composes into reviewers, live summaries, running translations, standing research questions — no dedicated feature per use case. The **Reviewer preset** wires it up in one click: a critic persona on a red edge that slides forward as your thread grows, re-critiquing every new step (history versioned). And because a reviewer is just a node, you can talk back to it — question its critique, branch from it, wire it anywhere. Wire a critic BACK to its writer and raise the rounds budget (×3, ×5\u2026) and you get a **bounded self-improvement loop**: draft → critique → revise, iterating on one click and stopping deterministically when the budget runs out. A global pause switch stops all automation instantly.
+### 👁️ Reviewers that keep up
+Attach a critic to any thread in one click: a reviewer persona rides a red edge that slides forward as your thread grows, re-critiquing each new step automatically (history versioned). And because a reviewer is just an ordinary node, you can talk back to it — question its critique, branch from it, wire its opinion into any other generation.
 
 ### 🔍 Agentic search — web & scholarly
 The model decides when to search and which tool fits: web search for facts and current events, **arXiv + Semantic Scholar for papers** (abstracts, authors, citation counts). Answers carry inline `[n]` citations and the references persist with the node — every claim has a clickable source. Toolbar toggles turn each tool group off.
@@ -129,7 +129,7 @@ Multi-canvas projects (one topic, one graph), IndexedDB auto-save, JSON backup/i
 - **Multi-select** — box-select nodes: Merge Summary / Merge & Delete / Align / Export / Delete
 - **Node role system** — per-node system prompt with three modes (inherit / set for next / reset here), `appliedRole` recorded at generation time, radio picker for multi-parent conflicts
 - **Role template library** — Reviewer / Devil's Advocate / Statistician / Code Reviewer / Tutor
-- **Auto-rerun primitive** — any node regenerates when upstream changes; Reviewer preset (critic role + sliding red edge) composes from it, as do live summaries and running translations
+- **Reviewer preset** — critic role on a sliding red edge; re-critiques each new step automatically, history versioned; reviewers are ordinary nodes (question them, branch from them)
 - **Agentic search** — AI SDK tool loop: Zhipu web search + arXiv + Semantic Scholar (free APIs), `[n]` citations + persisted references, guaranteed synthesis fallback, per-group toolbar toggles
 - **MCP tool ecosystem** — Claude-Desktop-format `mcp.config.json`; stdio + HTTP/SSE transports; tools join the agentic loop with per-call progress; mock server included for testing
 - **Data persistence** — IndexedDB auto-save (1s debounce), survives refresh

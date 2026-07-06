@@ -251,6 +251,7 @@ export const en = {
   'import.selectAll': 'Select all',
   'import.messages': '{n} messages',
   'import.confirm': 'Import {n} selected',
+  'evaluator.rerun': 'Re-critique now',
   'rerun.label': 'Auto-refresh',
   'rerun.auto': 'Live',
   'rerun.off': 'Off',

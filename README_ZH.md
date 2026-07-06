@@ -129,7 +129,7 @@ ThoughtDAG 换了一个数据结构来回答这个问题：对话不是列表，
 - **多选操作** — 框选节点：Merge Summary / Merge & Delete / Align / Export / Delete
 - **节点角色系统** — 节点级 System Prompt 三模式（继承/向下设置/本节点重置），`appliedRole` 记录生成时角色，多父冲突 Radio 选择
 - **角色模板库** — 审稿人 / 魔鬼代言人 / 统计顾问 / Code Reviewer / 导师
-- **自动重跑原语** — 任意节点上游变化即重新生成；审稿人预设（批评角色+滑动红边）由它组合而来，活摘要、随动翻译同理
+- **审稿人预设** — 批评角色骑在滑动红边上，每步新内容自动重新评审、历史成版本；审稿人是普通节点（可反问、可分支）
 - **Agentic 检索** — AI SDK 工具循环：智谱网页搜索 + arXiv + Semantic Scholar（免费 API），`[n]` 引用 + References 持久化，强制总结兜底，工具分组开关
 - **MCP 工具生态** — Claude Desktop 同格式 `mcp.config.json`；支持 stdio 与 HTTP/SSE；工具进入 agentic 循环并带调用进度；自带 mock server 供验证
 - **数据持久化** — IndexedDB 自动保存（1s 防抖），刷新不丢

@@ -13,7 +13,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   const {
     deleteNode, toggleCollapse, setEditing, editQuestion, regenerate,
     setEditingResponse, editResponse, addHighlight, navigateVersion, deleteVersion,
-    setSelectedNodeId, selectedNodeId, addAttachment, rerunNode, setAutoRerun,
+    setSelectedNodeId, selectedNodeId, addAttachment, rerunNode,
   } = useStore();
   const t = useT();
   const [isDropTarget, setIsDropTarget] = useState(false);
@@ -134,7 +134,6 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
 
   const isRoot = data.isRoot;
   const isBranch = data.isBranch;
-  const isAuto = data.autoRerun ?? data.evaluatorTrigger === 'auto';
   const hasMultipleVersions = data.responses.length > 1;
 
   const highlightedTexts = new Set(data.highlights.map((h) => h.text));
@@ -217,29 +216,15 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
           )}
         </div>
         <div className="flex items-center gap-0.5">
-          {isAuto || data.isEvaluator ? (
-            <>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setAutoRerun(id, !isAuto);
-                }}
-                className={`text-2xs px-2 h-6 rounded-full font-medium transition-colors ${
-                  isAuto ? (data.isEvaluator ? 'bg-watch/10 text-watch' : 'bg-accent/10 text-accent') : 'bg-wash text-ink-faint'
-                }`}
-                title={isAuto ? t('rerun.autoTitle') : t('rerun.offTitle')}
-              >
-                {isAuto ? `${t('rerun.auto')}${(data.autoRerunRounds ?? 1) > 1 ? ` \u00d7${data.autoRerunRounds}` : ''}` : t('rerun.off')}
-              </button>
-              <button
-                onClick={(e) => { e.stopPropagation(); void rerunNode(id); }}
-                disabled={data.isLoading}
-                className="text-ink-faint hover:text-watch hover:bg-red-50 rounded-full w-7 h-7 flex items-center justify-center transition-colors disabled:opacity-30"
-                title={t('rerun.now')}
-              >
-                <RefreshCw size={16} strokeWidth={1.75} className={data.isLoading ? 'animate-spin' : ''} />
-              </button>
-            </>
+          {data.isEvaluator ? (
+            <button
+              onClick={(e) => { e.stopPropagation(); void rerunNode(id); }}
+              disabled={data.isLoading}
+              className="text-ink-faint hover:text-watch hover:bg-red-50 rounded-full w-7 h-7 flex items-center justify-center transition-colors disabled:opacity-30"
+              title={t('evaluator.rerun')}
+            >
+              <RefreshCw size={16} strokeWidth={1.75} className={data.isLoading ? 'animate-spin' : ''} />
+            </button>
           ) : (
             <button onClick={() => regenerate(id)} className="text-ink-faint hover:text-accent hover:bg-wash rounded-full w-7 h-7 flex items-center justify-center transition-colors" title={t('common.regenerate')}>
               <RefreshCw size={16} strokeWidth={1.75} />
