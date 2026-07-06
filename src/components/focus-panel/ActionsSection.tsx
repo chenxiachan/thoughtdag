@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { Archive, ArchiveRestore, ClipboardCopy, CornerDownLeft, Copy, Eye, FileDown, GitBranch, RefreshCw, Square, Trash2 } from 'lucide-react';
+import { Archive, ArchiveRestore, ClipboardCopy, CornerDownLeft, Copy, Eye, FileDown, GitBranch, RefreshCw, Split, Square, Trash2 } from 'lucide-react';
 import { useStore } from '../../store';
 import { contextChainMarkdown, downloadMarkdown, copyText } from '../../lib/export';
 import { ROLE_TEMPLATES, rolePromptFor } from '../../lib/role-templates';
 import ModelPicker from '../ui/ModelPicker';
+import FanOutModal from '../FanOutModal';
 import { useT, useI18n } from '../../i18n';
 
 export default function ActionsSection({
@@ -45,6 +46,8 @@ export default function ActionsSection({
   const t = useT();
   const lang = useI18n((s) => s.lang);
   const [evaluatorPickerOpen, setEvaluatorPickerOpen] = useState(false);
+  const [fanOutOpen, setFanOutOpen] = useState(false);
+  const nodeQuestion = useStore((s) => s.nodes.find((n) => n.id === nodeId)?.data.question ?? '');
   const [customRole, setCustomRole] = useState('');
 
   const handleBranchSubmit = () => {
@@ -103,6 +106,13 @@ export default function ActionsSection({
           className="text-xs bg-wash hover:bg-line text-ink-muted px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
         >
           <ClipboardCopy size={14} strokeWidth={1.75} /> {t('actions.copyMd')}
+        </button>
+        <button
+          onClick={() => setFanOutOpen(true)}
+          title={t('fanout.entryTitle')}
+          className="text-xs bg-wash hover:bg-line text-ink-muted px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5"
+        >
+          <Split size={14} strokeWidth={1.75} /> {t('fanout.entry')}
         </button>
         <button
           onClick={() => setEvaluatorPickerOpen((v) => !v)}
@@ -177,6 +187,13 @@ export default function ActionsSection({
             </button>
           </div>
         </div>
+      )}
+      {fanOutOpen && (
+        <FanOutModal
+          parentId={nodeId}
+          initialQuestion={nodeQuestion}
+          onClose={() => setFanOutOpen(false)}
+        />
       )}
       {showBranchInput && (
         <div className="mt-3">

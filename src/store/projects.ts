@@ -21,6 +21,8 @@ export interface ProjectMeta {
   name: string;
   createdAt: number;
   updatedAt: number;
+  /** 'chat' (default) = conversation canvas; 'paradigm' = orchestration view, no LLM. */
+  kind?: 'chat' | 'paradigm';
 }
 
 interface ProjectsState {
@@ -107,11 +109,11 @@ export async function switchProject(id: string): Promise<void> {
 }
 
 // ─── CRUD ───────────────────────────────────────────────────────
-export async function createProject(name = 'Untitled'): Promise<string> {
+export async function createProject(name = 'Untitled', kind: 'chat' | 'paradigm' = 'chat'): Promise<string> {
   const id = crypto.randomUUID();
   const now = Date.now();
   useProjects.setState((s) => ({
-    projects: [...s.projects, { id, name, createdAt: now, updatedAt: now }],
+    projects: [...s.projects, { id, name, createdAt: now, updatedAt: now, kind }],
   }));
   await saveMeta();
   await switchProject(id); // empty key rehydrates to an empty canvas
@@ -139,10 +141,10 @@ export async function deleteProject(id: string): Promise<void> {
 
 // Register a project entry for graph data already written to its storage key
 // (used by JSON import) and switch to it.
-export async function adoptImportedProject(id: string, name: string): Promise<void> {
+export async function adoptImportedProject(id: string, name: string, kind: 'chat' | 'paradigm' = 'chat'): Promise<void> {
   const now = Date.now();
   useProjects.setState((s) => ({
-    projects: [...s.projects, { id, name, createdAt: now, updatedAt: now }],
+    projects: [...s.projects, { id, name, createdAt: now, updatedAt: now, kind }],
   }));
   await saveMeta();
   await switchProject(id);

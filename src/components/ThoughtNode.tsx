@@ -1,13 +1,14 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Handle, Position, useStore as useRfStore, type NodeProps } from '@xyflow/react';
-import { AlertTriangle, Archive, ChevronDown, ChevronLeft, ChevronRight, Eye, GitBranch, Globe, Paperclip, RefreshCw, Send, Star, Trash2, X } from 'lucide-react';
+import { AlertTriangle, Archive, ChevronDown, ChevronLeft, ChevronRight, Eye, GitBranch, Globe, Paperclip, RefreshCw, Send, Split, Star, Trash2, X } from 'lucide-react';
 import 'katex/dist/katex.min.css';
 import type { ThoughtNode as ThoughtNodeType } from '../types';
 import { useStore } from '../store';
 import { generateId } from '../utils';
 import { processFile } from '../lib/attachments';
 import { Markdown, HighlightedMarkdown } from './Markdown';
-import { useT } from '../i18n';
+import FanOutModal from './FanOutModal';
+import { useT, fmt } from '../i18n';
 
 export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   const {
@@ -17,6 +18,9 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   } = useStore();
   const t = useT();
   const [isDropTarget, setIsDropTarget] = useState(false);
+  const [fanoutOpen, setFanoutOpen] = useState(false);
+  // fan-out placeholder shows its expand button until branches exist
+  const hasFanoutChildren = useStore((s) => s.edges.some((e) => e.source === id && e.data?.isBranchFromSelection));
   const [selectedText, setSelectedText] = useState('');
   const [selectionPos, setSelectionPos] = useState<{ x: number; y: number } | null>(null);
   const [inputValue, setInputValue] = useState('');
@@ -320,6 +324,28 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
                 <HighlightedMarkdown content={data.response} highlights={highlightedTexts} />
               ) : (
                 <Markdown>{data.response}</Markdown>
+              )}
+            </div>
+          )}
+
+          {/* Fan-out placeholder: the human decides when to expand */}
+          {data.stepKind === 'fanout' && !hasFanoutChildren && !data.isLoading && (
+            <div className="mt-2">
+              <button
+                onClick={(e) => { e.stopPropagation(); setFanoutOpen(true); }}
+                title={t('paradigm.expandTitle')}
+                className="w-full border-2 border-dashed border-warm/50 hover:border-warm hover:bg-warm/5 text-warm rounded-xl py-3 flex items-center justify-center gap-2 text-sm font-medium transition-colors"
+              >
+                <Split size={16} strokeWidth={1.75} />
+                {fmt(t('paradigm.expand'), { n: data.fanoutRoles?.length ?? 0 })}
+              </button>
+              {fanoutOpen && (
+                <FanOutModal
+                  parentId={id}
+                  initialQuestion={data.question}
+                  initialRoles={data.fanoutRoles}
+                  onClose={() => setFanoutOpen(false)}
+                />
               )}
             </div>
           )}

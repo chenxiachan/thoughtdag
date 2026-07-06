@@ -116,6 +116,90 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
     await runNodeGeneration(set, get, id, { question, messages: contextMessages, images: contextImages });
   },
 
+  /**
+   * Fan out: one question, N context-isolated role branches. Each branch is
+   * an ordinary child node (orange branch edge, reset role) so siblings
+   * can't see each other — structural blindness for candidate pools.
+   * Generations run concurrently (bounded); one history entry for the batch.
+   */
+  fanOut: async (parentId: string, question: string, roles: { name: string; prompt: string }[]) => {
+    const parent = get().nodes.find((n) => n.id === parentId);
+    if (!parent || roles.length === 0) return;
+    get().pushHistory();
+
+    // Create all branch nodes and edges up front (single layout pass)
+    const created: { id: string; role: { name: string; prompt: string } }[] = [];
+    const newNodes: ThoughtNode[] = [];
+    const newEdges: ThoughtEdge[] = [];
+    for (const role of roles) {
+      const id = generateId();
+      created.push({ id, role });
+      newNodes.push({
+        id,
+        type: 'thought',
+        position: { x: 0, y: 0 },
+        dragHandle: '.drag-handle',
+        data: {
+          question,
+          response: '',
+          responses: [],
+          responseIndex: -1,
+          isCollapsed: false,
+          isEditing: false,
+          isEditingResponse: false,
+          isLoading: true,
+          tokenCount: 0,
+          branchContext: undefined,
+          highlights: [], highlightMode: 'tag', attachments: [], excludedAttachmentIds: [], includedAttachmentIds: [],
+          roleMode: 'reset',
+          rolePrompt: role.prompt,
+          isRoot: false,
+          isBranch: true, // orange styling: exploratory candidates
+        },
+      });
+      newEdges.push({
+        id: `edge-${parentId}-${id}`,
+        source: parentId,
+        target: id,
+        sourceHandle: 'branch',
+        targetHandle: 'left',
+        type: 'smoothstep',
+        style: { stroke: COLORS.warm, strokeWidth: 2, strokeDasharray: '6 3' },
+        animated: true,
+        markerEnd: { type: 'arrowclosed' as const, color: COLORS.warm, width: 18, height: 18 },
+        data: { isBranchFromSelection: true, branchYRatio: 0.5 },
+      });
+    }
+
+    const allEdges = [...get().edges, ...newEdges];
+    const allNodes = autoLayout(
+      [...get().nodes.map((n) => (n.id === parentId ? { ...n, data: { ...n.data, isCollapsed: true } } : n)), ...newNodes],
+      allEdges,
+    );
+    set({ nodes: allNodes, edges: allEdges, selectedNodeId: null, selectedNodeIds: [] });
+
+    // Shared ancestor context (built once — identical for every sibling)
+    const ctx = buildContext(parentId, get().nodes, get().edges);
+
+    // Bounded concurrency: free-tier providers dislike large bursts
+    const LIMIT = 6;
+    let cursor = 0;
+    const worker = async () => {
+      while (cursor < created.length) {
+        const { id, role } = created[cursor++];
+        const messages: ContextMessage[] = [...ctx.messages.filter((m) => m.role !== 'system')];
+        messages.unshift({ role: 'system', content: role.prompt });
+        const appliedRole = role.prompt;
+        set((state) => ({
+          nodes: state.nodes.map((n) => (n.id === id ? { ...n, data: { ...n.data, appliedRole } } : n)),
+        }));
+        messages.push({ role: 'user', content: question });
+        await runNodeGeneration(set, get, id, { question, messages, images: ctx.images });
+      }
+    };
+    await Promise.all(Array.from({ length: Math.min(LIMIT, created.length) }, worker));
+  },
+
   editQuestion: async (nodeId: string, question: string) => {
     get().pushHistory();
     set((state) => ({

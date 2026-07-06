@@ -2,6 +2,7 @@ import { set as idbSet } from 'idb-keyval';
 import { useStore, stripTransient } from '../store';
 import { useProjects, projectStorageKey, adoptImportedProject } from '../store/projects';
 import { detectFormat, listConversations, type ImportableConversation } from './import-chat';
+import { isParadigmFile } from './paradigm';
 import { getContextPath } from './graph';
 import { countTokens } from '../utils';
 import { toast } from './ui-store';
@@ -54,6 +55,14 @@ export function exportActiveProjectJson(): void {
  * backup directly, or the conversation list of a ChatGPT/Claude export so
  * the caller can show a picker.
  */
+export function exportActiveParadigm(): void {
+  const { nodes, edges } = useStore.getState();
+  const name = activeProjectName();
+  const payload = JSON.stringify({ kind: 'thoughtdag-paradigm', version: 1, name, nodes: stripTransient(nodes), edges });
+  downloadFile(`${sanitizeFilename(name)}.paradigm.json`, payload, 'application/json');
+  toast('success', fmt(t('toast.exported'), { name }));
+}
+
 export async function parseImportFile(file: File): Promise<
   { kind: 'own'; ok: boolean } | { kind: 'chat'; conversations: ImportableConversation[] } | { kind: 'error' }
 > {
@@ -63,6 +72,13 @@ export async function parseImportFile(file: File): Promise<
   } catch {
     toast('error', t('toast.importFailedJson'));
     return { kind: 'error' };
+  }
+  if (isParadigmFile(parsed)) {
+    const id = crypto.randomUUID();
+    await idbSet(projectStorageKey(id), JSON.stringify({ state: { nodes: parsed.nodes, edges: parsed.edges }, version: PERSIST_VERSION }));
+    await adoptImportedProject(id, parsed.name || 'Paradigm', 'paradigm');
+    toast('success', fmt(t('toast.imported'), { name: parsed.name, n: parsed.nodes.length }));
+    return { kind: 'own', ok: true };
   }
   const format = detectFormat(parsed);
   if (format === 'chatgpt' || format === 'claude') {

@@ -18,12 +18,18 @@ import 'highlight.js/styles/github.css';
 import { CircleHelp, FileText, GitBranch, Globe, GraduationCap, LayoutGrid, Loader2, Paperclip, Plug, Redo2, Scissors, Trash2, Undo2, Workflow, X } from 'lucide-react';
 import './index.css';
 import ThoughtNode from './components/ThoughtNode';
+import ParadigmNode from './components/ParadigmNode';
 import ThoughtEdgeView from './components/ThoughtEdgeView';
 import FocusPanel from './components/focus-panel';
 import SelectionToolbar from './components/SelectionToolbar';
 import SearchBar from './components/SearchBar';
 import ProjectSwitcher from './components/ProjectSwitcher';
 import { useStore } from './store';
+import { useProjects, adoptImportedProject } from './store/projects';
+import { projectStorageKey } from './store/projects';
+import { set as idbSet } from 'idb-keyval';
+import { instantiateParadigm } from './lib/paradigm';
+import { generateId } from './utils';
 import type { Attachment, ThoughtNode as ThoughtNodeType, ThoughtEdge } from './types';
 import { processFile, FILE_INPUT_ACCEPT } from './lib/attachments';
 import { walkUpAncestors } from './lib/graph';
@@ -39,7 +45,13 @@ import RoleTemplateChips from './components/ui/RoleTemplateChips';
 import Tutorial from './components/Tutorial';
 import { useT, t as ti, fmt, useI18n } from './i18n';
 
-const nodeTypes = { thought: ThoughtNode };
+// One node type key, two renderers: the active project's kind decides
+// whether a node is a conversation card or an orchestration step card.
+function NodeDispatch(props: Parameters<typeof ThoughtNode>[0]) {
+  const isParadigm = useProjects((s) => s.projects.find((p) => p.id === s.activeId)?.kind === 'paradigm');
+  return isParadigm ? <ParadigmNode {...props} /> : <ThoughtNode {...props} />;
+}
+const nodeTypes = { thought: NodeDispatch };
 // Overrides the built-in smoothstep so persisted edges need no migration
 const edgeTypes = { smoothstep: ThoughtEdgeView };
 
@@ -83,6 +95,7 @@ function Canvas() {
   const rfInstance = useRef<ReactFlowInstance<ThoughtNodeType, ThoughtEdge> | null>(null);
   const prevNodeCount = useRef(nodes.length);
   const lang = useI18n((s) => s.lang);
+  const isParadigm = useProjects((s) => s.projects.find((p) => p.id === s.activeId)?.kind === 'paradigm');
 
   const loadExample = useCallback(() => {
     const { nodes: exNodes, edges: exEdges } = buildExampleGraph(lang);
@@ -93,10 +106,43 @@ function Canvas() {
     setTimeout(() => rfInstance.current?.fitView({ duration: 500, padding: 0.1 }), 100);
   }, [lang]);
 
+  // ── Orchestration (paradigm) mode helpers ──
+  const addStep = useCallback(() => {
+    const st = useStore.getState();
+    const last = st.nodes[st.nodes.length - 1];
+    const pos = last ? { x: last.position.x, y: last.position.y + 340 } : { x: 120, y: 80 };
+    const id = generateId();
+    st.setNodes([...st.nodes, {
+      id, type: 'thought', position: pos, dragHandle: '.drag-handle',
+      data: {
+        question: '', instruction: '', stepKind: 'step',
+        response: '', responses: [], responseIndex: -1,
+        isCollapsed: false, isEditing: false, isEditingResponse: false, isLoading: false,
+        tokenCount: 0, highlights: [], highlightMode: 'tag',
+        attachments: [], excludedAttachmentIds: [], includedAttachmentIds: [],
+        roleMode: 'inherit', isRoot: st.nodes.length === 0, isBranch: false,
+      },
+    }]);
+    st.pushHistory();
+  }, []);
+
+  const instantiate = useCallback(async () => {
+    const st = useStore.getState();
+    if (st.nodes.length === 0) return;
+    const { nodes: cNodes, edges: cEdges } = instantiateParadigm(st.nodes, st.edges);
+    const meta = useProjects.getState();
+    const pname = meta.projects.find((p) => p.id === meta.activeId)?.name ?? 'Paradigm';
+    const id = crypto.randomUUID();
+    await idbSet(projectStorageKey(id), JSON.stringify({ state: { nodes: cNodes, edges: cEdges }, version: 1 }));
+    await adoptImportedProject(id, `\u25b6 ${pname}`, 'chat');
+    prevNodeCount.current = useStore.getState().nodes.length;
+    setTimeout(() => rfInstance.current?.fitView({ duration: 400, padding: 0.15 }), 150);
+  }, []);
+
   // First run ever: seed the example canvas so newcomers land on a living
   // graph (incl. the context-pruning ⚖️ demo) instead of a blank page.
   useEffect(() => {
-    if (nodes.length === 0 && !localStorage.getItem('thoughtdag.seeded')) {
+    if (nodes.length === 0 && !isParadigm && !localStorage.getItem('thoughtdag.seeded')) {
       localStorage.setItem('thoughtdag.seeded', 'yes');
       loadExample();
     }
@@ -169,7 +215,7 @@ function Canvas() {
 
   const selectedNodeId = useStore((s) => s.selectedNodeId);
   const selectedNodeIds = useStore((s) => s.selectedNodeIds);
-  const panelOpen = !!selectedNodeId;
+  const panelOpen = !!selectedNodeId && !isParadigm;
   const multiSelected = selectedNodeIds.length > 1;
   const batchDelete = useStore((s) => s.batchDelete);
 
@@ -190,7 +236,7 @@ function Canvas() {
       {
         const target = e.target as HTMLElement;
         const inField = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
-        if (!inField && selectedNodeId && !e.metaKey && !e.ctrlKey && !e.altKey) {
+        if (!inField && selectedNodeId && !isParadigm && !e.metaKey && !e.ctrlKey && !e.altKey) {
           const { nodes: ns, edges: es } = useStore.getState();
           // Space: collapse/expand the selected node
           if (e.key === ' ') {
@@ -266,7 +312,7 @@ function Canvas() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [undo, redo, selectedNodeId, selectedNodeIds, setSelectedNodeId, setSelectedNodeIds, batchDelete, edges, deleteEdges]);
+  }, [undo, redo, selectedNodeId, selectedNodeIds, setSelectedNodeId, setSelectedNodeIds, batchDelete, edges, deleteEdges, isParadigm]);
 
   const handleSubmit = () => {
     if (!inputValue.trim()) return;
@@ -397,7 +443,21 @@ function Canvas() {
       </ReactFlow>
 
       {/* Initial input */}
-      {!hasNodes && (
+      {!hasNodes && isParadigm && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div className="text-center pointer-events-auto">
+            <p className="text-sm text-ink-muted mb-1 font-medium">{t('paradigm.emptyTitle')}</p>
+            <p className="text-xs text-ink-faint mb-4 max-w-sm leading-relaxed">{t('paradigm.emptyHint')}</p>
+            <button
+              onClick={addStep}
+              className="text-sm bg-ink text-white hover:bg-ink/85 px-5 py-2.5 rounded-xl transition-colors"
+            >
+              + {t('paradigm.addStep')}
+            </button>
+          </div>
+        </div>
+      )}
+      {!hasNodes && !isParadigm && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
           {/* Watermark: faint DAG sketches anchoring the corners */}
           <svg className="absolute -left-10 top-[8%] w-[360px] h-[300px] opacity-[0.35] pointer-events-none" viewBox="0 0 360 300" aria-hidden>
@@ -657,7 +717,25 @@ function Canvas() {
 
       {/* Toolbar: web search, language, tutorial, relayout, undo/redo */}
       <div className="absolute top-4 right-4 z-10 flex gap-1.5 items-center">
-        <ModelPicker />
+        {isParadigm && (
+          <>
+            <button
+              onClick={addStep}
+              className="bg-card/90 backdrop-blur border border-line rounded-lg h-8 px-3 flex items-center gap-1.5 shadow-sm hover:bg-wash transition-colors text-ink-muted text-xs font-medium"
+            >
+              + {t('paradigm.addStep')}
+            </button>
+            <button
+              onClick={() => void instantiate()}
+              title={t('paradigm.instantiateTitle')}
+              className="bg-ink text-white rounded-lg h-8 px-3 flex items-center gap-1.5 shadow-sm hover:bg-ink/85 transition-colors text-xs font-medium"
+            >
+              \u25b6 {t('paradigm.instantiate')}
+            </button>
+          </>
+        )}
+        {!isParadigm && <ModelPicker />}
+        {!isParadigm && (<>
         <button
           onClick={() => setWebSearchEnabled(!webSearchEnabled)}
           className={`bg-card/90 backdrop-blur border rounded-lg w-8 h-8 flex items-center justify-center shadow-sm transition-colors ${
@@ -693,6 +771,7 @@ function Canvas() {
             <Plug size={15} strokeWidth={1.75} />
           </button>
         )}
+        </>)}
         <LangSwitch />
         <button
           onClick={() => setTutorialOpen(true)}

@@ -41,6 +41,10 @@ export interface ThoughtData extends Record<string, unknown> {
   model?: string; // per-node LLM override; undefined = follow the global picker
   autoRerun?: boolean; // regenerate in place whenever an upstream ancestor finishes (generic primitive)
   archived?: boolean; // pruned-but-kept: dimmed on canvas, EXCLUDED from every context walk
+  // ── paradigm (orchestration view) fields ──
+  stepKind?: 'step' | 'fanout' | 'review' | 'synthesis'; // paradigm step type; also marks fan-out placeholders on chat canvases
+  instruction?: string; // prompt-engineering body of a paradigm step (becomes the question on instantiation)
+  fanoutRoles?: { name: string; prompt: string }[]; // role list carried by fanout steps/placeholders
   autoRerunRounds?: number; // max auto-triggered runs per user action (default 1); >1 enables loops
   tokenCount: number;
   branchContext?: string;
@@ -72,6 +76,7 @@ export interface ThoughtEdge extends Edge {
         layout (no tree structure) but feeds context like any incoming edge. */
     isWatch?: boolean;
     followsTip?: boolean; // edge slides forward to the newest node of its source thread
+    branchYRatio?: number; // where along the parent the branch handle sits
   };
 }
 

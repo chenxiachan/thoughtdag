@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { ChevronDown, Download, FolderOpen, Loader2, Pencil, Plus, Trash2, Upload } from 'lucide-react';
-import { useProjects, switchProject, createProject, renameProject, deleteProject } from '../store/projects';
-import { exportActiveProjectJson, parseImportFile } from '../lib/export';
+import { ChevronDown, Dna, Download, FolderOpen, Loader2, Pencil, Plus, Trash2, Upload } from 'lucide-react';
+import { useProjects, switchProject, createProject, renameProject, deleteProject, projectStorageKey, adoptImportedProject } from '../store/projects';
+import { set as idbSet } from 'idb-keyval';
+import { buildRuleOutRuleIn } from '../lib/paradigms/rule-out-rule-in';
+import { useI18n } from '../i18n';
+import { exportActiveProjectJson, exportActiveParadigm, parseImportFile } from '../lib/export';
 import ImportChatModal from './ImportChatModal';
 import type { ImportableConversation } from '../lib/import-chat';
 import { confirmDialog } from '../lib/ui-store';
@@ -24,6 +27,8 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
   const projects = useProjects((s) => s.projects);
   const activeId = useProjects((s) => s.activeId);
   const switching = useProjects((s) => s.switching);
+  const activeIsParadigm = projects.find((p) => p.id === activeId)?.kind === 'paradigm';
+  const lang = useI18n((s) => s.lang);
   const [open, setOpen] = useState(false);
   const [chatImport, setChatImport] = useState<ImportableConversation[] | null>(null);
   const [renamingId, setRenamingId] = useState<string | null>(null);
@@ -59,7 +64,9 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
       >
         {switching
           ? <Loader2 size={16} strokeWidth={1.75} className="animate-spin shrink-0 text-accent" />
-          : <FolderOpen size={16} strokeWidth={1.75} className="shrink-0 text-ink-muted" />}
+          : activeIsParadigm
+            ? <Dna size={16} strokeWidth={1.75} className="shrink-0 text-accent" />
+            : <FolderOpen size={16} strokeWidth={1.75} className="shrink-0 text-ink-muted" />}
         <span className="truncate font-medium">{active?.name ?? '…'}</span>
         <ChevronDown size={14} strokeWidth={1.75} className="shrink-0 text-ink-faint" />
       </button>
@@ -133,10 +140,29 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
               <Plus size={15} strokeWidth={1.75} /> {t('switcher.newCanvas')}
             </button>
             <button
-              onClick={() => { exportActiveProjectJson(); setOpen(false); }}
+              onClick={() => { setOpen(false); void createProject(ti('paradigm.badge'), 'paradigm').then(onSwitched); }}
               className="w-full text-left px-3 py-2 text-sm text-ink-muted hover:bg-wash transition-colors flex items-center gap-2"
             >
-              <Download size={15} strokeWidth={1.75} /> {t('switcher.exportBackup')}
+              <Dna size={15} strokeWidth={1.75} /> {t('paradigm.newParadigm')}
+            </button>
+            <button
+              onClick={async () => {
+                setOpen(false);
+                const { name, nodes, edges } = buildRuleOutRuleIn(lang);
+                const id = crypto.randomUUID();
+                await idbSet(projectStorageKey(id), JSON.stringify({ state: { nodes, edges }, version: 1 }));
+                await adoptImportedProject(id, name, 'paradigm');
+                onSwitched();
+              }}
+              className="w-full text-left px-3 py-2 text-xs text-ink-faint hover:bg-wash transition-colors flex items-center gap-2 pl-8"
+            >
+              {t('paradigm.exampleRuleOut')}
+            </button>
+            <button
+              onClick={() => { if (activeIsParadigm) exportActiveParadigm(); else exportActiveProjectJson(); setOpen(false); }}
+              className="w-full text-left px-3 py-2 text-sm text-ink-muted hover:bg-wash transition-colors flex items-center gap-2"
+            >
+              <Download size={15} strokeWidth={1.75} /> {activeIsParadigm ? t('paradigm.exportParadigm') : t('switcher.exportBackup')}
             </button>
             <button
               onClick={() => importFileRef.current?.click()}
