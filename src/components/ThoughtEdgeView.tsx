@@ -1,4 +1,4 @@
-import { BaseEdge, EdgeLabelRenderer, getSmoothStepPath, type EdgeProps } from '@xyflow/react';
+import { BaseEdge, EdgeLabelRenderer, getBezierPath, type EdgeProps } from '@xyflow/react';
 import { X } from 'lucide-react';
 import { useStore } from '../store';
 import { useT } from '../i18n';
@@ -7,19 +7,23 @@ import type { ThoughtEdge } from '../types';
 /**
  * Custom edge registered under the 'smoothstep' type name (overrides the
  * built-in, so edges persisted before this component existed pick it up
- * with no migration). Click an edge to select it — a delete button appears
- * at its midpoint, and Delete/Backspace removes it via App's key handler.
+ * with no migration). Renders as a bezier ARC: aligned nodes get a near-
+ * straight line, offset nodes a gentle curve — far fewer circuit-board
+ * right angles, and curves read distinctly where edges must cross.
+ * Click an edge to select it — a delete button appears at its midpoint,
+ * and Delete/Backspace removes it via App's key handler.
  */
 export default function ThoughtEdgeView({
   id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition,
-  style, markerEnd, markerStart, selected, pathOptions, interactionWidth,
-}: EdgeProps<ThoughtEdge> & { pathOptions?: { borderRadius?: number; offset?: number } }) {
+  style, markerEnd, markerStart, selected, interactionWidth,
+}: EdgeProps<ThoughtEdge>) {
   const deleteEdges = useStore((s) => s.deleteEdges);
   const t = useT();
-  const [path, labelX, labelY] = getSmoothStepPath({
+  // Gentle curvature: enough arc to swing around neighbouring cards
+  // without ballooning on long spans.
+  const [path, labelX, labelY] = getBezierPath({
     sourceX, sourceY, sourcePosition, targetX, targetY, targetPosition,
-    borderRadius: pathOptions?.borderRadius,
-    offset: pathOptions?.offset,
+    curvature: 0.3,
   });
 
   // When selected, force full visibility (overrides the ancestor-dim pass)
