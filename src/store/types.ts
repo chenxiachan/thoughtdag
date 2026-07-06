@@ -58,6 +58,9 @@ export interface AddQuestionOptions {
 export interface LlmSlice {
   addQuestion: (question: string, opts?: AddQuestionOptions) => void;
   editQuestion: (nodeId: string, question: string) => void;
+  /** A paradigm human turn: record the question WITHOUT generating (the
+   *  answers belong to downstream prompt nodes), then advance the cascade. */
+  submitHumanTurn: (nodeId: string, question: string) => void;
   /** Fan out one question into N context-isolated role branches (candidate pool). */
   fanOut: (parentId: string, question: string, roles: { name: string; prompt: string }[]) => Promise<void>;
   regenerate: (nodeId: string) => void;

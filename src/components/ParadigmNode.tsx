@@ -77,38 +77,30 @@ export default function ParadigmNode({ id, data }: NodeProps<ThoughtNodeType>) {
           className="w-full text-sm font-semibold text-ink bg-transparent focus:outline-none placeholder-ink-faint"
         />
 
-        {/* body: the prompt (machine) or operator guidance (human) */}
+        {/* body: THE prompt (machine) or operator guidance (human) — one
+            field; a persona is just the opening lines of the prompt */}
         <textarea
           value={data.instruction ?? ''}
           onChange={(e) => patch({ instruction: e.target.value })}
           placeholder={t(kind === 'human' ? 'paradigm.humanHintPlaceholder' : 'paradigm.promptPlaceholder')}
-          rows={3}
+          rows={kind === 'human' ? 3 : 4}
           className={`w-full text-xs text-ink bg-surface border border-line rounded-lg px-2.5 py-2 focus:outline-none focus:ring-1 resize-y leading-relaxed ${
             kind === 'human' ? 'focus:ring-warm/40' : 'focus:ring-accent/40'
           }`}
         />
 
-        {/* optional role — only a machine step speaks through a persona */}
+        {/* persona chips: prepend a template persona into the prompt */}
         {kind === 'prompt' && (
-          <div>
-            <div className="flex flex-wrap gap-1 mb-1">
-              {ROLE_TEMPLATES.map((tpl) => (
-                <button
-                  key={tpl.id}
-                  onClick={() => patch({ rolePrompt: rolePromptFor(tpl, lang) })}
-                  className="text-2xs bg-wash hover:bg-accent/10 hover:text-accent text-ink-muted px-1.5 py-0.5 rounded-full transition-colors"
-                >
-                  {lang === 'zh' ? tpl.nameZh : tpl.nameEn}
-                </button>
-              ))}
-            </div>
-            <textarea
-              value={data.rolePrompt ?? ''}
-              onChange={(e) => patch({ rolePrompt: e.target.value })}
-              placeholder={t('paradigm.rolePlaceholder')}
-              rows={2}
-              className="w-full text-2xs text-ink-muted bg-surface border border-line rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-accent/40 resize-y leading-relaxed"
-            />
+          <div className="flex flex-wrap gap-1" title={t('paradigm.insertPersona')}>
+            {ROLE_TEMPLATES.map((tpl) => (
+              <button
+                key={tpl.id}
+                onClick={() => patch({ instruction: `${rolePromptFor(tpl, lang)}\n${data.instruction ?? ''}` })}
+                className="text-2xs bg-wash hover:bg-accent/10 hover:text-accent text-ink-muted px-1.5 py-0.5 rounded-full transition-colors"
+              >
+                + {lang === 'zh' ? tpl.nameZh : tpl.nameEn}
+              </button>
+            ))}
           </div>
         )}
       </div>

@@ -113,6 +113,7 @@ export async function runNodeGeneration(
     get().pushHistory();
     generateSummary(nodeId, question, response, get().setSummary);
     triggerAutoReruns(set, get, nodeId);
+    triggerParadigmCascade(get, nodeId);
   } catch (err) {
     activeAbortControllers.delete(nodeId);
     const partial = get().nodes.find((n) => n.id === nodeId)?.data.response || '';
@@ -141,6 +142,39 @@ export async function runNodeGeneration(
  *    node reruns itself in place. Chains of autoRerun nodes cascade
  *    naturally; the DAG has no cycles to worry about.
  */
+/**
+ * Paradigm cascade: an instantiated paradigm executes itself forward. When a
+ * node completes, every STRUCTURAL child tagged stepKind 'prompt' that has
+ * never produced a response starts automatically — but only once ALL of its
+ * structural parents are complete (a human parent counts as complete when its
+ * question is filled; failed parents block until retried). Human nodes are
+ * never auto-run, so the run pauses wherever the paradigm put a person.
+ * Each prompt node is filled at most once (only empty nodes fire) — no loops.
+ * Ordinary canvases are untouched: nothing there carries stepKind 'prompt'.
+ */
+export function triggerParadigmCascade(get: Get, completedNodeId: string): void {
+  if (useUiStore.getState().autoRefreshPaused) return; // same global brake
+  const { nodes, edges } = get();
+  const byId = new Map(nodes.map((n) => [n.id, n]));
+  const isComplete = (id: string): boolean => {
+    const n = byId.get(id);
+    if (!n || n.data.isLoading) return false;
+    if (n.data.stepKind === 'human') return !!n.data.question.trim();
+    return !!n.data.response && !n.data.generationFailed;
+  };
+  for (const edge of edges) {
+    if (edge.source !== completedNodeId || edge.data?.isCrossLink) continue;
+    const child = byId.get(edge.target);
+    if (!child || child.data.stepKind !== 'prompt') continue;
+    if (child.data.response || child.data.isLoading || child.data.generationFailed) continue;
+    const parentIds = edges.filter((e) => e.target === child.id && !e.data?.isCrossLink).map((e) => e.source);
+    if (!parentIds.every(isComplete)) continue; // fan-in: wait for all parents
+    // rerunNode sets isLoading synchronously before awaiting, so a sibling
+    // completion arriving next tick sees the child as busy — no double fire.
+    void get().rerunNode(child.id, { auto: true });
+  }
+}
+
 function triggerAutoReruns(set: Set, get: Get, completedNodeId: string): void {
   if (useUiStore.getState().autoRefreshPaused) return; // global kill switch
   // 1) slide followsTip edges whose source thread just grew: the completed

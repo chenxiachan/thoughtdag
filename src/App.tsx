@@ -28,7 +28,7 @@ import { useStore } from './store';
 import { useProjects, adoptImportedProject, createProject, createBuiltinParadigm } from './store/projects';
 import { projectStorageKey } from './store/projects';
 import { set as idbSet } from 'idb-keyval';
-import { instantiateParadigm } from './lib/paradigm';
+import { instantiateParadigm, isRunLocked } from './lib/paradigm';
 import { generateId } from './utils';
 import type { Attachment, ThoughtNode as ThoughtNodeType, ThoughtEdge } from './types';
 import { processFile, FILE_INPUT_ACCEPT } from './lib/attachments';
@@ -96,6 +96,8 @@ function Canvas() {
   const prevNodeCount = useRef(nodes.length);
   const lang = useI18n((s) => s.lang);
   const isParadigm = useProjects((s) => s.projects.find((p) => p.id === s.activeId)?.kind === 'paradigm');
+  // A paradigm run in progress locks the canvas structure (see lib/paradigm.ts)
+  const runLocked = !isParadigm && isRunLocked(nodes);
 
   const loadExample = useCallback(() => {
     const { nodes: exNodes, edges: exEdges } = buildExampleGraph(lang);
@@ -172,14 +174,21 @@ function Canvas() {
     prevNodeCount.current = nodes.length;
   }, [nodes]);
 
+  // Apply React Flow changes against the LIVE store state, never the render
+  // closure: a click that both mutates a node (e.g. submitting a human turn)
+  // and emits a selection change in the same tick would otherwise clobber
+  // the mutation with the stale pre-render snapshot.
   const onNodesChange: OnNodesChange = useCallback(
-    (changes) => setNodes(applyNodeChanges(changes, nodes) as typeof nodes),
-    [nodes, setNodes]
+    (changes) => {
+      const current = useStore.getState().nodes;
+      setNodes(applyNodeChanges(changes, current) as typeof current);
+    },
+    [setNodes]
   );
 
   const onEdgesChange: OnEdgesChange = useCallback(
-    (changes) => setEdges(applyEdgeChanges(changes, edges)),
-    [edges, setEdges]
+    (changes) => setEdges(applyEdgeChanges(changes, useStore.getState().edges)),
+    [setEdges]
   );
 
   // Edge right-click context menu
@@ -654,8 +663,9 @@ function Canvas() {
       )}
 
       {/* Floating input — centered on the full canvas; docks below the project
-          switcher when the panel narrows the canvas (avoids toolbar collision) */}
-      {hasNodes && !isParadigm && (
+          switcher when the panel narrows the canvas (avoids toolbar collision).
+          Hidden while a paradigm run is in progress: the structure is fixed. */}
+      {hasNodes && !isParadigm && !runLocked && (
         <div className={`absolute z-10 ${panelOpen ? 'top-16 left-4' : 'top-4 left-1/2 -translate-x-1/2'}`}>
           <div
             className="bg-card/90 backdrop-blur border border-line rounded-xl px-4 py-3 shadow-lg w-[400px] transition-colors focus-within:border-accent/50"

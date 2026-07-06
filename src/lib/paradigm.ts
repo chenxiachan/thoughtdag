@@ -21,6 +21,19 @@ export function serializeParadigm(name: string, nodes: ThoughtNode[], edges: Tho
   return { kind: 'thoughtdag-paradigm', version: 1, name, nodes, edges };
 }
 
+/**
+ * Run lock: while any instantiated paradigm node is still incomplete the
+ * canvas is a run in progress — follow-up inputs, node deletion and the
+ * floating root input hide until the run finishes, then the graph unlocks
+ * into an ordinary conversation canvas.
+ */
+export function isRunLocked(nodes: ThoughtNode[]): boolean {
+  return nodes.some((n) =>
+    (n.data.stepKind === 'human' && !n.data.question) ||
+    (n.data.stepKind === 'prompt' && (n.data.isLoading || (!n.data.response && !n.data.generationFailed)))
+  );
+}
+
 export function isParadigmFile(parsed: unknown): parsed is ParadigmFile {
   const p = parsed as Record<string, unknown> | null;
   return !!p && typeof p === 'object' && p.kind === 'thoughtdag-paradigm' && Array.isArray(p.nodes) && Array.isArray(p.edges);
@@ -49,14 +62,17 @@ const baseData = (): ThoughtData => ({
 });
 
 /**
- * Score → performance: convert a paradigm graph into a chat graph.
- * - human           → EMPTY question node opened in edit mode; the operator
- *                     guidance (instruction) becomes its placeholder. The
- *                     human types here — that IS the paradigm's human turn.
- * - prompt          → ordinary node awaiting its first run (question = prompt,
- *                     optional persona as reset role)
+ * Score → performance: convert a paradigm graph into a chat graph that RUNS
+ * itself forward (see triggerParadigmCascade in store/streaming.ts).
+ * - human           → EMPTY question slot tagged stepKind 'human'; the
+ *                     operator guidance (instruction) becomes its placeholder.
+ *                     The human types here and submits WITHOUT generating —
+ *                     answers belong to downstream prompt nodes.
+ * - prompt          → node tagged stepKind 'prompt' (question = the prompt);
+ *                     auto-runs once all its structural parents complete.
+ *                     Legacy files may still carry a rolePrompt — honored.
  * Legacy v1 kinds keep their behavior so old .paradigm.json files still work:
- * - step/synthesis  → same as prompt
+ * - step/synthesis  → ordinary node awaiting a manual first run
  * - review          → reviewer preset (persona + autoRerun); incoming edges
  *                     become red followsTip edges, like attachEvaluator's
  * - fanout          → placeholder node keeping stepKind + fanoutRoles; the
@@ -78,11 +94,14 @@ export function instantiateParadigm(pNodes: ThoughtNode[], pEdges: ThoughtEdge[]
       roleMode: pn.data.rolePrompt ? 'reset' : 'inherit',
     };
     if (kind === 'human') {
+      data.stepKind = 'human';
       data.question = '';
-      data.isEditing = true;
-      data.instruction = pn.data.instruction?.trim() || undefined; // shown as the edit placeholder
+      data.instruction = pn.data.instruction?.trim() || undefined; // shown as the input placeholder
       data.rolePrompt = undefined;
       data.roleMode = 'inherit';
+    }
+    if (kind === 'prompt') {
+      data.stepKind = 'prompt';
     }
     if (kind === 'review') {
       data.isEvaluator = true; // red visual identity

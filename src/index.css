@@ -194,6 +194,15 @@ textarea:focus-visible {
   border-color: color-mix(in srgb, var(--color-watch) 25%, var(--color-line));
 }
 
+/* Instantiated paradigm human turn: the person acts here */
+.human-node::before {
+  background: var(--color-warm);
+}
+
+.human-node {
+  border-color: color-mix(in srgb, var(--color-warm) 45%, var(--color-line));
+}
+
 /* Markdown body styles */
 .markdown-body {
   line-height: 1.7;

@@ -1,18 +1,19 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Handle, Position, useStore as useRfStore, type NodeProps } from '@xyflow/react';
-import { AlertTriangle, Archive, ChevronDown, ChevronLeft, ChevronRight, Eye, GitBranch, Globe, Paperclip, RefreshCw, Send, Split, Star, Trash2, X } from 'lucide-react';
+import { AlertTriangle, Archive, ChevronDown, ChevronLeft, ChevronRight, Eye, GitBranch, Globe, Hourglass, Paperclip, RefreshCw, Send, Split, Star, Trash2, UserRound, X } from 'lucide-react';
 import 'katex/dist/katex.min.css';
 import type { ThoughtNode as ThoughtNodeType } from '../types';
 import { useStore } from '../store';
 import { generateId } from '../utils';
 import { processFile } from '../lib/attachments';
+import { isRunLocked } from '../lib/paradigm';
 import { Markdown, HighlightedMarkdown } from './Markdown';
 import FanOutModal from './FanOutModal';
 import { useT, fmt } from '../i18n';
 
 export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   const {
-    deleteNode, toggleCollapse, setEditing, editQuestion, regenerate,
+    deleteNode, toggleCollapse, setEditing, editQuestion, submitHumanTurn, regenerate,
     setEditingResponse, editResponse, addHighlight, navigateVersion, deleteVersion,
     setSelectedNodeId, selectedNodeId, addAttachment, rerunNode,
   } = useStore();
@@ -33,6 +34,19 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   const addQuestion = useStore((s) => s.addQuestion);
   // Semantic zoom: below this level cards render as large-type thumbnails
   const zoomedOut = useRfStore((s) => s.transform[2] < 0.55);
+
+  // ── Paradigm run semantics (instantiated human/prompt steps) ──
+  const isHuman = data.stepKind === 'human';
+  // A human turn awaiting its input renders as an open question box. Must be
+  // derivable from node data alone: isEditing is stripped on persist.
+  const isAwaitingHuman = isHuman && !data.question;
+  // A prompt step that hasn't started yet — the cascade runs it once all its
+  // structural parents complete (triggerParadigmCascade in store/streaming).
+  const isWaitingUpstream = data.stepKind === 'prompt' && !data.response && !data.isLoading && !data.generationFailed;
+  const isParadigmNode = isHuman || data.stepKind === 'prompt';
+  // While any paradigm step is incomplete the run is in progress: structure
+  // is fixed (no follow-ups, no deletion) until the performance finishes.
+  const runLocked = useStore((s) => isParadigmNode && isRunLocked(s.nodes));
 
   // Sync local edit buffer when the response changes externally (streaming, undo)
   const [prevResponse, setPrevResponse] = useState(data.response);
@@ -113,7 +127,12 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   };
 
   const handleEditSubmit = () => {
-    if (editValue.trim()) {
+    if (!editValue.trim()) return;
+    if (isHuman) {
+      // Human turn: record the question only — no generation on this node;
+      // downstream prompt steps answer (and the cascade advances).
+      submitHumanTurn(id, editValue.trim());
+    } else {
       editQuestion(id, editValue.trim());
     }
   };
@@ -137,10 +156,6 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   };
 
   const isRoot = data.isRoot;
-  // An instantiated human turn: empty node carrying operator guidance. It
-  // renders as an open question box (isEditing is transient and stripped on
-  // persist, so the state must be derivable from the node itself).
-  const isAwaitingHuman = !data.question && !data.response && !!data.instruction && !data.isLoading;
   const isBranch = data.isBranch;
   const hasMultipleVersions = data.responses.length > 1;
 
@@ -149,8 +164,8 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   return (
     <div
       ref={nodeRef}
-      className={`thought-node rounded-xl w-[520px] animate-fade-in transition-all duration-200 ${data.archived ? 'opacity-35 saturate-50 ' : ''}${
-        data.isEvaluator ? 'evaluator-node' : isBranch ? 'orange-node' : isRoot ? 'root-node' : 'branch-node'
+      className={`thought-node rounded-xl w-[520px] animate-fade-in transition-all duration-200 ${data.archived ? 'opacity-35 saturate-50 ' : ''}${isWaitingUpstream ? 'opacity-60 ' : ''}${
+        data.isEvaluator ? 'evaluator-node' : isHuman ? 'human-node' : isBranch ? 'orange-node' : isRoot ? 'root-node' : 'branch-node'
       } ${data.isLoading ? 'loading-border' : ''} ${selectedNodeId === id ? 'ring-2 ring-accent !border-accent selected-glow' : ''} ${isDropTarget ? 'ring-2 ring-accent/50 ring-dashed' : ''}`}
       onClick={() => setSelectedNodeId(id)}
       onDrop={async (e) => {
@@ -197,6 +212,16 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
               <Archive size={11} strokeWidth={1.75} /> {t('archive.badge')}
             </span>
           )}
+          {isHuman && (
+            <span className="text-2xs bg-warm/10 text-warm px-1.5 py-0.5 rounded-md flex items-center gap-1 font-medium">
+              <UserRound size={11} strokeWidth={1.75} /> {isAwaitingHuman ? t('paradigm.yourTurn') : t('paradigm.kind.human')}
+            </span>
+          )}
+          {isWaitingUpstream && (
+            <span className="text-2xs bg-wash text-ink-faint px-1.5 py-0.5 rounded-md flex items-center gap-1 font-medium">
+              <Hourglass size={11} strokeWidth={1.75} /> {t('paradigm.waitingUpstream')}
+            </span>
+          )}
           {data.isEvaluator ? (
             <span className="text-2xs bg-watch/10 text-watch px-1.5 py-0.5 rounded-md flex items-center gap-1 font-medium">
               <Eye size={12} strokeWidth={1.75} /> {t('evaluator.badge')}
@@ -238,14 +263,16 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
             >
               <RefreshCw size={16} strokeWidth={1.75} className={data.isLoading ? 'animate-spin' : ''} />
             </button>
-          ) : (
+          ) : !isHuman && !isWaitingUpstream && (
             <button onClick={() => regenerate(id)} className="text-ink-faint hover:text-accent hover:bg-wash rounded-full w-7 h-7 flex items-center justify-center transition-colors" title={t('common.regenerate')}>
               <RefreshCw size={16} strokeWidth={1.75} />
             </button>
           )}
-          <button onClick={() => deleteNode(id)} className="text-ink-faint hover:text-red-500 hover:bg-red-50 rounded-full w-7 h-7 flex items-center justify-center transition-colors" title={t('common.delete')}>
-            <X size={16} strokeWidth={1.75} />
-          </button>
+          {!(isParadigmNode && runLocked) && (
+            <button onClick={() => deleteNode(id)} className="text-ink-faint hover:text-red-500 hover:bg-red-50 rounded-full w-7 h-7 flex items-center justify-center transition-colors" title={t('common.delete')}>
+              <X size={16} strokeWidth={1.75} />
+            </button>
+          )}
         </div>
       </div>
 
@@ -253,16 +280,31 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
         <div className="px-5 py-4">
           {/* Question */}
           {data.isEditing || isAwaitingHuman ? (
-            <textarea
-              value={editValue}
-              onChange={(e) => setEditValue(e.target.value)}
-              onKeyDown={handleEditKeyDown}
-              onBlur={handleEditSubmit}
-              placeholder={data.instruction || undefined} // instantiated human turn: operator guidance from the paradigm
-              className="w-full bg-wash border border-accent rounded-xl p-3 text-sm text-ink resize-none focus:outline-none focus:ring-2 focus:ring-accent/20"
-              rows={2}
-              autoFocus
-            />
+            <div>
+              <textarea
+                value={editValue}
+                onChange={(e) => setEditValue(e.target.value)}
+                onKeyDown={handleEditKeyDown}
+                onBlur={isHuman ? undefined : handleEditSubmit} // human turn keeps its draft on click-away; submit is explicit
+                placeholder={data.instruction || undefined} // instantiated human turn: operator guidance from the paradigm
+                className={`w-full bg-wash border rounded-xl p-3 text-sm text-ink resize-none focus:outline-none focus:ring-2 ${
+                  isHuman ? 'border-warm focus:ring-warm/20' : 'border-accent focus:ring-accent/20'
+                }`}
+                rows={2}
+                autoFocus
+              />
+              {isHuman && (
+                <div className="flex justify-end mt-1.5">
+                  <button
+                    onClick={handleEditSubmit}
+                    disabled={!editValue.trim()}
+                    className="text-xs bg-warm hover:opacity-85 disabled:opacity-30 disabled:cursor-not-allowed text-white px-4 py-1.5 rounded-lg transition-all flex items-center gap-1.5"
+                  >
+                    <Send size={12} strokeWidth={1.75} /> {t('paradigm.start')}
+                  </button>
+                </div>
+              )}
+            </div>
           ) : (
             <div
               onDoubleClick={handleDoubleClickQuestion}
@@ -291,8 +333,13 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
             </div>
           )}
 
-          {/* Response */}
-          {data.isLoading ? (
+          {/* Response — a human turn has none by design; a waiting prompt
+              step shows its pending state instead of an empty box */}
+          {isHuman ? null : isWaitingUpstream ? (
+            <div className="border-2 border-dashed border-line rounded-xl py-3 px-3 text-xs text-ink-faint flex items-center gap-2">
+              <Hourglass size={13} strokeWidth={1.75} /> {t('paradigm.waitingUpstream')}
+            </div>
+          ) : data.isLoading ? (
             data.response ? (
               // Streaming: show the live tail of the response on the canvas
               <div className="text-sm text-ink-muted leading-relaxed px-3 py-2.5 bg-surface rounded-xl max-h-[180px] overflow-hidden flex flex-col justify-end whitespace-pre-wrap break-words">
@@ -394,8 +441,9 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
             </div>
           )}
 
-          {/* Inline continue input — always visible at bottom */}
-          {!data.isLoading && !data.isEditingResponse && (
+          {/* Inline continue input — hidden while a paradigm run is in
+              progress (the structure IS the paradigm); returns on unlock */}
+          {!data.isLoading && !data.isEditingResponse && !(isParadigmNode && runLocked) && (
             <div className="mt-3 pt-3 border-t border-line">
               <div className="flex items-center gap-2 bg-wash rounded-xl px-4 py-2.5 transition-shadow focus-within:ring-1 focus-within:ring-accent/40">
                 <input

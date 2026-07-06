@@ -6,7 +6,7 @@ import { getDescendantIds } from '../../lib/graph';
 import { COLORS } from '../../lib/constants';
 import type { ContextMessage } from '../../lib/api';
 import { buildContext, resolveExplicitRole, applyRoleOverride } from '../context-builder';
-import { activeAbortControllers, runNodeGeneration } from '../streaming';
+import { activeAbortControllers, autoRunCounts, runNodeGeneration, triggerParadigmCascade } from '../streaming';
 import type { StoreState, LlmSlice, AddQuestionOptions } from '../types';
 
 export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, get) => ({
@@ -198,6 +198,19 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
       }
     };
     await Promise.all(Array.from({ length: Math.min(LIMIT, created.length) }, worker));
+  },
+
+  submitHumanTurn: (nodeId: string, question: string) => {
+    const q = question.trim();
+    if (!q) return;
+    get().pushHistory();
+    autoRunCounts.clear(); // a human turn is a manual action: new auto wave
+    set((state) => ({
+      nodes: state.nodes.map((n) =>
+        n.id === nodeId ? { ...n, data: { ...n.data, question: q, isEditing: false } } : n
+      ),
+    }));
+    triggerParadigmCascade(get, nodeId);
   },
 
   editQuestion: async (nodeId: string, question: string) => {
