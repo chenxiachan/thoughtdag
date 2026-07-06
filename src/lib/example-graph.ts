@@ -21,7 +21,7 @@ const CONTENT: Record<Lang, { nodes: SeedNode[] }> = {
       {
         id: 'welcome',
         q: '👋 Welcome to ThoughtDAG — read me first',
-        a: 'This canvas is a **conversation you can edit** — built from a few small blocks that combine into everything else:\n\n- **Node** = one Q&A · **Arrow** = context flow (whatever wires in, the model sees)\n- **Purple** = follow-up chain · **Orange** = a branch grown from selected text\n- **Red dashed** = a reviewer's edge. It slides forward as the thread grows, and the reviewer re-critiques each new step on its own. A reviewer is an ordinary node — question its critique, branch from it, wire it anywhere\n\n⚖️ **Don\'t miss the pair on the right** — same question, different context, different answer.\n\nDelete anything, drag anything, press `?` for the tutorial. This graph is yours now.',
+        a: 'This canvas is a **conversation you can edit** — built from a few small blocks that combine into everything else:\n\n- **Node** = one Q&A · **Arrow** = context flow (whatever wires in, the model sees)\n- **Purple** = follow-up chain · **Orange** = a branch grown from selected text\n- **Red dashed** = a reviewer\'s edge. It slides forward as the thread grows, and the reviewer re-critiques each new step on its own. A reviewer is an ordinary node — question its critique, branch from it, wire it anywhere\n\n⚖️ **Don\'t miss the pair on the right** — same question, different context, different answer.\n\nDelete anything, drag anything, press `?` for the tutorial. This graph is yours now.',
         x: 40, y: 30,
       },
       {
