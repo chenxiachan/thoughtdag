@@ -1,9 +1,11 @@
 import type { ThoughtNode, ThoughtEdge, ThoughtData } from '../../types';
 
 // Built-in paradigm: rule-out / rule-in (differential reasoning).
-// This is a PARADIGM graph (orchestration view) — steps carry prompt
-// engineering, not questions. Bilingual: filled from the UI language when
-// created. The flow: question → fan out candidates → review → converge.
+// Two node kinds only: 'human' (the operator asks) and 'prompt' (a machine
+// step processing upstream context). The fan-out is drawn as graph shape —
+// four sibling prompt nodes off the question — so blind isolation between
+// candidates is guaranteed by the DAG itself. Bilingual: filled from the UI
+// language when created.
 
 type Lang = 'en' | 'zh';
 
@@ -13,7 +15,6 @@ interface Step {
   title: string;
   instruction: string;
   role?: string;
-  fanoutRoles?: { name: string; prompt: string }[];
   x: number;
   y: number;
 }
@@ -23,67 +24,101 @@ const CONTENT: Record<Lang, { name: string; steps: Step[]; edges: [string, strin
     name: 'Rule-out / Rule-in',
     steps: [
       {
-        id: 'q', kind: 'step', x: 80, y: 40,
+        id: 'q', kind: 'human', x: 560, y: 40,
         title: 'Research question',
-        instruction: 'State the differential question here. On instantiation this becomes the root node — replace it with your real question, then run.',
+        instruction: 'Type the question to differentiate: what phenomenon needs explaining?',
       },
       {
-        id: 'fan', kind: 'fanout', x: 80, y: 420,
-        title: 'Generate candidate explanations',
-        instruction: 'Answer the question above strictly through your assigned lens. One mechanism, stated so it could be tested or ruled out.',
-        fanoutRoles: [
-          { name: 'Mechanism A', prompt: 'You argue the phenomenon is best explained by a low-level mechanistic account. Be concrete and falsifiable.' },
-          { name: 'Mechanism B', prompt: 'You argue for a higher-level / systems account. Name the mechanism and its boundary conditions.' },
-          { name: 'Confound', prompt: 'You argue the effect is an artifact or confound, not the phenomenon of interest. Specify what would rule this in or out.' },
-          { name: 'Null', prompt: 'You argue the effect may not be real or is overstated. State the strongest deflationary case.' },
-        ],
+        id: 'mechA', kind: 'prompt', x: 20, y: 440,
+        title: 'Candidate: Mechanism A',
+        instruction: 'From your lens, give the single best candidate explanation for the question above: name the mechanism, its testable predictions, and what evidence would rule it in or out.',
+        role: 'You advocate a low-level mechanistic account of the phenomenon. Be concrete and falsifiable.',
       },
       {
-        id: 'rev', kind: 'review', x: 760, y: 420,
-        title: 'Differential reviewer',
+        id: 'mechB', kind: 'prompt', x: 500, y: 440,
+        title: 'Candidate: Mechanism B',
+        instruction: 'From your lens, give the single best candidate explanation for the question above: name the mechanism, its testable predictions, and what evidence would rule it in or out.',
+        role: 'You advocate a higher-level / systems account. Name the mechanism and its boundary conditions.',
+      },
+      {
+        id: 'conf', kind: 'prompt', x: 980, y: 440,
+        title: 'Candidate: Confound',
+        instruction: 'From your lens, give the single best candidate explanation for the question above: name the mechanism, its testable predictions, and what evidence would rule it in or out.',
+        role: 'You argue the effect is an artifact or confound, not the phenomenon of interest. Specify what would rule this in or out.',
+      },
+      {
+        id: 'null', kind: 'prompt', x: 1460, y: 440,
+        title: 'Candidate: Null',
+        instruction: 'From your lens, give the single best candidate explanation for the question above: name the mechanism, its testable predictions, and what evidence would rule it in or out.',
+        role: 'You argue the effect may not be real or is overstated. State the strongest deflationary case.',
+      },
+      {
+        id: 'rev', kind: 'prompt', x: 560, y: 920,
+        title: 'Differential review',
         instruction: 'For each candidate above, judge what evidence would rule it OUT and what would rule it IN. Rank by discriminability: which test best separates them?',
         role: 'You are a rigorous methodologist doing differential diagnosis on competing explanations. Be specific about discriminating evidence.',
       },
       {
-        id: 'syn', kind: 'synthesis', x: 80, y: 800,
+        id: 'syn', kind: 'prompt', x: 560, y: 1360,
         title: 'Converge',
-        instruction: 'Given the surviving candidates and the reviewer\'s discriminating tests, synthesize: which explanation to rule in first, which to rule out, and the single most informative next experiment.',
+        instruction: 'Given the candidates and the discriminating tests above, synthesize: which explanation to rule in first, which to rule out, and the single most informative next experiment.',
       },
     ],
-    edges: [['q', 'fan'], ['fan', 'rev'], ['rev', 'syn']],
+    edges: [
+      ['q', 'mechA'], ['q', 'mechB'], ['q', 'conf'], ['q', 'null'],
+      ['mechA', 'rev'], ['mechB', 'rev'], ['conf', 'rev'], ['null', 'rev'],
+      ['rev', 'syn'],
+    ],
   },
   zh: {
     name: '排除 / 确认（鉴别推理）',
     steps: [
       {
-        id: 'q', kind: 'step', x: 80, y: 40,
+        id: 'q', kind: 'human', x: 560, y: 40,
         title: '研究问题',
-        instruction: '在此写下要鉴别的问题。实例化后它会成为根节点——替换成你真正的问题再运行。',
+        instruction: '在这里输入要鉴别的问题：什么现象需要解释？',
       },
       {
-        id: 'fan', kind: 'fanout', x: 80, y: 420,
-        title: '生成候选解释',
-        instruction: '严格从你被指派的视角回答上面的问题。给出一个机制，且陈述得能被检验或排除。',
-        fanoutRoles: [
-          { name: '机制 A', prompt: '你主张该现象最好用一个底层的机制性解释。具体、可证伪。' },
-          { name: '机制 B', prompt: '你主张一个更高层 / 系统层面的解释。说清机制及其边界条件。' },
-          { name: '混杂', prompt: '你主张这个效应是假象或混杂因素，而非目标现象。指出什么能确认或排除它。' },
-          { name: '零假设', prompt: '你主张这个效应可能不真实或被夸大。给出最强的收缩性论证。' },
-        ],
+        id: 'mechA', kind: 'prompt', x: 20, y: 440,
+        title: '候选：机制 A',
+        instruction: '严格从你的视角，为上面的问题给出唯一最佳的候选解释：说清机制、可检验的预测，以及什么证据能确认或排除它。',
+        role: '你主张一个底层的机制性解释。具体、可证伪。',
       },
       {
-        id: 'rev', kind: 'review', x: 760, y: 420,
-        title: '鉴别评审者',
+        id: 'mechB', kind: 'prompt', x: 500, y: 440,
+        title: '候选：机制 B',
+        instruction: '严格从你的视角，为上面的问题给出唯一最佳的候选解释：说清机制、可检验的预测，以及什么证据能确认或排除它。',
+        role: '你主张一个更高层 / 系统层面的解释。说清机制及其边界条件。',
+      },
+      {
+        id: 'conf', kind: 'prompt', x: 980, y: 440,
+        title: '候选：混杂',
+        instruction: '严格从你的视角，为上面的问题给出唯一最佳的候选解释：说清机制、可检验的预测，以及什么证据能确认或排除它。',
+        role: '你主张这个效应是假象或混杂因素，而非目标现象。指出什么能确认或排除它。',
+      },
+      {
+        id: 'null', kind: 'prompt', x: 1460, y: 440,
+        title: '候选：零假设',
+        instruction: '严格从你的视角，为上面的问题给出唯一最佳的候选解释：说清机制、可检验的预测，以及什么证据能确认或排除它。',
+        role: '你主张这个效应可能不真实或被夸大。给出最强的收缩性论证。',
+      },
+      {
+        id: 'rev', kind: 'prompt', x: 560, y: 920,
+        title: '鉴别评审',
         instruction: '对上面每个候选，判断什么证据能将它排除（rule out）、什么能将它确认（rule in）。按可区分度排序：哪个检验最能把它们分开？',
         role: '你是一位严谨的方法学家，正在对相互竞争的解释做鉴别诊断。对区分性证据要具体。',
       },
       {
-        id: 'syn', kind: 'synthesis', x: 80, y: 800,
+        id: 'syn', kind: 'prompt', x: 560, y: 1360,
         title: '收敛',
-        instruction: '综合幸存的候选与评审者的区分性检验：先确认哪个解释、排除哪个，以及信息量最大的下一个实验是什么。',
+        instruction: '综合上面的候选与区分性检验：先确认哪个解释、排除哪个，以及信息量最大的下一个实验是什么。',
       },
     ],
-    edges: [['q', 'fan'], ['fan', 'rev'], ['rev', 'syn']],
+    edges: [
+      ['q', 'mechA'], ['q', 'mechB'], ['q', 'conf'], ['q', 'null'],
+      ['mechA', 'rev'], ['mechB', 'rev'], ['conf', 'rev'], ['null', 'rev'],
+      ['rev', 'syn'],
+    ],
   },
 };
 
@@ -99,7 +134,6 @@ export function buildRuleOutRuleIn(lang: Lang): { name: string; nodes: ThoughtNo
       instruction: s.instruction,
       stepKind: s.kind,
       rolePrompt: s.role,
-      fanoutRoles: s.fanoutRoles,
       response: '', responses: [], responseIndex: -1,
       isCollapsed: false, isEditing: false, isEditingResponse: false, isLoading: false,
       tokenCount: 0, highlights: [], highlightMode: 'tag',

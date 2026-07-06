@@ -3,6 +3,7 @@ import { get as idbGet, set as idbSet, del as idbDel } from 'idb-keyval';
 import { useStore } from './index';
 import { activeAbortControllers } from './streaming';
 import { flushPendingWrites } from '../lib/persistence';
+import { buildRuleOutRuleIn } from '../lib/paradigms/rule-out-rule-in';
 import { toast } from '../lib/ui-store';
 import { t } from '../i18n';
 
@@ -148,6 +149,15 @@ export async function adoptImportedProject(id: string, name: string, kind: 'chat
   }));
   await saveMeta();
   await switchProject(id);
+}
+
+// Seed a new paradigm project with the built-in rule-out/rule-in score and
+// switch to it (shared by the landing page and the project switcher).
+export async function createBuiltinParadigm(lang: 'en' | 'zh'): Promise<void> {
+  const { name, nodes, edges } = buildRuleOutRuleIn(lang);
+  const id = crypto.randomUUID();
+  await idbSet(projectStorageKey(id), JSON.stringify({ state: { nodes, edges }, version: 1 }));
+  await adoptImportedProject(id, name, 'paradigm');
 }
 
 // ─── updatedAt bookkeeping ──────────────────────────────────────

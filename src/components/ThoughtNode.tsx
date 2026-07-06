@@ -137,6 +137,10 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   };
 
   const isRoot = data.isRoot;
+  // An instantiated human turn: empty node carrying operator guidance. It
+  // renders as an open question box (isEditing is transient and stripped on
+  // persist, so the state must be derivable from the node itself).
+  const isAwaitingHuman = !data.question && !data.response && !!data.instruction && !data.isLoading;
   const isBranch = data.isBranch;
   const hasMultipleVersions = data.responses.length > 1;
 
@@ -248,12 +252,13 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
       {!data.isCollapsed && (
         <div className="px-5 py-4">
           {/* Question */}
-          {data.isEditing ? (
+          {data.isEditing || isAwaitingHuman ? (
             <textarea
               value={editValue}
               onChange={(e) => setEditValue(e.target.value)}
               onKeyDown={handleEditKeyDown}
               onBlur={handleEditSubmit}
+              placeholder={data.instruction || undefined} // instantiated human turn: operator guidance from the paradigm
               className="w-full bg-wash border border-accent rounded-xl p-3 text-sm text-ink resize-none focus:outline-none focus:ring-2 focus:ring-accent/20"
               rows={2}
               autoFocus

@@ -1,26 +1,28 @@
 import { Handle, Position, type NodeProps } from '@xyflow/react';
-import { ClipboardList, Eye, FileText, Split, Trash2 } from 'lucide-react';
+import { MessageCircleQuestion, SquareTerminal, Trash2 } from 'lucide-react';
 import type { ThoughtNode as ThoughtNodeType, ThoughtData } from '../types';
 import { useStore } from '../store';
 import { ROLE_TEMPLATES, rolePromptFor } from '../lib/role-templates';
 import { useI18n, useT } from '../i18n';
 
-// Orchestration-view card: a paradigm STEP. Here you write prompt
-// engineering (instructions, roles, flow kinds) — never questions, never
-// LLM calls. The dashed border and tool palette make the mode unmistakable.
+// Orchestration-view card. A paradigm has exactly two node kinds:
+//   human  — a dialogue turn: the human asks here. The card holds optional
+//            guidance for the operator; it instantiates as an EMPTY question
+//            node awaiting the human.
+//   prompt — a machine processing step: a fixed prompt (plus optional role)
+//            applied to whatever flows in from upstream nodes.
+// Flow patterns (fan-out, review, synthesis) are drawn as graph shape, not
+// node kinds. No LLM ever runs in this view. Legacy v1 kinds render as
+// 'prompt' but keep their stored data for instantiation.
 
-const KINDS: { kind: NonNullable<ThoughtData['stepKind']>; icon: typeof FileText; labelKey: string }[] = [
-  { kind: 'step', icon: FileText, labelKey: 'paradigm.kind.step' },
-  { kind: 'fanout', icon: Split, labelKey: 'paradigm.kind.fanout' },
-  { kind: 'review', icon: Eye, labelKey: 'paradigm.kind.review' },
-  { kind: 'synthesis', icon: ClipboardList, labelKey: 'paradigm.kind.synthesis' },
+const KINDS: { kind: 'human' | 'prompt'; icon: typeof SquareTerminal; labelKey: string }[] = [
+  { kind: 'human', icon: MessageCircleQuestion, labelKey: 'paradigm.kind.human' },
+  { kind: 'prompt', icon: SquareTerminal, labelKey: 'paradigm.kind.prompt' },
 ];
 
-const KIND_STYLES: Record<string, string> = {
-  step: 'border-line',
-  fanout: 'border-warm/60',
-  review: 'border-watch/50',
-  synthesis: 'border-accent/50',
+const KIND_STYLES: Record<'human' | 'prompt', string> = {
+  human: 'border-warm/70',
+  prompt: 'border-accent/50',
 };
 
 export default function ParadigmNode({ id, data }: NodeProps<ThoughtNodeType>) {
@@ -32,9 +34,7 @@ export default function ParadigmNode({ id, data }: NodeProps<ThoughtNodeType>) {
       nodes: state.nodes.map((n) => (n.id === id ? { ...n, data: { ...n.data, ...p } } : n)),
     }));
   };
-  const kind = data.stepKind ?? 'step';
-
-  const rolesText = (data.fanoutRoles ?? []).map((r) => `${r.name}: ${r.prompt}`).join('\n');
+  const kind: 'human' | 'prompt' = data.stepKind === 'human' ? 'human' : 'prompt';
 
   return (
     <div className={`bg-card border-2 border-dashed rounded-xl w-[440px] shadow-sm ${KIND_STYLES[kind]}`}>
@@ -49,13 +49,13 @@ export default function ParadigmNode({ id, data }: NodeProps<ThoughtNodeType>) {
               onClick={(e) => { e.stopPropagation(); patch({ stepKind: k }); }}
               title={t(labelKey as Parameters<typeof t>[0])}
               className={`w-7 h-7 rounded-lg flex items-center justify-center transition-colors ${
-                kind === k ? 'bg-ink/10 text-ink' : 'text-ink-faint hover:bg-wash'
+                kind === k ? (k === 'human' ? 'bg-warm/15 text-warm' : 'bg-accent/10 text-accent') : 'text-ink-faint hover:bg-wash'
               }`}
             >
               <Icon size={14} strokeWidth={1.75} />
             </button>
           ))}
-          <span className="text-2xs text-ink-faint self-center ml-1 uppercase tracking-wider font-medium">
+          <span className={`text-2xs self-center ml-1 uppercase tracking-wider font-medium ${kind === 'human' ? 'text-warm' : 'text-accent/80'}`}>
             {t(`paradigm.kind.${kind}` as Parameters<typeof t>[0])}
           </span>
         </div>
@@ -77,17 +77,19 @@ export default function ParadigmNode({ id, data }: NodeProps<ThoughtNodeType>) {
           className="w-full text-sm font-semibold text-ink bg-transparent focus:outline-none placeholder-ink-faint"
         />
 
-        {/* instruction: the prompt-engineering body */}
+        {/* body: the prompt (machine) or operator guidance (human) */}
         <textarea
           value={data.instruction ?? ''}
           onChange={(e) => patch({ instruction: e.target.value })}
-          placeholder={t('paradigm.instructionPlaceholder')}
+          placeholder={t(kind === 'human' ? 'paradigm.humanHintPlaceholder' : 'paradigm.promptPlaceholder')}
           rows={3}
-          className="w-full text-xs text-ink bg-surface border border-line rounded-lg px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-accent/40 resize-y leading-relaxed"
+          className={`w-full text-xs text-ink bg-surface border border-line rounded-lg px-2.5 py-2 focus:outline-none focus:ring-1 resize-y leading-relaxed ${
+            kind === 'human' ? 'focus:ring-warm/40' : 'focus:ring-accent/40'
+          }`}
         />
 
-        {/* role for step/review */}
-        {(kind === 'step' || kind === 'review') && (
+        {/* optional role — only a machine step speaks through a persona */}
+        {kind === 'prompt' && (
           <div>
             <div className="flex flex-wrap gap-1 mb-1">
               {ROLE_TEMPLATES.map((tpl) => (
@@ -106,27 +108,6 @@ export default function ParadigmNode({ id, data }: NodeProps<ThoughtNodeType>) {
               placeholder={t('paradigm.rolePlaceholder')}
               rows={2}
               className="w-full text-2xs text-ink-muted bg-surface border border-line rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-accent/40 resize-y leading-relaxed"
-            />
-          </div>
-        )}
-
-        {/* fanout role list */}
-        {kind === 'fanout' && (
-          <div>
-            <label className="text-2xs text-ink-faint uppercase tracking-wider font-medium block mb-1">{t('paradigm.fanoutRoles')}</label>
-            <textarea
-              defaultValue={rolesText}
-              onBlur={(e) => {
-                // parse on blur so typing isn't disrupted by re-derivation
-                const roles = e.target.value.split('\n').map((l) => l.trim()).filter(Boolean).map((line) => {
-                  const i = line.indexOf(':');
-                  return i > 0 ? { name: line.slice(0, i).trim(), prompt: line.slice(i + 1).trim() } : { name: line.slice(0, 24), prompt: line };
-                });
-                patch({ fanoutRoles: roles.length > 0 ? roles : undefined });
-              }}
-              placeholder={t('fanout.customPlaceholder')}
-              rows={4}
-              className="w-full text-2xs text-ink-muted bg-surface border border-line rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-warm/40 resize-y leading-relaxed font-mono"
             />
           </div>
         )}

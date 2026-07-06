@@ -42,8 +42,12 @@ export interface ThoughtData extends Record<string, unknown> {
   autoRerun?: boolean; // regenerate in place whenever an upstream ancestor finishes (generic primitive)
   archived?: boolean; // pruned-but-kept: dimmed on canvas, EXCLUDED from every context walk
   // ── paradigm (orchestration view) fields ──
-  stepKind?: 'step' | 'fanout' | 'review' | 'synthesis'; // paradigm step type; also marks fan-out placeholders on chat canvases
-  instruction?: string; // prompt-engineering body of a paradigm step (becomes the question on instantiation)
+  // 'human' = a dialogue turn (the human asks here); 'prompt' = a machine
+  // processing step (fixed prompt, context only from upstream). Legacy v1
+  // kinds ('step'|'fanout'|'review'|'synthesis') still instantiate; 'fanout'
+  // also marks fan-out placeholders on chat canvases.
+  stepKind?: 'human' | 'prompt' | 'step' | 'fanout' | 'review' | 'synthesis';
+  instruction?: string; // paradigm body: the prompt (prompt node) or operator guidance (human node)
   fanoutRoles?: { name: string; prompt: string }[]; // role list carried by fanout steps/placeholders
   autoRerunRounds?: number; // max auto-triggered runs per user action (default 1); >1 enables loops
   tokenCount: number;

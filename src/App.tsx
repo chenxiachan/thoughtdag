@@ -15,7 +15,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import 'highlight.js/styles/github.css';
-import { CircleHelp, FileText, GitBranch, Globe, GraduationCap, LayoutGrid, Loader2, Paperclip, Plug, Redo2, Scissors, Trash2, Undo2, Workflow, X } from 'lucide-react';
+import { CircleHelp, Dna, FileText, GitBranch, Globe, GraduationCap, LayoutGrid, Loader2, MessageCircleQuestion, Paperclip, Plug, Redo2, Scissors, SquareTerminal, Trash2, Undo2, Workflow, X } from 'lucide-react';
 import './index.css';
 import ThoughtNode from './components/ThoughtNode';
 import ParadigmNode from './components/ParadigmNode';
@@ -25,7 +25,7 @@ import SelectionToolbar from './components/SelectionToolbar';
 import SearchBar from './components/SearchBar';
 import ProjectSwitcher from './components/ProjectSwitcher';
 import { useStore } from './store';
-import { useProjects, adoptImportedProject } from './store/projects';
+import { useProjects, adoptImportedProject, createProject, createBuiltinParadigm } from './store/projects';
 import { projectStorageKey } from './store/projects';
 import { set as idbSet } from 'idb-keyval';
 import { instantiateParadigm } from './lib/paradigm';
@@ -107,7 +107,7 @@ function Canvas() {
   }, [lang]);
 
   // ── Orchestration (paradigm) mode helpers ──
-  const addStep = useCallback(() => {
+  const addStep = useCallback((kind: 'human' | 'prompt') => {
     const st = useStore.getState();
     const last = st.nodes[st.nodes.length - 1];
     const pos = last ? { x: last.position.x, y: last.position.y + 340 } : { x: 120, y: 80 };
@@ -115,7 +115,7 @@ function Canvas() {
     st.setNodes([...st.nodes, {
       id, type: 'thought', position: pos, dragHandle: '.drag-handle',
       data: {
-        question: '', instruction: '', stepKind: 'step',
+        question: '', instruction: '', stepKind: kind,
         response: '', responses: [], responseIndex: -1,
         isCollapsed: false, isEditing: false, isEditingResponse: false, isLoading: false,
         tokenCount: 0, highlights: [], highlightMode: 'tag',
@@ -124,6 +124,13 @@ function Canvas() {
       },
     }]);
     st.pushHistory();
+  }, []);
+
+  // After a project switch (from the switcher or the landing shortcuts):
+  // reset the recenter baseline and refit the viewport.
+  const afterProjectSwitch = useCallback(() => {
+    prevNodeCount.current = useStore.getState().nodes.length;
+    setTimeout(() => rfInstance.current?.fitView({ duration: 300, padding: 0.2 }), 50);
   }, []);
 
   const instantiate = useCallback(async () => {
@@ -448,12 +455,20 @@ function Canvas() {
           <div className="text-center pointer-events-auto">
             <p className="text-sm text-ink-muted mb-1 font-medium">{t('paradigm.emptyTitle')}</p>
             <p className="text-xs text-ink-faint mb-4 max-w-sm leading-relaxed">{t('paradigm.emptyHint')}</p>
-            <button
-              onClick={addStep}
-              className="text-sm bg-ink text-white hover:bg-ink/85 px-5 py-2.5 rounded-xl transition-colors"
-            >
-              + {t('paradigm.addStep')}
-            </button>
+            <div className="flex items-center justify-center gap-2">
+              <button
+                onClick={() => addStep('human')}
+                className="text-sm border-2 border-dashed border-warm/60 text-warm hover:bg-warm/10 px-4 py-2.5 rounded-xl transition-colors flex items-center gap-1.5"
+              >
+                <MessageCircleQuestion size={15} strokeWidth={1.75} /> {t('paradigm.addHuman')}
+              </button>
+              <button
+                onClick={() => addStep('prompt')}
+                className="text-sm border-2 border-dashed border-accent/50 text-accent hover:bg-accent/10 px-4 py-2.5 rounded-xl transition-colors flex items-center gap-1.5"
+              >
+                <SquareTerminal size={15} strokeWidth={1.75} /> {t('paradigm.addPrompt')}
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -599,6 +614,27 @@ function Canvas() {
               ))}
             </div>
 
+            {/* Paradigm entrance — the testbed door, level with the chat input */}
+            <div className="mt-3 bg-card/70 backdrop-blur border border-line/70 rounded-xl px-4 py-3 flex items-center gap-3 hover:border-line-strong transition-colors">
+              <Dna size={16} strokeWidth={1.75} className="text-accent shrink-0" />
+              <div className="flex-1 min-w-0">
+                <h3 className="text-xs font-semibold text-ink mb-0.5">{t('landing.paradigmTitle')}</h3>
+                <p className="text-2xs text-ink-faint leading-relaxed">{t('landing.paradigmDesc')}</p>
+              </div>
+              <button
+                onClick={() => void createBuiltinParadigm(lang).then(afterProjectSwitch)}
+                className="text-2xs bg-accent/10 text-accent hover:bg-accent/20 font-medium px-3 py-1.5 rounded-lg transition-colors shrink-0"
+              >
+                {t('paradigm.exampleRuleOut')}
+              </button>
+              <button
+                onClick={() => void createProject(ti('paradigm.badge'), 'paradigm').then(afterProjectSwitch)}
+                className="text-2xs text-ink-muted hover:text-ink hover:bg-wash font-medium px-3 py-1.5 rounded-lg transition-colors shrink-0"
+              >
+                + {t('paradigm.newParadigm')}
+              </button>
+            </div>
+
             <div className="text-center mt-5 flex items-center justify-center gap-5">
               <button
                 onClick={loadExample}
@@ -710,20 +746,23 @@ function Canvas() {
       )}
 
       {/* Project switcher */}
-      <ProjectSwitcher onSwitched={() => {
-        prevNodeCount.current = useStore.getState().nodes.length;
-        setTimeout(() => rfInstance.current?.fitView({ duration: 300, padding: 0.2 }), 50);
-      }} />
+      <ProjectSwitcher onSwitched={afterProjectSwitch} />
 
       {/* Toolbar: web search, language, tutorial, relayout, undo/redo */}
       <div className="absolute top-4 right-4 z-10 flex gap-1.5 items-center">
         {isParadigm && (
           <>
             <button
-              onClick={addStep}
-              className="bg-card/90 backdrop-blur border border-line rounded-lg h-8 px-3 flex items-center gap-1.5 shadow-sm hover:bg-wash transition-colors text-ink-muted text-xs font-medium"
+              onClick={() => addStep('human')}
+              className="bg-card/90 backdrop-blur border border-warm/40 rounded-lg h-8 px-3 flex items-center gap-1.5 shadow-sm hover:bg-warm/10 transition-colors text-warm text-xs font-medium"
             >
-              + {t('paradigm.addStep')}
+              <MessageCircleQuestion size={14} strokeWidth={1.75} /> {t('paradigm.addHuman')}
+            </button>
+            <button
+              onClick={() => addStep('prompt')}
+              className="bg-card/90 backdrop-blur border border-accent/40 rounded-lg h-8 px-3 flex items-center gap-1.5 shadow-sm hover:bg-accent/10 transition-colors text-accent text-xs font-medium"
+            >
+              <SquareTerminal size={14} strokeWidth={1.75} /> {t('paradigm.addPrompt')}
             </button>
             <button
               onClick={() => void instantiate()}
@@ -851,13 +890,14 @@ function Canvas() {
       )}
       </div>
 
-      {/* Focus Panel — right side */}
-      <FocusPanel onFocusNode={(id) => {
+      {/* Focus Panel — right side; never in the orchestration view, where
+          cards are edited in place and there is no conversation to follow up */}
+      {!isParadigm && <FocusPanel onFocusNode={(id) => {
         const node = nodes.find(n => n.id === id);
         if (node && rfInstance.current) {
           rfInstance.current.setCenter(node.position.x + 240, node.position.y + 100, { duration: 300, zoom: rfInstance.current.getZoom() });
         }
-      }} />
+      }} />}
     </div>
   );
 }

@@ -50,7 +50,13 @@ const baseData = (): ThoughtData => ({
 
 /**
  * Score → performance: convert a paradigm graph into a chat graph.
- * - step/synthesis  → ordinary node awaiting its first run (question = instruction)
+ * - human           → EMPTY question node opened in edit mode; the operator
+ *                     guidance (instruction) becomes its placeholder. The
+ *                     human types here — that IS the paradigm's human turn.
+ * - prompt          → ordinary node awaiting its first run (question = prompt,
+ *                     optional persona as reset role)
+ * Legacy v1 kinds keep their behavior so old .paradigm.json files still work:
+ * - step/synthesis  → same as prompt
  * - review          → reviewer preset (persona + autoRerun); incoming edges
  *                     become red followsTip edges, like attachEvaluator's
  * - fanout          → placeholder node keeping stepKind + fanoutRoles; the
@@ -62,7 +68,7 @@ export function instantiateParadigm(pNodes: ThoughtNode[], pEdges: ThoughtEdge[]
   const nodes: ThoughtNode[] = pNodes.map((pn) => {
     const id = generateId();
     idMap.set(pn.id, id);
-    const kind = pn.data.stepKind ?? 'step';
+    const kind = pn.data.stepKind ?? 'prompt';
     const question = (pn.data.instruction?.trim() || pn.data.question || '').trim();
 
     const data: ThoughtData = {
@@ -71,6 +77,13 @@ export function instantiateParadigm(pNodes: ThoughtNode[], pEdges: ThoughtEdge[]
       rolePrompt: pn.data.rolePrompt || undefined,
       roleMode: pn.data.rolePrompt ? 'reset' : 'inherit',
     };
+    if (kind === 'human') {
+      data.question = '';
+      data.isEditing = true;
+      data.instruction = pn.data.instruction?.trim() || undefined; // shown as the edit placeholder
+      data.rolePrompt = undefined;
+      data.roleMode = 'inherit';
+    }
     if (kind === 'review') {
       data.isEvaluator = true; // red visual identity
       data.autoRerun = true;

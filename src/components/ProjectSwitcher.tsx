@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { ChevronDown, Dna, Download, FolderOpen, Loader2, Pencil, Plus, Trash2, Upload } from 'lucide-react';
-import { useProjects, switchProject, createProject, renameProject, deleteProject, projectStorageKey, adoptImportedProject } from '../store/projects';
-import { set as idbSet } from 'idb-keyval';
-import { buildRuleOutRuleIn } from '../lib/paradigms/rule-out-rule-in';
+import { useProjects, switchProject, createProject, renameProject, deleteProject, createBuiltinParadigm } from '../store/projects';
 import { useI18n } from '../i18n';
 import { exportActiveProjectJson, exportActiveParadigm, parseImportFile } from '../lib/export';
 import ImportChatModal from './ImportChatModal';
@@ -146,17 +144,10 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
               <Dna size={15} strokeWidth={1.75} /> {t('paradigm.newParadigm')}
             </button>
             <button
-              onClick={async () => {
-                setOpen(false);
-                const { name, nodes, edges } = buildRuleOutRuleIn(lang);
-                const id = crypto.randomUUID();
-                await idbSet(projectStorageKey(id), JSON.stringify({ state: { nodes, edges }, version: 1 }));
-                await adoptImportedProject(id, name, 'paradigm');
-                onSwitched();
-              }}
+              onClick={() => { setOpen(false); void createBuiltinParadigm(lang).then(onSwitched); }}
               className="w-full text-left px-3 py-2 text-xs text-ink-faint hover:bg-wash transition-colors flex items-center gap-2 pl-8"
             >
-              {t('paradigm.exampleRuleOut')}
+              └ {t('paradigm.exampleRuleOut')}
             </button>
             <button
               onClick={() => { if (activeIsParadigm) exportActiveParadigm(); else exportActiveProjectJson(); setOpen(false); }}
