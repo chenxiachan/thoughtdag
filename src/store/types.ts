@@ -80,9 +80,11 @@ export interface EvaluatorSlice {
   /** PRESET: ordinary node with a critic role + autoRerun, wired by a followsTip edge. */
   attachEvaluator: (watchedNodeId: string, rolePrompt: string, roleName: string) => Promise<void>;
   /** Regenerate a node in place from its incoming edges, appending a version (generic primitive). */
-  rerunNode: (nodeId: string) => Promise<void>;
+  rerunNode: (nodeId: string, opts?: { auto?: boolean }) => Promise<void>;
   /** Toggle the autoRerun primitive on any node. */
   setAutoRerun: (nodeId: string, enabled: boolean) => void;
+  /** Set how many auto rounds per user action this node may fire (loops need >1). */
+  setAutoRerunRounds: (nodeId: string, rounds: number) => void;
 }
 
 export interface AttachmentSlice {

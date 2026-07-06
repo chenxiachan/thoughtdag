@@ -28,7 +28,7 @@ export const createEvaluatorSlice: StateCreator<StoreState, [], [], EvaluatorSli
    * walk — same one every node uses), appending to its version history.
    * This is the generic engine behind auto-rerun; also useful manually.
    */
-  rerunNode: async (nodeId: string) => {
+  rerunNode: async (nodeId: string, opts?: { auto?: boolean }) => {
     const { nodes, edges } = get();
     const node = nodes.find((n) => n.id === nodeId);
     if (!node || node.data.isLoading) return;
@@ -60,7 +60,16 @@ export const createEvaluatorSlice: StateCreator<StoreState, [], [], EvaluatorSli
       messages,
       images: ctx.images,
       versionMode: 'append',
+      autoChain: opts?.auto,
     });
+  },
+
+  setAutoRerunRounds: (nodeId: string, rounds: number) => {
+    set((state) => ({
+      nodes: state.nodes.map((n) =>
+        n.id === nodeId ? { ...n, data: { ...n.data, autoRerunRounds: rounds } } : n
+      ),
+    }));
   },
 
   setAutoRerun: (nodeId: string, enabled: boolean) => {

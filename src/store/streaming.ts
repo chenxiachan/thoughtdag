@@ -21,6 +21,12 @@ export function generateSummary(nodeId: string, question: string, response: stri
 // Track active AbortControllers per node
 export const activeAbortControllers = new Map<string, AbortController>();
 
+// Auto-chain budget: how many times each autoRerun node has fired since the
+// last MANUAL action. A fresh user action resets all counters, so budgets
+// mean "auto rounds per user action" — and loops (writer->critic->writer)
+// terminate deterministically when every node exhausts its rounds.
+export const autoRunCounts = new Map<string, number>();
+
 type Set = StoreApi<StoreState>['setState'];
 type Get = StoreApi<StoreState>['getState'];
 
@@ -41,11 +47,14 @@ export async function runNodeGeneration(
     images?: ImageAttachment[];
     /** append = keep earlier responses as versions (evaluator critique history). */
     versionMode?: 'replace' | 'append';
+    /** True when fired by the auto-refresh chain; manual generations reset all budgets. */
+    autoChain?: boolean;
     /** Extra work after the final state write, before pushHistory (e.g. re-layout). */
     onSuccess?: (response: string) => void;
   },
 ): Promise<void> {
   const { question, messages, images, onSuccess, versionMode = 'replace' } = opts;
+  if (!opts.autoChain) autoRunCounts.clear(); // a fresh user action starts a new wave
   const abortController = new AbortController();
   activeAbortControllers.set(nodeId, abortController);
 
@@ -133,6 +142,7 @@ export async function runNodeGeneration(
  *    naturally; the DAG has no cycles to worry about.
  */
 function triggerAutoReruns(set: Set, get: Get, completedNodeId: string): void {
+  if (useUiStore.getState().autoRefreshPaused) return; // global kill switch
   // 1) slide followsTip edges whose source thread just grew: the completed
   //    node's STRUCTURAL ancestor chain reaching an edge's source means
   //    that edge's thread extended past its current anchor.
@@ -160,15 +170,19 @@ function triggerAutoReruns(set: Set, get: Get, completedNodeId: string): void {
     }));
   }
 
-  // 2) rerun any autoRerun node that (now) has the completed node upstream
+  // 2) rerun any autoRerun node that (now) has the completed node upstream,
+  //    within its per-wave budget (autoRerunRounds, default 1)
   const { nodes, edges } = get();
   for (const n of nodes) {
     const auto = n.data.autoRerun ?? n.data.evaluatorTrigger === 'auto'; // legacy graphs
     if (!auto || n.id === completedNodeId) continue;
     if (n.data.isLoading || activeAbortControllers.has(n.id)) continue;
+    const spent = autoRunCounts.get(n.id) ?? 0;
+    if (spent >= (n.data.autoRerunRounds ?? 1)) continue; // budget exhausted this wave
     const { ordered } = walkUpAncestors(n.id, nodes, edges);
     if (ordered.some((a) => a.id === completedNodeId)) {
-      void get().rerunNode(n.id);
+      autoRunCounts.set(n.id, spent + 1);
+      void get().rerunNode(n.id, { auto: true });
     }
   }
 }

@@ -229,7 +229,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
                 }`}
                 title={isAuto ? t('rerun.autoTitle') : t('rerun.offTitle')}
               >
-                {isAuto ? t('rerun.auto') : t('rerun.off')}
+                {isAuto ? `${t('rerun.auto')}${(data.autoRerunRounds ?? 1) > 1 ? ` \u00d7${data.autoRerunRounds}` : ''}` : t('rerun.off')}
               </button>
               <button
                 onClick={(e) => { e.stopPropagation(); void rerunNode(id); }}

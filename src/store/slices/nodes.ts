@@ -137,10 +137,10 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
 
   addCrossLink: (sourceId: string, targetId: string) => {
     const { edges } = get();
-    // Don't add if already exists or if it's a structural parent-child
-    const exists = edges.some(
-      (e) => (e.source === sourceId && e.target === targetId) || (e.source === targetId && e.target === sourceId)
-    );
+    // Block only an identical edge. The REVERSE direction is allowed on
+    // purpose: writer->critic->writer loops are how auto-refresh iterates
+    // (context walks are visited-guarded, and auto-chains are budgeted).
+    const exists = edges.some((e) => e.source === sourceId && e.target === targetId);
     if (exists) return;
     get().pushHistory();
     const newEdge: ThoughtEdge = {
