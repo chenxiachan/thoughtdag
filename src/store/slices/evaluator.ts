@@ -5,6 +5,7 @@ import { COLORS } from '../../lib/constants';
 import { buildContext } from '../context-builder';
 import { runNodeGeneration } from '../streaming';
 import type { StoreState, EvaluatorSlice } from '../types';
+import { t, fmt } from '../../i18n';
 
 // ── Primitives, not features ─────────────────────────────────────
 // A "reviewer" is NOT a special node type. It is an ordinary node composed
@@ -101,7 +102,8 @@ export const createEvaluatorSlice: StateCreator<StoreState, [], [], EvaluatorSli
       data: {
         // The question IS the standing instruction — rerun executes it
         // against whatever the followsTip edge currently points at.
-        question: `[${roleName}] Critique the discussion above: identify overclaims, missing evidence, and unstated assumptions. Note what improved since the previous version if any. Be concise and specific. Respond in the language of the discussion.`,
+        // Localized: a Chinese instruction keeps the critique in Chinese.
+        question: fmt(t('evaluator.taskQuestion'), { name: roleName }),
         response: '',
         responses: [],
         responseIndex: -1,

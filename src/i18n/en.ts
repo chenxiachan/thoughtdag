@@ -251,6 +251,8 @@ export const en = {
   'import.selectAll': 'Select all',
   'import.messages': '{n} messages',
   'import.confirm': 'Import {n} selected',
+  'evaluator.taskQuestion': '[{name}] Critique the discussion above: identify overclaims, missing evidence, and unstated assumptions. Note what improved since the previous version if any. Be concise and specific. Respond in the language of the discussion.',
+  'evaluator.fallbackRole': 'You are a critical reviewer.',
   'evaluator.rerun': 'Re-critique now',
   'archive.label': 'Archive',
   'archive.restore': 'Unarchive',

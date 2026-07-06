@@ -1,4 +1,4 @@
-import { ROLE_TEMPLATES } from '../../lib/role-templates';
+import { ROLE_TEMPLATES, rolePromptFor } from '../../lib/role-templates';
 import { useI18n } from '../../i18n';
 
 // One-tap role presets shown under every role input — pick a chip to fill
@@ -11,9 +11,9 @@ export default function RoleTemplateChips({ onPick }: { onPick: (prompt: string)
         <button
           key={tpl.id}
           type="button"
-          onClick={() => onPick(tpl.prompt)}
+          onClick={() => onPick(rolePromptFor(tpl, lang))}
           className="text-2xs bg-wash hover:bg-accent/10 hover:text-accent text-ink-muted px-2 py-1 rounded-full transition-colors"
-          title={tpl.prompt.slice(0, 140) + '…'}
+          title={rolePromptFor(tpl, lang).slice(0, 140) + '…'}
         >
           {lang === 'zh' ? tpl.nameZh : tpl.nameEn}
         </button>

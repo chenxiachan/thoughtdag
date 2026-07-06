@@ -251,6 +251,8 @@ export const zh: Record<keyof typeof en, string> = {
   'import.selectAll': '全选',
   'import.messages': '{n} 条消息',
   'import.confirm': '导入选中的 {n} 个',
+  'evaluator.taskQuestion': '[{name}] 批评上面的讨论：指出夸大之处、缺失的证据和未言明的假设。如有前一版，说明哪些点已改进。保持简洁、具体。',
+  'evaluator.fallbackRole': '你是一位批判性的评审者。',
   'evaluator.rerun': '立即重新评审',
   'archive.label': '归档',
   'archive.restore': '取消归档',

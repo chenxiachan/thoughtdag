@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Archive, ArchiveRestore, ClipboardCopy, CornerDownLeft, Copy, Eye, FileDown, GitBranch, RefreshCw, Square, Trash2 } from 'lucide-react';
 import { useStore } from '../../store';
 import { contextChainMarkdown, downloadMarkdown, copyText } from '../../lib/export';
-import { ROLE_TEMPLATES } from '../../lib/role-templates';
+import { ROLE_TEMPLATES, rolePromptFor } from '../../lib/role-templates';
 import ModelPicker from '../ui/ModelPicker';
 import { useT, useI18n } from '../../i18n';
 
@@ -140,7 +140,7 @@ export default function ActionsSection({
               key={tpl.id}
               onClick={() => {
                 setEvaluatorPickerOpen(false);
-                void attachEvaluator(nodeId, tpl.prompt, lang === 'zh' ? tpl.nameZh : tpl.nameEn);
+                void attachEvaluator(nodeId, rolePromptFor(tpl, lang), lang === 'zh' ? tpl.nameZh : tpl.nameEn);
               }}
               className="w-full text-left text-xs text-ink hover:bg-wash rounded-lg px-3 py-2 transition-colors flex items-center gap-2"
             >
