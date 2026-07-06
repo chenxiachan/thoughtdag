@@ -40,6 +40,9 @@ export function buildContext(
 
   // Convert ordered ancestors to messages, respecting highlightMode and collapse/summary
   for (const node of ordered) {
+    // Archived = pruned-but-kept: contributes NOTHING to context (the walk
+    // itself already passed through it, so descendants keep their ancestry)
+    if (node.data.archived) continue;
     // Collect attachments from this node (respecting excludedAttachmentIds + cross-node dedup)
     const nodeAttachments = node.data.attachments || [];
     for (const att of nodeAttachments) {

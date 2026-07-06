@@ -41,34 +41,15 @@ Your first launch lands on a **seeded example canvas** — including the ⚖️ 
 
 ## Why ThoughtDAG?
 
-Every mainstream LLM interface is **linear, append-only, and opaque**:
+Every mainstream LLM interface is **linear, append-only, and opaque**: context dilutes as chats grow and nothing can be removed; exploring in parallel means losing the connections; and you never control what the model actually sees.
 
-- The longer a conversation runs, the more your context dilutes — and you can't delete a single line of it
-- Want to explore three directions at once? Open three windows and watch them lose all connection
-- "Circle this passage and dig deeper" — the most natural gesture there is — can only be faked with copy-paste
-- Above all: **you have zero control over what's in the context window**
-
-ThoughtDAG answers with a different data structure: a conversation isn't a list. It's a **graph**.
+A conversation isn't a list. It's a **graph**.
 
 ## One rule to own your context
 
-- **Node** = one Q&A turn · **Edge** = where context flows
-- The context sent to the model follows a single rule: **walk all incoming edges, recursively**
-- Which means: **adding an edge injects context; deleting an edge prunes it**
+**Node** = one Q&A turn. **Edge** = where context flows. The model sees exactly what wires in — **adding an edge injects context, deleting one prunes it**, and a live "~N tok · M messages" preview shows the payload before every question.
 
-```
-[What is ML?] ──purple──▶ [What is DL?] ──purple──▶ [What is a Transformer?]
-                              │
-                        orange (branch from selection)
-                              ▼
-                    [Explain CNNs specifically]
-```
-
-- The "Transformer" node sees nodes 1 + 2; delete 1→2 and wire 1→3 directly — now it sees only node 1
-- A branch carries the selected text off to explore without polluting the main chain
-- Before every question, a live preview shows "~N tok · M messages · K files" — the context window becomes a dashboard instead of a black box
-
-**Seeing is believing** — the example canvas ships with this experiment: the same summary question asked twice. Node A inherits an off-topic cooking chat and it leaks straight into the answer; node B's edge to the noise is deleted, and the answer comes back clean:
+**Seeing is believing** — same question, twice. Node A inherits an off-topic cooking chat and it leaks straight into the answer; node B's edge to the noise is deleted:
 
 <img src="docs/context-compare.png" alt="Same question, two contexts: with the noise edge the answer absorbs dinner plans; with it deleted the summary stays technical" width="100%"/>
 
@@ -77,19 +58,24 @@ ThoughtDAG answers with a different data structure: a conversation isn't a list.
 ## Features
 
 ### 🧠 Context you can see and shape
-Every edge is a context decision: drag to merge branches, click-delete to prune memory, collapse a node and it passes its summary instead of full text (context compression). The send preview tells you what the model will see, before you ask.
+Drag an edge to merge branches, delete one to prune memory, collapse a node to pass its summary instead of full text.
 
 ### 📥 Your history, unlocked
-Import ChatGPT or Claude `conversations.json` exports — every conversation becomes an editable canvas, and ChatGPT's edit/regenerate forks are preserved as visible graph branches. Years of locked-in linear chats turn into something you can prune, extend, and reason over.
+Import ChatGPT / Claude `conversations.json` — each conversation becomes an editable canvas, ChatGPT's edit/regenerate forks preserved as visible branches.
 
-### 🌿 Branch anywhere, converge anywhere
-Select any passage in an answer → grow an exploration branch to the right; wire branches back together to merge conclusions; regenerate as sibling versions and keep the best; highlight key passages and "distill-regenerate" to strip the noise.
+### 🌿 Branch anywhere
+Select any passage → an exploration branch grows from exactly that text; regenerate as sibling versions and keep the best; wire branches back together to merge.
+
+### 🧹 Converge — don't accumulate
+Redundant exploration is inevitable; keeping it in context is not. Box-select the sprawl → **Merge Summary** produces a structured synthesis (conclusions / evidence / open questions) → **Archive** the originals: still on canvas, dimmed, and excluded from every future context.
+
+<img src="docs/converge.gif" alt="Box-select three redundant nodes, merge into a synthesis node, archive the originals" width="100%"/>
 
 ### 👁️ Reviewers that keep up
-Attach a critic to any thread in one click: a reviewer persona rides a red edge that slides forward as your thread grows, re-critiquing each new step automatically (history versioned). And because a reviewer is just an ordinary node, you can talk back to it — question its critique, branch from it, wire its opinion into any other generation.
+One click attaches a critic whose red edge slides forward as your thread grows — each new step gets re-critiqued (history versioned). A reviewer is an ordinary node: question it, branch from it, wire its opinion anywhere.
 
 ### 🔍 Agentic search — web & scholarly
-The model decides when to search and which tool fits: web search for facts and current events, **arXiv + Semantic Scholar for papers** (abstracts, authors, citation counts). Answers carry inline `[n]` citations and the references persist with the node — every claim has a clickable source. Toolbar toggles turn each tool group off.
+The model decides when to search: web for facts, **arXiv + Semantic Scholar for papers**. Inline `[n]` citations, references persisted with the node, toolbar toggles per tool group.
 
 ### ✂️ Editing built for deep reading
 Everything is editable, answers keep multiple versions, LaTeX and syntax highlighting render inline, semantic zoom swaps cards for large-type thumbnails when zoomed out, and one-click tidy layout re-organizes the whole graph by arrow order.
@@ -134,6 +120,8 @@ Multi-canvas projects (one topic, one graph), IndexedDB auto-save, JSON backup/i
 - **MCP tool ecosystem** — Claude-Desktop-format `mcp.config.json`; stdio + HTTP/SSE transports; tools join the agentic loop with per-call progress; mock server included for testing
 - **Data persistence** — IndexedDB auto-save (1s debounce), survives refresh
 - **Multi-canvas projects** — create/switch/rename/delete, each saved independently
+- **Archive (prune-but-keep)** — dimmed on canvas, excluded from every context walk, restorable; batch via multi-select
+- **Merge Synthesis** — box-select nodes → structured synthesis (conclusions / evidence / open questions)
 - **Export system** — whole-graph JSON backup and import; context-chain / multi-select Markdown export
 - **Context send preview** — live "~N tok · M messages · K files" before asking
 - **Attachment system** — node-local attachments (drag/paste/upload), inherited include/exclude control, fingerprint dedup, automatic Vision switching for images, dual-channel PDF (text + rendered pages)
@@ -157,7 +145,7 @@ Multi-canvas projects (one topic, one graph), IndexedDB auto-save, JSON backup/i
 
 ## MCP tools — plug in the whole ecosystem
 
-Copy `mcp.config.example.json` to `mcp.config.json` and list any [MCP](https://modelcontextprotocol.io) servers (the same format Claude Desktop uses — existing config snippets just work). Their tools join the same agentic loop as web/scholar search: **the model decides when to call them**, a plug toggle in the toolbar turns them off, and the node shows 🔧 while a tool runs.
+Copy `mcp.config.example.json` to `mcp.config.json` and list any [MCP](https://modelcontextprotocol.io) servers (Claude-Desktop format — existing snippets just work). Their tools join the same agentic loop: the model decides when to call them.
 
 ```jsonc
 {
@@ -168,7 +156,7 @@ Copy `mcp.config.example.json` to `mcp.config.json` and list any [MCP](https://m
 }
 ```
 
-stdio servers use `command`/`args`/`env`; remote ones use `url` (+ optional `type`, `headers`). A mock server ships in `scripts/mock-mcp.mjs` — wire it up and ask for someone's "lucky number" to verify the loop end-to-end.
+A mock server ships in `scripts/mock-mcp.mjs` for verifying the loop end-to-end.
 
 ## Supported models
 

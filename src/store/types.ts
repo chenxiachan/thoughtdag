@@ -39,6 +39,8 @@ export interface NodeSlice {
   alignSelection: (nodeIds: string[]) => void;
   /** Set/clear a per-node LLM override (undefined = follow the global picker). */
   setNodeModel: (nodeId: string, model: string | undefined) => void;
+  /** Archive/unarchive nodes: dimmed on canvas, excluded from every context walk (undoable). */
+  setArchived: (nodeIds: string[], archived: boolean) => void;
 }
 
 export interface AddQuestionOptions {

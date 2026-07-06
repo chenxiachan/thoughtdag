@@ -40,6 +40,7 @@ export interface ThoughtData extends Record<string, unknown> {
   references?: Reference[]; // web sources cited by the current response ([n] markers)
   model?: string; // per-node LLM override; undefined = follow the global picker
   autoRerun?: boolean; // regenerate in place whenever an upstream ancestor finishes (generic primitive)
+  archived?: boolean; // pruned-but-kept: dimmed on canvas, EXCLUDED from every context walk
   autoRerunRounds?: number; // max auto-triggered runs per user action (default 1); >1 enables loops
   tokenCount: number;
   branchContext?: string;

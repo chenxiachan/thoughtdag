@@ -320,10 +320,13 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
 
 规则 / Rules:
 1. 输出语言必须与下面内容的主要语言一致。(Output language must match the primary language of the content below.)
-2. 去除重复：移除跨节点的冗余信息。(Deduplicate: remove redundant info across nodes.)
-3. 保留完整性：保留所有独特观点、结论、数据。不要过度压缩——目标是合并，不是摘要。(Preserve completeness: keep all unique insights. Goal is consolidation, not compression.)
-4. 结构清晰：用标题或要点组织。(Structure clearly with headings or bullets.)
-5. 只输出合并后的内容，不要元评论。(Output ONLY the merged content.)
+2. 这是综合(synthesis)，不是流水摘要：提炼出经过这些讨论后「我们现在知道什么」。(This is a SYNTHESIS, not a running summary: distill what we NOW KNOW after these discussions.)
+3. 按此结构组织 / Structure:
+   - **结论 (Conclusions)** — 立得住的要点，合并重复表述 (consolidated takeaways, dedup repeated points)
+   - **依据 (Key evidence)** — 支撑结论的关键论据/数据/引用 (the arguments, data or citations that carry the conclusions)
+   - **分歧与未决 (Open questions)** — 节点间的矛盾之处与尚未回答的问题 (contradictions between nodes and what remains unanswered)
+4. 保留所有独特洞见与引用标注，丢弃寒暄和重复。(Keep every unique insight and citation marker; drop filler and repetition.)
+5. 只输出综合后的内容，不要元评论。(Output ONLY the synthesis.)
 
 内容 / Content:
 

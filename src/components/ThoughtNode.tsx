@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Handle, Position, useStore as useRfStore, type NodeProps } from '@xyflow/react';
-import { AlertTriangle, ChevronDown, ChevronLeft, ChevronRight, Eye, GitBranch, Globe, Paperclip, RefreshCw, Send, Star, Trash2, X } from 'lucide-react';
+import { AlertTriangle, Archive, ChevronDown, ChevronLeft, ChevronRight, Eye, GitBranch, Globe, Paperclip, RefreshCw, Send, Star, Trash2, X } from 'lucide-react';
 import 'katex/dist/katex.min.css';
 import type { ThoughtNode as ThoughtNodeType } from '../types';
 import { useStore } from '../store';
@@ -141,7 +141,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   return (
     <div
       ref={nodeRef}
-      className={`thought-node rounded-xl w-[520px] animate-fade-in transition-all duration-200 ${
+      className={`thought-node rounded-xl w-[520px] animate-fade-in transition-all duration-200 ${data.archived ? 'opacity-35 saturate-50 ' : ''}${
         data.isEvaluator ? 'evaluator-node' : isBranch ? 'orange-node' : isRoot ? 'root-node' : 'branch-node'
       } ${data.isLoading ? 'loading-border' : ''} ${selectedNodeId === id ? 'ring-2 ring-accent !border-accent selected-glow' : ''} ${isDropTarget ? 'ring-2 ring-accent/50 ring-dashed' : ''}`}
       onClick={() => setSelectedNodeId(id)}
@@ -184,6 +184,11 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
             {data.isCollapsed ? <ChevronRight size={18} strokeWidth={1.75} /> : <ChevronDown size={18} strokeWidth={1.75} />}
           </button>
           <span className="text-xs text-ink-faint font-mono">{data.tokenCount} tok</span>
+          {data.archived && (
+            <span className="text-2xs bg-amber-500/10 text-amber-600 px-1.5 py-0.5 rounded-md flex items-center gap-1 font-medium" title={t('archive.badgeTitle')}>
+              <Archive size={11} strokeWidth={1.75} /> {t('archive.badge')}
+            </span>
+          )}
           {data.isEvaluator ? (
             <span className="text-2xs bg-watch/10 text-watch px-1.5 py-0.5 rounded-md flex items-center gap-1 font-medium">
               <Eye size={12} strokeWidth={1.75} /> {t('evaluator.badge')}

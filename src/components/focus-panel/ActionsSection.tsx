@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ClipboardCopy, CornerDownLeft, Copy, Eye, FileDown, GitBranch, RefreshCw, Square, Trash2 } from 'lucide-react';
+import { Archive, ArchiveRestore, ClipboardCopy, CornerDownLeft, Copy, Eye, FileDown, GitBranch, RefreshCw, Square, Trash2 } from 'lucide-react';
 import { useStore } from '../../store';
 import { contextChainMarkdown, downloadMarkdown, copyText } from '../../lib/export';
 import { ROLE_TEMPLATES } from '../../lib/role-templates';
@@ -40,6 +40,8 @@ export default function ActionsSection({
   const attachEvaluator = useStore((s) => s.attachEvaluator);
   const setNodeModel = useStore((s) => s.setNodeModel);
   const nodeModel = useStore((s) => s.nodes.find((n) => n.id === nodeId)?.data.model);
+  const setArchived = useStore((s) => s.setArchived);
+  const isArchived = useStore((s) => !!s.nodes.find((n) => n.id === nodeId)?.data.archived);
   const t = useT();
   const lang = useI18n((s) => s.lang);
   const [evaluatorPickerOpen, setEvaluatorPickerOpen] = useState(false);
@@ -112,6 +114,16 @@ export default function ActionsSection({
           <Eye size={14} strokeWidth={1.75} /> {t('evaluator.attach')}
         </button>
         <ModelPicker compact value={nodeModel} onChange={(m) => setNodeModel(nodeId, m)} />
+        <button
+          onClick={() => setArchived([nodeId], !isArchived)}
+          title={isArchived ? t('archive.restoreTitle') : t('archive.title')}
+          className={`text-xs px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5 ${
+            isArchived ? 'bg-amber-500/10 text-amber-600' : 'bg-wash hover:bg-line text-ink-muted'
+          }`}
+        >
+          {isArchived ? <ArchiveRestore size={14} strokeWidth={1.75} /> : <Archive size={14} strokeWidth={1.75} />}
+          {isArchived ? t('archive.restore') : t('archive.label')}
+        </button>
         {/* Destructive, kept apart on the right */}
         <button
           onClick={() => { deleteNode(nodeId); setSelectedNodeId(null); }}

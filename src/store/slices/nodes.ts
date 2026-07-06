@@ -200,6 +200,17 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
     get().pushHistory();
   },
 
+  setArchived: (nodeIds: string[], archived: boolean) => {
+    const ids = new Set(nodeIds);
+    get().pushHistory();
+    set((state) => ({
+      nodes: state.nodes.map((n) =>
+        ids.has(n.id) ? { ...n, data: { ...n.data, archived: archived || undefined } } : n
+      ),
+    }));
+    get().pushHistory();
+  },
+
   setNodeModel: (nodeId: string, model: string | undefined) => {
     set((state) => ({
       nodes: state.nodes.map((n) =>
