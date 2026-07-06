@@ -162,6 +162,7 @@ export const zh: Record<keyof typeof en, string> = {
   'followup.willSend': '将发送 ~{n} tok · {m} 条消息',
   'followup.files': ' · {k} 个文件',
   'followup.previewTitle': '预览将要发送的确切上下文',
+  'followup.attach': '给这条追问添加附件（图片 / PDF / 文本）',
   'followup.inheritAttachments': '继承附件',
 
   // Selection toolbar

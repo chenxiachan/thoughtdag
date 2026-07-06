@@ -162,6 +162,7 @@ export const en = {
   'followup.willSend': 'will send ~{n} tok · {m} messages',
   'followup.files': ' · {k} files',
   'followup.previewTitle': 'Preview the exact context that will be sent',
+  'followup.attach': 'Attach files to this follow-up (images / PDF / text)',
   'followup.inheritAttachments': 'Inherit attachments',
 
   // Selection toolbar

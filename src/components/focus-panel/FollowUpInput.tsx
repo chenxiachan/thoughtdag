@@ -1,7 +1,9 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
-import { ChevronUp, Send } from 'lucide-react';
+import { ChevronUp, Paperclip, Send, X } from 'lucide-react';
 import { useStore } from '../../store';
 import { buildContext } from '../../store/context-builder';
+import { processFile, FILE_INPUT_ACCEPT } from '../../lib/attachments';
+import type { Attachment } from '../../types';
 import { countTokens } from '../../utils';
 import { useT, fmt } from '../../i18n';
 
@@ -27,7 +29,18 @@ export default function FollowUpInput({
   const [continueInheritRole, setContinueInheritRole] = useState(true);
   const [continueInheritAttachments, setContinueInheritAttachments] = useState(true);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [pendingAttachments, setPendingAttachments] = useState<Attachment[]>([]);
   const continueRef = useRef<HTMLInputElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const addFiles = async (files: FileList | File[]) => {
+    for (const file of Array.from(files)) {
+      await processFile(file, {
+        add: (att) => setPendingAttachments((prev) => [...prev, att]),
+        update: (attId, patch) => setPendingAttachments((prev) => prev.map((a) => (a.id === attId ? { ...a, ...patch } : a))),
+      });
+    }
+  };
 
   // What would a follow-up from this node actually send? Makes the core
   // "you control the context" promise visible before asking.
@@ -53,9 +66,15 @@ export default function FollowUpInput({
 
   const submit = () => {
     if (!continueInput.trim()) return;
-    addQuestion(continueInput.trim(), { parentId: nodeId, inheritRole: continueInheritRole ? undefined : false, excludeAllInheritedAttachments: !continueInheritAttachments });
+    addQuestion(continueInput.trim(), {
+      parentId: nodeId,
+      inheritRole: continueInheritRole ? undefined : false,
+      excludeAllInheritedAttachments: !continueInheritAttachments,
+      initialAttachments: pendingAttachments.length > 0 ? pendingAttachments : undefined,
+    });
     setContinueInput('');
     setContinueInheritRole(true);
+    setPendingAttachments([]);
     setPreviewOpen(false);
   };
 
@@ -93,7 +112,27 @@ export default function FollowUpInput({
         {fmt(t('followup.willSend'), { n: preview.totalTokens, m: preview.items.length })}{preview.fileCount > 0 ? fmt(t('followup.files'), { k: preview.fileCount }) : ''}
       </button>
 
-      <div className="flex items-center gap-2 bg-wash rounded-xl px-4 py-2.5 transition-shadow focus-within:ring-1 focus-within:ring-accent/40">
+      {/* Attachments staged for the NEXT follow-up node */}
+      {pendingAttachments.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mb-1.5">
+          {pendingAttachments.map((att) => (
+            <span key={att.id} className="inline-flex items-center gap-1 text-2xs bg-wash text-ink-muted px-2 py-1 rounded-full">
+              <Paperclip size={11} strokeWidth={1.75} />
+              <span className="max-w-[140px] truncate">{att.name}</span>
+              {att.isExtracting && <span className="text-ink-faint">…</span>}
+              <button onClick={() => setPendingAttachments((prev) => prev.filter((a) => a.id !== att.id))} className="text-ink-faint hover:text-red-500 transition-colors">
+                <X size={11} strokeWidth={2} />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
+
+      <div
+        className="flex items-center gap-2 bg-wash rounded-xl px-4 py-2.5 transition-shadow focus-within:ring-1 focus-within:ring-accent/40"
+        onDrop={(e) => { e.preventDefault(); e.stopPropagation(); void addFiles(e.dataTransfer.files); }}
+        onDragOver={(e) => e.preventDefault()}
+      >
         <input
           ref={continueRef}
           type="text"
@@ -107,7 +146,20 @@ export default function FollowUpInput({
           }}
           placeholder={t('common.followUp')}
           className="flex-1 bg-transparent text-sm text-ink placeholder-ink-faint focus:outline-none"
+          onPaste={(e) => {
+            const files = Array.from(e.clipboardData?.files ?? []);
+            if (files.length > 0) { e.preventDefault(); void addFiles(files); }
+          }}
         />
+        <input ref={fileRef} type="file" accept={FILE_INPUT_ACCEPT} multiple className="hidden"
+          onChange={(e) => { if (e.target.files) void addFiles(e.target.files); e.target.value = ''; }} />
+        <button
+          onClick={() => fileRef.current?.click()}
+          title={t('followup.attach')}
+          className="text-ink-faint hover:text-accent transition-colors shrink-0 rounded-full w-7 h-7 flex items-center justify-center hover:bg-line"
+        >
+          <Paperclip size={16} strokeWidth={1.75} />
+        </button>
         <button
           onClick={submit}
           disabled={!continueInput.trim()}
