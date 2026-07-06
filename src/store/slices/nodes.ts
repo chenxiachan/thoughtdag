@@ -196,38 +196,7 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
 
   relayout: () => {
     get().pushHistory();
-    set((state) => {
-      const laid = autoLayout(state.nodes, state.edges);
-      // Evaluators skip the column tree — seat them in their own column to
-      // the right of the whole graph (grid-aligned so nothing overlaps),
-      // vertically aligned with their watched node, pushed down on collision.
-      const mainNodes = laid.filter((n) => !n.data.isEvaluator);
-      const maxX = mainNodes.length > 0 ? Math.max(...mainNodes.map((n) => n.position.x)) : 0;
-      const evaluatorX = maxX + 620; // one full column pitch to the right
-
-      const evaluators = laid
-        .filter((n) => n.data.isEvaluator)
-        .map((n) => {
-          const watchEdge = state.edges.find((e) => e.target === n.id && e.data?.isWatch);
-          const watched = watchEdge ? laid.find((x) => x.id === watchEdge.source) : undefined;
-          return { node: n, y: watched?.position.y ?? n.position.y };
-        })
-        .sort((a, b) => a.y - b.y);
-
-      const placed = new Map<string, { x: number; y: number }>();
-      let lastBottom = -Infinity;
-      for (const { node, y } of evaluators) {
-        const top = Math.max(y, lastBottom + 30);
-        placed.set(node.id, { x: evaluatorX, y: top });
-        lastBottom = top + nodeHeight(node);
-      }
-
-      const nodes = laid.map((n) => {
-        const pos = placed.get(n.id);
-        return pos ? { ...n, position: pos } : n;
-      });
-      return { nodes };
-    });
+    set((state) => ({ nodes: autoLayout(state.nodes, state.edges) }));
     get().pushHistory();
   },
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ClipboardCopy, CornerDownLeft, Copy, Eye, FileDown, GitBranch, RefreshCw, Square, Trash2 } from 'lucide-react';
+import { ClipboardCopy, CornerDownLeft, Copy, Eye, FileDown, GitBranch, RefreshCw, Repeat2, Square, Trash2 } from 'lucide-react';
 import { useStore } from '../../store';
 import { contextChainMarkdown, downloadMarkdown, copyText } from '../../lib/export';
 import { ROLE_TEMPLATES } from '../../lib/role-templates';
@@ -40,6 +40,9 @@ export default function ActionsSection({
   const attachEvaluator = useStore((s) => s.attachEvaluator);
   const setNodeModel = useStore((s) => s.setNodeModel);
   const nodeModel = useStore((s) => s.nodes.find((n) => n.id === nodeId)?.data.model);
+  const setAutoRerun = useStore((s) => s.setAutoRerun);
+  const nodeData = useStore((s) => s.nodes.find((n) => n.id === nodeId)?.data);
+  const isAuto = nodeData ? (nodeData.autoRerun ?? nodeData.evaluatorTrigger === 'auto') : false;
   const t = useT();
   const lang = useI18n((s) => s.lang);
   const [evaluatorPickerOpen, setEvaluatorPickerOpen] = useState(false);
@@ -112,6 +115,15 @@ export default function ActionsSection({
           <Eye size={14} strokeWidth={1.75} /> {t('evaluator.attach')}
         </button>
         <ModelPicker compact value={nodeModel} onChange={(m) => setNodeModel(nodeId, m)} />
+        <button
+          onClick={() => setAutoRerun(nodeId, !isAuto)}
+          title={t('rerun.toggleTitle')}
+          className={`text-xs px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5 ${
+            isAuto ? 'bg-accent/10 text-accent' : 'bg-wash hover:bg-line text-ink-muted'
+          }`}
+        >
+          <Repeat2 size={14} strokeWidth={1.75} /> {isAuto ? t('rerun.auto') : t('rerun.label')}
+        </button>
         {/* Destructive, kept apart on the right */}
         <button
           onClick={() => { deleteNode(nodeId); setSelectedNodeId(null); }}

@@ -77,11 +77,12 @@ export interface HighlightSlice {
 }
 
 export interface EvaluatorSlice {
-  /** Create an evaluator node watching the given node, then run its first critique. */
+  /** PRESET: ordinary node with a critic role + autoRerun, wired by a followsTip edge. */
   attachEvaluator: (watchedNodeId: string, rolePrompt: string, roleName: string) => Promise<void>;
-  /** Re-run the critique against the current state of the watched thread. */
-  evaluateNow: (evaluatorId: string) => Promise<void>;
-  setEvaluatorTrigger: (nodeId: string, mode: 'auto' | 'manual') => void;
+  /** Regenerate a node in place from its incoming edges, appending a version (generic primitive). */
+  rerunNode: (nodeId: string) => Promise<void>;
+  /** Toggle the autoRerun primitive on any node. */
+  setAutoRerun: (nodeId: string, enabled: boolean) => void;
 }
 
 export interface AttachmentSlice {

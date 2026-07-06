@@ -42,10 +42,7 @@ export function nodeHeight(node: ThoughtNode): number {
  */
 export function autoLayout(allNodes: ThoughtNode[], edges: ThoughtEdge[]): ThoughtNode[] {
   if (allNodes.length === 0) return allNodes;
-  // Evaluators sit beside the thread they watch and keep their manual
-  // position — they never join the column tree.
-  const nodes = allNodes.filter((n) => !n.data.isEvaluator);
-  if (nodes.length === 0) return allNodes;
+  const nodes = allNodes;
 
   const NODE_WIDTH = LAYOUT_COL_WIDTH;
   const H_GAP = LAYOUT_H_GAP;
@@ -250,7 +247,6 @@ export function autoLayout(allNodes: ThoughtNode[], edges: ThoughtEdge[]): Thoug
   }
 
   return allNodes.map((node) => {
-    if (node.data.isEvaluator) return node;
     const pos = positioned.get(node.id);
     return pos ? { ...node, position: pos } : node;
   });

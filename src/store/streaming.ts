@@ -1,4 +1,5 @@
 import type { StoreApi } from 'zustand';
+import { walkUpAncestors } from '../lib/graph';
 import { llmCall, llmCallStream, type ContextMessage, type ImageAttachment } from '../lib/api';
 import { countTokens } from '../utils';
 import { toast, useUiStore } from '../lib/ui-store';
@@ -102,7 +103,7 @@ export async function runNodeGeneration(
     onSuccess?.(response);
     get().pushHistory();
     generateSummary(nodeId, question, response, get().setSummary);
-    triggerWatchers(get, nodeId);
+    triggerAutoReruns(set, get, nodeId);
   } catch (err) {
     activeAbortControllers.delete(nodeId);
     const partial = get().nodes.find((n) => n.id === nodeId)?.data.response || '';
@@ -121,36 +122,53 @@ export async function runNodeGeneration(
 }
 
 /**
- * After a node finishes generating, wake any auto-mode evaluators watching
- * it or one of its STRUCTURAL ancestors. Watch edges are cross-links, so
- * this walk can't loop back through an evaluator; an evaluator finishing
- * its own critique has no structural ancestors and cascades no further
- * (unless it is itself watched — multi-level review is allowed).
+ * Two generic primitives fire after any node finishes generating:
+ *
+ * 1. followsTip edges slide forward — an edge marked followsTip keeps
+ *    pointing at the newest node of the thread it grew from, so whatever
+ *    consumes it (a reviewer, a live summary) always sees the tip.
+ * 2. autoRerun nodes regenerate — any node with autoRerun whose ancestor
+ *    set (standard context walk, after edges slid) contains the completed
+ *    node reruns itself in place. Chains of autoRerun nodes cascade
+ *    naturally; the DAG has no cycles to worry about.
  */
-function triggerWatchers(get: Get, completedNodeId: string): void {
-  const { nodes, edges } = get();
-
-  // Structural ancestors of the completed node, including itself
+function triggerAutoReruns(set: Set, get: Get, completedNodeId: string): void {
+  // 1) slide followsTip edges whose source thread just grew: the completed
+  //    node's STRUCTURAL ancestor chain reaching an edge's source means
+  //    that edge's thread extended past its current anchor.
   const chain = new Set<string>([completedNodeId]);
   const queue = [completedNodeId];
   while (queue.length > 0) {
     const current = queue.shift()!;
-    for (const e of edges) {
+    for (const e of get().edges) {
       if (e.target === current && !e.data?.isCrossLink && !chain.has(e.source)) {
         chain.add(e.source);
         queue.push(e.source);
       }
     }
   }
+  const needsSlide = get().edges.some(
+    (e) => e.data?.followsTip && e.source !== completedNodeId && chain.has(e.source)
+  );
+  if (needsSlide) {
+    set((state) => ({
+      edges: state.edges.map((e) =>
+        e.data?.followsTip && e.source !== completedNodeId && chain.has(e.source)
+          ? { ...e, id: `watch-${completedNodeId}-${e.target}`, source: completedNodeId }
+          : e
+      ),
+    }));
+  }
 
-  const woken = new Set<string>();
-  for (const e of edges) {
-    if (!e.data?.isWatch || !chain.has(e.source) || woken.has(e.target)) continue;
-    const evaluator = nodes.find((n) => n.id === e.target);
-    if (!evaluator?.data.isEvaluator) continue;
-    if (evaluator.data.evaluatorTrigger !== 'auto') continue;
-    if (evaluator.data.isLoading || activeAbortControllers.has(evaluator.id)) continue;
-    woken.add(evaluator.id);
-    void get().evaluateNow(evaluator.id);
+  // 2) rerun any autoRerun node that (now) has the completed node upstream
+  const { nodes, edges } = get();
+  for (const n of nodes) {
+    const auto = n.data.autoRerun ?? n.data.evaluatorTrigger === 'auto'; // legacy graphs
+    if (!auto || n.id === completedNodeId) continue;
+    if (n.data.isLoading || activeAbortControllers.has(n.id)) continue;
+    const { ordered } = walkUpAncestors(n.id, nodes, edges);
+    if (ordered.some((a) => a.id === completedNodeId)) {
+      void get().rerunNode(n.id);
+    }
   }
 }

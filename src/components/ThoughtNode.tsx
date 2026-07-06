@@ -13,7 +13,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   const {
     deleteNode, toggleCollapse, setEditing, editQuestion, regenerate,
     setEditingResponse, editResponse, addHighlight, navigateVersion, deleteVersion,
-    setSelectedNodeId, selectedNodeId, addAttachment, evaluateNow, setEvaluatorTrigger,
+    setSelectedNodeId, selectedNodeId, addAttachment, rerunNode, setAutoRerun,
   } = useStore();
   const t = useT();
   const [isDropTarget, setIsDropTarget] = useState(false);
@@ -134,6 +134,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
 
   const isRoot = data.isRoot;
   const isBranch = data.isBranch;
+  const isAuto = data.autoRerun ?? data.evaluatorTrigger === 'auto';
   const hasMultipleVersions = data.responses.length > 1;
 
   const highlightedTexts = new Set(data.highlights.map((h) => h.text));
@@ -216,25 +217,25 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
           )}
         </div>
         <div className="flex items-center gap-0.5">
-          {data.isEvaluator ? (
+          {isAuto || data.isEvaluator ? (
             <>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  setEvaluatorTrigger(id, data.evaluatorTrigger === 'auto' ? 'manual' : 'auto');
+                  setAutoRerun(id, !isAuto);
                 }}
                 className={`text-2xs px-2 h-6 rounded-full font-medium transition-colors ${
-                  data.evaluatorTrigger === 'auto' ? 'bg-watch/10 text-watch' : 'bg-wash text-ink-faint'
+                  isAuto ? (data.isEvaluator ? 'bg-watch/10 text-watch' : 'bg-accent/10 text-accent') : 'bg-wash text-ink-faint'
                 }`}
-                title={data.evaluatorTrigger === 'auto' ? t('evaluator.autoTitle') : t('evaluator.manualTitle')}
+                title={isAuto ? t('rerun.autoTitle') : t('rerun.offTitle')}
               >
-                {data.evaluatorTrigger === 'auto' ? t('evaluator.auto') : t('evaluator.manual')}
+                {isAuto ? t('rerun.auto') : t('rerun.off')}
               </button>
               <button
-                onClick={(e) => { e.stopPropagation(); void evaluateNow(id); }}
+                onClick={(e) => { e.stopPropagation(); void rerunNode(id); }}
                 disabled={data.isLoading}
                 className="text-ink-faint hover:text-watch hover:bg-red-50 rounded-full w-7 h-7 flex items-center justify-center transition-colors disabled:opacity-30"
-                title={t('evaluator.evaluateNow')}
+                title={t('rerun.now')}
               >
                 <RefreshCw size={16} strokeWidth={1.75} className={data.isLoading ? 'animate-spin' : ''} />
               </button>

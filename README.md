@@ -85,8 +85,8 @@ Import ChatGPT or Claude `conversations.json` exports — every conversation bec
 ### 🌿 Branch anywhere, converge anywhere
 Select any passage in an answer → grow an exploration branch to the right; wire branches back together to merge conclusions; regenerate as sibling versions and keep the best; highlight key passages and "distill-regenerate" to strip the noise.
 
-### 👁️ Evaluator nodes
-Attach an adversarial "reviewer" to any line of thought (red watch edge): every time the main chain produces new content, a paper reviewer / devil's advocate / statistician fires a critique automatically. Critique history is versioned. GAN-style human-in-the-loop reasoning.
+### 🔁 Live nodes — one primitive, many tools
+Any node can be set to **auto-rerun**: it regenerates whenever anything upstream changes. Combined with roles, this one switch composes into reviewers, live summaries, running translations, standing research questions — no dedicated feature per use case. The **Reviewer preset** wires it up in one click: a critic persona on a red edge that slides forward as your thread grows, re-critiquing every new step (history versioned). And because a reviewer is just a node, you can talk back to it — question its critique, branch from it, wire it anywhere.
 
 ### 🔍 Agentic search — web & scholarly
 The model decides when to search and which tool fits: web search for facts and current events, **arXiv + Semantic Scholar for papers** (abstracts, authors, citation counts). Answers carry inline `[n]` citations and the references persist with the node — every claim has a clickable source. Toolbar toggles turn each tool group off.
@@ -129,7 +129,7 @@ Multi-canvas projects (one topic, one graph), IndexedDB auto-save, JSON backup/i
 - **Multi-select** — box-select nodes: Merge Summary / Merge & Delete / Align / Export / Delete
 - **Node role system** — per-node system prompt with three modes (inherit / set for next / reset here), `appliedRole` recorded at generation time, radio picker for multi-parent conflicts
 - **Role template library** — Reviewer / Devil's Advocate / Statistician / Code Reviewer / Tutor
-- **Evaluator nodes** — red watch edges subscribe to a thread, auto/manual critique, versioned critique history
+- **Auto-rerun primitive** — any node regenerates when upstream changes; Reviewer preset (critic role + sliding red edge) composes from it, as do live summaries and running translations
 - **Agentic search** — AI SDK tool loop: Zhipu web search + arXiv + Semantic Scholar (free APIs), `[n]` citations + persisted references, guaranteed synthesis fallback, per-group toolbar toggles
 - **MCP tool ecosystem** — Claude-Desktop-format `mcp.config.json`; stdio + HTTP/SSE transports; tools join the agentic loop with per-call progress; mock server included for testing
 - **Data persistence** — IndexedDB auto-save (1s debounce), survives refresh

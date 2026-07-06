@@ -1,44 +1,98 @@
 import type { StateCreator } from 'zustand';
-import type { ThoughtNode, ThoughtEdge } from '../../types';
+import type { ThoughtNode, ThoughtEdge, ThoughtData } from '../../types';
 import { generateId } from '../../utils';
-import { getDescendantIds } from '../../lib/graph';
 import { COLORS } from '../../lib/constants';
-import type { ContextMessage } from '../../lib/api';
+import { buildContext } from '../context-builder';
 import { runNodeGeneration } from '../streaming';
 import type { StoreState, EvaluatorSlice } from '../types';
 
-// Collect the watched thread (each watched node + its structural subtree)
-// as a readable Q/A transcript, top-to-bottom.
-function watchedTranscript(evaluatorId: string, nodes: ThoughtNode[], edges: ThoughtEdge[]): string {
-  const watchedIds = new Set<string>();
-  for (const e of edges) {
-    if (e.target === evaluatorId && e.data?.isWatch) {
-      watchedIds.add(e.source);
-      for (const d of getDescendantIds(e.source, edges)) watchedIds.add(d);
-    }
-  }
-  const thread = nodes
-    .filter((n) => watchedIds.has(n.id) && !n.data.isEvaluator)
-    .sort((a, b) => a.position.y - b.position.y || a.position.x - b.position.x);
-  return thread
-    .map((n) => `Q: ${n.data.question}\nA: ${n.data.response || '(no answer yet)'}`)
-    .join('\n\n---\n\n');
+// ── Primitives, not features ─────────────────────────────────────
+// A "reviewer" is NOT a special node type. It is an ordinary node composed
+// from two generic primitives:
+//   • autoRerun  (node) — regenerate in place whenever an upstream ancestor
+//                          finishes generating (versions accumulate)
+//   • followsTip (edge) — the edge keeps sliding forward to the newest node
+//                          of the thread it points from
+// attachEvaluator below is merely a PRESET that combines them with a
+// critic role. Any node can use either primitive for other purposes
+// (live summaries, running translations, ...).
+
+/** autoRerun with legacy fallback: old graphs stored evaluatorTrigger. */
+export function isAutoRerun(data: ThoughtData): boolean {
+  return data.autoRerun ?? data.evaluatorTrigger === 'auto';
 }
 
 export const createEvaluatorSlice: StateCreator<StoreState, [], [], EvaluatorSlice> = (set, get) => ({
+  /**
+   * Regenerate a node IN PLACE from its incoming edges (standard context
+   * walk — same one every node uses), appending to its version history.
+   * This is the generic engine behind auto-rerun; also useful manually.
+   */
+  rerunNode: async (nodeId: string) => {
+    const { nodes, edges } = get();
+    const node = nodes.find((n) => n.id === nodeId);
+    if (!node || node.data.isLoading) return;
+    if (!edges.some((e) => e.target === nodeId)) return; // nothing upstream to rerun from
+
+    // Standard context with this node's own Q&A blanked out (same pattern
+    // as editQuestion) — ancestors, roles, highlights, attachments all
+    // resolve exactly like any other generation.
+    const ctx = buildContext(
+      nodeId,
+      nodes.map((n) => (n.id === nodeId ? { ...n, data: { ...n.data, question: '', response: '' } } : n)),
+      edges,
+      undefined,
+      node.data.excludedAttachmentIds,
+      node.data.includedAttachmentIds,
+    );
+    const messages = ctx.messages;
+    const appliedRole = messages.find((m) => m.role === 'system')?.content || undefined;
+    messages.push({ role: 'user', content: node.data.question });
+
+    set((state) => ({
+      nodes: state.nodes.map((n) =>
+        n.id === nodeId ? { ...n, data: { ...n.data, appliedRole, isLoading: true, isCollapsed: false, response: '' } } : n
+      ),
+    }));
+
+    await runNodeGeneration(set, get, nodeId, {
+      question: node.data.question,
+      messages,
+      images: ctx.images,
+      versionMode: 'append',
+    });
+  },
+
+  setAutoRerun: (nodeId: string, enabled: boolean) => {
+    set((state) => ({
+      nodes: state.nodes.map((n) =>
+        n.id === nodeId
+          ? { ...n, data: { ...n.data, autoRerun: enabled, evaluatorTrigger: undefined } }
+          : n
+      ),
+    }));
+  },
+
+  /**
+   * PRESET: attach a critic to a thread. Creates an ordinary node with a
+   * reviewer persona + autoRerun, wired by a followsTip edge — nothing
+   * here is special-cased anywhere else in the app.
+   */
   attachEvaluator: async (watchedNodeId: string, rolePrompt: string, roleName: string) => {
     const watched = get().nodes.find((n) => n.id === watchedNodeId);
     if (!watched) return;
     get().pushHistory();
 
     const id = generateId();
-    const evaluatorNode: ThoughtNode = {
+    const reviewerNode: ThoughtNode = {
       id,
       type: 'thought',
       position: { x: watched.position.x + 640, y: watched.position.y },
       dragHandle: '.drag-handle',
       data: {
-        question: roleName,
+        // The question IS the standing instruction — rerun executes it
+        // against whatever the followsTip edge currently points at.
+        question: `[${roleName}] Critique the discussion above: identify overclaims, missing evidence, and unstated assumptions. Note what improved since the previous version if any. Be concise and specific. Respond in the language of the discussion.`,
         response: '',
         responses: [],
         responseIndex: -1,
@@ -49,12 +103,11 @@ export const createEvaluatorSlice: StateCreator<StoreState, [], [], EvaluatorSli
         tokenCount: 0,
         highlights: [], highlightMode: 'tag', attachments: [], excludedAttachmentIds: [], includedAttachmentIds: [],
         rolePrompt,
-        appliedRole: rolePrompt,
         roleMode: 'reset', // the critic's persona stays its own
         isRoot: false,
         isBranch: false,
-        isEvaluator: true,
-        evaluatorTrigger: 'auto',
+        isEvaluator: true, // visual identity only (red theme + badge)
+        autoRerun: true,
       },
     };
 
@@ -68,57 +121,17 @@ export const createEvaluatorSlice: StateCreator<StoreState, [], [], EvaluatorSli
       style: { stroke: COLORS.watch, strokeWidth: 2, strokeDasharray: '4 4' },
       animated: true,
       markerEnd: { type: 'arrowclosed' as const, color: COLORS.watch, width: 18, height: 18 },
-      data: { isCrossLink: true, isWatch: true },
+      data: { isCrossLink: true, isWatch: true, followsTip: true },
     };
 
     set((state) => ({
-      nodes: [...state.nodes, evaluatorNode],
+      nodes: [...state.nodes, reviewerNode],
       edges: [...state.edges, watchEdge],
       selectedNodeId: id,
       selectedNodeIds: [id],
     }));
     get().pushHistory();
 
-    await get().evaluateNow(id);
-  },
-
-  evaluateNow: async (evaluatorId: string) => {
-    const { nodes, edges } = get();
-    const evaluator = nodes.find((n) => n.id === evaluatorId);
-    if (!evaluator?.data.isEvaluator || evaluator.data.isLoading) return;
-
-    const transcript = watchedTranscript(evaluatorId, nodes, edges);
-    if (!transcript) return;
-
-    const previous = evaluator.data.response;
-    const messages: ContextMessage[] = [
-      { role: 'system', content: evaluator.data.rolePrompt || 'You are a critical reviewer. Respond in the same language as the content under review.' },
-      {
-        role: 'user',
-        content: previous
-          ? `You are watching a conversation thread. Current state:\n\n${transcript}\n\nYour previous critique was:\n${previous}\n\nProvide an updated critique. Focus on what changed since your last review, note which of your earlier points were addressed, and raise anything you previously missed. Be concise.`
-          : `You are watching a conversation thread. Here it is:\n\n${transcript}\n\nProvide your critique. Be concise and specific.`,
-      },
-    ];
-
-    set((state) => ({
-      nodes: state.nodes.map((n) =>
-        n.id === evaluatorId ? { ...n, data: { ...n.data, isLoading: true, isCollapsed: false, response: '' } } : n
-      ),
-    }));
-
-    await runNodeGeneration(set, get, evaluatorId, {
-      question: evaluator.data.question,
-      messages,
-      versionMode: 'append',
-    });
-  },
-
-  setEvaluatorTrigger: (nodeId: string, mode: 'auto' | 'manual') => {
-    set((state) => ({
-      nodes: state.nodes.map((n) =>
-        n.id === nodeId ? { ...n, data: { ...n.data, evaluatorTrigger: mode } } : n
-      ),
-    }));
+    await get().rerunNode(id);
   },
 });

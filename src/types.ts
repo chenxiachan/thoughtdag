@@ -39,6 +39,7 @@ export interface ThoughtData extends Record<string, unknown> {
   generationFailed?: boolean; // set on LLM failure; cleared on retry/success (persisted so Retry survives refresh)
   references?: Reference[]; // web sources cited by the current response ([n] markers)
   model?: string; // per-node LLM override; undefined = follow the global picker
+  autoRerun?: boolean; // regenerate in place whenever an upstream ancestor finishes (generic primitive)
   tokenCount: number;
   branchContext?: string;
   highlights: Highlight[];
@@ -68,6 +69,7 @@ export interface ThoughtEdge extends Edge {
     /** Watch edge: watched node → evaluator. Treated as a cross-link for
         layout (no tree structure) but feeds context like any incoming edge. */
     isWatch?: boolean;
+    followsTip?: boolean; // edge slides forward to the newest node of its source thread
   };
 }
 
