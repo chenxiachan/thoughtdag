@@ -134,7 +134,7 @@ function Canvas() {
     const pname = meta.projects.find((p) => p.id === meta.activeId)?.name ?? 'Paradigm';
     const id = crypto.randomUUID();
     await idbSet(projectStorageKey(id), JSON.stringify({ state: { nodes: cNodes, edges: cEdges }, version: 1 }));
-    await adoptImportedProject(id, `\u25b6 ${pname}`, 'chat');
+    await adoptImportedProject(id, `▶ ${pname}`, 'chat');
     prevNodeCount.current = useStore.getState().nodes.length;
     setTimeout(() => rfInstance.current?.fitView({ duration: 400, padding: 0.15 }), 150);
   }, []);
@@ -619,7 +619,7 @@ function Canvas() {
 
       {/* Floating input — centered on the full canvas; docks below the project
           switcher when the panel narrows the canvas (avoids toolbar collision) */}
-      {hasNodes && (
+      {hasNodes && !isParadigm && (
         <div className={`absolute z-10 ${panelOpen ? 'top-16 left-4' : 'top-4 left-1/2 -translate-x-1/2'}`}>
           <div
             className="bg-card/90 backdrop-blur border border-line rounded-xl px-4 py-3 shadow-lg w-[400px] transition-colors focus-within:border-accent/50"
@@ -730,7 +730,7 @@ function Canvas() {
               title={t('paradigm.instantiateTitle')}
               className="bg-ink text-white rounded-lg h-8 px-3 flex items-center gap-1.5 shadow-sm hover:bg-ink/85 transition-colors text-xs font-medium"
             >
-              \u25b6 {t('paradigm.instantiate')}
+              ▶ {t('paradigm.instantiate')}
             </button>
           </>
         )}
