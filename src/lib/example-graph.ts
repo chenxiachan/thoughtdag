@@ -21,7 +21,7 @@ const CONTENT: Record<Lang, { nodes: SeedNode[] }> = {
       {
         id: 'welcome',
         q: '👋 Welcome to ThoughtDAG — read me first',
-        a: 'This canvas is a **conversation you can edit**.\n\n- **Arrows** show what context flows into each answer\n- **Purple** = follow-up chain · **Orange** = branch from a text selection · **Red** = an Evaluator watching a thread\n- Click any node to open the panel; select text in an answer to branch or highlight\n\n⚖️ **Don\'t miss the pair of nodes on the right** — same question, different context, different answer. That\'s the whole point of this tool.\n\nDelete anything, drag anything, press `?` in the toolbar for the tutorial. This is your graph now.',
+        a: 'This canvas is a **conversation you can edit** — built from a few small blocks that combine into everything else:\n\n- **Node** = one Q&A · **Arrow** = context flow (whatever wires in, the model sees)\n- **Purple** = follow-up chain · **Orange** = a branch grown from selected text · **Red dashed** = an edge that slides forward as its thread grows\n- **🔁 Auto-refresh (Live)**: any node can regenerate whenever upstream changes. The reviewer below-right is just an ordinary node + critic role + this switch — so you can question its critique or branch from it like any node\n- **Loops**: wire a critic BACK to a writer and raise the rounds (×3) — one click iterates draft → critique → revise until the budget runs out. See the pair at the bottom and flip through their version history (‹ › in the header)\n\n⚖️ **Don\'t miss the pair on the right** — same question, different context, different answer.\n\nDelete anything, drag anything, press `?` for the tutorial. This graph is yours now.',
         x: 40, y: 30,
       },
       {
@@ -51,11 +51,11 @@ const CONTENT: Record<Lang, { nodes: SeedNode[] }> = {
       },
       {
         id: 'evaluator',
-        q: 'Paper Reviewer',
-        a: '**Critique:** the one-step "parity" claim is overstated — quality still trails multi-step samplers at high resolution. Cite quantitative FID gaps rather than asserting parity.',
-        x: 1360, y: 960,
+        q: '[Reviewer] Critique the discussion above: identify overclaims, missing evidence, and unstated assumptions. Be concise.',
+        a: '**Critique:** the one-step "parity" claim is overstated — quality still trails multi-step samplers at high resolution. Cite quantitative FID gaps rather than asserting parity.\n\n*Try asking me a follow-up — I\'m an ordinary node. The red edge slides forward as the thread grows, and Auto-refresh makes me re-critique each new step.*',
+        x: 1360, y: 1060,
         extra: {
-          isEvaluator: true, evaluatorTrigger: 'auto',
+          isEvaluator: true, autoRerun: true,
           rolePrompt: 'You are a rigorous peer reviewer. Critique the reasoning above: identify overclaims, missing evidence, and unstated assumptions.',
           summary: 'One-step parity is overstated; demand FID evidence at high resolution.',
         },
@@ -76,7 +76,41 @@ const CONTENT: Record<Lang, { nodes: SeedNode[] }> = {
         id: 'cmp-pruned',
         q: '⚖️ Same question B: summarize what we know (noise edge DELETED)',
         a: 'Here\'s a summary of our discussion:\n\n**Diffusion vs GANs:** likelihood training wins on mode coverage and stability. **The sampling bottleneck:** hundreds of reverse steps, addressed by DDIM (~50 steps), progressive distillation, and consistency models (1–4 steps) — the current frontier for near-realtime generation.\n\n*Same question — but this node\'s incoming edge skips the cooking node. Compare with node A: this is what "you control the context" means. Try it: delete or re-draw any edge and regenerate.*',
-        x: 1360, y: 470,
+        x: 1360, y: 540,
+      },
+      {
+        id: 'loop-writer',
+        q: '\u270d\ufe0f Draft a one-sentence definition of "context engineering". Improve it using any critique visible above.',
+        a: 'Context engineering is the practice of deciding exactly what an LLM sees before it answers \u2014 selecting, pruning, and structuring the input so the model reasons from signal, not noise.',
+        x: 40, y: 1010,
+        extra: {
+          autoRerun: true, autoRerunRounds: 3, roleMode: 'reset',
+          rolePrompt: 'You are a precise technical writer. Revise your definition using any critique available; keep it to one sentence.',
+          responses: [
+            'Context engineering is about giving the AI good prompts.',
+            'Context engineering means curating the information an LLM receives so its answers improve.',
+            'Context engineering is the practice of deciding exactly what an LLM sees before it answers \u2014 selecting, pruning, and structuring the input so the model reasons from signal, not noise.',
+          ],
+          responseIndex: 2,
+          summary: 'A writer node in a \u00d73 loop \u2014 flip versions (\u2039 \u203a) to watch the definition sharpen.',
+        },
+      },
+      {
+        id: 'loop-critic',
+        q: '\ud83d\udd0d Critique the definition above sharply \u2014 one short paragraph.',
+        a: 'v3 finally earns the word "engineering": it names concrete operations (select, prune, structure) and a purpose (signal over noise). Remaining nit: it ignores ordering effects. Good enough to ship.',
+        x: 700, y: 1010,
+        extra: {
+          autoRerun: true, autoRerunRounds: 3, roleMode: 'reset',
+          rolePrompt: 'You are a blunt critic. Find the weakest word in the definition and attack it.',
+          responses: [
+            '"Good prompts" is hand-waving \u2014 what operations? What goal? This defines nothing.',
+            'Better, but "curating" is vague and "improve" is circular. Name the actual verbs.',
+            'v3 finally earns the word "engineering": it names concrete operations (select, prune, structure) and a purpose (signal over noise). Remaining nit: it ignores ordering effects. Good enough to ship.',
+          ],
+          responseIndex: 2,
+          summary: 'The critic that drove those revisions \u2014 wired BACK to the writer to close the loop.',
+        },
       },
     ],
   },
@@ -85,7 +119,7 @@ const CONTENT: Record<Lang, { nodes: SeedNode[] }> = {
       {
         id: 'welcome',
         q: '👋 欢迎来到 ThoughtDAG —— 先读我',
-        a: '这张画布是一段**可以编辑的对话**。\n\n- **箭头**表示上下文如何流入每个回答\n- **紫色** = 追问主链 · **橙色** = 从选中文字分支 · **红色** = 评审者监听\n- 点击节点打开面板；在回答里选中文字可以分支或高亮\n\n⚖️ **别错过右侧那对节点**——同一个问题、不同的上下文、不同的回答。这就是这个工具存在的意义。\n\n随便删、随便拖，工具栏 `?` 有教程。现在这张图是你的了。',
+        a: '这张画布是一段**可以编辑的对话**——整个产品只是几个积木，组合出其余一切：\n\n- **节点** = 一轮问答 · **箭头** = 上下文流向（连进来的，模型就看得见）\n- **紫色** = 追问主链 · **橙色** = 从选中文字长出的分支 · **红色虚线** = 随思路延伸自动前移的跟随边\n- **🔁 自动刷新（实时）**：任何节点都能开——上游一变它就重新生成。右下角的审稿人就是「普通节点 + 批评角色 + 这个开关」，所以你可以反问它的批评、从它分支，像对任何节点一样\n- **循环**：把批评者**连回**写作者、调高轮数（×3）——点一次就自动「起草→批评→修订」直到预算用尽。看最下方那对节点，用标题栏的 ‹ › 翻它们的版本历史\n\n⚖️ **别错过右侧那对节点**——同一个问题、不同上下文、不同回答。\n\n随便删、随便拖，`?` 有教程。这张图现在是你的了。',
         x: 40, y: 30,
       },
       {
@@ -115,11 +149,11 @@ const CONTENT: Record<Lang, { nodes: SeedNode[] }> = {
       },
       {
         id: 'evaluator',
-        q: '论文审稿人',
-        a: '**批评：**「一步生成达到同等质量」的说法言过其实——高分辨率下质量仍落后于多步采样器。应引用具体的 FID 差距数据，而不是断言持平。',
-        x: 1360, y: 960,
+        q: '[审稿人] 批评上面的讨论：指出夸大之处、缺失的证据和未言明的假设。保持简洁。',
+        a: '**批评：**「一步生成达到同等质量」的说法言过其实——高分辨率下质量仍落后于多步采样器。应引用具体的 FID 差距数据，而不是断言持平。\n\n*试着追问我——我就是个普通节点。红色跟随边会随讨论延伸自动前移，自动刷新让我对每一步新内容重新评审。*',
+        x: 1360, y: 1060,
         extra: {
-          isEvaluator: true, evaluatorTrigger: 'auto',
+          isEvaluator: true, autoRerun: true,
           rolePrompt: '你是一位严格的论文审稿人。批评上文的推理：指出夸大之处、缺失的证据和未言明的假设。',
           summary: '一步生成持平的说法夸大；要求高分辨率 FID 证据。',
         },
@@ -140,7 +174,41 @@ const CONTENT: Record<Lang, { nodes: SeedNode[] }> = {
         id: 'cmp-pruned',
         q: '⚖️ 同一问题 B：总结我们聊了什么（做饭那条边**已删除**）',
         a: '以下是我们讨论的总结：\n\n**扩散 vs GAN：**似然训练在模式覆盖和稳定性上胜出。**采样瓶颈：**几百步反向过程，由 DDIM（约 50 步）、渐进蒸馏、一致性模型（1–4 步）逐级解决——后者是接近实时生成的当前前沿。\n\n*同一个问题——但这个节点的入边跳过了做饭节点。对比 A 节点：这就是「你控制上下文」的含义。试试看：删掉或重连任何一条边，然后重新生成。*',
-        x: 1360, y: 470,
+        x: 1360, y: 540,
+      },
+      {
+        id: 'loop-writer',
+        q: '\u270d\ufe0f 起草「上下文工程」的一句话定义。利用上方可见的任何批评改进它。',
+        a: '上下文工程是在模型作答之前，精确决定它能看到什么的实践——通过选择、裁剪与结构化输入，让模型基于信号而非噪音推理。',
+        x: 40, y: 1010,
+        extra: {
+          autoRerun: true, autoRerunRounds: 3, roleMode: 'reset',
+          rolePrompt: '你是一位严谨的技术作者。利用可见的批评修订你的定义；保持一句话。',
+          responses: [
+            '上下文工程就是给 AI 写好的提示词。',
+            '上下文工程是指整理 LLM 接收的信息，让它的回答更好。',
+            '上下文工程是在模型作答之前，精确决定它能看到什么的实践——通过选择、裁剪与结构化输入，让模型基于信号而非噪音推理。',
+          ],
+          responseIndex: 2,
+          summary: '一个 \u00d73 循环里的写作节点——用标题栏 \u2039 \u203a 翻版本，看定义如何一轮轮变锋利。',
+        },
+      },
+      {
+        id: 'loop-critic',
+        q: '\ud83d\udd0d 尖锐地批评上面的定义——一小段即可。',
+        a: 'v3 终于配得上「工程」二字：说出了具体操作（选择、裁剪、结构化）和目的（信号胜于噪音）。剩余小瑕疵：忽略了顺序效应。可以定稿了。',
+        x: 700, y: 1010,
+        extra: {
+          autoRerun: true, autoRerunRounds: 3, roleMode: 'reset',
+          rolePrompt: '你是一位直言不讳的批评者。找出定义里最弱的词并攻击它。',
+          responses: [
+            '「好的提示词」是含糊其辞——什么操作？什么目标？这等于什么都没定义。',
+            '好一些了，但「整理」依然模糊，「更好」是循环论证。说出真正的动词。',
+            'v3 终于配得上「工程」二字：说出了具体操作（选择、裁剪、结构化）和目的（信号胜于噪音）。剩余小瑕疵：忽略了顺序效应。可以定稿了。',
+          ],
+          responseIndex: 2,
+          summary: '驱动那些修订的批评者——被连回写作者，闭合了循环。',
+        },
       },
     ],
   },
@@ -193,6 +261,17 @@ export function buildExampleGraph(lang: Lang): { nodes: ThoughtNode[]; edges: Th
     data: opts.watch ? { isCrossLink: true, isWatch: true } : opts.branch ? { isBranchFromSelection: true } : {},
   });
 
+  const loopEdge = (source: string, target: string): ThoughtEdge => ({
+    id: `ex-e-${source}-${target}`,
+    source: `ex-${source}`,
+    target: `ex-${target}`,
+    type: 'smoothstep',
+    animated: true,
+    style: { stroke: '#6B5CE7', strokeWidth: 2, strokeDasharray: '8 4' },
+    markerEnd: { type: 'arrowclosed', color: '#6B5CE7', width: 18, height: 18 } as ThoughtEdge['markerEnd'],
+    data: { isCrossLink: true },
+  });
+
   const edges: ThoughtEdge[] = [
     E('root', 'chain1'),
     E('chain1', 'branch1', { branch: true }),
@@ -202,6 +281,9 @@ export function buildExampleGraph(lang: Lang): { nodes: ThoughtNode[]; edges: Th
     E('noise', 'cmp-full'),
     E('chain1', 'cmp-full', { branch: true }),
     E('chain1', 'cmp-pruned', { branch: true }),
+    // 🔁 the bounded loop: writer ⇄ critic (reverse edges are allowed)
+    loopEdge('loop-writer', 'loop-critic'),
+    loopEdge('loop-critic', 'loop-writer'),
   ];
 
   return { nodes, edges };
