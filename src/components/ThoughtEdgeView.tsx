@@ -1,30 +1,32 @@
-import { BaseEdge, EdgeLabelRenderer, getBezierPath, type EdgeProps } from '@xyflow/react';
+import { useMemo } from 'react';
+import { BaseEdge, EdgeLabelRenderer, type EdgeProps } from '@xyflow/react';
 import { X } from 'lucide-react';
 import { useStore } from '../store';
+import { routeEdge } from '../lib/edge-path';
 import { useT } from '../i18n';
 import type { ThoughtEdge } from '../types';
 
 /**
  * Custom edge registered under the 'smoothstep' type name (overrides the
  * built-in, so edges persisted before this component existed pick it up
- * with no migration). Renders as a bezier ARC: aligned nodes get a near-
- * straight line, offset nodes a gentle curve — far fewer circuit-board
- * right angles, and curves read distinctly where edges must cross.
- * Click an edge to select it — a delete button appears at its midpoint,
- * and Delete/Backspace removes it via App's key handler.
+ * with no migration). Renders as a bezier ARC with collision avoidance:
+ * aligned nodes get a near-straight line, offset nodes a gentle curve,
+ * and when the natural arc would cut through a card the path bends
+ * sideways until it clears (see lib/edge-path). Click an edge to select
+ * it — a delete button appears at its midpoint, and Delete/Backspace
+ * removes it via App's key handler.
  */
 export default function ThoughtEdgeView({
-  id, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition,
+  id, source, target, sourceX, sourceY, targetX, targetY, sourcePosition, targetPosition,
   style, markerEnd, markerStart, selected, interactionWidth,
 }: EdgeProps<ThoughtEdge>) {
   const deleteEdges = useStore((s) => s.deleteEdges);
+  const nodes = useStore((s) => s.nodes);
   const t = useT();
-  // Gentle curvature: enough arc to swing around neighbouring cards
-  // without ballooning on long spans.
-  const [path, labelX, labelY] = getBezierPath({
-    sourceX, sourceY, sourcePosition, targetX, targetY, targetPosition,
-    curvature: 0.3,
-  });
+  const { path, labelX, labelY } = useMemo(
+    () => routeEdge(sourceX, sourceY, sourcePosition, targetX, targetY, targetPosition, source, target, nodes),
+    [sourceX, sourceY, sourcePosition, targetX, targetY, targetPosition, source, target, nodes],
+  );
 
   // When selected, force full visibility (overrides the ancestor-dim pass)
   // and thicken the stroke as selection feedback.
