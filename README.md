@@ -162,6 +162,8 @@ A mock server ships in `scripts/mock-mcp.mjs` for verifying the loop end-to-end.
 
 Built on the Vercel AI SDK: **every provider below activates automatically when its key is in `.env`** — no code changes, no config files. A toolbar picker switches models at any time; when a text-only model receives images, the proxy silently reroutes to a vision-capable one. Default model IDs can be overridden per provider (e.g. `OPENAI_MODELS=gpt-5.2`), so new releases never require an update.
 
+> **Image understanding needs a vision model.** Pasted images are auto-extracted once (objects, text, figure structure — scientific figures get axes/panels/trends) into companion text using the **strongest vision model you have configured**. The free `glm-4v-flash` works; flagship vision models read scientific figures noticeably better.
+
 | Provider | Default models | `.env` key | Notes |
 |----------|----------------|------------|-------|
 | **Zhipu GLM** | glm-4.5-flash · glm-4v-flash | `ZHIPU_API_KEY` | **Free**, CN-direct; powers web search |

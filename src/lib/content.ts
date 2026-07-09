@@ -3,7 +3,10 @@ import { generateId, countTokens } from '../utils';
 import { useStore } from '../store';
 import { triggerParadigmCascade } from '../store/streaming';
 import { processFile } from './attachments';
-import { fetchUrlSnapshot } from './api';
+import { fetchUrlSnapshot, llmCall } from './api';
+import { getModelsOnce } from './use-models';
+import { toast } from './ui-store';
+import { t } from '../i18n';
 
 // Content nodes: canvas material (note / file / link). Shared creation and
 // ingestion used by the palette, canvas paste, and canvas drop.
@@ -72,6 +75,9 @@ export async function ingestFiles(nodeId: string, files: FileList | File[]): Pro
       add: (att) => {
         useStore.getState().addAttachment(nodeId, att);
         triggerParadigmCascade(useStore.getState, nodeId);
+        // Images auto-extract on arrival: one VLM call, cached forever as
+        // the image's companion text (same slot PDFs use)
+        if (att.type.startsWith('image/')) void extractImage(nodeId, att.id);
       },
       update: (attId, patch) => {
         useStore.getState().setAttachmentData(nodeId, attId, patch);
@@ -79,6 +85,52 @@ export async function ingestFiles(nodeId: string, files: FileList | File[]): Pro
         triggerParadigmCascade(useStore.getState, nodeId);
       },
     });
+  }
+}
+
+// "Strongest available vision model" heuristic: flagship tiers understand
+// scientific figures (axes, panels, trends) far better than the free tiers,
+// and extraction runs ONCE per image — spend where it counts.
+function visionRank(m: { id: string; name: string }): number {
+  const s = `${m.id} ${m.name}`.toLowerCase();
+  if (/max|opus|4o|gpt-5|sonnet/.test(s)) return 4;
+  if (/plus|pro/.test(s)) return 3;
+  if (/flash|lite|mini|nano/.test(s)) return 1;
+  return 2;
+}
+
+/**
+ * Auto-extract an image into companion text. The prompt self-routes: the
+ * model first classifies the image (photo / screenshot / diagram /
+ * scientific figure / document) and then extracts at the finest depth for
+ * that type — no user interaction. Dual channel by default: the text is an
+ * INDEX of the image, not a replacement; the image itself still flows to
+ * vision models downstream.
+ */
+export async function extractImage(nodeId: string, attId: string): Promise<void> {
+  const st = useStore.getState();
+  const att = st.nodes.find((n) => n.id === nodeId)?.data.attachments?.find((a) => a.id === attId);
+  if (!att || !att.type.startsWith('image/')) return;
+
+  const data = await getModelsOnce();
+  const vision = (data?.models ?? []).filter((m) => m.vision);
+  if (vision.length === 0) {
+    toast('error', t('content.noVisionModel'));
+    return;
+  }
+  const model = [...vision].sort((a, b) => visionRank(b) - visionRank(a))[0];
+
+  st.setAttachmentData(nodeId, attId, { isExtracting: true });
+  try {
+    const text = await llmCall(
+      [{ role: 'user', content: t('content.extractPrompt') }],
+      [{ data: att.content, mimeType: att.type }],
+      model.id,
+    );
+    useStore.getState().setAttachmentData(nodeId, attId, { isExtracting: false, extractedText: text.trim() });
+  } catch (err) {
+    useStore.getState().setAttachmentData(nodeId, attId, { isExtracting: false });
+    toast('error', `${t('content.extractFailed')}${err instanceof Error ? `: ${err.message}` : ''}`);
   }
 }
 

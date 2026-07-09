@@ -82,6 +82,13 @@ export const zh: Record<keyof typeof en, string> = {
   'content.linkFetching': '抓取网页快照中…',
   'content.linkOpen': '打开链接',
   'content.linkStamp': '快照 · {date}',
+  'content.extracting': '理解中…',
+  'content.extracted': '已提取',
+  'content.reExtract': '提取',
+  'content.reExtractTitle': '用视觉模型提取这张图的内容（物体、文字、图表结构），作为图片的伴随文本进入下游上下文',
+  'content.noVisionModel': '未配置视觉模型，无法自动理解图片。请在 .env 配置一个带视觉能力的 key（免费档：ZHIPU_API_KEY → glm-4v-flash）并重启 npm run server。',
+  'content.extractFailed': '图片提取失败',
+  'content.extractPrompt': '先判断这张图属于哪一类：照片 / 界面截图 / 示意图或流程图 / 科研图表 / 含文字的文档。然后按该类型做最精细的提取：\n- 科研图表：图表类型、各坐标轴与单位、图例、面板结构（如 a/b/c 各是什么）、主要趋势与效应方向、显著的异常点；不要臆造读不清的具体数值\n- 示意图/流程图：列出全部组件及其连接/因果关系\n- 文档/截图：逐字转录全部可见文字，保持原有结构（标题、列表、表格）\n- 照片：物体与场景描述，并转录任何可见文字\n直接输出提取内容本身，不要开场白和总结。',
 
   // Focus panel (shared)
   'panel.resizeTitle': '拖动调整宽度 · 双击恢复默认',

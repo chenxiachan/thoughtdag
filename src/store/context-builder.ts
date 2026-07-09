@@ -51,7 +51,15 @@ export function buildContext(
       if (seenAttachmentFingerprints.has(fp)) continue;
       seenAttachmentFingerprints.add(fp);
       if (att.type.startsWith('image/')) {
-        images.push({ data: att.content, mimeType: att.type });
+        // Dual channel like PDFs: the auto-extracted companion text is an
+        // index of the image (cheap, works for text-only models); the image
+        // itself still flows unless the user switched it to text-only
+        if (att.extractedText) {
+          messages.push({ role: 'user', content: `[Image: ${att.name}]\n${att.extractedText}` });
+        }
+        if (att.renderMode !== 'text-only') {
+          images.push({ data: att.content, mimeType: att.type });
+        }
       } else if (att.type === 'application/pdf') {
         // PDF: inject extracted text + optionally page images for Vision
         if (att.extractedText) {

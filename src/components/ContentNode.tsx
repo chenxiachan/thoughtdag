@@ -4,7 +4,7 @@ import { ExternalLink, FileText, GripVertical, Link2, Link2Off, Loader2, Papercl
 import type { ThoughtNode as ThoughtNodeType } from '../types';
 import { useStore } from '../store';
 import { triggerParadigmCascade } from '../store/streaming';
-import { fetchLinkIntoNode, ingestFiles } from '../lib/content';
+import { extractImage, fetchLinkIntoNode, ingestFiles } from '../lib/content';
 import { FILE_INPUT_ACCEPT } from '../lib/attachments';
 import { Markdown } from './Markdown';
 import { countTokens } from '../utils';
@@ -174,8 +174,26 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
                   <img
                     src={`data:${att.type};base64,${att.content}`}
                     alt={att.name}
+                    title={att.extractedText ? att.extractedText.slice(0, 400) : undefined}
                     className="w-full rounded-lg border border-line/60"
                   />
+                  {att.isExtracting ? (
+                    <span className="absolute bottom-1.5 left-1.5 text-2xs bg-ink/60 text-white px-2 py-0.5 rounded-full flex items-center gap-1">
+                      <Loader2 size={11} strokeWidth={1.75} className="animate-spin" /> {t('content.extracting')}
+                    </span>
+                  ) : att.extractedText ? (
+                    <span className="absolute bottom-1.5 left-1.5 text-2xs bg-ink/60 text-white px-2 py-0.5 rounded-full" title={att.extractedText.slice(0, 400)}>
+                      {t('content.extracted')}
+                    </span>
+                  ) : (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); void extractImage(id, att.id); }}
+                      title={t('content.reExtractTitle')}
+                      className="absolute bottom-1.5 left-1.5 text-2xs bg-ink/60 hover:bg-ink/80 text-white px-2 py-0.5 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1"
+                    >
+                      <RefreshCw size={11} strokeWidth={1.75} /> {t('content.reExtract')}
+                    </button>
+                  )}
                   <button
                     onClick={(e) => { e.stopPropagation(); removeAttachment(id, att.id); }}
                     className="absolute top-1.5 right-1.5 bg-ink/60 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"

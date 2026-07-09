@@ -689,4 +689,7 @@ app.post('/api/stream', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`ThoughtDAG proxy (Vercel AI SDK) running on http://localhost:${PORT}`);
   console.log(`Models: ${Object.keys(modelRegistry).join(', ')}`);
+  if (!Object.values(modelRegistry).some((m) => m.vision)) {
+    console.warn('⚠ No vision model configured — image understanding & auto-extraction are disabled. Add a vision-capable key (free tier: ZHIPU_API_KEY → glm-4v-flash).');
+  }
 });

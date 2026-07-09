@@ -14,16 +14,22 @@ type ModelData = { models: ModelInfo[]; default: string | null };
 let cache: ModelData | null = null;
 let inflight: Promise<ModelData | null> | null = null;
 
+/** Imperative access to the same per-session model cache (e.g. picking an extraction model). */
+export function getModelsOnce(): Promise<ModelData | null> {
+  if (cache) return Promise.resolve(cache);
+  inflight ??= fetch(`${API_BASE}/api/models`)
+    .then((r) => r.json())
+    .then((d) => (cache = { models: d.models ?? [], default: d.default ?? null }))
+    .catch(() => null);
+  return inflight;
+}
+
 export function useModels(): ModelData | null {
   const [data, setData] = useState<ModelData | null>(cache);
   useEffect(() => {
     if (cache) return;
-    inflight ??= fetch(`${API_BASE}/api/models`)
-      .then((r) => r.json())
-      .then((d) => (cache = { models: d.models ?? [], default: d.default ?? null }))
-      .catch(() => null);
     let cancelled = false;
-    void inflight.then((d) => { if (!cancelled && d) setData(d); });
+    void getModelsOnce().then((d) => { if (!cancelled && d) setData(d); });
     return () => { cancelled = true; };
   }, []);
   return data;

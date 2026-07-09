@@ -82,6 +82,13 @@ export const en = {
   'content.linkFetching': 'Fetching page snapshot…',
   'content.linkOpen': 'Open link',
   'content.linkStamp': 'snapshot · {date}',
+  'content.extracting': 'Reading…',
+  'content.extracted': 'extracted',
+  'content.reExtract': 'Extract',
+  'content.reExtractTitle': 'Extract this image with a vision model (objects, text, figure structure) — becomes the image\'s companion text in downstream context',
+  'content.noVisionModel': 'No vision model configured — images can\'t be auto-understood. Add a vision-capable key in .env (free tier: ZHIPU_API_KEY → glm-4v-flash) and restart npm run server.',
+  'content.extractFailed': 'Image extraction failed',
+  'content.extractPrompt': 'First classify this image: photo / UI screenshot / diagram or flowchart / scientific figure / text document. Then extract at the finest depth for that type:\n- Scientific figure: chart type, every axis with units, legend, panel structure (what a/b/c each show), main trends and effect directions, notable outliers; do NOT invent precise values you cannot read\n- Diagram/flowchart: list every component and their connections/causal links\n- Document/screenshot: transcribe ALL visible text verbatim, preserving structure (headings, lists, tables)\n- Photo: objects and scene description, plus any visible text transcribed\nOutput the extraction itself only — no preamble, no summary.',
 
   // Focus panel (shared)
   'panel.resizeTitle': 'Drag to resize · double-click to reset',
