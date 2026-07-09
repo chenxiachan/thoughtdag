@@ -36,6 +36,23 @@ export async function extractPdf(base64: string): Promise<PdfExtractResult> {
   return res.json();
 }
 
+export interface LinkSnapshot { title: string; text: string; fetchedAt: string }
+
+// Server-side URL fetch for link nodes (browsers can't: CORS). Returns a
+// stamped text snapshot — see /api/fetch-url in server.mjs.
+export async function fetchUrlSnapshot(url: string): Promise<LinkSnapshot> {
+  const res = await fetch(`${API_BASE}/api/fetch-url`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+    throw new Error(err.error || `HTTP ${res.status}`);
+  }
+  return res.json();
+}
+
 // Wrap transport failures with an actionable hint. Errors always THROW —
 // callers decide how to surface them (toast, placeholder, silent).
 function wrapError(err: unknown): Error {

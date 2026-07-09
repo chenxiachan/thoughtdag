@@ -79,6 +79,9 @@ export const en = {
   'content.unlinkedTitle': 'Not connected to anything — canvas material only. Draw an edge into a node to feed its context.',
   'content.notePlaceholder': 'Write something… Markdown works. Connected nodes read this as [Note].',
   'content.noteEditTitle': 'Double-click to edit',
+  'content.linkFetching': 'Fetching page snapshot…',
+  'content.linkOpen': 'Open link',
+  'content.linkStamp': 'snapshot · {date}',
 
   // Focus panel (shared)
   'panel.resizeTitle': 'Drag to resize · double-click to reset',

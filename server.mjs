@@ -444,6 +444,54 @@ app.post('/api/pdf-extract', async (req, res) => {
   }
 });
 
+// Fetch a URL server-side (browsers can't: CORS) and return a TEXT SNAPSHOT
+// for a link node. Snapshot semantics: content is captured once, stamped,
+// and wrapped as [Link] when it enters context — web drift and prompt
+// injection are the threat model here, so no scripts, tags stripped, length
+// capped. Basic SSRF guard: http(s) only, no localhost / private ranges.
+app.post('/api/fetch-url', async (req, res) => {
+  const { url } = req.body || {};
+  try {
+    const parsed = new URL(String(url));
+    if (!/^https?:$/.test(parsed.protocol)) throw new Error('Only http(s) URLs are supported');
+    const host = parsed.hostname;
+    if (
+      host === 'localhost' || host === '0.0.0.0' || host.endsWith('.local') ||
+      /^127\./.test(host) || /^10\./.test(host) || /^192\.168\./.test(host) ||
+      /^172\.(1[6-9]|2\d|3[01])\./.test(host) || host === '::1' || host === '[::1]'
+    ) throw new Error('Refusing to fetch private addresses');
+
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 15000);
+    const r = await fetch(parsed.href, {
+      signal: controller.signal,
+      redirect: 'follow',
+      headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ThoughtDAG/0.1; link snapshot)' },
+    });
+    clearTimeout(timer);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const type = r.headers.get('content-type') || '';
+    if (!/text\/html|text\/plain|application\/xhtml/.test(type)) throw new Error(`Unsupported content type: ${type}`);
+    const html = (await r.text()).slice(0, 800_000);
+
+    const title = (html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] || '').replace(/\s+/g, ' ').trim();
+    const text = html
+      .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+      .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+      .replace(/<(nav|footer|header|aside)[\s\S]*?<\/\1>/gi, ' ')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+      .replace(/[ \t]+/g, ' ')
+      .replace(/\s*\n\s*(\s*\n\s*)+/g, '\n\n')
+      .trim()
+      .slice(0, 15_000);
+
+    res.json({ title, text, fetchedAt: new Date().toISOString() });
+  } catch (err) {
+    res.status(400).json({ error: err.message || 'Fetch failed' });
+  }
+});
+
 // List available models
 // Connected external tool servers — the UI shows an MCP toggle when non-empty
 app.get('/api/tools', (req, res) => {

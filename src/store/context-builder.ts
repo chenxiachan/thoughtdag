@@ -78,12 +78,16 @@ export function buildContext(
       continue;
     }
     if (node.data.question) {
-      // Note nodes are canvas material, not turns — marked so the model
-      // reads them as reference rather than something to answer
-      messages.push({
-        role: 'user',
-        content: node.data.stepKind === 'note' ? `[Note]\n${node.data.question}` : node.data.question,
-      });
+      // Content nodes are canvas material, not turns — marked so the model
+      // reads them as reference rather than something to answer. Link
+      // snapshots carry their source + capture date (web content drifts,
+      // and fetched text is an injection surface — keep it clearly fenced).
+      const content = node.data.stepKind === 'note'
+        ? `[Note]\n${node.data.question}`
+        : node.data.stepKind === 'link'
+          ? `[Link snapshot: ${node.data.linkUrl ?? ''} @ ${(node.data.linkFetchedAt ?? '').slice(0, 10)}]\n${node.data.question}`
+          : node.data.question;
+      messages.push({ role: 'user', content });
     }
     if (node.data.response) {
       const mode = node.data.highlightMode || 'off';

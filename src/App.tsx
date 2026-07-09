@@ -30,6 +30,7 @@ import { useProjects, adoptImportedProject, createProject, createBuiltinParadigm
 import { projectStorageKey } from './store/projects';
 import { set as idbSet } from 'idb-keyval';
 import { instantiateParadigm, isRunLocked } from './lib/paradigm';
+import { isContentKind, spawnContentNode, ingestFiles, fetchLinkIntoNode } from './lib/content';
 import { generateId } from './utils';
 import type { Attachment, ThoughtNode as ThoughtNodeType, ThoughtEdge } from './types';
 import { processFile, FILE_INPUT_ACCEPT } from './lib/attachments';
@@ -52,8 +53,7 @@ import { useT, t as ti, fmt, useI18n } from './i18n';
 // whether a node is a conversation card or an orchestration step card.
 function NodeDispatch(props: Parameters<typeof ThoughtNode>[0]) {
   const isParadigm = useProjects((s) => s.projects.find((p) => p.id === s.activeId)?.kind === 'paradigm');
-  const kind = props.data?.stepKind;
-  if (kind === 'note' || kind === 'file') return <ContentNode {...props} />;
+  if (isContentKind(props.data?.stepKind)) return <ContentNode {...props} />;
   return isParadigm ? <ParadigmNode {...props} /> : <ThoughtNode {...props} />;
 }
 const nodeTypes = { thought: NodeDispatch };
@@ -136,24 +136,47 @@ function Canvas() {
     setTimeout(() => rfInstance.current?.fitView({ duration: 300, padding: 0.2 }), 50);
   }, []);
 
-  // ── Content palette: drop canvas material (notes / files) at viewport center ──
-  const addContentNode = useCallback((kind: 'note' | 'file') => {
-    const st = useStore.getState();
-    const center = rfInstance.current?.screenToFlowPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 }) ?? { x: 120, y: 120 };
-    const id = generateId();
-    st.setNodes([...st.nodes, {
-      id, type: 'thought', position: { x: center.x - 190, y: center.y - 80 }, dragHandle: '.drag-handle',
-      data: {
-        question: '', stepKind: kind,
-        response: '', responses: [], responseIndex: -1,
-        isCollapsed: false, isEditing: false, isEditingResponse: false, isLoading: false,
-        tokenCount: 0, highlights: [], highlightMode: 'tag',
-        attachments: [], excludedAttachmentIds: [], includedAttachmentIds: [],
-        roleMode: 'inherit', isRoot: false, isBranch: false,
-      },
-    }]);
-    st.pushHistory();
+  // ── Content palette + canvas paste/drop: material lands where you point ──
+  const lastMouse = useRef<{ x: number; y: number } | null>(null);
+  const flowPosAt = useCallback((screen?: { x: number; y: number } | null) => {
+    const at = rfInstance.current?.screenToFlowPosition(screen ?? { x: window.innerWidth / 2, y: window.innerHeight / 2 }) ?? { x: 140, y: 140 };
+    return { x: at.x - 200, y: at.y - 60 };
   }, []);
+
+  useEffect(() => {
+    const onMove = (e: MouseEvent) => { lastMouse.current = { x: e.clientX, y: e.clientY }; };
+    // Canvas paste: text → note, a lone URL → link snapshot, files → file
+    // node with the image/document itself. Inputs keep their own paste.
+    const onPaste = (e: ClipboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
+      const meta = useProjects.getState();
+      const isPara = meta.projects.find((p) => p.id === meta.activeId)?.kind === 'paradigm';
+      if (useStore.getState().nodes.length === 0 && !isPara) return; // the landing owns paste
+      const dt = e.clipboardData;
+      if (!dt) return;
+      const pos = flowPosAt(lastMouse.current);
+      const files = Array.from(dt.files);
+      if (files.length > 0) {
+        e.preventDefault();
+        const id = spawnContentNode('file', pos);
+        void ingestFiles(id, files);
+        return;
+      }
+      const text = dt.getData('text/plain').trim();
+      if (!text) return;
+      e.preventDefault();
+      if (/^https?:\/\/\S+$/.test(text)) {
+        const id = spawnContentNode('link', pos, { linkUrl: text });
+        void fetchLinkIntoNode(id, text);
+      } else {
+        spawnContentNode('note', pos, { question: text });
+      }
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('paste', onPaste);
+    return () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('paste', onPaste); };
+  }, [flowPosAt]);
 
   const instantiate = useCallback(async () => {
     const st = useStore.getState();
@@ -252,10 +275,7 @@ function Canvas() {
   const selectedNodeId = useStore((s) => s.selectedNodeId);
   const selectedNodeIds = useStore((s) => s.selectedNodeIds);
   // Content nodes are edited in place on the canvas — no panel for them
-  const selectedIsContent = (() => {
-    const n = nodes.find((nd) => nd.id === selectedNodeId);
-    return n?.data.stepKind === 'note' || n?.data.stepKind === 'file';
-  })();
+  const selectedIsContent = isContentKind(nodes.find((nd) => nd.id === selectedNodeId)?.data.stepKind);
   const panelOpen = !!selectedNodeId && !isParadigm && !selectedIsContent;
   const multiSelected = selectedNodeIds.length > 1;
   const batchDelete = useStore((s) => s.batchDelete);
@@ -436,6 +456,28 @@ function Canvas() {
           // Double-click on empty canvas → start a new root question
           if ((e.target as HTMLElement).classList.contains('react-flow__pane')) {
             floatingInputRef.current?.focus();
+          }
+        }}
+        onDragOver={(e) => {
+          if (e.dataTransfer.types.includes('application/thoughtdag-content') || e.dataTransfer.types.includes('Files')) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+          }
+        }}
+        onDrop={(e) => {
+          // Only drops on the empty pane: nodes and overlays own their drops
+          if (!(e.target as HTMLElement).classList?.contains('react-flow__pane')) return;
+          const pos = flowPosAt({ x: e.clientX, y: e.clientY });
+          const paletteKind = e.dataTransfer.getData('application/thoughtdag-content');
+          if (paletteKind === 'note' || paletteKind === 'file') {
+            e.preventDefault();
+            spawnContentNode(paletteKind, pos);
+            return;
+          }
+          if (e.dataTransfer.files.length > 0) {
+            e.preventDefault();
+            const id = spawnContentNode('file', pos);
+            void ingestFiles(id, e.dataTransfer.files);
           }
         }}
       >
@@ -785,21 +827,26 @@ function Canvas() {
       {/* Project switcher */}
       <ProjectSwitcher onSwitched={afterProjectSwitch} />
 
-      {/* Content palette — canvas material, both modes. Blindspot #8 lives
-          on the cards: unlinked material shows an "not in context" badge. */}
+      {/* Content palette — canvas material, both modes. Click drops at the
+          viewport center; DRAG drops at the pointer. Paste works anywhere:
+          text → note, a URL → link snapshot, image/files → file node. */}
       {(hasNodes || isParadigm) && (
         <div className="absolute top-1/2 -translate-y-1/2 left-4 z-10 flex flex-col gap-1.5 bg-card/90 backdrop-blur border border-line rounded-xl p-1.5 shadow-sm">
           <button
-            onClick={() => addContentNode('note')}
+            onClick={() => spawnContentNode('note', flowPosAt(null))}
+            draggable
+            onDragStart={(e) => { e.dataTransfer.setData('application/thoughtdag-content', 'note'); e.dataTransfer.effectAllowed = 'copy'; }}
             title={t('palette.noteTitle')}
-            className="w-9 h-9 rounded-lg flex items-center justify-center text-amber-600 hover:bg-amber-500/10 transition-colors"
+            className="w-9 h-9 rounded-lg flex items-center justify-center text-amber-600 hover:bg-amber-500/10 transition-colors cursor-grab"
           >
             <StickyNote size={17} strokeWidth={1.75} />
           </button>
           <button
-            onClick={() => addContentNode('file')}
+            onClick={() => spawnContentNode('file', flowPosAt(null))}
+            draggable
+            onDragStart={(e) => { e.dataTransfer.setData('application/thoughtdag-content', 'file'); e.dataTransfer.effectAllowed = 'copy'; }}
             title={t('palette.fileTitle')}
-            className="w-9 h-9 rounded-lg flex items-center justify-center text-ink-muted hover:bg-wash transition-colors"
+            className="w-9 h-9 rounded-lg flex items-center justify-center text-ink-muted hover:bg-wash transition-colors cursor-grab"
           >
             <Paperclip size={17} strokeWidth={1.75} />
           </button>

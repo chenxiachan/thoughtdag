@@ -46,11 +46,15 @@ export interface ThoughtData extends Record<string, unknown> {
   // ── node kind (beyond the default Q&A node) ──
   // 'human' = a dialogue turn (the human asks here); 'prompt' = a machine
   // processing step (fixed prompt, context only from upstream);
-  // 'note' / 'file' = CONTENT nodes (canvas material: markdown text or
-  // attachments) — they never generate, feed context only via edges, and
-  // are ignored by autoLayout. Legacy v1 kinds ('step'|'fanout'|'review'|
-  // 'synthesis') still instantiate; 'fanout' also marks fan-out placeholders.
-  stepKind?: 'human' | 'prompt' | 'note' | 'file' | 'step' | 'fanout' | 'review' | 'synthesis';
+  // 'note' / 'file' / 'link' = CONTENT nodes (canvas material: markdown
+  // text, attachments, or a stamped web snapshot) — they never generate,
+  // feed context only via OUTGOING edges, and are ignored by autoLayout.
+  // Legacy v1 kinds ('step'|'fanout'|'review'|'synthesis') still
+  // instantiate; 'fanout' also marks fan-out placeholders.
+  stepKind?: 'human' | 'prompt' | 'note' | 'file' | 'link' | 'step' | 'fanout' | 'review' | 'synthesis';
+  linkUrl?: string; // link node: the source URL
+  linkTitle?: string; // link node: page title (or a ⚠-prefixed fetch error)
+  linkFetchedAt?: string; // link node: ISO timestamp of the snapshot (web content drifts)
   instruction?: string; // paradigm body: the prompt (prompt node) or operator guidance (human node)
   fanoutRoles?: { name: string; prompt: string }[]; // role list carried by fanout steps/placeholders
   autoRerunRounds?: number; // max auto-triggered runs per user action (default 1); >1 enables loops

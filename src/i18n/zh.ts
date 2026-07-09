@@ -79,6 +79,9 @@ export const zh: Record<keyof typeof en, string> = {
   'content.unlinkedTitle': '尚未连线——只是画布材料。向某个节点连一条线，它就会进入该节点的上下文。',
   'content.notePlaceholder': '写点什么……支持 Markdown。连线的节点会以 [Note] 读到这段内容。',
   'content.noteEditTitle': '双击编辑',
+  'content.linkFetching': '抓取网页快照中…',
+  'content.linkOpen': '打开链接',
+  'content.linkStamp': '快照 · {date}',
 
   // Focus panel (shared)
   'panel.resizeTitle': '拖动调整宽度 · 双击恢复默认',
