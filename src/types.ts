@@ -7,7 +7,8 @@ export interface Attachment {
   size: number;
   content: string; // base64 for images/PDF, raw text for text files
   thumbnailUrl?: string; // data URL for image preview
-  extractedText?: string; // extracted text (PDF)
+  extractedText?: string; // companion text (PDF extraction / image auto-understanding)
+  extractedBy?: string; // which model produced extractedText (provenance for the run manifest)
   pageImages?: string[]; // rendered page images as base64 PNG (PDF)
   numPages?: number; // PDF page count
   renderMode?: 'full' | 'text-only'; // PDF: include page images or text only

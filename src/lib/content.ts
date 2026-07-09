@@ -99,6 +99,11 @@ function visionRank(m: { id: string; name: string }): number {
   return 2;
 }
 
+// Models whose keys were rejected THIS session — a stale key in .env keeps
+// its models registered (registration is key-presence, not validation), so
+// remember failures instead of stumbling over them for every image.
+const extractionAuthFailed = new Set<string>();
+
 /**
  * Auto-extract an image into companion text. The prompt self-routes: the
  * model first classifies the image (photo / screenshot / diagram /
@@ -106,6 +111,11 @@ function visionRank(m: { id: string; name: string }): number {
  * that type — no user interaction. Dual channel by default: the text is an
  * INDEX of the image, not a replacement; the image itself still flows to
  * vision models downstream.
+ *
+ * Multi-LLM aware: tries vision models strongest-first and FALLS BACK down
+ * the ranking on failure; every error is reported with the model that
+ * produced it (no vendor assumptions), and the winning model is recorded
+ * on the attachment (extraction provenance).
  */
 export async function extractImage(nodeId: string, attId: string): Promise<void> {
   const st = useStore.getState();
@@ -118,20 +128,33 @@ export async function extractImage(nodeId: string, attId: string): Promise<void>
     toast('error', t('content.noVisionModel'));
     return;
   }
-  const model = [...vision].sort((a, b) => visionRank(b) - visionRank(a))[0];
+  const ranked = [...vision].sort((a, b) => visionRank(b) - visionRank(a));
+  const usable = ranked.filter((m) => !extractionAuthFailed.has(m.id));
+  const candidates = usable.length > 0 ? usable : ranked; // stale cache shouldn't dead-end us
 
   st.setAttachmentData(nodeId, attId, { isExtracting: true });
-  try {
-    const text = await llmCall(
-      [{ role: 'user', content: t('content.extractPrompt') }],
-      [{ data: att.content, mimeType: att.type }],
-      model.id,
-    );
-    useStore.getState().setAttachmentData(nodeId, attId, { isExtracting: false, extractedText: text.trim() });
-  } catch (err) {
-    useStore.getState().setAttachmentData(nodeId, attId, { isExtracting: false });
-    toast('error', `${t('content.extractFailed')}${err instanceof Error ? `: ${err.message}` : ''}`);
+  const failures: string[] = [];
+  for (const model of candidates) {
+    try {
+      const text = await llmCall(
+        [{ role: 'user', content: t('content.extractPrompt') }],
+        [{ data: att.content, mimeType: att.type }],
+        model.id,
+      );
+      useStore.getState().setAttachmentData(nodeId, attId, { isExtracting: false, extractedText: text.trim(), extractedBy: model.id });
+      if (failures.length > 0) {
+        toast('info', `${t('content.extractFellBack')} ${model.name} — ${failures.join('; ')}`);
+      }
+      return;
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      failures.push(`${model.name}: ${msg}`);
+      // Key problems are permanent for the session — skip this model next time
+      if (/api.?key|unauthorized|forbidden|401|403|invalid/i.test(msg)) extractionAuthFailed.add(model.id);
+    }
   }
+  useStore.getState().setAttachmentData(nodeId, attId, { isExtracting: false });
+  toast('error', `${t('content.extractFailed')} — ${failures.join('; ')}`);
 }
 
 /** Fetch the URL server-side and store the stamped text snapshot on the node. */

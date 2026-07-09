@@ -182,8 +182,11 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
                       <Loader2 size={11} strokeWidth={1.75} className="animate-spin" /> {t('content.extracting')}
                     </span>
                   ) : att.extractedText ? (
-                    <span className="absolute bottom-1.5 left-1.5 text-2xs bg-ink/60 text-white px-2 py-0.5 rounded-full" title={att.extractedText.slice(0, 400)}>
-                      {t('content.extracted')}
+                    <span
+                      className="absolute bottom-1.5 left-1.5 text-2xs bg-ink/60 text-white px-2 py-0.5 rounded-full"
+                      title={`${att.extractedBy ?? ''}\n${att.extractedText.slice(0, 400)}`}
+                    >
+                      {t('content.extracted')}{att.extractedBy ? ` · ${att.extractedBy}` : ''}
                     </span>
                   ) : (
                     <button
