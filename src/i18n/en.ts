@@ -72,6 +72,14 @@ export const en = {
   'node.stoppedPlaceholder': '(generation stopped)',
   'node.failedPlaceholder': '_Generation failed._',
 
+  // Content palette + content nodes (canvas material)
+  'palette.noteTitle': 'Add a note — feeds downstream context as [Note] once connected',
+  'palette.fileTitle': 'Add a file node (images / PDF / text) — feeds downstream context once connected',
+  'content.unlinked': 'not in context',
+  'content.unlinkedTitle': 'Not connected to anything — canvas material only. Draw an edge into a node to feed its context.',
+  'content.notePlaceholder': 'Write something… Markdown works. Connected nodes read this as [Note].',
+  'content.noteEditTitle': 'Double-click to edit',
+
   // Focus panel (shared)
   'panel.resizeTitle': 'Drag to resize · double-click to reset',
   'panel.question': 'Question',

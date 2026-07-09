@@ -165,6 +165,11 @@ export function triggerParadigmCascade(get: Get, completedNodeId: string): void 
     const n = byId.get(id);
     if (!n || n.data.isLoading) return false;
     if (n.data.stepKind === 'human') return !!n.data.question.trim();
+    // Content nodes: complete when they hold material. An EMPTY note/file in
+    // a paradigm is a material slot — the cascade waits for the human to
+    // fill it, same pause semantics as a human turn.
+    if (n.data.stepKind === 'note') return !!n.data.question.trim();
+    if (n.data.stepKind === 'file') return (n.data.attachments?.length ?? 0) > 0;
     return !!n.data.response && !n.data.generationFailed;
   };
   for (const edge of edges) {

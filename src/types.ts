@@ -43,12 +43,14 @@ export interface ThoughtData extends Record<string, unknown> {
   scholarSearch?: boolean; // same for arXiv / Semantic Scholar tools
   autoRerun?: boolean; // regenerate in place whenever an upstream ancestor finishes (generic primitive)
   archived?: boolean; // pruned-but-kept: dimmed on canvas, EXCLUDED from every context walk
-  // ── paradigm (orchestration view) fields ──
+  // ── node kind (beyond the default Q&A node) ──
   // 'human' = a dialogue turn (the human asks here); 'prompt' = a machine
-  // processing step (fixed prompt, context only from upstream). Legacy v1
-  // kinds ('step'|'fanout'|'review'|'synthesis') still instantiate; 'fanout'
-  // also marks fan-out placeholders on chat canvases.
-  stepKind?: 'human' | 'prompt' | 'step' | 'fanout' | 'review' | 'synthesis';
+  // processing step (fixed prompt, context only from upstream);
+  // 'note' / 'file' = CONTENT nodes (canvas material: markdown text or
+  // attachments) — they never generate, feed context only via edges, and
+  // are ignored by autoLayout. Legacy v1 kinds ('step'|'fanout'|'review'|
+  // 'synthesis') still instantiate; 'fanout' also marks fan-out placeholders.
+  stepKind?: 'human' | 'prompt' | 'note' | 'file' | 'step' | 'fanout' | 'review' | 'synthesis';
   instruction?: string; // paradigm body: the prompt (prompt node) or operator guidance (human node)
   fanoutRoles?: { name: string; prompt: string }[]; // role list carried by fanout steps/placeholders
   autoRerunRounds?: number; // max auto-triggered runs per user action (default 1); >1 enables loops

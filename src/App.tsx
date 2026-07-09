@@ -15,10 +15,11 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import 'highlight.js/styles/github.css';
-import { CircleHelp, Dna, FileText, GitBranch, LayoutGrid, Loader2, MessageCircleQuestion, Paperclip, Plug, Redo2, Scissors, SquareTerminal, Trash2, Undo2, Workflow, X } from 'lucide-react';
+import { CircleHelp, Dna, FileText, GitBranch, LayoutGrid, Loader2, MessageCircleQuestion, Paperclip, Plug, Redo2, Scissors, SquareTerminal, StickyNote, Trash2, Undo2, Workflow, X } from 'lucide-react';
 import './index.css';
 import ThoughtNode from './components/ThoughtNode';
 import ParadigmNode from './components/ParadigmNode';
+import ContentNode from './components/ContentNode';
 import ThoughtEdgeView from './components/ThoughtEdgeView';
 import FocusPanel from './components/focus-panel';
 import SelectionToolbar from './components/SelectionToolbar';
@@ -46,10 +47,13 @@ import SearchToggles from './components/ui/SearchToggles';
 import Tutorial from './components/Tutorial';
 import { useT, t as ti, fmt, useI18n } from './i18n';
 
-// One node type key, two renderers: the active project's kind decides
+// One node type key, three renderers: content nodes (notes / files) render
+// the same in every mode; otherwise the active project's kind decides
 // whether a node is a conversation card or an orchestration step card.
 function NodeDispatch(props: Parameters<typeof ThoughtNode>[0]) {
   const isParadigm = useProjects((s) => s.projects.find((p) => p.id === s.activeId)?.kind === 'paradigm');
+  const kind = props.data?.stepKind;
+  if (kind === 'note' || kind === 'file') return <ContentNode {...props} />;
   return isParadigm ? <ParadigmNode {...props} /> : <ThoughtNode {...props} />;
 }
 const nodeTypes = { thought: NodeDispatch };
@@ -130,6 +134,25 @@ function Canvas() {
   const afterProjectSwitch = useCallback(() => {
     prevNodeCount.current = useStore.getState().nodes.length;
     setTimeout(() => rfInstance.current?.fitView({ duration: 300, padding: 0.2 }), 50);
+  }, []);
+
+  // ── Content palette: drop canvas material (notes / files) at viewport center ──
+  const addContentNode = useCallback((kind: 'note' | 'file') => {
+    const st = useStore.getState();
+    const center = rfInstance.current?.screenToFlowPosition({ x: window.innerWidth / 2, y: window.innerHeight / 2 }) ?? { x: 120, y: 120 };
+    const id = generateId();
+    st.setNodes([...st.nodes, {
+      id, type: 'thought', position: { x: center.x - 190, y: center.y - 80 }, dragHandle: '.drag-handle',
+      data: {
+        question: '', stepKind: kind,
+        response: '', responses: [], responseIndex: -1,
+        isCollapsed: false, isEditing: false, isEditingResponse: false, isLoading: false,
+        tokenCount: 0, highlights: [], highlightMode: 'tag',
+        attachments: [], excludedAttachmentIds: [], includedAttachmentIds: [],
+        roleMode: 'inherit', isRoot: false, isBranch: false,
+      },
+    }]);
+    st.pushHistory();
   }, []);
 
   const instantiate = useCallback(async () => {
@@ -228,7 +251,12 @@ function Canvas() {
 
   const selectedNodeId = useStore((s) => s.selectedNodeId);
   const selectedNodeIds = useStore((s) => s.selectedNodeIds);
-  const panelOpen = !!selectedNodeId && !isParadigm;
+  // Content nodes are edited in place on the canvas — no panel for them
+  const selectedIsContent = (() => {
+    const n = nodes.find((nd) => nd.id === selectedNodeId);
+    return n?.data.stepKind === 'note' || n?.data.stepKind === 'file';
+  })();
+  const panelOpen = !!selectedNodeId && !isParadigm && !selectedIsContent;
   const multiSelected = selectedNodeIds.length > 1;
   const batchDelete = useStore((s) => s.batchDelete);
 
@@ -757,6 +785,27 @@ function Canvas() {
       {/* Project switcher */}
       <ProjectSwitcher onSwitched={afterProjectSwitch} />
 
+      {/* Content palette — canvas material, both modes. Blindspot #8 lives
+          on the cards: unlinked material shows an "not in context" badge. */}
+      {(hasNodes || isParadigm) && (
+        <div className="absolute top-1/2 -translate-y-1/2 left-4 z-10 flex flex-col gap-1.5 bg-card/90 backdrop-blur border border-line rounded-xl p-1.5 shadow-sm">
+          <button
+            onClick={() => addContentNode('note')}
+            title={t('palette.noteTitle')}
+            className="w-9 h-9 rounded-lg flex items-center justify-center text-amber-600 hover:bg-amber-500/10 transition-colors"
+          >
+            <StickyNote size={17} strokeWidth={1.75} />
+          </button>
+          <button
+            onClick={() => addContentNode('file')}
+            title={t('palette.fileTitle')}
+            className="w-9 h-9 rounded-lg flex items-center justify-center text-ink-muted hover:bg-wash transition-colors"
+          >
+            <Paperclip size={17} strokeWidth={1.75} />
+          </button>
+        </div>
+      )}
+
       {/* Toolbar: web search, language, tutorial, relayout, undo/redo */}
       <div className="absolute top-4 right-4 z-10 flex gap-1.5 items-center">
         {isParadigm && (
@@ -877,9 +926,9 @@ function Canvas() {
       )}
       </div>
 
-      {/* Focus Panel — right side; never in the orchestration view, where
-          cards are edited in place and there is no conversation to follow up */}
-      {!isParadigm && <FocusPanel onFocusNode={(id) => {
+      {/* Focus Panel — right side; never for orchestration or content nodes,
+          which are edited in place on the canvas */}
+      {panelOpen && <FocusPanel onFocusNode={(id) => {
         const node = nodes.find(n => n.id === id);
         if (node && rfInstance.current) {
           rfInstance.current.setCenter(node.position.x + 240, node.position.y + 100, { duration: 300, zoom: rfInstance.current.getZoom() });

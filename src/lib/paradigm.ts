@@ -107,6 +107,14 @@ export function instantiateParadigm(pNodes: ThoughtNode[], pEdges: ThoughtEdge[]
       data.webSearch = pn.data.webSearch;
       data.scholarSearch = pn.data.scholarSearch;
     }
+    if (kind === 'note' || kind === 'file') {
+      // Content nodes pass through as-is: filled = experiment material,
+      // empty = a MATERIAL SLOT the cascade waits on (like a human turn)
+      data.stepKind = kind;
+      data.question = pn.data.question || '';
+      data.attachments = pn.data.attachments ?? [];
+      data.tokenCount = pn.data.tokenCount ?? 0;
+    }
     if (kind === 'review') {
       data.isEvaluator = true; // red visual identity
       data.autoRerun = true;

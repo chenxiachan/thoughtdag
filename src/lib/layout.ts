@@ -40,9 +40,16 @@ export function nodeHeight(node: ThoughtNode): number {
  *   - Any overlap (bbox intersection + padding) pushes the lower node down.
  *   - Iterates until stable (max 5 passes).
  */
-export function autoLayout(allNodes: ThoughtNode[], edges: ThoughtEdge[]): ThoughtNode[] {
+export function autoLayout(allNodes: ThoughtNode[], allEdges: ThoughtEdge[]): ThoughtNode[] {
   if (allNodes.length === 0) return allNodes;
-  const nodes = allNodes;
+  // Content nodes (notes / files) are user-arranged material: layout never
+  // moves them and their edges don't shape the column tree. A node whose
+  // only parent is a content node simply roots its own chain.
+  const contentIds = new Set(
+    allNodes.filter((n) => n.data.stepKind === 'note' || n.data.stepKind === 'file').map((n) => n.id)
+  );
+  const nodes = allNodes.filter((n) => !contentIds.has(n.id));
+  const edges = allEdges.filter((e) => !contentIds.has(e.source) && !contentIds.has(e.target));
 
   const NODE_WIDTH = LAYOUT_COL_WIDTH;
   const H_GAP = LAYOUT_H_GAP;
