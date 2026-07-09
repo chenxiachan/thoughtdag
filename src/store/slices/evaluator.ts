@@ -100,10 +100,12 @@ export const createEvaluatorSlice: StateCreator<StoreState, [], [], EvaluatorSli
       position: { x: watched.position.x + 640, y: watched.position.y },
       dragHandle: '.drag-handle',
       data: {
-        // The question IS the standing instruction — rerun executes it
-        // against whatever the followsTip edge currently points at.
-        // Localized: a Chinese instruction keeps the critique in Chinese.
-        question: fmt(t('evaluator.taskQuestion'), { name: roleName }),
+        // The question IS the whole prompt — persona in the opening lines,
+        // standing instruction after (one home for personas, same as fan-out
+        // and paradigm prompt steps). Rerun executes it against whatever the
+        // followsTip edge currently points at. Localized: a Chinese
+        // instruction keeps the critique in Chinese.
+        question: `${rolePrompt}\n${fmt(t('evaluator.taskQuestion'), { name: roleName })}`,
         response: '',
         responses: [],
         responseIndex: -1,
@@ -113,8 +115,7 @@ export const createEvaluatorSlice: StateCreator<StoreState, [], [], EvaluatorSli
         isLoading: false,
         tokenCount: 0,
         highlights: [], highlightMode: 'tag', attachments: [], excludedAttachmentIds: [], includedAttachmentIds: [],
-        rolePrompt,
-        roleMode: 'reset', // the critic's persona stays its own
+        roleMode: 'inherit',
         isRoot: false,
         isBranch: false,
         isEvaluator: true, // visual identity only (red theme + badge)

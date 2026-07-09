@@ -53,7 +53,6 @@ export const en = {
   'common.generationFailed': 'Generation failed',
   'common.followUp': 'Follow up...',
   'common.exportMd': 'Export .md',
-  'common.inheritRole': 'Inherit role',
   'common.deleteVersion': 'Delete this version',
   'common.attachFiles': 'Attach files',
 
@@ -77,26 +76,16 @@ export const en = {
   'panel.resizeTitle': 'Drag to resize · double-click to reset',
   'panel.question': 'Question',
   'panel.response': 'Response',
+  'panel.more': 'More actions',
 
-  // Role section
-  'role.title': 'Role (System Prompt)',
-  'role.setForNext': 'Set for next ↓',
-  'role.resetBadge': 'Reset',
-  'role.inheritFromPrevious': 'Inherit from previous',
-  'role.resetForThisNode': 'Reset for this node',
+  // Role line — ONE semantic: a role set on a node is the system prompt for
+  // it and everything downstream (nearest ancestor wins)
+  'role.label': 'Role',
+  'role.inherited': 'inherited',
+  'role.set': 'Set role',
+  'role.edit': 'Edit',
   'role.noRoleSet': 'No role set',
-  'role.multipleRoles': 'Multiple roles from incoming edges:',
-  'role.primary': 'Primary',
-  'role.crossLink': 'Cross-link',
-  'role.none': 'None (no role)',
   'role.placeholder': 'e.g. You are a strict paper reviewer. Be critical and specific.',
-  'role.regenerateWithNewRole': 'Regenerate with new role',
-  'role.willApply': 'Role will apply to new child nodes from here.',
-  'role.hintNoRole': 'No role set. Use Set for next or Reset to define one.',
-  'role.hintInherited': 'Inherited from ancestor.',
-  'role.hintActive': 'Role active. Applies here and passes to descendants.',
-  'role.hintSetNext': "Sets the role for this node's descendants. Current response is unchanged.",
-  'role.hintReset': "Resets this node's role. Regenerate to apply. Descendants won't inherit.",
 
   // Attachments section
   'attach.title': 'Attachments',
@@ -128,29 +117,19 @@ export const en = {
 
   // Highlights section
   'highlight.title': 'Highlights',
-  'highlight.distill': 'Distill',
-  'highlight.distillTitle': 'Distill: keep highlights, remove redundancy',
-  'highlight.summary': 'Summary',
-  'highlight.summaryTitle': 'Summarize highlighted content in a new branch',
   'highlight.exploreTitle': 'Ask a follow-up question about highlighted content',
   'highlight.empty': 'No highlights yet — select text above to highlight',
-  'highlight.passDownstream': 'Pass to downstream',
   'highlight.modeTag': 'Tag important',
   'highlight.modeFilter': 'Highlights only',
-  'highlight.modeOff': 'Full text',
-  'highlight.hintOff': 'Downstream nodes receive the full response',
   'highlight.hintTag': 'Highlighted parts wrapped with [Important] tags to guide AI focus',
   'highlight.hintFilter': 'Downstream nodes only receive highlighted content, rest discarded',
-  'highlight.askAbout': 'Ask about highlights:',
   'highlight.explorePlaceholder': 'What do you want to explore about these highlights?',
 
   // Actions section
-  'actions.title': 'Actions',
   'actions.stop': 'Stop',
   'actions.exportTitle': "Export this node's context chain as a Markdown document",
   'actions.copyMd': 'Copy .md',
   'actions.copyTitle': "Copy this node's context chain as Markdown",
-  'actions.explorePlaceholder': 'Explore question...',
 
   // Context chain section
   'chain.title': 'Context Chain',
@@ -169,8 +148,6 @@ export const en = {
   'toolbar.nodesSelected': '{n} nodes selected',
   'toolbar.tokens': '{n} tokens',
   'toolbar.highlightCount': ' · {n} highlights',
-  'toolbar.summaryHighlights': 'Summary Highlights',
-  'toolbar.summaryHighlightsTitle': 'Summarize all highlights from selected nodes',
   'toolbar.mergeSummary': 'Merge Summary',
   'toolbar.mergeSummaryTitle': 'Merge content into a summary node',
   'toolbar.mergeDelete': 'Merge & Delete',

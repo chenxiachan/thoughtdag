@@ -127,20 +127,24 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
     if (!parent || roles.length === 0) return;
     get().pushHistory();
 
-    // Create all branch nodes and edges up front (single layout pass)
-    const created: { id: string; role: { name: string; prompt: string } }[] = [];
+    // Create all branch nodes and edges up front (single layout pass).
+    // Persona lives in the question's opening lines — one home for personas
+    // (same rule as evaluators and paradigm prompt steps), so each card
+    // shows exactly what its branch was asked.
+    const created: { id: string; question: string }[] = [];
     const newNodes: ThoughtNode[] = [];
     const newEdges: ThoughtEdge[] = [];
     for (const role of roles) {
       const id = generateId();
-      created.push({ id, role });
+      const branchQuestion = `${role.prompt}\n${question}`;
+      created.push({ id, question: branchQuestion });
       newNodes.push({
         id,
         type: 'thought',
         position: { x: 0, y: 0 },
         dragHandle: '.drag-handle',
         data: {
-          question,
+          question: branchQuestion,
           response: '',
           responses: [],
           responseIndex: -1,
@@ -151,8 +155,7 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
           tokenCount: 0,
           branchContext: undefined,
           highlights: [], highlightMode: 'tag', attachments: [], excludedAttachmentIds: [], includedAttachmentIds: [],
-          roleMode: 'reset',
-          rolePrompt: role.prompt,
+          roleMode: 'inherit',
           isRoot: false,
           isBranch: true, // orange styling: exploratory candidates
         },
@@ -186,15 +189,9 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
     let cursor = 0;
     const worker = async () => {
       while (cursor < created.length) {
-        const { id, role } = created[cursor++];
-        const messages: ContextMessage[] = [...ctx.messages.filter((m) => m.role !== 'system')];
-        messages.unshift({ role: 'system', content: role.prompt });
-        const appliedRole = role.prompt;
-        set((state) => ({
-          nodes: state.nodes.map((n) => (n.id === id ? { ...n, data: { ...n.data, appliedRole } } : n)),
-        }));
-        messages.push({ role: 'user', content: question });
-        await runNodeGeneration(set, get, id, { question, messages, images: ctx.images });
+        const { id, question: branchQuestion } = created[cursor++];
+        const messages: ContextMessage[] = [...ctx.messages, { role: 'user', content: branchQuestion }];
+        await runNodeGeneration(set, get, id, { question: branchQuestion, messages, images: ctx.images });
       }
     };
     await Promise.all(Array.from({ length: Math.min(LIMIT, created.length) }, worker));
@@ -288,66 +285,6 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
     set((state) => ({ nodes: state.nodes.map((n) => n.id === id ? { ...n, data: { ...n.data, appliedRole } } : n) }));
 
     await runNodeGeneration(set, get, id, { question: node.data.question, messages: contextMessages, images: regenCtx.images });
-  },
-
-  distillRegenerate: async (nodeId: string) => {
-    const node = get().nodes.find((n) => n.id === nodeId);
-    if (!node || node.data.highlights.length === 0) return;
-
-    const highlightTexts = node.data.highlights.map((h) => h.text).join('\n\n');
-    const id = generateId();
-    const newNode: ThoughtNode = {
-      id,
-      type: 'thought',
-      position: { x: 0, y: 0 },
-      dragHandle: '.drag-handle',
-      data: {
-        question: node.data.question,
-        response: '',
-        responses: [],
-        responseIndex: -1,
-        isCollapsed: false,
-        isEditing: false,
-        isEditingResponse: false,
-        isLoading: true,
-        tokenCount: 0,
-        highlights: [], highlightMode: 'tag', attachments: [], excludedAttachmentIds: [], includedAttachmentIds: [],
-        roleMode: 'inherit' as const,
-        isRoot: false,
-        isBranch: false,
-      },
-    };
-
-    // Find parent of original node
-    const parentEdge = get().edges.find((e) => e.target === nodeId);
-    const newEdge = parentEdge ? {
-      id: `edge-${parentEdge.source}-${id}`,
-      source: parentEdge.source,
-      target: id,
-      sourceHandle: 'continue',
-      targetHandle: 'top',
-      type: 'smoothstep',
-      style: { stroke: COLORS.accent, strokeWidth: 2 },
-      animated: false,
-      markerEnd: { type: 'arrowclosed' as const, color: COLORS.accent, width: 18, height: 18 },
-      data: {},
-    } : null;
-
-    const newEdges = newEdge ? [...get().edges, newEdge] : get().edges;
-    const newNodes = autoLayout([...get().nodes, newNode], newEdges);
-    set({ nodes: newNodes, edges: newEdges, selectedNodeId: id });
-
-    const distillCtx = parentEdge
-      ? buildContext(parentEdge.source, get().nodes, get().edges)
-      : { messages: [] as ContextMessage[], images: [] };
-    const contextMessages = distillCtx.messages;
-    contextMessages.push({ role: 'user', content: node.data.question });
-    contextMessages.push({
-      role: 'user',
-      content: `Based on the following highlighted key content, regenerate a more concise response. Keep these key points, remove redundancy:\n\n${highlightTexts}`,
-    });
-
-    await runNodeGeneration(set, get, id, { question: node.data.question, messages: contextMessages });
   },
 
   batchMergeSummarize: async (nodeIds: string[], deleteAfter?: boolean) => {

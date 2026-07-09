@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
-import { ChevronUp, Paperclip, Send, X } from 'lucide-react';
+import { ChevronUp, GitBranch, Paperclip, Send, X } from 'lucide-react';
 import { useStore } from '../../store';
 import { buildContext } from '../../store/context-builder';
 import { processFile, FILE_INPUT_ACCEPT } from '../../lib/attachments';
@@ -15,10 +15,13 @@ const ROLE_STYLES: Record<string, string> = {
 
 export default function FollowUpInput({
   nodeId,
-  dimmed,
+  branchContext,
+  onClearBranchContext,
 }: {
   nodeId: string;
-  dimmed: boolean;
+  /** Selected response text staged as context: submitting creates an orange explore branch. */
+  branchContext: string;
+  onClearBranchContext: () => void;
 }) {
   const addQuestion = useStore((s) => s.addQuestion);
   const nodes = useStore((s) => s.nodes);
@@ -26,7 +29,6 @@ export default function FollowUpInput({
   const t = useT();
 
   const [continueInput, setContinueInput] = useState('');
-  const [continueInheritRole, setContinueInheritRole] = useState(true);
   const [continueInheritAttachments, setContinueInheritAttachments] = useState(true);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [pendingAttachments, setPendingAttachments] = useState<Attachment[]>([]);
@@ -58,28 +60,28 @@ export default function FollowUpInput({
     };
   }, [nodeId, nodes, edges]);
 
-  // Auto-focus continue input when switching to a new node
+  // Auto-focus continue input when switching nodes or staging selected text
   useEffect(() => {
     const t = setTimeout(() => continueRef.current?.focus(), 100);
     return () => clearTimeout(t);
-  }, [nodeId]);
+  }, [nodeId, branchContext]);
 
   const submit = () => {
     if (!continueInput.trim()) return;
     addQuestion(continueInput.trim(), {
       parentId: nodeId,
-      inheritRole: continueInheritRole ? undefined : false,
+      branchContext: branchContext || undefined,
       excludeAllInheritedAttachments: !continueInheritAttachments,
       initialAttachments: pendingAttachments.length > 0 ? pendingAttachments : undefined,
     });
     setContinueInput('');
-    setContinueInheritRole(true);
     setPendingAttachments([]);
     setPreviewOpen(false);
+    onClearBranchContext();
   };
 
   return (
-    <div className={`relative shrink-0 border-t border-line px-4 py-3 bg-card ${dimmed ? 'opacity-40 pointer-events-none' : ''}`}>
+    <div className="relative shrink-0 border-t border-line px-4 py-3 bg-card">
       {/* Context preview popover */}
       {previewOpen && (
         <div className="absolute bottom-full left-4 right-4 mb-1.5 bg-card border border-line rounded-xl shadow-lg max-h-72 overflow-y-auto py-1.5 animate-fade-in z-30">
@@ -111,6 +113,17 @@ export default function FollowUpInput({
         <ChevronUp size={12} strokeWidth={1.75} className={`transition-transform ${previewOpen ? 'rotate-180' : ''}`} />
         {fmt(t('followup.willSend'), { n: preview.totalTokens, m: preview.items.length })}{preview.fileCount > 0 ? fmt(t('followup.files'), { k: preview.fileCount }) : ''}
       </button>
+
+      {/* Selected text staged as branch context — submit explores from it */}
+      {branchContext && (
+        <div className="text-xs pl-3 py-1.5 pr-2 mb-1.5 border-l-2 border-warm bg-warm/10 rounded-r text-ink-muted flex items-start gap-1.5">
+          <span className="text-warm font-medium shrink-0"><GitBranch size={13} strokeWidth={1.75} className="inline" /> {t('node.exploringFrom')}</span>
+          <span className="flex-1 min-w-0 truncate">&ldquo;{branchContext.slice(0, 90)}{branchContext.length > 90 ? '…' : ''}&rdquo;</span>
+          <button onClick={onClearBranchContext} className="text-ink-faint hover:text-red-500 transition-colors shrink-0">
+            <X size={13} strokeWidth={2} />
+          </button>
+        </div>
+      )}
 
       {/* Attachments staged for the NEXT follow-up node */}
       {pendingAttachments.length > 0 && (
@@ -169,10 +182,6 @@ export default function FollowUpInput({
         </button>
       </div>
       <div className="flex gap-4 mt-1.5 px-1">
-        <label className="flex items-center gap-2 text-xs text-ink-muted cursor-pointer select-none">
-          <input type="checkbox" checked={continueInheritRole} onChange={(e) => setContinueInheritRole(e.target.checked)} className="rounded border-line text-accent focus:ring-accent w-3 h-3" />
-          {t('common.inheritRole')}
-        </label>
         <label className="flex items-center gap-2 text-xs text-ink-muted cursor-pointer select-none">
           <input type="checkbox" checked={continueInheritAttachments} onChange={(e) => setContinueInheritAttachments(e.target.checked)} className="rounded border-line text-accent focus:ring-accent w-3 h-3" />
           {t('followup.inheritAttachments')}

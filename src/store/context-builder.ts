@@ -153,59 +153,6 @@ export function buildContext(
   return { messages, images };
 }
 
-// Resolve available roles from all incoming edges (for multi-parent role conflict UI)
-// Returns array of { nodeId, role, isPrimary } — one per distinct incoming path that has a role
-export function resolveAvailableRoles(
-  nodeId: string,
-  nodes: ThoughtNode[],
-  edges: ThoughtEdge[],
-): { nodeId: string; role: string; isPrimary: boolean; label: string }[] {
-  const incomingEdges = edges.filter((e) => e.target === nodeId);
-  if (incomingEdges.length === 0) return [];
-
-  const results: { nodeId: string; role: string; isPrimary: boolean; label: string }[] = [];
-  const seenRoles = new Set<string>();
-
-  for (const edge of incomingEdges) {
-    const isCrossLink = !!edge.data?.isCrossLink;
-    // Walk up from this edge's source to find the nearest role
-    const visited = new Set<string>();
-    function findRoleUp(id: string): { nodeId: string; role: string } | null {
-      if (visited.has(id)) return null;
-      visited.add(id);
-      const n = nodes.find((nd) => nd.id === id);
-      if (!n) return null;
-      const mode = n.data.roleMode || 'inherit';
-      if (mode === 'reset') {
-        // Reset blocks: this node's role doesn't pass to children
-        return null;
-      }
-      if (n.data.rolePrompt) {
-        return { nodeId: n.id, role: n.data.rolePrompt };
-      }
-      // Keep walking up
-      const parentEdges = edges.filter((e) => e.target === id);
-      for (const pe of parentEdges) {
-        const found = findRoleUp(pe.source);
-        if (found) return found;
-      }
-      return null;
-    }
-    const found = findRoleUp(edge.source);
-    if (found && !seenRoles.has(found.role)) {
-      seenRoles.add(found.role);
-      const sourceNode = nodes.find((n) => n.id === edge.source);
-      results.push({
-        nodeId: found.nodeId,
-        role: found.role,
-        isPrimary: !isCrossLink,
-        label: sourceNode?.data.question?.slice(0, 30) || found.nodeId.slice(-6),
-      });
-    }
-  }
-  return results;
-}
-
 // Explicit role for a freshly created node (addQuestion / regenerate),
 // covering the cases buildContext can't see because it treats the parent
 // as "self":

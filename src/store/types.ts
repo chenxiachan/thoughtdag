@@ -64,16 +64,12 @@ export interface LlmSlice {
   /** Fan out one question into N context-isolated role branches (candidate pool). */
   fanOut: (parentId: string, question: string, roles: { name: string; prompt: string }[]) => Promise<void>;
   regenerate: (nodeId: string) => void;
-  distillRegenerate: (nodeId: string) => void;
   batchMergeSummarize: (nodeIds: string[], deleteAfter?: boolean) => void;
   stopGeneration: (nodeId: string) => void;
 }
 
 export interface RoleSlice {
   setRolePrompt: (nodeId: string, rolePrompt: string) => void;
-  setRoleMode: (nodeId: string, mode: 'inherit' | 'set-next' | 'reset') => void;
-  setRoleSource: (nodeId: string, sourceNodeId: string | undefined) => void;
-  getAvailableRoles: (nodeId: string) => { nodeId: string; role: string; isPrimary: boolean; label: string }[];
 }
 
 export interface HighlightSlice {

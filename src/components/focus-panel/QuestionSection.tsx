@@ -6,12 +6,16 @@ export default function QuestionSection({
   nodeId,
   question,
   isEditing,
+  isHuman,
 }: {
   nodeId: string;
   question: string;
   isEditing: boolean;
+  /** Paradigm human turn: edits record the question without generating. */
+  isHuman?: boolean;
 }) {
   const editQuestion = useStore((s) => s.editQuestion);
+  const submitHumanTurn = useStore((s) => s.submitHumanTurn);
   const setEditing = useStore((s) => s.setEditing);
   const t = useT();
 
@@ -23,9 +27,9 @@ export default function QuestionSection({
   };
 
   const handleEditSubmit = () => {
-    if (editValue.trim()) {
-      editQuestion(nodeId, editValue.trim());
-    }
+    if (!editValue.trim()) return;
+    if (isHuman) submitHumanTurn(nodeId, editValue.trim());
+    else editQuestion(nodeId, editValue.trim());
   };
 
   const handleEditKeyDown = (e: React.KeyboardEvent) => {

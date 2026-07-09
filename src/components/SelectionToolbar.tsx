@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { AlignVerticalJustifyStart, Archive, ClipboardList, FileDown, GitBranch, Star, Trash2 } from 'lucide-react';
+import { AlignVerticalJustifyStart, Archive, ClipboardList, FileDown, GitBranch, Trash2 } from 'lucide-react';
 import { useStore } from '../store';
 import { confirmDialog } from '../lib/ui-store';
 import { selectionMarkdown, downloadMarkdown } from '../lib/export';
@@ -63,23 +63,6 @@ export default function SelectionToolbar() {
 
         {/* Action buttons */}
         <div className="flex items-center gap-2 flex-wrap">
-          {/* Summarize Highlights — only if highlights exist */}
-          {allHighlights.length > 0 && (
-            <button
-              onClick={() => {
-                const highlightTexts = allHighlights.map((h) => h.text).join('\n\n');
-                addQuestion(
-                  `Summarize the following highlights from ${selectedNodeIds.length} nodes concisely. Use the same language as the content:\n\n${highlightTexts}`,
-                  { parentId: selectedNodeIds[0] }
-                );
-              }}
-              className="text-xs bg-amber-50 hover:bg-amber-100 text-amber-700 px-3 py-1.5 rounded-lg transition-colors"
-              title={t('toolbar.summaryHighlightsTitle')}
-            >
-              <Star size={14} strokeWidth={1.75} className="inline" /> {t('toolbar.summaryHighlights')}
-            </button>
-          )}
-
           <button
             onClick={() => batchMergeSummarize(selectedNodeIds)}
             className="text-xs bg-blue-50 hover:bg-blue-100 text-blue-600 px-3 py-1.5 rounded-lg transition-colors"

@@ -53,7 +53,6 @@ export const zh: Record<keyof typeof en, string> = {
   'common.generationFailed': '生成失败',
   'common.followUp': '继续追问…',
   'common.exportMd': '导出 .md',
-  'common.inheritRole': '继承角色',
   'common.deleteVersion': '删除此版本',
   'common.attachFiles': '添加附件',
 
@@ -77,26 +76,15 @@ export const zh: Record<keyof typeof en, string> = {
   'panel.resizeTitle': '拖动调整宽度 · 双击恢复默认',
   'panel.question': '问题',
   'panel.response': '回答',
+  'panel.more': '更多操作',
 
-  // Role section
-  'role.title': '角色（System Prompt）',
-  'role.setForNext': '为下游设置 ↓',
-  'role.resetBadge': '重置',
-  'role.inheritFromPrevious': '继承上游',
-  'role.resetForThisNode': '本节点重置',
+  // Role line
+  'role.label': '角色',
+  'role.inherited': '继承',
+  'role.set': '设置角色',
+  'role.edit': '修改',
   'role.noRoleSet': '未设置角色',
-  'role.multipleRoles': '多条入边带来不同角色：',
-  'role.primary': '主链',
-  'role.crossLink': '交叉连线',
-  'role.none': '无（不使用角色）',
   'role.placeholder': '例如：你是一位严格的论文审稿人，请具体而挑剔。',
-  'role.regenerateWithNewRole': '用新角色重新生成',
-  'role.willApply': '角色将应用于此后新建的子节点。',
-  'role.hintNoRole': '未设置角色。可用「为下游设置」或「本节点重置」来定义。',
-  'role.hintInherited': '继承自上游节点。',
-  'role.hintActive': '角色已生效：作用于本节点，并传递给下游。',
-  'role.hintSetNext': '为本节点的下游设置角色，当前回答不受影响。',
-  'role.hintReset': '重置本节点的角色，重新生成后生效；下游不会继承。',
 
   // Attachments section
   'attach.title': '附件',
@@ -128,29 +116,19 @@ export const zh: Record<keyof typeof en, string> = {
 
   // Highlights section
   'highlight.title': '高亮',
-  'highlight.distill': '精炼',
-  'highlight.distillTitle': '精炼：保留高亮，去除冗余',
-  'highlight.summary': '摘要',
-  'highlight.summaryTitle': '在新分支中总结高亮内容',
   'highlight.exploreTitle': '就高亮内容追问',
   'highlight.empty': '还没有高亮——选中上方文字即可高亮',
-  'highlight.passDownstream': '向下游传递',
   'highlight.modeTag': '标注重点',
   'highlight.modeFilter': '仅传高亮',
-  'highlight.modeOff': '传递全文',
-  'highlight.hintOff': '下游节点收到完整回答',
   'highlight.hintTag': '高亮部分会加上 [Important] 标记，引导 AI 关注',
   'highlight.hintFilter': '下游节点只收到高亮内容，其余丢弃',
-  'highlight.askAbout': '就高亮提问：',
   'highlight.explorePlaceholder': '你想就这些高亮探索什么？',
 
   // Actions section
-  'actions.title': '操作',
   'actions.stop': '停止',
   'actions.exportTitle': '将本节点的上下文链导出为 Markdown 文档',
   'actions.copyMd': '复制 .md',
   'actions.copyTitle': '以 Markdown 复制本节点的上下文链',
-  'actions.explorePlaceholder': '探索问题…',
 
   // Context chain section
   'chain.title': '上下文链',
@@ -169,8 +147,6 @@ export const zh: Record<keyof typeof en, string> = {
   'toolbar.nodesSelected': '已选中 {n} 个节点',
   'toolbar.tokens': '{n} tokens',
   'toolbar.highlightCount': ' · {n} 条高亮',
-  'toolbar.summaryHighlights': '高亮摘要',
-  'toolbar.summaryHighlightsTitle': '汇总选中节点的全部高亮',
   'toolbar.mergeSummary': '合并摘要',
   'toolbar.mergeSummaryTitle': '将内容合并为一个摘要节点',
   'toolbar.mergeDelete': '合并并删除',
