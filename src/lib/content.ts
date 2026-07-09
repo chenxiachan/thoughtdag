@@ -104,6 +104,36 @@ function visionRank(m: { id: string; name: string }): number {
 // remember failures instead of stumbling over them for every image.
 const extractionAuthFailed = new Set<string>();
 
+// Retina screenshots are huge and PNGs can carry alpha — some VLMs silently
+// crush oversized images or composite transparency into a "blank" frame.
+// Normalize before sending: cap the long edge, flatten onto white, JPEG.
+async function normalizeImageForVision(base64: string, mimeType: string): Promise<{ data: string; mimeType: string }> {
+  try {
+    const img = new Image();
+    await new Promise<void>((res, rej) => {
+      img.onload = () => res();
+      img.onerror = () => rej(new Error('decode failed'));
+      img.src = `data:${mimeType};base64,${base64}`;
+    });
+    const MAX = 1568;
+    const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+    const w = Math.max(1, Math.round(img.width * scale));
+    const h = Math.max(1, Math.round(img.height * scale));
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return { data: base64, mimeType };
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, w, h);
+    ctx.drawImage(img, 0, 0, w, h);
+    const out = canvas.toDataURL('image/jpeg', 0.92);
+    return { data: out.split(',')[1], mimeType: 'image/jpeg' };
+  } catch {
+    return { data: base64, mimeType }; // undecodable → send the original
+  }
+}
+
 /**
  * Auto-extract an image into companion text. The prompt self-routes: the
  * model first classifies the image (photo / screenshot / diagram /
@@ -133,12 +163,13 @@ export async function extractImage(nodeId: string, attId: string): Promise<void>
   const candidates = usable.length > 0 ? usable : ranked; // stale cache shouldn't dead-end us
 
   st.setAttachmentData(nodeId, attId, { isExtracting: true });
+  const image = await normalizeImageForVision(att.content, att.type);
   const failures: string[] = [];
   for (const model of candidates) {
     try {
       const text = await llmCall(
         [{ role: 'user', content: t('content.extractPrompt') }],
-        [{ data: att.content, mimeType: att.type }],
+        [image],
         model.id,
       );
       useStore.getState().setAttachmentData(nodeId, attId, { isExtracting: false, extractedText: text.trim(), extractedBy: model.id });

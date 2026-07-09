@@ -29,6 +29,8 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
   const kind = data.stepKind === 'file' ? 'file' : data.stepKind === 'link' ? 'link' : 'note';
   const [editing, setEditing] = useState(kind === 'note' && !data.question);
   const [draft, setDraft] = useState(data.question);
+  const [openExtract, setOpenExtract] = useState<string | null>(null); // attId whose extraction panel is open
+  const setAttachmentData = useStore((s) => s.setAttachmentData);
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Blindspot #2: undo history is a full-graph snapshot — commit the note
@@ -182,12 +184,13 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
                       <Loader2 size={11} strokeWidth={1.75} className="animate-spin" /> {t('content.extracting')}
                     </span>
                   ) : att.extractedText ? (
-                    <span
-                      className="absolute bottom-1.5 left-1.5 text-2xs bg-ink/60 text-white px-2 py-0.5 rounded-full"
-                      title={`${att.extractedBy ?? ''}\n${att.extractedText.slice(0, 400)}`}
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setOpenExtract(openExtract === att.id ? null : att.id); }}
+                      title={t('content.editExtractTitle')}
+                      className="absolute bottom-1.5 left-1.5 text-2xs bg-ink/60 hover:bg-ink/80 text-white px-2 py-0.5 rounded-full transition-colors"
                     >
-                      {t('content.extracted')}{att.extractedBy ? ` · ${att.extractedBy}` : ''}
-                    </span>
+                      {t('content.extracted')}{att.extractedBy ? ` · ${att.extractedBy}` : ''} ▾
+                    </button>
                   ) : (
                     <button
                       onClick={(e) => { e.stopPropagation(); void extractImage(id, att.id); }}
@@ -203,6 +206,32 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
                   >
                     <X size={13} strokeWidth={2} />
                   </button>
+                  {/* Extraction panel: SEE what the model read, fix it, or redo it —
+                      this text is what downstream context receives as the image's index */}
+                  {openExtract === att.id && (
+                    <div className="mt-1.5 space-y-1.5" onClick={(e) => e.stopPropagation()}>
+                      <textarea
+                        defaultValue={att.extractedText}
+                        onBlur={(e) => {
+                          if (e.target.value !== att.extractedText) {
+                            useStore.getState().pushHistory();
+                            setAttachmentData(id, att.id, { extractedText: e.target.value });
+                          }
+                        }}
+                        rows={7}
+                        className="w-full text-xs text-ink bg-surface border border-line rounded-lg px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-accent/40 resize-y leading-relaxed nopan"
+                      />
+                      <div className="flex items-center justify-between">
+                        <span className="text-2xs text-ink-faint font-mono">{att.extractedBy}</span>
+                        <button
+                          onClick={() => { setOpenExtract(null); void extractImage(id, att.id); }}
+                          className="text-2xs bg-wash hover:bg-line text-ink-muted px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1"
+                        >
+                          <RefreshCw size={11} strokeWidth={1.75} /> {t('content.reExtractAgain')}
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div key={att.id} className="flex items-center gap-2 bg-wash rounded-lg px-2.5 py-2 group">

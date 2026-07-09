@@ -86,6 +86,8 @@ export const zh: Record<keyof typeof en, string> = {
   'content.extracted': '已提取',
   'content.reExtract': '提取',
   'content.reExtractTitle': '用视觉模型提取这张图的内容（物体、文字、图表结构），作为图片的伴随文本进入下游上下文',
+  'content.editExtractTitle': '查看 / 编辑提取内容——下游上下文读到的就是这段文本',
+  'content.reExtractAgain': '重新提取',
   'content.noVisionModel': '未配置视觉模型，无法自动理解图片。请在 .env 配置一个带视觉能力的 key（免费档：ZHIPU_API_KEY → glm-4v-flash）并重启 npm run server。',
   'content.extractFailed': '图片提取失败（已尝试全部视觉模型）',
   'content.extractFellBack': '已降级用',

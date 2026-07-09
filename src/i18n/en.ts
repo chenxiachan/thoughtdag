@@ -86,6 +86,8 @@ export const en = {
   'content.extracted': 'extracted',
   'content.reExtract': 'Extract',
   'content.reExtractTitle': 'Extract this image with a vision model (objects, text, figure structure) — becomes the image\'s companion text in downstream context',
+  'content.editExtractTitle': 'View / edit the extraction — this exact text is what downstream context receives',
+  'content.reExtractAgain': 'Re-extract',
   'content.noVisionModel': 'No vision model configured — images can\'t be auto-understood. Add a vision-capable key in .env (free tier: ZHIPU_API_KEY → glm-4v-flash) and restart npm run server.',
   'content.extractFailed': 'Image extraction failed (all vision models tried)',
   'content.extractFellBack': 'Fell back to',
