@@ -469,7 +469,9 @@ app.post('/api/fetch-url', async (req, res) => {
       headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ThoughtDAG/0.1; link snapshot)' },
     });
     clearTimeout(timer);
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    // "Page responded" distinguishes the TARGET failing from the proxy
+    // route itself being absent (stale server → bare Express 404)
+    if (!r.ok) throw new Error(`Page responded HTTP ${r.status}`);
     const type = r.headers.get('content-type') || '';
     if (!/text\/html|text\/plain|application\/xhtml/.test(type)) throw new Error(`Unsupported content type: ${type}`);
     const html = (await r.text()).slice(0, 800_000);

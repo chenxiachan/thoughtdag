@@ -1,10 +1,10 @@
 import { useRef, useState } from 'react';
 import { Handle, NodeResizeControl, Position, type NodeProps } from '@xyflow/react';
-import { ExternalLink, FileText, GripVertical, Link2, Link2Off, Loader2, Paperclip, StickyNote, Trash2, X } from 'lucide-react';
+import { ExternalLink, FileText, GripVertical, Link2, Link2Off, Loader2, Paperclip, RefreshCw, StickyNote, Trash2, X } from 'lucide-react';
 import type { ThoughtNode as ThoughtNodeType } from '../types';
 import { useStore } from '../store';
 import { triggerParadigmCascade } from '../store/streaming';
-import { ingestFiles } from '../lib/content';
+import { fetchLinkIntoNode, ingestFiles } from '../lib/content';
 import { FILE_INPUT_ACCEPT } from '../lib/attachments';
 import { Markdown } from './Markdown';
 import { countTokens } from '../utils';
@@ -141,6 +141,14 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
             <div className="space-y-1.5">
               {data.linkTitle && (
                 <div className={`text-sm font-semibold leading-snug ${data.linkTitle.startsWith('⚠') ? 'text-red-600' : 'text-ink'}`}>{data.linkTitle}</div>
+              )}
+              {data.linkTitle?.startsWith('⚠') && data.linkUrl && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); void fetchLinkIntoNode(id, data.linkUrl!); }}
+                  className="text-xs bg-wash hover:bg-line text-ink-muted px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
+                >
+                  <RefreshCw size={13} strokeWidth={1.75} /> {t('common.retry')}
+                </button>
               )}
               {data.question && (
                 <div className="text-xs text-ink-muted leading-relaxed max-h-[200px] overflow-y-auto nopan nowheel whitespace-pre-wrap">

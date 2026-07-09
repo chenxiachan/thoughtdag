@@ -66,6 +66,7 @@ export async function fetchLinkIntoNode(nodeId: string, url: string): Promise<vo
   const patch = (p: Partial<ThoughtData>) => useStore.setState((s) => ({
     nodes: s.nodes.map((n) => (n.id === nodeId ? { ...n, data: { ...n.data, ...p } } : n)),
   }));
+  patch({ linkTitle: undefined }); // retry path: back to the loading state
   try {
     const snap = await fetchUrlSnapshot(url);
     patch({
