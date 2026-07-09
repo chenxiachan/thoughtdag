@@ -30,7 +30,7 @@ import { useProjects, adoptImportedProject, createProject, createBuiltinParadigm
 import { projectStorageKey } from './store/projects';
 import { set as idbSet } from 'idb-keyval';
 import { instantiateParadigm, isRunLocked } from './lib/paradigm';
-import { isContentKind, spawnContentNode, ingestFiles, fetchLinkIntoNode } from './lib/content';
+import { isContentKind, spawnContentNode, ingestFiles, fetchLinkIntoNode, clipboardTextToMarkdown } from './lib/content';
 import { generateId } from './utils';
 import type { Attachment, ThoughtNode as ThoughtNodeType, ThoughtEdge } from './types';
 import { processFile, FILE_INPUT_ACCEPT } from './lib/attachments';
@@ -156,21 +156,26 @@ function Canvas() {
       const dt = e.clipboardData;
       if (!dt) return;
       const pos = flowPosAt(lastMouse.current);
+      // TEXT WINS: Word/Excel copies carry text AND a bitmap rendering of
+      // the selection — the user copied words, not a picture of words.
+      // Only image-only clipboards (screenshots, copied images) become
+      // file nodes. Tab-separated tables turn into markdown tables.
+      const text = dt.getData('text/plain').trim();
+      if (text) {
+        e.preventDefault();
+        if (/^https?:\/\/\S+$/.test(text)) {
+          const id = spawnContentNode('link', pos, { linkUrl: text });
+          void fetchLinkIntoNode(id, text);
+        } else {
+          spawnContentNode('note', pos, { question: clipboardTextToMarkdown(text) });
+        }
+        return;
+      }
       const files = Array.from(dt.files);
       if (files.length > 0) {
         e.preventDefault();
         const id = spawnContentNode('file', pos);
         void ingestFiles(id, files);
-        return;
-      }
-      const text = dt.getData('text/plain').trim();
-      if (!text) return;
-      e.preventDefault();
-      if (/^https?:\/\/\S+$/.test(text)) {
-        const id = spawnContentNode('link', pos, { linkUrl: text });
-        void fetchLinkIntoNode(id, text);
-      } else {
-        spawnContentNode('note', pos, { question: text });
       }
     };
     window.addEventListener('mousemove', onMove);

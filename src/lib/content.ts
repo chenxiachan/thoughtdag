@@ -44,6 +44,27 @@ export function spawnContentNode(
   return id;
 }
 
+/**
+ * Word / Excel selections arrive as TAB-separated text — turn them into a
+ * real markdown table (the note renderer does the rest). Anything else
+ * passes through untouched.
+ */
+export function clipboardTextToMarkdown(text: string): string {
+  const lines = text.replace(/\r\n?/g, '\n').split('\n').filter((l) => l.trim() !== '');
+  if (lines.length >= 2 && lines.every((l) => l.includes('\t'))) {
+    const rows = lines.map((l) => l.split('\t').map((c) => c.trim().replace(/\|/g, '\\|')));
+    const cols = Math.max(...rows.map((r) => r.length));
+    const pad = (r: string[]) => [...r, ...Array(cols - r.length).fill('')];
+    const [head, ...body] = rows.map(pad);
+    return [
+      `| ${head.join(' | ')} |`,
+      `| ${head.map(() => '---').join(' | ')} |`,
+      ...body.map((r) => `| ${r.join(' | ')} |`),
+    ].join('\n');
+  }
+  return text;
+}
+
 /** Add files to a content node; a filled material slot advances a waiting run. */
 export async function ingestFiles(nodeId: string, files: FileList | File[]): Promise<void> {
   for (const file of Array.from(files)) {
