@@ -1,5 +1,5 @@
 import { Handle, Position, type NodeProps } from '@xyflow/react';
-import { MessageCircleQuestion, SquareTerminal, Trash2 } from 'lucide-react';
+import { Globe, GraduationCap, MessageCircleQuestion, SquareTerminal, Trash2 } from 'lucide-react';
 import type { ThoughtNode as ThoughtNodeType, ThoughtData } from '../types';
 import { useStore } from '../store';
 import { ROLE_TEMPLATES, rolePromptFor } from '../lib/role-templates';
@@ -101,6 +101,30 @@ export default function ParadigmNode({ id, data }: NodeProps<ThoughtNodeType>) {
                 + {lang === 'zh' ? tpl.nameZh : tpl.nameEn}
               </button>
             ))}
+          </div>
+        )}
+
+        {/* per-step search permissions — carried into the instantiated run */}
+        {kind === 'prompt' && (
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={() => patch({ webSearch: !data.webSearch })}
+              title={data.webSearch ? t('toolbar.webSearch') : t('toolbar.webSearchOff')}
+              className={`text-2xs px-2 py-1 rounded-full transition-colors flex items-center gap-1 ${
+                data.webSearch ? 'bg-accent/10 text-accent' : 'bg-wash text-ink-faint hover:bg-line'
+              }`}
+            >
+              <Globe size={12} strokeWidth={1.75} /> {t('paradigm.webSearch')}
+            </button>
+            <button
+              onClick={() => patch({ scholarSearch: !data.scholarSearch })}
+              title={data.scholarSearch ? t('toolbar.scholarSearch') : t('toolbar.scholarSearchOff')}
+              className={`text-2xs px-2 py-1 rounded-full transition-colors flex items-center gap-1 ${
+                data.scholarSearch ? 'bg-accent/10 text-accent' : 'bg-wash text-ink-faint hover:bg-line'
+              }`}
+            >
+              <GraduationCap size={12} strokeWidth={1.75} /> {t('paradigm.scholarSearch')}
+            </button>
           </div>
         )}
       </div>

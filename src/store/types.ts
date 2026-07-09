@@ -61,8 +61,8 @@ export interface LlmSlice {
   /** A paradigm human turn: record the question WITHOUT generating (the
    *  answers belong to downstream prompt nodes), then advance the cascade. */
   submitHumanTurn: (nodeId: string, question: string) => void;
-  /** Fan out one question into N context-isolated role branches (candidate pool). */
-  fanOut: (parentId: string, question: string, roles: { name: string; prompt: string }[]) => Promise<void>;
+  /** Fan out N perspectives: once = blind candidate branches; follow = reviewers that auto-rerun with the thread. */
+  fanOut: (parentId: string, question: string, roles: { name: string; prompt: string }[], opts?: { follow?: boolean }) => Promise<void>;
   regenerate: (nodeId: string) => void;
   batchMergeSummarize: (nodeIds: string[], deleteAfter?: boolean) => void;
   stopGeneration: (nodeId: string) => void;
@@ -81,7 +81,6 @@ export interface HighlightSlice {
 
 export interface EvaluatorSlice {
   /** PRESET: ordinary node with a critic role + autoRerun, wired by a followsTip edge. */
-  attachEvaluator: (watchedNodeId: string, rolePrompt: string, roleName: string) => Promise<void>;
   /** Regenerate a node in place from its incoming edges, appending a version (generic primitive). */
   rerunNode: (nodeId: string, opts?: { auto?: boolean }) => Promise<void>;
   /** Toggle the autoRerun primitive on any node. */

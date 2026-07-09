@@ -1,11 +1,8 @@
 import type { StateCreator } from 'zustand';
-import type { ThoughtNode, ThoughtEdge, ThoughtData } from '../../types';
-import { generateId } from '../../utils';
-import { COLORS } from '../../lib/constants';
+import type { ThoughtData } from '../../types';
 import { buildContext } from '../context-builder';
 import { runNodeGeneration } from '../streaming';
 import type { StoreState, EvaluatorSlice } from '../types';
-import { t, fmt } from '../../i18n';
 
 // ── Primitives, not features ─────────────────────────────────────
 // A "reviewer" is NOT a special node type. It is an ordinary node composed
@@ -83,67 +80,6 @@ export const createEvaluatorSlice: StateCreator<StoreState, [], [], EvaluatorSli
     }));
   },
 
-  /**
-   * PRESET: attach a critic to a thread. Creates an ordinary node with a
-   * reviewer persona + autoRerun, wired by a followsTip edge — nothing
-   * here is special-cased anywhere else in the app.
-   */
-  attachEvaluator: async (watchedNodeId: string, rolePrompt: string, roleName: string) => {
-    const watched = get().nodes.find((n) => n.id === watchedNodeId);
-    if (!watched) return;
-    get().pushHistory();
-
-    const id = generateId();
-    const reviewerNode: ThoughtNode = {
-      id,
-      type: 'thought',
-      position: { x: watched.position.x + 640, y: watched.position.y },
-      dragHandle: '.drag-handle',
-      data: {
-        // The question IS the whole prompt — persona in the opening lines,
-        // standing instruction after (one home for personas, same as fan-out
-        // and paradigm prompt steps). Rerun executes it against whatever the
-        // followsTip edge currently points at. Localized: a Chinese
-        // instruction keeps the critique in Chinese.
-        question: `${rolePrompt}\n${fmt(t('evaluator.taskQuestion'), { name: roleName })}`,
-        response: '',
-        responses: [],
-        responseIndex: -1,
-        isCollapsed: false,
-        isEditing: false,
-        isEditingResponse: false,
-        isLoading: false,
-        tokenCount: 0,
-        highlights: [], highlightMode: 'tag', attachments: [], excludedAttachmentIds: [], includedAttachmentIds: [],
-        roleMode: 'inherit',
-        isRoot: false,
-        isBranch: false,
-        isEvaluator: true, // visual identity only (red theme + badge)
-        autoRerun: true,
-      },
-    };
-
-    const watchEdge: ThoughtEdge = {
-      id: `watch-${watchedNodeId}-${id}`,
-      source: watchedNodeId,
-      target: id,
-      sourceHandle: 'branch',
-      targetHandle: 'left',
-      type: 'smoothstep',
-      style: { stroke: COLORS.watch, strokeWidth: 2, strokeDasharray: '4 4' },
-      animated: true,
-      markerEnd: { type: 'arrowclosed' as const, color: COLORS.watch, width: 18, height: 18 },
-      data: { isCrossLink: true, isWatch: true, followsTip: true },
-    };
-
-    set((state) => ({
-      nodes: [...state.nodes, reviewerNode],
-      edges: [...state.edges, watchEdge],
-      selectedNodeId: id,
-      selectedNodeIds: [id],
-    }));
-    get().pushHistory();
-
-    await get().rerunNode(id);
-  },
+  // NOTE: the old attachEvaluator preset dissolved into fanOut(follow: true)
+  // — a reviewer is N=1 perspectives with the "keep reviewing" run policy.
 });

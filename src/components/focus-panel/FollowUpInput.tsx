@@ -3,6 +3,7 @@ import { ChevronUp, GitBranch, Paperclip, Send, X } from 'lucide-react';
 import { useStore } from '../../store';
 import { buildContext } from '../../store/context-builder';
 import { processFile, FILE_INPUT_ACCEPT } from '../../lib/attachments';
+import SearchToggles from '../ui/SearchToggles';
 import type { Attachment } from '../../types';
 import { countTokens } from '../../utils';
 import { useT, fmt } from '../../i18n';
@@ -166,10 +167,11 @@ export default function FollowUpInput({
         />
         <input ref={fileRef} type="file" accept={FILE_INPUT_ACCEPT} multiple className="hidden"
           onChange={(e) => { if (e.target.files) void addFiles(e.target.files); e.target.value = ''; }} />
+        <SearchToggles />
         <button
           onClick={() => fileRef.current?.click()}
           title={t('followup.attach')}
-          className="text-ink-faint hover:text-accent transition-colors shrink-0 rounded-full w-7 h-7 flex items-center justify-center hover:bg-line"
+          className="text-ink-faint hover:text-accent transition-colors shrink-0 rounded-full w-8 h-8 flex items-center justify-center hover:bg-line"
         >
           <Paperclip size={16} strokeWidth={1.75} />
         </button>

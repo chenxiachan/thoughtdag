@@ -1,11 +1,16 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Split, X } from 'lucide-react';
+import { Eye, Split, X } from 'lucide-react';
 import { useStore } from '../store';
 import { ROLE_TEMPLATES, rolePromptFor } from '../lib/role-templates';
 import { useI18n, useT, fmt } from '../i18n';
 
-// Fan-out dialog: one question, N context-isolated role branches.
+// Perspectives dialog: N roles, ONE mechanism, two run policies.
+//   once   → each role answers the question once, blind to its siblings
+//            (the rule-in/rule-out candidate pool)
+//   follow → each role becomes a reviewer on a sliding watch edge that
+//            auto-reruns whenever the thread grows (the old "attach
+//            evaluator" is exactly this with N=1)
 // Roles come from the template library (toggle chips) and/or free-form
 // lines ("Name: prompt"). Used from the panel and from fan-out
 // placeholder nodes instantiated out of paradigms.
@@ -23,11 +28,18 @@ export default function FanOutModal({
   const fanOut = useStore((s) => s.fanOut);
   const t = useT();
   const lang = useI18n((s) => s.lang);
+  const [mode, setMode] = useState<'once' | 'follow'>('once');
   const [question, setQuestion] = useState(initialQuestion);
   const [picked, setPicked] = useState<Set<string>>(new Set());
   const [customText, setCustomText] = useState(
     (initialRoles ?? []).map((r) => `${r.name}: ${r.prompt}`).join('\n')
   );
+
+  const switchMode = (m: 'once' | 'follow') => {
+    setMode(m);
+    // Each mode has its natural task: the shared question vs a standing critique
+    setQuestion(m === 'follow' ? t('fanout.critiqueInstruction') : initialQuestion);
+  };
 
   const customRoles = customText
     .split('\n')
@@ -49,7 +61,7 @@ export default function FanOutModal({
 
   const run = () => {
     if (!question.trim() || roles.length === 0) return;
-    void fanOut(parentId, question.trim(), roles);
+    void fanOut(parentId, question.trim(), roles, { follow: mode === 'follow' });
     onClose();
   };
 
@@ -69,8 +81,33 @@ export default function FanOutModal({
         </div>
 
         <div className="px-6 py-4 space-y-4 overflow-y-auto">
+          {/* Run policy: answer once (candidates) vs keep reviewing (watchers) */}
           <div>
-            <label className="text-2xs text-ink-faint uppercase tracking-wider font-medium block mb-1.5">{t('fanout.question')}</label>
+            <div className="flex gap-1.5">
+              {([
+                { m: 'once' as const, icon: <Split size={14} strokeWidth={1.75} />, label: t('fanout.modeOnce') },
+                { m: 'follow' as const, icon: <Eye size={14} strokeWidth={1.75} />, label: t('fanout.modeFollow') },
+              ]).map(({ m, icon, label }) => (
+                <button
+                  key={m}
+                  onClick={() => switchMode(m)}
+                  className={`text-xs px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5 ${
+                    mode === m
+                      ? (m === 'follow' ? 'bg-watch/10 text-watch font-medium ring-1 ring-watch/30' : 'bg-warm/15 text-warm font-medium ring-1 ring-warm/30')
+                      : 'bg-wash text-ink-muted hover:bg-line'
+                  }`}
+                >
+                  {icon} {label}
+                </button>
+              ))}
+            </div>
+            <p className="text-2xs text-ink-faint mt-1.5 leading-relaxed">
+              {mode === 'once' ? t('fanout.modeOnceHint') : t('fanout.modeFollowHint')}
+            </p>
+          </div>
+
+          <div>
+            <label className="text-2xs text-ink-faint uppercase tracking-wider font-medium block mb-1.5">{t(mode === 'follow' ? 'fanout.instruction' : 'fanout.question')}</label>
             <textarea
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
@@ -120,9 +157,11 @@ export default function FanOutModal({
           <button
             onClick={run}
             disabled={!question.trim() || roles.length === 0}
-            className="text-xs bg-warm hover:bg-warm/90 text-white px-5 py-2 rounded-lg transition-colors disabled:opacity-30"
+            className={`text-xs text-white px-5 py-2 rounded-lg transition-colors disabled:opacity-30 ${
+              mode === 'follow' ? 'bg-watch/90 hover:bg-watch' : 'bg-warm hover:bg-warm/90'
+            }`}
           >
-            {fmt(t('fanout.confirm'), { n: roles.length })}
+            {fmt(t(mode === 'follow' ? 'fanout.confirmFollow' : 'fanout.confirm'), { n: roles.length })}
           </button>
         </div>
       </div>

@@ -7,6 +7,7 @@ import { useStore } from '../store';
 import { generateId } from '../utils';
 import { processFile } from '../lib/attachments';
 import { isRunLocked } from '../lib/paradigm';
+import SearchToggles from './ui/SearchToggles';
 import { Markdown, HighlightedMarkdown } from './Markdown';
 import FanOutModal from './FanOutModal';
 import { useT, fmt } from '../i18n';
@@ -454,6 +455,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
                   placeholder={t('common.followUp')}
                   className="flex-1 bg-transparent text-sm text-ink placeholder-ink-faint focus:outline-none nopan nodrag"
                 />
+                <SearchToggles size={15} />
                 <button
                   onClick={handleSubmitBranch}
                   disabled={!inputValue.trim()}

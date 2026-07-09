@@ -15,7 +15,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import 'highlight.js/styles/github.css';
-import { CircleHelp, Dna, FileText, GitBranch, Globe, GraduationCap, LayoutGrid, Loader2, MessageCircleQuestion, Paperclip, Plug, Redo2, Scissors, SquareTerminal, Trash2, Undo2, Workflow, X } from 'lucide-react';
+import { CircleHelp, Dna, FileText, GitBranch, LayoutGrid, Loader2, MessageCircleQuestion, Paperclip, Plug, Redo2, Scissors, SquareTerminal, Trash2, Undo2, Workflow, X } from 'lucide-react';
 import './index.css';
 import ThoughtNode from './components/ThoughtNode';
 import ParadigmNode from './components/ParadigmNode';
@@ -42,6 +42,7 @@ import Toaster from './components/ui/Toaster';
 import LangSwitch from './components/ui/LangSwitch';
 import ModelPicker from './components/ui/ModelPicker';
 import RoleTemplateChips from './components/ui/RoleTemplateChips';
+import SearchToggles from './components/ui/SearchToggles';
 import Tutorial from './components/Tutorial';
 import { useT, t as ti, fmt, useI18n } from './i18n';
 
@@ -75,10 +76,6 @@ function Canvas() {
   const { nodes, edges, setNodes, setEdges, addQuestion, undo, redo, addCrossLink, setSelectedNodeId, setSelectedNodeIds, history, historyIndex, relayout } = useStore();
   const t = useT();
   const setTutorialOpen = useUiStore((s) => s.setTutorialOpen);
-  const webSearchEnabled = useUiStore((s) => s.webSearchEnabled);
-  const setWebSearchEnabled = useUiStore((s) => s.setWebSearchEnabled);
-  const scholarSearchEnabled = useUiStore((s) => s.scholarSearchEnabled);
-  const setScholarSearchEnabled = useUiStore((s) => s.setScholarSearchEnabled);
   const mcpEnabled = useUiStore((s) => s.mcpEnabled);
   const setMcpEnabled = useUiStore((s) => s.setMcpEnabled);
   const mcpServers = useMcpServers();
@@ -582,7 +579,8 @@ function Canvas() {
                   </div>
                 )}
               </div>
-              <div className="flex justify-end mt-2 gap-2">
+              <div className="flex items-center justify-end mt-2 gap-2">
+                <SearchToggles />
                 <button
                   onClick={() => landingFileRef.current?.click()}
                   className="text-ink-faint hover:text-accent hover:bg-wash rounded-xl px-3 py-2 transition-colors text-sm"
@@ -686,6 +684,7 @@ function Canvas() {
                 className="flex-1 bg-transparent text-ink text-sm resize-none focus:outline-none placeholder-ink-faint"
                 rows={1}
               />
+              <SearchToggles size={15} />
               <button
                 onClick={() => floatingFileRef.current?.click()}
                 className="text-ink-faint hover:text-accent transition-colors shrink-0 text-sm"
@@ -785,28 +784,6 @@ function Canvas() {
         )}
         {!isParadigm && <ModelPicker />}
         {!isParadigm && (<>
-        <button
-          onClick={() => setWebSearchEnabled(!webSearchEnabled)}
-          className={`bg-card/90 backdrop-blur border rounded-lg w-8 h-8 flex items-center justify-center shadow-sm transition-colors ${
-            webSearchEnabled
-              ? 'border-accent/40 text-accent hover:bg-accent/10'
-              : 'border-line text-ink-faint hover:bg-wash'
-          }`}
-          title={webSearchEnabled ? t('toolbar.webSearch') : t('toolbar.webSearchOff')}
-        >
-          <Globe size={15} strokeWidth={1.75} />
-        </button>
-        <button
-          onClick={() => setScholarSearchEnabled(!scholarSearchEnabled)}
-          className={`bg-card/90 backdrop-blur border rounded-lg w-8 h-8 flex items-center justify-center shadow-sm transition-colors ${
-            scholarSearchEnabled
-              ? 'border-accent/40 text-accent hover:bg-accent/10'
-              : 'border-line text-ink-faint hover:bg-wash'
-          }`}
-          title={scholarSearchEnabled ? t('toolbar.scholarSearch') : t('toolbar.scholarSearchOff')}
-        >
-          <GraduationCap size={15} strokeWidth={1.75} />
-        </button>
         {mcpServers.length > 0 && (
           <button
             onClick={() => setMcpEnabled(!mcpEnabled)}

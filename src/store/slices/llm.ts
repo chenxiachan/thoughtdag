@@ -7,6 +7,7 @@ import { COLORS } from '../../lib/constants';
 import type { ContextMessage } from '../../lib/api';
 import { buildContext, resolveExplicitRole, applyRoleOverride } from '../context-builder';
 import { activeAbortControllers, autoRunCounts, runNodeGeneration, triggerParadigmCascade } from '../streaming';
+import { useUiStore } from '../../lib/ui-store';
 import type { StoreState, LlmSlice, AddQuestionOptions } from '../types';
 
 export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, get) => ({
@@ -41,6 +42,10 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
         rolePrompt: rolePrompt || undefined,
         isRoot,
         isBranch: !!branchContext,
+        // Search permissions are per-ask: snapshot the toggles shown next to
+        // the input, so reruns of this node keep behaving the same way
+        webSearch: useUiStore.getState().webSearchEnabled,
+        scholarSearch: useUiStore.getState().scholarSearchEnabled,
       },
     };
 
@@ -122,26 +127,31 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
    * can't see each other — structural blindness for candidate pools.
    * Generations run concurrently (bounded); one history entry for the batch.
    */
-  fanOut: async (parentId: string, question: string, roles: { name: string; prompt: string }[]) => {
+  fanOut: async (parentId: string, question: string, roles: { name: string; prompt: string }[], opts: { follow?: boolean } = {}) => {
     const parent = get().nodes.find((n) => n.id === parentId);
     if (!parent || roles.length === 0) return;
+    const follow = !!opts.follow;
     get().pushHistory();
 
-    // Create all branch nodes and edges up front (single layout pass).
-    // Persona lives in the question's opening lines — one home for personas
-    // (same rule as evaluators and paradigm prompt steps), so each card
-    // shows exactly what its branch was asked.
+    // Create all nodes and edges up front. Persona lives in the question's
+    // opening lines — one home for personas — so each card shows exactly
+    // what its perspective was asked. Two run policies, one mechanism:
+    //   once   → orange candidate branches, answered once (blind pool)
+    //   follow → red reviewers on watch edges that slide with the thread
+    //            and auto-rerun whenever upstream extends
     const created: { id: string; question: string }[] = [];
     const newNodes: ThoughtNode[] = [];
     const newEdges: ThoughtEdge[] = [];
-    for (const role of roles) {
+    roles.forEach((role, i) => {
       const id = generateId();
       const branchQuestion = `${role.prompt}\n${question}`;
       created.push({ id, question: branchQuestion });
       newNodes.push({
         id,
         type: 'thought',
-        position: { x: 0, y: 0 },
+        // follow mode skips autoLayout (watch edges are cross-links, not
+        // ancestry) — stack reviewers to the right of the watched node
+        position: follow ? { x: parent.position.x + 640, y: parent.position.y + i * 380 } : { x: 0, y: 0 },
         dragHandle: '.drag-handle',
         data: {
           question: branchQuestion,
@@ -151,16 +161,31 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
           isCollapsed: false,
           isEditing: false,
           isEditingResponse: false,
-          isLoading: true,
+          isLoading: !follow,
           tokenCount: 0,
           branchContext: undefined,
           highlights: [], highlightMode: 'tag', attachments: [], excludedAttachmentIds: [], includedAttachmentIds: [],
           roleMode: 'inherit',
           isRoot: false,
-          isBranch: true, // orange styling: exploratory candidates
+          isBranch: !follow, // orange styling: exploratory candidates
+          isEvaluator: follow || undefined, // red styling + rerun affordance
+          autoRerun: follow || undefined,
+          webSearch: useUiStore.getState().webSearchEnabled,
+          scholarSearch: useUiStore.getState().scholarSearchEnabled,
         },
       });
-      newEdges.push({
+      newEdges.push(follow ? {
+        id: `watch-${parentId}-${id}`,
+        source: parentId,
+        target: id,
+        sourceHandle: 'branch',
+        targetHandle: 'left',
+        type: 'smoothstep',
+        style: { stroke: COLORS.watch, strokeWidth: 2, strokeDasharray: '4 4' },
+        animated: true,
+        markerEnd: { type: 'arrowclosed' as const, color: COLORS.watch, width: 18, height: 18 },
+        data: { isCrossLink: true, isWatch: true, followsTip: true },
+      } : {
         id: `edge-${parentId}-${id}`,
         source: parentId,
         target: id,
@@ -172,26 +197,27 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
         markerEnd: { type: 'arrowclosed' as const, color: COLORS.warm, width: 18, height: 18 },
         data: { isBranchFromSelection: true, branchYRatio: 0.5 },
       });
-    }
+    });
 
     const allEdges = [...get().edges, ...newEdges];
-    const allNodes = autoLayout(
-      [...get().nodes.map((n) => (n.id === parentId ? { ...n, data: { ...n.data, isCollapsed: true } } : n)), ...newNodes],
-      allEdges,
-    );
+    const merged = [...get().nodes.map((n) => (n.id === parentId && !follow ? { ...n, data: { ...n.data, isCollapsed: true } } : n)), ...newNodes];
+    const allNodes = follow ? merged : autoLayout(merged, allEdges);
     set({ nodes: allNodes, edges: allEdges, selectedNodeId: null, selectedNodeIds: [] });
-
-    // Shared ancestor context (built once — identical for every sibling)
-    const ctx = buildContext(parentId, get().nodes, get().edges);
 
     // Bounded concurrency: free-tier providers dislike large bursts
     const LIMIT = 6;
     let cursor = 0;
+    // Shared ancestor context for one-shot branches (identical per sibling)
+    const ctx = follow ? null : buildContext(parentId, get().nodes, get().edges);
     const worker = async () => {
       while (cursor < created.length) {
         const { id, question: branchQuestion } = created[cursor++];
-        const messages: ContextMessage[] = [...ctx.messages, { role: 'user', content: branchQuestion }];
-        await runNodeGeneration(set, get, id, { question: branchQuestion, messages, images: ctx.images });
+        if (follow) {
+          await get().rerunNode(id); // standard context walk through the watch edge
+        } else {
+          const messages: ContextMessage[] = [...ctx!.messages, { role: 'user', content: branchQuestion }];
+          await runNodeGeneration(set, get, id, { question: branchQuestion, messages, images: ctx!.images });
+        }
       }
     };
     await Promise.all(Array.from({ length: Math.min(LIMIT, created.length) }, worker));

@@ -102,11 +102,16 @@ export async function runNodeGeneration(
         }));
       },
       onSources: (sources) => { references = sources; },
-    }, {
-      web: useUiStore.getState().webSearchEnabled,
-      scholar: useUiStore.getState().scholarSearchEnabled,
-      mcp: useUiStore.getState().mcpEnabled,
-    }, get().nodes.find((n) => n.id === nodeId)?.data.model);
+    }, (() => {
+      // Search permissions live on the node (snapshotted at ask time);
+      // legacy nodes without flags follow the current shared defaults
+      const selfData = get().nodes.find((n) => n.id === nodeId)?.data;
+      return {
+        web: selfData?.webSearch ?? useUiStore.getState().webSearchEnabled,
+        scholar: selfData?.scholarSearch ?? useUiStore.getState().scholarSearchEnabled,
+        mcp: useUiStore.getState().mcpEnabled,
+      };
+    })(), get().nodes.find((n) => n.id === nodeId)?.data.model);
     activeAbortControllers.delete(nodeId);
     writeFinal(response);
     onSuccess?.(response);

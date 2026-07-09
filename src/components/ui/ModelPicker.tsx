@@ -68,7 +68,9 @@ export default function ModelPicker({ value, onChange, compact }: PickerProps) {
       </button>
 
       {open && (
-        <div className={`absolute bg-card border border-line rounded-xl shadow-xl py-1.5 w-64 max-h-[60vh] overflow-y-auto z-30 ${compact ? 'bottom-9 left-0' : 'top-9 right-0'}`}>
+        // Both placements drop DOWN: the compact picker lives in the panel
+        // header now (an upward menu would fly off the viewport top)
+        <div className="absolute top-9 right-0 bg-card border border-line rounded-xl shadow-xl py-1.5 w-64 max-h-[60vh] overflow-y-auto z-30">
           {nodeMode && (
             <button
               onClick={() => pick(null)}

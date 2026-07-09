@@ -39,6 +39,8 @@ export interface ThoughtData extends Record<string, unknown> {
   generationFailed?: boolean; // set on LLM failure; cleared on retry/success (persisted so Retry survives refresh)
   references?: Reference[]; // web sources cited by the current response ([n] markers)
   model?: string; // per-node LLM override; undefined = follow the global picker
+  webSearch?: boolean; // may this node's generation use web search? (snapshotted at ask time; undefined = legacy, follow global)
+  scholarSearch?: boolean; // same for arXiv / Semantic Scholar tools
   autoRerun?: boolean; // regenerate in place whenever an upstream ancestor finishes (generic primitive)
   archived?: boolean; // pruned-but-kept: dimmed on canvas, EXCLUDED from every context walk
   // ── paradigm (orchestration view) fields ──

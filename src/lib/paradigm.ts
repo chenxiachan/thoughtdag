@@ -102,6 +102,10 @@ export function instantiateParadigm(pNodes: ThoughtNode[], pEdges: ThoughtEdge[]
     }
     if (kind === 'prompt') {
       data.stepKind = 'prompt';
+      // Per-step search permissions travel with the paradigm; unset means
+      // "follow the runner's defaults" (also how legacy files behave)
+      data.webSearch = pn.data.webSearch;
+      data.scholarSearch = pn.data.scholarSearch;
     }
     if (kind === 'review') {
       data.isEvaluator = true; // red visual identity
