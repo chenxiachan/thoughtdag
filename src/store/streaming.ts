@@ -1,6 +1,7 @@
 import type { StoreApi } from 'zustand';
 import { walkUpAncestors } from '../lib/graph';
 import { upstreamFingerprint } from './context-builder';
+import { pruneHighlights } from '../lib/highlight-match';
 import { llmCall, llmCallStream, type ContextMessage, type ImageAttachment } from '../lib/api';
 import { countTokens } from '../utils';
 import { toast, useUiStore } from '../lib/ui-store';
@@ -81,7 +82,7 @@ export async function runNodeGeneration(
         const responses = versionMode === 'append'
           ? [...n.data.responses.filter((r) => r), response]
           : [response];
-        return { ...n, data: { ...n.data, response, responses, responseIndex: responses.length - 1, isLoading: false, isCollapsed: true, tokenCount, generationFailed: failed || undefined, references, lastContextHash: contextHash, lastGeneratedAt: new Date().toISOString() } };
+        return { ...n, data: { ...n.data, response, responses, responseIndex: responses.length - 1, isLoading: false, isCollapsed: true, tokenCount, generationFailed: failed || undefined, references, highlights: pruneHighlights(n.data.highlights, response), lastContextHash: contextHash, lastGeneratedAt: new Date().toISOString() } };
       }),
     }));
   };

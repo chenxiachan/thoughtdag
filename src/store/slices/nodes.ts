@@ -5,6 +5,7 @@ import { COLORS } from '../../lib/constants';
 import { autoLayout, estimateNodeHeight, nodeHeight } from '../../lib/layout';
 import { getDescendantIds, walkUpAncestors } from '../../lib/graph';
 import { referenceBlockContent, upstreamFingerprint } from '../context-builder';
+import { pruneHighlights } from '../../lib/highlight-match';
 import { toast } from '../../lib/ui-store';
 import { t, fmt } from '../../i18n';
 import type { StoreState, NodeSlice } from '../types';
@@ -52,9 +53,9 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
                 ...n.data,
                 response,
                 responses: n.data.responses.map((r, i) => (i === n.data.responseIndex ? response : r)),
+                highlights: pruneHighlights(n.data.highlights, response),
                 isEditingResponse: false,
                 tokenCount,
-                highlights: n.data.highlights.filter((h) => response.includes(h.text)),
               },
             }
           : n
@@ -225,7 +226,7 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
         if (newIndex >= responses.length) newIndex = 0;
         return {
           ...n,
-          data: { ...n.data, responseIndex: newIndex, response: responses[newIndex] },
+          data: { ...n.data, responseIndex: newIndex, response: responses[newIndex], highlights: pruneHighlights(n.data.highlights, responses[newIndex]) },
         };
       }),
     }));
@@ -246,6 +247,7 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
             responses: newResponses,
             responseIndex: newIndex,
             response: newResponses[newIndex],
+            highlights: pruneHighlights(n.data.highlights, newResponses[newIndex]),
           },
         };
       }),

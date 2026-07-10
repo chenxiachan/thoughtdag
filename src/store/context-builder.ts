@@ -3,6 +3,7 @@ import type { ThoughtEdge } from '../types';
 import { partitionContext, type ContextReference } from '../lib/graph';
 import { attachmentFingerprint } from '../lib/attachments';
 import { countTokens } from '../utils';
+import { fuzzyHighlightRegex } from '../lib/highlight-match';
 import type { ContextMessage, ImageAttachment } from '../lib/api';
 
 // Build the prompt from the layered context partition (lib/graph.ts).
@@ -37,7 +38,8 @@ function renderResponse(node: ThoughtNode): string {
   if (mode === 'tag' && highlights.length > 0) {
     let tagged = node.data.response;
     for (const h of highlights) {
-      tagged = tagged.replace(h.text, `[Important] ${h.text} [/Important]`);
+      const re = fuzzyHighlightRegex(h.text);
+      if (re) tagged = tagged.replace(re, (m) => `[Important] ${m} [/Important]`);
     }
     return tagged;
   }
