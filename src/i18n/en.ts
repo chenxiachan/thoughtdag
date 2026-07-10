@@ -219,6 +219,8 @@ export const en = {
   'toast.importFailedMissing': 'Import failed: missing nodes/edges arrays',
   'toast.generationFailed': 'Generation failed: {message}',
   'toast.editMakesStale': 'Question edited: {n} downstream answers were written against the old content (re-run manually)',
+  'node.staleBadge': 'Upstream changed',
+  'node.staleTitle': 'This answer predates changes in its upstream — click to re-run (appends a new version for comparison)',
   'toast.unknownError': 'Unknown error',
   'toast.projectsLoadFailed': 'Failed to load projects — starting with an empty canvas',
 

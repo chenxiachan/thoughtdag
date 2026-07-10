@@ -1,6 +1,6 @@
 import type { StoreApi } from 'zustand';
 import { walkUpAncestors } from '../lib/graph';
-import { hashContext } from './context-builder';
+import { upstreamFingerprint } from './context-builder';
 import { llmCall, llmCallStream, type ContextMessage, type ImageAttachment } from '../lib/api';
 import { countTokens } from '../utils';
 import { toast, useUiStore } from '../lib/ui-store';
@@ -70,12 +70,11 @@ export async function runNodeGeneration(
 
   let references: Reference[] | undefined;
 
-  // Provenance seed: fingerprint the exact context this generation ran on,
-  // so a later staleness pass can tell "upstream changed since this answer".
-  const contextHash = hashContext(messages, images);
-
   const writeFinal = (response: string, failed = false) => {
     const tokenCount = countTokens(question + response);
+    // Provenance: fingerprint what this answer depended on, AT completion —
+    // the staleness pass compares this against the live upstream fingerprint.
+    const contextHash = upstreamFingerprint(nodeId, get().nodes, get().edges);
     set((state) => ({
       nodes: state.nodes.map((n) => {
         if (n.id !== nodeId) return n;

@@ -34,10 +34,14 @@ export default function ContextChainSection({
   onFocusNode?: (id: string) => void;
 }) {
   const setSelectedNodeId = useStore((s) => s.setSelectedNodeId);
+  const staleIds = useStore((s) => s.staleIds);
   const t = useT();
 
   const [contextOpen, setContextOpen] = useState(true);
   const jump = (id: string) => { setSelectedNodeId(id); onFocusNode?.(id); };
+  const staleDot = (id: string) => staleIds.includes(id) && (
+    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" title={t('node.staleBadge')} />
+  );
 
   const ancestors = partition.mainline.slice(0, -1); // exclude current node
   const rowCls = 'w-full text-left rounded-lg px-2 py-1.5 hover:bg-wash transition-colors group flex items-center gap-2 text-xs';
@@ -84,6 +88,7 @@ export default function ContextChainSection({
                   <span className="text-ink-muted group-hover:text-accent transition-colors truncate flex-1">
                     {ref.source.data.question.slice(0, 60)}{ref.source.data.question.length > 60 ? '…' : ''}
                   </span>
+                  {staleDot(ref.source.id)}
                   <span className={`text-2xs px-1.5 py-px rounded-full shrink-0 ${ref.depth === 'full' ? 'bg-accent/10 text-accent' : 'bg-wash text-ink-faint'}`}>
                     {t(ref.depth === 'full' ? 'chain.refDepthFull' : 'chain.refDepthQuote')}
                   </span>
@@ -111,6 +116,7 @@ export default function ContextChainSection({
                 <span className="text-ink-muted group-hover:text-accent transition-colors truncate flex-1">
                   {ancestor.data.question.slice(0, 70)}{ancestor.data.question.length > 70 ? '…' : ''}
                 </span>
+                {staleDot(ancestor.id)}
                 <span className="text-2xs text-ink-faint font-mono shrink-0">
                   {countTokens(ancestor.data.question + ancestor.data.response)}
                 </span>

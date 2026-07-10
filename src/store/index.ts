@@ -71,6 +71,16 @@ export const useStore = create<StoreState>()(persist((...a) => ({
   },
 }));
 
+// Staleness watcher: whenever the graph itself changes (any source — edits,
+// generation, undo, project switch, rehydration), recompute which answers
+// now predate their upstream. Debounced so streaming chunks coalesce.
+let staleTimer: ReturnType<typeof setTimeout> | undefined;
+useStore.subscribe((s, prev) => {
+  if (s.nodes === prev.nodes && s.edges === prev.edges) return;
+  clearTimeout(staleTimer);
+  staleTimer = setTimeout(() => useStore.getState().recomputeStaleness(), 400);
+});
+
 // Debug: expose store for testing (DEV only)
 if (import.meta.env.DEV && typeof window !== 'undefined') {
   Object.assign(window, { __store: useStore, __buildContext: buildContext });

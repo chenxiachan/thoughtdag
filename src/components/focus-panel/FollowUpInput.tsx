@@ -49,8 +49,9 @@ export default function FollowUpInput({
   // "you control the context" promise visible before asking. Messages come
   // out in layer order (materials → references → conversation), so the
   // flat list below reads grouped; the summary line shows the composition.
+  const staleIds = useStore((s) => s.staleIds);
   const preview = useMemo(() => {
-    const { messages, images, layerTokens } = buildContext(nodeId, nodes, edges);
+    const { messages, images, layerTokens } = buildContext(nodeId, nodes, edges, undefined, undefined, undefined, staleIds);
     const items = messages.map((m) => ({
       role: m.role,
       head: m.content.replace(/\s+/g, ' ').slice(0, 90),
@@ -65,7 +66,7 @@ export default function FollowUpInput({
       totalTokens: items.reduce((s, m) => s + m.tokens, 0),
       fileCount: messages.filter((m) => /^\[(PDF|File): /.test(m.content)).length + images.length,
     };
-  }, [nodeId, nodes, edges]);
+  }, [nodeId, nodes, edges, staleIds]);
 
   // Auto-focus continue input when switching nodes or staging selected text
   useEffect(() => {

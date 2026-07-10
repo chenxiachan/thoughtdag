@@ -4,7 +4,7 @@ import { generateId, countTokens } from '../../utils';
 import { COLORS } from '../../lib/constants';
 import { autoLayout, estimateNodeHeight, nodeHeight } from '../../lib/layout';
 import { getDescendantIds, walkUpAncestors } from '../../lib/graph';
-import { referenceBlockContent } from '../context-builder';
+import { referenceBlockContent, upstreamFingerprint } from '../context-builder';
 import { toast } from '../../lib/ui-store';
 import { t, fmt } from '../../i18n';
 import type { StoreState, NodeSlice } from '../types';
@@ -177,6 +177,26 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
         run: () => get().setCrossLinkDepth(newEdge.id, 'full'),
       });
     }
+  },
+
+  staleIds: [],
+
+  // A node is stale when the live fingerprint of everything it depended on
+  // (materials, references, ancestor turns) no longer matches the one
+  // recorded when its answer was generated. Nodes generated before
+  // provenance recording (no lastContextHash) are never flagged — honest:
+  // unknown provenance, not known-stale. Re-running a node re-records.
+  recomputeStaleness: () => {
+    const { nodes, edges } = get();
+    const stale: string[] = [];
+    for (const n of nodes) {
+      if (!n.data.lastContextHash || !n.data.response) continue;
+      if (['note', 'file', 'link', 'frame'].includes(n.data.stepKind ?? '')) continue;
+      if (upstreamFingerprint(n.id, nodes, edges) !== n.data.lastContextHash) stale.push(n.id);
+    }
+    const prev = get().staleIds;
+    if (prev.length === stale.length && prev.every((id, i) => id === stale[i])) return;
+    set({ staleIds: stale });
   },
 
   setCrossLinkDepth: (edgeId: string, depth: 'quote' | 'full') => {

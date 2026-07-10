@@ -42,6 +42,7 @@ export const createEvaluatorSlice: StateCreator<StoreState, [], [], EvaluatorSli
       undefined,
       node.data.excludedAttachmentIds,
       node.data.includedAttachmentIds,
+      get().staleIds,
     );
     const messages = ctx.messages;
     const appliedRole = messages.find((m) => m.role === 'system')?.content || undefined;

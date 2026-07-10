@@ -43,6 +43,10 @@ export interface NodeSlice {
   setNodeModel: (nodeId: string, model: string | undefined) => void;
   /** Archive/unarchive nodes: dimmed on canvas, excluded from every context walk (undoable). */
   setArchived: (nodeIds: string[], archived: boolean) => void;
+  /** Nodes whose answers predate upstream changes (derived, not persisted). */
+  staleIds: string[];
+  /** Recompute staleness across the graph (debounce-subscribed to nodes/edges). */
+  recomputeStaleness: () => void;
 }
 
 export interface AddQuestionOptions {

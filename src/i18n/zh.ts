@@ -218,6 +218,8 @@ export const zh: Record<keyof typeof en, string> = {
   'toast.importFailedMissing': '导入失败：缺少 nodes/edges 数组',
   'toast.generationFailed': '生成失败：{message}',
   'toast.editMakesStale': '问题已修改：下游 {n} 个节点的回答基于旧内容（可手动重跑）',
+  'node.staleBadge': '上游已变',
+  'node.staleTitle': '此回答基于旧的上游内容——点击重放（追加新版本，可对比）',
   'toast.unknownError': '未知错误',
   'toast.projectsLoadFailed': '加载画布失败——将以空画布启动',
 

@@ -84,6 +84,23 @@ export function hashContext(messages: ContextMessage[], images: ImageAttachment[
   return (h >>> 0).toString(36);
 }
 
+/**
+ * Fingerprint of everything a node's answer DEPENDS ON — its upstream
+ * (materials, references, ancestor turns), with the node's own content
+ * blanked out. Recorded at generation time; when the live fingerprint
+ * drifts from the recorded one, the answer is STALE: it was written
+ * against upstream content that no longer exists.
+ */
+export function upstreamFingerprint(nodeId: string, nodes: ThoughtNode[], edges: ThoughtEdge[]): string {
+  const blanked = nodes.map((n) =>
+    n.id === nodeId ? { ...n, data: { ...n.data, question: '', response: '', attachments: [] } } : n
+  );
+  const { messages } = buildContext(nodeId, blanked, edges);
+  return hashContext(messages);
+}
+
+const STALE_MARK = '[Stale: this answer was written against an earlier version of its upstream]';
+
 export function buildContext(
   nodeId: string,
   nodes: ThoughtNode[],
@@ -91,6 +108,10 @@ export function buildContext(
   branchContext?: string,
   excludedAttachmentIds?: string[],
   includedAttachmentIds?: string[],
+  /** Nodes whose stored answers predate upstream changes: their responses
+      enter downstream context with an explicit stale mark, so the
+      transcript never silently contradicts itself. */
+  staleIds?: ReadonlySet<string> | string[],
 ): BuildContextResult {
   const messages: ContextMessage[] = [];
   const images: ImageAttachment[] = [];
@@ -100,6 +121,7 @@ export function buildContext(
     for (let i = layerStart; i < messages.length; i++) layerTokens[layer] += countTokens(messages[i].content);
     layerStart = messages.length;
   };
+  const staleSet = staleIds instanceof Set ? staleIds : new Set(staleIds ?? []);
   const { materials, references, mainline } = partitionContext(nodeId, nodes, edges);
 
   // Propagate excludedAttachmentIds from every attachment-carrying layer
@@ -182,14 +204,16 @@ export function buildContext(
     // Collapsed nodes with summary: pass summary only (context compression)
     if (node.data.isCollapsed && node.data.summary) {
       messages.push({ role: 'user', content: node.data.question });
-      messages.push({ role: 'assistant', content: `[Summary] ${node.data.summary}` });
+      const summarized = `[Summary] ${node.data.summary}`;
+      messages.push({ role: 'assistant', content: staleSet.has(node.id) ? `${STALE_MARK}\n${summarized}` : summarized });
       continue;
     }
     if (node.data.question) {
       messages.push({ role: 'user', content: node.data.question });
     }
     if (node.data.response) {
-      messages.push({ role: 'assistant', content: renderResponse(node) });
+      const rendered = renderResponse(node);
+      messages.push({ role: 'assistant', content: staleSet.has(node.id) ? `${STALE_MARK}\n${rendered}` : rendered });
     }
   }
 

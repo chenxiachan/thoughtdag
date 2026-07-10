@@ -82,7 +82,7 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
     // Build full context from ancestors + explicit role for the new node
     const selfNode = get().nodes.find((n) => n.id === id);
     const ctx = parentId
-      ? buildContext(parentId, get().nodes, get().edges, branchContext, selfNode?.data.excludedAttachmentIds, selfNode?.data.includedAttachmentIds)
+      ? buildContext(parentId, get().nodes, get().edges, branchContext, selfNode?.data.excludedAttachmentIds, selfNode?.data.includedAttachmentIds, get().staleIds)
       : { messages: [] as ContextMessage[], images: [] as ImageAttachment[] };
     const contextMessages = ctx.messages;
     const contextImages = ctx.images;
@@ -209,7 +209,7 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
     const LIMIT = 6;
     let cursor = 0;
     // Shared ancestor context for one-shot branches (identical per sibling)
-    const ctx = follow ? null : buildContext(parentId, get().nodes, get().edges);
+    const ctx = follow ? null : buildContext(parentId, get().nodes, get().edges, undefined, undefined, undefined, get().staleIds);
     const worker = async () => {
       while (cursor < created.length) {
         const { id, question: branchQuestion } = created[cursor++];
@@ -267,6 +267,7 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
       id,
       get().nodes.map((n) => (n.id === id ? { ...n, data: { ...n.data, question: '', response: '' } } : n)),
       get().edges,
+      undefined, undefined, undefined, get().staleIds,
     );
     const messages = ctx.messages;
     messages.push({ role: 'user', content: question });
@@ -305,7 +306,7 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
     const editNode = get().nodes.find((n) => n.id === nodeId);
     const editCtx = buildContext(nodeId, get().nodes.map(n =>
       n.id === nodeId ? { ...n, data: { ...n.data, question: '', response: '' } } : n
-    ), get().edges, undefined, editNode?.data.excludedAttachmentIds, editNode?.data.includedAttachmentIds);
+    ), get().edges, undefined, editNode?.data.excludedAttachmentIds, editNode?.data.includedAttachmentIds, get().staleIds);
     const contextMessages = editCtx.messages;
     const appliedRole = contextMessages.find((m) => m.role === 'system')?.content || undefined;
     contextMessages.push({ role: 'user', content: question });
@@ -358,7 +359,7 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
 
     const regenSelf = get().nodes.find((n) => n.id === id);
     const regenCtx = parentId
-      ? buildContext(parentId, get().nodes, get().edges, node.data.branchContext, regenSelf?.data.excludedAttachmentIds, regenSelf?.data.includedAttachmentIds)
+      ? buildContext(parentId, get().nodes, get().edges, node.data.branchContext, regenSelf?.data.excludedAttachmentIds, regenSelf?.data.includedAttachmentIds, get().staleIds)
       : { messages: [] as ContextMessage[], images: [] as ImageAttachment[] };
     const contextMessages = regenCtx.messages;
     const regenParent = parentId ? get().nodes.find((n) => n.id === parentId) : null;
@@ -434,6 +435,7 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
       id,
       get().nodes.map((n) => (n.id === id ? { ...n, data: { ...n.data, question: '', response: '' } } : n)),
       get().edges,
+      undefined, undefined, undefined, get().staleIds,
     );
     const messages: ContextMessage[] = [
       { role: 'system', content: `You merge conversation nodes. CRITICAL: Your output language MUST match the primary language of the user content. If the content is in Chinese, respond in Chinese. If English, respond in English. Never use German or any other language unless the content is in that language. Do not translate — use the same language as the source.` },

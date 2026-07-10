@@ -53,6 +53,8 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   // While any paradigm step is incomplete the run is in progress: structure
   // is fixed (no follow-ups, no deletion) until the performance finishes.
   const runLocked = useStore((s) => isParadigmNode && isRunLocked(s.nodes));
+  // Upstream changed since this answer was written (see recomputeStaleness)
+  const isStale = useStore((s) => s.staleIds.includes(id));
 
   // Sync local edit buffer when the response changes externally (streaming, undo)
   const [prevResponse, setPrevResponse] = useState(data.response);
@@ -215,6 +217,9 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
           out); four anchors for the layout. */}
       <Handle type="target" position={Position.Left} id="left" isConnectable={false} className="!bg-transparent !w-0 !h-0 !border-0 !pointer-events-none" style={{ top: '40%' }} />
 
+      {isStale && zoomedOut && (
+        <span className="absolute top-2.5 right-2.5 w-3.5 h-3.5 rounded-full bg-amber-500 z-10" title={t('node.staleBadge')} />
+      )}
       {zoomedOut ? (
         // Semantic zoom thumbnail: large type that stays legible from afar
         <div className="drag-handle cursor-grab active:cursor-grabbing px-6 py-5">
@@ -236,6 +241,15 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
             {data.isCollapsed ? <ChevronRight size={18} strokeWidth={1.75} /> : <ChevronDown size={18} strokeWidth={1.75} />}
           </button>
           <span className="text-xs text-ink-faint font-mono">{data.tokenCount} tok</span>
+          {isStale && !data.isLoading && (
+            <button
+              onClick={(e) => { e.stopPropagation(); void rerunNode(id, {}); }}
+              title={t('node.staleTitle')}
+              className="text-2xs bg-amber-500/10 text-amber-600 hover:bg-amber-500/25 px-1.5 py-0.5 rounded-md flex items-center gap-1 font-medium transition-colors"
+            >
+              <RefreshCw size={11} strokeWidth={1.75} /> {t('node.staleBadge')}
+            </button>
+          )}
           {data.archived && (
             <span className="text-2xs bg-amber-500/10 text-amber-600 px-1.5 py-0.5 rounded-md flex items-center gap-1 font-medium" title={t('archive.badgeTitle')}>
               <Archive size={11} strokeWidth={1.75} /> {t('archive.badge')}
