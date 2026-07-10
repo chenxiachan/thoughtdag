@@ -608,6 +608,7 @@ function Canvas() {
         }}
         proOptions={{ hideAttribution: true }}
         nodeDragThreshold={5}
+        connectionRadius={40}
         selectionMode={SelectionMode.Partial}
         selectionOnDrag
         panOnDrag={[1, 2]}

@@ -203,6 +203,20 @@ textarea:focus-visible {
   border-color: color-mix(in srgb, var(--color-warm) 45%, var(--color-line));
 }
 
+/* Connection handles: small dot, generous finger. The visible dot stays
+   subtle; an invisible halo makes the grab/drop target ~3x larger, and the
+   -lg variant compensates when the canvas is zoomed out (wiring across
+   chains mostly happens from the overview). */
+.react-flow__handle.tdag-handle::after {
+  content: '';
+  position: absolute;
+  inset: -10px;
+  border-radius: 9999px;
+}
+.react-flow__handle.tdag-handle-lg::after {
+  inset: -18px;
+}
+
 /* Focus panel: sections are white cards floating on the wash ground —
    depth does the grouping, not divider lines. */
 .panel-card {

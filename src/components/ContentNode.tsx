@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { Handle, NodeResizeControl, Position, type NodeProps } from '@xyflow/react';
+import { Handle, NodeResizeControl, Position, useStore as useRfStore, type NodeProps } from '@xyflow/react';
 import { ExternalLink, FileText, Link2, Link2Off, Loader2, MoveDiagonal2, Paperclip, RefreshCw, StickyNote, Trash2, X } from 'lucide-react';
 import type { ThoughtNode as ThoughtNodeType } from '../types';
 import { useStore } from '../store';
@@ -25,6 +25,8 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
   const setSelectedNodeId = useStore((s) => s.setSelectedNodeId);
   // Blindspot #8: on-canvas ≠ in-context — unlinked material is decoration
   const isLinked = useStore((s) => s.edges.some((e) => e.source === id));
+  // Wiring material happens mostly from the overview — grow the handle there
+  const zoomedOut = useRfStore((s) => s.transform[2] < 0.55);
 
   const kind = data.stepKind === 'file' ? 'file' : data.stepKind === 'link' ? 'link' : 'note';
   const [editing, setEditing] = useState(kind === 'note' && !data.question);
@@ -283,7 +285,7 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
         </NodeResizeControl>
       )}
 
-      <Handle type="source" position={Position.Bottom} id="continue" className="!bg-ink-faint !w-3 !h-3 !border-2 !border-white" />
+      <Handle type="source" position={Position.Bottom} id="continue" className={`!bg-ink-faint !border-2 !border-white tdag-handle ${zoomedOut ? '!w-6 !h-6 tdag-handle-lg' : '!w-3.5 !h-3.5'}`} />
     </div>
   );
 }

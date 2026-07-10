@@ -38,7 +38,7 @@ export default function ParadigmNode({ id, data }: NodeProps<ThoughtNodeType>) {
 
   return (
     <div className={`bg-card border-2 border-dashed rounded-xl w-[440px] shadow-sm ${KIND_STYLES[kind]}`}>
-      <Handle type="target" position={Position.Top} id="top" className="!bg-ink-faint !w-3 !h-3 !border-2 !border-white" />
+      <Handle type="target" position={Position.Top} id="top" className="!bg-ink-faint !w-3.5 !h-3.5 !border-2 !border-white tdag-handle" />
 
       {/* header: drag handle + kind switcher + delete */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-line/60 cursor-grab active:cursor-grabbing drag-handle">
@@ -129,7 +129,7 @@ export default function ParadigmNode({ id, data }: NodeProps<ThoughtNodeType>) {
         )}
       </div>
 
-      <Handle type="source" position={Position.Bottom} id="continue" className="!bg-ink-faint !w-3 !h-3 !border-2 !border-white" />
+      <Handle type="source" position={Position.Bottom} id="continue" className="!bg-ink-faint !w-3.5 !h-3.5 !border-2 !border-white tdag-handle" />
     </div>
   );
 }

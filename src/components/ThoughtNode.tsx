@@ -208,8 +208,8 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
       onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setIsDropTarget(true); }}
       onDragLeave={() => setIsDropTarget(false)}
     >
-      <Handle type="target" position={Position.Top} id="top" className="!bg-accent !w-3 !h-3 !border-2 !border-white" />
-      <Handle type="target" position={Position.Left} id="left" className="!bg-warm !w-3 !h-3 !border-2 !border-white" style={{ top: '40%' }} />
+      <Handle type="target" position={Position.Top} id="top" className={`!bg-accent !border-2 !border-white tdag-handle ${zoomedOut ? '!w-6 !h-6 tdag-handle-lg' : '!w-3.5 !h-3.5'}`} />
+      <Handle type="target" position={Position.Left} id="left" className={`!bg-warm !border-2 !border-white tdag-handle ${zoomedOut ? '!w-6 !h-6 tdag-handle-lg' : '!w-3.5 !h-3.5'}`} style={{ top: '40%' }} />
 
       {zoomedOut ? (
         // Semantic zoom thumbnail: large type that stays legible from afar
@@ -521,7 +521,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
       </>
       )}
 
-      <Handle type="source" position={Position.Bottom} id="continue" className="!bg-accent !w-3 !h-3 !border-2 !border-white" />
+      <Handle type="source" position={Position.Bottom} id="continue" className={`!bg-accent !border-2 !border-white tdag-handle ${zoomedOut ? '!w-6 !h-6 tdag-handle-lg' : '!w-3.5 !h-3.5'}`} />
       <Handle
         type="source"
         position={Position.Right}
