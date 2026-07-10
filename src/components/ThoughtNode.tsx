@@ -33,6 +33,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   const [editResponseValue, setEditResponseValue] = useState(data.response);
   const responseRef = useRef<HTMLDivElement>(null);
   const nodeRef = useRef<HTMLDivElement>(null);
+  const questionTaRef = useRef<HTMLTextAreaElement>(null);
   const addQuestion = useStore((s) => s.addQuestion);
   // Semantic zoom: below this level cards render as large-type thumbnails
   const zoomedOut = useRfStore((s) => s.transform[2] < 0.55);
@@ -59,6 +60,17 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
     setPrevResponse(data.response);
     setEditResponseValue(data.response);
   }
+
+  // React Flow mounts new nodes visibility:hidden until measured, so the
+  // textarea's autoFocus fires against a hidden element and is dropped.
+  // Re-focus a fresh ask / human slot shortly after mount instead.
+  useEffect(() => {
+    if (!isAwaitingAsk && !isAwaitingHuman) return;
+    const timer = setTimeout(() => questionTaRef.current?.focus(), 80);
+    return () => clearTimeout(timer);
+    // mount-only: a node awaits input exactly once, at creation
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleTextSelection = useCallback(() => {
     const selection = window.getSelection();
@@ -299,6 +311,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
                 onChange={(e) => setEditValue(e.target.value)}
                 onKeyDown={handleEditKeyDown}
                 onBlur={isHuman || isAwaitingAsk ? undefined : handleEditSubmit} // pending asks keep their draft on click-away
+                ref={questionTaRef}
                 placeholder={data.instruction || (isAwaitingAsk ? t('node.askPlaceholder') : undefined)}
                 className={`w-full bg-wash border rounded-xl p-3 text-sm text-ink resize-none focus:outline-none focus:ring-2 ${
                   isHuman ? 'border-warm focus:ring-warm/20' : 'border-accent focus:ring-accent/20'

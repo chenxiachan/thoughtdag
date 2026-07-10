@@ -30,14 +30,14 @@ import { useStore } from './store';
 import { useProjects, adoptImportedProject, createProject, createBuiltinParadigm } from './store/projects';
 import { projectStorageKey } from './store/projects';
 import { set as idbSet } from 'idb-keyval';
-import { instantiateParadigm, isRunLocked } from './lib/paradigm';
+import { instantiateParadigm } from './lib/paradigm';
 import { isContentKind, spawnContentNode, ingestFiles, fetchLinkIntoNode, clipboardTextToMarkdown } from './lib/content';
 import { generateId } from './utils';
 import type { Attachment, ThoughtNode as ThoughtNodeType, ThoughtEdge } from './types';
 import { processFile, FILE_INPUT_ACCEPT } from './lib/attachments';
 import { walkUpAncestors } from './lib/graph';
 import { buildExampleGraph } from './lib/example-graph';
-import { COLORS, FRAME_COLORS } from './lib/constants';
+import { COLORS, FRAME_COLORS, PANEL_INSET, loadPanelWidth } from './lib/constants';
 import { confirmDialog, useUiStore } from './lib/ui-store';
 import { useMcpServers } from './lib/use-mcp';
 import ConfirmDialog from './components/ui/ConfirmDialog';
@@ -94,15 +94,11 @@ function Canvas() {
   const [pendingAttachments, setPendingAttachments] = useState<Attachment[]>([]);
   const [isDraggingLanding, setIsDraggingLanding] = useState(false);
   const landingFileRef = useRef<HTMLInputElement>(null);
-  const floatingFileRef = useRef<HTMLInputElement>(null);
-  const floatingInputRef = useRef<HTMLTextAreaElement>(null);
   const hasNodes = nodes.length > 0;
   const rfInstance = useRef<ReactFlowInstance<ThoughtNodeType, ThoughtEdge> | null>(null);
   const prevNodeCount = useRef(nodes.length);
   const lang = useI18n((s) => s.lang);
   const isParadigm = useProjects((s) => s.projects.find((p) => p.id === s.activeId)?.kind === 'paradigm');
-  // A paradigm run in progress locks the canvas structure (see lib/paradigm.ts)
-  const runLocked = !isParadigm && isRunLocked(nodes);
 
   const loadExample = useCallback(() => {
     const { nodes: exNodes, edges: exEdges } = buildExampleGraph(lang);
@@ -523,24 +519,36 @@ function Canvas() {
     });
   }, [nodes, edges, selectedNodeId, selectedNodeIds]);
 
-  // Re-center canvas when panel opens/closes
+  // The panel is an overlay — the canvas never resizes. When it opens (or
+  // the selection moves while it is open), nudge the viewport only if the
+  // selected node would be hidden underneath the panel.
   useEffect(() => {
-    if (rfInstance.current && hasNodes) {
-      setTimeout(() => {
-        rfInstance.current?.fitView({ duration: 300, padding: 0.2 });
-      }, 50);
-    }
-  }, [panelOpen, hasNodes]);
+    if (!panelOpen || !selectedNodeId) return;
+    const timer = setTimeout(() => {
+      const rf = rfInstance.current;
+      if (!rf) return;
+      const node = useStore.getState().nodes.find((n) => n.id === selectedNodeId);
+      if (!node) return;
+      const vp = rf.getViewport();
+      const nodeRight = (node.position.x + (node.measured?.width ?? node.width ?? 480)) * vp.zoom + vp.x;
+      const visibleRight = window.innerWidth - loadPanelWidth() - PANEL_INSET - 24;
+      if (nodeRight > visibleRight) {
+        rf.setViewport({ ...vp, x: vp.x - (nodeRight - visibleRight) }, { duration: 300 });
+      }
+    }, 60);
+    return () => clearTimeout(timer);
+  }, [panelOpen, selectedNodeId]);
 
   return (
-    <div className="w-full h-full flex">
-      {/* Canvas — takes the remaining width when the panel is open */}
+    <div className="relative w-full h-full">
+      {/* Canvas — full width always; the focus panel floats on top of it */}
       <div
-        className={`relative h-full ${panelOpen ? 'flex-1 min-w-0' : 'w-full'}`}
+        className="relative h-full w-full"
         onDoubleClick={(e) => {
-          // Double-click on empty canvas → start a new root question
-          if ((e.target as HTMLElement).classList.contains('react-flow__pane')) {
-            floatingInputRef.current?.focus();
+          // Double-click on empty canvas → drop an ask node right there
+          // (same gesture family as double-click-on-node = open panel)
+          if ((e.target as HTMLElement).classList.contains('react-flow__pane') && !isParadigm) {
+            spawnAskNode(flowPosAt({ x: e.clientX, y: e.clientY }));
           }
         }}
         onDragOver={(e) => {
@@ -827,100 +835,6 @@ function Canvas() {
         </div>
       )}
 
-      {/* Floating input — centered on the full canvas; docks below the project
-          switcher when the panel narrows the canvas (avoids toolbar collision).
-          Hidden while a paradigm run is in progress: the structure is fixed. */}
-      {hasNodes && !isParadigm && !runLocked && (
-        <div className={`absolute z-10 ${panelOpen ? 'top-16 left-4' : 'top-4 left-1/2 -translate-x-1/2'}`}>
-          <div
-            className="bg-card/90 backdrop-blur border border-line rounded-xl px-4 py-3 shadow-lg w-[400px] transition-colors focus-within:border-accent/50"
-            onDrop={(e) => { e.preventDefault(); handleFileUpload(e.dataTransfer.files); }}
-            onDragOver={(e) => e.preventDefault()}
-          >
-            <div className="flex gap-2 items-end">
-              <textarea
-                ref={floatingInputRef}
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onKeyDown={handleKeyDown}
-                onPaste={(e) => {
-                  const files = Array.from(e.clipboardData.items).filter(i => i.kind === 'file').map(i => i.getAsFile()!).filter(Boolean);
-                  if (files.length) handleFileUpload(files);
-                }}
-                placeholder={t('canvas.newRootPlaceholder')}
-                className="flex-1 bg-transparent text-ink text-sm resize-none focus:outline-none placeholder-ink-faint"
-                rows={1}
-              />
-              <SearchToggles size={15} />
-              <button
-                onClick={() => floatingFileRef.current?.click()}
-                className="text-ink-faint hover:text-accent transition-colors shrink-0 text-sm"
-                title={t('common.attachFiles')}
-              >
-                <Paperclip size={16} strokeWidth={1.75} />
-              </button>
-              <input
-                ref={floatingFileRef}
-                type="file"
-                multiple
-                accept={FILE_INPUT_ACCEPT}
-                className="hidden"
-                onChange={(e) => { handleFileUpload(e.target.files || []); e.target.value = ''; }}
-              />
-              <button
-                onClick={handleSubmit}
-                disabled={!inputValue.trim()}
-                className="bg-accent hover:bg-accent-strong disabled:opacity-30 text-white text-xs px-3 py-1.5 rounded-xl transition-all shrink-0"
-              >
-                {t('common.send')}
-              </button>
-            </div>
-            {/* Pending attachments preview */}
-            {pendingAttachments.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mt-2">
-                {pendingAttachments.map((att) => (
-                  <div key={att.id} className="flex items-center gap-1 bg-wash rounded-lg px-2 py-1 group">
-                    {att.thumbnailUrl ? (
-                      <img src={att.thumbnailUrl} className="w-5 h-5 rounded object-cover" alt={att.name} />
-                    ) : (
-                      <span className="text-2xs"><FileText size={16} strokeWidth={1.75} /></span>
-                    )}
-                    <span className="text-2xs text-ink-muted max-w-[80px] truncate">{att.name}</span>
-                    <button
-                      onClick={() => setPendingAttachments((p) => p.filter((a) => a.id !== att.id))}
-                      className="text-ink-faint hover:text-red-500 text-2xs opacity-0 group-hover:opacity-100"
-                    ><X size={14} strokeWidth={1.75} /></button>
-                  </div>
-                ))}
-              </div>
-            )}
-            {!showRootRole ? (
-              <button
-                onClick={() => setShowRootRole(true)}
-                className="text-2xs text-ink-faint hover:text-ink-muted transition-colors mt-1.5 flex items-center gap-1"
-              >
-                {t('canvas.setRole')}
-              </button>
-            ) : (
-              <div className="mt-1.5 space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-2xs text-ink-muted">{t('canvas.role')}</span>
-                  <button onClick={() => { setShowRootRole(false); setRootRole(''); }} className="text-2xs text-ink-faint hover:text-ink-muted"><X size={14} strokeWidth={1.75} /></button>
-                </div>
-                <input
-                  type="text"
-                  value={rootRole}
-                  onChange={(e) => setRootRole(e.target.value)}
-                  placeholder={t('canvas.rolePlaceholder')}
-                  className="w-full text-xs border border-line rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-accent bg-surface"
-                />
-                <RoleTemplateChips onPick={setRootRole} />
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
       {/* Project switcher */}
       <ProjectSwitcher onSwitched={afterProjectSwitch} />
 
@@ -1136,12 +1050,18 @@ function Canvas() {
       )}
       </div>
 
-      {/* Focus Panel — right side; never for orchestration or content nodes,
-          which are edited in place on the canvas */}
+      {/* Focus Panel — floating overlay on the right; never for orchestration
+          or content nodes, which are edited in place on the canvas */}
       {panelOpen && <FocusPanel onFocusNode={(id) => {
         const node = nodes.find(n => n.id === id);
         if (node && rfInstance.current) {
-          rfInstance.current.setCenter(node.position.x + 240, node.position.y + 100, { duration: 300, zoom: rfInstance.current.getZoom() });
+          // Center the node in the strip of canvas the panel leaves visible
+          const zoom = rfInstance.current.getZoom();
+          rfInstance.current.setCenter(
+            node.position.x + 240 + loadPanelWidth() / (2 * zoom),
+            node.position.y + 100,
+            { duration: 300, zoom },
+          );
         }
       }} />}
     </div>

@@ -57,10 +57,6 @@ export const zh: Record<keyof typeof en, string> = {
   'common.attachFiles': '添加附件',
 
   // Canvas (App)
-  'canvas.newRootPlaceholder': '新的根问题…',
-  'canvas.setRole': '设置角色',
-  'canvas.role': '角色',
-  'canvas.rolePlaceholder': '例如：你是一位物理学家。',
   'canvas.undo': '撤销 (Cmd+Z)',
   'canvas.redo': '重做 (Cmd+Shift+Z)',
   'canvas.deleteEdge': '删除连线',
@@ -106,6 +102,7 @@ export const zh: Record<keyof typeof en, string> = {
   'panel.question': '问题',
   'panel.response': '回答',
   'panel.more': '更多操作',
+  'panel.close': '关闭面板',
 
   // Role line
   'role.label': '角色',

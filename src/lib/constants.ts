@@ -45,3 +45,17 @@ export const FRAME_COLORS: Record<string, { border: string; bg: string; dot: str
   sky: { border: 'border-sky-500/40', bg: 'bg-sky-500/[0.05]', dot: 'bg-sky-500' },
   rose: { border: 'border-rose-400/50', bg: 'bg-rose-400/[0.06]', dot: 'bg-rose-400' },
 };
+
+// Focus panel overlay: the panel floats OVER the canvas (the canvas never
+// resizes). Width is user-resizable and persisted; App reads it to nudge
+// the viewport when the selected node would be hidden underneath.
+export const PANEL_WIDTH_KEY = 'thoughtdag.panelWidth';
+export const PANEL_MIN_WIDTH = 380;
+export const PANEL_DEFAULT_WIDTH = 520;
+export const PANEL_INSET = 12; // matches right-3/top-3/bottom-3
+
+export function loadPanelWidth(): number {
+  const raw = localStorage.getItem(PANEL_WIDTH_KEY);
+  const n = raw ? parseInt(raw, 10) : NaN;
+  return Number.isFinite(n) ? n : PANEL_DEFAULT_WIDTH;
+}

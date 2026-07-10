@@ -57,10 +57,6 @@ export const en = {
   'common.attachFiles': 'Attach files',
 
   // Canvas (App)
-  'canvas.newRootPlaceholder': 'New root question...',
-  'canvas.setRole': 'Set role',
-  'canvas.role': 'Role',
-  'canvas.rolePlaceholder': 'e.g. You are a physicist.',
   'canvas.undo': 'Undo (Cmd+Z)',
   'canvas.redo': 'Redo (Cmd+Shift+Z)',
   'canvas.deleteEdge': 'Delete edge',
@@ -106,6 +102,7 @@ export const en = {
   'panel.question': 'Question',
   'panel.response': 'Response',
   'panel.more': 'More actions',
+  'panel.close': 'Close panel',
 
   // Role line — ONE semantic: a role set on a node is the system prompt for
   // it and everything downstream (nearest ancestor wins)

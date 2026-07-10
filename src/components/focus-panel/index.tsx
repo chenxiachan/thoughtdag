@@ -4,16 +4,8 @@ import { useStore } from '../../store';
 import { useUiStore } from '../../lib/ui-store';
 import { countTokens } from '../../utils';
 import { getContextPath } from '../../lib/graph';
+import { PANEL_WIDTH_KEY, PANEL_MIN_WIDTH, PANEL_DEFAULT_WIDTH, PANEL_INSET, loadPanelWidth } from '../../lib/constants';
 import { useT } from '../../i18n';
-
-const PANEL_WIDTH_KEY = 'thoughtdag.panelWidth';
-const PANEL_MIN_WIDTH = 380;
-
-function loadPanelWidth(): number | null {
-  const raw = localStorage.getItem(PANEL_WIDTH_KEY);
-  const n = raw ? parseInt(raw, 10) : NaN;
-  return Number.isFinite(n) ? n : null;
-}
 import RoleLine from './RoleLine';
 import AttachmentsSection from './AttachmentsSection';
 import QuestionSection from './QuestionSection';
@@ -37,8 +29,8 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
   // Selected text from the response, staged as context for the follow-up
   const [branchContext, setBranchContext] = useState('');
 
-  // Resizable width: null → default 50%; persisted on drag end
-  const [panelWidth, setPanelWidth] = useState<number | null>(loadPanelWidth);
+  // Resizable width, persisted on drag end; double-click resets the default
+  const [panelWidth, setPanelWidth] = useState<number>(loadPanelWidth);
   const [resizing, setResizing] = useState(false);
 
   const onResizePointerDown = (e: React.PointerEvent) => {
@@ -49,19 +41,19 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
   const onResizePointerMove = (e: React.PointerEvent) => {
     if (!resizing) return;
     const maxW = Math.floor(window.innerWidth * 0.7);
-    setPanelWidth(Math.min(maxW, Math.max(PANEL_MIN_WIDTH, window.innerWidth - e.clientX)));
+    setPanelWidth(Math.min(maxW, Math.max(PANEL_MIN_WIDTH, window.innerWidth - PANEL_INSET - e.clientX)));
   };
   const onResizePointerUp = (e: React.PointerEvent) => {
     if (!resizing) return;
     setResizing(false);
     (e.target as HTMLElement).releasePointerCapture(e.pointerId);
     setPanelWidth((w) => {
-      if (w != null) localStorage.setItem(PANEL_WIDTH_KEY, String(w));
+      localStorage.setItem(PANEL_WIDTH_KEY, String(w));
       return w;
     });
   };
   const onResizeDoubleClick = () => {
-    setPanelWidth(null);
+    setPanelWidth(PANEL_DEFAULT_WIDTH);
     localStorage.removeItem(PANEL_WIDTH_KEY);
   };
 
@@ -119,8 +111,8 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
 
   return (
     <div
-      className={`relative shrink-0 h-full bg-wash border-l border-line flex flex-col ${resizing ? 'select-none' : ''}`}
-      style={{ width: panelWidth ?? '50%', minWidth: PANEL_MIN_WIDTH, maxWidth: '70vw' }}
+      className={`absolute right-3 top-3 bottom-3 z-20 bg-wash border border-line rounded-2xl shadow-xl overflow-hidden flex flex-col ${resizing ? 'select-none' : ''}`}
+      style={{ width: panelWidth, minWidth: PANEL_MIN_WIDTH, maxWidth: '70vw' }}
     >
       {/* Resize handle on the left edge */}
       <div
@@ -138,6 +130,7 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
           <HeaderActions nodeId={selectedNodeId!} isLoading={data.isLoading} />
           <button
             onClick={() => { useUiStore.getState().setPanelOpen(false); setSelectedNodeId(null); }}
+            title={t('panel.close')}
             className="text-ink-faint hover:text-ink transition-colors shrink-0 ml-1 h-8 flex items-center"
           >
             <X size={16} strokeWidth={1.75} />
