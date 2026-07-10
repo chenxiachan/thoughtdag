@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Archive, ArchiveRestore, ClipboardCopy, Copy, Ellipsis, FileDown, RefreshCw, Split, Square, Trash2 } from 'lucide-react';
+import { Archive, ArchiveRestore, ClipboardCopy, Copy, Ellipsis, FileDown, GitFork, RefreshCw, Split, Square, Trash2 } from 'lucide-react';
 import { useStore } from '../../store';
 import { contextChainMarkdown, downloadMarkdown, copyText } from '../../lib/export';
 import ModelPicker from '../ui/ModelPicker';
@@ -12,6 +12,7 @@ import { useT } from '../../i18n';
 
 export default function HeaderActions({ nodeId, isLoading }: { nodeId: string; isLoading: boolean }) {
   const regenerate = useStore((s) => s.regenerate);
+  const rerunNode = useStore((s) => s.rerunNode);
   const stopGeneration = useStore((s) => s.stopGeneration);
   const duplicateNode = useStore((s) => s.duplicateNode);
   const deleteNode = useStore((s) => s.deleteNode);
@@ -50,7 +51,7 @@ export default function HeaderActions({ nodeId, isLoading }: { nodeId: string; i
           <Square size={12} strokeWidth={1.75} fill="currentColor" />
         </button>
       ) : (
-        <button onClick={() => regenerate(nodeId)} title={t('common.regenerate')} className={iconBtn}>
+        <button onClick={() => void rerunNode(nodeId, {})} title={t('common.regenerate')} className={iconBtn}>
           <RefreshCw size={16} strokeWidth={1.75} />
         </button>
       )}
@@ -71,6 +72,9 @@ export default function HeaderActions({ nodeId, isLoading }: { nodeId: string; i
           <div className="absolute right-0 top-full mt-1 bg-card border border-line rounded-xl shadow-lg py-1 w-[210px] z-30 animate-fade-in">
             <button className={menuItem} onClick={() => { setMenuOpen(false); setFanOutOpen(true); }} title={t('fanout.entryTitle')}>
               <Split size={15} strokeWidth={1.75} /> {t('fanout.entry')}
+            </button>
+            <button className={menuItem} onClick={() => { setMenuOpen(false); void regenerate(nodeId); }} title={t('actions.regenBranchTitle')}>
+              <GitFork size={15} strokeWidth={1.75} /> {t('actions.regenBranch')}
             </button>
             <button className={menuItem} onClick={() => { setMenuOpen(false); duplicateNode(nodeId); }}>
               <Copy size={15} strokeWidth={1.75} /> {t('common.duplicate')}

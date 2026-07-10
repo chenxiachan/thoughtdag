@@ -30,7 +30,10 @@ export const createEvaluatorSlice: StateCreator<StoreState, [], [], EvaluatorSli
     const { nodes, edges } = get();
     const node = nodes.find((n) => n.id === nodeId);
     if (!node || node.data.isLoading) return;
-    if (!edges.some((e) => e.target === nodeId)) return; // nothing upstream to rerun from
+    // In-place regenerate works for anything with a question — roots included
+    // (their context is just role + question). Material/frames never generate.
+    if (!node.data.question) return;
+    if (['note', 'file', 'link', 'frame'].includes(node.data.stepKind ?? '')) return;
 
     // Standard context with this node's own Q&A blanked out (same pattern
     // as editQuestion) — ancestors, roles, highlights, attachments all

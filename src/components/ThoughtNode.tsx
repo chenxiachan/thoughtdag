@@ -1,11 +1,12 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Handle, Position, useStore as useRfStore, type NodeProps } from '@xyflow/react';
-import { AlertTriangle, Archive, ChevronDown, ChevronLeft, ChevronRight, Eye, GitBranch, Globe, Hourglass, Paperclip, RefreshCw, Send, Split, Star, Trash2, UserRound, X } from 'lucide-react';
+import { AlertTriangle, Archive, ChevronDown, ChevronLeft, ChevronRight, Copy, Eye, GitBranch, Globe, Hourglass, Paperclip, RefreshCw, Send, Split, Star, Trash2, UserRound, X } from 'lucide-react';
 import 'katex/dist/katex.min.css';
 import type { ThoughtNode as ThoughtNodeType } from '../types';
 import { useStore } from '../store';
 import { generateId } from '../utils';
 import { processFile } from '../lib/attachments';
+import { copyText } from '../lib/export';
 import { isRunLocked } from '../lib/paradigm';
 import { useUiStore } from '../lib/ui-store';
 import SearchToggles from './ui/SearchToggles';
@@ -15,7 +16,7 @@ import { useT, fmt } from '../i18n';
 
 export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   const {
-    deleteNode, toggleCollapse, setEditing, editQuestion, submitHumanTurn, regenerate,
+    deleteNode, toggleCollapse, setEditing, editQuestion, submitHumanTurn,
     setEditingResponse, editResponse, addHighlight, navigateVersion, deleteVersion,
     setSelectedNodeId, selectedNodeId, addAttachment, rerunNode,
   } = useStore();
@@ -279,38 +280,8 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
               {data.model}
             </span>
           )}
-          {hasMultipleVersions && (
-            <div className="flex items-center gap-1 text-xs text-ink-muted">
-              <button onClick={() => navigateVersion(id, 'prev')} className="hover:text-accent hover:bg-wash rounded-full w-5 h-5 flex items-center justify-center transition-colors"><ChevronLeft size={14} strokeWidth={1.75} /></button>
-              <span className="text-accent font-medium">v{data.responseIndex + 1}/{data.responses.length}</span>
-              <button onClick={() => navigateVersion(id, 'next')} className="hover:text-accent hover:bg-wash rounded-full w-5 h-5 flex items-center justify-center transition-colors"><ChevronRight size={14} strokeWidth={1.75} /></button>
-              {data.responses.length > 1 && (
-                <button
-                  onClick={() => deleteVersion(id, data.responseIndex)}
-                  className="text-ink-faint hover:text-red-500 hover:bg-red-50 rounded-full w-5 h-5 flex items-center justify-center transition-colors ml-0.5"
-                  title={t('common.deleteVersion')}
-                >
-                  <Trash2 size={14} strokeWidth={1.75} />
-                </button>
-              )}
-            </div>
-          )}
         </div>
         <div className="flex items-center gap-0.5">
-          {data.isEvaluator ? (
-            <button
-              onClick={(e) => { e.stopPropagation(); void rerunNode(id); }}
-              disabled={data.isLoading}
-              className="text-ink-faint hover:text-watch hover:bg-red-50 rounded-full w-7 h-7 flex items-center justify-center transition-colors disabled:opacity-30"
-              title={t('evaluator.rerun')}
-            >
-              <RefreshCw size={16} strokeWidth={1.75} className={data.isLoading ? 'animate-spin' : ''} />
-            </button>
-          ) : !isHuman && !isWaitingUpstream && !isAwaitingAsk && (
-            <button onClick={() => regenerate(id)} className="text-ink-faint hover:text-accent hover:bg-wash rounded-full w-7 h-7 flex items-center justify-center transition-colors" title={t('common.regenerate')}>
-              <RefreshCw size={16} strokeWidth={1.75} />
-            </button>
-          )}
           {!(isParadigmNode && runLocked) && (
             <button onClick={() => deleteNode(id)} className="text-ink-faint hover:text-red-500 hover:bg-red-50 rounded-full w-7 h-7 flex items-center justify-center transition-colors" title={t('common.delete')}>
               <X size={16} strokeWidth={1.75} />
@@ -460,6 +431,42 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
                 )
               )}
               {data.references!.length > 3 && <span>+{data.references!.length - 3}</span>}
+            </div>
+          )}
+
+          {/* Response action row — LLM-chat convention: the actions that act
+              on THIS answer live right under it (regenerate = new version in
+              place; the sibling-branch variant lives in the panel's ⋯ menu) */}
+          {data.response && !data.isLoading && !data.isEditingResponse && !isHuman && !isAwaitingAsk && !data.generationFailed && (
+            <div className="mt-1.5 flex items-center gap-0.5 text-ink-faint">
+              <button
+                onClick={(e) => { e.stopPropagation(); void rerunNode(id, {}); }}
+                className={`rounded-full w-6 h-6 flex items-center justify-center transition-colors ${data.isEvaluator ? 'hover:text-watch hover:bg-red-50' : 'hover:text-accent hover:bg-wash'}`}
+                title={data.isEvaluator ? t('evaluator.rerun') : t('common.regenerate')}
+              >
+                <RefreshCw size={14} strokeWidth={1.75} />
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); void copyText(data.response); }}
+                className="rounded-full w-6 h-6 flex items-center justify-center hover:text-accent hover:bg-wash transition-colors"
+                title={t('actions.copyResponse')}
+              >
+                <Copy size={13} strokeWidth={1.75} />
+              </button>
+              {hasMultipleVersions && (
+                <div className="flex items-center gap-1 text-xs text-ink-muted ml-1">
+                  <button onClick={(e) => { e.stopPropagation(); navigateVersion(id, 'prev'); }} className="hover:text-accent hover:bg-wash rounded-full w-5 h-5 flex items-center justify-center transition-colors"><ChevronLeft size={14} strokeWidth={1.75} /></button>
+                  <span className="text-accent font-medium">v{data.responseIndex + 1}/{data.responses.length}</span>
+                  <button onClick={(e) => { e.stopPropagation(); navigateVersion(id, 'next'); }} className="hover:text-accent hover:bg-wash rounded-full w-5 h-5 flex items-center justify-center transition-colors"><ChevronRight size={14} strokeWidth={1.75} /></button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); deleteVersion(id, data.responseIndex); }}
+                    className="text-ink-faint hover:text-red-500 hover:bg-red-50 rounded-full w-5 h-5 flex items-center justify-center transition-colors"
+                    title={t('common.deleteVersion')}
+                  >
+                    <Trash2 size={13} strokeWidth={1.75} />
+                  </button>
+                </div>
+              )}
             </div>
           )}
 

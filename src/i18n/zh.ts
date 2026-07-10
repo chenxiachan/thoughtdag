@@ -152,6 +152,9 @@ export const zh: Record<keyof typeof en, string> = {
 
   // Actions section
   'actions.stop': '停止',
+  'actions.regenBranch': '另开分支重答',
+  'actions.regenBranchTitle': '同一问题生成一个平行的兄弟节点（各自可发展下游；配合节点模型覆盖可做模型对比）',
+  'actions.copyResponse': '复制回答',
   'actions.exportTitle': '将本节点的上下文链导出为 Markdown 文档',
   'actions.copyMd': '复制 .md',
   'actions.copyTitle': '以 Markdown 复制本节点的上下文链',

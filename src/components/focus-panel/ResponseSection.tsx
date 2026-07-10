@@ -1,7 +1,8 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { AlertTriangle, ChevronLeft, ChevronRight, GitBranch, RefreshCw, Star, Trash2 } from 'lucide-react';
+import { AlertTriangle, ChevronLeft, ChevronRight, Copy, GitBranch, RefreshCw, Star, Trash2 } from 'lucide-react';
 import { useStore } from '../../store';
 import { generateId } from '../../utils';
+import { copyText } from '../../lib/export';
 import { Markdown, HighlightedMarkdown } from '../Markdown';
 import { useT } from '../../i18n';
 import type { ThoughtData } from '../../types';
@@ -23,6 +24,7 @@ export default function ResponseSection({
   const editQuestion = useStore((s) => s.editQuestion);
   const setEditingResponse = useStore((s) => s.setEditingResponse);
   const navigateVersion = useStore((s) => s.navigateVersion);
+  const rerunNode = useStore((s) => s.rerunNode);
   const deleteVersion = useStore((s) => s.deleteVersion);
   const addHighlight = useStore((s) => s.addHighlight);
   const t = useT();
@@ -102,22 +104,6 @@ export default function ResponseSection({
     <div className="panel-card px-4 py-3">
       <div className="flex items-center justify-between mb-1.5">
         <label className="text-2xs font-semibold text-green-600">{t('panel.response')}</label>
-        {hasMultipleVersions && (
-          <div className="flex items-center gap-1 text-xs text-ink-muted">
-            <button onClick={() => navigateVersion(nodeId, 'prev')} className="hover:text-accent hover:bg-wash rounded-full w-5 h-5 flex items-center justify-center transition-colors"><ChevronLeft size={14} strokeWidth={1.75} /></button>
-            <span className="text-accent font-medium">v{data.responseIndex + 1}/{data.responses.length}</span>
-            <button onClick={() => navigateVersion(nodeId, 'next')} className="hover:text-accent hover:bg-wash rounded-full w-5 h-5 flex items-center justify-center transition-colors"><ChevronRight size={14} strokeWidth={1.75} /></button>
-            {data.responses.length > 1 && (
-              <button
-                onClick={() => deleteVersion(nodeId, data.responseIndex)}
-                className="text-ink-faint hover:text-red-500 hover:bg-red-50 rounded-full w-5 h-5 flex items-center justify-center transition-colors ml-0.5"
-                title={t('common.deleteVersion')}
-              >
-                <Trash2 size={14} strokeWidth={1.75} />
-              </button>
-            )}
-          </div>
-        )}
       </div>
 
       {data.isLoading && !data.response ? (
@@ -180,6 +166,42 @@ export default function ResponseSection({
                   <Star size={14} strokeWidth={1.75} className="inline" /> {t('common.highlight')}
                 </button>
               </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Response action row — the actions that act on THIS answer live
+          under it (LLM-chat convention); the sibling-branch variant is in
+          the header's ⋯ menu */}
+      {data.response && !data.isLoading && !data.isEditingResponse && !data.generationFailed && (
+        <div className="mt-2 flex items-center gap-0.5 text-ink-faint">
+          <button
+            onClick={() => void rerunNode(nodeId, {})}
+            className="rounded-full w-7 h-7 flex items-center justify-center hover:text-accent hover:bg-wash transition-colors"
+            title={t('common.regenerate')}
+          >
+            <RefreshCw size={15} strokeWidth={1.75} />
+          </button>
+          <button
+            onClick={() => void copyText(data.response)}
+            className="rounded-full w-7 h-7 flex items-center justify-center hover:text-accent hover:bg-wash transition-colors"
+            title={t('actions.copyResponse')}
+          >
+            <Copy size={14} strokeWidth={1.75} />
+          </button>
+          {hasMultipleVersions && (
+            <div className="flex items-center gap-1 text-xs text-ink-muted ml-1">
+              <button onClick={() => navigateVersion(nodeId, 'prev')} className="hover:text-accent hover:bg-wash rounded-full w-5 h-5 flex items-center justify-center transition-colors"><ChevronLeft size={14} strokeWidth={1.75} /></button>
+              <span className="text-accent font-medium">v{data.responseIndex + 1}/{data.responses.length}</span>
+              <button onClick={() => navigateVersion(nodeId, 'next')} className="hover:text-accent hover:bg-wash rounded-full w-5 h-5 flex items-center justify-center transition-colors"><ChevronRight size={14} strokeWidth={1.75} /></button>
+              <button
+                onClick={() => deleteVersion(nodeId, data.responseIndex)}
+                className="text-ink-faint hover:text-red-500 hover:bg-red-50 rounded-full w-5 h-5 flex items-center justify-center transition-colors"
+                title={t('common.deleteVersion')}
+              >
+                <Trash2 size={13} strokeWidth={1.75} />
+              </button>
             </div>
           )}
         </div>
