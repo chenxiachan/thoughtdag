@@ -23,6 +23,7 @@ const SCHOLAR_SEARCH_KEY = 'thoughtdag.scholarSearch';
 const MODEL_KEY = 'thoughtdag.model';
 const MCP_KEY = 'thoughtdag.mcpTools';
 const AUTO_PAUSE_KEY = 'thoughtdag.autoRefreshPaused';
+const HIDE_ANNOTATIONS_KEY = 'thoughtdag.hideAnnotations';
 
 interface UiState {
   toasts: ToastItem[];
@@ -33,6 +34,8 @@ interface UiState {
   scholarSearchEnabled: boolean;
   mcpEnabled: boolean;
   autoRefreshPaused: boolean;
+  /** View mode: hide frames + unlinked content nodes (annotation layer off). */
+  annotationsHidden: boolean;
   /** Selected LLM id; null = server default. */
   selectedModel: string | null;
   dismissToast: (id: string) => void;
@@ -42,6 +45,7 @@ interface UiState {
   setScholarSearchEnabled: (enabled: boolean) => void;
   setMcpEnabled: (enabled: boolean) => void;
   setAutoRefreshPaused: (paused: boolean) => void;
+  setAnnotationsHidden: (hidden: boolean) => void;
   setSelectedModel: (model: string | null) => void;
 }
 
@@ -53,6 +57,7 @@ export const useUiStore = create<UiState>((set, get) => ({
   scholarSearchEnabled: localStorage.getItem(SCHOLAR_SEARCH_KEY) !== 'off',
   mcpEnabled: localStorage.getItem(MCP_KEY) !== 'off',
   autoRefreshPaused: localStorage.getItem(AUTO_PAUSE_KEY) === 'yes',
+  annotationsHidden: localStorage.getItem(HIDE_ANNOTATIONS_KEY) === 'yes',
   selectedModel: localStorage.getItem(MODEL_KEY) || null,
   dismissToast: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
   resolveConfirm: (ok) => {
@@ -71,6 +76,10 @@ export const useUiStore = create<UiState>((set, get) => ({
   setMcpEnabled: (enabled) => {
     localStorage.setItem(MCP_KEY, enabled ? 'on' : 'off');
     set({ mcpEnabled: enabled });
+  },
+  setAnnotationsHidden: (hidden) => {
+    localStorage.setItem(HIDE_ANNOTATIONS_KEY, hidden ? 'yes' : 'no');
+    set({ annotationsHidden: hidden });
   },
   setAutoRefreshPaused: (paused) => {
     localStorage.setItem(AUTO_PAUSE_KEY, paused ? 'yes' : 'no');

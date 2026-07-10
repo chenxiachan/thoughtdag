@@ -107,9 +107,10 @@ export function instantiateParadigm(pNodes: ThoughtNode[], pEdges: ThoughtEdge[]
       data.webSearch = pn.data.webSearch;
       data.scholarSearch = pn.data.scholarSearch;
     }
-    if (kind === 'note' || kind === 'file' || kind === 'link') {
-      // Content nodes pass through as-is: filled = experiment material,
-      // empty = a MATERIAL SLOT the cascade waits on (like a human turn)
+    if (kind === 'note' || kind === 'file' || kind === 'link' || kind === 'frame') {
+      // Content nodes / frames pass through as-is: filled = experiment
+      // material, empty = a MATERIAL SLOT the cascade waits on; frames are
+      // pure annotation — stage regions travel with the paradigm
       data.stepKind = kind;
       data.question = pn.data.question || '';
       data.attachments = pn.data.attachments ?? [];
@@ -127,7 +128,8 @@ export function instantiateParadigm(pNodes: ThoughtNode[], pEdges: ThoughtEdge[]
       data.stepKind = 'fanout';
       data.fanoutRoles = pn.data.fanoutRoles;
     }
-    return { id, type: 'thought', position: { ...pn.position }, dragHandle: '.drag-handle', data };
+    // Dimensions matter for frames and resized material — carry them over
+    return { id, type: 'thought', position: { ...pn.position }, width: pn.width, height: pn.height, zIndex: pn.zIndex, dragHandle: '.drag-handle', data };
   });
 
   const reviewTargets = new Set(

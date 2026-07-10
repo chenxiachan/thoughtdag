@@ -46,7 +46,7 @@ export function autoLayout(allNodes: ThoughtNode[], allEdges: ThoughtEdge[]): Th
   // moves them and their edges don't shape the column tree. A node whose
   // only parent is a content node simply roots its own chain.
   const contentIds = new Set(
-    allNodes.filter((n) => n.data.stepKind === 'note' || n.data.stepKind === 'file' || n.data.stepKind === 'link').map((n) => n.id)
+    allNodes.filter((n) => ['note', 'file', 'link', 'frame'].includes(n.data.stepKind ?? '')).map((n) => n.id)
   );
   const nodes = allNodes.filter((n) => !contentIds.has(n.id));
   const edges = allEdges.filter((e) => !contentIds.has(e.source) && !contentIds.has(e.target));

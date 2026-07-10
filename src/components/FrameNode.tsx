@@ -1,0 +1,74 @@
+import { useState } from 'react';
+import { NodeResizer, useStore as useRfStore, type NodeProps } from '@xyflow/react';
+import { Trash2 } from 'lucide-react';
+import type { ThoughtNode as ThoughtNodeType } from '../types';
+import { useStore } from '../store';
+import { useT } from '../i18n';
+
+// Frame: a labeled background region — THE spatial annotation. No handles
+// (it can never be wired, so it can never touch context), ignored by
+// autoLayout, sits behind nodes (zIndex -1). Drag by the title bar; the
+// title stays readable when zoomed out (same semantic-zoom trick as cards).
+
+export default function FrameNode({ id, data, selected }: NodeProps<ThoughtNodeType>) {
+  const t = useT();
+  const deleteNode = useStore((s) => s.deleteNode);
+  const setSelectedNodeId = useStore((s) => s.setSelectedNodeId);
+  const zoomedOut = useRfStore((s) => s.transform[2] < 0.55);
+
+  const [editing, setEditing] = useState(!data.question);
+  const [draft, setDraft] = useState(data.question);
+
+  const commit = () => {
+    setEditing(false);
+    if (draft === data.question) return;
+    useStore.getState().pushHistory();
+    useStore.setState((s) => ({
+      nodes: s.nodes.map((n) => (n.id === id ? { ...n, data: { ...n.data, question: draft } } : n)),
+    }));
+  };
+
+  return (
+    <div
+      className={`w-full h-full rounded-2xl border-2 border-dashed flex flex-col transition-colors ${
+        selected ? 'border-accent/50 bg-accent/[0.04]' : 'border-ink/15 bg-ink/[0.03]'
+      }`}
+      onClick={() => setSelectedNodeId(id)}
+    >
+      {/* Title bar — the only drag surface */}
+      <div className="drag-handle cursor-grab active:cursor-grabbing px-4 py-2 flex items-center gap-2 min-w-0">
+        {editing ? (
+          <input
+            type="text"
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onBlur={commit}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === 'Escape') commit(); }}
+            placeholder={t('frame.titlePlaceholder')}
+            autoFocus
+            className="flex-1 min-w-0 bg-transparent text-sm font-semibold text-ink-muted focus:outline-none placeholder-ink-faint nodrag"
+          />
+        ) : (
+          <span
+            onDoubleClick={() => { setDraft(data.question); setEditing(true); }}
+            className={`flex-1 min-w-0 truncate font-semibold text-ink-muted/80 uppercase tracking-wider select-none ${zoomedOut ? 'text-3xl normal-case tracking-normal' : 'text-xs'}`}
+            title={t('content.noteEditTitle')}
+          >
+            {data.question || <span className="text-ink-faint normal-case tracking-normal">{t('frame.titlePlaceholder')}</span>}
+          </span>
+        )}
+        {selected && (
+          <button
+            onClick={(e) => { e.stopPropagation(); deleteNode(id); }}
+            className="text-ink-faint hover:text-red-500 rounded-full w-6 h-6 flex items-center justify-center transition-colors shrink-0 nodrag"
+          >
+            <Trash2 size={13} strokeWidth={1.75} />
+          </button>
+        )}
+      </div>
+      {/* Body: just a region — clicks select the frame, nodes float above it */}
+      <div className="flex-1 nodrag" />
+      <NodeResizer isVisible={selected} minWidth={280} minHeight={180} lineClassName="!border-accent/40" handleClassName="!bg-accent !w-2.5 !h-2.5 !rounded-sm" />
+    </div>
+  );
+}

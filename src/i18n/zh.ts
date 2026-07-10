@@ -75,6 +75,10 @@ export const zh: Record<keyof typeof en, string> = {
   // Content palette + content nodes (canvas material)
   'palette.askTitle': '提问节点——把材料连进来，在这里提问；回答只基于流入的连线',
   'node.askPlaceholder': '输入问题……沿连线流入的内容就是它的上下文',
+  'palette.frameTitle': '分区框——给一片画布起名（永不进入上下文，纯空间导航）',
+  'frame.titlePlaceholder': '分区标题…',
+  'toolbar.hideAnnotations': '隐藏注释（分区框与未连线的材料）',
+  'toolbar.showAnnotations': '显示注释',
   'palette.noteTitle': '添加便签——连线后以 [Note] 进入下游上下文',
   'palette.fileTitle': '添加文件节点（图片 / PDF / 文本）——连线后进入下游上下文',
   'content.unlinked': '未进上下文',

@@ -15,11 +15,12 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import 'highlight.js/styles/github.css';
-import { CircleHelp, Dna, FileText, GitBranch, LayoutGrid, Loader2, MessageCircleQuestion, Paperclip, Plug, Redo2, Scissors, SquareTerminal, StickyNote, Trash2, Undo2, Workflow, X } from 'lucide-react';
+import { CircleHelp, Dna, FileText, Frame, GitBranch, LayoutGrid, Loader2, MessageCircleQuestion, Paperclip, Plug, Redo2, Scissors, SquareTerminal, StickyNote, Trash2, Undo2, Workflow, X } from 'lucide-react';
 import './index.css';
 import ThoughtNode from './components/ThoughtNode';
 import ParadigmNode from './components/ParadigmNode';
 import ContentNode from './components/ContentNode';
+import FrameNode from './components/FrameNode';
 import ThoughtEdgeView from './components/ThoughtEdgeView';
 import FocusPanel from './components/focus-panel';
 import SelectionToolbar from './components/SelectionToolbar';
@@ -53,6 +54,7 @@ import { useT, t as ti, fmt, useI18n } from './i18n';
 // whether a node is a conversation card or an orchestration step card.
 function NodeDispatch(props: Parameters<typeof ThoughtNode>[0]) {
   const isParadigm = useProjects((s) => s.projects.find((p) => p.id === s.activeId)?.kind === 'paradigm');
+  if (props.data?.stepKind === 'frame') return <FrameNode {...props} />;
   if (isContentKind(props.data?.stepKind)) return <ContentNode {...props} />;
   return isParadigm ? <ParadigmNode {...props} /> : <ThoughtNode {...props} />;
 }
@@ -80,6 +82,8 @@ function Canvas() {
   const { nodes, edges, setNodes, setEdges, addQuestion, undo, redo, addCrossLink, setSelectedNodeId, setSelectedNodeIds, history, historyIndex, relayout } = useStore();
   const t = useT();
   const setTutorialOpen = useUiStore((s) => s.setTutorialOpen);
+  const annotationsHidden = useUiStore((s) => s.annotationsHidden);
+  const setAnnotationsHidden = useUiStore((s) => s.setAnnotationsHidden);
   const mcpEnabled = useUiStore((s) => s.mcpEnabled);
   const setMcpEnabled = useUiStore((s) => s.setMcpEnabled);
   const mcpServers = useMcpServers();
@@ -138,6 +142,24 @@ function Canvas() {
 
   // ── Content palette + canvas paste/drop: material lands where you point ──
   const lastMouse = useRef<{ x: number; y: number } | null>(null);
+
+  // Frame: a labeled background region for wayfinding — never in context
+  const spawnFrame = useCallback((pos: { x: number; y: number }) => {
+    const st = useStore.getState();
+    const id = generateId();
+    st.setNodes([...st.nodes, {
+      id, type: 'thought', position: pos, width: 640, height: 420, zIndex: -1, dragHandle: '.drag-handle',
+      data: {
+        question: '', stepKind: 'frame',
+        response: '', responses: [], responseIndex: -1,
+        isCollapsed: false, isEditing: false, isEditingResponse: false, isLoading: false,
+        tokenCount: 0, highlights: [], highlightMode: 'tag',
+        attachments: [], excludedAttachmentIds: [], includedAttachmentIds: [],
+        roleMode: 'inherit', isRoot: false, isBranch: false,
+      },
+    }]);
+    st.pushHistory();
+  }, []);
 
   // Ask node: an ordinary Q&A node dropped EMPTY — wire material in, then
   // type the question; it answers from whatever the edges carry.
@@ -299,8 +321,9 @@ function Canvas() {
 
   const selectedNodeId = useStore((s) => s.selectedNodeId);
   const selectedNodeIds = useStore((s) => s.selectedNodeIds);
-  // Content nodes are edited in place on the canvas — no panel for them
-  const selectedIsContent = isContentKind(nodes.find((nd) => nd.id === selectedNodeId)?.data.stepKind);
+  // Content nodes and frames are edited in place on the canvas — no panel
+  const selectedKind = nodes.find((nd) => nd.id === selectedNodeId)?.data.stepKind;
+  const selectedIsContent = isContentKind(selectedKind) || selectedKind === 'frame';
   const panelOpen = !!selectedNodeId && !isParadigm && !selectedIsContent;
   const multiSelected = selectedNodeIds.length > 1;
   const batchDelete = useStore((s) => s.batchDelete);
@@ -438,6 +461,18 @@ function Canvas() {
   }, [setSelectedNodeId, setSelectedNodeIds]);
 
   // Highlight ancestor edges for selected node(s)
+  // Annotation view mode: hide frames + UNLINKED content nodes (linked
+  // material stays — it's part of the reasoning record). A filter over the
+  // render, not a layer system: the semantic layering already lives in edges.
+  const displayNodes = useMemo((): typeof nodes => {
+    if (!annotationsHidden) return nodes;
+    return nodes.map((n) => {
+      const k = n.data.stepKind;
+      const unlinkedContent = isContentKind(k) && !edges.some((e) => e.source === n.id || e.target === n.id);
+      return (k === 'frame' || unlinkedContent) ? { ...n, hidden: true } : n;
+    });
+  }, [nodes, edges, annotationsHidden]);
+
   const highlightedEdges = useMemo((): ThoughtEdge[] => {
     const activeIds = selectedNodeIds.length > 0 ? selectedNodeIds : (selectedNodeId ? [selectedNodeId] : []);
     if (activeIds.length === 0) return edges;
@@ -499,6 +534,11 @@ function Canvas() {
             spawnAskNode(pos);
             return;
           }
+          if (paletteKind === 'frame') {
+            e.preventDefault();
+            spawnFrame(pos);
+            return;
+          }
           if (paletteKind === 'note' || paletteKind === 'file') {
             e.preventDefault();
             spawnContentNode(paletteKind, pos);
@@ -513,7 +553,7 @@ function Canvas() {
       >
       <ReactFlow
         onInit={(instance) => { rfInstance.current = instance; }}
-        nodes={nodes}
+        nodes={displayNodes}
         edges={highlightedEdges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
@@ -891,6 +931,15 @@ function Canvas() {
           >
             <Paperclip size={17} strokeWidth={1.75} />
           </button>
+          <button
+            onClick={() => spawnFrame(flowPosAt(null))}
+            draggable
+            onDragStart={(e) => { e.dataTransfer.setData('application/thoughtdag-content', 'frame'); e.dataTransfer.effectAllowed = 'copy'; }}
+            title={t('palette.frameTitle')}
+            className="w-9 h-9 rounded-lg flex items-center justify-center text-ink-muted hover:bg-wash transition-colors cursor-grab"
+          >
+            <Frame size={17} strokeWidth={1.75} />
+          </button>
         </div>
       )}
 
@@ -935,6 +984,19 @@ function Canvas() {
           </button>
         )}
         </>)}
+        {hasNodes && (
+          <button
+            onClick={() => setAnnotationsHidden(!annotationsHidden)}
+            className={`bg-card/90 backdrop-blur border rounded-lg w-8 h-8 flex items-center justify-center shadow-sm transition-colors ${
+              annotationsHidden
+                ? 'border-accent/40 text-accent hover:bg-accent/10'
+                : 'border-line text-ink-faint hover:bg-wash'
+            }`}
+            title={annotationsHidden ? t('toolbar.showAnnotations') : t('toolbar.hideAnnotations')}
+          >
+            <StickyNote size={15} strokeWidth={1.75} />
+          </button>
+        )}
         <LangSwitch />
         <button
           onClick={() => setTutorialOpen(true)}

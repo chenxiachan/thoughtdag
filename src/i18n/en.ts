@@ -75,6 +75,10 @@ export const en = {
   // Content palette + content nodes (canvas material)
   'palette.askTitle': 'Ask node — wire material in and ask here; the answer draws only on incoming edges',
   'node.askPlaceholder': 'Type a question… whatever flows in along the edges is its context',
+  'palette.frameTitle': 'Frame — name a region of the canvas (never enters context; pure wayfinding)',
+  'frame.titlePlaceholder': 'Frame title…',
+  'toolbar.hideAnnotations': 'Hide annotations (frames & unlinked material)',
+  'toolbar.showAnnotations': 'Show annotations',
   'palette.noteTitle': 'Add a note — feeds downstream context as [Note] once connected',
   'palette.fileTitle': 'Add a file node (images / PDF / text) — feeds downstream context once connected',
   'content.unlinked': 'not in context',

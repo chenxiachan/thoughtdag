@@ -52,7 +52,9 @@ export interface ThoughtData extends Record<string, unknown> {
   // feed context only via OUTGOING edges, and are ignored by autoLayout.
   // Legacy v1 kinds ('step'|'fanout'|'review'|'synthesis') still
   // instantiate; 'fanout' also marks fan-out placeholders.
-  stepKind?: 'human' | 'prompt' | 'note' | 'file' | 'link' | 'step' | 'fanout' | 'review' | 'synthesis';
+  // 'frame' = a labeled background region (spatial annotation) — no handles,
+  // never in context, ignored by layout; the wayfinding primitive.
+  stepKind?: 'human' | 'prompt' | 'note' | 'file' | 'link' | 'frame' | 'step' | 'fanout' | 'review' | 'synthesis';
   linkUrl?: string; // link node: the source URL
   linkTitle?: string; // link node: page title (or a ⚠-prefixed fetch error)
   linkFetchedAt?: string; // link node: ISO timestamp of the snapshot (web content drifts)
