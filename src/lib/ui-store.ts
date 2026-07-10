@@ -41,6 +41,9 @@ interface UiState {
   /** Panel mode: opened by double-clicking a node, closed via its X. While
    *  on, the panel follows the selection; single clicks only select. */
   panelOpen: boolean;
+  /** Half-typed inputs keyed by surface (e.g. follow:<nodeId>) — survive
+      node/panel switches within the session, cleared on submit. */
+  drafts: Record<string, string>;
   /** Selected LLM id; null = server default. */
   selectedModel: string | null;
   dismissToast: (id: string) => void;
@@ -51,6 +54,7 @@ interface UiState {
   setMcpEnabled: (enabled: boolean) => void;
   setAutoRefreshPaused: (paused: boolean) => void;
   setAnnotationsHidden: (hidden: boolean) => void;
+  setDraft: (key: string, text: string) => void;
   setPanelOpen: (open: boolean) => void;
   setSelectedModel: (model: string | null) => void;
 }
@@ -85,6 +89,16 @@ export const useUiStore = create<UiState>((set, get) => ({
     set({ mcpEnabled: enabled });
   },
   setPanelOpen: (open) => set({ panelOpen: open }),
+  drafts: {},
+  setDraft: (key, text) => set((s) => {
+    if (!text) {
+      if (!(key in s.drafts)) return s;
+      const next = { ...s.drafts };
+      delete next[key];
+      return { drafts: next };
+    }
+    return { drafts: { ...s.drafts, [key]: text } };
+  }),
   setAnnotationsHidden: (hidden) => {
     localStorage.setItem(HIDE_ANNOTATIONS_KEY, hidden ? 'yes' : 'no');
     set({ annotationsHidden: hidden });

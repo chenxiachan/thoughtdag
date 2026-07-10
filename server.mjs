@@ -203,15 +203,34 @@ function toSdkPrompt(messages, images) {
 // ─── Web search tool (Zhipu Web Search API, ¥0.01/query) ───────
 // Registered as an AI SDK tool: the MODEL decides when to search.
 
+// Engine tier is configurable (search_pro returns noticeably better
+// sources at ~3x the price); document-farm / Q&A-farm domains are filtered
+// out — they dominate search_std results and pollute research answers.
+const SEARCH_ENGINE = process.env.ZHIPU_SEARCH_ENGINE || 'search_std';
+const BLOCKED_DOMAINS = [
+  'doc88.com', 'docin.com', 'book118.com', 'renrendoc.com', 'taodocs.com',
+  'wenku.baidu.com', 'zhidao.baidu.com', 'baijiahao.baidu.com',
+  'wenwen.sogou.com', 'zhihu.com', '360doc.com', 'docs.qq.com', 'jianshu.com',
+  ...(process.env.SEARCH_BLOCK_DOMAINS || '').split(',').map((d) => d.trim()).filter(Boolean),
+];
+const isBlockedUrl = (url) => {
+  try { const h = new URL(url).hostname; return BLOCKED_DOMAINS.some((d) => h === d || h.endsWith(`.${d}`)); }
+  catch { return false; }
+};
+
 async function zhipuWebSearch(query, count = 5) {
   const r = await fetch('https://open.bigmodel.cn/api/paas/v4/web_search', {
     method: 'POST',
     headers: { Authorization: `Bearer ${ZHIPU_KEY}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ search_engine: 'search_std', search_query: query, count }),
+    // over-fetch so filtering still leaves `count` usable results
+    body: JSON.stringify({ search_engine: SEARCH_ENGINE, search_query: query, count: Math.min(count * 2, 10) }),
   });
   if (!r.ok) throw new Error(`web_search HTTP ${r.status}`);
   const data = await r.json();
-  return (data.search_result || []).map((s) => ({
+  return (data.search_result || [])
+    .filter((s) => !isBlockedUrl(s.link))
+    .slice(0, count)
+    .map((s) => ({
     title: s.title || s.link,
     url: s.link,
     content: (s.content || '').slice(0, 600),
@@ -321,9 +340,9 @@ function makeTools(sources, onSearch, prefs = {}) {
   if (prefs.web !== false && ZHIPU_KEY) {
     tools.web_search = tool({
       description:
-        'Search the web for current events, specific facts, or anything you are not certain about. ' +
-        'Results are numbered [1], [2], ... — when you use information from a result, cite it inline as [n]. ' +
-        'Do not search for things you already know well. At most 3 searches per answer.',
+        'ONLY for current events, time-sensitive facts, or specific verifiable claims you cannot answer confidently from your own knowledge. ' +
+        'NEVER use for conceptual, definitional, reasoning or creative questions — answer those directly. ' +
+        'Results are numbered [1], [2], ... — when you use information from a result, cite it inline as [n]. At most 3 searches per answer.',
       inputSchema: z.object({
         query: z.string().describe('The search query, in the language most likely to find good results'),
       }),
@@ -339,7 +358,7 @@ function makeTools(sources, onSearch, prefs = {}) {
     tools.arxiv_search = tool({
       description:
         'Search arXiv for academic papers and preprints (physics, math, CS, ML, stats…). ' +
-        'Use when the user asks about papers, methods, or research literature. Returns title, authors, abstract, and link, numbered for [n] citations.',
+        'ONLY when the user asks about papers or literature, or a claim genuinely needs a scholarly citation — not for questions you can answer directly. Returns title, authors, abstract, and link, numbered for [n] citations.',
       inputSchema: z.object({
         query: z.string().describe('Search terms — paper title, topic, method, or author. English works best on arXiv.'),
       }),
@@ -579,6 +598,7 @@ app.post('/api/stream', async (req, res) => {
     // the thread may contain their own [n] citations — those must not
     // continue the numbering).
     const directive = [
+      'Tools are AVAILABLE, not mandatory: first decide whether your own knowledge answers the question. Conceptual, definitional, reasoning and creative questions must be answered DIRECTLY, with no tool calls. Search only when the answer depends on current events, specific verifiable facts you are unsure of, or literature citations — or when the user explicitly asks you to look something up.',
       'After using any search tool, you MUST follow up with a complete answer that SYNTHESIZES the results in your own words — analyze and conclude, never just list the results.',
       'Cite sources inline as [n], using EXACTLY the bracket numbers shown in this turn\'s search results (they always start at [1]). Ignore any citation numbers appearing in earlier conversation messages — they refer to different sources.',
       'If the search results are not actually relevant to the question, say so explicitly and answer from your own knowledge instead of forcing citations.',

@@ -27,7 +27,12 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   const hasFanoutChildren = useStore((s) => s.edges.some((e) => e.source === id && e.data?.isBranchFromSelection));
   const [selectedText, setSelectedText] = useState('');
   const [selectionPos, setSelectionPos] = useState<{ x: number; y: number } | null>(null);
-  const [inputValue, setInputValue] = useState('');
+  const inlineDraftKey = `inline:${id}`;
+  const [inputValue, setInputValueState] = useState(() => useUiStore.getState().drafts[inlineDraftKey] ?? '');
+  const setInputValue = (v: string) => {
+    setInputValueState(v);
+    useUiStore.getState().setDraft(inlineDraftKey, v);
+  };
   const [branchFromText, setBranchFromText] = useState('');
   const [branchYRatio, setBranchYRatio] = useState(0.5);
   const [editValue, setEditValue] = useState(data.question);

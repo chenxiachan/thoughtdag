@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { ChevronUp, GitBranch, Paperclip, Send, X } from 'lucide-react';
 import { useStore } from '../../store';
+import { useUiStore } from '../../lib/ui-store';
 import { buildContext } from '../../store/context-builder';
 import { processFile, FILE_INPUT_ACCEPT } from '../../lib/attachments';
 import SearchToggles from '../ui/SearchToggles';
@@ -29,7 +30,14 @@ export default function FollowUpInput({
   const edges = useStore((s) => s.edges);
   const t = useT();
 
-  const [continueInput, setContinueInput] = useState('');
+  // Draft survives node switches (the component remounts per node) and
+  // panel close/reopen; cleared on submit.
+  const draftKey = `follow:${nodeId}`;
+  const [continueInput, setContinueInputState] = useState(() => useUiStore.getState().drafts[draftKey] ?? '');
+  const setContinueInput = (v: string) => {
+    setContinueInputState(v);
+    useUiStore.getState().setDraft(draftKey, v);
+  };
   const [continueInheritAttachments, setContinueInheritAttachments] = useState(true);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [pendingAttachments, setPendingAttachments] = useState<Attachment[]>([]);
