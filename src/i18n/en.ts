@@ -77,6 +77,8 @@ export const en = {
   'node.askPlaceholder': 'Type a question… whatever flows in along the edges is its context',
   'palette.frameTitle': 'Frame — name a region of the canvas (never enters context; pure wayfinding)',
   'frame.titlePlaceholder': 'Frame title…',
+  'frame.untitled': '(untitled frame)',
+  'toolbar.frames': 'Frame navigator — click to jump to a region',
   'toolbar.hideAnnotations': 'Hide annotations (frames & unlinked material)',
   'toolbar.showAnnotations': 'Show annotations',
   'palette.noteTitle': 'Add a note — feeds downstream context as [Note] once connected',

@@ -77,6 +77,8 @@ export const zh: Record<keyof typeof en, string> = {
   'node.askPlaceholder': '输入问题……沿连线流入的内容就是它的上下文',
   'palette.frameTitle': '分区框——给一片画布起名（永不进入上下文，纯空间导航）',
   'frame.titlePlaceholder': '分区标题…',
+  'frame.untitled': '（未命名分区）',
+  'toolbar.frames': '分区导航——点击跳转到对应区域',
   'toolbar.hideAnnotations': '隐藏注释（分区框与未连线的材料）',
   'toolbar.showAnnotations': '显示注释',
   'palette.noteTitle': '添加便签——连线后以 [Note] 进入下游上下文',

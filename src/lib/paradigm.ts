@@ -118,6 +118,7 @@ export function instantiateParadigm(pNodes: ThoughtNode[], pEdges: ThoughtEdge[]
       data.linkUrl = pn.data.linkUrl;
       data.linkTitle = pn.data.linkTitle;
       data.linkFetchedAt = pn.data.linkFetchedAt;
+      data.frameColor = pn.data.frameColor;
     }
     if (kind === 'review') {
       data.isEvaluator = true; // red visual identity

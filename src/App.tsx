@@ -37,7 +37,7 @@ import type { Attachment, ThoughtNode as ThoughtNodeType, ThoughtEdge } from './
 import { processFile, FILE_INPUT_ACCEPT } from './lib/attachments';
 import { walkUpAncestors } from './lib/graph';
 import { buildExampleGraph } from './lib/example-graph';
-import { COLORS } from './lib/constants';
+import { COLORS, FRAME_COLORS } from './lib/constants';
 import { confirmDialog, useUiStore } from './lib/ui-store';
 import { useMcpServers } from './lib/use-mcp';
 import ConfirmDialog from './components/ui/ConfirmDialog';
@@ -461,6 +461,19 @@ function Canvas() {
   }, [setSelectedNodeId, setSelectedNodeIds]);
 
   // Highlight ancestor edges for selected node(s)
+  // Frame navigator: named regions become a jumpable table of contents
+  const frames = useMemo(() => nodes.filter((n) => n.data.stepKind === 'frame'), [nodes]);
+  const [frameNavOpen, setFrameNavOpen] = useState(false);
+  const frameNavRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!frameNavOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (!frameNavRef.current?.contains(e.target as Node)) setFrameNavOpen(false);
+    };
+    window.addEventListener('mousedown', handler);
+    return () => window.removeEventListener('mousedown', handler);
+  }, [frameNavOpen]);
+
   // Annotation view mode: hide frames + UNLINKED content nodes (linked
   // material stays — it's part of the reasoning record). A filter over the
   // render, not a layer system: the semantic layering already lives in edges.
@@ -984,6 +997,39 @@ function Canvas() {
           </button>
         )}
         </>)}
+        {hasNodes && frames.length > 0 && (
+          <div ref={frameNavRef} className="relative">
+            <button
+              onClick={() => setFrameNavOpen((v) => !v)}
+              className={`bg-card/90 backdrop-blur border rounded-lg w-8 h-8 flex items-center justify-center shadow-sm transition-colors ${
+                frameNavOpen ? 'border-accent/40 text-accent' : 'border-line text-ink-faint hover:bg-wash'
+              }`}
+              title={t('toolbar.frames')}
+            >
+              <Frame size={15} strokeWidth={1.75} />
+            </button>
+            {frameNavOpen && (
+              <div className="absolute right-0 top-full mt-1.5 bg-card border border-line rounded-xl shadow-lg py-1 w-[230px] max-h-[320px] overflow-y-auto z-30 animate-fade-in">
+                {frames.map((f) => (
+                  <button
+                    key={f.id}
+                    onClick={() => {
+                      setFrameNavOpen(false);
+                      rfInstance.current?.fitBounds(
+                        { x: f.position.x, y: f.position.y, width: f.width ?? 640, height: f.height ?? 420 },
+                        { duration: 400, padding: 0.15 },
+                      );
+                    }}
+                    className="w-full text-left px-3 py-2 text-xs text-ink hover:bg-wash transition-colors flex items-center gap-2"
+                  >
+                    <span className={`w-2.5 h-2.5 rounded-sm shrink-0 ${(FRAME_COLORS[f.data.frameColor ?? 'gray'] ?? FRAME_COLORS.gray).dot}`} />
+                    <span className="truncate">{f.data.question || t('frame.untitled')}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
         {hasNodes && (
           <button
             onClick={() => setAnnotationsHidden(!annotationsHidden)}

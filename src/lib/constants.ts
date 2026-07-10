@@ -33,3 +33,15 @@ export const COLORS = {
   trace: '#F59E0B',    // ancestor-path highlight
   watch: '#DC2626',    // evaluator watch edges
 } as const;
+
+// Frame palette — FIXED set (no picker): frames are navigation objects, so
+// color is function, not decoration. Tokens referenced by FrameNode + the
+// frame navigator.
+export const FRAME_COLORS: Record<string, { border: string; bg: string; dot: string }> = {
+  gray: { border: 'border-ink/15', bg: 'bg-ink/[0.03]', dot: 'bg-ink/30' },
+  violet: { border: 'border-accent/40', bg: 'bg-accent/[0.05]', dot: 'bg-accent' },
+  amber: { border: 'border-amber-400/60', bg: 'bg-amber-400/[0.07]', dot: 'bg-amber-400' },
+  green: { border: 'border-emerald-500/40', bg: 'bg-emerald-500/[0.05]', dot: 'bg-emerald-500' },
+  sky: { border: 'border-sky-500/40', bg: 'bg-sky-500/[0.05]', dot: 'bg-sky-500' },
+  rose: { border: 'border-rose-400/50', bg: 'bg-rose-400/[0.06]', dot: 'bg-rose-400' },
+};
