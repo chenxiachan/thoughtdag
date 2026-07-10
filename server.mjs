@@ -61,6 +61,13 @@ const register = (ids, provider, make, opts = {}) => {
 
 if (ZHIPU_KEY) {
   const zhipu = createZhipu({ apiKey: ZHIPU_KEY, baseURL: 'https://open.bigmodel.cn/api/paas/v4' });
+  // zhipu-ai-provider 0.3.1 DROPS image bytes (it sends image_url
+  // "data:image/png;base64," with an EMPTY payload — every image reads as
+  // "blank"). The same endpoint speaks the OpenAI protocol, and that
+  // provider's image conversion works, so vision goes through it.
+  const zhipuCompat = createOpenAICompatible({
+    name: 'zhipu', apiKey: ZHIPU_KEY, baseURL: 'https://open.bigmodel.cn/api/paas/v4',
+  });
   modelRegistry['glm-4.5-flash'] = {
     name: 'GLM-4.5 Flash · free', provider: 'Zhipu', vision: false, visionFallback: 'glm-4v-flash',
     model: () => zhipu('glm-4.5-flash'),
@@ -68,7 +75,7 @@ if (ZHIPU_KEY) {
     providerOptions: { zhipu: { thinking: { type: 'disabled' } } },
   };
   modelRegistry['glm-4v-flash'] = {
-    name: 'GLM-4V Flash · free vision', provider: 'Zhipu', vision: true, model: () => zhipu('glm-4v-flash'),
+    name: 'GLM-4V Flash · free vision', provider: 'Zhipu', vision: true, model: () => zhipuCompat('glm-4v-flash'),
   };
 }
 
@@ -182,7 +189,8 @@ function toSdkPrompt(messages, images) {
         role: 'user',
         content: [
           { type: 'text', text: m.content },
-          ...images.map((img) => ({ type: 'image', image: img.data, mediaType: img.mimeType || 'image/png' })),
+          // 'file' parts — the 'image' part type is deprecated in AI SDK v7
+          ...images.map((img) => ({ type: 'file', data: img.data, mediaType: img.mimeType || 'image/png' })),
         ],
       });
     } else {
