@@ -159,7 +159,7 @@ function Canvas() {
 
   // Ask node: an ordinary Q&A node dropped EMPTY — wire material in, then
   // type the question; it answers from whatever the edges carry.
-  const spawnAskNode = useCallback((pos: { x: number; y: number }) => {
+  const spawnAskNode = useCallback((pos: { x: number; y: number }): string => {
     const st = useStore.getState();
     const id = generateId();
     st.setNodes([...st.nodes, {
@@ -175,6 +175,7 @@ function Canvas() {
       },
     }]);
     st.pushHistory();
+    return id;
   }, []);
   const flowPosAt = useCallback((screen?: { x: number; y: number } | null) => {
     const at = rfInstance.current?.screenToFlowPosition(screen ?? { x: window.innerWidth / 2, y: window.innerHeight / 2 }) ?? { x: 140, y: 140 };
@@ -320,9 +321,49 @@ function Canvas() {
     window.getSelection()?.removeAllRanges();
     document.body.classList.add('tdag-connecting');
   }, []);
-  const onConnectEnd = useCallback(() => {
+  // Dropping a wire on empty canvas = "continue from here": a fresh ask
+  // node at the drop point, wired as a solid child (same as a follow-up).
+  // Wiring to an EXISTING node stays a dashed reference — the distinction
+  // is newborn vs. existing conversation, not which handle you aimed at.
+  const onConnectEnd = useCallback<NonNullable<React.ComponentProps<typeof ReactFlow>['onConnectEnd']>>((event, connectionState) => {
     document.body.classList.remove('tdag-connecting');
-  }, []);
+    if (isParadigm) return;
+    if (connectionState.isValid) return; // landed on a handle — onConnect owns it
+    if (connectionState.fromHandle?.type !== 'source' || !connectionState.fromNode) return;
+    const parentId = connectionState.fromNode.id;
+    // Dropped on a card (not a handle): connect as a reference — aiming at
+    // the card is enough. Materials and frames accept nothing (One Rule).
+    const overNode = (event.target as HTMLElement)?.closest?.('.react-flow__node');
+    if (overNode) {
+      const targetId = overNode.getAttribute('data-id');
+      if (targetId && targetId !== parentId) {
+        const tgt = useStore.getState().nodes.find((n) => n.id === targetId);
+        const kind = tgt?.data.stepKind ?? '';
+        if (tgt && !['note', 'file', 'link', 'frame'].includes(kind)) {
+          useStore.getState().addCrossLink(parentId, targetId);
+        }
+      }
+      return;
+    }
+    const { clientX, clientY } = 'changedTouches' in event ? event.changedTouches[0] : event;
+    const pos = flowPosAt({ x: clientX, y: clientY });
+    const st = useStore.getState();
+    if (st.nodes.find((n) => n.id === parentId)?.data.stepKind === 'frame') return;
+    const newId = spawnAskNode(pos);
+    st.setEdges([...useStore.getState().edges, {
+      id: `edge-${parentId}-${newId}`,
+      source: parentId,
+      target: newId,
+      sourceHandle: 'continue',
+      targetHandle: 'top',
+      type: 'smoothstep',
+      style: { stroke: COLORS.accent, strokeWidth: 2 },
+      animated: false,
+      markerEnd: { type: 'arrowclosed' as const, color: COLORS.accent, width: 18, height: 18 },
+      data: {},
+    }]);
+    useStore.getState().pushHistory();
+  }, [isParadigm, flowPosAt, spawnAskNode]);
 
   const selectedNodeId = useStore((s) => s.selectedNodeId);
   const selectedNodeIds = useStore((s) => s.selectedNodeIds);

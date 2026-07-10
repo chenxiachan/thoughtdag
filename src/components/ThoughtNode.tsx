@@ -209,7 +209,11 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
       onDragLeave={() => setIsDropTarget(false)}
     >
       <Handle type="target" position={Position.Top} id="top" className={`!bg-accent !border-2 !border-white tdag-handle ${zoomedOut ? '!w-6 !h-6 tdag-handle-lg' : '!w-3.5 !h-3.5'}`} />
-      <Handle type="target" position={Position.Left} id="left" className={`!bg-warm !border-2 !border-white tdag-handle ${zoomedOut ? '!w-6 !h-6 tdag-handle-lg' : '!w-3.5 !h-3.5'}`} style={{ top: '40%' }} />
+      {/* Side anchors: NOT interaction targets — the system routes dashed
+          reference edges through them so cross-chain lines never cut across
+          the vertical chain grammar. Two handles for people (top in, bottom
+          out); four anchors for the layout. */}
+      <Handle type="target" position={Position.Left} id="left" isConnectable={false} className="!bg-transparent !w-0 !h-0 !border-0 !pointer-events-none" style={{ top: '40%' }} />
 
       {zoomedOut ? (
         // Semantic zoom thumbnail: large type that stays legible from afar
@@ -526,7 +530,8 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
         type="source"
         position={Position.Right}
         id="branch"
-        className="!bg-transparent !w-0 !h-0 !border-0"
+        isConnectable={false}
+        className="!bg-transparent !w-0 !h-0 !border-0 !pointer-events-none"
         style={{ top: '50%' }}
       />
 

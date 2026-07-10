@@ -3,7 +3,10 @@ import type { ThoughtNode, ThoughtEdge } from '../../types';
 import { generateId, countTokens } from '../../utils';
 import { COLORS } from '../../lib/constants';
 import { autoLayout, estimateNodeHeight, nodeHeight } from '../../lib/layout';
-import { getDescendantIds } from '../../lib/graph';
+import { getDescendantIds, walkUpAncestors } from '../../lib/graph';
+import { referenceBlockContent } from '../context-builder';
+import { toast } from '../../lib/ui-store';
+import { t, fmt } from '../../i18n';
 import type { StoreState, NodeSlice } from '../types';
 
 export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set, get) => ({
@@ -136,23 +139,59 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
   },
 
   addCrossLink: (sourceId: string, targetId: string) => {
-    const { edges } = get();
+    const { edges, nodes } = get();
     // Block only an identical edge. The REVERSE direction is allowed on
     // purpose: writer->critic->writer loops are how auto-refresh iterates
     // (context walks are visited-guarded, and auto-chains are budgeted).
     const exists = edges.some((e) => e.source === sourceId && e.target === targetId);
     if (exists) return;
     get().pushHistory();
+    // Anchor by geometry: a reference into a node right below reads as part
+    // of the vertical grammar (bottom→top); anything else routes via the
+    // side channel so dashed lines never cut across the chain columns.
+    const src = nodes.find((n) => n.id === sourceId);
+    const tgt = nodes.find((n) => n.id === targetId);
+    const vertical = !!src && !!tgt
+      && tgt.position.y > src.position.y + 60
+      && Math.abs(tgt.position.x - src.position.x) < 320;
     const newEdge: ThoughtEdge = {
       id: `crosslink-${sourceId}-${targetId}`,
       source: sourceId,
+      sourceHandle: vertical ? 'continue' : 'branch',
       target: targetId,
+      targetHandle: vertical ? 'top' : 'left',
       type: 'smoothstep',
       style: { stroke: COLORS.accent, strokeDasharray: '8 4', strokeWidth: 2 },
       animated: true,
       data: { isCrossLink: true },
     };
     set((state) => ({ edges: [...state.edges, newEdge] }));
+    get().pushHistory();
+    // Price tag at the moment of connection: what will this reference feed?
+    if (src && !['note', 'file', 'link'].includes(src.data.stepKind ?? '')) {
+      const { ordered } = walkUpAncestors(sourceId, nodes, edges.filter((e) => !e.data?.isCrossLink));
+      const chain = ordered.filter((n) => n.id !== sourceId && !['note', 'file', 'link'].includes(n.data.stepKind ?? ''));
+      const tok = countTokens(referenceBlockContent({ source: src, edge: newEdge, depth: 'quote', chain }));
+      toast('info', fmt(t('edge.linkedQuote'), { n: tok }), 8000, {
+        label: t('edge.makeFull'),
+        run: () => get().setCrossLinkDepth(newEdge.id, 'full'),
+      });
+    }
+  },
+
+  setCrossLinkDepth: (edgeId: string, depth: 'quote' | 'full') => {
+    get().pushHistory();
+    set((state) => ({
+      edges: state.edges.map((e) => {
+        if (e.id !== edgeId || !e.data?.isCrossLink) return e;
+        return {
+          ...e,
+          // full = denser dash + heavier stroke; the depth is readable off the line
+          style: { ...e.style, strokeDasharray: depth === 'full' ? '12 3' : '8 4', strokeWidth: depth === 'full' ? 3 : 2 },
+          data: { ...e.data, contextDepth: depth === 'full' ? 'full' as const : undefined },
+        };
+      }),
+    }));
     get().pushHistory();
   },
 

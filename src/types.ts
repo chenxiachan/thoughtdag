@@ -44,6 +44,12 @@ export interface ThoughtData extends Record<string, unknown> {
   scholarSearch?: boolean; // same for arXiv / Semantic Scholar tools
   autoRerun?: boolean; // regenerate in place whenever an upstream ancestor finishes (generic primitive)
   archived?: boolean; // pruned-but-kept: dimmed on canvas, EXCLUDED from every context walk
+  /** Provenance seed for staleness tracking: fingerprint of the exact
+      context this node's current response was generated from, plus when.
+      A future staleness pass compares this against the CURRENT upstream
+      fingerprint to flag "upstream changed since this was written". */
+  lastContextHash?: string;
+  lastGeneratedAt?: string;
   // ── node kind (beyond the default Q&A node) ──
   // 'human' = a dialogue turn (the human asks here); 'prompt' = a machine
   // processing step (fixed prompt, context only from upstream);
@@ -93,6 +99,11 @@ export interface ThoughtEdge extends Edge {
     isWatch?: boolean;
     followsTip?: boolean; // edge slides forward to the newest node of its source thread
     branchYRatio?: number; // where along the parent the branch handle sits
+    /** Cross-link depth: default (absent) = quote — the source node's own
+        Q/A plus a one-line trail of its upstream questions. 'full' = the
+        whole structural chain behind the source, still fenced as one
+        reference block. Solid (structural) edges ignore this. */
+    contextDepth?: 'full';
   };
 }
 

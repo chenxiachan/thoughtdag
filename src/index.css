@@ -154,7 +154,9 @@ textarea:focus-visible {
   border: 1px solid var(--color-line);
   box-shadow: 0 1px 3px rgba(0,0,0,0.07), 0 1px 2px rgba(0,0,0,0.05);
   transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-  overflow: hidden; /* clip the type bar to the rounded corners */
+  /* NO overflow:hidden here — it would clip the connection handles'
+     protruding half and their hit halos (the type bar below rounds its
+     own corners instead). Wide content clips inside .markdown-body pre. */
   position: relative;
 }
 
@@ -165,6 +167,7 @@ textarea:focus-visible {
   top: 0;
   bottom: 0;
   width: 3px;
+  border-radius: 12px 0 0 12px; /* hug the card's rounded-xl corners */
   background: transparent;
 }
 

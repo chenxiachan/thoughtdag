@@ -39,6 +39,9 @@ export default function ParadigmNode({ id, data }: NodeProps<ThoughtNodeType>) {
   return (
     <div className={`bg-card border-2 border-dashed rounded-xl w-[440px] shadow-sm ${KIND_STYLES[kind]}`}>
       <Handle type="target" position={Position.Top} id="top" className="!bg-ink-faint !w-3.5 !h-3.5 !border-2 !border-white tdag-handle" />
+      {/* Invisible side anchors: watch/reference edges route through these */}
+      <Handle type="target" position={Position.Left} id="left" isConnectable={false} className="!bg-transparent !w-0 !h-0 !border-0 !pointer-events-none" style={{ top: '40%' }} />
+      <Handle type="source" position={Position.Right} id="branch" isConnectable={false} className="!bg-transparent !w-0 !h-0 !border-0 !pointer-events-none" style={{ top: '50%' }} />
 
       {/* header: drag handle + kind switcher + delete */}
       <div className="flex items-center justify-between px-4 py-2 border-b border-line/60 cursor-grab active:cursor-grabbing drag-handle">

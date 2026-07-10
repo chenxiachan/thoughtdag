@@ -30,6 +30,14 @@ export default function Toaster() {
           >
             <Icon size={16} strokeWidth={1.75} className="shrink-0 mt-0.5" />
             <p className="text-xs leading-relaxed flex-1 break-words">{t.message}</p>
+            {t.action && (
+              <button
+                onClick={() => { t.action!.run(); dismissToast(t.id); }}
+                className="shrink-0 text-2xs font-medium bg-accent/10 text-accent hover:bg-accent/20 px-2.5 py-1 rounded-lg transition-colors"
+              >
+                {t.action.label}
+              </button>
+            )}
             <button
               onClick={() => dismissToast(t.id)}
               className="shrink-0 opacity-50 hover:opacity-100 transition-opacity"

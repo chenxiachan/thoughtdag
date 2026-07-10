@@ -30,6 +30,8 @@ export interface NodeSlice {
   setEditingResponse: (nodeId: string, editing: boolean) => void;
   duplicateNode: (nodeId: string) => void;
   addCrossLink: (sourceId: string, targetId: string) => void;
+  /** Flip a dashed reference between quote (default) and full-chain depth. */
+  setCrossLinkDepth: (edgeId: string, depth: 'quote' | 'full') => void;
   navigateVersion: (nodeId: string, direction: 'prev' | 'next') => void;
   deleteVersion: (nodeId: string, versionIndex: number) => void;
   batchDelete: (nodeIds: string[]) => void;

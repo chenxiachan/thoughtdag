@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { X } from 'lucide-react';
 import { useStore } from '../../store';
 import { useUiStore } from '../../lib/ui-store';
-import { countTokens } from '../../utils';
-import { getContextPath } from '../../lib/graph';
+import { partitionContext } from '../../lib/graph';
+import { buildContext } from '../../store/context-builder';
 import { PANEL_WIDTH_KEY, PANEL_MIN_WIDTH, PANEL_DEFAULT_WIDTH, PANEL_INSET, loadPanelWidth } from '../../lib/constants';
 import { useT } from '../../i18n';
 import RoleLine from './RoleLine';
@@ -104,9 +104,11 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
     return '';
   })();
 
-  const contextPath = getContextPath(selectedNodeId!, nodes, edges);
-  const ancestors = contextPath.slice(0, -1); // exclude current node
-  const totalContextTokens = contextPath.reduce((sum, n) => sum + countTokens(n.data.question + n.data.response), 0);
+  // Layered context view — same partition the prompt builder uses, so the
+  // tree the user reads and the prompt the model reads never drift apart.
+  const partition = partitionContext(selectedNodeId!, nodes, edges);
+  const { layerTokens } = buildContext(selectedNodeId!, nodes, edges);
+  const totalContextTokens = layerTokens.material + layerTokens.reference + layerTokens.chain;
   const highlightedTexts = new Set(data.highlights.map((h) => h.text));
 
   return (
@@ -178,7 +180,7 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
 
         <ContextChainSection
           key={`c-${selectedNodeId}`}
-          ancestors={ancestors}
+          partition={partition}
           totalContextTokens={totalContextTokens}
           onFocusNode={onFocusNode}
         />

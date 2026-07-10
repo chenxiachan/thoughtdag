@@ -1,14 +1,87 @@
-import type { ThoughtNode, ThoughtEdge } from '../types';
-import { walkUpAncestors } from '../lib/graph';
+import type { ThoughtNode } from '../types';
+import type { ThoughtEdge } from '../types';
+import { partitionContext, type ContextReference } from '../lib/graph';
 import { attachmentFingerprint } from '../lib/attachments';
+import { countTokens } from '../utils';
 import type { ContextMessage, ImageAttachment } from '../lib/api';
 
-// Build conversation history by walking up the ancestor DAG
-// All edges (blue, orange, cross-link) contribute to context as long as
-// they point toward the current node. This is a pure DAG traversal.
+// Build the prompt from the layered context partition (lib/graph.ts).
+// The order rule, in one sentence: materials → reference blocks → the live
+// conversation in chain order → the current question last. Solid edges are
+// the conversation (full turns); dashed edges become fenced [Reference]
+// blocks (quote by default, whole chain when the edge says 'full'); content
+// nodes are identity-prefixed material blocks. Amounts are controlled on
+// NODES (collapse+summary, highlight filter, archive) — edges only decide
+// identity. This ordering is deliberately independent of edge creation
+// history: the same graph always produces the same prompt.
 interface BuildContextResult {
   messages: ContextMessage[];
   images: ImageAttachment[];
+  /** Token weight per layer — lets the preview show composition honestly. */
+  layerTokens: { material: number; reference: number; chain: number };
+}
+
+/** One-line handle for a node inside block headers and trails. */
+function nodeTitle(node: ThoughtNode): string {
+  const q = node.data.question.replace(/\s+/g, ' ').trim();
+  return q.length > 60 ? `${q.slice(0, 60)}…` : q;
+}
+
+/** A node's response as context text, respecting its highlight mode. */
+function renderResponse(node: ThoughtNode): string {
+  const mode = node.data.highlightMode || 'off';
+  const highlights = node.data.highlights || [];
+  if (mode === 'filter' && highlights.length > 0) {
+    return highlights.map((h) => h.text).join('\n\n');
+  }
+  if (mode === 'tag' && highlights.length > 0) {
+    let tagged = node.data.response;
+    for (const h of highlights) {
+      tagged = tagged.replace(h.text, `[Important] ${h.text} [/Important]`);
+    }
+    return tagged;
+  }
+  return node.data.response;
+}
+
+/** Q/A of one node inside a reference block, honoring collapse+summary —
+    collapsing an upstream node IS the user's handoff dial. */
+function transcriptLines(node: ThoughtNode): string[] {
+  const lines: string[] = [];
+  if (node.data.question) lines.push(`Q: ${node.data.question}`);
+  const a = node.data.isCollapsed && node.data.summary
+    ? `[Summary] ${node.data.summary}`
+    : renderResponse(node);
+  if (a) lines.push(`A: ${a}`);
+  return lines;
+}
+
+/** The full text of one dashed-edge reference block. Exported so the edge
+    chip and the follow-up preview can price a reference without drift. */
+export function referenceBlockContent(ref: ContextReference): string {
+  const lines: string[] = [`[Reference: ${nodeTitle(ref.source)}]`];
+  if (ref.depth === 'quote') {
+    const trail = ref.chain
+      .filter((n) => !n.data.archived)
+      .map((n) => (n.data.isCollapsed && n.data.summary ? `${nodeTitle(n)} ([Summary] ${n.data.summary})` : nodeTitle(n)));
+    if (trail.length > 0) lines.push(`Trail (upstream questions): ${trail.join(' → ')}`);
+    lines.push(...transcriptLines(ref.source));
+  } else {
+    for (const n of [...ref.chain, ref.source]) {
+      if (n.data.archived) continue;
+      lines.push(...transcriptLines(n));
+    }
+  }
+  return lines.join('\n');
+}
+
+/** Deterministic fingerprint of an assembled context — recorded on each
+    generation (provenance seed for the staleness pass). */
+export function hashContext(messages: ContextMessage[], images: ImageAttachment[] = []): string {
+  const s = JSON.stringify(messages) + `#img:${images.map((i) => i.data.length).join(',')}`;
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  return (h >>> 0).toString(36);
 }
 
 export function buildContext(
@@ -21,31 +94,26 @@ export function buildContext(
 ): BuildContextResult {
   const messages: ContextMessage[] = [];
   const images: ImageAttachment[] = [];
-  // Collect excludedAttachmentIds from ALL nodes in the path (propagation)
+  const layerTokens = { material: 0, reference: 0, chain: 0 };
+  let layerStart = 0;
+  const closeLayer = (layer: keyof typeof layerTokens) => {
+    for (let i = layerStart; i < messages.length; i++) layerTokens[layer] += countTokens(messages[i].content);
+    layerStart = messages.length;
+  };
+  const { materials, references, mainline } = partitionContext(nodeId, nodes, edges);
+
+  // Propagate excludedAttachmentIds from every attachment-carrying layer
   const excludeSet = new Set<string>(excludedAttachmentIds || []);
-  const seenAttachmentFingerprints = new Set<string>();
-
-  // Topological-order collection of all ancestors via incoming edges
-  const { ordered } = walkUpAncestors(nodeId, nodes, edges);
-
-  // Propagate excludedAttachmentIds from all ancestors
   const includeOverrides = new Set<string>(includedAttachmentIds || []);
-  for (const node of ordered) {
+  for (const node of [...materials, ...mainline]) {
     for (const exId of (node.data.excludedAttachmentIds || [])) {
-      if (!includeOverrides.has(exId)) {
-        excludeSet.add(exId);
-      }
+      if (!includeOverrides.has(exId)) excludeSet.add(exId);
     }
   }
+  const seenAttachmentFingerprints = new Set<string>();
 
-  // Convert ordered ancestors to messages, respecting highlightMode and collapse/summary
-  for (const node of ordered) {
-    // Archived = pruned-but-kept: contributes NOTHING to context (the walk
-    // itself already passed through it, so descendants keep their ancestry)
-    if (node.data.archived) continue;
-    // Collect attachments from this node (respecting excludedAttachmentIds + cross-node dedup)
-    const nodeAttachments = node.data.attachments || [];
-    for (const att of nodeAttachments) {
+  const pushAttachments = (node: ThoughtNode) => {
+    for (const att of node.data.attachments || []) {
       if (excludeSet.has(att.id)) continue;
       const fp = attachmentFingerprint(att);
       if (seenAttachmentFingerprints.has(fp)) continue;
@@ -74,22 +142,18 @@ export function buildContext(
           messages.push({ role: 'user', content: `[PDF: ${att.name} — extracting content...]` });
         }
       } else {
-        // Text files: inject as user message context
         messages.push({ role: 'user', content: `[File: ${att.name}]\n${att.content}` });
       }
     }
+  };
 
-    // Collapsed nodes with summary: pass summary only (context compression)
-    if (node.data.isCollapsed && node.data.summary) {
-      messages.push({ role: 'user', content: node.data.question });
-      messages.push({ role: 'assistant', content: `[Summary] ${node.data.summary}` });
-      continue;
-    }
+  // ── L1a: materials — canvas content with its identity prefix. Link
+  // snapshots carry source + capture date (web content drifts, and fetched
+  // text is an injection surface — keep it clearly fenced).
+  for (const node of materials) {
+    if (node.data.archived) continue;
+    pushAttachments(node);
     if (node.data.question) {
-      // Content nodes are canvas material, not turns — marked so the model
-      // reads them as reference rather than something to answer. Link
-      // snapshots carry their source + capture date (web content drifts,
-      // and fetched text is an injection surface — keep it clearly fenced).
       const content = node.data.stepKind === 'note'
         ? `[Note]\n${node.data.question}`
         : node.data.stepKind === 'link'
@@ -97,21 +161,35 @@ export function buildContext(
           : node.data.question;
       messages.push({ role: 'user', content });
     }
+  }
+
+  closeLayer('material');
+
+  // ── L1b: references — one fenced block per dashed edge
+  for (const ref of references) {
+    if (ref.source.data.archived) continue;
+    messages.push({ role: 'user', content: referenceBlockContent(ref) });
+  }
+
+  closeLayer('reference');
+
+  // ── L2: the conversation — structural chain, current node last
+  for (const node of mainline) {
+    // Archived = pruned-but-kept: contributes NOTHING to context (the walk
+    // itself already passed through it, so descendants keep their ancestry)
+    if (node.data.archived) continue;
+    pushAttachments(node);
+    // Collapsed nodes with summary: pass summary only (context compression)
+    if (node.data.isCollapsed && node.data.summary) {
+      messages.push({ role: 'user', content: node.data.question });
+      messages.push({ role: 'assistant', content: `[Summary] ${node.data.summary}` });
+      continue;
+    }
+    if (node.data.question) {
+      messages.push({ role: 'user', content: node.data.question });
+    }
     if (node.data.response) {
-      const mode = node.data.highlightMode || 'off';
-      const highlights = node.data.highlights || [];
-      if (mode === 'filter' && highlights.length > 0) {
-        const filtered = highlights.map((h) => h.text).join('\n\n');
-        messages.push({ role: 'assistant', content: filtered });
-      } else if (mode === 'tag' && highlights.length > 0) {
-        let tagged = node.data.response;
-        for (const h of highlights) {
-          tagged = tagged.replace(h.text, `[Important] ${h.text} [/Important]`);
-        }
-        messages.push({ role: 'assistant', content: tagged });
-      } else {
-        messages.push({ role: 'assistant', content: node.data.response });
-      }
+      messages.push({ role: 'assistant', content: renderResponse(node) });
     }
   }
 
@@ -120,16 +198,18 @@ export function buildContext(
     messages.push({ role: 'user', content: `[Regarding this passage: "${branchContext}"]` });
   }
 
+  closeLayer('chain');
+
   // Check if user explicitly chose a role source (multi-parent conflict resolution)
-  const selfNode = ordered[ordered.length - 1];
+  const selfNode = mainline[mainline.length - 1];
   if (selfNode?.data.roleSourceNodeId) {
     if (selfNode.data.roleSourceNodeId === '__none__') {
-      return { messages, images };
+      return { messages, images, layerTokens };
     }
     const sourceNode = nodes.find((n) => n.id === selfNode.data.roleSourceNodeId);
     if (sourceNode?.data.rolePrompt) {
       messages.unshift({ role: 'system', content: sourceNode.data.rolePrompt });
-      return { messages, images };
+      return { messages, images, layerTokens };
     }
   }
 
@@ -138,9 +218,9 @@ export function buildContext(
   //   set-next: role for descendants only (skip for self)
   //   reset: role for self only (blocks inheritance for descendants)
   let resolvedRole: string | undefined;
-  for (let i = ordered.length - 1; i >= 0; i--) {
-    const n = ordered[i];
-    const isSelf = i === ordered.length - 1;
+  for (let i = mainline.length - 1; i >= 0; i--) {
+    const n = mainline[i];
+    const isSelf = i === mainline.length - 1;
     const mode = n.data.roleMode || 'inherit';
 
     if (mode === 'reset') {
@@ -167,7 +247,7 @@ export function buildContext(
     messages.unshift({ role: 'system', content: resolvedRole });
   }
 
-  return { messages, images };
+  return { messages, images, layerTokens };
 }
 
 // Explicit role for a freshly created node (addQuestion / regenerate),

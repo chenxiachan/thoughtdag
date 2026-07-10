@@ -33,6 +33,86 @@ export function walkUpAncestors(
   return { ordered, visitedEdgeIds };
 }
 
+const CONTENT_KINDS = new Set(['note', 'file', 'link']);
+
+/** One dashed reference feeding a context: the node it quotes, the edge
+    that brought it, and (for depth 'full') the structural chain behind it. */
+export interface ContextReference {
+  source: ThoughtNode;
+  edge: ThoughtEdge;
+  depth: 'quote' | 'full';
+  /** Structural ancestors of the source (roots first), source EXCLUDED.
+      Quote depth renders these as a one-line question trail; full depth
+      renders their whole Q/A transcript inside the block. */
+  chain: ThoughtNode[];
+}
+
+export interface ContextPartition {
+  /** Content nodes (notes / files / links) feeding this context, any edge kind. */
+  materials: ThoughtNode[];
+  /** Dashed cross-links into the mainline, one reference block each. */
+  references: ContextReference[];
+  /** Structural ancestors in chain order, the node itself last. */
+  mainline: ThoughtNode[];
+}
+
+/**
+ * The layered view of a node's context — the single structure behind the
+ * prompt builder, the panel's context tree and the follow-up preview, so
+ * what the model reads and what the user sees never drift apart.
+ *
+ * Layers by HOW content enters (the One Rule, ordered):
+ *   materials  — content nodes: background blocks with [Note]/[File] identity
+ *   references — dashed edges: fenced [Reference] blocks (quote or full)
+ *   mainline   — solid edges: the live conversation, strict chain order
+ * A reference never forwards its own references (one level of indirection).
+ */
+export function partitionContext(
+  nodeId: string,
+  nodes: ThoughtNode[],
+  edges: ThoughtEdge[],
+): ContextPartition {
+  const structural = edges.filter((e) => !e.data?.isCrossLink);
+  const crossLinks = edges.filter((e) => e.data?.isCrossLink);
+
+  // Mainline: structural walk only (content ancestors pulled out as materials)
+  const { ordered: structuralOrdered } = walkUpAncestors(nodeId, nodes, structural);
+  const materials: ThoughtNode[] = [];
+  const mainline: ThoughtNode[] = [];
+  for (const n of structuralOrdered) {
+    (CONTENT_KINDS.has(n.data.stepKind ?? '') ? materials : mainline).push(n);
+  }
+  const mainlineIds = new Set(structuralOrdered.map((n) => n.id));
+
+  // References: cross-links pointing at the node or any structural ancestor
+  const references: ContextReference[] = [];
+  const seenRefSources = new Set<string>();
+  for (const edge of crossLinks) {
+    if (!mainlineIds.has(edge.target)) continue;
+    if (mainlineIds.has(edge.source)) continue; // already in the conversation
+    if (seenRefSources.has(edge.source)) continue;
+    const source = nodes.find((n) => n.id === edge.source);
+    if (!source) continue;
+    seenRefSources.add(edge.source);
+    if (CONTENT_KINDS.has(source.data.stepKind ?? '')) {
+      // Hand-wired material is still material — full identity block, no trail
+      materials.push(source);
+      continue;
+    }
+    const { ordered: refOrdered } = walkUpAncestors(edge.source, nodes, structural);
+    const chain: ThoughtNode[] = [];
+    for (const n of refOrdered) {
+      if (n.id === edge.source) continue;
+      if (mainlineIds.has(n.id)) continue; // shared ancestry stays deduped
+      if (CONTENT_KINDS.has(n.data.stepKind ?? '')) continue; // trail is Q/A only
+      chain.push(n);
+    }
+    references.push({ source, edge, depth: edge.data?.contextDepth === 'full' ? 'full' : 'quote', chain });
+  }
+
+  return { materials, references, mainline };
+}
+
 // Context path of a node: all ancestors in topological order, node itself last.
 export function getContextPath(
   nodeId: string,

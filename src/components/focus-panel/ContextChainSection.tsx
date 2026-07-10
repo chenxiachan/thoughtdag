@@ -1,33 +1,35 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronRight, CornerDownRight, Link2, Paperclip, Sprout, StickyNote } from 'lucide-react';
+import { ChevronDown, ChevronRight, CornerDownRight, Link2, Paperclip, Quote, Sprout, StickyNote } from 'lucide-react';
 import { useStore } from '../../store';
 import { countTokens } from '../../utils';
+import { referenceBlockContent } from '../../store/context-builder';
+import type { ContextPartition } from '../../lib/graph';
 import { useT } from '../../i18n';
 import type { ThoughtNode } from '../../types';
 
-// Content ancestors (notes / files / links) show up in the chain with their
-// own identity — the material feeding this node is part of its provenance.
-function chainEntry(ancestor: ThoughtNode): { icon: React.ReactNode | null; label: string } {
-  const kind = ancestor.data.stepKind;
-  if (kind === 'note') {
-    return { icon: <StickyNote size={14} strokeWidth={1.75} className="text-amber-600" />, label: ancestor.data.question };
-  }
+// The context TREE, grouped the same way the prompt is assembled
+// (materials → references → the conversation): what you read here is
+// literally the order the model reads. References show their depth
+// (quote / full) and price; every row jumps to its node.
+
+function materialEntry(node: ThoughtNode): { icon: React.ReactNode; label: string } {
+  const kind = node.data.stepKind;
   if (kind === 'file') {
-    const atts = ancestor.data.attachments || [];
+    const atts = node.data.attachments || [];
     return { icon: <Paperclip size={14} strokeWidth={1.75} />, label: atts.map((a) => a.name).join(', ') };
   }
   if (kind === 'link') {
-    return { icon: <Link2 size={14} strokeWidth={1.75} className="text-accent" />, label: ancestor.data.linkTitle || ancestor.data.linkUrl || '' };
+    return { icon: <Link2 size={14} strokeWidth={1.75} className="text-accent" />, label: node.data.linkTitle || node.data.linkUrl || '' };
   }
-  return { icon: null, label: ancestor.data.question };
+  return { icon: <StickyNote size={14} strokeWidth={1.75} className="text-amber-600" />, label: node.data.question };
 }
 
 export default function ContextChainSection({
-  ancestors,
+  partition,
   totalContextTokens,
   onFocusNode,
 }: {
-  ancestors: ThoughtNode[];
+  partition: ContextPartition;
   totalContextTokens: number;
   onFocusNode?: (id: string) => void;
 }) {
@@ -35,12 +37,17 @@ export default function ContextChainSection({
   const t = useT();
 
   const [contextOpen, setContextOpen] = useState(true);
+  const jump = (id: string) => { setSelectedNodeId(id); onFocusNode?.(id); };
+
+  const ancestors = partition.mainline.slice(0, -1); // exclude current node
+  const rowCls = 'w-full text-left rounded-lg px-2 py-1.5 hover:bg-wash transition-colors group flex items-center gap-2 text-xs';
+  const groupCls = 'text-2xs text-ink-faint font-medium mt-2 mb-0.5';
 
   return (
     <div className="panel-card px-4 py-3">
       <button
         onClick={() => setContextOpen(!contextOpen)}
-        className="flex items-center gap-1.5 text-2xs font-semibold text-ink-muted mb-2 hover:text-ink transition-colors w-full"
+        className="flex items-center gap-1.5 text-2xs font-semibold text-ink-muted mb-1 hover:text-ink transition-colors w-full"
       >
         <span>{contextOpen ? <ChevronDown size={14} strokeWidth={1.75} /> : <ChevronRight size={14} strokeWidth={1.75} />}</span>
         <span>{t('chain.title')}</span>
@@ -49,27 +56,67 @@ export default function ContextChainSection({
 
       {contextOpen && (
         <div>
-          {ancestors.length === 0 ? (
-            <p className="text-xs text-ink-faint italic">{t('chain.rootNode')}</p>
-          ) : (
-            ancestors.map((ancestor, i) => {
-              const { icon, label } = chainEntry(ancestor);
-              return (
-                <button
-                  key={ancestor.id}
-                  onClick={() => { setSelectedNodeId(ancestor.id); onFocusNode?.(ancestor.id); }}
-                  className="w-full text-left rounded-lg px-2 py-1.5 hover:bg-wash transition-colors group flex items-center gap-2 text-xs"
-                >
-                  <span className="text-ink-faint shrink-0">{icon ?? (i === 0 ? <Sprout size={14} strokeWidth={1.75} /> : <CornerDownRight size={14} strokeWidth={1.75} />)}</span>
+          {/* Materials */}
+          {partition.materials.length > 0 && (
+            <>
+              <p className={groupCls}>{t('chain.materials')}</p>
+              {partition.materials.map((m) => {
+                const { icon, label } = materialEntry(m);
+                return (
+                  <button key={m.id} onClick={() => jump(m.id)} className={rowCls}>
+                    <span className="text-ink-faint shrink-0">{icon}</span>
+                    <span className="text-ink-muted group-hover:text-accent transition-colors truncate flex-1">
+                      {label.slice(0, 70)}{label.length > 70 ? '…' : ''}
+                    </span>
+                  </button>
+                );
+              })}
+            </>
+          )}
+
+          {/* References: dashed edges, depth + price on each row */}
+          {partition.references.length > 0 && (
+            <>
+              <p className={groupCls}>{t('chain.references')}</p>
+              {partition.references.map((ref) => (
+                <button key={ref.edge.id} onClick={() => jump(ref.source.id)} className={rowCls}>
+                  <span className="text-ink-faint shrink-0"><Quote size={13} strokeWidth={1.75} /></span>
                   <span className="text-ink-muted group-hover:text-accent transition-colors truncate flex-1">
-                    {label.slice(0, 70)}{label.length > 70 ? '…' : ''}
+                    {ref.source.data.question.slice(0, 60)}{ref.source.data.question.length > 60 ? '…' : ''}
+                  </span>
+                  <span className={`text-2xs px-1.5 py-px rounded-full shrink-0 ${ref.depth === 'full' ? 'bg-accent/10 text-accent' : 'bg-wash text-ink-faint'}`}>
+                    {t(ref.depth === 'full' ? 'chain.refDepthFull' : 'chain.refDepthQuote')}
                   </span>
                   <span className="text-2xs text-ink-faint font-mono shrink-0">
-                    {countTokens(ancestor.data.question + ancestor.data.response)}
+                    {countTokens(referenceBlockContent(ref))}
                   </span>
                 </button>
-              );
-            })
+              ))}
+            </>
+          )}
+
+          {/* The conversation itself */}
+          {ancestors.length === 0 && partition.materials.length === 0 && partition.references.length === 0 ? (
+            <p className="text-xs text-ink-faint italic mt-1">{t('chain.rootNode')}</p>
+          ) : (
+            <>
+            {(partition.materials.length > 0 || partition.references.length > 0) && ancestors.length > 0 && (
+              <p className={groupCls}>{t('chain.conversation')}</p>
+            )}
+            {ancestors.map((ancestor, i) => (
+              <button key={ancestor.id} onClick={() => jump(ancestor.id)} className={rowCls}>
+                <span className="text-ink-faint shrink-0">
+                  {i === 0 ? <Sprout size={14} strokeWidth={1.75} /> : <CornerDownRight size={14} strokeWidth={1.75} />}
+                </span>
+                <span className="text-ink-muted group-hover:text-accent transition-colors truncate flex-1">
+                  {ancestor.data.question.slice(0, 70)}{ancestor.data.question.length > 70 ? '…' : ''}
+                </span>
+                <span className="text-2xs text-ink-faint font-mono shrink-0">
+                  {countTokens(ancestor.data.question + ancestor.data.response)}
+                </span>
+              </button>
+            ))}
+            </>
           )}
         </div>
       )}

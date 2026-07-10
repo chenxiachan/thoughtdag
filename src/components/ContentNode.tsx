@@ -286,6 +286,8 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
       )}
 
       <Handle type="source" position={Position.Bottom} id="continue" className={`!bg-ink-faint !border-2 !border-white tdag-handle ${zoomedOut ? '!w-6 !h-6 tdag-handle-lg' : '!w-3.5 !h-3.5'}`} />
+      {/* Invisible side anchor so material references can exit sideways */}
+      <Handle type="source" position={Position.Right} id="branch" isConnectable={false} className="!bg-transparent !w-0 !h-0 !border-0 !pointer-events-none" style={{ top: '50%' }} />
     </div>
   );
 }

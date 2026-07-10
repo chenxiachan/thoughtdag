@@ -46,16 +46,22 @@ export default function FollowUpInput({
   };
 
   // What would a follow-up from this node actually send? Makes the core
-  // "you control the context" promise visible before asking.
+  // "you control the context" promise visible before asking. Messages come
+  // out in layer order (materials → references → conversation), so the
+  // flat list below reads grouped; the summary line shows the composition.
   const preview = useMemo(() => {
-    const { messages, images } = buildContext(nodeId, nodes, edges);
+    const { messages, images, layerTokens } = buildContext(nodeId, nodes, edges);
     const items = messages.map((m) => ({
       role: m.role,
       head: m.content.replace(/\s+/g, ' ').slice(0, 90),
       tokens: countTokens(m.content),
     }));
+    const background = layerTokens.material + layerTokens.reference;
     return {
       items,
+      layerTokens,
+      // Background outweighing the live conversation is worth an amber flag
+      backgroundHeavy: background > 1000 && background > layerTokens.chain,
       totalTokens: items.reduce((s, m) => s + m.tokens, 0),
       fileCount: messages.filter((m) => /^\[(PDF|File): /.test(m.content)).length + images.length,
     };
@@ -86,8 +92,14 @@ export default function FollowUpInput({
       {/* Context preview popover */}
       {previewOpen && (
         <div className="absolute bottom-full left-3 right-3 mb-1.5 bg-card border border-line rounded-xl shadow-lg max-h-72 overflow-y-auto py-1.5 animate-fade-in z-30">
-          <div className="px-3 py-1.5 text-2xs text-ink-faint font-medium border-b border-line">
-            {t('followup.contextTitle')}
+          <div className="px-3 py-1.5 border-b border-line">
+            <span className="text-2xs text-ink-faint font-medium">{t('followup.contextTitle')}</span>
+            <span className={`text-2xs ml-2 ${preview.backgroundHeavy ? 'text-amber-600' : 'text-ink-faint'}`}>
+              {fmt(t('followup.layerSummary'), { a: preview.layerTokens.material, b: preview.layerTokens.reference, c: preview.layerTokens.chain })}
+            </span>
+            {preview.backgroundHeavy && (
+              <p className="text-2xs text-amber-600 mt-0.5">{t('followup.layerWarning')}</p>
+            )}
           </div>
           {preview.items.length === 0 ? (
             <p className="px-3 py-2 text-xs text-ink-faint italic">{t('followup.empty')}</p>

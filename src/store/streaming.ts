@@ -1,5 +1,6 @@
 import type { StoreApi } from 'zustand';
 import { walkUpAncestors } from '../lib/graph';
+import { hashContext } from './context-builder';
 import { llmCall, llmCallStream, type ContextMessage, type ImageAttachment } from '../lib/api';
 import { countTokens } from '../utils';
 import { toast, useUiStore } from '../lib/ui-store';
@@ -69,6 +70,10 @@ export async function runNodeGeneration(
 
   let references: Reference[] | undefined;
 
+  // Provenance seed: fingerprint the exact context this generation ran on,
+  // so a later staleness pass can tell "upstream changed since this answer".
+  const contextHash = hashContext(messages, images);
+
   const writeFinal = (response: string, failed = false) => {
     const tokenCount = countTokens(question + response);
     set((state) => ({
@@ -77,7 +82,7 @@ export async function runNodeGeneration(
         const responses = versionMode === 'append'
           ? [...n.data.responses.filter((r) => r), response]
           : [response];
-        return { ...n, data: { ...n.data, response, responses, responseIndex: responses.length - 1, isLoading: false, isCollapsed: true, tokenCount, generationFailed: failed || undefined, references } };
+        return { ...n, data: { ...n.data, response, responses, responseIndex: responses.length - 1, isLoading: false, isCollapsed: true, tokenCount, generationFailed: failed || undefined, references, lastContextHash: contextHash, lastGeneratedAt: new Date().toISOString() } };
       }),
     }));
   };

@@ -160,11 +160,23 @@ export const en = {
   // Context chain section
   'chain.title': 'Context Chain',
   'chain.rootNode': 'Root node — no ancestors',
+  'chain.materials': 'Materials',
+  'chain.references': 'References',
+  'chain.refDepthQuote': 'quote',
+  'chain.refDepthFull': 'full',
+  'chain.conversation': 'Conversation',
+  'edge.linkedQuote': "Reference linked: feeds this node's Q&A plus its trail (~{n} tok)",
+  'edge.makeFull': 'Make full',
+  'edge.quoteChip': 'Quote · {n} tok',
+  'edge.fullChip': 'Full · {n} tok',
+  'edge.depthToggleTitle': 'Toggle reference depth: quote (node + trail) ⇄ full chain',
 
   // Follow-up input
   'followup.contextTitle': 'Context sent with the next follow-up',
   'followup.empty': 'Empty — this will start a fresh context.',
   'followup.willSend': 'will send ~{n} tok · {m} messages',
+  'followup.layerSummary': 'materials {a} · references {b} · conversation {c} tok',
+  'followup.layerWarning': 'Background (materials + references) now outweighs the conversation itself',
   'followup.files': ' · {k} files',
   'followup.previewTitle': 'Preview the exact context that will be sent',
   'followup.attach': 'Attach files to this follow-up (images / PDF / text)',
@@ -206,6 +218,7 @@ export const en = {
   'toast.importFailedJson': 'Import failed: not valid JSON',
   'toast.importFailedMissing': 'Import failed: missing nodes/edges arrays',
   'toast.generationFailed': 'Generation failed: {message}',
+  'toast.editMakesStale': 'Question edited: {n} downstream answers were written against the old content (re-run manually)',
   'toast.unknownError': 'Unknown error',
   'toast.projectsLoadFailed': 'Failed to load projects — starting with an empty canvas',
 

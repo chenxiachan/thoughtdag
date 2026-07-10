@@ -4,10 +4,11 @@ import { generateId } from '../../utils';
 import { autoLayout } from '../../lib/layout';
 import { getDescendantIds } from '../../lib/graph';
 import { COLORS } from '../../lib/constants';
-import type { ContextMessage } from '../../lib/api';
+import type { ContextMessage, ImageAttachment } from '../../lib/api';
 import { buildContext, resolveExplicitRole, applyRoleOverride } from '../context-builder';
 import { activeAbortControllers, autoRunCounts, runNodeGeneration, triggerParadigmCascade } from '../streaming';
-import { useUiStore } from '../../lib/ui-store';
+import { useUiStore, toast } from '../../lib/ui-store';
+import { t, fmt } from '../../i18n';
 import type { StoreState, LlmSlice, AddQuestionOptions } from '../types';
 
 export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, get) => ({
@@ -82,7 +83,7 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
     const selfNode = get().nodes.find((n) => n.id === id);
     const ctx = parentId
       ? buildContext(parentId, get().nodes, get().edges, branchContext, selfNode?.data.excludedAttachmentIds, selfNode?.data.includedAttachmentIds)
-      : { messages: [] as ContextMessage[], images: [] };
+      : { messages: [] as ContextMessage[], images: [] as ImageAttachment[] };
     const contextMessages = ctx.messages;
     const contextImages = ctx.images;
     const parentNode = parentId ? get().nodes.find((n) => n.id === parentId) : null;
@@ -287,6 +288,14 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
 
   editQuestion: async (nodeId: string, question: string) => {
     get().pushHistory();
+    // Staleness seed: descendants keep answers written against the OLD
+    // content — surface the blast radius now, replay stays manual.
+    const prevQuestion = get().nodes.find((n) => n.id === nodeId)?.data.question;
+    if (prevQuestion && prevQuestion !== question) {
+      const staleCount = getDescendantIds(nodeId, get().edges)
+        .filter((id) => get().nodes.find((n) => n.id === id)?.data.response).length;
+      if (staleCount > 0) toast('info', fmt(t('toast.editMakesStale'), { n: staleCount }), 7000);
+    }
     set((state) => ({
       nodes: state.nodes.map((n) =>
         n.id === nodeId ? { ...n, data: { ...n.data, question, isEditing: false, isLoading: true } } : n
@@ -350,7 +359,7 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
     const regenSelf = get().nodes.find((n) => n.id === id);
     const regenCtx = parentId
       ? buildContext(parentId, get().nodes, get().edges, node.data.branchContext, regenSelf?.data.excludedAttachmentIds, regenSelf?.data.includedAttachmentIds)
-      : { messages: [] as ContextMessage[], images: [] };
+      : { messages: [] as ContextMessage[], images: [] as ImageAttachment[] };
     const contextMessages = regenCtx.messages;
     const regenParent = parentId ? get().nodes.find((n) => n.id === parentId) : null;
     applyRoleOverride(contextMessages, resolveExplicitRole(regenSelf?.data, regenParent?.data, !!parentId));

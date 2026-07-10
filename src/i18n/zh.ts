@@ -159,11 +159,23 @@ export const zh: Record<keyof typeof en, string> = {
   // Context chain section
   'chain.title': '上下文链',
   'chain.rootNode': '根节点——没有上游',
+  'chain.materials': '材料',
+  'chain.references': '引用',
+  'chain.refDepthQuote': '引用',
+  'chain.refDepthFull': '全量',
+  'chain.conversation': '对话',
+  'edge.linkedQuote': '已连接引用：将进入该节点问答与来路（约 {n} tok）',
+  'edge.makeFull': '改为全量',
+  'edge.quoteChip': '引用 · {n} tok',
+  'edge.fullChip': '全量 · {n} tok',
+  'edge.depthToggleTitle': '切换引用深度：引用（该节点+来路）⇄ 全量（整条链）',
 
   // Follow-up input
   'followup.contextTitle': '下次追问将发送的上下文',
   'followup.empty': '为空——将从全新上下文开始。',
   'followup.willSend': '将发送 ~{n} tok · {m} 条消息',
+  'followup.layerSummary': '材料 {a} · 引用 {b} · 对话 {c} tok',
+  'followup.layerWarning': '背景（材料+引用）已超过对话本身',
   'followup.files': ' · {k} 个文件',
   'followup.previewTitle': '预览将要发送的确切上下文',
   'followup.attach': '给这条追问添加附件（图片 / PDF / 文本）',
@@ -205,6 +217,7 @@ export const zh: Record<keyof typeof en, string> = {
   'toast.importFailedJson': '导入失败：不是有效的 JSON',
   'toast.importFailedMissing': '导入失败：缺少 nodes/edges 数组',
   'toast.generationFailed': '生成失败：{message}',
+  'toast.editMakesStale': '问题已修改：下游 {n} 个节点的回答基于旧内容（可手动重跑）',
   'toast.unknownError': '未知错误',
   'toast.projectsLoadFailed': '加载画布失败——将以空画布启动',
 
