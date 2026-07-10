@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { X } from 'lucide-react';
 import { useStore } from '../../store';
+import { useUiStore } from '../../lib/ui-store';
 import { countTokens } from '../../utils';
 import { getContextPath } from '../../lib/graph';
 import { useT } from '../../i18n';
@@ -143,7 +144,7 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
         <div className="flex items-center gap-1 shrink-0">
           <HeaderActions nodeId={selectedNodeId!} isLoading={data.isLoading} />
           <button
-            onClick={() => setSelectedNodeId(null)}
+            onClick={() => { useUiStore.getState().setPanelOpen(false); setSelectedNodeId(null); }}
             className="text-ink-faint hover:text-ink transition-colors shrink-0 ml-1"
           >
             <X size={16} strokeWidth={1.75} />

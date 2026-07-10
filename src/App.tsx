@@ -319,12 +319,24 @@ function Canvas() {
     [addCrossLink]
   );
 
+  // Wire-drag must never start a text selection in the cards it crosses
+  const onConnectStart = useCallback(() => {
+    window.getSelection()?.removeAllRanges();
+    document.body.classList.add('tdag-connecting');
+  }, []);
+  const onConnectEnd = useCallback(() => {
+    document.body.classList.remove('tdag-connecting');
+  }, []);
+
   const selectedNodeId = useStore((s) => s.selectedNodeId);
   const selectedNodeIds = useStore((s) => s.selectedNodeIds);
-  // Content nodes and frames are edited in place on the canvas — no panel
+  // Content nodes and frames are edited in place on the canvas — no panel.
+  // The panel is a MODE: double-click opens it, its X closes it; while on,
+  // it follows the selection. Single clicks only select (no side effects).
+  const panelMode = useUiStore((s) => s.panelOpen);
   const selectedKind = nodes.find((nd) => nd.id === selectedNodeId)?.data.stepKind;
   const selectedIsContent = isContentKind(selectedKind) || selectedKind === 'frame';
-  const panelOpen = !!selectedNodeId && !isParadigm && !selectedIsContent;
+  const panelOpen = panelMode && !!selectedNodeId && !isParadigm && !selectedIsContent;
   const multiSelected = selectedNodeIds.length > 1;
   const batchDelete = useStore((s) => s.batchDelete);
 
@@ -571,6 +583,8 @@ function Canvas() {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        onConnectStart={onConnectStart}
+        onConnectEnd={onConnectEnd}
         onEdgeContextMenu={onEdgeContextMenu}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}

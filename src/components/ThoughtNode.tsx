@@ -7,6 +7,7 @@ import { useStore } from '../store';
 import { generateId } from '../utils';
 import { processFile } from '../lib/attachments';
 import { isRunLocked } from '../lib/paradigm';
+import { useUiStore } from '../lib/ui-store';
 import SearchToggles from './ui/SearchToggles';
 import { Markdown, HighlightedMarkdown } from './Markdown';
 import FanOutModal from './FanOutModal';
@@ -120,12 +121,14 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
     setSelectionPos(null);
   };
 
-  const handleDoubleClickQuestion = () => {
+  const handleDoubleClickQuestion = (e: React.MouseEvent) => {
+    e.stopPropagation(); // inline edit, not the panel
     setEditValue(data.question);
     setEditing(id, true);
   };
 
-  const handleDoubleClickResponse = () => {
+  const handleDoubleClickResponse = (e: React.MouseEvent) => {
+    e.stopPropagation(); // inline edit, not the panel
     setEditResponseValue(data.response);
     setEditingResponse(id, true);
   };
@@ -172,6 +175,12 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
         data.isEvaluator ? 'evaluator-node' : isHuman ? 'human-node' : isBranch ? 'orange-node' : isRoot ? 'root-node' : 'branch-node'
       } ${data.isLoading ? 'loading-border' : ''} ${selectedNodeId === id ? 'ring-2 ring-accent !border-accent selected-glow' : ''} ${isDropTarget ? 'ring-2 ring-accent/50 ring-dashed' : ''}`}
       onClick={() => setSelectedNodeId(id)}
+      onDoubleClick={() => {
+        // Double-click opens the panel (single click only selects); inner
+        // editors (question/response) stop propagation to stay inline
+        setSelectedNodeId(id);
+        useUiStore.getState().setPanelOpen(true);
+      }}
       onDrop={async (e) => {
         e.preventDefault();
         e.stopPropagation();

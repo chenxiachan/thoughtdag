@@ -36,6 +36,9 @@ interface UiState {
   autoRefreshPaused: boolean;
   /** View mode: hide frames + unlinked content nodes (annotation layer off). */
   annotationsHidden: boolean;
+  /** Panel mode: opened by double-clicking a node, closed via its X. While
+   *  on, the panel follows the selection; single clicks only select. */
+  panelOpen: boolean;
   /** Selected LLM id; null = server default. */
   selectedModel: string | null;
   dismissToast: (id: string) => void;
@@ -46,6 +49,7 @@ interface UiState {
   setMcpEnabled: (enabled: boolean) => void;
   setAutoRefreshPaused: (paused: boolean) => void;
   setAnnotationsHidden: (hidden: boolean) => void;
+  setPanelOpen: (open: boolean) => void;
   setSelectedModel: (model: string | null) => void;
 }
 
@@ -58,6 +62,7 @@ export const useUiStore = create<UiState>((set, get) => ({
   mcpEnabled: localStorage.getItem(MCP_KEY) !== 'off',
   autoRefreshPaused: localStorage.getItem(AUTO_PAUSE_KEY) === 'yes',
   annotationsHidden: localStorage.getItem(HIDE_ANNOTATIONS_KEY) === 'yes',
+  panelOpen: false,
   selectedModel: localStorage.getItem(MODEL_KEY) || null,
   dismissToast: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
   resolveConfirm: (ok) => {
@@ -77,6 +82,7 @@ export const useUiStore = create<UiState>((set, get) => ({
     localStorage.setItem(MCP_KEY, enabled ? 'on' : 'off');
     set({ mcpEnabled: enabled });
   },
+  setPanelOpen: (open) => set({ panelOpen: open }),
   setAnnotationsHidden: (hidden) => {
     localStorage.setItem(HIDE_ANNOTATIONS_KEY, hidden ? 'yes' : 'no');
     set({ annotationsHidden: hidden });

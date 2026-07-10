@@ -321,3 +321,10 @@ textarea:focus-visible {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* While dragging a connection, the gesture must never start a text
+   selection in the cards it sweeps across (in-node selection stays normal
+   otherwise — it powers highlights and explore). */
+body.tdag-connecting, body.tdag-connecting * {
+  user-select: none !important;
+}
