@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { Handle, NodeResizeControl, Position, type NodeProps } from '@xyflow/react';
-import { ExternalLink, FileText, GripVertical, Link2, Link2Off, Loader2, Paperclip, RefreshCw, StickyNote, Trash2, X } from 'lucide-react';
+import { ExternalLink, FileText, Link2, Link2Off, Loader2, MoveDiagonal2, Paperclip, RefreshCw, StickyNote, Trash2, X } from 'lucide-react';
 import type { ThoughtNode as ThoughtNodeType } from '../types';
 import { useStore } from '../store';
 import { triggerParadigmCascade } from '../store/streaming';
@@ -59,7 +59,7 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
 
   return (
     <div
-      className={`w-full min-w-[340px] rounded-xl shadow-sm border-2 animate-fade-in transition-colors duration-200 ${
+      className={`w-full h-full min-w-[340px] flex flex-col rounded-xl shadow-sm border-2 animate-fade-in transition-colors duration-200 ${
         kind === 'note' ? 'bg-amber-50/90 border-amber-200' : 'bg-card border-line'
       } ${selectedNodeId === id ? 'ring-2 ring-accent selected-glow' : ''}`}
       onClick={() => setSelectedNodeId(id)}
@@ -74,7 +74,7 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
       {/* Pure source: material feeds context, nothing flows INTO it — hence no target handle. */}
 
       {/* header: drag handle + identity + linked state + delete */}
-      <div className={`flex items-center justify-between px-4 py-2 border-b cursor-grab active:cursor-grabbing drag-handle ${kind === 'note' ? 'border-amber-200/70' : 'border-line/70'}`}>
+      <div className={`flex items-center justify-between px-4 py-2 border-b cursor-grab active:cursor-grabbing drag-handle shrink-0 ${kind === 'note' ? 'border-amber-200/70' : 'border-line/70'}`}>
         <div className="flex items-center gap-2 min-w-0">
           {headerIcon}
           {kind === 'link'
@@ -108,7 +108,9 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
         </div>
       </div>
 
-      <div className="px-4 py-3 nodrag">
+      {/* Body: grows with content by default; when the card is resized the
+          body becomes the scroll region (wheel scrolls text, not zoom) */}
+      <div className="px-4 py-3 nodrag flex-1 min-h-0 overflow-y-auto nowheel">
         {kind === 'note' && (
           editing ? (
             <textarea
@@ -124,7 +126,7 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
           ) : (
             <div
               onDoubleClick={() => { setDraft(data.question); setEditing(true); }}
-              className="markdown-body text-sm text-ink leading-relaxed max-h-[420px] overflow-y-auto cursor-text nopan nowheel"
+              className="markdown-body text-sm text-ink leading-relaxed cursor-text nopan"
               title={t('content.noteEditTitle')}
             >
               {data.question
@@ -267,15 +269,17 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
         )}
       </div>
 
-      {/* Horizontal resize (images scale with the card width) */}
+      {/* Corner resize: width scales images, height turns the body into a
+          scroll region for long material */}
       {selected && (
         <NodeResizeControl
-          position="right"
+          position="bottom-right"
           minWidth={320}
           maxWidth={860}
-          style={{ background: 'transparent', border: 'none', width: 14 }}
+          minHeight={120}
+          style={{ background: 'transparent', border: 'none', width: 18, height: 18 }}
         >
-          <GripVertical size={13} strokeWidth={1.75} className="text-ink-faint absolute top-1/2 -translate-y-1/2 -right-1" />
+          <MoveDiagonal2 size={13} strokeWidth={1.75} className="text-ink-faint absolute bottom-0.5 right-0.5" />
         </NodeResizeControl>
       )}
 

@@ -61,6 +61,8 @@ export interface LlmSlice {
   /** A paradigm human turn: record the question WITHOUT generating (the
    *  answers belong to downstream prompt nodes), then advance the cascade. */
   submitHumanTurn: (nodeId: string, question: string) => void;
+  /** Multi-select explore: new node with a REAL edge from every selected node. */
+  exploreFrom: (nodeIds: string[], question: string) => Promise<void>;
   /** Fan out N perspectives: once = blind candidate branches; follow = reviewers that auto-rerun with the thread. */
   fanOut: (parentId: string, question: string, roles: { name: string; prompt: string }[], opts?: { follow?: boolean }) => Promise<void>;
   regenerate: (nodeId: string) => void;

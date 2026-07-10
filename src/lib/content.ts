@@ -27,7 +27,9 @@ export function spawnContentNode(
     id,
     type: 'thought',
     position,
-    width: 400, // explicit so the horizontal resize control has a base
+    width: 400, // explicit so the resize control has a base
+    // big pastes start capped (body scrolls); small notes grow naturally
+    ...(init?.question && init.question.length > 1200 ? { height: 480 } : {}),
     dragHandle: '.drag-handle',
     data: {
       question,

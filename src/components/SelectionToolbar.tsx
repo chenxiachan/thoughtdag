@@ -6,7 +6,7 @@ import { selectionMarkdown, downloadMarkdown } from '../lib/export';
 import { useT, t as ti, fmt } from '../i18n';
 
 export default function SelectionToolbar() {
-  const { selectedNodeIds, nodes, batchDelete, batchMergeSummarize, addQuestion, alignSelection, setArchived } = useStore();
+  const { selectedNodeIds, nodes, batchDelete, batchMergeSummarize, exploreFrom, alignSelection, setArchived } = useStore();
   const t = useT();
   const [exploreOpen, setExploreOpen] = useState(false);
   const [exploreInput, setExploreInput] = useState('');
@@ -35,15 +35,11 @@ export default function SelectionToolbar() {
   // Collect all highlights from selected nodes
   const allHighlights = selectedNodes.flatMap((n) => n?.data.highlights || []);
 
-  // Build context from selected nodes for explore
-  const selectedContent = selectedNodes
-    .map((n) => `Q: ${n?.data.question}\nA: ${n?.data.response}`)
-    .join('\n\n---\n\n');
-
   const handleExplore = () => {
     if (!exploreInput.trim()) return;
-    // Use first selected node as parent
-    addQuestion(exploreInput.trim(), { parentId: selectedNodeIds[0], branchContext: selectedContent });
+    // One Rule: the new node hangs from EVERY selected node — edges carry
+    // the context, nothing is smuggled in as invisible text
+    void exploreFrom(selectedNodeIds, exploreInput.trim());
     setExploreOpen(false);
     setExploreInput('');
   };

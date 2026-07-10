@@ -138,6 +138,26 @@ function Canvas() {
 
   // ── Content palette + canvas paste/drop: material lands where you point ──
   const lastMouse = useRef<{ x: number; y: number } | null>(null);
+
+  // Ask node: an ordinary Q&A node dropped EMPTY — wire material in, then
+  // type the question; it answers from whatever the edges carry.
+  const spawnAskNode = useCallback((pos: { x: number; y: number }) => {
+    const st = useStore.getState();
+    const id = generateId();
+    st.setNodes([...st.nodes, {
+      id, type: 'thought', position: pos, dragHandle: '.drag-handle',
+      data: {
+        question: '', response: '', responses: [], responseIndex: -1,
+        isCollapsed: false, isEditing: false, isEditingResponse: false, isLoading: false,
+        tokenCount: 0, highlights: [], highlightMode: 'tag',
+        attachments: [], excludedAttachmentIds: [], includedAttachmentIds: [],
+        roleMode: 'inherit', isRoot: false, isBranch: false,
+        webSearch: useUiStore.getState().webSearchEnabled,
+        scholarSearch: useUiStore.getState().scholarSearchEnabled,
+      },
+    }]);
+    st.pushHistory();
+  }, []);
   const flowPosAt = useCallback((screen?: { x: number; y: number } | null) => {
     const at = rfInstance.current?.screenToFlowPosition(screen ?? { x: window.innerWidth / 2, y: window.innerHeight / 2 }) ?? { x: 140, y: 140 };
     return { x: at.x - 200, y: at.y - 60 };
@@ -474,6 +494,11 @@ function Canvas() {
           if (!(e.target as HTMLElement).classList?.contains('react-flow__pane')) return;
           const pos = flowPosAt({ x: e.clientX, y: e.clientY });
           const paletteKind = e.dataTransfer.getData('application/thoughtdag-content');
+          if (paletteKind === 'ask') {
+            e.preventDefault();
+            spawnAskNode(pos);
+            return;
+          }
           if (paletteKind === 'note' || paletteKind === 'file') {
             e.preventDefault();
             spawnContentNode(paletteKind, pos);
@@ -837,6 +862,17 @@ function Canvas() {
           text → note, a URL → link snapshot, image/files → file node. */}
       {(hasNodes || isParadigm) && (
         <div className="absolute top-1/2 -translate-y-1/2 left-4 z-10 flex flex-col gap-1.5 bg-card/90 backdrop-blur border border-line rounded-xl p-1.5 shadow-sm">
+          {!isParadigm && (
+            <button
+              onClick={() => spawnAskNode(flowPosAt(null))}
+              draggable
+              onDragStart={(e) => { e.dataTransfer.setData('application/thoughtdag-content', 'ask'); e.dataTransfer.effectAllowed = 'copy'; }}
+              title={t('palette.askTitle')}
+              className="w-9 h-9 rounded-lg flex items-center justify-center text-accent hover:bg-accent/10 transition-colors cursor-grab"
+            >
+              <MessageCircleQuestion size={17} strokeWidth={1.75} />
+            </button>
+          )}
           <button
             onClick={() => spawnContentNode('note', flowPosAt(null))}
             draggable

@@ -45,6 +45,9 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   // structural parents complete (triggerParadigmCascade in store/streaming).
   const isWaitingUpstream = data.stepKind === 'prompt' && !data.response && !data.isLoading && !data.generationFailed;
   const isParadigmNode = isHuman || data.stepKind === 'prompt';
+  // A palette "ask node": an ordinary Q&A node dropped empty — wire material
+  // in, type the question, submit → generates from whatever the edges carry.
+  const isAwaitingAsk = !data.stepKind && !data.question && !data.response && !data.isLoading && !data.generationFailed;
   // While any paradigm step is incomplete the run is in progress: structure
   // is fixed (no follow-ups, no deletion) until the performance finishes.
   const runLocked = useStore((s) => isParadigmNode && isRunLocked(s.nodes));
@@ -264,7 +267,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
             >
               <RefreshCw size={16} strokeWidth={1.75} className={data.isLoading ? 'animate-spin' : ''} />
             </button>
-          ) : !isHuman && !isWaitingUpstream && (
+          ) : !isHuman && !isWaitingUpstream && !isAwaitingAsk && (
             <button onClick={() => regenerate(id)} className="text-ink-faint hover:text-accent hover:bg-wash rounded-full w-7 h-7 flex items-center justify-center transition-colors" title={t('common.regenerate')}>
               <RefreshCw size={16} strokeWidth={1.75} />
             </button>
@@ -280,14 +283,14 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
       {!data.isCollapsed && (
         <div className="px-5 py-4">
           {/* Question */}
-          {data.isEditing || isAwaitingHuman ? (
+          {data.isEditing || isAwaitingHuman || isAwaitingAsk ? (
             <div>
               <textarea
                 value={editValue}
                 onChange={(e) => setEditValue(e.target.value)}
                 onKeyDown={handleEditKeyDown}
-                onBlur={isHuman ? undefined : handleEditSubmit} // human turn keeps its draft on click-away; submit is explicit
-                placeholder={data.instruction || undefined} // instantiated human turn: operator guidance from the paradigm
+                onBlur={isHuman || isAwaitingAsk ? undefined : handleEditSubmit} // pending asks keep their draft on click-away
+                placeholder={data.instruction || (isAwaitingAsk ? t('node.askPlaceholder') : undefined)}
                 className={`w-full bg-wash border rounded-xl p-3 text-sm text-ink resize-none focus:outline-none focus:ring-2 ${
                   isHuman ? 'border-warm focus:ring-warm/20' : 'border-accent focus:ring-accent/20'
                 }`}
@@ -334,9 +337,9 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
             </div>
           )}
 
-          {/* Response — a human turn has none by design; a waiting prompt
-              step shows its pending state instead of an empty box */}
-          {isHuman ? null : isWaitingUpstream ? (
+          {/* Response — a human turn / pending ask has none by design; a
+              waiting prompt step shows its pending state instead of an empty box */}
+          {isHuman || isAwaitingAsk ? null : isWaitingUpstream ? (
             <div className="border-2 border-dashed border-line rounded-xl py-3 px-3 text-xs text-ink-faint flex items-center gap-2">
               <Hourglass size={13} strokeWidth={1.75} /> {t('paradigm.waitingUpstream')}
             </div>
@@ -444,7 +447,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
 
           {/* Inline continue input — hidden while a paradigm run is in
               progress (the structure IS the paradigm); returns on unlock */}
-          {!data.isLoading && !data.isEditingResponse && !(isParadigmNode && runLocked) && (
+          {!data.isLoading && !data.isEditingResponse && !isAwaitingAsk && !(isParadigmNode && runLocked) && (
             <div className="mt-3 pt-3 border-t border-line">
               <div className="flex items-center gap-2 bg-wash rounded-xl px-4 py-2.5 transition-shadow focus-within:ring-1 focus-within:ring-accent/40">
                 <input

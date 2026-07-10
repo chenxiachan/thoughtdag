@@ -223,6 +223,55 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
     await Promise.all(Array.from({ length: Math.min(LIMIT, created.length) }, worker));
   },
 
+  /**
+   * One-Rule-honest multi-select explore: the new node hangs from EVERY
+   * selected node with a real edge — the wiring IS the context, nothing is
+   * smuggled in as invisible text.
+   */
+  exploreFrom: async (nodeIds: string[], question: string) => {
+    const { nodes, edges } = get();
+    const parents = nodeIds.filter((nid) => nodes.some((n) => n.id === nid));
+    if (parents.length === 0 || !question.trim()) return;
+    get().pushHistory();
+    const id = generateId();
+    const newNode: ThoughtNode = {
+      id, type: 'thought', position: { x: 0, y: 0 }, dragHandle: '.drag-handle',
+      data: {
+        question,
+        response: '', responses: [], responseIndex: -1,
+        isCollapsed: false, isEditing: false, isEditingResponse: false, isLoading: true,
+        tokenCount: 0, highlights: [], highlightMode: 'tag',
+        attachments: [], excludedAttachmentIds: [], includedAttachmentIds: [],
+        roleMode: 'inherit', isRoot: false, isBranch: false,
+        webSearch: useUiStore.getState().webSearchEnabled,
+        scholarSearch: useUiStore.getState().scholarSearchEnabled,
+      },
+    };
+    const newEdges: ThoughtEdge[] = parents.map((pid) => ({
+      id: `edge-${pid}-${id}`,
+      source: pid,
+      target: id,
+      sourceHandle: 'continue',
+      targetHandle: 'top',
+      type: 'smoothstep',
+      style: { stroke: COLORS.accent, strokeWidth: 2 },
+      markerEnd: { type: 'arrowclosed' as const, color: COLORS.accent, width: 18, height: 18 },
+      data: {},
+    }));
+    const allEdges = [...edges, ...newEdges];
+    set({ nodes: autoLayout([...nodes, newNode], allEdges), edges: allEdges, selectedNodeId: id, selectedNodeIds: [] });
+
+    // Standard context walk through the fresh fan-in edges (self blanked)
+    const ctx = buildContext(
+      id,
+      get().nodes.map((n) => (n.id === id ? { ...n, data: { ...n.data, question: '', response: '' } } : n)),
+      get().edges,
+    );
+    const messages = ctx.messages;
+    messages.push({ role: 'user', content: question });
+    await runNodeGeneration(set, get, id, { question, messages, images: ctx.images });
+  },
+
   submitHumanTurn: (nodeId: string, question: string) => {
     const q = question.trim();
     if (!q) return;
@@ -314,22 +363,14 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
   },
 
   batchMergeSummarize: async (nodeIds: string[], deleteAfter?: boolean) => {
-    // Collect content from selected nodes in order
+    // One-Rule honest converge: the synthesis node hangs from EVERY selected
+    // node with a real edge — its context flows in along the wires (full
+    // ancestry, deduped by the walk), nothing is embedded as invisible text.
     const { nodes, edges } = get();
     const selected = nodeIds
       .map((id) => nodes.find((n) => n.id === id))
       .filter(Boolean) as ThoughtNode[];
     if (selected.length === 0) return;
-
-    // Build merged content
-    const mergedContent = selected
-      .map((n) => `Q: ${n.data.question}\nA: ${n.data.response}`)
-      .join('\n\n---\n\n');
-
-    // Find a common parent: use the parent of the first selected node
-    const firstId = selected[0].id;
-    const parentEdge = edges.find((e) => e.target === firstId && !e.data?.isCrossLink);
-    const parentId = parentEdge?.source;
 
     // Create summary node
     const id = generateId();
@@ -354,51 +395,61 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
         attachments: [],
         excludedAttachmentIds: [], includedAttachmentIds: [],
         roleMode: 'inherit' as const,
-        isRoot: !parentId,
+        isRoot: false,
         isBranch: false,
+        webSearch: useUiStore.getState().webSearchEnabled,
+        scholarSearch: useUiStore.getState().scholarSearchEnabled,
       },
     };
 
-    // Edge from parent (if any)
-    const newEdge: ThoughtEdge | null = parentId ? {
-      id: `edge-${parentId}-${id}`,
-      source: parentId,
+    // Fan-in edges from every selected node
+    const fanIn: ThoughtEdge[] = selected.map((n) => ({
+      id: `edge-${n.id}-${id}`,
+      source: n.id,
       target: id,
+      sourceHandle: 'continue',
+      targetHandle: 'top',
       type: 'smoothstep',
       style: { stroke: COLORS.accent, strokeWidth: 2 },
       markerEnd: { type: 'arrowclosed' as const, color: COLORS.accent, width: 18, height: 18 },
-    } : null;
+      data: {},
+    }));
 
     get().pushHistory();
-    const newEdges = newEdge ? [...edges, newEdge] : [...edges];
+    const newEdges = [...edges, ...fanIn];
     const newNodes = autoLayout([...nodes, newNode], newEdges);
     set({ nodes: newNodes, edges: newEdges, selectedNodeId: id, selectedNodeIds: [] });
 
+    // Context arrives via the fan-in edges; the prompt is instruction only
+    const ctx = buildContext(
+      id,
+      get().nodes.map((n) => (n.id === id ? { ...n, data: { ...n.data, question: '', response: '' } } : n)),
+      get().edges,
+    );
     const messages: ContextMessage[] = [
       { role: 'system', content: `You merge conversation nodes. CRITICAL: Your output language MUST match the primary language of the user content. If the content is in Chinese, respond in Chinese. If English, respond in English. Never use German or any other language unless the content is in that language. Do not translate — use the same language as the source.` },
-      { role: 'user', content: `将以下 ${selected.length} 个对话节点合并为一份完整文档。(Merge the following ${selected.length} conversation nodes into one comprehensive document.)
+      ...ctx.messages,
+      { role: 'user', content: `将以上讨论综合为一份完整文档。(Synthesize the discussion above into one comprehensive document.)
 
 规则 / Rules:
-1. 输出语言必须与下面内容的主要语言一致。(Output language must match the primary language of the content below.)
+1. 输出语言必须与上面内容的主要语言一致。(Output language must match the primary language of the content above.)
 2. 这是综合(synthesis)，不是流水摘要：提炼出经过这些讨论后「我们现在知道什么」。(This is a SYNTHESIS, not a running summary: distill what we NOW KNOW after these discussions.)
 3. 按此结构组织 / Structure:
    - **结论 (Conclusions)** — 立得住的要点，合并重复表述 (consolidated takeaways, dedup repeated points)
    - **依据 (Key evidence)** — 支撑结论的关键论据/数据/引用 (the arguments, data or citations that carry the conclusions)
    - **分歧与未决 (Open questions)** — 节点间的矛盾之处与尚未回答的问题 (contradictions between nodes and what remains unanswered)
 4. 保留所有独特洞见与引用标注，丢弃寒暄和重复。(Keep every unique insight and citation marker; drop filler and repetition.)
-5. 只输出综合后的内容，不要元评论。(Output ONLY the synthesis.)
-
-内容 / Content:
-
-${mergedContent}` },
+5. 只输出综合后的内容，不要元评论。(Output ONLY the synthesis.)` },
     ];
 
     await runNodeGeneration(set, get, id, {
       question: summaryQuestion,
       messages,
+      images: ctx.images,
       onSuccess: () => {
-        // Re-layout with the summary node's final height, then optionally
-        // delete the merged originals (and their descendants)
+        // Optionally delete the merged originals (and their descendants),
+        // rewiring the synthesis to the boundary parents so it keeps its
+        // ancestry instead of becoming an orphan root
         if (deleteAfter) {
           const allRemove = new Set<string>();
           for (const nid of nodeIds) {
@@ -409,9 +460,28 @@ ${mergedContent}` },
           }
           // Don't delete the newly created merge node
           allRemove.delete(id);
+          const boundaryParents = [...new Set(
+            get().edges
+              .filter((e) => allRemove.has(e.target) && !allRemove.has(e.source) && e.source !== id && !e.data?.isCrossLink)
+              .map((e) => e.source)
+          )];
+          const rewired: ThoughtEdge[] = boundaryParents.map((pid) => ({
+            id: `edge-${pid}-${id}`,
+            source: pid,
+            target: id,
+            sourceHandle: 'continue',
+            targetHandle: 'top',
+            type: 'smoothstep',
+            style: { stroke: COLORS.accent, strokeWidth: 2 },
+            markerEnd: { type: 'arrowclosed' as const, color: COLORS.accent, width: 18, height: 18 },
+            data: {},
+          }));
           set((state) => ({
             nodes: state.nodes.filter((n) => !allRemove.has(n.id)),
-            edges: state.edges.filter((e) => !allRemove.has(e.source) && !allRemove.has(e.target)),
+            edges: [
+              ...state.edges.filter((e) => !allRemove.has(e.source) && !allRemove.has(e.target)),
+              ...rewired,
+            ],
           }));
         }
         set((state) => ({ nodes: autoLayout(state.nodes, state.edges) }));

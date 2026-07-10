@@ -73,6 +73,8 @@ export const zh: Record<keyof typeof en, string> = {
   'node.failedPlaceholder': '_生成失败。_',
 
   // Content palette + content nodes (canvas material)
+  'palette.askTitle': '提问节点——把材料连进来，在这里提问；回答只基于流入的连线',
+  'node.askPlaceholder': '输入问题……沿连线流入的内容就是它的上下文',
   'palette.noteTitle': '添加便签——连线后以 [Note] 进入下游上下文',
   'palette.fileTitle': '添加文件节点（图片 / PDF / 文本）——连线后进入下游上下文',
   'content.unlinked': '未进上下文',

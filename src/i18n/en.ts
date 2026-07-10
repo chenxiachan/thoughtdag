@@ -73,6 +73,8 @@ export const en = {
   'node.failedPlaceholder': '_Generation failed._',
 
   // Content palette + content nodes (canvas material)
+  'palette.askTitle': 'Ask node — wire material in and ask here; the answer draws only on incoming edges',
+  'node.askPlaceholder': 'Type a question… whatever flows in along the edges is its context',
   'palette.noteTitle': 'Add a note — feeds downstream context as [Note] once connected',
   'palette.fileTitle': 'Add a file node (images / PDF / text) — feeds downstream context once connected',
   'content.unlinked': 'not in context',
