@@ -33,6 +33,10 @@ export const zh: Record<keyof typeof en, string> = {
   'tutorial.step4.desc': '点击连线选中它，再删除——那段历史就从上下文中消失。在节点之间拖线即可连接，合并不同的思路。',
   'tutorial.step5.title': '5 · 精确控制 AI 读到什么',
   'tutorial.step5.desc': '高亮关键段落并选择它们如何向下游传递；为节点设置角色；输入框上方的「将发送」预览让你在提问前看到确切的上下文。',
+  'tutorial.step6.title': '6 · 材料与引用',
+  'tutorial.step6.desc': '便签、文件、链接是画布材料——连线才进上下文。手拖到已有节点的连线是紫色虚线「引用」：只带那个节点的问答和来路，不拖整条对话；选中虚线可看 token 价签、切换引用⇄全量。拖线到空白处则就地新建节点延续。',
+  'tutorial.step7.title': '7 · 陈旧与重放',
+  'tutorial.step7.desc': '上游改动后，下游节点亮起琥珀「上游已变」徽章——它的回答基于旧内容。点徽章原地重放（追加新版本，可翻页对比、可切回）；工具栏的「重放陈旧」按依赖顺序批量修复，先确认、带 token 报价。运行 manifest 可导出全图指纹留痕。',
 
   // Language switcher
   'lang.label': '语言',

@@ -33,6 +33,10 @@ export const en = {
   'tutorial.step4.desc': 'Click an edge to select it, then delete it — that history disappears from the context. Drag between nodes to connect them and merge lines of thought.',
   'tutorial.step5.title': '5 · Control what the AI reads',
   'tutorial.step5.desc': 'Highlight key passages and choose how they flow downstream. Set per-node roles. The "will send" preview above the input shows the exact context before you ask.',
+  'tutorial.step6.title': '6 · Materials & references',
+  'tutorial.step6.desc': 'Notes, files and links are canvas material — they enter context only through a wire. Hand-drawing a wire onto an existing node makes a purple dashed REFERENCE: it quotes that node\'s Q&A plus its upstream trail without dragging the whole conversation in; select the edge to see its token price and flip quote ⇄ full. Dropping a wire on empty canvas continues from there on a fresh node.',
+  'tutorial.step7.title': '7 · Staleness & replay',
+  'tutorial.step7.desc': 'When upstream changes, downstream nodes light an amber "Upstream changed" badge — their answers were written against older content. Click a badge to re-run in place (a new version is appended; page back to compare or revert). The toolbar\'s "Replay stale" chip fixes the whole canvas in dependency order — it confirms first, with a token estimate. Export the run manifest for a full fingerprint audit trail.',
 
   // Language switcher
   'lang.label': 'Language',

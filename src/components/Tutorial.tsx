@@ -62,6 +62,29 @@ const DIAGRAMS: Record<number, React.ReactNode> = {
       <text x={60} y={68} textAnchor="middle" fontSize={7} fill={COLORS.inkMuted} fontFamily="JetBrains Mono Variable, monospace">~92 tok · 6 msgs</text>
     </svg>
   ),
+  6: (
+    <svg viewBox="0 0 120 84" className="w-full h-full">
+      {/* a note (amber) wired solid + a reference arriving dashed from the side */}
+      <rect x={14} y={12} width={30} height={22} rx={3} fill="#FEF3C7" stroke="#F59E0B" strokeWidth={0.8} />
+      <line x1={29} y1={34} x2={29} y2={50} stroke={COLORS.accent} strokeWidth={1.75} />
+      <path d="M 26 47 L 29 52 L 32 47 Z" fill={COLORS.accent} />
+      <Card x={12} y={52} tone="accent" />
+      <path d="M 100 22 C 80 22, 70 55, 50 60" stroke={COLORS.accent} strokeWidth={1.75} fill="none" strokeDasharray="5 3" />
+      <path d="M 52 57 L 47 61 L 52 64 Z" fill={COLORS.accent} />
+      <Card x={82} y={12} />
+    </svg>
+  ),
+  7: (
+    <svg viewBox="0 0 120 84" className="w-full h-full">
+      <Card x={43} y={10} tone="accent" />
+      <line x1={60} y1={30} x2={60} y2={48} stroke={COLORS.accent} strokeWidth={1.75} />
+      <path d="M 57 45 L 60 50 L 63 45 Z" fill={COLORS.accent} />
+      <Card x={43} y={50} />
+      <circle cx={75} cy={53} r={4} fill="#F59E0B" />
+      <path d="M 73.5 53 a 1.5 1.5 0 1 1 3 0" stroke="white" strokeWidth={0.9} fill="none" />
+      <text x={60} y={80} textAnchor="middle" fontSize={7} fill={COLORS.inkMuted} fontFamily="JetBrains Mono Variable, monospace">v2/2 · replay</text>
+    </svg>
+  ),
 };
 
 export default function Tutorial() {
@@ -71,7 +94,7 @@ export default function Tutorial() {
 
   if (!open) return null;
 
-  const steps = [1, 2, 3, 4, 5] as const;
+  const steps = [1, 2, 3, 4, 5, 6, 7] as const;
 
   return (
     <div
