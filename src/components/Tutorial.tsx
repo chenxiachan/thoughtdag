@@ -62,7 +62,7 @@ const DIAGRAMS: Record<number, React.ReactNode> = {
       <text x={60} y={68} textAnchor="middle" fontSize={7} fill={COLORS.inkMuted} fontFamily="JetBrains Mono Variable, monospace">~92 tok · 6 msgs</text>
     </svg>
   ),
-  6: (
+  7: (
     <svg viewBox="0 0 120 84" className="w-full h-full">
       {/* a note (amber) wired solid + a reference arriving dashed from the side */}
       <rect x={14} y={12} width={30} height={22} rx={3} fill="#FEF3C7" stroke="#F59E0B" strokeWidth={0.8} />
@@ -74,7 +74,7 @@ const DIAGRAMS: Record<number, React.ReactNode> = {
       <Card x={82} y={12} />
     </svg>
   ),
-  7: (
+  9: (
     <svg viewBox="0 0 120 84" className="w-full h-full">
       <Card x={43} y={10} tone="accent" />
       <line x1={60} y1={30} x2={60} y2={48} stroke={COLORS.accent} strokeWidth={1.75} />
@@ -83,6 +83,48 @@ const DIAGRAMS: Record<number, React.ReactNode> = {
       <circle cx={75} cy={53} r={4} fill="#F59E0B" />
       <path d="M 73.5 53 a 1.5 1.5 0 1 1 3 0" stroke="white" strokeWidth={0.9} fill="none" />
       <text x={60} y={80} textAnchor="middle" fontSize={7} fill={COLORS.inkMuted} fontFamily="JetBrains Mono Variable, monospace">v2/2 · replay</text>
+    </svg>
+  ),
+  6: (
+    <svg viewBox="0 0 120 84" className="w-full h-full">
+      {/* palette strip + a note and an image card */}
+      <rect x={8} y={18} width={14} height={48} rx={4} fill="white" stroke={COLORS.line} strokeWidth={1} />
+      <circle cx={15} cy={27} r={3} fill={COLORS.accent} opacity={0.7} />
+      <rect x={12} y={37} width={6} height={6} rx={1} fill="#F59E0B" opacity={0.8} />
+      <rect x={12} y={49} width={6} height={6} rx={1} fill={COLORS.inkMuted} opacity={0.5} />
+      <rect x={38} y={14} width={32} height={24} rx={3} fill="#FEF3C7" stroke="#F59E0B" strokeWidth={0.8} />
+      <rect x={80} y={14} width={32} height={24} rx={3} fill="white" stroke={COLORS.line} strokeWidth={1} />
+      <circle cx={88} cy={22} r={3} fill={COLORS.line} />
+      <path d="M 82 34 L 92 26 L 100 32 L 108 24" stroke={COLORS.inkMuted} strokeWidth={1.2} fill="none" />
+      <text x={72} y={62} textAnchor="middle" fontSize={7} fill={COLORS.inkMuted} fontFamily="JetBrains Mono Variable, monospace">⌘V paste anything</text>
+    </svg>
+  ),
+  8: (
+    <svg viewBox="0 0 120 84" className="w-full h-full">
+      {/* selection box around three cards, fan-in to one */}
+      <rect x={8} y={8} width={70} height={52} rx={3} fill={COLORS.accent} opacity={0.06} stroke={COLORS.accent} strokeWidth={0.8} strokeDasharray="3 2" />
+      <Card x={14} y={14} w={26} h={16} />
+      <Card x={46} y={14} w={26} h={16} />
+      <Card x={30} y={38} w={26} h={16} />
+      <path d="M 40 46 C 60 50, 70 50, 84 48" stroke={COLORS.accent} strokeWidth={1.4} fill="none" />
+      <path d="M 59 30 C 70 36, 76 42, 84 46" stroke={COLORS.accent} strokeWidth={1.4} fill="none" />
+      <path d="M 43 22 C 66 24, 76 38, 84 44" stroke={COLORS.accent} strokeWidth={1.4} fill="none" />
+      <Card x={84} y={40} w={28} h={18} tone="accent" />
+    </svg>
+  ),
+  10: (
+    <svg viewBox="0 0 120 84" className="w-full h-full">
+      {/* paradigm: human step (warm) → two prompt steps auto-running */}
+      <Card x={12} y={12} w={34} h={20} tone="warm" />
+      <circle cx={20} cy={22} r={3} fill={COLORS.warm} opacity={0.8} />
+      <line x1={29} y1={32} x2={29} y2={48} stroke={COLORS.accent} strokeWidth={1.75} />
+      <path d="M 26 45 L 29 50 L 32 45 Z" fill={COLORS.accent} />
+      <Card x={12} y={50} w={34} h={20} tone="accent" />
+      <path d="M 46 60 C 60 60, 62 30, 74 26" stroke={COLORS.accent} strokeWidth={1.75} fill="none" />
+      <path d="M 71 23.5 L 76 26 L 72 29.5 Z" fill={COLORS.accent} />
+      <Card x={76} y={16} w={34} h={20} tone="accent" />
+      <path d="M 88 58 L 96 62 L 88 66 Z" fill={COLORS.accent} />
+      <text x={100} y={65} fontSize={7} fill={COLORS.inkMuted} fontFamily="JetBrains Mono Variable, monospace">▶</text>
     </svg>
   ),
 };
@@ -94,7 +136,7 @@ export default function Tutorial() {
 
   if (!open) return null;
 
-  const steps = [1, 2, 3, 4, 5, 6, 7] as const;
+  const steps = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const;
 
   return (
     <div
@@ -132,11 +174,11 @@ export default function Tutorial() {
         <div className="px-6 py-3 border-t border-line/60 shrink-0">
           <p className="text-2xs text-ink-faint uppercase tracking-wider font-medium mb-1.5">{t('tutorial.shortcuts')}</p>
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-2xs text-ink-muted font-mono">
-            <span>\u2318F {t('shortcut.search')}</span>
+            <span>{'\u2318'}F {t('shortcut.search')}</span>
             <span>Space {t('shortcut.collapse')}</span>
             <span>R {t('shortcut.regenerate')}</span>
-            <span>\u2191\u2193\u2190\u2192 {t('shortcut.navigate')}</span>
-            <span>\u2318Z {t('shortcut.undo')}</span>
+            <span>{'\u2191\u2193\u2190\u2192'} {t('shortcut.navigate')}</span>
+            <span>{'\u2318'}Z {t('shortcut.undo')}</span>
             <span>Esc {t('shortcut.escape')}</span>
           </div>
         </div>

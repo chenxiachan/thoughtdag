@@ -21,7 +21,7 @@ export const zh: Record<keyof typeof en, string> = {
 
   // Tutorial
   'tutorial.title': 'ThoughtDAG 是怎么工作的',
-  'tutorial.subtitle': '五个概念，两分钟',
+  'tutorial.subtitle': '十个概念，三分钟——从提问到范式',
   'tutorial.close': '明白了',
   'tutorial.step1.title': '1 · 提问',
   'tutorial.step1.desc': '每个问题都会变成画布上的一个节点：你的问题加上 AI 的回答。在下方输入，或双击画布空白处开启新话题。',
@@ -33,10 +33,16 @@ export const zh: Record<keyof typeof en, string> = {
   'tutorial.step4.desc': '点击连线选中它，再删除——那段历史就从上下文中消失。在节点之间拖线即可连接，合并不同的思路。',
   'tutorial.step5.title': '5 · 精确控制 AI 读到什么',
   'tutorial.step5.desc': '高亮关键段落并选择它们如何向下游传递；为节点设置角色；输入框上方的「将发送」预览让你在提问前看到确切的上下文。',
-  'tutorial.step6.title': '6 · 材料与引用',
-  'tutorial.step6.desc': '便签、文件、链接是画布材料——连线才进上下文。手拖到已有节点的连线是紫色虚线「引用」：只带那个节点的问答和来路，不拖整条对话；选中虚线可看 token 价签、切换引用⇄全量。拖线到空白处则就地新建节点延续。',
-  'tutorial.step7.title': '7 · 陈旧与重放',
-  'tutorial.step7.desc': '上游改动后，下游节点亮起琥珀「上游已变」徽章——它的回答基于旧内容。点徽章原地重放（追加新版本，可翻页对比、可切回）；工具栏的「重放陈旧」按依赖顺序批量修复，先确认、带 token 报价。运行 manifest 可导出全图指纹留痕。',
+  'tutorial.step6.title': '6 · 导入任何材料',
+  'tutorial.step6.desc': '左侧工具栏可放入提问节点、便签、文件、分区框；更快的是直接粘贴：文字变便签（表格自动转 Markdown）、网址变带时间戳的网页快照、图片自动识读内容（表格/图表/文档/照片都认，识读文本可查看编辑）、PDF 等进文件节点。材料只有连线才进入上下文——没连线的卡片会自己标明「未进上下文」。',
+  'tutorial.step7.title': '7 · 引用与手拖连线',
+  'tutorial.step7.desc': '从节点底部把手拖线：落在已有节点上 = 紫色虚线「引用」——只带那个节点的问答和它上游问题的来路，不拖整条对话；选中虚线有 token 价签，可切换 引用⇄全量。落在空白处 = 就地新建提问节点继续问。实线永远只由动作产生（追问/探索/范式），它承诺排版与流程。',
+  'tutorial.step8.title': '8 · 圈选与批量操作',
+  'tutorial.step8.desc': '拖框圈选多个节点：「合并摘要」把它们压缩为一个综合节点（可选合并后删除原节点）；「探索」从所有选中节点同时提问——每个节点都连真实的扇入边；「归档」保留卡片但退出一切上下文；还有竖向对齐和导出 Markdown。',
+  'tutorial.step9.title': '9 · 陈旧与重放',
+  'tutorial.step9.desc': '上游改动后，下游节点亮起琥珀「上游已变」徽章——它的回答基于旧内容，陈旧还会沿引用边传染。点徽章原地重放（追加新版本，可翻页对比、可切回）；工具栏的「重放陈旧」按依赖顺序批量修复，先确认、带 token 报价。右上角可导出运行 manifest（模型/指纹/时间戳留痕）。',
+  'tutorial.step10.title': '10 · 范式：把工作流变成实验',
+  'tutorial.step10.desc': '范式是可复用的工作流模板：human 步等人输入、prompt 步沿实线自动级联（在每个 human 步和空材料槽处暂停等你）、材料槽用来放实验材料。实例化后结构锁定，跑完自动解锁；改根输入 → 全链亮陈旧徽章 → 「重放陈旧」= 重跑实验，每步追加版本可对比。范式可存为 .paradigm.json 分享，首页有内置示例「排除 / 确认」。',
 
   // Language switcher
   'lang.label': '语言',
