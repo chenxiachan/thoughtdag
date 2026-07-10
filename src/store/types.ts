@@ -91,6 +91,8 @@ export interface EvaluatorSlice {
   /** PRESET: ordinary node with a critic role + autoRerun, wired by a followsTip edge. */
   /** Regenerate a node in place from its incoming edges, appending a version (generic primitive). */
   rerunNode: (nodeId: string, opts?: { auto?: boolean }) => Promise<void>;
+  /** Replay every currently-stale node in dependency order (confirm first — N generations). */
+  replayStale: () => Promise<void>;
   /** Toggle the autoRerun primitive on any node. */
   setAutoRerun: (nodeId: string, enabled: boolean) => void;
   /** Set how many auto rounds per user action this node may fire (loops need >1). */

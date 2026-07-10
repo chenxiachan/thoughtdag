@@ -106,6 +106,11 @@ export function instantiateParadigm(pNodes: ThoughtNode[], pEdges: ThoughtEdge[]
       // "follow the runner's defaults" (also how legacy files behave)
       data.webSearch = pn.data.webSearch;
       data.scholarSearch = pn.data.scholarSearch;
+      // Explicit bounded loops: a paradigm may declare how many auto
+      // re-runs a step gets per wave. Reproducible iteration is DECLARED
+      // iteration — rounds live in the file, never emerge at runtime.
+      data.autoRerun = pn.data.autoRerun;
+      data.autoRerunRounds = pn.data.autoRerunRounds;
     }
     if (kind === 'note' || kind === 'file' || kind === 'link' || kind === 'frame') {
       // Content nodes / frames pass through as-is: filled = experiment
@@ -123,6 +128,7 @@ export function instantiateParadigm(pNodes: ThoughtNode[], pEdges: ThoughtEdge[]
     if (kind === 'review') {
       data.isEvaluator = true; // red visual identity
       data.autoRerun = true;
+      data.autoRerunRounds = pn.data.autoRerunRounds;
       if (!data.rolePrompt) data.roleMode = 'inherit';
     }
     if (kind === 'fanout') {

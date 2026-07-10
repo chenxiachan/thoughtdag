@@ -102,13 +102,20 @@ export const useUiStore = create<UiState>((set, get) => ({
 
 let toastCounter = 0;
 
-/** Show a toast (bottom-right). duration 0 = sticky until dismissed. */
-export function toast(kind: ToastItem['kind'], message: string, duration = 5000, action?: ToastItem['action']) {
+/** Show a toast (bottom-right). duration 0 = sticky until dismissed.
+    Returns the toast id (dismissToast / updateToast to manage sticky ones). */
+export function toast(kind: ToastItem['kind'], message: string, duration = 5000, action?: ToastItem['action']): string {
   const id = `toast-${++toastCounter}`;
   useUiStore.setState((s) => ({ toasts: [...s.toasts, { id, kind, message, action }] }));
   if (duration > 0) {
     setTimeout(() => useUiStore.getState().dismissToast(id), duration);
   }
+  return id;
+}
+
+/** Update a sticky toast's message in place (e.g. replay progress). */
+export function updateToast(id: string, message: string) {
+  useUiStore.setState((s) => ({ toasts: s.toasts.map((t) => (t.id === id ? { ...t, message } : t)) }));
 }
 
 /** Promise-style in-app replacement for window.confirm(). */

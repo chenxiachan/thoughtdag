@@ -15,7 +15,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import 'highlight.js/styles/github.css';
-import { CircleHelp, Dna, FileText, Frame, GitBranch, LayoutGrid, Loader2, MessageCircleQuestion, Paperclip, Plug, Redo2, Scissors, SquareTerminal, StickyNote, Trash2, Undo2, Workflow, X } from 'lucide-react';
+import { CircleHelp, Dna, FileText, Frame, GitBranch, LayoutGrid, Loader2, MessageCircleQuestion, Paperclip, Plug, Redo2, Scissors, SquareTerminal, StickyNote, Trash2, Undo2, Workflow, X, FileJson, ListRestart } from 'lucide-react';
 import './index.css';
 import ThoughtNode from './components/ThoughtNode';
 import ParadigmNode from './components/ParadigmNode';
@@ -36,6 +36,9 @@ import { generateId } from './utils';
 import type { Attachment, ThoughtNode as ThoughtNodeType, ThoughtEdge } from './types';
 import { processFile, FILE_INPUT_ACCEPT } from './lib/attachments';
 import { walkUpAncestors } from './lib/graph';
+import { buildContext } from './store/context-builder';
+import { downloadManifest } from './lib/export';
+import { countTokens } from './utils';
 import { buildExampleGraph } from './lib/example-graph';
 import { COLORS, FRAME_COLORS, PANEL_INSET, loadPanelWidth } from './lib/constants';
 import { confirmDialog, useUiStore } from './lib/ui-store';
@@ -371,6 +374,7 @@ function Canvas() {
   // The panel is a MODE: double-click opens it, its X closes it; while on,
   // it follows the selection. Single clicks only select (no side effects).
   const panelMode = useUiStore((s) => s.panelOpen);
+  const staleCount = useStore((s) => s.staleIds.length);
   const selectedKind = nodes.find((nd) => nd.id === selectedNodeId)?.data.stepKind;
   const selectedIsContent = isContentKind(selectedKind) || selectedKind === 'frame';
   const panelOpen = panelMode && !!selectedNodeId && !isParadigm && !selectedIsContent;
@@ -967,6 +971,31 @@ function Canvas() {
           </button>
         )}
         </>)}
+        {/* Batch replay: visible only when something is stale. Price at the
+            decision point — N generations is the one many-calls-per-click
+            action in the app, so it confirms with a token estimate. */}
+        {staleCount > 0 && !isParadigm && (
+          <button
+            onClick={() => {
+              const { nodes: ns, edges: es, staleIds } = useStore.getState();
+              const estTok = staleIds.reduce((sum, sid) => {
+                const blanked = ns.map((x) => x.id === sid ? { ...x, data: { ...x.data, question: '', response: '' } } : x);
+                const { layerTokens } = buildContext(sid, blanked, es);
+                const q = ns.find((x) => x.id === sid)?.data.question ?? '';
+                return sum + layerTokens.material + layerTokens.reference + layerTokens.chain + countTokens(q);
+              }, 0);
+              void confirmDialog({
+                title: t('replay.confirmTitle'),
+                message: fmt(t('replay.confirmMsg'), { n: staleCount, tok: estTok.toLocaleString() }),
+                confirmLabel: t('replay.confirmBtn'),
+              }).then((ok) => { if (ok) void useStore.getState().replayStale(); });
+            }}
+            className="bg-amber-500/10 backdrop-blur border border-amber-500/40 rounded-lg h-8 px-3 flex items-center gap-1.5 shadow-sm hover:bg-amber-500/20 transition-colors text-amber-600 text-xs font-medium"
+            title={t('replay.chipTitle')}
+          >
+            <ListRestart size={14} strokeWidth={1.75} /> {fmt(t('replay.chip'), { n: staleCount })}
+          </button>
+        )}
         {hasNodes && frames.length > 0 && (
           <div ref={frameNavRef} className="relative">
             <button
@@ -1021,6 +1050,15 @@ function Canvas() {
         >
           <CircleHelp size={15} strokeWidth={1.75} />
         </button>
+        {hasNodes && !isParadigm && (
+          <button
+            onClick={downloadManifest}
+            className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors text-ink-muted hover:text-accent"
+            title={t('toolbar.manifest')}
+          >
+            <FileJson size={15} strokeWidth={1.75} />
+          </button>
+        )}
         {hasNodes && (
           <button
             onClick={() => {
