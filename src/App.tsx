@@ -541,13 +541,20 @@ function Canvas() {
   }, [nodes, edges, annotationsHidden]);
 
   const highlightedEdges = useMemo((): ThoughtEdge[] => {
+    // Visual law: SOLID = structural (conversation, layout, cascade),
+    // DASHED = bypass (references, watch). Explore branches are structural,
+    // so legacy dashed-orange branch edges are normalized to solid here
+    // (styles persist per edge; this fixes old canvases centrally).
+    const base = edges.map((e) => e.data?.isBranchFromSelection
+      ? { ...e, animated: false, style: { ...e.style, strokeDasharray: undefined } }
+      : e);
     const activeIds = selectedNodeIds.length > 0 ? selectedNodeIds : (selectedNodeId ? [selectedNodeId] : []);
-    if (activeIds.length === 0) return edges;
+    if (activeIds.length === 0) return base;
 
     // Walk up from each selected node, collect all ancestor edge ids
     const { visitedEdgeIds: ancestorEdgeIds } = walkUpAncestors(activeIds, nodes, edges);
 
-    return edges.map((e) => {
+    return base.map((e) => {
       if (ancestorEdgeIds.has(e.id)) {
         return {
           ...e,

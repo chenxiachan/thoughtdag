@@ -3,7 +3,7 @@ import { X } from 'lucide-react';
 import { useStore } from '../../store';
 import { useUiStore } from '../../lib/ui-store';
 import { partitionContext } from '../../lib/graph';
-import { buildContext } from '../../store/context-builder';
+import { buildContext, resolveRoleFor } from '../../store/context-builder';
 import { PANEL_WIDTH_KEY, PANEL_MIN_WIDTH, PANEL_DEFAULT_WIDTH, PANEL_INSET, loadPanelWidth } from '../../lib/constants';
 import { useT } from '../../i18n';
 import RoleLine from './RoleLine';
@@ -73,36 +73,12 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
   const data = node.data;
   const hasMultipleVersions = data.responses.length > 1;
 
-  // Nearest ancestor role for the status line (legacy graphs may carry
-  // roleSourceNodeId / set-next / reset — respect them when displaying)
-  const inheritedRole = (() => {
-    if (data.rolePrompt) return '';
-    const visited = new Set<string>();
-    function findRole(id: string): string {
-      if (visited.has(id)) return '';
-      visited.add(id);
-      const n = nodes.find((nd) => nd.id === id);
-      if (!n) return '';
-      if (n.data.roleSourceNodeId && n.data.roleSourceNodeId !== '__none__') {
-        const sourceNode = nodes.find((nd) => nd.id === n.data.roleSourceNodeId);
-        if (sourceNode?.data.rolePrompt) return sourceNode.data.rolePrompt;
-      }
-      if (n.data.roleSourceNodeId === '__none__') return '';
-      const mode = n.data.roleMode || 'inherit';
-      if (mode === 'reset') return ''; // legacy: blocks inheritance
-      if (n.data.rolePrompt) return n.data.rolePrompt;
-      for (const pe of edges.filter((e) => e.target === id)) {
-        const found = findRole(pe.source);
-        if (found) return found;
-      }
-      return '';
-    }
-    for (const pe of edges.filter((e) => e.target === selectedNodeId)) {
-      const found = findRole(pe.source);
-      if (found) return found;
-    }
-    return '';
-  })();
+  // Inherited role for the status line: the SAME resolution buildContext
+  // injects (structural mainline, legacy roleMode honored) — what the panel
+  // shows is by construction what the model receives.
+  const inheritedRole = data.rolePrompt
+    ? ''
+    : resolveRoleFor(selectedNodeId!, nodes, edges, { ignoreOwn: true }) ?? '';
 
   // Layered context view — same partition the prompt builder uses, so the
   // tree the user reads and the prompt the model reads never drift apart.

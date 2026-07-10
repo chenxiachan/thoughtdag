@@ -30,7 +30,7 @@ export const zh: Record<keyof typeof en, string> = {
   'tutorial.step2.title': '2 · 追问',
   'tutorial.step2.desc': '追问会创建一个由实线连接的子节点。AI 沿着箭头看到上游的全部内容，也就是完整的推理链。这就是贯穿一切的唯一法则：连线即上下文。',
   'tutorial.step3.title': '3 · 从选中文字分支',
-  'tutorial.step3.desc': '选中回答里的任意文字，点 Explore。一条橙色虚线分支向侧面生长：它继承上下文和你的选中内容，但不会污染主线。',
+  'tutorial.step3.desc': '选中回答里的任意文字，点 Explore。一条橙色实线分支向侧面生长：它继承上下文和你的选中内容，但不会污染主线。',
   'tutorial.step4.title': '4 · 裁剪与重连',
   'tutorial.step4.desc': '点击连线选中它，再删除，那段历史就从上下文中消失。在节点之间拖线即可连接，合并不同的思路。',
   'tutorial.step5.title': '5 · 精确控制 AI 读到什么',

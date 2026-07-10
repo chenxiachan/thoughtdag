@@ -99,7 +99,7 @@ npm run dev            # → http://localhost:5173
 - **无限画布**: 平移、缩放、自由拖拽节点（React Flow）
 - **DAG 上下文引擎**: `buildContext()` 遍历所有入边，拓扑序构建对话历史
 - **紫色边**（继续追问）：继承完整祖先上下文
-- **橙色边**（分支探索）：选中文字 → 向右分支，探索性提问
+- **橙色实线**（分支探索）：选中文字 → 向右分支，探索性提问；实线永远=结构，虚线永远=旁路（引用 / 评审）
 - **引用边（虚线）**: 手拖连线落在任意节点=引用它（问答+上游来路），不拖整条对话；选中边见 token 价签，可切 引用⇄全量
 - **连线点选删除**: 点击连线选中，浮出删除按钮；右键菜单同样可删；Cmd+Z 撤销
 - **原地重新生成**: 追加可对比版本（翻页/删除/切回，下游陈旧随当前版本联动）；「另开分支重答」在 ⋯ 菜单，生成平行兄弟做 A/B
@@ -227,6 +227,20 @@ npm run dev            # → http://localhost:5173
 - [ ] 运行对比视图（同一范式 N 次运行并排）
 - [ ] Artifact 节点（画布上的文件产出，Monaco 编辑器 + 版本历史）
 - [ ] 异步协作：分享范式、回收运行
+
+## 如何引用
+
+如果 ThoughtDAG 在你的研究中发挥了作用，请引用它（GitHub 的 "Cite this repository" 按钮会读取仓库内的 `CITATION.cff`）：
+
+```bibtex
+@software{thoughtdag,
+  author = {Chen, Xia},
+  title  = {ThoughtDAG: an instrument for legible human-AI collaboration},
+  url    = {https://github.com/chenxiachan/thoughtdag},
+  year   = {2026},
+  license = {MIT}
+}
+```
 
 ## 反馈
 

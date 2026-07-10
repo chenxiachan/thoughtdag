@@ -26,7 +26,7 @@ const CONTENT: Record<Lang, { nodes: SeedNode[] }> = {
       {
         id: 'welcome',
         q: '👋 Welcome to ThoughtDAG: read me first',
-        a: 'This canvas is a **conversation you can edit**. One rule powers everything: **a wire IS context**. Whatever connects into a node is what the model sees there.\n\n**The edges:**\n- **Purple solid** = the conversation chain (full history flows; layout and paradigms follow it)\n- **Orange dashed** = a branch grown from selected text\n- **Purple dashed** = a *reference*: quotes that node\'s Q&A + a trail of its upstream questions; select the edge to see its token price and switch quote ⇄ full\n- **Red dashed** = a reviewer watching a thread\n\n**The marks:** an **amber badge** means "upstream changed since this answer". Click it to re-run in place (a new version is appended, old ones kept). The toolbar\'s amber chip replays everything stale in dependency order, with a price tag.\n\n**Gestures:** double-click empty canvas = new question node · double-click a card = reading panel · drag a wire to empty space = continue from there · drop a wire on a card = reference it.\n\nEach framed region below is a chapter. Delete anything, drag anything. Press `?` for the tutorial. This graph is yours now.',
+        a: 'This canvas is a **conversation you can edit**. One rule powers everything: **a wire IS context**. Whatever connects into a node is what the model sees there.\n\n**The edges:**\n- **Purple solid** = the conversation chain (full history flows; layout and paradigms follow it)\n- **Orange solid** = a branch grown from selected text (structural too, just a different lineage)\n- **Purple dashed** = a *reference*: quotes that node\'s Q&A + a trail of its upstream questions; select the edge to see its token price and switch quote ⇄ full\n- **Red dashed** = a reviewer watching a thread\n\n**The marks:** an **amber badge** means "upstream changed since this answer". Click it to re-run in place (a new version is appended, old ones kept). The toolbar\'s amber chip replays everything stale in dependency order, with a price tag.\n\n**Gestures:** double-click empty canvas = new question node · double-click a card = reading panel · drag a wire to empty space = continue from there · drop a wire on a card = reference it.\n\nEach framed region below is a chapter. Delete anything, drag anything. Press `?` for the tutorial. This graph is yours now.',
         x: 40, y: -640,
       },
       // ── ① the conversation chain ──
@@ -121,7 +121,7 @@ const CONTENT: Record<Lang, { nodes: SeedNode[] }> = {
       {
         id: 'welcome',
         q: '👋 欢迎来到 ThoughtDAG：先读我',
-        a: '这张画布是一段**可以编辑的对话**。一条规则贯穿一切：**连线即上下文**。连进一个节点的东西，就是模型在那里看到的东西。\n\n**边的语言：**\n- **紫色实线** = 对话主链（完整历史流入；排版和范式沿它推进）\n- **橙色虚线** = 从选中文字长出的探索分支\n- **紫色虚线** = **引用**：把那个节点的问答+它上游问题的来路带进来，不拖整条对话。选中这条边能看到 token 价签，可切换 引用 ⇄ 全量\n- **红色虚线** = 盯着一条讨论线的评审\n\n**标记：**琥珀色**「上游已变」徽章** = 这个回答写成之后上游被改过。点徽章原地重放（追加新版本，旧版保留）；工具栏的琥珀 chip 可按依赖顺序**批量重放**全部陈旧节点（先确认、带 token 报价）。\n\n**手势：**双击空白=新提问节点 · 双击卡片=阅读面板 · 拖线到空白=就地延续 · 拖线落在卡片上=引用它。\n\n下面每个虚线分区是一章。随便删、随便拖，`?` 打开教程，右上角 JSON 图标可导出运行 manifest。这张图现在是你的了。',
+        a: '这张画布是一段**可以编辑的对话**。一条规则贯穿一切：**连线即上下文**。连进一个节点的东西，就是模型在那里看到的东西。\n\n**边的语言：**\n- **紫色实线** = 对话主链（完整历史流入；排版和范式沿它推进）\n- **橙色实线** = 从选中文字长出的探索分支（同样是结构边，只是另一条脉络）\n- **紫色虚线** = **引用**：把那个节点的问答+它上游问题的来路带进来，不拖整条对话。选中这条边能看到 token 价签，可切换 引用 ⇄ 全量\n- **红色虚线** = 盯着一条讨论线的评审\n\n**标记：**琥珀色**「上游已变」徽章** = 这个回答写成之后上游被改过。点徽章原地重放（追加新版本，旧版保留）；工具栏的琥珀 chip 可按依赖顺序**批量重放**全部陈旧节点（先确认、带 token 报价）。\n\n**手势：**双击空白=新提问节点 · 双击卡片=阅读面板 · 拖线到空白=就地延续 · 拖线落在卡片上=引用它。\n\n下面每个虚线分区是一章。随便删、随便拖，`?` 打开教程，右上角 JSON 图标可导出运行 manifest。这张图现在是你的了。',
         x: 40, y: -640,
       },
       // ── ① 对话主链 ──
@@ -257,7 +257,7 @@ export function buildExampleGraph(lang: Lang): { nodes: ThoughtNode[]; edges: Th
     style: opts.watch
       ? { stroke: COLORS.watch, strokeWidth: 2, strokeDasharray: '4 4' }
       : opts.branch
-        ? { stroke: COLORS.warm, strokeWidth: 2, strokeDasharray: '6 3' }
+        ? { stroke: COLORS.warm, strokeWidth: 2 }
         : opts.ref
           ? { stroke: COLORS.accent, strokeWidth: 2, strokeDasharray: '8 4' }
           : { stroke: COLORS.accent, strokeWidth: 2 },

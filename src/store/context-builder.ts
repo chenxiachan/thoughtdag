@@ -113,6 +113,55 @@ export function upstreamFingerprint(nodeId: string, nodes: ThoughtNode[], edges:
 
 const STALE_MARK = '[Stale: this answer was written against an earlier version of its upstream]';
 
+/**
+ * THE role resolution. One walk, two consumers: buildContext injects the
+ * result as the system prompt, the panel displays it — so what the UI shows
+ * is by construction what the model receives. Semantics: an explicit
+ * roleSourceNodeId on the node wins ('__none__' blocks); otherwise the
+ * nearest rolePrompt along the STRUCTURAL mainline, honoring legacy
+ * roleMode ('reset' stops inheritance, 'set-next' applies to descendants
+ * only). ignoreOwn=true resolves what the node INHERITS (panel display).
+ */
+export function resolveRoleFor(
+  nodeId: string,
+  nodes: ThoughtNode[],
+  edges: ThoughtEdge[],
+  opts?: { ignoreOwn?: boolean },
+): string | undefined {
+  const { mainline } = partitionContext(nodeId, nodes, edges);
+  return resolveRoleFromMainline(mainline, nodes, opts);
+}
+
+function resolveRoleFromMainline(
+  mainline: ThoughtNode[],
+  nodes: ThoughtNode[],
+  opts?: { ignoreOwn?: boolean },
+): string | undefined {
+  const self = mainline[mainline.length - 1];
+  if (!self) return undefined;
+  if (!opts?.ignoreOwn && self.data.roleSourceNodeId) {
+    if (self.data.roleSourceNodeId === '__none__') return undefined;
+    const src = nodes.find((n) => n.id === self.data.roleSourceNodeId);
+    return src?.data.rolePrompt || undefined;
+  }
+  for (let i = mainline.length - 1; i >= 0; i--) {
+    const n = mainline[i];
+    const isSelf = i === mainline.length - 1;
+    const own = isSelf && opts?.ignoreOwn ? undefined : n.data.rolePrompt;
+    const mode = n.data.roleMode || 'inherit';
+    if (mode === 'reset') {
+      // legacy "reset for this node": only self gets the role, ancestors blocked
+      return isSelf ? (own || undefined) : undefined;
+    }
+    if (mode === 'set-next' && n.data.rolePrompt) {
+      if (isSelf) continue; // for descendants only
+      return n.data.rolePrompt;
+    }
+    if (mode === 'inherit' && own) return own;
+  }
+  return undefined;
+}
+
 export function buildContext(
   nodeId: string,
   nodes: ThoughtNode[],
@@ -236,49 +285,9 @@ export function buildContext(
 
   closeLayer('chain');
 
-  // Check if user explicitly chose a role source (multi-parent conflict resolution)
-  const selfNode = mainline[mainline.length - 1];
-  if (selfNode?.data.roleSourceNodeId) {
-    if (selfNode.data.roleSourceNodeId === '__none__') {
-      return { messages, images, layerTokens };
-    }
-    const sourceNode = nodes.find((n) => n.id === selfNode.data.roleSourceNodeId);
-    if (sourceNode?.data.rolePrompt) {
-      messages.unshift({ role: 'system', content: sourceNode.data.rolePrompt });
-      return { messages, images, layerTokens };
-    }
-  }
-
-  // Resolve inherited rolePrompt using explicit roleMode:
-  //   inherit: no own role, look up ancestors
-  //   set-next: role for descendants only (skip for self)
-  //   reset: role for self only (blocks inheritance for descendants)
-  let resolvedRole: string | undefined;
-  for (let i = mainline.length - 1; i >= 0; i--) {
-    const n = mainline[i];
-    const isSelf = i === mainline.length - 1;
-    const mode = n.data.roleMode || 'inherit';
-
-    if (mode === 'reset') {
-      // "Reset for this node" — only self gets the role; descendants get nothing
-      resolvedRole = isSelf ? (n.data.rolePrompt || undefined) : undefined;
-      break;
-    }
-    if (mode === 'set-next' && n.data.rolePrompt) {
-      if (isSelf) {
-        // "Set for next" on self — skip, role is for descendants only
-        continue;
-      }
-      // Ancestor's "Set for next" — we are a descendant, use it
-      resolvedRole = n.data.rolePrompt;
-      break;
-    }
-    // mode === 'inherit' — use own rolePrompt if present, otherwise keep walking
-    if (mode === 'inherit' && n.data.rolePrompt) {
-      resolvedRole = n.data.rolePrompt;
-      break;
-    }
-  }
+  // Role: THE shared resolution (see resolveRoleFor) — display and
+  // injection can never drift apart again.
+  const resolvedRole = resolveRoleFromMainline(mainline, nodes);
   if (resolvedRole) {
     messages.unshift({ role: 'system', content: resolvedRole });
   }

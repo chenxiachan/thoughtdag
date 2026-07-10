@@ -30,7 +30,7 @@ export const en = {
   'tutorial.step2.title': '2 · Follow up',
   'tutorial.step2.desc': 'A follow-up creates a child node connected by a solid edge. The AI sees everything upstream along the arrows, the whole chain of reasoning. That is the one rule behind everything here: a wire IS context.',
   'tutorial.step3.title': '3 · Branch from a selection',
-  'tutorial.step3.desc': 'Select any text inside an answer and hit Explore. A dashed orange branch grows sideways: it inherits the context plus your selection, without polluting the main line.',
+  'tutorial.step3.desc': 'Select any text inside an answer and hit Explore. A solid orange branch grows sideways: it inherits the context plus your selection, without polluting the main line.',
   'tutorial.step4.title': '4 · Prune and rewire',
   'tutorial.step4.desc': 'Click an edge to select it, then delete it, and that history disappears from the context. Drag between nodes to connect them and merge lines of thought.',
   'tutorial.step5.title': '5 · Control what the AI reads',

@@ -102,7 +102,7 @@ Multi-canvas projects (one topic, one graph), IndexedDB auto-save, JSON backup/i
 - **Infinite canvas**: pan, zoom, drag nodes freely (React Flow)
 - **DAG context engine**: `buildContext()` walks all incoming edges, builds history in topological order
 - **Purple edges** (continue): inherit the full ancestor context
-- **Orange edges** (explore): select text → branch right with the selection as context
+- **Orange solid edges** (explore): select text → branch right with the selection as context; solid always means structural, dashed always means bypass (reference / watch)
 - **Reference edges (dashed)**: drop a hand-drawn wire on any node to quote it (Q&A + upstream question trail) without dragging its whole conversation in; the selected edge shows a token price chip and flips quote ⇄ full
 - **Click-to-delete edges**: select an edge for a floating delete button; right-click menu works too; Cmd+Z undoes
 - **Regenerate in place**: appends a comparable version (page through, delete, revert; downstream staleness reacts to the active version); "Regenerate as branch" in the ⋯ menu spawns a parallel sibling for A/B runs
@@ -230,6 +230,20 @@ Browser (localhost:5173)
 - [ ] Run comparison view (same paradigm, N runs side by side)
 - [ ] Artifact nodes (file deliverables on canvas, Monaco editor + version history)
 - [ ] Async collaboration: share a paradigm, collect runs
+
+## How to cite
+
+If ThoughtDAG plays a role in your research, please cite it (GitHub's "Cite this repository" button uses the bundled `CITATION.cff`):
+
+```bibtex
+@software{thoughtdag,
+  author = {Chen, Xia},
+  title  = {ThoughtDAG: an instrument for legible human-AI collaboration},
+  url    = {https://github.com/chenxiachan/thoughtdag},
+  year   = {2026},
+  license = {MIT}
+}
+```
 
 ## Feedback
 
