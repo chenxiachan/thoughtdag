@@ -82,11 +82,11 @@ export default function FollowUpInput({
   };
 
   return (
-    <div className="relative shrink-0 border-t border-line px-4 py-3 bg-card">
+    <div className="relative shrink-0 px-3 pb-3 pt-1">
       {/* Context preview popover */}
       {previewOpen && (
-        <div className="absolute bottom-full left-4 right-4 mb-1.5 bg-card border border-line rounded-xl shadow-lg max-h-72 overflow-y-auto py-1.5 animate-fade-in z-30">
-          <div className="px-3 py-1.5 text-2xs text-ink-faint uppercase tracking-wider font-medium border-b border-line">
+        <div className="absolute bottom-full left-3 right-3 mb-1.5 bg-card border border-line rounded-xl shadow-lg max-h-72 overflow-y-auto py-1.5 animate-fade-in z-30">
+          <div className="px-3 py-1.5 text-2xs text-ink-faint font-medium border-b border-line">
             {t('followup.contextTitle')}
           </div>
           {preview.items.length === 0 ? (
@@ -105,10 +105,11 @@ export default function FollowUpInput({
         </div>
       )}
 
+      <div className="panel-card px-3.5 pt-2 pb-2.5">
       {/* Context summary line */}
       <button
         onClick={() => setPreviewOpen((v) => !v)}
-        className="flex items-center gap-1 text-2xs text-ink-faint hover:text-ink-muted transition-colors mb-1.5 font-mono"
+        className="flex items-center gap-1 text-2xs text-ink-faint hover:text-ink-muted transition-colors mb-1.5"
         title={t('followup.previewTitle')}
       >
         <ChevronUp size={12} strokeWidth={1.75} className={`transition-transform ${previewOpen ? 'rotate-180' : ''}`} />
@@ -188,6 +189,7 @@ export default function FollowUpInput({
           <input type="checkbox" checked={continueInheritAttachments} onChange={(e) => setContinueInheritAttachments(e.target.checked)} className="rounded border-line text-accent focus:ring-accent w-3 h-3" />
           {t('followup.inheritAttachments')}
         </label>
+      </div>
       </div>
     </div>
   );

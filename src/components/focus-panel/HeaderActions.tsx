@@ -36,7 +36,7 @@ export default function HeaderActions({ nodeId, isLoading }: { nodeId: string; i
     return () => window.removeEventListener('mousedown', handler);
   }, [menuOpen]);
 
-  const iconBtn = 'text-ink-faint hover:text-ink hover:bg-wash rounded-lg w-8 h-8 flex items-center justify-center transition-colors';
+  const iconBtn = 'text-ink-faint hover:text-ink hover:bg-line/50 rounded-lg w-8 h-8 flex items-center justify-center transition-colors';
   const menuItem = 'w-full text-left px-3 py-2 text-xs text-ink-muted hover:bg-wash transition-colors flex items-center gap-2';
 
   return (
@@ -64,7 +64,7 @@ export default function HeaderActions({ nodeId, isLoading }: { nodeId: string; i
       <ModelPicker compact value={nodeModel} onChange={(m) => setNodeModel(nodeId, m)} />
 
       <div ref={menuRef} className="relative">
-        <button onClick={() => setMenuOpen((v) => !v)} title={t('panel.more')} className={`${iconBtn} ${menuOpen ? 'bg-wash text-ink' : ''}`}>
+        <button onClick={() => setMenuOpen((v) => !v)} title={t('panel.more')} className={`${iconBtn} ${menuOpen ? 'bg-line/50 text-ink' : ''}`}>
           <Ellipsis size={17} strokeWidth={1.75} />
         </button>
         {menuOpen && (

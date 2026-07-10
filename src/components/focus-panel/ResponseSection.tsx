@@ -92,10 +92,16 @@ export default function ResponseSection({
     window.getSelection()?.removeAllRanges();
   };
 
+  // No response yet and nothing in flight (e.g. a fresh ask node or a
+  // paradigm human turn) — the card would be an empty box, so skip it.
+  if (!data.response && !data.isLoading && !data.isEditingResponse && !data.generationFailed) {
+    return null;
+  }
+
   return (
-    <div className="px-4 py-3 border-b border-line">
+    <div className="panel-card px-4 py-3">
       <div className="flex items-center justify-between mb-1.5">
-        <label className="text-xs text-ink-faint uppercase tracking-wider font-medium">{t('panel.response')}</label>
+        <label className="text-2xs font-semibold text-green-600">{t('panel.response')}</label>
         {hasMultipleVersions && (
           <div className="flex items-center gap-1 text-xs text-ink-muted">
             <button onClick={() => navigateVersion(nodeId, 'prev')} className="hover:text-accent hover:bg-wash rounded-full w-5 h-5 flex items-center justify-center transition-colors"><ChevronLeft size={14} strokeWidth={1.75} /></button>
@@ -182,7 +188,7 @@ export default function ResponseSection({
       {/* Web references consulted for this response */}
       {data.references && data.references.length > 0 && !data.isLoading && (
         <div className="mt-3 pt-2 border-t border-line/60">
-          <p className="text-2xs text-ink-faint uppercase tracking-wider font-medium mb-1.5">{t('refs.title')}</p>
+          <p className="text-2xs text-ink-faint font-medium mb-1.5">{t('refs.title')}</p>
           <ol className="space-y-1">
             {data.references.map((r, i) => (
               <li key={i} className="flex items-start gap-2 text-xs leading-snug">

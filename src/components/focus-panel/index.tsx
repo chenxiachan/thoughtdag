@@ -119,7 +119,7 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
 
   return (
     <div
-      className={`relative shrink-0 h-full bg-card border-l border-line flex flex-col ${resizing ? 'select-none' : ''}`}
+      className={`relative shrink-0 h-full bg-wash border-l border-line flex flex-col ${resizing ? 'select-none' : ''}`}
       style={{ width: panelWidth ?? '50%', minWidth: PANEL_MIN_WIDTH, maxWidth: '70vw' }}
     >
       {/* Resize handle on the left edge */}
@@ -131,31 +131,22 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
         className={`absolute left-0 top-0 h-full w-[5px] -ml-[2px] z-20 cursor-col-resize hover:bg-accent/30 transition-colors ${resizing ? 'bg-accent/40' : ''}`}
         title={t('panel.resizeTitle')}
       />
-      {/* Header: title + compact action strip */}
-      <div className="flex items-center justify-between gap-2 px-4 py-2.5 border-b border-line shrink-0">
-        <div className="flex items-center gap-2 min-w-0">
-          <h2 className="text-sm font-semibold text-ink truncate">
-            {data.question.slice(0, 50)}{data.question.length > 50 ? '…' : ''}
-          </h2>
-          <span className="text-2xs text-ink-muted bg-wash px-2 py-0.5 rounded-full shrink-0 font-mono">
-            {data.tokenCount} tok
-          </span>
-        </div>
+      {/* Header: summary kicker (role · tokens · materials) + action strip */}
+      <div className="flex items-start gap-2 pl-4 pr-3 py-1.5 border-b border-line/70 shrink-0">
+        <RoleLine nodeId={selectedNodeId!} data={data} inheritedRole={inheritedRole} />
         <div className="flex items-center gap-1 shrink-0">
           <HeaderActions nodeId={selectedNodeId!} isLoading={data.isLoading} />
           <button
             onClick={() => { useUiStore.getState().setPanelOpen(false); setSelectedNodeId(null); }}
-            className="text-ink-faint hover:text-ink transition-colors shrink-0 ml-1"
+            className="text-ink-faint hover:text-ink transition-colors shrink-0 ml-1 h-8 flex items-center"
           >
             <X size={16} strokeWidth={1.75} />
           </button>
         </div>
       </div>
 
-      {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto">
-        <RoleLine nodeId={selectedNodeId!} data={data} inheritedRole={inheritedRole} />
-
+      {/* Scrollable content: one card per section */}
+      <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2.5">
         <QuestionSection
           key={`q-${selectedNodeId}`}
           nodeId={selectedNodeId!}

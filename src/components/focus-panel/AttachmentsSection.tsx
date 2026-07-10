@@ -59,13 +59,13 @@ export default function AttachmentsSection({
   const hasContent = attachments.length > 0 || inherited.length > 0;
 
   return (
-    <div className="px-4 py-3 border-b border-line">
+    <div className="panel-card px-4 py-3">
       <details className="group" open={hasContent}>
-        <summary className="text-xs text-ink-faint uppercase tracking-wider font-medium cursor-pointer hover:text-ink-muted transition-colors flex items-center gap-1.5 select-none">
+        <summary className="text-2xs font-semibold text-warm cursor-pointer hover:text-warm/80 transition-colors flex items-center gap-1.5 select-none">
           <ChevronRight size={12} strokeWidth={1.75} className="transition-transform group-open:rotate-90" />
           {t('attach.title')}
           {hasContent && (
-            <span className="text-accent/60 font-medium normal-case ml-1">
+            <span className="text-ink-faint font-normal ml-1">
               {fmt(t('attach.local'), { n: attachments.length })}{inherited.length > 0 ? ` ${fmt(t('attach.inheritedBadge'), { n: inherited.length })}` : ''}
             </span>
           )}
@@ -106,7 +106,7 @@ export default function AttachmentsSection({
           {/* Local attachments */}
           {attachments.length > 0 && (
             <div className="space-y-1.5">
-              <span className="text-2xs text-ink-faint font-medium uppercase">{t('attach.thisNode')}</span>
+              <span className="text-2xs text-ink-faint font-medium">{t('attach.thisNode')}</span>
               {attachments.map((att) => (
                 <div key={att.id} className="flex items-center gap-2 bg-wash rounded-lg px-3 py-2 group">
                   {att.thumbnailUrl ? (
@@ -153,7 +153,7 @@ export default function AttachmentsSection({
           {/* Inherited attachments */}
           {inherited.length > 0 && (
             <div className="space-y-1.5">
-              <span className="text-2xs text-ink-faint font-medium uppercase">{t('attach.inheritedFrom')}</span>
+              <span className="text-2xs text-ink-faint font-medium">{t('attach.inheritedFrom')}</span>
               {inherited.map(({ attachment: att, sourceQuestion, excludedByAncestor }) => {
                 const isExcludedSelf = excludeSet.has(att.id);
                 const includeSet = new Set(includedAttachmentIds);

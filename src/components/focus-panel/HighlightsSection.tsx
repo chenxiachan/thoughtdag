@@ -41,13 +41,13 @@ export default function HighlightsSection({
   };
 
   return (
-    <div className="px-4 py-3 border-b border-line">
+    <div className="panel-card px-4 py-3">
       <details className="group" open={highlights.length > 0}>
-        <summary className="text-xs text-ink-faint uppercase tracking-wider font-medium cursor-pointer hover:text-ink-muted transition-colors flex items-center gap-1.5 select-none">
+        <summary className="text-2xs font-semibold text-amber-600 cursor-pointer hover:text-amber-500 transition-colors flex items-center gap-1.5 select-none">
           <ChevronRight size={12} strokeWidth={1.75} className="transition-transform group-open:rotate-90" />
           {t('highlight.title')}
           {highlights.length > 0 && (
-            <span className="text-amber-600 font-medium normal-case">({highlights.length})</span>
+            <span className="text-ink-faint font-normal">({highlights.length})</span>
           )}
         </summary>
         <div className="mt-2">

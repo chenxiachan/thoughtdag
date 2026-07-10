@@ -37,14 +37,14 @@ export default function ContextChainSection({
   const [contextOpen, setContextOpen] = useState(true);
 
   return (
-    <div className="px-4 py-3">
+    <div className="panel-card px-4 py-3">
       <button
         onClick={() => setContextOpen(!contextOpen)}
-        className="flex items-center gap-1.5 text-xs text-ink-faint uppercase tracking-wider font-medium mb-2 hover:text-ink-muted transition-colors w-full"
+        className="flex items-center gap-1.5 text-2xs font-semibold text-ink-muted mb-2 hover:text-ink transition-colors w-full"
       >
         <span>{contextOpen ? <ChevronDown size={14} strokeWidth={1.75} /> : <ChevronRight size={14} strokeWidth={1.75} />}</span>
         <span>{t('chain.title')}</span>
-        <span className="text-ink-muted font-mono normal-case ml-auto">{totalContextTokens} tok</span>
+        <span className="text-ink-faint font-normal ml-auto">{totalContextTokens} tok</span>
       </button>
 
       {contextOpen && (
