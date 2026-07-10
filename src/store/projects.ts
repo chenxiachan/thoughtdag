@@ -24,6 +24,16 @@ export interface ProjectMeta {
   updatedAt: number;
   /** 'chat' (default) = conversation canvas; 'paradigm' = orchestration view, no LLM. */
   kind?: 'chat' | 'paradigm';
+  /** Provenance: which paradigm this run canvas was instantiated from. */
+  instantiatedFrom?: { name: string; at: string };
+}
+
+/** Stamp paradigm provenance on a project (persisted with the meta list). */
+export async function markInstantiatedFrom(projectId: string, paradigmName: string): Promise<void> {
+  useProjects.setState((s) => ({
+    projects: s.projects.map((p) => (p.id === projectId ? { ...p, instantiatedFrom: { name: paradigmName, at: new Date().toISOString() } } : p)),
+  }));
+  await saveMeta();
 }
 
 interface ProjectsState {

@@ -128,10 +128,13 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
    * can't see each other — structural blindness for candidate pools.
    * Generations run concurrently (bounded); one history entry for the batch.
    */
-  fanOut: async (parentId: string, question: string, roles: { name: string; prompt: string }[], opts: { follow?: boolean } = {}) => {
+  fanOut: async (parentId: string, question: string, roles: { name: string; prompt: string }[], opts: { follow?: boolean; rounds?: number } = {}) => {
     const parent = get().nodes.find((n) => n.id === parentId);
     if (!parent || roles.length === 0) return;
     const follow = !!opts.follow;
+    // Bounded loops, declared not emergent: how many auto re-critiques a
+    // reviewer fires per wave (writer↔critic iteration budget).
+    const rounds = follow && opts.rounds && opts.rounds > 1 ? Math.min(opts.rounds, 5) : undefined;
     get().pushHistory();
 
     // Create all nodes and edges up front. Persona lives in the question's
@@ -171,6 +174,7 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
           isBranch: !follow, // orange styling: exploratory candidates
           isEvaluator: follow || undefined, // red styling + rerun affordance
           autoRerun: follow || undefined,
+          autoRerunRounds: rounds,
           webSearch: useUiStore.getState().webSearchEnabled,
           scholarSearch: useUiStore.getState().scholarSearchEnabled,
         },
@@ -279,6 +283,15 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
     if (!q) return;
     get().pushHistory();
     autoRunCounts.clear(); // a human turn is a manual action: new auto wave
+    // Second run of a paradigm: changing the input makes every answered
+    // step downstream stale — the replay chip is the "re-run experiment"
+    // button. Surface the blast radius, same as editQuestion.
+    const prevQuestion = get().nodes.find((n) => n.id === nodeId)?.data.question;
+    if (prevQuestion && prevQuestion !== q) {
+      const staleCount = getDescendantIds(nodeId, get().edges)
+        .filter((id) => get().nodes.find((n) => n.id === id)?.data.response).length;
+      if (staleCount > 0) toast('info', fmt(t('toast.editMakesStale'), { n: staleCount }), 7000);
+    }
     set((state) => ({
       nodes: state.nodes.map((n) =>
         n.id === nodeId ? { ...n, data: { ...n.data, question: q, isEditing: false } } : n

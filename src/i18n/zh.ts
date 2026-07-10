@@ -22,6 +22,8 @@ export const zh: Record<keyof typeof en, string> = {
   // Tutorial
   'tutorial.title': 'ThoughtDAG 是怎么工作的',
   'tutorial.subtitle': '十个概念，三分钟——从提问到范式',
+  'tutorial.groupBasics': '基础：图即对话',
+  'tutorial.groupAdvanced': '进阶：材料 · 批量 · 陈旧 · 范式',
   'tutorial.close': '明白了',
   'tutorial.step1.title': '1 · 提问',
   'tutorial.step1.desc': '每个问题都会变成画布上的一个节点：你的问题加上 AI 的回答。在下方输入，或双击画布空白处开启新话题。',
@@ -312,6 +314,8 @@ export const zh: Record<keyof typeof en, string> = {
   'fanout.modeFollow': '持续评审',
   'fanout.modeOnceHint': '每个视角独立回答一次、彼此不可见——rule-in / rule-out 的盲评候选池。',
   'fanout.modeFollowHint': '每个视角成为评审者：红色跟随边滑向思路最新末端，上游每次更新自动重评。',
+  'fanout.rounds': '自动重评轮数',
+  'fanout.roundsHint': '每次人工动作后最多自动评审几轮（有界循环，写进范式文件）',
   'fanout.question': '共同问题',
   'fanout.instruction': '常驻指令（每次重评执行）',
   'fanout.critiqueInstruction': '批评上面的讨论：指出夸大之处、缺失的证据和未言明的假设。如有前一版，说明哪些点已改进。保持简洁、具体。',

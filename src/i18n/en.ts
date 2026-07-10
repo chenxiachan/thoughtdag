@@ -22,6 +22,8 @@ export const en = {
   // Tutorial
   'tutorial.title': 'How ThoughtDAG works',
   'tutorial.subtitle': 'Ten ideas, three minutes — from asking to paradigms',
+  'tutorial.groupBasics': 'Basics: the graph is the conversation',
+  'tutorial.groupAdvanced': 'Advanced: material · batch · staleness · paradigms',
   'tutorial.close': 'Got it',
   'tutorial.step1.title': '1 · Ask',
   'tutorial.step1.desc': 'Every question becomes a node on the canvas: your question plus the AI\'s answer. Type below or double-click empty canvas to start a new thread.',
@@ -313,6 +315,8 @@ export const en = {
   'fanout.modeFollow': 'Keep reviewing',
   'fanout.modeOnceHint': 'Each perspective answers once, blind to its siblings \u2014 the rule-in / rule-out candidate pool.',
   'fanout.modeFollowHint': 'Each perspective becomes a reviewer: a red edge slides with the thread tip and re-critiques whenever upstream grows.',
+  'fanout.rounds': 'Auto-review rounds',
+  'fanout.roundsHint': 'max auto re-critiques per manual action (a bounded, file-declared loop)',
   'fanout.question': 'Shared question',
   'fanout.instruction': 'Standing instruction (runs on every re-review)',
   'fanout.critiqueInstruction': 'Critique the discussion above: identify overclaims, missing evidence, and unstated assumptions. Note what improved since the previous version if any. Be concise and specific. Respond in the language of the discussion.',

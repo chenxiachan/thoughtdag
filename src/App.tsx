@@ -27,7 +27,7 @@ import SelectionToolbar from './components/SelectionToolbar';
 import SearchBar from './components/SearchBar';
 import ProjectSwitcher from './components/ProjectSwitcher';
 import { useStore } from './store';
-import { useProjects, adoptImportedProject, createProject, createBuiltinParadigm } from './store/projects';
+import { useProjects, adoptImportedProject, createProject, createBuiltinParadigm, markInstantiatedFrom } from './store/projects';
 import { projectStorageKey } from './store/projects';
 import { set as idbSet } from 'idb-keyval';
 import { instantiateParadigm } from './lib/paradigm';
@@ -234,6 +234,7 @@ function Canvas() {
     const id = crypto.randomUUID();
     await idbSet(projectStorageKey(id), JSON.stringify({ state: { nodes: cNodes, edges: cEdges }, version: 1 }));
     await adoptImportedProject(id, `▶ ${pname}`, 'chat');
+    await markInstantiatedFrom(id, pname); // provenance → run manifest
     prevNodeCount.current = useStore.getState().nodes.length;
     setTimeout(() => rfInstance.current?.fitView({ duration: 400, padding: 0.15 }), 150);
   }, []);

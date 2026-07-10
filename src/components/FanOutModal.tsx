@@ -29,6 +29,7 @@ export default function FanOutModal({
   const t = useT();
   const lang = useI18n((s) => s.lang);
   const [mode, setMode] = useState<'once' | 'follow'>('once');
+  const [rounds, setRounds] = useState(1);
   const [question, setQuestion] = useState(initialQuestion);
   const [picked, setPicked] = useState<Set<string>>(new Set());
   const [customText, setCustomText] = useState(
@@ -61,7 +62,7 @@ export default function FanOutModal({
 
   const run = () => {
     if (!question.trim() || roles.length === 0) return;
-    void fanOut(parentId, question.trim(), roles, { follow: mode === 'follow' });
+    void fanOut(parentId, question.trim(), roles, { follow: mode === 'follow', rounds });
     onClose();
   };
 
@@ -104,6 +105,23 @@ export default function FanOutModal({
             <p className="text-2xs text-ink-faint mt-1.5 leading-relaxed">
               {mode === 'once' ? t('fanout.modeOnceHint') : t('fanout.modeFollowHint')}
             </p>
+            {mode === 'follow' && (
+              <div className="mt-2 flex items-center gap-2">
+                <span className="text-2xs text-ink-muted">{t('fanout.rounds')}</span>
+                {[1, 2, 3].map((r) => (
+                  <button
+                    key={r}
+                    onClick={() => setRounds(r)}
+                    className={`text-2xs w-7 h-6 rounded-md transition-colors ${
+                      rounds === r ? 'bg-watch/10 text-watch font-medium ring-1 ring-watch/30' : 'bg-wash text-ink-muted hover:bg-line'
+                    }`}
+                  >
+                    {r}×
+                  </button>
+                ))}
+                <span className="text-2xs text-ink-faint">{t('fanout.roundsHint')}</span>
+              </div>
+            )}
           </div>
 
           <div>

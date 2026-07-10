@@ -136,36 +136,46 @@ export default function Tutorial() {
 
   if (!open) return null;
 
-  const steps = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] as const;
+  // Hero layout: everything on one large floating page — two labeled rows
+  // of five compact chapter cards, no scrolling on a normal desktop.
+  const GROUPS: { label: string; steps: number[] }[] = [
+    { label: t('tutorial.groupBasics'), steps: [1, 2, 3, 4, 5] },
+    { label: t('tutorial.groupAdvanced'), steps: [6, 7, 8, 9, 10] },
+  ];
 
   return (
     <div
-      className="fixed inset-0 z-[95] bg-black/25 flex items-center justify-center animate-fade-in"
+      className="fixed inset-0 z-[95] bg-black/25 flex items-center justify-center animate-fade-in p-6"
       onClick={() => setOpen(false)}
     >
       <div
-        className="bg-card border border-line rounded-xl shadow-xl w-[640px] max-h-[85vh] flex flex-col"
+        className="bg-card border border-line rounded-2xl shadow-2xl w-[min(1440px,95vw)] max-h-[94vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-start justify-between px-6 pt-5 pb-4 border-b border-line shrink-0">
-          <div>
+        <div className="flex items-start justify-between px-7 pt-5 pb-3 shrink-0">
+          <div className="flex items-baseline gap-3">
             <h2 className="text-lg font-semibold text-ink tracking-tight">{t('tutorial.title')}</h2>
-            <p className="text-xs text-ink-faint mt-0.5">{t('tutorial.subtitle')}</p>
+            <p className="text-xs text-ink-faint">{t('tutorial.subtitle')}</p>
           </div>
           <button onClick={() => setOpen(false)} className="text-ink-faint hover:text-ink transition-colors mt-1">
             <X size={18} strokeWidth={1.75} />
           </button>
         </div>
 
-        <div className="overflow-y-auto px-6 py-4 space-y-1">
-          {steps.map((n) => (
-            <div key={n} className="flex gap-5 items-center py-3 border-b border-line/60 last:border-0">
-              <div className="w-[120px] h-[84px] shrink-0 bg-surface rounded-lg border border-line/60">
-                {DIAGRAMS[n]}
-              </div>
-              <div className="min-w-0">
-                <h3 className="text-sm font-semibold text-ink">{t(`tutorial.step${n}.title` as Parameters<typeof t>[0])}</h3>
-                <p className="text-xs text-ink-muted leading-relaxed mt-1">{t(`tutorial.step${n}.desc` as Parameters<typeof t>[0])}</p>
+        <div className="overflow-y-auto px-7 pb-2">
+          {GROUPS.map((g) => (
+            <div key={g.label} className="mb-4 last:mb-1">
+              <p className="text-2xs font-semibold text-ink-faint mb-2">{g.label}</p>
+              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
+                {g.steps.map((n) => (
+                  <div key={n} className="bg-surface border border-line/70 rounded-xl p-3 flex flex-col">
+                    <div className="w-full aspect-[120/70] bg-card rounded-lg border border-line/60 mb-2 overflow-hidden">
+                      {DIAGRAMS[n]}
+                    </div>
+                    <h3 className="text-xs font-semibold text-ink leading-snug">{t(`tutorial.step${n}.title` as Parameters<typeof t>[0])}</h3>
+                    <p className="text-2xs text-ink-muted leading-relaxed mt-1">{t(`tutorial.step${n}.desc` as Parameters<typeof t>[0])}</p>
+                  </div>
+                ))}
               </div>
             </div>
           ))}

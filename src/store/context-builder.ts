@@ -92,10 +92,20 @@ export function hashContext(messages: ContextMessage[], images: ImageAttachment[
  * against upstream content that no longer exists.
  */
 export function upstreamFingerprint(nodeId: string, nodes: ThoughtNode[], edges: ThoughtEdge[]): string {
-  const blanked = nodes.map((n) =>
-    n.id === nodeId ? { ...n, data: { ...n.data, question: '', response: '', attachments: [] } } : n
-  );
-  const { messages } = buildContext(nodeId, blanked, edges);
+  // Fingerprints track CONTENT and STRUCTURE, never the compression view:
+  // collapse state and auto-generated summaries are normalized away, so a
+  // background summary arriving (or a card being folded) never fakes an
+  // "upstream changed" signal downstream.
+  const normalized = nodes.map((n) => ({
+    ...n,
+    data: {
+      ...n.data,
+      isCollapsed: false,
+      summary: undefined,
+      ...(n.id === nodeId ? { question: '', response: '', attachments: [] } : {}),
+    },
+  }));
+  const { messages } = buildContext(nodeId, normalized, edges);
   return hashContext(messages);
 }
 

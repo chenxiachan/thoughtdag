@@ -43,6 +43,8 @@ function activeProjectName(): string {
 export function runManifest(): string {
   const { nodes, edges, staleIds } = useStore.getState();
   const stale = new Set(staleIds);
+  const { projects, activeId } = useProjects.getState();
+  const activeProject = projects.find((pr) => pr.id === activeId);
   const edgeKind = (e: ThoughtEdge) =>
     e.data?.isWatch ? 'watch'
       : e.data?.isCrossLink ? 'reference'
@@ -53,6 +55,7 @@ export function runManifest(): string {
     version: 1,
     exportedAt: new Date().toISOString(),
     project: activeProjectName(),
+    instantiatedFrom: activeProject?.instantiatedFrom ?? null,
     staleCount: staleIds.length,
     nodes: nodes
       .filter((n) => n.data.stepKind !== 'frame')
