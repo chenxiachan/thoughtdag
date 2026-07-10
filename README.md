@@ -58,18 +58,27 @@ A conversation isn't a list. It's a **graph**.
 ## Features
 
 ### 🧠 Context you can see and shape
-Drag an edge to merge branches, delete one to prune memory, collapse a node to pass its summary instead of full text.
+Drag an edge to merge branches, delete one to prune memory, collapse a node to pass its summary instead of full text. Two kinds of wires: **solid = the conversation** (full history flows; layout and paradigms follow it), **dashed = a reference** that quotes one node plus its upstream trail — select it for a token price chip and a quote ⇄ full toggle. Context assembles in layers (materials → references → conversation), so the same graph always produces the same prompt.
 
 ### 📥 Your history, unlocked
 Import ChatGPT / Claude `conversations.json` — each conversation becomes an editable canvas, ChatGPT's edit/regenerate forks preserved as visible branches.
 
 ### 🌿 Branch anywhere
-Select any passage → an exploration branch grows from exactly that text; regenerate as sibling versions and keep the best; wire branches back together to merge.
+Select any passage → an exploration branch grows from exactly that text; regenerate appends comparable versions in place (the parallel-branch variant is one menu click away); wire branches back together to merge.
 
 ### 🧹 Converge — don't accumulate
 Redundant exploration is inevitable; keeping it in context is not. Box-select the sprawl → **Merge Summary** produces a structured synthesis (conclusions / evidence / open questions) → **Archive** the originals: still on canvas, dimmed, and excluded from every future context.
 
 <img src="docs/converge.gif" alt="Box-select three redundant nodes, merge into a synthesis node, archive the originals" width="100%"/>
+
+### 📌 Anything on the canvas
+Paste anything: text becomes a note (Word tables → Markdown), a URL becomes a time-stamped web snapshot, an image is **auto-read into context** (tables, charts, scientific figures — the extracted text stays inspectable and editable). Notes, files and colored frames live on the canvas — and nothing enters context without a wire.
+
+### 🧭 Staleness you can see, replay with a price tag
+Every answer records a fingerprint of what it depended on. Change anything upstream and the affected answers wear an amber **"Upstream changed"** badge — staleness travels along references too. Click a badge to re-run in place (old versions kept for comparison), or **replay everything stale in dependency order** after a confirm dialog that prices the run in tokens. Export a **run manifest** (models, fingerprints, timestamps, staleness) for your methods section.
+
+### 🧪 Paradigms — run reasoning as experiments
+Design a workflow once — human steps, auto-running prompt steps, material slots — then instantiate it: the cascade runs every machine step and pauses wherever a person belongs. Edit the input afterwards and replay: the chain re-runs in order, each step appending a comparable version. Share as `.paradigm.json`; a rule-out / rule-in example ships built in.
 
 ### 👁️ Reviewers that keep up
 One click attaches a critic whose red edge slides forward as your thread grows — each new step gets re-critiqued (history versioned). A reviewer is an ordinary node: question it, branch from it, wire its opinion anywhere.
@@ -81,25 +90,24 @@ The model decides when to search: web for facts, **arXiv + Semantic Scholar for 
 Everything is editable, answers keep multiple versions, LaTeX and syntax highlighting render inline, semantic zoom swaps cards for large-type thumbnails when zoomed out, and one-click tidy layout re-organizes the whole graph by arrow order.
 
 ### 🗂️ Research-grade workflow
-Multi-canvas projects (one topic, one graph), IndexedDB auto-save, JSON backup/import, **ChatGPT/Claude history import** (branches preserved), one-click Markdown export of any context chain, an attachment system (image Vision / dual-channel PDF / precise inheritance control), a bilingual EN/中 interface, and a built-in five-step tutorial.
+Multi-canvas projects (one topic, one graph), IndexedDB auto-save, JSON backup/import, **ChatGPT/Claude history import** (branches preserved), one-click Markdown export of any context chain, an attachment system (image Vision / dual-channel PDF / precise inheritance control), a bilingual EN/中 interface, and a built-in ten-step tutorial.
 
 <details>
-<summary><b>📜 Full feature list (50+)</b></summary>
+<summary><b>📜 Full feature list (60+)</b></summary>
 
 - **Infinite canvas** — pan, zoom, drag nodes freely (React Flow)
 - **DAG context engine** — `buildContext()` walks all incoming edges, builds history in topological order
 - **Purple edges** (continue) — inherit the full ancestor context
 - **Orange edges** (explore) — select text → branch right with the selection as context
-- **Cross-linking** — drag to connect any two nodes and merge their context
+- **Reference edges (dashed)** — drop a hand-drawn wire on any node to quote it (Q&A + upstream question trail) without dragging its whole conversation in; the selected edge shows a token price chip and flips quote ⇄ full
 - **Click-to-delete edges** — select an edge for a floating delete button; right-click menu works too; Cmd+Z undoes
-- **Regenerate** — creates a sibling node (tree branching, not in-place replacement)
+- **Regenerate in place** — appends a comparable version (page through, delete, revert — downstream staleness reacts to the active version); "Regenerate as branch" in the ⋯ menu spawns a parallel sibling for A/B runs
 - **Edit everything** — double-click to edit questions or responses
 - **Text selection toolbar** — select response text → Branch or Highlight
 - **Markdown + LaTeX** — full markdown, syntax highlighting, inline and block math
 - **Version management** — navigate response versions, delete bad ones
-- **Focus side panel** — full Q&A editing, version navigation, highlight management, context-chain visualization, follow-up input; drag-resizable width
+- **Focus panel (floating overlay)** — cards-on-wash reading layout over the canvas (which never resizes), context tree grouped by materials / references / conversation, follow-up input; drag-resizable width
 - **Highlight system** — three downstream modes: 📄 Full text / 🏷️ Tag important / ✂️ Highlights only
-- **Distill-regenerate** — highlight key passages → refined sibling node in one click
 - **Auto-clean stale highlights on edit**
 - **Undo/Redo** — Cmd+Z / Cmd+Shift+Z, full state snapshots
 - **Column-Tree auto-layout** — main chain flows down, branches fork right; real measured heights prevent overlap
@@ -123,14 +131,21 @@ Multi-canvas projects (one topic, one graph), IndexedDB auto-save, JSON backup/i
 - **Archive (prune-but-keep)** — dimmed on canvas, excluded from every context walk, restorable; batch via multi-select
 - **Merge Synthesis** — box-select nodes → structured synthesis (conclusions / evidence / open questions)
 - **Export system** — whole-graph JSON backup and import; context-chain / multi-select Markdown export
-- **Context send preview** — live "~N tok · M messages · K files" before asking
+- **Context send preview** — live "~N tok · M messages · K files" plus a materials · references · conversation layer breakdown before asking
 - **Attachment system** — node-local attachments (drag/paste/upload), inherited include/exclude control, fingerprint dedup, automatic Vision switching for images, dual-channel PDF (text + rendered pages)
 - **Per-node model override** — any node can pin its own LLM (badge on the card, sibling regenerations inherit it); cheap models for exploration, flagship for the hard steps
 - **Cmd+F node search** — filter by question/answer/summary, arrows + Enter to jump-pan the canvas
 - **Keyboard shortcuts** — Space collapse, R regenerate, arrow keys walk the DAG, Esc steps out (legend in the tutorial)
 - **Bilingual UI** — auto-detects browser language, one-click EN/中 switch
-- **Built-in tutorial** — five-step illustrated walkthrough
-- **New root anywhere** — double-click empty canvas; multiple trees coexist
+- **Built-in tutorial** — a ten-step illustrated hero page, from asking to paradigms
+- **Ask nodes anywhere** — double-click empty canvas, use the palette, or drop a wire on blank space; fresh nodes focus their input immediately
+- **Layered context assembly** — materials → reference blocks → the conversation, ordering independent of wiring history (same graph, same prompt)
+- **Content nodes** — notes (markdown), file nodes, time-stamped link snapshots; paste-driven creation; image auto-reading picks the strongest configured vision model
+- **Frames** — labeled colored regions with a navigator jump list; hide-annotations view toggle
+- **Staleness tracking** — per-generation upstream fingerprints; amber badges on nodes, dots in the context tree, explicit [Stale] marks in downstream payloads
+- **Batch replay** — one click re-runs every stale node in dependency order; confirm dialog with a token estimate; stop anytime
+- **Run manifest export** — `.manifest.json` with models, roles, fingerprints, timestamps, staleness, typed edges and paradigm provenance
+- **Paradigm mode** — human/prompt steps + material slots; instantiate → cascade → unlock; edit the input + replay = re-run the experiment; bounded reviewer rounds declared in the file
 - **Example canvas on first run** — a seeded graph (with a context-pruning ⚖️ side-by-side demo) instead of a blank page; reload it anytime from the landing screen
 - **Import ChatGPT / Claude exports** — drop conversations.json into Import; ChatGPT's edit/regenerate branches are preserved as graph forks, each conversation becomes its own canvas
 - **Environment-based config** — keys live in `.env`; available models register automatically per key
@@ -203,13 +218,14 @@ Browser (localhost:5173)
 ## Roadmap
 
 **Near term**
-- [ ] Edge-crossing minimization, hover-＋ blank child nodes, group/ungroup
+- [ ] Event-log export (canvas operations → CSV/JSON — the measurement layer for human-AI interaction studies)
+- [ ] Save any canvas as a paradigm (reverse instantiation)
+- [ ] Attachment blob separation (scaling image-heavy canvases)
 
 **Long term**
-- [ ] Multi-evaluator collaboration (reviewer + statistician + language editor on one thread)
+- [ ] Run comparison view (same paradigm, N runs side by side)
 - [ ] Artifact nodes (file deliverables on canvas, Monaco editor + version history)
-- [ ] Import ChatGPT/Claude conversation exports as DAGs
-- [ ] Collaboration mode, template system, local LLMs (Ollama), DOCX parsing
+- [ ] Async collaboration: share a paradigm, collect runs
 
 ## Feedback
 
