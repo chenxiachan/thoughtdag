@@ -84,7 +84,7 @@ export default function ParadigmNode({ id, data }: NodeProps<ThoughtNodeType>) {
           onChange={(e) => patch({ instruction: e.target.value })}
           placeholder={t(kind === 'human' ? 'paradigm.humanHintPlaceholder' : 'paradigm.promptPlaceholder')}
           rows={kind === 'human' ? 3 : 4}
-          className={`w-full text-xs text-ink bg-surface border border-line rounded-lg px-2.5 py-2 focus:outline-none focus:ring-1 resize-y leading-relaxed ${
+          className={`w-full text-xs text-ink bg-surface border border-line rounded-lg px-2.5 py-2 focus:outline-none focus:ring-1 resize-y leading-relaxed nowheel ${
             kind === 'human' ? 'focus:ring-warm/40' : 'focus:ring-accent/40'
           }`}
         />

@@ -119,7 +119,7 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
               placeholder={t('content.notePlaceholder')}
               rows={5}
               autoFocus
-              className="w-full bg-transparent text-sm text-ink resize-y focus:outline-none placeholder-ink-faint leading-relaxed nopan"
+              className="w-full bg-transparent text-sm text-ink resize-y focus:outline-none placeholder-ink-faint leading-relaxed nopan nowheel"
             />
           ) : (
             <div
@@ -219,7 +219,7 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
                           }
                         }}
                         rows={7}
-                        className="w-full text-xs text-ink bg-surface border border-line rounded-lg px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-accent/40 resize-y leading-relaxed nopan"
+                        className="w-full text-xs text-ink bg-surface border border-line rounded-lg px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-accent/40 resize-y leading-relaxed nopan nowheel"
                       />
                       <div className="flex items-center justify-between">
                         <span className="text-2xs text-ink-faint font-mono">{att.extractedBy}</span>
