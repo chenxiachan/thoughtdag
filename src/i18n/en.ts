@@ -2,7 +2,7 @@
 // Naming: area.name (landing.*, tutorial.*, panel.*, node.*, switcher.*, ...)
 export const en = {
   // Landing
-  'landing.tagline': 'Explore ideas as branching conversations',
+  'landing.tagline': 'Think in branches — one rule: a wire IS context',
   'landing.placeholder': 'What would you like to explore?',
   'landing.setRole': 'Set role (optional)',
   'landing.rolePlaceholder': 'e.g. You are a physicist. Explain using first principles.',
@@ -28,7 +28,7 @@ export const en = {
   'tutorial.step1.title': '1 · Ask',
   'tutorial.step1.desc': 'Every question becomes a node on the canvas: your question plus the AI\'s answer. Type below or double-click empty canvas to start a new thread.',
   'tutorial.step2.title': '2 · Follow up',
-  'tutorial.step2.desc': 'A follow-up creates a child node connected by a solid edge. The AI sees everything upstream along the arrows — the whole chain of reasoning.',
+  'tutorial.step2.desc': 'A follow-up creates a child node connected by a solid edge. The AI sees everything upstream along the arrows — the whole chain of reasoning. That is the one rule behind everything here: a wire IS context.',
   'tutorial.step3.title': '3 · Branch from a selection',
   'tutorial.step3.desc': 'Select any text inside an answer and hit Explore. A dashed orange branch grows sideways — it inherits the context plus your selection, without polluting the main line.',
   'tutorial.step4.title': '4 · Prune and rewire',

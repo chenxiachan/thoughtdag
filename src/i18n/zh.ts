@@ -2,7 +2,7 @@ import type { en } from './en';
 
 export const zh: Record<keyof typeof en, string> = {
   // Landing
-  'landing.tagline': '让想法在分支对话中生长',
+  'landing.tagline': '让想法在分支中生长 —— 唯一法则：连线即上下文',
   'landing.placeholder': '你想探索什么？',
   'landing.setRole': '设置角色（可选）',
   'landing.rolePlaceholder': '例如：你是一位物理学家，请用第一性原理解释。',
@@ -28,7 +28,7 @@ export const zh: Record<keyof typeof en, string> = {
   'tutorial.step1.title': '1 · 提问',
   'tutorial.step1.desc': '每个问题都会变成画布上的一个节点：你的问题加上 AI 的回答。在下方输入，或双击画布空白处开启新话题。',
   'tutorial.step2.title': '2 · 追问',
-  'tutorial.step2.desc': '追问会创建一个由实线连接的子节点。AI 沿着箭头看到上游的全部内容——完整的推理链。',
+  'tutorial.step2.desc': '追问会创建一个由实线连接的子节点。AI 沿着箭头看到上游的全部内容——完整的推理链。这就是贯穿一切的唯一法则：连线即上下文。',
   'tutorial.step3.title': '3 · 从选中文字分支',
   'tutorial.step3.desc': '选中回答里的任意文字，点 Explore。一条橙色虚线分支向侧面生长——它继承上下文和你的选中内容，但不会污染主线。',
   'tutorial.step4.title': '4 · 裁剪与重连',

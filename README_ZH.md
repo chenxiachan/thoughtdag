@@ -6,7 +6,9 @@
 
 ### 让思考长成图，而不是一条线
 
-**在无限画布上，把 AI 对话变成可编辑的思维图谱 —— 模型看到什么，由你决定。**
+**在无限画布上，把 AI 对话变成可编辑的思维图谱。**
+
+**唯一法则：连线即上下文 —— 模型读到什么，你看得见、也改得了。**
 
 ![React](https://img.shields.io/badge/React_19-087EA4?logo=react&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
@@ -45,7 +47,9 @@ npm run dev            # → http://localhost:5173
 
 对话不是列表，是**图**。
 
-## 一条规则，掌控上下文
+还有一层更深的分野。聊天终端是**执行的 harness**——为「把答案递给你」而优化，其余一切都被隐藏：什么进了上下文、如何被压缩、哪个 agent 做了什么。ThoughtDAG 是**认知的 instrument**——价值单位不是答案，而是推理结构本身：什么流了进来、谁影响了谁、此后什么变了、整次运行能否复现。Agent 越强大、越黑箱，你越需要一张让人机协作保持**可读**的工作台。
+
+## 唯一法则：连线即上下文
 
 **节点** = 一轮问答。**边** = 上下文流向。模型只看到连进来的内容——**加边即注入、删边即裁剪**，每次提问前「~N tok · M messages」实时预览要发送的载荷。
 

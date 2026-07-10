@@ -6,7 +6,9 @@
 
 ### Think in branches, not threads
 
-**An infinite canvas that turns LLM conversations into an editable thought graph — you decide exactly what the model sees.**
+**An infinite canvas that turns LLM conversations into an editable thought graph.**
+
+**One rule: a wire IS context — you see and decide exactly what the model reads.**
 
 ![React](https://img.shields.io/badge/React_19-087EA4?logo=react&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
@@ -45,7 +47,9 @@ Every mainstream LLM interface is **linear, append-only, and opaque**: context d
 
 A conversation isn't a list. It's a **graph**.
 
-## One rule to own your context
+And there is a deeper split. Chat terminals are **harnesses for doing** — they optimize for handing you an answer, and hide everything else: what entered the context, how it was compacted, which agent did what. ThoughtDAG is an **instrument for thinking**: the unit of value is not the answer but the reasoning structure — what flowed in, who influenced whom, what changed since, and whether the whole run can be repeated. The more powerful and opaque agents become, the more you need a workbench that keeps human–AI collaboration **legible**.
+
+## The One Rule: a wire IS context
 
 **Node** = one Q&A turn. **Edge** = where context flows. The model sees exactly what wires in — **adding an edge injects context, deleting one prunes it**, and a live "~N tok · M messages" preview shows the payload before every question.
 
