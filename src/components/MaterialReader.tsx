@@ -136,7 +136,9 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
   const handleMouseUp = () => {
     window.setTimeout(() => {
       const sel = window.getSelection();
-      if (!sel || sel.isCollapsed || !bodyRef.current) return;
+      // a plain click (no selection) anywhere in the reading surface
+      // dismisses the ask bar — the draft survives for the next selection
+      if (!sel || sel.isCollapsed || !bodyRef.current) { setAsk(null); return; }
       const range = sel.getRangeAt(0);
       if (!bodyRef.current.contains(range.commonAncestorContainer)) return;
       const raw = sel.toString();

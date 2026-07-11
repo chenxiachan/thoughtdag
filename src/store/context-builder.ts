@@ -210,17 +210,14 @@ export function buildContext(
           images.push({ data: att.content, mimeType: att.type });
         }
       } else if (att.type === 'application/pdf') {
-        // PDF: inject extracted text + optionally page images for Vision
+        // PDF: the extracted text IS the model channel. Page images never
+        // flow into generation — sending one per page trips provider image
+        // limits (Zhipu 1210) exactly on small PDFs; pages exist for the
+        // reader and its per-page Recognize, which writes better text here.
         if (att.extractedText) {
           messages.push({ role: 'user', content: `[PDF: ${att.name}]\n${att.extractedText}` });
-        }
-        if (att.renderMode !== 'text-only' && att.pageImages && att.pageImages.length > 0) {
-          for (const pageImg of att.pageImages) {
-            images.push({ data: pageImg, mimeType: 'image/png' });
-          }
-        }
-        if (!att.extractedText && !att.pageImages) {
-          messages.push({ role: 'user', content: `[PDF: ${att.name} — extracting content...]` });
+        } else {
+          messages.push({ role: 'user', content: `[PDF: ${att.name} — no extracted text yet (scanned or still extracting). The reader's Recognize can turn its pages into readable text.]` });
         }
       } else {
         messages.push({ role: 'user', content: `[File: ${att.name}]\n${att.content}` });

@@ -97,13 +97,9 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
       if (att.type.startsWith('image/')) {
         contextImages.push({ data: att.content, mimeType: att.type });
       } else if (att.type === 'application/pdf') {
+        // text channel only — page images trip provider image-count limits
         if (att.extractedText) {
           contextMessages.push({ role: 'user', content: `[PDF: ${att.name}]\n${att.extractedText}` });
-        }
-        if (att.renderMode !== 'text-only' && att.pageImages && att.pageImages.length > 0) {
-          for (const pageImg of att.pageImages) {
-            contextImages.push({ data: pageImg, mimeType: 'image/png' });
-          }
         }
       } else if (att.content) {
         contextMessages.push({ role: 'user', content: `[File: ${att.name}]\n${att.content}` });
