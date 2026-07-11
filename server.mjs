@@ -180,6 +180,7 @@ function baseDirective() {
     `Current date: ${new Date().toISOString().slice(0, 10)}.`,
     'Respond in the language of the latest user message unless asked otherwise.',
     'Bracketed markers such as [Note], [Reference: …], [Link snapshot: …], [Summary], [Important]…[/Important] and [Stale: …] are provenance labels attached to your context by the canvas. Use them to judge where information came from and how much to trust it; never repeat the markers themselves in your answer.',
+    'Entries reading "[Summary] …" are condensed placeholders for full earlier answers. Never imitate their brevity and never prefix your own answer with [Summary]; always answer the current question completely.',
   ].join(' ');
 }
 

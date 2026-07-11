@@ -250,6 +250,7 @@ export const en = {
   'toast.manifestExported': 'Run manifest exported',
   'toast.unknownError': 'Unknown error',
   'toast.projectsLoadFailed': 'Failed to load projects. Starting with an empty canvas',
+  'toast.unsupportedFile': 'Unsupported format: {name}. For Word documents, export as PDF or plain text first.',
 
   // Markdown export (subtitles / labels)
   'export.contextChain': 'Context chain',

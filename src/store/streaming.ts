@@ -82,7 +82,7 @@ export async function runNodeGeneration(
         const responses = versionMode === 'append'
           ? [...n.data.responses.filter((r) => r), response]
           : [response];
-        return { ...n, data: { ...n.data, response, responses, responseIndex: responses.length - 1, isLoading: false, isCollapsed: true, tokenCount, generationFailed: failed || undefined, references, highlights: pruneHighlights(n.data.highlights, response), lastContextHash: contextHash, lastGeneratedAt: new Date().toISOString() } };
+        return { ...n, data: { ...n.data, response, responses, responseIndex: responses.length - 1, isLoading: false, tokenCount, generationFailed: failed || undefined, references, highlights: pruneHighlights(n.data.highlights, response), lastContextHash: contextHash, lastGeneratedAt: new Date().toISOString() } };
       }),
     }));
   };

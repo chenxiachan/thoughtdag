@@ -40,8 +40,8 @@ import { buildContext } from './store/context-builder';
 import { downloadManifest } from './lib/export';
 import { countTokens } from './utils';
 import { buildExampleGraph } from './lib/example-graph';
-import { COLORS, FRAME_COLORS, PANEL_INSET, loadPanelWidth } from './lib/constants';
-import { confirmDialog, useUiStore } from './lib/ui-store';
+import { COLORS, FRAME_COLORS, PANEL_INSET } from './lib/constants';
+import { confirmDialog, toast, useUiStore } from './lib/ui-store';
 import { useMcpServers } from './lib/use-mcp';
 import ConfirmDialog from './components/ui/ConfirmDialog';
 import Toaster from './components/ui/Toaster';
@@ -158,6 +158,23 @@ function Canvas() {
       },
     }]);
     st.pushHistory();
+  }, []);
+
+  // Dropped-file gate: accept what we can actually parse (images, PDF,
+  // text/code). Word and friends would ingest as binary soup — reject with
+  // an actionable hint instead.
+  const filterDroppedFiles = useCallback((list: FileList | File[]): File[] => {
+    const ok: File[] = [];
+    for (const f of Array.from(list)) {
+      const ext = f.name.split('.').pop()?.toLowerCase() ?? '';
+      if (f.type.startsWith('image/') || f.type === 'application/pdf' || f.type.startsWith('text/')
+        || ['pdf', 'txt', 'md', 'csv', 'json', 'yaml', 'yml', 'toml', 'js', 'ts', 'tsx', 'jsx', 'py', 'sh', 'c', 'cpp', 'h', 'java', 'rs', 'go', 'rb', 'swift', 'css', 'html', 'xml', 'sql', 'tex', 'bib'].includes(ext)) {
+        ok.push(f);
+      } else {
+        toast('info', fmt(ti('toast.unsupportedFile'), { name: f.name }));
+      }
+    }
+    return ok;
   }, []);
 
   // Ask node: an ordinary Q&A node dropped EMPTY — wire material in, then
@@ -376,6 +393,7 @@ function Canvas() {
   // it follows the selection. Single clicks only select (no side effects).
   const panelMode = useUiStore((s) => s.panelOpen);
   const staleCount = useStore((s) => s.staleIds.length);
+  const livePanelWidth = useUiStore((s) => s.panelWidth);
   const selectedKind = nodes.find((nd) => nd.id === selectedNodeId)?.data.stepKind;
   const selectedIsContent = isContentKind(selectedKind) || selectedKind === 'frame';
   const panelOpen = panelMode && !!selectedNodeId && !isParadigm && !selectedIsContent;
@@ -584,7 +602,7 @@ function Canvas() {
       if (!node) return;
       const vp = rf.getViewport();
       const nodeRight = (node.position.x + (node.measured?.width ?? node.width ?? 480)) * vp.zoom + vp.x;
-      const visibleRight = window.innerWidth - loadPanelWidth() - PANEL_INSET - 24;
+      const visibleRight = window.innerWidth - useUiStore.getState().panelWidth - PANEL_INSET - 24;
       if (nodeRight > visibleRight) {
         rf.setViewport({ ...vp, x: vp.x - (nodeRight - visibleRight) }, { duration: 300 });
       }
@@ -608,11 +626,24 @@ function Canvas() {
           if (e.dataTransfer.types.includes('application/thoughtdag-content') || e.dataTransfer.types.includes('Files')) {
             e.preventDefault();
             e.dataTransfer.dropEffect = 'copy';
+            if (!hasNodes && !isParadigm) setIsDraggingLanding(true);
           }
         }}
         onDrop={(e) => {
-          // Only drops on the empty pane: nodes and overlays own their drops
-          if (!(e.target as HTMLElement).classList?.contains('react-flow__pane')) return;
+          const el = e.target as HTMLElement;
+          // Landing (empty canvas): dropped files become attachments of the
+          // first question instead of orphan file nodes
+          if (!hasNodes && !isParadigm && e.dataTransfer.files.length > 0) {
+            e.preventDefault();
+            setIsDraggingLanding(false);
+            handleFileUpload(filterDroppedFiles(e.dataTransfer.files));
+            return;
+          }
+          // Drops land on the empty pane OR inside a frame region (frames
+          // cover large areas; a file dropped there should still land)
+          const overNode = el.closest?.('.react-flow__node');
+          const overFrame = overNode && useStore.getState().nodes.find((n) => n.id === overNode.getAttribute('data-id'))?.data.stepKind === 'frame';
+          if (!el.classList?.contains('react-flow__pane') && !overFrame) return;
           const pos = flowPosAt({ x: e.clientX, y: e.clientY });
           const paletteKind = e.dataTransfer.getData('application/thoughtdag-content');
           if (paletteKind === 'ask') {
@@ -632,8 +663,10 @@ function Canvas() {
           }
           if (e.dataTransfer.files.length > 0) {
             e.preventDefault();
+            const files = filterDroppedFiles(e.dataTransfer.files);
+            if (files.length === 0) return;
             const id = spawnContentNode('file', pos);
-            void ingestFiles(id, e.dataTransfer.files);
+            void ingestFiles(id, files);
           }
         }}
       >
@@ -938,8 +971,13 @@ function Canvas() {
         </div>
       )}
 
-      {/* Toolbar: web search, language, tutorial, relayout, undo/redo */}
-      <div className="absolute top-4 right-4 z-10 flex gap-1.5 items-center">
+      {/* Toolbar: web search, language, tutorial, relayout, undo/redo.
+          Positioned relative to the VISIBLE canvas: when the overlay panel
+          is open it slides left instead of hiding underneath. */}
+      <div
+        className="absolute top-4 z-10 flex gap-1.5 items-center transition-[right] duration-200"
+        style={{ right: panelOpen ? livePanelWidth + PANEL_INSET + 12 : 16 }}
+      >
         {isParadigm && (
           <>
             <button
@@ -1146,7 +1184,7 @@ function Canvas() {
           // Center the node in the strip of canvas the panel leaves visible
           const zoom = rfInstance.current.getZoom();
           rfInstance.current.setCenter(
-            node.position.x + 240 + loadPanelWidth() / (2 * zoom),
+            node.position.x + 240 + useUiStore.getState().panelWidth / (2 * zoom),
             node.position.y + 100,
             { duration: 300, zoom },
           );

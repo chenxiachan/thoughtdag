@@ -44,6 +44,9 @@ interface UiState {
   /** Half-typed inputs keyed by surface (e.g. follow:<nodeId>) — survive
       node/panel switches within the session, cleared on submit. */
   drafts: Record<string, string>;
+  /** Live overlay-panel width: the toolbar offsets itself by it so nothing
+      hides underneath the panel. */
+  panelWidth: number;
   /** Selected LLM id; null = server default. */
   selectedModel: string | null;
   dismissToast: (id: string) => void;
@@ -55,6 +58,7 @@ interface UiState {
   setAutoRefreshPaused: (paused: boolean) => void;
   setAnnotationsHidden: (hidden: boolean) => void;
   setDraft: (key: string, text: string) => void;
+  setPanelWidth: (w: number) => void;
   setPanelOpen: (open: boolean) => void;
   setSelectedModel: (model: string | null) => void;
 }
@@ -69,6 +73,7 @@ export const useUiStore = create<UiState>((set, get) => ({
   autoRefreshPaused: localStorage.getItem(AUTO_PAUSE_KEY) === 'yes',
   annotationsHidden: localStorage.getItem(HIDE_ANNOTATIONS_KEY) === 'yes',
   panelOpen: false,
+  panelWidth: (() => { const raw = localStorage.getItem('thoughtdag.panelWidth'); const n = raw ? parseInt(raw, 10) : NaN; return Number.isFinite(n) ? n : 520; })(),
   selectedModel: localStorage.getItem(MODEL_KEY) || null,
   dismissToast: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
   resolveConfirm: (ok) => {
@@ -89,6 +94,7 @@ export const useUiStore = create<UiState>((set, get) => ({
     set({ mcpEnabled: enabled });
   },
   setPanelOpen: (open) => set({ panelOpen: open }),
+  setPanelWidth: (w) => set({ panelWidth: w }),
   drafts: {},
   setDraft: (key, text) => set((s) => {
     if (!text) {

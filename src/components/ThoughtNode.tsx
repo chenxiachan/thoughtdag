@@ -306,6 +306,14 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
 
       {!data.isCollapsed && (
         <div className="px-5 py-4">
+          {/* The passage this branch explores: without it the user loses
+              the thread that spawned the node */}
+          {data.branchContext && (
+            <div className="mb-2.5 text-xs pl-3 py-1.5 pr-2 border-l-2 border-warm bg-warm/10 rounded-r text-ink-muted flex items-start gap-1.5">
+              <GitBranch size={13} strokeWidth={1.75} className="text-warm shrink-0 mt-0.5" />
+              <span className="italic leading-relaxed">“{data.branchContext.slice(0, 180)}{data.branchContext.length > 180 ? '…' : ''}”</span>
+            </div>
+          )}
           {/* Question */}
           {data.isEditing || isAwaitingHuman || isAwaitingAsk ? (
             <div>

@@ -4,7 +4,7 @@ import { useStore } from '../../store';
 import { useUiStore } from '../../lib/ui-store';
 import { partitionContext } from '../../lib/graph';
 import { buildContext, resolveRoleFor } from '../../store/context-builder';
-import { PANEL_WIDTH_KEY, PANEL_MIN_WIDTH, PANEL_DEFAULT_WIDTH, PANEL_INSET, loadPanelWidth } from '../../lib/constants';
+import { PANEL_WIDTH_KEY, PANEL_MIN_WIDTH, PANEL_DEFAULT_WIDTH, PANEL_INSET } from '../../lib/constants';
 import { useT } from '../../i18n';
 import RoleLine from './RoleLine';
 import AttachmentsSection from './AttachmentsSection';
@@ -29,8 +29,10 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
   // Selected text from the response, staged as context for the follow-up
   const [branchContext, setBranchContext] = useState('');
 
-  // Resizable width, persisted on drag end; double-click resets the default
-  const [panelWidth, setPanelWidth] = useState<number>(loadPanelWidth);
+  // Resizable width, persisted on drag end; double-click resets the default.
+  // The width lives in ui-store so the canvas toolbar can offset itself.
+  const panelWidth = useUiStore((s) => s.panelWidth);
+  const setPanelWidth = useUiStore((s) => s.setPanelWidth);
   const [resizing, setResizing] = useState(false);
 
   const onResizePointerDown = (e: React.PointerEvent) => {
@@ -47,10 +49,7 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
     if (!resizing) return;
     setResizing(false);
     (e.target as HTMLElement).releasePointerCapture(e.pointerId);
-    setPanelWidth((w) => {
-      localStorage.setItem(PANEL_WIDTH_KEY, String(w));
-      return w;
-    });
+    localStorage.setItem(PANEL_WIDTH_KEY, String(useUiStore.getState().panelWidth));
   };
   const onResizeDoubleClick = () => {
     setPanelWidth(PANEL_DEFAULT_WIDTH);
@@ -89,6 +88,7 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
 
   return (
     <div
+      data-focus-panel
       className={`absolute right-3 top-3 bottom-3 z-20 bg-wash border border-line rounded-2xl shadow-xl overflow-hidden flex flex-col ${resizing ? 'select-none' : ''}`}
       style={{ width: panelWidth, minWidth: PANEL_MIN_WIDTH, maxWidth: '70vw' }}
     >
@@ -124,6 +124,7 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
           question={data.question}
           isEditing={data.isEditing}
           isHuman={data.stepKind === 'human'}
+          branchContext={data.branchContext}
         />
 
         <ResponseSection

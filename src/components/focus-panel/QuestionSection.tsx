@@ -8,12 +8,16 @@ export default function QuestionSection({
   question,
   isEditing,
   isHuman,
+  branchContext,
 }: {
   nodeId: string;
   question: string;
   isEditing: boolean;
   /** Paradigm human turn: edits record the question without generating. */
   isHuman?: boolean;
+  /** The selected passage this branch explores (shown so the thread that
+      spawned the node is never lost). */
+  branchContext?: string;
 }) {
   const editQuestion = useStore((s) => s.editQuestion);
   const submitHumanTurn = useStore((s) => s.submitHumanTurn);
@@ -41,6 +45,11 @@ export default function QuestionSection({
   return (
     <div className="panel-card px-4 py-3">
       <label className="text-2xs font-semibold text-accent mb-1 block">{t('panel.question')}</label>
+      {branchContext && (
+        <div className="mb-2 text-xs pl-3 py-1.5 pr-2 border-l-2 border-warm bg-warm/10 rounded-r text-ink-muted italic leading-relaxed">
+          “{branchContext.slice(0, 240)}{branchContext.length > 240 ? '…' : ''}”
+        </div>
+      )}
       {isEditing ? (
         <textarea
           value={editValue}

@@ -249,6 +249,7 @@ export const zh: Record<keyof typeof en, string> = {
   'toast.manifestExported': '运行 manifest 已导出',
   'toast.unknownError': '未知错误',
   'toast.projectsLoadFailed': '加载画布失败，将以空画布启动',
+  'toast.unsupportedFile': '暂不支持 {name} 的格式。Word 文档请另存为 PDF 或纯文本后再拖入。',
 
   // Markdown export (subtitles / labels)
   'export.contextChain': '上下文链',
