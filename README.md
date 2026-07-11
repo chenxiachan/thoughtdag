@@ -155,26 +155,6 @@ The industry aligns models inside their weights. A workbench does its part struc
 - **Your data stays with you.** Canvases live in your browser's IndexedDB; the only server is a thin proxy on your own machine. Nothing is uploaded anywhere except the LLM API you chose. Backups are plain JSON files you own.
 - Optional: PDF page rendering wants poppler (`brew install poppler`); degrades gracefully to text without it.
 
-## MCP tools
-
-Copy `mcp.config.example.json` to `mcp.config.json` and list any [MCP](https://modelcontextprotocol.io) servers (Claude Desktop format; existing snippets just work). Their tools join the same agentic loop as web search: a plug button appears next to the search toggles whenever servers are connected, and the model decides when to call them. Two servers researchers will want:
-
-- **Zotero** (`zotero-mcp`): the model can search your reference library while answering. Select a claim in a paper and ask who in your library supports or contradicts it; the answer comes back citing your own references.
-- **Obsidian** (community vault servers): the model can read your notes. The vault stays your long-term store, ThoughtDAG stays the live reasoning surface, and the bridge pulls your accumulated thinking into a single turn without importing anything.
-
-MCP tools are the model's hands; the materials you wire in remain the explicit context channel.
-
-```jsonc
-{
-  "mcpServers": {
-    "zotero": { "command": "zotero-mcp", "env": { "ZOTERO_LOCAL": "true" } },  // your reference library
-    "fetch":  { "command": "uvx", "args": ["mcp-server-fetch"] }               // full web-page reading
-  }
-}
-```
-
-A mock server ships in `scripts/mock-mcp.mjs` for verifying the loop end-to-end.
-
 ## Supported models
 
 Built on the Vercel AI SDK. Any provider below activates when its key lands in `.env`; a toolbar picker switches models at any time, and text-only models reroute automatically when images appear. Default model IDs can be overridden per provider (e.g. `OPENAI_MODELS=gpt-5.2`).

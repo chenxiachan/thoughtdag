@@ -155,26 +155,6 @@ npm run dev            # → http://localhost:5173
 - **数据在你手里。** 画布存在浏览器 IndexedDB；唯一的服务端是你自己机器上的轻代理。除了你选择的 LLM API，任何数据不上传任何地方。备份是你完全拥有的 JSON 文件。
 - 可选：PDF 页图渲染需要 poppler（`brew install poppler`），缺失时自动降级纯文本。
 
-## MCP 工具
-
-把 `mcp.config.example.json` 复制为 `mcp.config.json`，按 Claude Desktop 同款格式列出你的 [MCP](https://modelcontextprotocol.io) server。工具进入和联网搜索同一个 agentic 循环：只要有 server 接入，提问框旁就会出现一个插头开关，何时调用由模型判断。研究者最想接的两个：
-
-- **Zotero**（`zotero-mcp`）：模型回答时可以检索你的文献库。读论文时圈选一个论断，问「我库里有谁支持或反驳过这个」，答案带着你自己文献的引用回来。
-- **Obsidian**（社区的 vault server）：模型可以读你的笔记。笔记库仍是沉淀的长期知识，ThoughtDAG 是活的推理面，这座桥让多年积累随时进入某一轮回答，而不用搬库。
-
-MCP 工具是模型的手；你连线的材料才是显式的上下文通道。
-
-```jsonc
-{
-  "mcpServers": {
-    "zotero": { "command": "zotero-mcp", "env": { "ZOTERO_LOCAL": "true" } },  // 你的 Zotero 文献库
-    "fetch":  { "command": "uvx", "args": ["mcp-server-fetch"] }               // 网页全文阅读
-  }
-}
-```
-
-仓库自带测试 server（`scripts/mock-mcp.mjs`）供验证全链路。
-
 ## 支持的模型
 
 基于 Vercel AI SDK。下表任何一家，把 key 填进 `.env` 即自动激活；工具栏随时换模型，纯文本模型遇到图片自动改道视觉模型。各家默认模型 id 可用环境变量覆盖（如 `OPENAI_MODELS=gpt-5.2`）。

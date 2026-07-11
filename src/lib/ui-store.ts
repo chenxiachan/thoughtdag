@@ -77,7 +77,9 @@ export const useUiStore = create<UiState>((set, get) => ({
   tutorialOpen: false,
   webSearchEnabled: localStorage.getItem(WEB_SEARCH_KEY) !== 'off',
   scholarSearchEnabled: localStorage.getItem(SCHOLAR_SEARCH_KEY) !== 'off',
-  mcpEnabled: localStorage.getItem(MCP_KEY) !== 'off',
+  // MCP is parked until the personalization system is designed (external
+  // knowledge needs its own provenance surface first) — hidden AND off.
+  mcpEnabled: localStorage.getItem(MCP_KEY) === 'on',
   autoRefreshPaused: localStorage.getItem(AUTO_PAUSE_KEY) === 'yes',
   annotationsHidden: localStorage.getItem(HIDE_ANNOTATIONS_KEY) === 'yes',
   panelOpen: false,
