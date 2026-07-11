@@ -15,7 +15,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import 'highlight.js/styles/github.css';
-import { CircleHelp, Dna, Download, FileText, Frame, GitBranch, LayoutGrid, Loader2, MessageCircleQuestion, Paperclip, Plug, Redo2, Scissors, SquareTerminal, StickyNote, Trash2, Undo2, Workflow, X, ListRestart } from 'lucide-react';
+import { BookOpen, CircleHelp, Dna, Download, FileText, Frame, GitBranch, LayoutGrid, Loader2, MessageCircleQuestion, Paperclip, Plug, Redo2, Scissors, SquareTerminal, StickyNote, Trash2, Undo2, Workflow, X, ListRestart } from 'lucide-react';
 import './index.css';
 import ThoughtNode from './components/ThoughtNode';
 import ParadigmNode from './components/ParadigmNode';
@@ -99,6 +99,7 @@ function Canvas() {
   const [pendingAttachments, setPendingAttachments] = useState<Attachment[]>([]);
   const [isDraggingLanding, setIsDraggingLanding] = useState(false);
   const landingFileRef = useRef<HTMLInputElement>(null);
+  const docFileRef = useRef<HTMLInputElement>(null);
   const hasNodes = nodes.length > 0;
   const rfInstance = useRef<ReactFlowInstance<ThoughtNodeType, ThoughtEdge> | null>(null);
   const prevNodeCount = useRef(nodes.length);
@@ -199,6 +200,23 @@ function Canvas() {
     st.pushHistory();
     return id;
   }, []);
+  // Material-first entry: every dropped document becomes a material node;
+  // the reader opens on the first readable one (PDF/text render instantly,
+  // extraction fills the model channel in the background). Attachments to
+  // the root question remain an EXPLICIT action (the paperclip).
+  const startFromDocuments = useCallback((list: FileList | File[]) => {
+    const files = filterDroppedFiles(list);
+    if (files.length === 0) return;
+    let readerTarget: string | null = null;
+    files.forEach((f, i) => {
+      const id = spawnContentNode('file', { x: 120 + (i % 3) * 480, y: 120 + Math.floor(i / 3) * 620 });
+      void ingestFiles(id, [f]);
+      if (!readerTarget && !f.type.startsWith('image/')) readerTarget = id;
+    });
+    if (readerTarget) useUiStore.getState().setReaderNodeId(readerTarget);
+    setTimeout(() => rfInstance.current?.fitView({ duration: 400, padding: 0.2 }), 120);
+  }, [filterDroppedFiles]);
+
   const flowPosAt = useCallback((screen?: { x: number; y: number } | null) => {
     const at = rfInstance.current?.screenToFlowPosition(screen ?? { x: window.innerWidth / 2, y: window.innerHeight / 2 }) ?? { x: 140, y: 140 };
     return { x: at.x - 200, y: at.y - 60 };
@@ -633,12 +651,12 @@ function Canvas() {
         }}
         onDrop={(e) => {
           const el = e.target as HTMLElement;
-          // Landing (empty canvas): dropped files become attachments of the
-          // first question instead of orphan file nodes
+          // Landing (empty canvas): dropping a document means "start from
+          // this material" — file nodes + the reader, not attachments
           if (!hasNodes && !isParadigm && e.dataTransfer.files.length > 0) {
             e.preventDefault();
             setIsDraggingLanding(false);
-            handleFileUpload(filterDroppedFiles(e.dataTransfer.files));
+            startFromDocuments(e.dataTransfer.files);
             return;
           }
           // Drops land on the empty pane OR inside a frame region (frames
@@ -778,10 +796,7 @@ function Canvas() {
               <p className="text-sm text-ink-muted">{t('landing.tagline')}</p>
             </div>
             <div
-              className={`bg-card border rounded-xl px-5 py-4 shadow-lg transition-all focus-within:border-accent/50 focus-within:shadow-xl ${isDraggingLanding ? 'border-accent ring-2 ring-accent/20' : 'border-line'}`}
-              onDrop={(e) => { e.preventDefault(); e.stopPropagation(); setIsDraggingLanding(false); handleFileUpload(e.dataTransfer.files); }}
-              onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setIsDraggingLanding(true); }}
-              onDragLeave={() => setIsDraggingLanding(false)}
+              className="bg-card border border-line rounded-xl px-5 py-4 shadow-lg transition-all focus-within:border-accent/50 focus-within:shadow-xl"
             >
               <textarea
                 value={inputValue}
@@ -869,6 +884,29 @@ function Canvas() {
                 </button>
               </div>
             </div>
+
+            {/* Second entrance: start from a document (material-first). The
+                whole landing is the drop target; this card names the gesture. */}
+            <div
+              onClick={() => docFileRef.current?.click()}
+              className={`mt-3 border-2 border-dashed rounded-xl px-5 py-3.5 cursor-pointer transition-all text-center bg-card/60 backdrop-blur ${
+                isDraggingLanding ? 'border-accent bg-accent/5 ring-2 ring-accent/20' : 'border-line hover:border-accent/40 hover:bg-accent/5'
+              }`}
+            >
+              <div className="flex items-center justify-center gap-2 text-sm text-ink-muted font-medium">
+                <BookOpen size={15} strokeWidth={1.75} className="text-accent" /> {t('landing.docStart')}
+              </div>
+              <p className="text-2xs text-ink-faint mt-1.5">{t('landing.docFormats')}</p>
+              <p className="text-2xs text-ink-faint mt-0.5">{t('landing.docPrivacy')}</p>
+            </div>
+            <input
+              ref={docFileRef}
+              type="file"
+              multiple
+              accept={FILE_INPUT_ACCEPT}
+              className="hidden"
+              onChange={(e) => { startFromDocuments(e.target.files || []); e.target.value = ''; }}
+            />
 
             {/* What makes this different — three quiet cards */}
             <div className="grid grid-cols-3 gap-3 mt-6">

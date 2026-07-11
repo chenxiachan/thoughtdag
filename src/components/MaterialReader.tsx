@@ -111,8 +111,11 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
         setPdfjs(m);
         setDoc(d);
         setHasTextLayer(chars > TEXT_LAYER_PROBE_CHARS);
-        // scanned: the extracted copy IS the readable surface
-        if (chars <= TEXT_LAYER_PROBE_CHARS) setView('text');
+        // decide the readable surface once the document is actually known:
+        // original when it has a text layer, the extracted copy when scanned.
+        // (The attachment can arrive AFTER mount — landing auto-open — so
+        // the mount-time default may have been computed without a PDF.)
+        setView(chars > TEXT_LAYER_PROBE_CHARS ? 'original' : 'text');
       } catch (err) {
         if (!dead) {
           setPdfError(err instanceof Error ? err.message : String(err));
@@ -161,6 +164,16 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
     setDraft('');
     setAsk(null);
     window.getSelection()?.removeAllRanges();
+  };
+
+  // whole-material question: no passage, the full text flows along the wire.
+  // Selection is the hero gesture; this keeps "the whole thing" one step away.
+  const [wholeDraft, setWholeDraft] = useState('');
+  const submitWhole = () => {
+    const q = wholeDraft.trim();
+    if (!q) return;
+    useStore.getState().addQuestion(q, { parentId: node.id });
+    setWholeDraft('');
   };
 
   // ── recognize (per-page vision rewrite) ──
@@ -341,23 +354,40 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
           )}
         </div>
 
-        {/* footer: the questions grown from this material */}
-        {children.length > 0 && (
-          <div className="border-t border-line bg-card px-5 py-2.5 shrink-0 flex items-center gap-2 overflow-x-auto">
-            <span className="text-2xs text-ink-faint shrink-0">{fmt(t('reader.grown'), { n: children.length })}</span>
-            {children.map((c) => (
-              <button
-                key={c.id}
-                onClick={() => { close(); onLocate(c.id); }}
-                title={t('reader.locate')}
-                className="text-2xs text-ink-muted bg-wash hover:bg-line rounded-full px-2.5 py-1 shrink-0 max-w-[220px] truncate transition-colors flex items-center gap-1.5"
-              >
-                {c.data.isLoading && <Loader2 size={10} strokeWidth={2} className="animate-spin text-accent shrink-0" />}
-                {c.data.question.replace(/\s+/g, ' ').slice(0, 32) || '…'}
-              </button>
-            ))}
-          </div>
-        )}
+        {/* footer: ask about the whole material + the questions grown from it */}
+        <div className="border-t border-line bg-card px-5 py-2.5 shrink-0 flex items-center gap-2.5">
+          <input
+            value={wholeDraft}
+            onChange={(e) => setWholeDraft(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter' && !isImeComposing(e)) { e.preventDefault(); submitWhole(); } }}
+            placeholder={t('reader.askWhole')}
+            className="flex-1 min-w-[200px] bg-wash text-sm text-ink rounded-lg px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-accent/40 placeholder-ink-faint"
+            data-reader-wholeask
+          />
+          <button
+            onClick={submitWhole}
+            disabled={!wholeDraft.trim()}
+            className="w-8 h-8 rounded-lg bg-accent text-white flex items-center justify-center disabled:opacity-30 transition-opacity shrink-0"
+          >
+            <Send size={14} strokeWidth={1.75} />
+          </button>
+          {children.length > 0 && (
+            <div className="flex items-center gap-2 overflow-x-auto max-w-[45%] shrink-0">
+              <span className="text-2xs text-ink-faint shrink-0">{fmt(t('reader.grown'), { n: children.length })}</span>
+              {children.map((c) => (
+                <button
+                  key={c.id}
+                  onClick={() => { close(); onLocate(c.id); }}
+                  title={t('reader.locate')}
+                  className="text-2xs text-ink-muted bg-wash hover:bg-line rounded-full px-2.5 py-1 shrink-0 max-w-[200px] truncate transition-colors flex items-center gap-1.5"
+                >
+                  {c.data.isLoading && <Loader2 size={10} strokeWidth={2} className="animate-spin text-accent shrink-0" />}
+                  {c.data.question.replace(/\s+/g, ' ').slice(0, 32) || '…'}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* floating ask bar under the selection */}
