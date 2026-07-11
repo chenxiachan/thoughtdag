@@ -55,7 +55,9 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
   };
 
   return (
-    <div ref={rootRef} className="absolute top-4 left-4 z-10">
+    // z-20: the open dropdown must cover the content palette below (both
+    // live on the left edge; the palette is z-10)
+    <div ref={rootRef} className="absolute top-4 left-4 z-20">
       <button
         onClick={() => setOpen(!open)}
         disabled={switching}
