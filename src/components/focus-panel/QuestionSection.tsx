@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useStore } from '../../store';
+import { isImeComposing } from '../../utils';
 import { useT } from '../../i18n';
 
 export default function QuestionSection({
@@ -33,7 +34,7 @@ export default function QuestionSection({
   };
 
   const handleEditKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleEditSubmit(); }
+    if (e.key === 'Enter' && !e.shiftKey && !isImeComposing(e)) { e.preventDefault(); handleEditSubmit(); }
     if (e.key === 'Escape') setEditing(nodeId, false);
   };
 

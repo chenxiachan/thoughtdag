@@ -33,6 +33,14 @@ export default function ResponseSection({
   const [selectedText, setSelectedText] = useState('');
   const [selectionPos, setSelectionPos] = useState<{ x: number; y: number } | null>(null);
   const responseRef = useRef<HTMLDivElement>(null);
+  const streamRef = useRef<HTMLDivElement>(null);
+
+  // Follow the stream: keep the cursor in view while tokens arrive
+  useEffect(() => {
+    if (data.isLoading && streamRef.current) {
+      streamRef.current.scrollTop = streamRef.current.scrollHeight;
+    }
+  }, [data.isLoading, data.response]);
 
   // Text selection handler
   const handleTextSelection = useCallback((e: MouseEvent) => {
@@ -111,7 +119,7 @@ export default function ResponseSection({
           <span className="animate-pulse text-accent">●</span> {t('common.thinking')}
         </div>
       ) : data.isLoading && data.response ? (
-        <div className="markdown-body text-sm text-ink leading-relaxed max-h-[500px] overflow-y-auto py-1">
+        <div ref={streamRef} className="markdown-body text-sm text-ink leading-relaxed max-h-[500px] overflow-y-auto py-1">
           <Markdown>{data.response}</Markdown>
           <span className="inline-block w-2 h-4 bg-accent animate-pulse rounded-sm ml-0.5 align-text-bottom" />
         </div>

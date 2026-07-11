@@ -32,7 +32,7 @@ import { projectStorageKey } from './store/projects';
 import { set as idbSet } from 'idb-keyval';
 import { instantiateParadigm } from './lib/paradigm';
 import { isContentKind, spawnContentNode, ingestFiles, fetchLinkIntoNode, clipboardTextToMarkdown } from './lib/content';
-import { generateId } from './utils';
+import { generateId, isImeComposing } from './utils';
 import type { Attachment, ThoughtNode as ThoughtNodeType, ThoughtEdge } from './types';
 import { processFile, FILE_INPUT_ACCEPT } from './lib/attachments';
 import { walkUpAncestors } from './lib/graph';
@@ -407,10 +407,10 @@ function Canvas() {
             useStore.getState().toggleCollapse(selectedNodeId);
             return;
           }
-          // R: regenerate
+          // R: regenerate in place (same semantic as the UI button)
           if (e.key === 'r' || e.key === 'R') {
             e.preventDefault();
-            void useStore.getState().regenerate(selectedNodeId);
+            void useStore.getState().rerunNode(selectedNodeId, {});
             return;
           }
           // Arrow keys: walk the DAG (structural edges only)
@@ -501,7 +501,7 @@ function Canvas() {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(); }
+    if (e.key === 'Enter' && !e.shiftKey && !isImeComposing(e)) { e.preventDefault(); handleSubmit(); }
   };
 
   const onSelectionChange = useCallback(({ nodes: selectedNodes }: { nodes: { id: string }[] }) => {

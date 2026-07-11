@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { streamText, generateText, tool, stepCountIs } from 'ai';
+import { streamText, generateText, tool, stepCountIs, smoothStream } from 'ai';
 import { z } from 'zod';
 import { createZhipu } from 'zhipu-ai-provider';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
@@ -171,6 +171,18 @@ function resolveModel(modelId, hasImages) {
 }
 
 // Convert our wire format ({role, content}[] + images[]) to AI SDK inputs.
+// Base directive prepended to EVERY generation: models default to their
+// training-cutoff sense of "now" (bad for temporal questions and search
+// decisions), drift into English on weak models, and would otherwise echo
+// the canvas' provenance markers back into answers.
+function baseDirective() {
+  return [
+    `Current date: ${new Date().toISOString().slice(0, 10)}.`,
+    'Respond in the language of the latest user message unless asked otherwise.',
+    'Bracketed markers such as [Note], [Reference: …], [Link snapshot: …], [Summary], [Important]…[/Important] and [Stale: …] are provenance labels attached to your context by the canvas. Use them to judge where information came from and how much to trust it; never repeat the markers themselves in your answer.',
+  ].join(' ');
+}
+
 // System messages are lifted into the top-level `system` option (AI SDK v7
 // rejects system roles inside `messages`); images attach to the last user
 // message, like the previous pi-ai bridge.
@@ -197,7 +209,8 @@ function toSdkPrompt(messages, images) {
       out.push({ role: m.role, content: m.content });
     }
   }
-  return { system: systemParts.length > 0 ? systemParts.join('\n\n') : undefined, messages: out };
+  const system = [baseDirective(), ...systemParts].join('\n\n');
+  return { system, messages: out };
 }
 
 // ─── Web search tool (Zhipu Web Search API, ¥0.01/query) ───────
@@ -614,6 +627,7 @@ app.post('/api/stream', async (req, res) => {
       messages: prompt.messages,
       providerOptions: entry.providerOptions,
       tools,
+      experimental_transform: smoothStream({ chunking: /[\u3040-\u30ff\u4e00-\u9fff]|\S+\s+/ }),
       stopWhen: stepCountIs(5),
       // Force a synthesis step: from step 4 on, tools are disabled AND the
       // instructions switch to "write the final answer now" — GLM otherwise
@@ -708,7 +722,11 @@ app.post('/api/stream', async (req, res) => {
     res.end();
   } catch (err) {
     console.error('Stream error:', err);
-    res.write(`data: ${JSON.stringify({ error: err.message || 'LLM request failed' })}\n\n`);
+    let message = err.message || 'LLM request failed';
+    if (/context.{0,20}(length|window)|maximum.{0,20}tokens|too (long|many tokens)|input.{0,10}too large/i.test(message)) {
+      message = `Context exceeds the model's window. Prune upstream: collapse nodes to summaries, archive dead ends, or switch a reference edge back to quote depth. (${message})`;
+    }
+    res.write(`data: ${JSON.stringify({ error: message })}\n\n`);
     res.write('data: [DONE]\n\n');
     res.end();
   }

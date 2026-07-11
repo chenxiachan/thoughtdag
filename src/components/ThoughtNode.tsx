@@ -1,10 +1,10 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Handle, Position, useStore as useRfStore, type NodeProps } from '@xyflow/react';
-import { AlertTriangle, Archive, ChevronDown, ChevronLeft, ChevronRight, Copy, Eye, GitBranch, Globe, Hourglass, Paperclip, RefreshCw, Send, Split, Star, Trash2, UserRound, X } from 'lucide-react';
+import { AlertTriangle, Archive, ChevronDown, ChevronLeft, ChevronRight, Copy, Eye, GitBranch, Globe, Hourglass, Paperclip, RefreshCw, Send, Split, Square, Star, Trash2, UserRound, X } from 'lucide-react';
 import 'katex/dist/katex.min.css';
 import type { ThoughtNode as ThoughtNodeType } from '../types';
 import { useStore } from '../store';
-import { generateId } from '../utils';
+import { generateId, isImeComposing } from '../utils';
 import { processFile } from '../lib/attachments';
 import { copyText } from '../lib/export';
 import { isRunLocked } from '../lib/paradigm';
@@ -16,7 +16,7 @@ import { useT, fmt } from '../i18n';
 
 export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   const {
-    deleteNode, toggleCollapse, setEditing, editQuestion, submitHumanTurn,
+    deleteNode, toggleCollapse, setEditing, editQuestion, submitHumanTurn, stopGeneration,
     setEditingResponse, editResponse, addHighlight, navigateVersion, deleteVersion,
     setSelectedNodeId, selectedNodeId, addAttachment, rerunNode,
   } = useStore();
@@ -169,7 +169,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   };
 
   const handleEditKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleEditSubmit(); }
+    if (e.key === 'Enter' && !e.shiftKey && !isImeComposing(e)) { e.preventDefault(); handleEditSubmit(); }
     if (e.key === 'Escape') setEditing(id, false);
   };
 
@@ -178,7 +178,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   };
 
   const handleInputKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmitBranch(); }
+    if (e.key === 'Enter' && !e.shiftKey && !isImeComposing(e)) { e.preventDefault(); handleSubmitBranch(); }
     if (e.key === 'Escape') { setBranchFromText(''); }
   };
 
@@ -287,6 +287,15 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
           )}
         </div>
         <div className="flex items-center gap-0.5">
+          {data.isLoading && (
+            <button
+              onClick={(e) => { e.stopPropagation(); stopGeneration(id); }}
+              title={t('actions.stop')}
+              className="text-white bg-red-500 hover:bg-red-600 rounded-full w-7 h-7 flex items-center justify-center transition-colors"
+            >
+              <Square size={10} strokeWidth={1.75} fill="currentColor" />
+            </button>
+          )}
           {!(isParadigmNode && runLocked) && (
             <button onClick={() => deleteNode(id)} className="text-ink-faint hover:text-red-500 hover:bg-red-50 rounded-full w-7 h-7 flex items-center justify-center transition-colors" title={t('common.delete')}>
               <X size={16} strokeWidth={1.75} />
@@ -501,14 +510,18 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
               progress (the structure IS the paradigm); returns on unlock */}
           {!data.isLoading && !data.isEditingResponse && !isAwaitingAsk && !(isParadigmNode && runLocked) && (
             <div className="mt-3 pt-3 border-t border-line">
-              <div className="flex items-center gap-2 bg-wash rounded-xl px-4 py-2.5 transition-shadow focus-within:ring-1 focus-within:ring-accent/40">
-                <input
-                  type="text"
+              <div className="flex items-end gap-2 bg-wash rounded-xl px-4 py-2.5 transition-shadow focus-within:ring-1 focus-within:ring-accent/40">
+                <textarea
+                  rows={1}
                   value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
+                  onChange={(e) => {
+                    setInputValue(e.target.value);
+                    e.target.style.height = 'auto';
+                    e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
+                  }}
                   onKeyDown={handleInputKeyDown}
                   placeholder={t('common.followUp')}
-                  className="flex-1 bg-transparent text-sm text-ink placeholder-ink-faint focus:outline-none nopan nodrag"
+                  className="flex-1 bg-transparent text-sm text-ink placeholder-ink-faint focus:outline-none resize-none leading-relaxed max-h-[120px] overflow-y-auto nowheel nopan nodrag"
                 />
                 <SearchToggles size={15} />
                 <button

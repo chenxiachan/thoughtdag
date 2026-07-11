@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Search, X } from 'lucide-react';
 import { useStore } from '../store';
+import { isImeComposing } from '../utils';
 import { useT, fmt } from '../i18n';
 
 // Cmd+F node search: filter nodes by question/response/summary, arrow keys
@@ -59,7 +60,7 @@ export default function SearchBar({
               if (e.key === 'Escape') { e.stopPropagation(); onClose(); }
               if (e.key === 'ArrowDown') { e.preventDefault(); setCursor((c) => Math.min(c + 1, matches.length - 1)); }
               if (e.key === 'ArrowUp') { e.preventDefault(); setCursor((c) => Math.max(c - 1, 0)); }
-              if (e.key === 'Enter' && matches[cursor]) { e.preventDefault(); locate(matches[cursor].id); }
+              if (e.key === 'Enter' && !isImeComposing(e) && matches[cursor]) { e.preventDefault(); locate(matches[cursor].id); }
             }}
             placeholder={t('search.placeholder')}
             className="flex-1 bg-transparent text-sm text-ink placeholder-ink-faint focus:outline-none"

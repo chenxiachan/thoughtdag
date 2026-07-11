@@ -6,6 +6,7 @@ import { exportActiveProjectJson, exportActiveParadigm, parseImportFile } from '
 import ImportChatModal from './ImportChatModal';
 import type { ImportableConversation } from '../lib/import-chat';
 import { confirmDialog } from '../lib/ui-store';
+import { isImeComposing } from '../utils';
 import { useT, t as ti, fmt } from '../i18n';
 
 function relativeTime(ts: number): string {
@@ -85,7 +86,7 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
                     onChange={(e) => setRenameValue(e.target.value)}
                     onClick={(e) => e.stopPropagation()}
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter' && renameValue.trim()) {
+                      if (e.key === 'Enter' && !isImeComposing(e) && renameValue.trim()) {
                         void renameProject(p.id, renameValue.trim());
                         setRenamingId(null);
                       }

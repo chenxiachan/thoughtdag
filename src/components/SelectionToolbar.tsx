@@ -3,6 +3,7 @@ import { AlignVerticalJustifyStart, Archive, ClipboardList, FileDown, GitBranch,
 import { useStore } from '../store';
 import { confirmDialog } from '../lib/ui-store';
 import { selectionMarkdown, downloadMarkdown } from '../lib/export';
+import { isImeComposing } from '../utils';
 import { useT, t as ti, fmt } from '../i18n';
 
 export default function SelectionToolbar() {
@@ -143,7 +144,7 @@ export default function SelectionToolbar() {
               value={exploreInput}
               onChange={(e) => setExploreInput(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' && exploreInput.trim()) handleExplore();
+                if (e.key === 'Enter' && !isImeComposing(e) && exploreInput.trim()) handleExplore();
                 if (e.key === 'Escape') { setExploreOpen(false); setExploreInput(''); }
               }}
               placeholder={t('toolbar.explorePlaceholder')}

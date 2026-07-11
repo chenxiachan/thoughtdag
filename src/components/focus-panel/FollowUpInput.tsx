@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { ChevronUp, GitBranch, Paperclip, Send, X } from 'lucide-react';
 import { useStore } from '../../store';
+import { isImeComposing } from '../../utils';
 import { useUiStore } from '../../lib/ui-store';
 import { buildContext } from '../../store/context-builder';
 import { processFile, FILE_INPUT_ACCEPT } from '../../lib/attachments';
@@ -41,7 +42,11 @@ export default function FollowUpInput({
   const [continueInheritAttachments, setContinueInheritAttachments] = useState(true);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [pendingAttachments, setPendingAttachments] = useState<Attachment[]>([]);
-  const continueRef = useRef<HTMLInputElement>(null);
+  const continueRef = useRef<HTMLTextAreaElement>(null);
+  const autoGrow = (el: HTMLTextAreaElement) => {
+    el.style.height = 'auto';
+    el.style.height = `${Math.min(el.scrollHeight, 160)}px`;
+  };
   const fileRef = useRef<HTMLInputElement>(null);
 
   const addFiles = async (files: FileList | File[]) => {
@@ -78,8 +83,14 @@ export default function FollowUpInput({
 
   // Auto-focus continue input when switching nodes or staging selected text
   useEffect(() => {
-    const t = setTimeout(() => continueRef.current?.focus(), 100);
+    const t = setTimeout(() => {
+      if (continueRef.current) {
+        continueRef.current.focus();
+        autoGrow(continueRef.current); // restored drafts need their height back
+      }
+    }, 100);
     return () => clearTimeout(t);
+     
   }, [nodeId, branchContext]);
 
   const submit = () => {
@@ -165,23 +176,25 @@ export default function FollowUpInput({
       )}
 
       <div
-        className="flex items-center gap-2 bg-wash rounded-xl px-4 py-2.5 transition-shadow focus-within:ring-1 focus-within:ring-accent/40"
+        className="flex items-end gap-2 bg-wash rounded-xl px-4 py-2.5 transition-shadow focus-within:ring-1 focus-within:ring-accent/40"
         onDrop={(e) => { e.preventDefault(); e.stopPropagation(); void addFiles(e.dataTransfer.files); }}
         onDragOver={(e) => e.preventDefault()}
       >
-        <input
+        <textarea
           ref={continueRef}
-          type="text"
+          rows={1}
           value={continueInput}
-          onChange={(e) => setContinueInput(e.target.value)}
+          onChange={(e) => { setContinueInput(e.target.value); autoGrow(e.target); }}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
+            // Enter sends, Shift+Enter breaks the line; an IME-confirming
+            // Enter (picking a pinyin candidate) never submits.
+            if (e.key === 'Enter' && !e.shiftKey && !isImeComposing(e)) {
               e.preventDefault();
               submit();
             }
           }}
           placeholder={t('common.followUp')}
-          className="flex-1 bg-transparent text-sm text-ink placeholder-ink-faint focus:outline-none"
+          className="flex-1 bg-transparent text-sm text-ink placeholder-ink-faint focus:outline-none resize-none leading-relaxed max-h-[160px] overflow-y-auto"
           onPaste={(e) => {
             const files = Array.from(e.clipboardData?.files ?? []);
             if (files.length > 0) { e.preventDefault(); void addFiles(files); }

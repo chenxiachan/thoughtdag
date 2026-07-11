@@ -3,6 +3,7 @@ import { NodeResizer, useStore as useRfStore, type NodeProps } from '@xyflow/rea
 import { Trash2 } from 'lucide-react';
 import type { ThoughtNode as ThoughtNodeType } from '../types';
 import { useStore } from '../store';
+import { isImeComposing } from '../utils';
 import { FRAME_COLORS } from '../lib/constants';
 import { useT } from '../i18n';
 
@@ -52,7 +53,7 @@ export default function FrameNode({ id, data, selected }: NodeProps<ThoughtNodeT
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onBlur={commit}
-            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === 'Escape') commit(); }}
+            onKeyDown={(e) => { if ((e.key === 'Enter' && !isImeComposing(e)) || e.key === 'Escape') commit(); }}
             placeholder={t('frame.titlePlaceholder')}
             autoFocus
             className="flex-1 min-w-0 bg-transparent text-sm font-semibold text-ink-muted focus:outline-none placeholder-ink-faint nodrag"

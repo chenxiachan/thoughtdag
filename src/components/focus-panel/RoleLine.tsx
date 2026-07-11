@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Paperclip, UserCog } from 'lucide-react';
 import { useStore } from '../../store';
+import { isImeComposing } from '../../utils';
 import { useT } from '../../i18n';
 import RoleTemplateChips from '../ui/RoleTemplateChips';
 import type { ThoughtData } from '../../types';
@@ -85,7 +86,7 @@ export default function RoleLine({
             value={value}
             onChange={(e) => setValue(e.target.value)}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); save(); }
+              if (e.key === 'Enter' && !e.shiftKey && !isImeComposing(e)) { e.preventDefault(); save(); }
               if (e.key === 'Escape') setEditing(false);
             }}
             placeholder={t('role.placeholder')}

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { ChevronRight, GitBranch, Scissors, Star, Tag, X } from 'lucide-react';
 import { useStore } from '../../store';
+import { isImeComposing } from '../../utils';
 import { useT } from '../../i18n';
 import type { Highlight } from '../../types';
 
@@ -109,7 +110,7 @@ export default function HighlightsSection({
                     value={highlightExploreInput}
                     onChange={(e) => setHighlightExploreInput(e.target.value)}
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter') submitExplore();
+                      if (e.key === 'Enter' && !isImeComposing(e)) submitExplore();
                       if (e.key === 'Escape') { setHighlightExploreContext(''); setHighlightExploreInput(''); }
                     }}
                     placeholder={t('highlight.explorePlaceholder')}
