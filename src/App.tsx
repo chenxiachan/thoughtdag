@@ -15,7 +15,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import 'highlight.js/styles/github.css';
-import { CircleHelp, Dna, FileText, Frame, GitBranch, LayoutGrid, Loader2, MessageCircleQuestion, Paperclip, Plug, Redo2, Scissors, SquareTerminal, StickyNote, Trash2, Undo2, Workflow, X, FileJson, ListRestart } from 'lucide-react';
+import { CircleHelp, Dna, Download, FileText, Frame, GitBranch, LayoutGrid, Loader2, MessageCircleQuestion, Paperclip, Plug, Redo2, Scissors, SquareTerminal, StickyNote, Trash2, Undo2, Workflow, X, ListRestart } from 'lucide-react';
 import './index.css';
 import ThoughtNode from './components/ThoughtNode';
 import ParadigmNode from './components/ParadigmNode';
@@ -39,7 +39,7 @@ import type { Attachment, ThoughtNode as ThoughtNodeType, ThoughtEdge } from './
 import { processFile, FILE_INPUT_ACCEPT } from './lib/attachments';
 import { walkUpAncestors } from './lib/graph';
 import { buildContext } from './store/context-builder';
-import { downloadManifest } from './lib/export';
+import { exportActiveParadigm, exportActiveProjectJson } from './lib/export';
 import { countTokens } from './utils';
 import { buildExampleGraph } from './lib/example-graph';
 import { COLORS, FRAME_COLORS, PANEL_INSET } from './lib/constants';
@@ -253,7 +253,7 @@ function Canvas() {
     const id = crypto.randomUUID();
     await idbSet(projectStorageKey(id), JSON.stringify({ state: { nodes: cNodes, edges: cEdges }, version: 1 }));
     await adoptImportedProject(id, `▶ ${pname}`, 'chat');
-    await markInstantiatedFrom(id, pname); // provenance → run manifest
+    await markInstantiatedFrom(id, pname); // provenance rides in the backup
     prevNodeCount.current = useStore.getState().nodes.length;
     setTimeout(() => rfInstance.current?.fitView({ duration: 400, padding: 0.15 }), 150);
   }, []);
@@ -1107,13 +1107,13 @@ function Canvas() {
             }
           }} />
         )}
-        {hasNodes && !isParadigm && (
+        {hasNodes && (
           <button
-            onClick={downloadManifest}
+            onClick={() => (isParadigm ? exportActiveParadigm() : exportActiveProjectJson())}
             className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors text-ink-muted hover:text-accent"
-            title={t('toolbar.manifest')}
+            title={isParadigm ? t('paradigm.exportParadigm') : t('switcher.exportBackup')}
           >
-            <FileJson size={15} strokeWidth={1.75} />
+            <Download size={15} strokeWidth={1.75} />
           </button>
         )}
         {hasNodes && (

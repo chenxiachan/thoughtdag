@@ -79,7 +79,7 @@ Redundant exploration is inevitable; keeping it in context is not. Box-select th
 Paste anything: text becomes a note (Word tables → Markdown), a URL becomes a time-stamped web snapshot, an image is **auto-read into context** (tables, charts, scientific figures; the extracted text stays inspectable and editable). Notes, files and colored frames live on the canvas, and nothing enters context without a wire.
 
 ### 🧭 Staleness you can see, replay with a price tag
-Every answer records a fingerprint of what it depended on. Change anything upstream and the affected answers wear an amber **"Upstream changed"** badge; staleness travels along references too. Click a badge to re-run in place (old versions kept for comparison), or **replay everything stale in dependency order** after a confirm dialog that prices the run in tokens. Export a **run manifest** (models, fingerprints, timestamps, staleness) for your methods section.
+Every answer records a fingerprint of what it depended on. Change anything upstream and the affected answers wear an amber **"Upstream changed"** badge; staleness travels along references too. Click a badge to re-run in place (old versions kept for comparison), or **replay everything stale in dependency order** after a confirm dialog that prices the run in tokens.
 
 ### 🧪 Paradigms: run reasoning as experiments
 Design a workflow once (human steps, auto-running prompt steps, material slots), then instantiate it: the cascade runs every machine step and pauses wherever a person belongs. Edit the input afterwards and replay: the chain re-runs in order, each step appending a comparable version. Share as `.paradigm.json`; a rule-out / rule-in example ships built in.
@@ -134,7 +134,7 @@ Multi-canvas projects (one topic, one graph), IndexedDB auto-save, JSON backup/i
 - **Multi-canvas projects**: create/switch/rename/delete, each saved independently
 - **Archive (prune-but-keep)**: dimmed on canvas, excluded from every context walk, restorable; batch via multi-select
 - **Merge Synthesis**: box-select nodes → structured synthesis (conclusions / evidence / open questions)
-- **Export system**: whole-graph JSON backup and import; context-chain / multi-select Markdown export
+- **Export system**: whole-graph JSON backup (one click on the toolbar, carries paradigm provenance) and import; context-chain / multi-select Markdown export
 - **Context send preview**: live "~N tok · M messages · K files" plus a materials · references · conversation layer breakdown before asking
 - **Attachment system**: node-local attachments (drag/paste/upload), inherited include/exclude control, fingerprint dedup, automatic Vision switching for images, dual-channel PDF (text + rendered pages)
 - **Per-node model override**: any node can pin its own LLM (badge on the card, sibling regenerations inherit it); cheap models for exploration, flagship for the hard steps
@@ -148,7 +148,6 @@ Multi-canvas projects (one topic, one graph), IndexedDB auto-save, JSON backup/i
 - **Frames**: labeled colored regions with a navigator jump list; hide-annotations view toggle
 - **Staleness tracking**: per-generation upstream fingerprints; amber badges on nodes, dots in the context tree, explicit [Stale] marks in downstream payloads
 - **Batch replay**: one click re-runs every stale node in dependency order; confirm dialog with a token estimate; stop anytime
-- **Run manifest export**: `.manifest.json` with models, roles, fingerprints, timestamps, staleness, typed edges and paradigm provenance
 - **Paradigm mode**: human/prompt steps + material slots; instantiate → cascade → unlock; edit the input + replay = re-run the experiment; bounded reviewer rounds declared in the file
 - **Example canvas on first run**: a seeded graph (with a context-pruning ⚖️ side-by-side demo) instead of a blank page; reload it anytime from the landing screen
 - **Import ChatGPT / Claude exports**: drop conversations.json into Import; ChatGPT's edit/regenerate branches are preserved as graph forks, each conversation becomes its own canvas

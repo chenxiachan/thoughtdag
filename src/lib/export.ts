@@ -4,11 +4,11 @@ import { useProjects, projectStorageKey, adoptImportedProject } from '../store/p
 import { detectFormat, listConversations, type ImportableConversation } from './import-chat';
 import { isParadigmFile } from './paradigm';
 import { getContextPath } from './graph';
-import { runDiagnostics } from './diagnostics';
 import { countTokens } from '../utils';
 import { toast } from './ui-store';
 import { t, fmt } from '../i18n';
 import type { ThoughtNode, ThoughtEdge } from '../types';
+import type { ProjectMeta } from '../store/projects';
 
 const EXPORT_FORMAT_VERSION = 1;
 // Must match the main store's persist `version` — a mismatched envelope
@@ -36,76 +36,18 @@ function activeProjectName(): string {
   return projects.find((p) => p.id === activeId)?.name ?? 'canvas';
 }
 
-// ─── Run manifest: the provenance record for a canvas ───────────
-// What a methods section needs: which model answered what, from which
-// context (fingerprint), when, with which tools on, and whether anything
-// on the canvas is currently stale. Lean by design — full content lives
-// in the JSON backup; the manifest is the audit trail.
-export function runManifest(): string {
-  const { nodes, edges, staleIds } = useStore.getState();
-  const stale = new Set(staleIds);
-  const { projects, activeId } = useProjects.getState();
-  const activeProject = projects.find((pr) => pr.id === activeId);
-  const edgeKind = (e: ThoughtEdge) =>
-    e.data?.isWatch ? 'watch'
-      : e.data?.isCrossLink ? 'reference'
-        : e.data?.isBranchFromSelection ? 'branch'
-          : 'structural';
-  const manifest = {
-    format: 'thoughtdag-manifest',
-    version: 1,
-    exportedAt: new Date().toISOString(),
-    project: activeProjectName(),
-    instantiatedFrom: activeProject?.instantiatedFrom ?? null,
-    staleCount: staleIds.length,
-    // The check-up report ships with the audit trail by default: which
-    // topological checks this graph passed is part of the methods record.
-    diagnostics: runDiagnostics(nodes, edges).map((f) => ({
-      tier: f.tier, kind: f.kind, nodes: f.nodeIds, edges: f.edgeIds,
-    })),
-    nodes: nodes
-      .filter((n) => n.data.stepKind !== 'frame')
-      .map((n) => ({
-        id: n.id,
-        kind: n.data.stepKind ?? 'qa',
-        question: n.data.question,
-        model: n.data.model ?? null,
-        role: n.data.appliedRole ?? n.data.rolePrompt ?? null,
-        webSearch: n.data.webSearch ?? null,
-        scholarSearch: n.data.scholarSearch ?? null,
-        autoRerunRounds: n.data.autoRerunRounds ?? null,
-        versions: n.data.responses.length,
-        activeVersion: n.data.responses.length > 0 ? n.data.responseIndex + 1 : null,
-        responseChars: n.data.response.length,
-        tokenCount: n.data.tokenCount,
-        contextFingerprint: n.data.lastContextHash ?? null,
-        generatedAt: n.data.lastGeneratedAt ?? null,
-        stale: stale.has(n.id),
-        archived: n.data.archived ?? false,
-      })),
-    edges: edges.map((e) => ({
-      source: e.source,
-      target: e.target,
-      kind: edgeKind(e),
-      ...(e.data?.isCrossLink ? { depth: e.data?.contextDepth === 'full' ? 'full' : 'quote' } : {}),
-    })),
-  };
-  return JSON.stringify(manifest, null, 2);
-}
-
-export function downloadManifest(): void {
-  downloadFile(`${sanitizeFilename(activeProjectName())}.manifest.json`, runManifest(), 'application/json');
-  toast('success', t('toast.manifestExported'));
-}
-
 // ─── Whole-canvas JSON backup ───────────────────────────────────
 export function exportActiveProjectJson(): void {
   const { nodes, edges } = useStore.getState();
+  const { projects, activeId } = useProjects.getState();
   const name = activeProjectName();
   const payload = JSON.stringify({
     version: EXPORT_FORMAT_VERSION,
     name,
     exportedAt: new Date().toISOString(),
+    // paradigm provenance lives in project meta, not the graph — without
+    // this line a backup round-trip would silently drop it
+    instantiatedFrom: projects.find((p) => p.id === activeId)?.instantiatedFrom,
     nodes: stripTransient(nodes),
     edges,
   });
@@ -195,7 +137,7 @@ export async function importChatConversations(convs: ImportableConversation[]): 
 }
 
 export async function importProjectFromFile(file: File, pre?: unknown): Promise<boolean> {
-  let parsed: { name?: string; nodes?: ThoughtNode[]; edges?: ThoughtEdge[] };
+  let parsed: { name?: string; nodes?: ThoughtNode[]; edges?: ThoughtEdge[]; instantiatedFrom?: ProjectMeta['instantiatedFrom'] };
   try {
     parsed = (pre ?? JSON.parse(await file.text())) as typeof parsed;
   } catch {
@@ -217,7 +159,7 @@ export async function importProjectFromFile(file: File, pre?: unknown): Promise<
     version: PERSIST_VERSION,
   }));
   const name = parsed.name?.trim() || file.name.replace(/\.thoughtdag\.json$|\.json$/i, '') || 'Imported canvas';
-  await adoptImportedProject(id, name);
+  await adoptImportedProject(id, name, 'chat', { instantiatedFrom: parsed.instantiatedFrom });
   toast('success', fmt(t('toast.imported'), { name, n: parsed.nodes.length }));
   return true;
 }

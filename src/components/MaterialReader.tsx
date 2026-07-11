@@ -153,7 +153,7 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
   const submitAsk = () => {
     const q = draft.trim();
     if (!q || !ask) return;
-    // p.N provenance rides inside the quoted passage (manifest included)
+    // p.N provenance rides inside the quoted passage
     const passage = ask.page != null ? `(p.${ask.page}) ${ask.text}` : ask.text;
     useStore.getState().addQuestion(q, { parentId: node.id, branchContext: passage });
     setDraft('');

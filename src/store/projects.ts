@@ -152,10 +152,15 @@ export async function deleteProject(id: string): Promise<void> {
 
 // Register a project entry for graph data already written to its storage key
 // (used by JSON import) and switch to it.
-export async function adoptImportedProject(id: string, name: string, kind: 'chat' | 'paradigm' = 'chat'): Promise<void> {
+export async function adoptImportedProject(
+  id: string,
+  name: string,
+  kind: 'chat' | 'paradigm' = 'chat',
+  extras?: Partial<Pick<ProjectMeta, 'instantiatedFrom'>>,
+): Promise<void> {
   const now = Date.now();
   useProjects.setState((s) => ({
-    projects: [...s.projects, { id, name, createdAt: now, updatedAt: now, kind }],
+    projects: [...s.projects, { id, name, createdAt: now, updatedAt: now, kind, ...extras }],
   }));
   await saveMeta();
   await switchProject(id);
@@ -168,6 +173,10 @@ export async function createBuiltinParadigm(lang: 'en' | 'zh'): Promise<void> {
   const id = crypto.randomUUID();
   await idbSet(projectStorageKey(id), JSON.stringify({ state: { nodes, edges }, version: 1 }));
   await adoptImportedProject(id, name, 'paradigm');
+}
+
+if (import.meta.env.DEV) {
+  Object.assign(window, { __projects: useProjects });
 }
 
 // ─── updatedAt bookkeeping ──────────────────────────────────────
