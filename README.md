@@ -8,6 +8,8 @@
 
 **An infinite canvas that turns LLM conversations into an editable thought graph.**
 
+**Drop in a paper, select a passage, ask. Your close reading grows into a map, every answer carrying page-level provenance.**
+
 **One rule: a wire IS context. You see and decide exactly what the model reads.**
 
 ![React](https://img.shields.io/badge/React_19-087EA4?logo=react&logoColor=white)
@@ -18,7 +20,7 @@
 
 [中文](./README_ZH.md) · [Quick Start](#quick-start) · [Features](#features) · [Roadmap](#roadmap)
 
-<img src="docs/hero.png" alt="ThoughtDAG canvas: purple main chain, orange explore branch, red evaluator watch edge, answers with cited references" width="100%"/>
+<img src="docs/hero.png" alt="ThoughtDAG canvas: a PDF material node wearing its first page as a cover, questions grown from reading wired below it, a follow-up chain and an orange explore branch" width="100%"/>
 
 </div>
 
@@ -26,9 +28,13 @@
 
 ## See it in action
 
+<img src="docs/reader.png" alt="The material reader: original PDF with a selectable text layer on the left, the annotation rail streaming an answer on the right, question chips growing in the footer" width="100%"/>
+
+*The reading loop: drop a PDF, select a passage in the ORIGINAL page, ask. The answer streams into an annotation rail beside the document; on the canvas behind, the question lands as a node wired to the material with its page number. Follow up in the rail, highlight the key sentence, keep reading. The map of your close reading builds itself.*
+
 <img src="docs/demo.gif" alt="Select text in an answer, hit Explore, and an orange branch node streams in with the selection as context" width="100%"/>
 
-*The core gesture: select any passage in an answer → **Explore** → an orange branch grows out of exactly that text, streams its answer, and never pollutes the main chain.*
+*The core gesture works everywhere: select any passage in an answer → **Explore** → an orange branch grows out of exactly that text, streams its answer, and never pollutes the main chain.*
 
 ## Get running in 2 minutes
 
@@ -39,7 +45,7 @@ npm run server         # LLM proxy
 npm run dev            # → http://localhost:5173
 ```
 
-Your first launch lands on a **seeded example canvas** (including the ⚖️ context-pruning demo below), so you can feel the tool before typing anything. Have ChatGPT or Claude history? **Import your `conversations.json`** and your own conversations become editable graphs (branches preserved).
+Your first launch lands on a **seeded example canvas** (including the ⚖️ context-pruning demo below), so you can feel the tool before typing anything. The fastest way in: **drop a PDF on the landing page**. It opens in the reader immediately and your questions start growing the graph. Have ChatGPT or Claude history? **Import your `conversations.json`** and your own conversations become editable graphs (branches preserved).
 
 ## Why ThoughtDAG?
 
@@ -48,6 +54,8 @@ Every mainstream LLM interface is **linear, append-only, and opaque**: context d
 A conversation isn't a list. It's a **graph**.
 
 And there is a deeper split. Chat terminals are **harnesses for doing**: they optimize for handing you an answer, and hide everything else: what entered the context, how it was compacted, which agent did what. ThoughtDAG is an **instrument for thinking**: the unit of value is not the answer but the reasoning structure: what flowed in, who influenced whom, what changed since, and whether the whole run can be repeated. The more powerful and opaque agents become, the more you need a workbench that keeps human–AI collaboration **legible**.
+
+One line captures the division of labor: **the graph has no cycles; the loop is you.** Reading, asking, judging, revising is a cycle that only a person can close. The graph's job is to record every step of it, faithfully and without loops of its own.
 
 ## The One Rule: a wire IS context
 
@@ -60,6 +68,9 @@ And there is a deeper split. Chat terminals are **harnesses for doing**: they op
 *Left: an off-topic node feeding into question A. Right: A's answer absorbs the noise (bold), while B (same question, noise edge deleted) stays clean.*
 
 ## Features
+
+### 📖 Read papers into a thought map
+Drop a PDF and read the **original pages** (real text layer, selectable). Select a passage and ask: the question lands on the canvas immediately, wired to the material, quoting the passage with its page number (`p.3`). The answer streams into an **annotation rail** beside the document: follow up there (turns chain on the canvas), select inside an answer to branch deeper or **highlight** the key sentence. A persistent input asks about the whole material when you need the wide view. Scanned PDF? **Recognize** rewrites its pages into readable Markdown (formulas become LaTeX) with a vision model, page by page, and the result stays editable (external OCR like MinerU pastes right in). The reader remembers where you were.
 
 ### 🧠 Context you can see and shape
 Drag an edge to merge branches, delete one to prune memory, archive dead ends out of every context. Two kinds of wires: **solid = the conversation** (full history flows; layout and paradigms follow it), **dashed = a reference** that quotes one node plus its upstream trail; select it for a token price chip and a quote ⇄ full toggle. Context assembles in layers (materials → references → conversation), so the same graph always produces the same prompt.
@@ -76,10 +87,10 @@ Redundant exploration is inevitable; keeping it in context is not. Box-select th
 <img src="docs/converge.gif" alt="Box-select three redundant nodes, merge into a synthesis node, archive the originals" width="100%"/>
 
 ### 📌 Anything on the canvas
-Paste anything: text becomes a note (Word tables → Markdown), a URL becomes a time-stamped web snapshot, an image is **auto-read into context** (tables, charts, scientific figures; the extracted text stays inspectable and editable). Notes, files and colored frames live on the canvas, and nothing enters context without a wire.
+Paste anything: text becomes a note (Word tables → Markdown), a URL becomes a time-stamped web snapshot, an image is **auto-read into context** (tables, charts, scientific figures; the extracted text stays inspectable and editable). Every material opens in the reader for select-and-ask. Notes, files and colored frames live on the canvas, and nothing enters context without a wire.
 
 ### 🧭 Staleness you can see, replay with a price tag
-Every answer records a fingerprint of what it depended on. Change anything upstream and the affected answers wear an amber **"Upstream changed"** badge; staleness travels along references too. Click a badge to re-run in place (old versions kept for comparison), or **replay everything stale in dependency order** after a confirm dialog that prices the run in tokens.
+Every answer records a fingerprint of what it depended on. Change anything upstream and the affected answers wear an amber **"Upstream changed"** badge; staleness travels along references too. Click a badge to re-run in place (old versions kept for comparison), or **replay everything stale in dependency order** after a confirm dialog that prices the run in tokens. A one-click **topology check-up** flags structural diseases (duplicate context routes, broken blind pools, overgrown chains), each finding with a locate jump and a one-click fix.
 
 ### 🧪 Paradigms: run reasoning as experiments
 Design a workflow once (human steps, auto-running prompt steps, material slots), then instantiate it: the cascade runs every machine step and pauses wherever a person belongs. Edit the input afterwards and replay: the chain re-runs in order, each step appending a comparable version. Share as `.paradigm.json`; a rule-out / rule-in example ships built in.
@@ -90,20 +101,29 @@ One click attaches a critic whose red edge slides forward as your thread grows, 
 ### 🔍 Agentic search: web & scholarly
 The model decides when to search: web for facts, **arXiv + Semantic Scholar for papers**. Inline `[n]` citations, references persisted with the node, toolbar toggles per tool group.
 
+### 🗺️ Zoom out and read the map
+Zoomed out, every card becomes a **label plaque that leads with its takeaway**: one conclusion-first line, written automatically per answer version, with the question as a quiet eyebrow. A canvas of them reads like a lab notebook's table of contents: what was learned, decided, ruled out, and along which line of thought. Cards unfold into working form only near 1:1. Takeaways live in the display layer only: the model always reads the full text.
+
 ### ✂️ Editing built for deep reading
-Everything is editable, answers keep multiple versions, LaTeX and syntax highlighting render inline, semantic zoom swaps cards for large-type thumbnails when zoomed out, and one-click tidy layout re-organizes the whole graph by arrow order.
+Everything is editable, answers keep multiple versions, LaTeX and syntax highlighting render inline, and one-click tidy layout re-organizes the whole graph by arrow order (chains grown from a material stay anchored below it).
 
 ### 🗂️ Research-grade workflow
-Multi-canvas projects (one topic, one graph), IndexedDB auto-save, JSON backup/import, **ChatGPT/Claude history import** (branches preserved), one-click Markdown export of any context chain, an attachment system (image Vision / dual-channel PDF / precise inheritance control), a bilingual EN/中 interface, and a built-in ten-step tutorial.
+Multi-canvas projects (one topic, one graph), IndexedDB auto-save, JSON backup/import, **ChatGPT/Claude history import** (branches preserved), one-click Markdown export of any context chain, an attachment system (image Vision / PDF text channel / precise inheritance control), a bilingual EN/中 interface, and a built-in ten-step tutorial.
 
 <details>
 <summary><b>📜 Full feature list (60+)</b></summary>
 
+- **Material reader**: original PDF rendering with a selectable text layer (pdf.js); select → ask lands a branch node with `(p.N)` provenance; extracted-text view for scanned PDFs; per-page vision **Recognize** into Markdown/LaTeX (editable, MinerU paste point); whole-material ask input; per-material scroll memory
+- **Annotation rail**: answers stream beside the document; follow-ups chain onto the thread; selecting inside a rail answer explores (branch of THAT answer) or highlights; thread chips switch conversations, a crosshair jumps to the canvas
+- **Material-first landing**: drop a document on the landing page and it lands as a material node with the reader auto-opened; attachments to the root question stay behind the explicit paperclip
+- **Map mode**: below ~0.8 zoom cards render as takeaway-first label plaques (pill radius, type-colored border); hysteresis prevents boundary flapping; nodes awaiting human input and locked paradigm runs keep their working form
+- **Versioned takeaway summaries**: one conclusion-first line generated per answer version (display layer only, never enters context or fingerprints; short answers show whole and skip the call)
+- **Topology check-up**: on-demand diagnostics with deterministic findings (residual edges, shadow references, blind-pool breaches, pool asymmetry) plus observations (long chains, open branches, collider continuations); locate + one-click fix
 - **Infinite canvas**: pan, zoom, drag nodes freely (React Flow)
 - **DAG context engine**: `buildContext()` walks all incoming edges, builds history in topological order
 - **Purple edges** (continue): inherit the full ancestor context
 - **Orange solid edges** (explore): select text → branch right with the selection as context; solid always means structural, dashed always means bypass (reference / watch)
-- **Reference edges (dashed)**: drop a hand-drawn wire on any node to quote it (Q&A + upstream question trail) without dragging its whole conversation in; the selected edge shows a token price chip and flips quote ⇄ full
+- **Reference edges (dashed)**: drop a hand-drawn wire on any node to quote it (Q&A + upstream question trail) without dragging its whole conversation in; depth is a first-class edge property: toggle quote ⇄ full on the selected edge OR in the panel's context tree, and the connect toast prices both options (silent when the source has no chain)
 - **Click-to-delete edges**: select an edge for a floating delete button; right-click menu works too; Cmd+Z undoes
 - **Regenerate in place**: appends a comparable version (page through, delete, revert; downstream staleness reacts to the active version); "Regenerate as branch" in the ⋯ menu spawns a parallel sibling for A/B runs
 - **Edit everything**: double-click to edit questions or responses
@@ -117,8 +137,8 @@ Multi-canvas projects (one topic, one graph), IndexedDB auto-save, JSON backup/i
 - **Column-Tree auto-layout**: main chain flows down, branches fork right; real measured heights prevent overlap
 - **Tidy layout / Align selection**: re-organize the whole graph by arrow order (with confirm); stack selected nodes into a column
 - **Collapse/Expand**: purely visual tidiness; the chain always flows full text (token control lives in archive / highlight filter / reference depth)
-- **Auto-summary per node**: generated in the background, shown when collapsed
-- **Semantic zoom**: cards become large-type thumbnails when zoomed out
+- **Takeaway per node**: a conclusion-first line generated in the background, aligned with the active answer version; it is the card's face when zoomed out and when collapsed
+- **Semantic zoom with hysteresis**: map labels below 0.8, working cards above 0.9; unfolding near 1:1 means only a handful of cards ever expand at once
 - **Token counting**: per-node usage display
 - **Streaming responses**: SSE token-by-token rendering with blinking cursor, in node and panel
 - **Stop generation**: keeps partial content
@@ -126,7 +146,7 @@ Multi-canvas projects (one topic, one graph), IndexedDB auto-save, JSON backup/i
 - **Ancestor edge highlighting**: the selected node's path to root turns gold, others dim
 - **Multi-select**: box-select nodes: Merge Summary / Merge & Delete / Align / Export / Delete
 - **Node role system**: per-node system prompt with three modes (inherit / set for next / reset here), `appliedRole` recorded at generation time, radio picker for multi-parent conflicts
-- **Role template library**: Reviewer / Devil's Advocate / Statistician / Code Reviewer / Tutor
+- **Role library, user-editable**: built-ins (Reviewer / Skeptic / Statistician / Code Reviewer / Tutor) plus your own roles; add, edit and remove options in a manager (editing a built-in makes your copy; restore anytime); applied roles stay frozen on their nodes
 - **Reviewer preset**: critic role on a sliding red edge; re-critiques each new step automatically, history versioned; reviewers are ordinary nodes (question them, branch from them)
 - **Agentic search**: AI SDK tool loop: Zhipu web search + arXiv + Semantic Scholar (free APIs), `[n]` citations + persisted references, guaranteed synthesis fallback, per-group toolbar toggles
 - **MCP tool ecosystem**: Claude-Desktop-format `mcp.config.json`; stdio + HTTP/SSE transports; tools join the agentic loop with per-call progress; mock server included for testing
@@ -136,7 +156,7 @@ Multi-canvas projects (one topic, one graph), IndexedDB auto-save, JSON backup/i
 - **Merge Synthesis**: box-select nodes → structured synthesis (conclusions / evidence / open questions)
 - **Export system**: whole-graph JSON backup (one click on the toolbar, carries paradigm provenance) and import; context-chain / multi-select Markdown export
 - **Context send preview**: live "~N tok · M messages · K files" plus a materials · references · conversation layer breakdown before asking
-- **Attachment system**: node-local attachments (drag/paste/upload), inherited include/exclude control, fingerprint dedup, automatic Vision switching for images, dual-channel PDF (text + rendered pages)
+- **Attachment system**: node-local attachments (drag/paste/upload), inherited include/exclude control, fingerprint dedup, automatic Vision switching for images; PDFs feed context as extracted text (the reader's Recognize upgrades scanned ones) and wear their first page as a cover on file nodes
 - **Per-node model override**: any node can pin its own LLM (badge on the card, sibling regenerations inherit it); cheap models for exploration, flagship for the hard steps
 - **Cmd+F node search**: filter by question/answer/summary, arrows + Enter to jump-pan the canvas
 - **Keyboard shortcuts**: Space collapse, R regenerate, arrow keys walk the DAG, Esc steps out (legend in the tutorial)
@@ -144,7 +164,7 @@ Multi-canvas projects (one topic, one graph), IndexedDB auto-save, JSON backup/i
 - **Built-in tutorial**: a ten-step illustrated hero page, from asking to paradigms
 - **Ask nodes anywhere**: double-click empty canvas, use the palette, or drop a wire on blank space; fresh nodes focus their input immediately
 - **Layered context assembly**: materials → reference blocks → the conversation, ordering independent of wiring history (same graph, same prompt)
-- **Content nodes**: notes (markdown), file nodes, time-stamped link snapshots; paste-driven creation; image auto-reading picks the strongest configured vision model
+- **Content nodes**: notes (markdown), file nodes with PDF covers, time-stamped link snapshots; paste-driven creation; image auto-reading picks the strongest configured vision model; every material opens in the reader
 - **Frames**: labeled colored regions with a navigator jump list; hide-annotations view toggle
 - **Staleness tracking**: per-generation upstream fingerprints; amber badges on nodes, dots in the context tree, explicit [Stale] marks in downstream payloads
 - **Batch replay**: one click re-runs every stale node in dependency order; confirm dialog with a token estimate; stop anytime

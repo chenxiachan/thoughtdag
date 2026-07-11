@@ -39,7 +39,7 @@ export const zh: Record<keyof typeof en, string> = {
   'tutorial.groupAdvanced': '进阶：材料 · 批量 · 陈旧 · 范式',
   'tutorial.close': '明白了',
   'tutorial.step1.title': '1 · 提问',
-  'tutorial.step1.desc': '每个问题都会变成画布上的一个节点：你的问题加上 AI 的回答。在下方输入，或双击画布空白处开启新话题。',
+  'tutorial.step1.desc': '每个问题都会变成画布上的一个节点：你的问题加上 AI 的回答。在下方输入、双击画布空白开新话题，或把一篇 PDF 拖到首页，从阅读开始。',
   'tutorial.step2.title': '2 · 追问',
   'tutorial.step2.desc': '追问会创建一个由实线连接的子节点。AI 沿着箭头看到上游的全部内容，也就是完整的推理链。这就是贯穿一切的唯一法则：连线即上下文。',
   'tutorial.step3.title': '3 · 从选中文字分支',
@@ -48,8 +48,8 @@ export const zh: Record<keyof typeof en, string> = {
   'tutorial.step4.desc': '点击连线选中它，再删除，那段历史就从上下文中消失。在节点之间拖线即可连接，合并不同的思路。折叠卡片只是视觉收纳，不改变上下文；想省 token 用归档、高亮过滤或引用档位。',
   'tutorial.step5.title': '5 · 精确控制 AI 读到什么',
   'tutorial.step5.desc': '高亮关键段落并选择它们如何向下游传递；为节点设置角色；输入框上方的「将发送」预览让你在提问前看到确切的上下文。',
-  'tutorial.step6.title': '6 · 导入任何材料',
-  'tutorial.step6.desc': '左侧工具栏可放入提问节点、便签、文件、分区框；更快的是直接粘贴：文字变便签（表格自动转 Markdown）、网址变带时间戳的网页快照、图片自动识读内容（表格/图表/文档/照片都认，识读文本可查看编辑）、PDF 等进文件节点。材料只有连线才进入上下文，没连线的卡片会自己标明「未进上下文」。',
+  'tutorial.step6.title': '6 · 材料与阅读器',
+  'tutorial.step6.desc': '粘贴文字变便签、网址变快照、图片自动识读、PDF 进文件节点。双击文件打开阅读器：在原版 PDF 上圈选即问，答案在批注栏流式出现，节点带页码出处落在材料下方；扫描件一键识别为 Markdown。不连线不进上下文。',
   'tutorial.step7.title': '7 · 引用与手拖连线',
   'tutorial.step7.desc': '从节点底部把手拖线：落在已有节点上 = 紫色虚线「引用」：只带那个节点的问答和它上游问题的来路，不拖整条对话；选中虚线有 token 价签，可切换 引用⇄全量。落在空白处 = 就地新建提问节点继续问。实线永远只由动作产生（追问/探索/范式），它承诺排版与流程。',
   'tutorial.step8.title': '8 · 圈选与批量操作',
@@ -57,7 +57,7 @@ export const zh: Record<keyof typeof en, string> = {
   'tutorial.step9.title': '9 · 陈旧与重放',
   'tutorial.step9.desc': '上游改动后，下游节点亮起琥珀「上游已变」徽章：它的回答基于旧内容，陈旧还会沿引用边传染。点徽章原地重放（追加新版本，可翻页对比、可切回）；工具栏的「重放陈旧」按依赖顺序批量修复，先确认、带 token 报价。',
   'tutorial.step10.title': '10 · 范式：把工作流变成实验',
-  'tutorial.step10.desc': '范式是可复用的工作流模板：human 步等人输入、prompt 步沿实线自动级联（在每个 human 步和空材料槽处暂停等你）、材料槽用来放实验材料。实例化后结构锁定，跑完自动解锁；改根输入 → 全链亮陈旧徽章 → 「重放陈旧」= 重跑实验，每步追加版本可对比。范式可存为 .paradigm.json 分享，首页有内置示例「排除 / 确认」。',
+  'tutorial.step10.desc': '范式是可复用的工作流模板：human 步等人输入、prompt 步自动级联（在 human 步与材料槽暂停等你）。跑完自动解锁；改根输入 → 全链陈旧 → 重放 = 重跑实验，每步追加版本可对比。可存为 .paradigm.json 分享，内置「排除 / 确认」示例。',
 
   // Language switcher
   'lang.label': '语言',

@@ -39,7 +39,7 @@ export const en = {
   'tutorial.groupAdvanced': 'Advanced: material · batch · staleness · paradigms',
   'tutorial.close': 'Got it',
   'tutorial.step1.title': '1 · Ask',
-  'tutorial.step1.desc': 'Every question becomes a node on the canvas: your question plus the AI\'s answer. Type below or double-click empty canvas to start a new thread.',
+  'tutorial.step1.desc': 'Every question becomes a node: your question plus the AI answer. Type below, double-click empty canvas for a new thread, or drop a PDF on the landing page and start from reading.',
   'tutorial.step2.title': '2 · Follow up',
   'tutorial.step2.desc': 'A follow-up creates a child node connected by a solid edge. The AI sees everything upstream along the arrows, the whole chain of reasoning. That is the one rule behind everything here: a wire IS context.',
   'tutorial.step3.title': '3 · Branch from a selection',
@@ -48,8 +48,8 @@ export const en = {
   'tutorial.step4.desc': 'Click an edge to select it, then delete it, and that history disappears from the context. Drag between nodes to connect them and merge lines of thought. Collapsing a card is purely visual and never changes context; to save tokens use archive, highlight filter, or reference depth.',
   'tutorial.step5.title': '5 · Control what the AI reads',
   'tutorial.step5.desc': 'Highlight key passages and choose how they flow downstream. Set per-node roles. The "will send" preview above the input shows the exact context before you ask.',
-  'tutorial.step6.title': '6 · Bring in any material',
-  'tutorial.step6.desc': 'The left palette drops ask nodes, notes, files and frames. Pasting is faster: text becomes a note (tables convert to Markdown), a URL becomes a time-stamped web snapshot, an image is auto-read into context (tables, charts, documents, photos; the extracted text is inspectable and editable), PDFs land in file nodes. Material only enters context through a wire. Unwired cards say so.',
+  'tutorial.step6.title': '6 · Materials & the reader',
+  'tutorial.step6.desc': 'Paste text into notes, URLs into snapshots, images get auto-read, PDFs land in file nodes. Double-click a file to open the reader: select on the original PDF and ask; the answer streams into a rail beside the document while the node lands below the material with its page number. Scanned PDFs recognize into Markdown. No wire, no context.',
   'tutorial.step7.title': '7 · References & hand-drawn wires',
   'tutorial.step7.desc': 'Drag from a node\'s bottom handle: dropping on an existing node makes a purple dashed REFERENCE: it quotes that node\'s Q&A plus its upstream question trail without dragging the whole conversation in; select the edge for its token price and the quote ⇄ full toggle. Dropping on empty canvas spawns a fresh ask node right there. Solid edges only ever come from actions (follow-up / explore / paradigms); they promise layout and flow.',
   'tutorial.step8.title': '8 · Select many, act once',
@@ -57,7 +57,7 @@ export const en = {
   'tutorial.step9.title': '9 · Staleness & replay',
   'tutorial.step9.desc': 'When upstream changes, downstream nodes light an amber "Upstream changed" badge: their answers predate the current content, and staleness travels along reference edges too. Click a badge to re-run in place (a new version is appended; page back to compare or revert). The toolbar\'s "Replay stale" chip fixes the whole canvas in dependency order, confirming first, with a token estimate.',
   'tutorial.step10.title': '10 · Paradigms: workflows as experiments',
-  'tutorial.step10.desc': 'A paradigm is a reusable workflow template: HUMAN steps wait for a person, PROMPT steps auto-run along solid edges (the cascade pauses at every human step and empty material slot), material slots hold your stimuli. Instantiating locks the structure until the run completes; edit the root input afterwards → the chain goes stale → "Replay stale" re-runs the experiment, each step appending a comparable version. Save as .paradigm.json to share; the landing page ships a built-in rule-out/rule-in example.',
+  'tutorial.step10.desc': 'A paradigm is a reusable workflow template: human steps wait for input, prompt steps cascade automatically (pausing at human steps and material slots). Finish to unlock; edit the input and replay to re-run the experiment, a comparable version per step. Share as .paradigm.json; a rule-out / rule-in example ships built in.',
 
   // Language switcher
   'lang.label': 'Language',
