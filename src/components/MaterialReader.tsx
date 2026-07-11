@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Crosshair, FileText, Link2, Loader2, Pencil, ScanText, Send, StickyNote, X } from 'lucide-react';
+import { Crosshair, FileText, Highlighter, Link2, Loader2, Pencil, ScanText, Send, StickyNote, X } from 'lucide-react';
 import type { PDFDocumentProxy } from 'pdfjs-dist';
 import type { ThoughtNode } from '../types';
 import { useStore } from '../store';
 import { useUiStore } from '../lib/ui-store';
 import { recognizePdfPages } from '../lib/content';
-import { Markdown } from './Markdown';
-import { isImeComposing } from '../utils';
+import { Markdown, HighlightedMarkdown } from './Markdown';
+import { generateId, isImeComposing } from '../utils';
 import { useT, fmt } from '../i18n';
 
 // MaterialReader: the reading overlay — a VIEW onto a material node, never a
@@ -136,7 +136,7 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
 
   // ── selection → ask bar ──
   const bodyRef = useRef<HTMLDivElement>(null);
-  const [ask, setAsk] = useState<{ text: string; page: number | null; x: number; y: number } | null>(null);
+  const [ask, setAsk] = useState<{ text: string; page: number | null; x: number; y: number; targetNodeId?: string } | null>(null);
   const [draft, setDraft] = useState('');
 
   const handleMouseUp = () => {
@@ -166,13 +166,40 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
   const submitAsk = () => {
     const q = draft.trim();
     if (!q || !ask) return;
-    // p.N provenance rides inside the quoted passage
-    const passage = ask.page != null ? `(p.${ask.page}) ${ask.text}` : ask.text;
-    useStore.getState().addQuestion(q, { parentId: node.id, branchContext: passage });
+    // p.N provenance rides inside the quoted passage (document selections only)
+    const passage = ask.targetNodeId ? ask.text : (ask.page != null ? `(p.${ask.page}) ${ask.text}` : ask.text);
+    useStore.getState().addQuestion(q, { parentId: ask.targetNodeId ?? node.id, branchContext: passage });
     setThreadId(useStore.getState().selectedNodeId); // the freshly landed node
     setDraft('');
     setAsk(null);
     window.getSelection()?.removeAllRanges();
+  };
+
+  // highlight a rail-answer selection: same data the node card and the
+  // context tags use — marked here, visible everywhere
+  const highlightSelection = () => {
+    if (!ask?.targetNodeId) return;
+    useStore.getState().addHighlight(ask.targetNodeId, { id: generateId(), text: ask.text });
+    setAsk(null);
+    window.getSelection()?.removeAllRanges();
+  };
+
+  // selection inside the rail: only ANSWER text is explorable (the answer
+  // node becomes the parent); question text and chrome stay inert
+  const handleRailMouseUp = () => {
+    window.setTimeout(() => {
+      const sel = window.getSelection();
+      if (!sel || sel.isCollapsed || !railRef.current) { setAsk((a) => (a?.targetNodeId ? null : a)); return; }
+      const range = sel.getRangeAt(0);
+      if (!railRef.current.contains(range.commonAncestorContainer)) return;
+      const el = range.startContainer instanceof Element ? range.startContainer : range.startContainer.parentElement;
+      const wrap = el?.closest('[data-turn-answer]');
+      if (!wrap) return;
+      const text = sel.toString().trim();
+      if (text.length < 2) return;
+      const rect = range.getBoundingClientRect();
+      setAsk({ text, page: null, x: rect.left + rect.width / 2, y: rect.bottom, targetNodeId: wrap.getAttribute('data-turn-answer') ?? undefined });
+    }, 0);
   };
 
   // whole-material question: no passage, the full text flows along the wire.
@@ -453,7 +480,7 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
                 <X size={14} strokeWidth={1.75} />
               </button>
             </div>
-            <div ref={railRef} className="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-4">
+            <div ref={railRef} onMouseUp={handleRailMouseUp} className="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-4">
               {thread.map((turn) => (
                 <div key={turn.id}>
                   <div className="text-sm font-semibold text-ink leading-snug mb-1.5">{turn.data.question}</div>
@@ -462,8 +489,12 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
                       <Loader2 size={13} strokeWidth={1.75} className="animate-spin text-accent" /> {t('common.thinking')}
                     </div>
                   ) : (
-                    <div className="markdown-body text-sm text-ink leading-relaxed">
-                      <Markdown>{turn.data.response}</Markdown>
+                    <div className="markdown-body text-sm text-ink leading-relaxed" data-turn-answer={turn.id}>
+                      {(turn.data.highlights?.length ?? 0) > 0 ? (
+                        <HighlightedMarkdown content={turn.data.response} highlights={new Set(turn.data.highlights.map((h) => h.text))} />
+                      ) : (
+                        <Markdown>{turn.data.response}</Markdown>
+                      )}
                     </div>
                   )}
                 </div>
@@ -571,6 +602,15 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
                 ta.style.height = `${Math.min(120, ta.scrollHeight)}px`;
               }}
             />
+            {ask.targetNodeId && (
+              <button
+                onClick={highlightSelection}
+                title={t('common.highlight')}
+                className="w-8 h-8 rounded-lg bg-wash text-ink-muted hover:text-accent hover:bg-accent/10 flex items-center justify-center transition-colors shrink-0"
+              >
+                <Highlighter size={14} strokeWidth={1.75} />
+              </button>
+            )}
             <button
               onClick={submitAsk}
               disabled={!draft.trim()}
