@@ -62,7 +62,7 @@ And there is a deeper split. Chat terminals are **harnesses for doing**: they op
 ## Features
 
 ### 🧠 Context you can see and shape
-Drag an edge to merge branches, delete one to prune memory, collapse a node to pass its summary instead of full text. Two kinds of wires: **solid = the conversation** (full history flows; layout and paradigms follow it), **dashed = a reference** that quotes one node plus its upstream trail; select it for a token price chip and a quote ⇄ full toggle. Context assembles in layers (materials → references → conversation), so the same graph always produces the same prompt.
+Drag an edge to merge branches, delete one to prune memory, archive dead ends out of every context. Two kinds of wires: **solid = the conversation** (full history flows; layout and paradigms follow it), **dashed = a reference** that quotes one node plus its upstream trail; select it for a token price chip and a quote ⇄ full toggle. Context assembles in layers (materials → references → conversation), so the same graph always produces the same prompt.
 
 ### 📥 Your history, unlocked
 Import ChatGPT / Claude `conversations.json`: each conversation becomes an editable canvas, ChatGPT's edit/regenerate forks preserved as visible branches.
@@ -116,7 +116,7 @@ Multi-canvas projects (one topic, one graph), IndexedDB auto-save, JSON backup/i
 - **Undo/Redo**: Cmd+Z / Cmd+Shift+Z, full state snapshots
 - **Column-Tree auto-layout**: main chain flows down, branches fork right; real measured heights prevent overlap
 - **Tidy layout / Align selection**: re-organize the whole graph by arrow order (with confirm); stack selected nodes into a column
-- **Collapse/Expand**: collapsed nodes pass summaries instead of full text (context compression); downstream shifts automatically
+- **Collapse/Expand**: purely visual tidiness; the chain always flows full text (token control lives in archive / highlight filter / reference depth)
 - **Auto-summary per node**: generated in the background, shown when collapsed
 - **Semantic zoom**: cards become large-type thumbnails when zoomed out
 - **Token counting**: per-node usage display

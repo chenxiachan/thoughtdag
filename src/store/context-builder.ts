@@ -46,14 +46,12 @@ function renderResponse(node: ThoughtNode): string {
   return node.data.response;
 }
 
-/** Q/A of one node inside a reference block, honoring collapse+summary —
-    collapsing an upstream node IS the user's handoff dial. */
+/** Q/A of one node inside a reference block — always full text (collapse
+    is a view state and never changes what flows). */
 function transcriptLines(node: ThoughtNode): string[] {
   const lines: string[] = [];
   if (node.data.question) lines.push(`Q: ${node.data.question}`);
-  const a = node.data.isCollapsed && node.data.summary
-    ? `[Summary] ${node.data.summary}`
-    : renderResponse(node);
+  const a = renderResponse(node);
   if (a) lines.push(`A: ${a}`);
   return lines;
 }
@@ -65,7 +63,7 @@ export function referenceBlockContent(ref: ContextReference): string {
   if (ref.depth === 'quote') {
     const trail = ref.chain
       .filter((n) => !n.data.archived)
-      .map((n) => (n.data.isCollapsed && n.data.summary ? `${nodeTitle(n)} ([Summary] ${n.data.summary})` : nodeTitle(n)));
+      .map((n) => nodeTitle(n));
     if (trail.length > 0) lines.push(`Trail (upstream questions): ${trail.join(' → ')}`);
     lines.push(...transcriptLines(ref.source));
   } else {
@@ -256,23 +254,15 @@ export function buildContext(
 
   closeLayer('reference');
 
-  // ── L2: the conversation — structural chain, current node last
-  for (const [mainlineIndex, node] of mainline.entries()) {
+  // ── L2: the conversation — structural chain, current node last.
+  // Collapse is PURELY visual: the solid chain always flows full text
+  // (One Rule without asterisks). Budget control lives in the explicit
+  // dials — archive, highlight filter, reference depth.
+  for (const node of mainline) {
     // Archived = pruned-but-kept: contributes NOTHING to context (the walk
     // itself already passed through it, so descendants keep their ancestry)
     if (node.data.archived) continue;
     pushAttachments(node);
-    // Collapsed nodes with summary: pass summary only (context compression).
-    // NEVER for the nearest two turns — the question being asked builds
-    // directly on them, and a transcript that ends in one-line summaries
-    // teaches weak models to answer in one-line summaries.
-    const isNearest = mainlineIndex >= mainline.length - 2;
-    if (node.data.isCollapsed && node.data.summary && !isNearest) {
-      messages.push({ role: 'user', content: node.data.question });
-      const summarized = `[Summary] ${node.data.summary}`;
-      messages.push({ role: 'assistant', content: staleSet.has(node.id) ? `${STALE_MARK}\n${summarized}` : summarized });
-      continue;
-    }
     if (node.data.question) {
       messages.push({ role: 'user', content: node.data.question });
     }

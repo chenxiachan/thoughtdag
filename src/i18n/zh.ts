@@ -32,7 +32,7 @@ export const zh: Record<keyof typeof en, string> = {
   'tutorial.step3.title': '3 · 从选中文字分支',
   'tutorial.step3.desc': '选中回答里的任意文字，点 Explore。一条橙色实线分支向侧面生长：它继承上下文和你的选中内容，但不会污染主线。',
   'tutorial.step4.title': '4 · 裁剪与重连',
-  'tutorial.step4.desc': '点击连线选中它，再删除，那段历史就从上下文中消失。在节点之间拖线即可连接，合并不同的思路。',
+  'tutorial.step4.desc': '点击连线选中它，再删除，那段历史就从上下文中消失。在节点之间拖线即可连接，合并不同的思路。折叠卡片只是视觉收纳，不改变上下文；想省 token 用归档、高亮过滤或引用档位。',
   'tutorial.step5.title': '5 · 精确控制 AI 读到什么',
   'tutorial.step5.desc': '高亮关键段落并选择它们如何向下游传递；为节点设置角色；输入框上方的「将发送」预览让你在提问前看到确切的上下文。',
   'tutorial.step6.title': '6 · 导入任何材料',

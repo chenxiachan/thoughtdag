@@ -32,7 +32,7 @@ export const en = {
   'tutorial.step3.title': '3 · Branch from a selection',
   'tutorial.step3.desc': 'Select any text inside an answer and hit Explore. A solid orange branch grows sideways: it inherits the context plus your selection, without polluting the main line.',
   'tutorial.step4.title': '4 · Prune and rewire',
-  'tutorial.step4.desc': 'Click an edge to select it, then delete it, and that history disappears from the context. Drag between nodes to connect them and merge lines of thought.',
+  'tutorial.step4.desc': 'Click an edge to select it, then delete it, and that history disappears from the context. Drag between nodes to connect them and merge lines of thought. Collapsing a card is purely visual and never changes context; to save tokens use archive, highlight filter, or reference depth.',
   'tutorial.step5.title': '5 · Control what the AI reads',
   'tutorial.step5.desc': 'Highlight key passages and choose how they flow downstream. Set per-node roles. The "will send" preview above the input shows the exact context before you ask.',
   'tutorial.step6.title': '6 · Bring in any material',
