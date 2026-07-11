@@ -1,9 +1,10 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { Handle, Position, useStore as useRfStore, type NodeProps } from '@xyflow/react';
+import { Handle, Position, type NodeProps } from '@xyflow/react';
 import { AlertTriangle, Archive, ChevronDown, ChevronLeft, ChevronRight, Copy, Eye, GitBranch, Globe, Hourglass, Paperclip, RefreshCw, Send, Split, Square, Star, Trash2, UserRound, X } from 'lucide-react';
 import 'katex/dist/katex.min.css';
 import type { ThoughtNode as ThoughtNodeType } from '../types';
 import { useStore } from '../store';
+import { useMapMode } from '../lib/use-map-mode';
 import { generateId, isImeComposing , activeSummary } from '../utils';
 import { processFile } from '../lib/attachments';
 import { copyText } from '../lib/export';
@@ -41,8 +42,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   const nodeRef = useRef<HTMLDivElement>(null);
   const questionTaRef = useRef<HTMLTextAreaElement>(null);
   const addQuestion = useStore((s) => s.addQuestion);
-  // Semantic zoom: below this level cards render as large-type thumbnails
-  const zoomedOut = useRfStore((s) => s.transform[2] < 0.55);
+  const mapMode = useMapMode();
 
   // ── Paradigm run semantics (instantiated human/prompt steps) ──
   const isHuman = data.stepKind === 'human';
@@ -59,6 +59,12 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   // While any paradigm step is incomplete the run is in progress: structure
   // is fixed (no follow-ups, no deletion) until the performance finishes.
   const runLocked = useStore((s) => isParadigmNode && isRunLocked(s.nodes));
+  // Map labels represent completed steps (their takeaway). A node WAITING
+  // for human input has nothing to summarize — its identity is the input
+  // box. And while a paradigm run is in progress the canvas is a DASHBOARD
+  // (waiting/running states are what the human watches), not a map. Both
+  // keep their working form at every zoom.
+  const zoomedOut = mapMode && !isAwaitingHuman && !isAwaitingAsk && !(isParadigmNode && runLocked);
   // Upstream changed since this answer was written (see recomputeStaleness)
   const isStale = useStore((s) => s.staleIds.includes(id));
 
@@ -195,7 +201,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   return (
     <div
       ref={nodeRef}
-      className={`thought-node rounded-xl w-[520px] animate-fade-in transition-all duration-200 ${data.archived ? 'opacity-35 saturate-50 ' : ''}${isWaitingUpstream ? 'opacity-60 ' : ''}${
+      className={`thought-node rounded-xl w-[520px] animate-fade-in transition-all duration-200 ${zoomedOut ? 'map-node ' : ''}${data.archived ? 'opacity-35 saturate-50 ' : ''}${isWaitingUpstream ? 'opacity-60 ' : ''}${
         data.isEvaluator ? 'evaluator-node' : isHuman ? 'human-node' : isBranch ? 'orange-node' : isRoot ? 'root-node' : 'branch-node'
       } ${data.isLoading ? 'loading-border' : ''} ${selectedNodeId === id ? 'ring-2 ring-accent !border-accent selected-glow' : ''} ${isDropTarget ? 'ring-2 ring-accent/50 ring-dashed' : ''}`}
       onClick={() => setSelectedNodeId(id)}
@@ -231,14 +237,22 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
         <span className="absolute top-2.5 right-2.5 w-3.5 h-3.5 rounded-full bg-amber-500 z-10" title={t('node.staleBadge')} />
       )}
       {zoomedOut ? (
-        // Semantic zoom thumbnail: large type that stays legible from afar
+        // Map label: the TAKEAWAY is the headline (what this step yielded),
+        // the question a quiet eyebrow — the zoomed-out canvas reads like a
+        // lab notebook's table of contents, not a pile of shrunken documents
         <div className="drag-handle cursor-grab active:cursor-grabbing px-6 py-5">
-          <div className="text-2xl font-semibold text-ink leading-snug line-clamp-3">
-            {data.question}
-          </div>
-          {(versionSummary || data.response) && (
-            <div className="text-lg text-ink-faint mt-2 leading-snug line-clamp-2">
-              {versionSummary || data.response.replace(/[#*`>-]/g, '').slice(0, 140)}
+          {(versionSummary || data.response) ? (
+            <>
+              <div className="text-lg text-ink-faint leading-snug line-clamp-1">
+                {data.question}
+              </div>
+              <div className="text-2xl font-semibold text-ink leading-snug line-clamp-3 mt-1.5">
+                {versionSummary || data.response.replace(/[#*`>-]/g, '').slice(0, 140)}
+              </div>
+            </>
+          ) : (
+            <div className="text-2xl font-semibold text-ink leading-snug line-clamp-3">
+              {data.question}
             </div>
           )}
         </div>

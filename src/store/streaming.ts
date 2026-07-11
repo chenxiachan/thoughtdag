@@ -18,7 +18,7 @@ export function generateSummary(nodeId: string, question: string, response: stri
   llmCall([
     { role: 'user', content: question },
     { role: 'assistant', content: response },
-    { role: 'user', content: 'Summarize the above Q&A in 1-2 sentences, around 80-110 characters. Use the same language as the question. Output only the summary text, no ellipsis, no quotes, no prefix.' },
+    { role: 'user', content: 'Write the TAKEAWAY of the above exchange as one line, 40-70 characters: conclusion first — what was learned, decided or ruled out. A reader scanning a map of many such lines should see how the thinking progressed. Same language as the question. Output only the line, no quotes, no prefix.' },
   ]).then((summary) => {
     // target the version this summary was computed FOR, not whichever
     // version the user has navigated to since

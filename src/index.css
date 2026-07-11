@@ -385,3 +385,18 @@ body.tdag-connecting, body.tdag-connecting * {
 .katex .katex-mathml {
   user-select: none;
 }
+
+/* ── Map mode: the card becomes a label plaque ─────────────────────
+   Same bounding box (edges and layout depend on it), different visual
+   language: pill radius, stronger type-colored edge, no document bar. */
+.thought-node.map-node {
+  border-radius: 26px;
+  border-width: 2px;
+}
+.thought-node.map-node::before {
+  display: none;
+}
+.map-node.root-node { border-color: color-mix(in srgb, var(--color-accent) 55%, var(--color-line)); }
+.map-node.orange-node { border-color: color-mix(in srgb, var(--color-warm) 60%, var(--color-line)); }
+.map-node.evaluator-node { border-color: color-mix(in srgb, var(--color-watch) 55%, var(--color-line)); }
+.map-node.human-node { border-color: color-mix(in srgb, #d97706 55%, var(--color-line)); }
