@@ -34,6 +34,7 @@ export default function ContextChainSection({
   onFocusNode?: (id: string) => void;
 }) {
   const setSelectedNodeId = useStore((s) => s.setSelectedNodeId);
+  const setCrossLinkDepth = useStore((s) => s.setCrossLinkDepth);
   const staleIds = useStore((s) => s.staleIds);
   const t = useT();
 
@@ -89,8 +90,12 @@ export default function ContextChainSection({
                     {ref.source.data.question.slice(0, 60)}{ref.source.data.question.length > 60 ? '…' : ''}
                   </span>
                   {staleDot(ref.source.id)}
-                  <span className={`text-2xs px-1.5 py-px rounded-full shrink-0 ${ref.depth === 'full' ? 'bg-accent/10 text-accent' : 'bg-wash text-ink-faint'}`}>
-                    {t(ref.depth === 'full' ? 'chain.refDepthFull' : 'chain.refDepthQuote')}
+                  <span
+                    onClick={(e) => { e.stopPropagation(); setCrossLinkDepth(ref.edge.id, ref.depth === 'full' ? 'quote' : 'full'); }}
+                    title={t('edge.depthToggleTitle')}
+                    className={`text-2xs px-1.5 py-px rounded-full shrink-0 cursor-pointer transition-shadow hover:ring-1 hover:ring-accent/40 ${ref.depth === 'full' ? 'bg-accent/10 text-accent' : 'bg-wash text-ink-faint'}`}
+                  >
+                    {t(ref.depth === 'full' ? 'chain.refDepthFull' : 'chain.refDepthQuote')} ⇄
                   </span>
                   <span className="text-2xs text-ink-faint font-mono shrink-0">
                     {countTokens(referenceBlockContent(ref))}

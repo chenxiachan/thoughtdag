@@ -9,14 +9,20 @@ import { t, fmt } from '../i18n';
 import type { Reference } from '../types';
 import type { StoreState } from './types';
 
-// Background summary generation — fire and forget
-export function generateSummary(nodeId: string, question: string, response: string, setSummary: (id: string, summary: string) => void) {
+// Background summary generation — fire and forget. Display channel ONLY:
+// the human reads the summary on the map, the model always reads the full
+// text. Short answers fit on the card as-is and skip the call.
+export const SUMMARY_MIN_CHARS = 400;
+export function generateSummary(nodeId: string, question: string, response: string, setSummary: (id: string, summary: string, forResponse: string) => void) {
+  if (response.length < SUMMARY_MIN_CHARS) return;
   llmCall([
     { role: 'user', content: question },
     { role: 'assistant', content: response },
     { role: 'user', content: 'Summarize the above Q&A in 1-2 sentences, around 80-110 characters. Use the same language as the question. Output only the summary text, no ellipsis, no quotes, no prefix.' },
   ]).then((summary) => {
-    setSummary(nodeId, summary);
+    // target the version this summary was computed FOR, not whichever
+    // version the user has navigated to since
+    setSummary(nodeId, summary, response);
   }).catch(() => {});
 }
 

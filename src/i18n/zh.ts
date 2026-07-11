@@ -208,11 +208,11 @@ export const zh: Record<keyof typeof en, string> = {
   'chain.refDepthQuote': '引用',
   'chain.refDepthFull': '全量',
   'chain.conversation': '对话',
-  'edge.linkedQuote': '已连接引用：将进入该节点问答与来路（约 {n} tok）',
-  'edge.makeFull': '改为全量',
+  'edge.linkedQuote': '已作为引用连接：默认带该节点的问答与来路问题（约 {n} tok）',
+  'edge.makeFull': '改为全量（{m} tok）',
   'edge.quoteChip': '引用 · {n} tok',
   'edge.fullChip': '全量 · {n} tok',
-  'edge.depthToggleTitle': '切换引用深度：引用（该节点+来路）⇄ 全量（整条链）',
+  'edge.depthToggleTitle': '引用深度是这条虚线自己的属性。引用 = 只带该节点的问答，加上它来路的问题串；全量 = 带上它整条上游链的完整对话。点击切换。',
 
   // Follow-up input
   'followup.contextTitle': '下次追问将发送的上下文',
@@ -265,6 +265,8 @@ export const zh: Record<keyof typeof en, string> = {
   'toast.importFailedMissing': '导入失败：缺少 nodes/edges 数组',
   'toast.generationFailed': '生成失败：{message}',
   'toast.editMakesStale': '问题已修改：下游 {n} 个节点的回答基于旧内容（可手动重跑）',
+  'node.summaryLabel': '摘要',
+  'node.summaryTitle': '这是自动摘要，只给人看，不进上下文。双击卡片在面板中读全文。',
   'node.staleBadge': '上游已变',
   'node.staleTitle': '此回答基于旧的上游内容。点击重放（追加新版本，可对比）',
   'replay.chip': '重放陈旧 ({n})',

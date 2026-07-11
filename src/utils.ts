@@ -21,3 +21,8 @@ let idCounter = 0;
 export function generateId(): string {
   return `node-${Date.now()}-${idCounter++}`;
 }
+
+/** The display summary for a node's ACTIVE version (map layer only). */
+export function activeSummary(data: { summaries?: (string | undefined | null)[]; responseIndex: number; summary?: string }): string | undefined {
+  return data.summaries?.[data.responseIndex] ?? data.summary ?? undefined;
+}

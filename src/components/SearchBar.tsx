@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Search, X } from 'lucide-react';
 import { useStore } from '../store';
-import { isImeComposing } from '../utils';
+import { isImeComposing , activeSummary } from '../utils';
 import { useT, fmt } from '../i18n';
 
 // Cmd+F node search: filter nodes by question/response/summary, arrow keys
@@ -38,7 +38,7 @@ export default function SearchBar({
       .filter((n) =>
         n.data.question.toLowerCase().includes(q) ||
         (n.data.response || '').toLowerCase().includes(q) ||
-        (n.data.summary || '').toLowerCase().includes(q))
+        (activeSummary(n.data) || '').toLowerCase().includes(q))
       .slice(0, 30);
   }, [nodes, query]);
 
@@ -88,7 +88,7 @@ export default function SearchBar({
                     {n.data.question || '—'}
                   </p>
                   <p className="text-2xs text-ink-faint truncate mt-0.5">
-                    {(n.data.summary || n.data.response || '').replace(/[#*`>]/g, '').slice(0, 90)}
+                    {(activeSummary(n.data) || n.data.response || '').replace(/[#*`>]/g, '').slice(0, 90)}
                   </p>
                 </button>
               </li>

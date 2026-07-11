@@ -4,7 +4,7 @@ import { AlertTriangle, Archive, ChevronDown, ChevronLeft, ChevronRight, Copy, E
 import 'katex/dist/katex.min.css';
 import type { ThoughtNode as ThoughtNodeType } from '../types';
 import { useStore } from '../store';
-import { generateId, isImeComposing } from '../utils';
+import { generateId, isImeComposing , activeSummary } from '../utils';
 import { processFile } from '../lib/attachments';
 import { copyText } from '../lib/export';
 import { isRunLocked } from '../lib/paradigm';
@@ -187,6 +187,10 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   const hasMultipleVersions = data.responses.length > 1;
 
   const highlightedTexts = new Set(data.highlights.map((h) => h.text));
+  // Map layer: the display summary for the ACTIVE version. Long answers wear
+  // it instead of raw text; the full answer lives one double-click away.
+  const versionSummary = activeSummary(data);
+  const showSummaryCard = !!versionSummary && data.response.length > 400 && !data.isLoading && !data.isEditingResponse;
 
   return (
     <div
@@ -232,9 +236,9 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
           <div className="text-2xl font-semibold text-ink leading-snug line-clamp-3">
             {data.question}
           </div>
-          {(data.summary || data.response) && (
+          {(versionSummary || data.response) && (
             <div className="text-lg text-ink-faint mt-2 leading-snug line-clamp-2">
-              {data.summary || data.response.replace(/[#*`>-]/g, '').slice(0, 140)}
+              {versionSummary || data.response.replace(/[#*`>-]/g, '').slice(0, 140)}
             </div>
           )}
         </div>
@@ -404,6 +408,15 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
               </div>
             </div>
           ) : (
+            showSummaryCard ? (
+              // the map shows the landmark, not the terrain photo: an auto
+              // summary of THIS version (display only — the model reads the
+              // full text; double-click opens the panel for humans)
+              <div className="px-3 py-2.5 bg-surface rounded-xl nopan" title={t('node.summaryTitle')}>
+                <span className="text-2xs bg-wash text-ink-faint px-1.5 py-0.5 rounded-full">{t('node.summaryLabel')}</span>
+                <div className="text-sm text-ink-muted leading-relaxed mt-1.5">{versionSummary}</div>
+              </div>
+            ) : (
             <div
               ref={responseRef}
               onDoubleClick={handleDoubleClickResponse}
@@ -415,6 +428,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
                 <Markdown>{data.response}</Markdown>
               )}
             </div>
+            )
           )}
 
           {/* Fan-out placeholder: the human decides when to expand */}
@@ -557,9 +571,9 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
               <span className="text-2xs bg-wash text-ink-muted px-1.5 py-0.5 rounded-full shrink-0"><Globe size={12} strokeWidth={1.75} className="inline" /> {data.references!.length}</span>
             )}
           </div>
-          {data.summary ? (
+          {versionSummary ? (
             <div className="text-xs text-ink-faint mt-1.5 leading-relaxed line-clamp-2">
-              {data.summary}
+              {versionSummary}
             </div>
           ) : data.response ? (
             <div className="text-xs text-ink-faint mt-1.5 leading-relaxed line-clamp-2 italic">

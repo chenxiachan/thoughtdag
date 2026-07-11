@@ -53,6 +53,8 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
                 ...n.data,
                 response,
                 responses: n.data.responses.map((r, i) => (i === n.data.responseIndex ? response : r)),
+                // a hand-edited answer invalidates its auto summary
+                summaries: n.data.summaries?.map((s, i) => (i === n.data.responseIndex ? undefined : s)),
                 highlights: pruneHighlights(n.data.highlights, response),
                 isEditingResponse: false,
                 tokenCount,
@@ -168,15 +170,20 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
     };
     set((state) => ({ edges: [...state.edges, newEdge] }));
     get().pushHistory();
-    // Price tag at the moment of connection: what will this reference feed?
+    // Price tag at the moment of connection — BOTH prices, so it's a
+    // decision, not a nudge. When the source has no upstream chain the two
+    // depths are the same thing; asking would be noise, so we don't.
     if (src && !['note', 'file', 'link'].includes(src.data.stepKind ?? '')) {
       const { ordered } = walkUpAncestors(sourceId, nodes, edges.filter((e) => !e.data?.isCrossLink));
       const chain = ordered.filter((n) => n.id !== sourceId && !['note', 'file', 'link'].includes(n.data.stepKind ?? ''));
-      const tok = countTokens(referenceBlockContent({ source: src, edge: newEdge, depth: 'quote', chain }));
-      toast('info', fmt(t('edge.linkedQuote'), { n: tok }), 8000, {
-        label: t('edge.makeFull'),
-        run: () => get().setCrossLinkDepth(newEdge.id, 'full'),
-      });
+      if (chain.length > 0) {
+        const quoteTok = countTokens(referenceBlockContent({ source: src, edge: newEdge, depth: 'quote', chain }));
+        const fullTok = countTokens(referenceBlockContent({ source: src, edge: newEdge, depth: 'full', chain }));
+        toast('info', fmt(t('edge.linkedQuote'), { n: quoteTok }), 8000, {
+          label: fmt(t('edge.makeFull'), { m: fullTok }),
+          run: () => get().setCrossLinkDepth(newEdge.id, 'full'),
+        });
+      }
     }
   },
 
@@ -247,6 +254,7 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
             responses: newResponses,
             responseIndex: newIndex,
             response: newResponses[newIndex],
+            summaries: n.data.summaries?.filter((_, i) => i !== versionIndex),
             highlights: pruneHighlights(n.data.highlights, newResponses[newIndex]),
           },
         };

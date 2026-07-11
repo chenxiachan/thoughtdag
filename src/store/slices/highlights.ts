@@ -37,11 +37,16 @@ export const createHighlightSlice: StateCreator<StoreState, [], [], HighlightSli
     }));
   },
 
-  setSummary: (nodeId: string, summary: string) => {
+  setSummary: (nodeId: string, summary: string, forResponse: string) => {
     set((state) => ({
-      nodes: state.nodes.map((n) =>
-        n.id === nodeId ? { ...n, data: { ...n.data, summary } } : n
-      ),
+      nodes: state.nodes.map((n) => {
+        if (n.id !== nodeId) return n;
+        const idx = n.data.responses.indexOf(forResponse);
+        if (idx === -1) return n; // the version was edited/deleted meanwhile
+        const summaries = [...(n.data.summaries ?? [])];
+        summaries[idx] = summary;
+        return { ...n, data: { ...n.data, summaries } };
+      }),
     }));
   },
 });

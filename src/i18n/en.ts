@@ -209,11 +209,11 @@ export const en = {
   'chain.refDepthQuote': 'quote',
   'chain.refDepthFull': 'full',
   'chain.conversation': 'Conversation',
-  'edge.linkedQuote': "Reference linked: feeds this node's Q&A plus its trail (~{n} tok)",
-  'edge.makeFull': 'Make full',
+  'edge.linkedQuote': "Linked as a reference: by default it feeds this node's Q&A plus its question trail (~{n} tok)",
+  'edge.makeFull': 'Switch to full ({m} tok)',
   'edge.quoteChip': 'Quote · {n} tok',
   'edge.fullChip': 'Full · {n} tok',
-  'edge.depthToggleTitle': 'Toggle reference depth: quote (node + trail) ⇄ full chain',
+  'edge.depthToggleTitle': "Reference depth belongs to this dashed edge. Quote = this node's Q&A plus its trail of upstream questions; full = the complete conversation of its whole upstream chain. Click to switch.",
 
   // Follow-up input
   'followup.contextTitle': 'Context sent with the next follow-up',
@@ -266,6 +266,8 @@ export const en = {
   'toast.importFailedMissing': 'Import failed: missing nodes/edges arrays',
   'toast.generationFailed': 'Generation failed: {message}',
   'toast.editMakesStale': 'Question edited: {n} downstream answers were written against the old content (re-run manually)',
+  'node.summaryLabel': 'Summary',
+  'node.summaryTitle': 'An automatic summary of this answer, for the map only. It never enters context. Double-click the card to read the full answer in the panel.',
   'node.staleBadge': 'Upstream changed',
   'node.staleTitle': 'This answer predates changes in its upstream. Click to re-run (appends a new version for comparison)',
   'replay.chip': 'Replay stale ({n})',

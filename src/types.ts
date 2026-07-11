@@ -72,7 +72,10 @@ export interface ThoughtData extends Record<string, unknown> {
   branchContext?: string;
   highlights: Highlight[];
   highlightMode: 'off' | 'tag' | 'filter'; // off=normal, tag=mark important, filter=pass highlights only
-  summary?: string;
+  summary?: string; // legacy single display summary (pre-versioned nodes)
+  /** Display-only summaries, aligned with `responses` by index. Never enter
+      context or fingerprints — the map layer, not the transcript. */
+  summaries?: (string | undefined | null)[];
   rolePrompt?: string;
   appliedRole?: string; // the role actually used when generating the current response
   roleSourceNodeId?: string; // user-chosen role source node (for multi-parent role conflict)
