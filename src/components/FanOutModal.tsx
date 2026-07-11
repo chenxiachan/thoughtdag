@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Eye, Split, X } from 'lucide-react';
 import { useStore } from '../store';
-import { ROLE_TEMPLATES, rolePromptFor } from '../lib/role-templates';
+import { effectiveRoles } from '../lib/role-templates';
+import { useUiStore } from '../lib/ui-store';
 import { useI18n, useT, fmt } from '../i18n';
 
 // Perspectives dialog: N roles, ONE mechanism, two run policies.
@@ -53,9 +54,11 @@ export default function FanOutModal({
         : { name: line.slice(0, 24), prompt: line };
     });
 
-  const templateRoles = ROLE_TEMPLATES.filter((tpl) => picked.has(tpl.id)).map((tpl) => ({
-    name: lang === 'zh' ? tpl.nameZh : tpl.nameEn,
-    prompt: rolePromptFor(tpl, lang),
+  const roleLib = useUiStore((s) => s.roleLib);
+  const library = effectiveRoles(lang, roleLib);
+  const templateRoles = library.filter((tpl) => picked.has(tpl.id)).map((tpl) => ({
+    name: tpl.name,
+    prompt: tpl.prompt,
   }));
 
   const roles = [...templateRoles, ...customRoles];
@@ -137,7 +140,7 @@ export default function FanOutModal({
           <div>
             <label className="text-2xs text-ink-faint uppercase tracking-wider font-medium block mb-1.5">{t('fanout.templates')}</label>
             <div className="flex flex-wrap gap-1.5">
-              {ROLE_TEMPLATES.map((tpl) => (
+              {library.map((tpl) => (
                 <button
                   key={tpl.id}
                   onClick={() => setPicked((prev) => {
@@ -150,7 +153,7 @@ export default function FanOutModal({
                     picked.has(tpl.id) ? 'bg-warm/15 text-warm font-medium' : 'bg-wash hover:bg-line text-ink-muted'
                   }`}
                 >
-                  {lang === 'zh' ? tpl.nameZh : tpl.nameEn}
+                  {tpl.name}
                 </button>
               ))}
             </div>

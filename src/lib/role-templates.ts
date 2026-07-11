@@ -60,3 +60,25 @@ export const ROLE_TEMPLATES: RoleTemplate[] = [
     promptZh: '你是一位苏格拉底式导师。不直接给答案，而是用尖锐的问题探查推理、暴露理解上的缺口，然后只给一个小提示。',
   },
 ];
+
+// ── User-editable role library ─────────────────────────────────────
+// The built-ins above stay bilingual; the user layer can hide them,
+// override them (hide + custom copy) and add new single-language roles.
+// This edits the OPTION LIST only — roles already applied to nodes are
+// plain text on those nodes and never change retroactively.
+export interface CustomRole { id: string; name: string; prompt: string }
+export interface RoleLib { custom: CustomRole[]; hidden: string[] }
+export interface EffectiveRole { id: string; name: string; prompt: string; builtin: boolean }
+
+export const EMPTY_ROLE_LIB: RoleLib = { custom: [], hidden: [] };
+
+export function effectiveRoles(lang: string, lib?: RoleLib | null): EffectiveRole[] {
+  const hidden = new Set(lib?.hidden ?? []);
+  const builtins = ROLE_TEMPLATES.filter((t) => !hidden.has(t.id)).map((t) => ({
+    id: t.id,
+    name: lang === 'zh' ? t.nameZh : t.nameEn,
+    prompt: rolePromptFor(t, lang),
+    builtin: true,
+  }));
+  return [...builtins, ...(lib?.custom ?? []).map((c) => ({ ...c, builtin: false }))];
+}

@@ -48,6 +48,7 @@ import { useMcpServers } from './lib/use-mcp';
 import ConfirmDialog from './components/ui/ConfirmDialog';
 import Toaster from './components/ui/Toaster';
 import GlobalTooltip from './components/ui/GlobalTooltip';
+import RoleManagerModal from './components/ui/RoleManagerModal';
 import LangSwitch from './components/ui/LangSwitch';
 import ModelPicker from './components/ui/ModelPicker';
 import RoleTemplateChips from './components/ui/RoleTemplateChips';
@@ -79,6 +80,7 @@ export default function App() {
       {hydrated && <Canvas />}
       <Toaster />
       <GlobalTooltip />
+      <RoleManagerModal />
       <ConfirmDialog />
       <Tutorial />
     </>

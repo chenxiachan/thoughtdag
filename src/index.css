@@ -406,14 +406,15 @@ body.tdag-connecting, body.tdag-connecting * {
   position: fixed;
   z-index: 120;
   max-width: 340px;
-  background: color-mix(in srgb, var(--color-ink) 94%, transparent);
-  color: #fff;
+  background: var(--color-card);
+  color: var(--color-ink-muted);
+  border: 1px solid var(--color-line-strong);
   font-size: 11px;
   line-height: 1.55;
   padding: 6px 10px;
-  border-radius: 8px;
+  border-radius: 10px;
   pointer-events: none;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.10);
   animation: fade-in 0.12s ease;
   white-space: pre-line;
 }

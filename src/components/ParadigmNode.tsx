@@ -2,7 +2,8 @@ import { Handle, Position, type NodeProps } from '@xyflow/react';
 import { Globe, GraduationCap, MessageCircleQuestion, SquareTerminal, Trash2 } from 'lucide-react';
 import type { ThoughtNode as ThoughtNodeType, ThoughtData } from '../types';
 import { useStore } from '../store';
-import { ROLE_TEMPLATES, rolePromptFor } from '../lib/role-templates';
+import { effectiveRoles } from '../lib/role-templates';
+import { useUiStore } from '../lib/ui-store';
 import { useI18n, useT } from '../i18n';
 
 // Orchestration-view card. A paradigm has exactly two node kinds:
@@ -95,13 +96,13 @@ export default function ParadigmNode({ id, data }: NodeProps<ThoughtNodeType>) {
         {/* persona chips: prepend a template persona into the prompt */}
         {kind === 'prompt' && (
           <div className="flex flex-wrap gap-1" title={t('paradigm.insertPersona')}>
-            {ROLE_TEMPLATES.map((tpl) => (
+            {effectiveRoles(lang, useUiStore.getState().roleLib).map((tpl) => (
               <button
                 key={tpl.id}
-                onClick={() => patch({ instruction: `${rolePromptFor(tpl, lang)}\n${data.instruction ?? ''}` })}
+                onClick={() => patch({ instruction: `${tpl.prompt}\n${data.instruction ?? ''}` })}
                 className="text-2xs bg-wash hover:bg-accent/10 hover:text-accent text-ink-muted px-1.5 py-0.5 rounded-full transition-colors"
               >
-                + {lang === 'zh' ? tpl.nameZh : tpl.nameEn}
+                + {tpl.name}
               </button>
             ))}
           </div>

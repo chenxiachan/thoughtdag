@@ -61,6 +61,11 @@ interface UiState {
   setAnnotationsHidden: (hidden: boolean) => void;
   setDraft: (key: string, text: string) => void;
   setPanelWidth: (w: number) => void;
+  /** User-editable role option library (persisted). */
+  roleLib: import('./role-templates').RoleLib;
+  setRoleLib: (lib: import('./role-templates').RoleLib) => void;
+  roleManagerOpen: boolean;
+  setRoleManagerOpen: (open: boolean) => void;
   setReaderNodeId: (id: string | null) => void;
   setPanelOpen: (open: boolean) => void;
   setSelectedModel: (model: string | null) => void;
@@ -98,6 +103,20 @@ export const useUiStore = create<UiState>((set, get) => ({
   },
   setPanelOpen: (open) => set({ panelOpen: open }),
   setPanelWidth: (w) => set({ panelWidth: w }),
+  roleLib: (() => {
+    try {
+      const raw = localStorage.getItem('thoughtdag.roleLib');
+      const parsed = raw ? JSON.parse(raw) : null;
+      if (parsed && Array.isArray(parsed.custom) && Array.isArray(parsed.hidden)) return parsed;
+    } catch { /* fall through to empty */ }
+    return { custom: [], hidden: [] };
+  })(),
+  setRoleLib: (lib) => {
+    localStorage.setItem('thoughtdag.roleLib', JSON.stringify(lib));
+    set({ roleLib: lib });
+  },
+  roleManagerOpen: false,
+  setRoleManagerOpen: (open) => set({ roleManagerOpen: open }),
   readerNodeId: null,
   setReaderNodeId: (id) => set({ readerNodeId: id }),
   drafts: {},
