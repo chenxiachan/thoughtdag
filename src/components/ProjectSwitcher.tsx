@@ -5,7 +5,7 @@ import { useI18n } from '../i18n';
 import { exportActiveProjectJson, exportActiveParadigm, parseImportFile } from '../lib/export';
 import ImportChatModal from './ImportChatModal';
 import type { ImportableConversation } from '../lib/import-chat';
-import { confirmDialog } from '../lib/ui-store';
+import { confirmDialog, toast } from '../lib/ui-store';
 import { isImeComposing } from '../utils';
 import { useT, t as ti, fmt } from '../i18n';
 
@@ -170,9 +170,13 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
               onChange={(e) => {
                 const f = e.target.files?.[0];
                 if (f) {
+                  // Every failure path must surface — a silently swallowed
+                  // rejection here reads as "the import does nothing".
                   void parseImportFile(f).then((r) => {
                     if (r.kind === 'own' && r.ok) { setOpen(false); onSwitched(); }
                     else if (r.kind === 'chat') { setOpen(false); setChatImport(r.conversations); }
+                  }).catch((err) => {
+                    toast('error', fmt(ti('toast.importFailedGeneric'), { msg: err instanceof Error ? err.message : String(err) }));
                   });
                 }
                 e.target.value = '';

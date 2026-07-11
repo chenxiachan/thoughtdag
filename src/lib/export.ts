@@ -143,6 +143,12 @@ export async function parseImportFile(file: File): Promise<
     toast('success', fmt(t('toast.imported'), { name: parsed.name, n: parsed.nodes.length }));
     return { kind: 'own', ok: true };
   }
+  // The manifest also carries nodes/edges arrays, but they are audit
+  // records, not canvas nodes — importing them would build a broken canvas.
+  if ((parsed as { format?: string })?.format === 'thoughtdag-manifest') {
+    toast('error', t('toast.importManifest'), 9000);
+    return { kind: 'error' };
+  }
   const format = detectFormat(parsed);
   if (format === 'chatgpt' || format === 'claude') {
     const conversations = listConversations(parsed);
@@ -153,6 +159,18 @@ export async function parseImportFile(file: File): Promise<
     return { kind: 'chat', conversations };
   }
   return { kind: 'own', ok: await importProjectFromFile(file, parsed) };
+}
+
+// A canvas node must at least place and describe itself; anything else
+// (manifests, foreign JSON with nodes/edges arrays) is rejected up front
+// instead of crashing later inside stripTransient/React Flow.
+function looksLikeCanvasNodes(nodes: unknown[]): boolean {
+  return nodes.every((n) => {
+    const node = n as Partial<ThoughtNode>;
+    return !!node && typeof node.id === 'string'
+      && !!node.position && typeof node.position.x === 'number' && typeof node.position.y === 'number'
+      && !!node.data && typeof node.data === 'object';
+  });
 }
 
 /** Convert selected chat conversations, one new project each. */
@@ -186,6 +204,10 @@ export async function importProjectFromFile(file: File, pre?: unknown): Promise<
   }
   if (!Array.isArray(parsed.nodes) || !Array.isArray(parsed.edges)) {
     toast('error', t('toast.importFailedMissing'));
+    return false;
+  }
+  if (parsed.nodes.length > 0 && !looksLikeCanvasNodes(parsed.nodes)) {
+    toast('error', t('toast.importFailedShape'), 9000);
     return false;
   }
   const id = crypto.randomUUID();
