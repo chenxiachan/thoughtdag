@@ -400,3 +400,20 @@ body.tdag-connecting, body.tdag-connecting * {
 .map-node.orange-node { border-color: color-mix(in srgb, var(--color-warm) 60%, var(--color-line)); }
 .map-node.evaluator-node { border-color: color-mix(in srgb, var(--color-watch) 55%, var(--color-line)); }
 .map-node.human-node { border-color: color-mix(in srgb, #d97706 55%, var(--color-line)); }
+
+/* Global fast tooltip (replaces the browser's sluggish native title) */
+.tdag-tooltip {
+  position: fixed;
+  z-index: 120;
+  max-width: 340px;
+  background: color-mix(in srgb, var(--color-ink) 94%, transparent);
+  color: #fff;
+  font-size: 11px;
+  line-height: 1.55;
+  padding: 6px 10px;
+  border-radius: 8px;
+  pointer-events: none;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  animation: fade-in 0.12s ease;
+  white-space: pre-line;
+}
