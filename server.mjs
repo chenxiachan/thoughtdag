@@ -111,7 +111,8 @@ if (process.env.GOOGLE_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
 
 if (process.env.DEEPSEEK_API_KEY) {
   const deepseek = createDeepSeek({ apiKey: process.env.DEEPSEEK_API_KEY });
-  register(envModels('DEEPSEEK', ['deepseek-chat', 'deepseek-reasoner']), 'DeepSeek', (id) => deepseek(id), { vision: false });
+  // deepseek-chat/-reasoner were retired 2026-07-24 in favor of explicit V4 ids
+  register(envModels('DEEPSEEK', ['deepseek-v4-flash', 'deepseek-v4-pro']), 'DeepSeek', (id) => deepseek(id), { vision: false });
 }
 
 if (process.env.MOONSHOT_API_KEY) {
