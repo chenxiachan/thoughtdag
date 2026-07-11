@@ -122,6 +122,20 @@ export function getContextPath(
   return walkUpAncestors(nodeId, nodes, edges).ordered;
 }
 
+/**
+ * Transitive reduction of a selection: keep only the nodes with NO selected
+ * STRUCTURAL descendant (the maximal antichain / the sinks of each selected
+ * cluster). Wiring the sinks alone feeds the complete context — every
+ * selected ancestor flows in along its chain — with zero redundant
+ * "residual" edges. Reachability deliberately ignores dashed references:
+ * they carry quotes, not full content, so they must not justify dropping a
+ * solid edge.
+ */
+export function selectionSinks(nodeIds: string[], edges: ThoughtEdge[]): string[] {
+  const selected = new Set(nodeIds);
+  return nodeIds.filter((id) => !getDescendantIds(id, edges).some((d) => selected.has(d)));
+}
+
 // All structural descendants (cross-links don't count as parent-child).
 export function getDescendantIds(
   nodeId: string,

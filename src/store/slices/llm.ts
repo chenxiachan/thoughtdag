@@ -2,7 +2,7 @@ import type { StateCreator } from 'zustand';
 import type { ThoughtNode, ThoughtEdge } from '../../types';
 import { generateId } from '../../utils';
 import { autoLayout } from '../../lib/layout';
-import { getDescendantIds } from '../../lib/graph';
+import { getDescendantIds, selectionSinks } from '../../lib/graph';
 import { COLORS } from '../../lib/constants';
 import type { ContextMessage, ImageAttachment } from '../../lib/api';
 import { buildContext, resolveExplicitRole, applyRoleOverride } from '../context-builder';
@@ -235,7 +235,13 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
    */
   exploreFrom: async (nodeIds: string[], question: string) => {
     const { nodes, edges } = get();
-    const parents = nodeIds.filter((nid) => nodes.some((n) => n.id === nid));
+    // Transitive reduction: selecting a chain means its CONTENT — ancestors
+    // flow through their descendants, so only the selection's sinks get a
+    // wire (no residual edges, no scrambled conversation order).
+    const parents = selectionSinks(
+      nodeIds.filter((nid) => nodes.some((n) => n.id === nid)),
+      edges,
+    );
     if (parents.length === 0 || !question.trim()) return;
     get().pushHistory();
     const id = generateId();
@@ -386,14 +392,15 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
   },
 
   batchMergeSummarize: async (nodeIds: string[], deleteAfter?: boolean) => {
-    // One-Rule honest converge: the synthesis node hangs from EVERY selected
-    // node with a real edge — its context flows in along the wires (full
-    // ancestry, deduped by the walk), nothing is embedded as invisible text.
+    // One-Rule honest converge: the synthesis node hangs from the selection's
+    // SINKS with real edges — ancestors flow in along the chains (transitive
+    // reduction, same as exploreFrom), nothing embedded as invisible text.
     const { nodes, edges } = get();
     const selected = nodeIds
       .map((id) => nodes.find((n) => n.id === id))
       .filter(Boolean) as ThoughtNode[];
     if (selected.length === 0) return;
+    const sinkIds = selectionSinks(selected.map((n) => n.id), edges);
 
     // Create summary node
     const id = generateId();
@@ -426,9 +433,9 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
     };
 
     // Fan-in edges from every selected node
-    const fanIn: ThoughtEdge[] = selected.map((n) => ({
-      id: `edge-${n.id}-${id}`,
-      source: n.id,
+    const fanIn: ThoughtEdge[] = sinkIds.map((nid) => ({
+      id: `edge-${nid}-${id}`,
+      source: nid,
       target: id,
       sourceHandle: 'continue',
       targetHandle: 'top',
