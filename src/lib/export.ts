@@ -4,6 +4,7 @@ import { useProjects, projectStorageKey, adoptImportedProject } from '../store/p
 import { detectFormat, listConversations, type ImportableConversation } from './import-chat';
 import { isParadigmFile } from './paradigm';
 import { getContextPath } from './graph';
+import { runDiagnostics } from './diagnostics';
 import { countTokens } from '../utils';
 import { toast } from './ui-store';
 import { t, fmt } from '../i18n';
@@ -57,6 +58,11 @@ export function runManifest(): string {
     project: activeProjectName(),
     instantiatedFrom: activeProject?.instantiatedFrom ?? null,
     staleCount: staleIds.length,
+    // The check-up report ships with the audit trail by default: which
+    // topological checks this graph passed is part of the methods record.
+    diagnostics: runDiagnostics(nodes, edges).map((f) => ({
+      tier: f.tier, kind: f.kind, nodes: f.nodeIds, edges: f.edgeIds,
+    })),
     nodes: nodes
       .filter((n) => n.data.stepKind !== 'frame')
       .map((n) => ({

@@ -25,6 +25,7 @@ import ThoughtEdgeView from './components/ThoughtEdgeView';
 import FocusPanel from './components/focus-panel';
 import SelectionToolbar from './components/SelectionToolbar';
 import SearchBar from './components/SearchBar';
+import DiagnosticsPanel from './components/DiagnosticsPanel';
 import ProjectSwitcher from './components/ProjectSwitcher';
 import { useStore } from './store';
 import { useProjects, adoptImportedProject, createProject, createBuiltinParadigm, markInstantiatedFrom } from './store/projects';
@@ -1096,6 +1097,15 @@ function Canvas() {
         >
           <CircleHelp size={15} strokeWidth={1.75} />
         </button>
+        {hasNodes && !isParadigm && (
+          <DiagnosticsPanel onLocate={(id) => {
+            const n = useStore.getState().nodes.find((x) => x.id === id);
+            if (n) {
+              setSelectedNodeId(id);
+              rfInstance.current?.setCenter(n.position.x + 260, n.position.y + 110, { zoom: 1, duration: 350 });
+            }
+          }} />
+        )}
         {hasNodes && !isParadigm && (
           <button
             onClick={downloadManifest}
