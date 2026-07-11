@@ -249,6 +249,27 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
                     </div>
                   )}
                 </div>
+              ) : att.type === 'application/pdf' && att.pageImages?.[0] ? (
+                // PDF wears its first page as a cover — same form as pasted
+                // images, so material reads as material at a glance
+                <div key={att.id} className="relative group">
+                  <img
+                    src={`data:image/png;base64,${att.pageImages[0]}`}
+                    alt={att.name}
+                    className="w-full rounded-lg border border-line/60"
+                  />
+                  <span className="absolute bottom-1.5 left-1.5 max-w-[85%] text-2xs bg-ink/60 text-white px-2 py-0.5 rounded-full flex items-center gap-1">
+                    <FileText size={11} strokeWidth={1.75} className="shrink-0" />
+                    <span className="truncate">{att.name}</span>
+                    {att.numPages != null && <span className="shrink-0 opacity-80">· {att.numPages}p</span>}
+                  </span>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); removeAttachment(id, att.id); }}
+                    className="absolute top-1.5 right-1.5 bg-ink/60 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <X size={13} strokeWidth={2} />
+                  </button>
+                </div>
               ) : (
                 <div key={att.id} className="flex items-center gap-2 bg-wash rounded-lg px-2.5 py-2 group">
                   <FileText size={16} strokeWidth={1.75} className="text-ink-muted shrink-0" />
