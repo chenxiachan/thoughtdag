@@ -73,6 +73,29 @@ export function autoLayout(allNodes: ThoughtNode[], allEdges: ThoughtEdge[]): Th
   const targetIds = new Set(structuralEdges.map((e) => e.target));
   const roots = nodes.filter((n) => !targetIds.has(n.id));
 
+  // ── Material anchors ──
+  // Layout never moves content nodes, but chains GROWN FROM them must obey
+  // the arrow grammar: the child starts BELOW its material, roughly under
+  // it — not at the canvas top as a free root. (Fixes questions asked from
+  // the reader appearing above their file node.)
+  const materialAnchors = new Map<string, { x: number; y: number }>();
+  const perMaterialCount = new Map<string, number>();
+  for (const root of roots) {
+    const mats = allEdges
+      .filter((e) => e.target === root.id && !e.data?.isCrossLink && contentIds.has(e.source))
+      .map((e) => allNodes.find((n) => n.id === e.source))
+      .filter((m): m is ThoughtNode => !!m);
+    if (mats.length === 0) continue;
+    const lowest = mats.reduce((a, b) =>
+      a.position.y + nodeHeight(a) > b.position.y + nodeHeight(b) ? a : b);
+    const k = perMaterialCount.get(lowest.id) ?? 0;
+    perMaterialCount.set(lowest.id, k + 1);
+    materialAnchors.set(root.id, {
+      x: lowest.position.x - 60 + k * (LAYOUT_COL_WIDTH + LAYOUT_H_GAP),
+      y: lowest.position.y + nodeHeight(lowest) + LAYOUT_V_GAP,
+    });
+  }
+
   const childrenMap = new Map<string, string[]>();
   for (const edge of structuralEdges) {
     const list = childrenMap.get(edge.source) || [];
@@ -106,6 +129,12 @@ export function autoLayout(allNodes: ThoughtNode[], allEdges: ThoughtEdge[]): Th
   // --- Pass 1: Assign columns ---
   const nodeColumn = new Map<string, number>();
   let nextColumn = 0;
+  // Anchored chains live in VIRTUAL columns pinned to their material's x —
+  // the grid formula never sees them, collision grouping still does.
+  const VIRT_BASE = 100000;
+  let nextVirt = VIRT_BASE;
+  const colXOverride = new Map<number, number>();
+  const colX = (col: number) => colXOverride.get(col) ?? col * (NODE_WIDTH + H_GAP);
 
   function assignColumns(nodeId: string, col: number) {
     if (nodeColumn.has(nodeId)) return;
@@ -134,9 +163,16 @@ export function autoLayout(allNodes: ThoughtNode[], allEdges: ThoughtEdge[]): Th
   }
 
   for (const root of roots) {
-    const rootCol = nextColumn;
-    nextColumn++;
-    assignColumns(root.id, rootCol);
+    const anchor = materialAnchors.get(root.id);
+    if (anchor) {
+      const virtCol = nextVirt++;
+      colXOverride.set(virtCol, anchor.x);
+      assignColumns(root.id, virtCol);
+    } else {
+      const rootCol = nextColumn;
+      nextColumn++;
+      assignColumns(root.id, rootCol);
+    }
   }
 
   // --- Pass 2: Vertical positioning ---
@@ -151,10 +187,11 @@ export function autoLayout(allNodes: ThoughtNode[], allEdges: ThoughtEdge[]): Th
   const visited = new Set<string>();
   const queue: string[] = [...roots.map((r) => r.id)];
 
-  // Place roots at y=0
+  // Roots start at y=0; material-anchored roots start under their material
   for (const rootId of queue) {
     const col = nodeColumn.get(rootId) ?? 0;
-    positioned.set(rootId, { x: col * (NODE_WIDTH + H_GAP), y: 0 });
+    const anchor = materialAnchors.get(rootId);
+    positioned.set(rootId, { x: colX(col), y: anchor?.y ?? 0 });
     visited.add(rootId);
   }
 
@@ -169,7 +206,7 @@ export function autoLayout(allNodes: ThoughtNode[], allEdges: ThoughtEdge[]): Th
       visited.add(continuation);
       const col = nodeColumn.get(continuation) ?? 0;
       positioned.set(continuation, {
-        x: col * (NODE_WIDTH + H_GAP),
+        x: colX(col),
         y: parentPos.y + parentHeight + V_GAP,
       });
       queue.push(continuation);
@@ -182,7 +219,7 @@ export function autoLayout(allNodes: ThoughtNode[], allEdges: ThoughtEdge[]): Th
       visited.add(rc);
       const col = nodeColumn.get(rc) ?? 0;
       positioned.set(rc, {
-        x: col * (NODE_WIDTH + H_GAP),
+        x: colX(col),
         y: continuationY,
       });
       queue.push(rc);
@@ -194,7 +231,7 @@ export function autoLayout(allNodes: ThoughtNode[], allEdges: ThoughtEdge[]): Th
       visited.add(ec);
       const col = nodeColumn.get(ec) ?? 0;
       positioned.set(ec, {
-        x: col * (NODE_WIDTH + H_GAP),
+        x: colX(col),
         y: parentPos.y + parentHeight * 0.25,
       });
       queue.push(ec);
