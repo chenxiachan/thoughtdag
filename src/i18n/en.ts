@@ -135,6 +135,8 @@ export const en = {
   'reader.pageFail': 'page {n} could not be recognized',
   'reader.noImages': 'No page images were rendered for this PDF, so there is nothing to recognize. Make sure the proxy has poppler available, then re-upload the file.',
   'reader.editText': 'Edit the extracted copy. External OCR output (for example MinerU Markdown) can be pasted here.',
+  'reader.wholeThread': 'About the whole material',
+  'reader.threadClose': 'Close the answer rail',
   'reader.askWhole': 'Ask about the whole material…',
   'reader.empty': 'Nothing to read here yet.',
   'reader.stop': 'Stop',

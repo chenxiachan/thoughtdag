@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { FileText, Link2, Loader2, Pencil, ScanText, Send, StickyNote, X } from 'lucide-react';
+import { Crosshair, FileText, Link2, Loader2, Pencil, ScanText, Send, StickyNote, X } from 'lucide-react';
 import type { PDFDocumentProxy } from 'pdfjs-dist';
 import type { ThoughtNode } from '../types';
 import { useStore } from '../store';
@@ -53,6 +53,9 @@ function splitByPageMarks(text: string): { page: number | null; md: string }[] {
 }
 
 const TEXT_LAYER_PROBE_CHARS = 60; // below this across the first pages = scanned
+
+// Where you were in each material, per session — reopening finds your place.
+const scrollMemory = new Map<string, number>();
 
 export default function MaterialReader({ onLocate }: { onLocate: (id: string) => void }) {
   const readerNodeId = useUiStore((s) => s.readerNodeId);
@@ -155,12 +158,18 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
     }, 0);
   };
 
+  // ── the annotation rail: answers arrive WHERE you read. It shows one
+  // thread (a question node grown from this material plus its linear
+  // continuations) — a live view of canvas nodes, never a separate store.
+  const [threadId, setThreadId] = useState<string | null>(null);
+
   const submitAsk = () => {
     const q = draft.trim();
     if (!q || !ask) return;
     // p.N provenance rides inside the quoted passage
     const passage = ask.page != null ? `(p.${ask.page}) ${ask.text}` : ask.text;
     useStore.getState().addQuestion(q, { parentId: node.id, branchContext: passage });
+    setThreadId(useStore.getState().selectedNodeId); // the freshly landed node
     setDraft('');
     setAsk(null);
     window.getSelection()?.removeAllRanges();
@@ -173,6 +182,7 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
     const q = wholeDraft.trim();
     if (!q) return;
     useStore.getState().addQuestion(q, { parentId: node.id });
+    setThreadId(useStore.getState().selectedNodeId);
     setWholeDraft('');
   };
 
@@ -208,22 +218,81 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
     return nodes.filter((n) => ids.includes(n.id));
   }, [edges, nodes, node.id]);
 
-  // Esc: close the ask bar first, then the overlay
+  // the rail's thread: the asked node plus its linear structural
+  // continuations (follow-ups append here; forks belong to the canvas)
+  const thread = useMemo(() => {
+    if (!threadId) return [];
+    const byId = new Map(nodes.map((n) => [n.id, n]));
+    const chain: ThoughtNode[] = [];
+    let cur = byId.get(threadId);
+    while (cur) {
+      chain.push(cur);
+      const kids = edges
+        .filter((e) => e.source === cur!.id && !e.data?.isCrossLink)
+        .map((e) => byId.get(e.target))
+        .filter((n): n is ThoughtNode => !!n && !n.data.isBranch);
+      cur = kids.length === 1 ? kids[0] : undefined;
+    }
+    return chain;
+  }, [threadId, nodes, edges]);
+  useEffect(() => {
+    // the thread's node can be deleted from the canvas while the rail shows it
+    if (threadId && thread.length === 0) setThreadId(null);
+  }, [threadId, thread.length]);
+
+  const [followDraft, setFollowDraft] = useState('');
+  const submitFollow = () => {
+    const q = followDraft.trim();
+    const last = thread[thread.length - 1];
+    if (!q || !last) return;
+    useStore.getState().addQuestion(q, { parentId: last.id });
+    setFollowDraft('');
+  };
+
+  // stream follows the reading eye: keep the rail pinned to the newest text
+  const railRef = useRef<HTMLDivElement>(null);
+  const lastTurn = thread[thread.length - 1];
+  useEffect(() => {
+    if (lastTurn?.data.isLoading && railRef.current) {
+      railRef.current.scrollTop = railRef.current.scrollHeight;
+    }
+  }, [lastTurn?.data.response, lastTurn?.data.isLoading]);
+
+  // per-material scroll memory (session): reopening finds your place.
+  // Recorded live on scroll (at unmount the DOM is already detached and
+  // reads 0); restored once the document has grown tall enough to hold it.
+  const scrollRestored = useRef(false);
+  useEffect(() => {
+    const el = bodyRef.current;
+    const saved = scrollMemory.get(node.id);
+    if (!el || !saved || scrollRestored.current) return;
+    let tries = 0;
+    const attempt = () => {
+      if (scrollRestored.current) return;
+      if (el.scrollHeight - el.clientHeight >= saved) {
+        el.scrollTop = saved;
+        scrollRestored.current = true;
+        return;
+      }
+      if (++tries < 25) window.setTimeout(attempt, 100);
+    };
+    window.setTimeout(attempt, 100);
+  }, [node.id, doc]);
+
+  // Esc: progressive dismissal — ask bar, then the rail, then the overlay
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key !== 'Escape') return;
       e.stopPropagation();
       if (editing) { commitEdit(); return; }
-      setAsk((cur) => {
-        if (cur) return null;
-        close();
-        return null;
-      });
+      if (ask) { setAsk(null); return; }
+      if (threadId) { setThreadId(null); return; }
+      close();
     };
     window.addEventListener('keydown', handler, true);
     return () => window.removeEventListener('keydown', handler, true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editing]);
+  }, [editing, ask, threadId]);
 
   const title = pdfAtt?.name
     ?? (kind === 'link' ? (data.linkTitle || data.linkUrl || '') : '')
@@ -242,7 +311,7 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
 
   return (
     <div className="fixed inset-0 z-[80] bg-ink/25 backdrop-blur-[2px] flex items-center justify-center animate-fade-in" data-material-reader>
-      <div className="bg-surface rounded-2xl shadow-2xl border border-line w-[min(1060px,94vw)] h-[93vh] flex flex-col overflow-hidden">
+      <div className={`bg-surface rounded-2xl shadow-2xl border border-line ${threadId ? "w-[min(1480px,96vw)]" : "w-[min(1060px,94vw)]"} h-[93vh] flex flex-col overflow-hidden transition-all duration-200`}>
         {/* header */}
         <div className="flex items-center gap-3 px-5 py-3 border-b border-line bg-card shrink-0">
           {headerIcon}
@@ -303,13 +372,14 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
           </button>
         </div>
 
-        {/* body */}
-        <div ref={bodyRef} onMouseUp={handleMouseUp} className="flex-1 min-h-0 overflow-y-auto bg-wash/60">
+        {/* body: document column + (optional) annotation rail */}
+        <div className="flex-1 min-h-0 flex">
+        <div ref={bodyRef} onMouseUp={handleMouseUp} onScroll={(e) => scrollMemory.set(node.id, e.currentTarget.scrollTop)} className="flex-1 min-w-0 overflow-y-auto bg-wash/60">
           {view === 'original' && pdfAtt && (
             doc && pdfjs ? (
               <div className="flex flex-col items-center gap-4 py-6 px-4">
                 {Array.from({ length: doc.numPages }, (_, i) => (
-                  <PdfPage key={i + 1} doc={doc} pdfjs={pdfjs} pageNo={i + 1} width={Math.min(860, window.innerWidth * 0.94 - 96)} />
+                  <PdfPage key={i + 1} doc={doc} pdfjs={pdfjs} pageNo={i + 1} width={Math.min(860, window.innerWidth * (threadId ? 0.96 : 0.94) - (threadId ? 420 : 0) - 96)} />
                 ))}
               </div>
             ) : (
@@ -354,6 +424,78 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
           )}
         </div>
 
+        {/* annotation rail: the thread lives on the canvas; this is its
+            reading view — quote, streaming answer, follow-up */}
+        {threadId && thread.length > 0 && (
+          <div className="w-[420px] shrink-0 border-l border-line bg-card flex flex-col min-h-0" data-reader-rail>
+            <div className="flex items-start gap-2 px-4 py-2.5 border-b border-line shrink-0">
+              <div className="flex-1 min-w-0">
+                {thread[0].data.branchContext ? (
+                  <div className="text-2xs text-ink-faint leading-snug line-clamp-2 border-l-2 border-warm pl-2">
+                    “{thread[0].data.branchContext.slice(0, 140)}{thread[0].data.branchContext.length > 140 ? '…' : ''}”
+                  </div>
+                ) : (
+                  <div className="text-2xs text-ink-faint">{t('reader.wholeThread')}</div>
+                )}
+              </div>
+              <button
+                onClick={() => { close(); onLocate(thread[0].id); }}
+                title={t('reader.locate')}
+                className="w-6 h-6 rounded-md text-ink-faint hover:text-accent hover:bg-wash flex items-center justify-center transition-colors shrink-0"
+              >
+                <Crosshair size={13} strokeWidth={1.75} />
+              </button>
+              <button
+                onClick={() => setThreadId(null)}
+                title={t('reader.threadClose')}
+                className="w-6 h-6 rounded-md text-ink-faint hover:text-ink hover:bg-wash flex items-center justify-center transition-colors shrink-0"
+              >
+                <X size={14} strokeWidth={1.75} />
+              </button>
+            </div>
+            <div ref={railRef} className="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-4">
+              {thread.map((turn) => (
+                <div key={turn.id}>
+                  <div className="text-sm font-semibold text-ink leading-snug mb-1.5">{turn.data.question}</div>
+                  {turn.data.isLoading && !turn.data.response ? (
+                    <div className="flex items-center gap-2 text-xs text-ink-muted py-1">
+                      <Loader2 size={13} strokeWidth={1.75} className="animate-spin text-accent" /> {t('common.thinking')}
+                    </div>
+                  ) : (
+                    <div className="markdown-body text-sm text-ink leading-relaxed">
+                      <Markdown>{turn.data.response}</Markdown>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+            <div className="border-t border-line px-3 py-2.5 shrink-0 flex items-end gap-1.5">
+              <textarea
+                value={followDraft}
+                onChange={(e) => setFollowDraft(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey && !isImeComposing(e)) { e.preventDefault(); submitFollow(); } }}
+                placeholder={t('common.followUp')}
+                rows={1}
+                className="flex-1 bg-wash text-sm text-ink rounded-lg px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-accent/40 resize-none placeholder-ink-faint"
+                style={{ minHeight: 32, maxHeight: 120 }}
+                onInput={(e) => {
+                  const ta = e.currentTarget;
+                  ta.style.height = 'auto';
+                  ta.style.height = `${Math.min(120, ta.scrollHeight)}px`;
+                }}
+              />
+              <button
+                onClick={submitFollow}
+                disabled={!followDraft.trim()}
+                className="w-8 h-8 rounded-lg bg-accent text-white flex items-center justify-center disabled:opacity-30 transition-opacity shrink-0"
+              >
+                <Send size={14} strokeWidth={1.75} />
+              </button>
+            </div>
+          </div>
+        )}
+        </div>
+
         {/* footer: ask about the whole material + the questions grown from it */}
         <div className="border-t border-line bg-card px-5 py-2.5 shrink-0 flex items-center gap-2.5">
           <input
@@ -375,15 +517,24 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
             <div className="flex items-center gap-2 overflow-x-auto max-w-[45%] shrink-0">
               <span className="text-2xs text-ink-faint shrink-0">{fmt(t('reader.grown'), { n: children.length })}</span>
               {children.map((c) => (
-                <button
+                <span
                   key={c.id}
-                  onClick={() => { close(); onLocate(c.id); }}
-                  title={t('reader.locate')}
-                  className="text-2xs text-ink-muted bg-wash hover:bg-line rounded-full px-2.5 py-1 shrink-0 max-w-[200px] truncate transition-colors flex items-center gap-1.5"
+                  className={`text-2xs rounded-full pl-2.5 pr-1 py-0.5 shrink-0 max-w-[220px] transition-colors flex items-center gap-1 ${
+                    threadId === c.id ? 'bg-accent/10 text-accent' : 'bg-wash text-ink-muted hover:bg-line'
+                  }`}
                 >
-                  {c.data.isLoading && <Loader2 size={10} strokeWidth={2} className="animate-spin text-accent shrink-0" />}
-                  {c.data.question.replace(/\s+/g, ' ').slice(0, 32) || '…'}
-                </button>
+                  <button onClick={() => setThreadId(c.id)} className="flex items-center gap-1.5 min-w-0">
+                    {c.data.isLoading && <Loader2 size={10} strokeWidth={2} className="animate-spin text-accent shrink-0" />}
+                    <span className="truncate">{c.data.question.replace(/\s+/g, ' ').slice(0, 32) || '…'}</span>
+                  </button>
+                  <button
+                    onClick={() => { close(); onLocate(c.id); }}
+                    title={t('reader.locate')}
+                    className="w-4.5 h-4.5 rounded-full flex items-center justify-center text-ink-faint hover:text-accent shrink-0"
+                  >
+                    <Crosshair size={11} strokeWidth={1.75} />
+                  </button>
+                </span>
               ))}
             </div>
           )}

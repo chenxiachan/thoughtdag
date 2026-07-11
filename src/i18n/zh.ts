@@ -135,6 +135,8 @@ export const zh: Record<keyof typeof en, string> = {
   'reader.pageFail': '第 {n} 页识别失败',
   'reader.noImages': '这份 PDF 没有页面图像，无法识别。请确认代理端装有 poppler，然后重新上传文件。',
   'reader.editText': '编辑提取副本。外部 OCR 的结果（如 MinerU 的 Markdown）可以直接贴进来。',
+  'reader.wholeThread': '关于整份材料',
+  'reader.threadClose': '收起答案栏',
   'reader.askWhole': '就整份材料提问…',
   'reader.empty': '这里还没有可读内容。',
   'reader.stop': '停止',
