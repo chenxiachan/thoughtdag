@@ -114,6 +114,28 @@ export const en = {
   'panel.question': 'Question',
   'panel.response': 'Response',
   'panel.more': 'More actions',
+  // Material reader (the reading overlay)
+  'reader.open': 'Read & ask',
+  'reader.viewOriginal': 'Original',
+  'reader.viewText': 'Extracted text',
+  'reader.scannedHint': 'This PDF has no embedded text layer, so the original view is not selectable. The extracted copy below is the readable surface. Recognize rewrites the page images into Markdown.',
+  'reader.pdfFailed': 'Could not render the PDF: {msg}',
+  'reader.loading': 'Loading PDF…',
+  'reader.askPlaceholder': 'Ask about this passage…',
+  'reader.grown': '{n} questions grew from this material',
+  'reader.locate': 'Show on canvas',
+  'reader.recognize': 'Recognize as Markdown',
+  'reader.recognizeTitle': 'Rewrite every page image into readable Markdown with a vision model. Formulas become KaTeX. The result lands in the extracted copy, which you can edit and which downstream context reads.',
+  'reader.recognizeConfirm': 'Recognize {n} pages?',
+  'reader.recognizing': 'Page {a}/{b}…',
+  'reader.recognizeDone': 'Recognition finished. The extracted copy is now readable Markdown.',
+  'reader.pageFail': 'page {n} could not be recognized',
+  'reader.noImages': 'No page images were rendered for this PDF, so there is nothing to recognize. Make sure the proxy has poppler available, then re-upload the file.',
+  'reader.editText': 'Edit the extracted copy. External OCR output (for example MinerU Markdown) can be pasted here.',
+  'reader.empty': 'Nothing to read here yet.',
+  'reader.stop': 'Stop',
+  'content.pdfPagePrompt': 'Transcribe this PDF page into clean Markdown. Rules:\n- Write formulas as $...$ inline or $$...$$ on their own line\n- Keep heading levels, lists and tables\n- Replace figures with a one-line italic description (e.g. *Figure 2: ...*)\n- Drop headers, footers and page numbers\nOutput the content only, no preamble.',
+
   'panel.close': 'Close panel',
 
   // Role line — ONE semantic: a role set on a node is the system prompt for

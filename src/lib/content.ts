@@ -6,7 +6,7 @@ import { processFile } from './attachments';
 import { fetchUrlSnapshot, llmCall } from './api';
 import { getModelsOnce } from './use-models';
 import { toast } from './ui-store';
-import { t } from '../i18n';
+import { t, fmt } from '../i18n';
 
 // Content nodes: canvas material (note / file / link). Shared creation and
 // ingestion used by the palette, canvas paste, and canvas drop.
@@ -188,6 +188,69 @@ export async function extractImage(nodeId: string, attId: string): Promise<void>
   }
   useStore.getState().setAttachmentData(nodeId, attId, { isExtracting: false });
   toast('error', `${t('content.extractFailed')} — ${failures.join('; ')}`);
+}
+
+/** Marker the reader uses to keep page provenance inside the extracted copy. */
+export const PDF_PAGE_MARK = (n: number) => `<!-- tdag-page:${n} -->`;
+
+/**
+ * Per-page vision recognition for a PDF attachment: the image-extraction
+ * channel applied page by page. Each rendered page image goes through the
+ * same ranked vision models as extractImage; the results are stitched into
+ * ONE Markdown copy (formulas as KaTeX) with page markers, written to
+ * extractedText — the visible, editable text both the reader and downstream
+ * context read. This is NOT a built-in OCR engine: external output (MinerU
+ * etc.) can replace the same field by editing.
+ */
+export async function recognizePdfPages(
+  nodeId: string,
+  attId: string,
+  onProgress: (done: number, total: number) => void,
+  isCancelled: () => boolean,
+): Promise<void> {
+  const att = useStore.getState().nodes.find((n) => n.id === nodeId)?.data.attachments?.find((a) => a.id === attId);
+  if (!att || att.type !== 'application/pdf' || !att.pageImages?.length) return;
+
+  const data = await getModelsOnce();
+  const vision = (data?.models ?? []).filter((m) => m.vision);
+  if (vision.length === 0) {
+    toast('error', t('content.noVisionModel'));
+    return;
+  }
+  const ranked = [...vision].sort((a, b) => visionRank(b) - visionRank(a));
+  const usable = ranked.filter((m) => !extractionAuthFailed.has(m.id));
+  const candidates = usable.length > 0 ? usable : ranked;
+
+  const pages = att.pageImages;
+  const parts: string[] = [];
+  let winner: string | undefined; // sticky: once a model works, keep it for the rest
+  for (let i = 0; i < pages.length; i++) {
+    if (isCancelled()) return;
+    const image = await normalizeImageForVision(pages[i], 'image/png');
+    const order = winner ? [...candidates].sort((a, b) => (b.id === winner ? 1 : 0) - (a.id === winner ? 1 : 0)) : candidates;
+    let pageMd: string | null = null;
+    for (const model of order) {
+      if (isCancelled()) return;
+      try {
+        pageMd = (await llmCall([{ role: 'user', content: t('content.pdfPagePrompt') }], [image], model.id)).trim();
+        winner = model.id;
+        break;
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        if (/api.?key|unauthorized|forbidden|401|403|invalid/i.test(msg)) extractionAuthFailed.add(model.id);
+      }
+    }
+    parts.push(`${PDF_PAGE_MARK(i + 1)}\n\n${pageMd ?? `*${fmt(t('reader.pageFail'), { n: i + 1 })}*`}`);
+    onProgress(i + 1, pages.length);
+  }
+  if (isCancelled()) return;
+  if (!winner) {
+    toast('error', t('content.extractFailed'));
+    return;
+  }
+  useStore.getState().pushHistory();
+  useStore.getState().setAttachmentData(nodeId, attId, { extractedText: parts.join('\n\n'), extractedBy: winner });
+  toast('success', t('reader.recognizeDone'));
 }
 
 /** Fetch the URL server-side and store the stamped text snapshot on the node. */

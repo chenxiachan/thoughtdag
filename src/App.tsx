@@ -26,6 +26,7 @@ import FocusPanel from './components/focus-panel';
 import SelectionToolbar from './components/SelectionToolbar';
 import SearchBar from './components/SearchBar';
 import DiagnosticsPanel from './components/DiagnosticsPanel';
+import MaterialReader from './components/MaterialReader';
 import ProjectSwitcher from './components/ProjectSwitcher';
 import { useStore } from './store';
 import { useProjects, adoptImportedProject, createProject, createBuiltinParadigm, markInstantiatedFrom } from './store/projects';
@@ -1200,6 +1201,16 @@ function Canvas() {
           );
         }
       }} />}
+
+      {/* Material reading overlay: select a passage, ask, the node lands on
+          the canvas immediately (a view onto the material, not a container) */}
+      <MaterialReader onLocate={(id) => {
+        const n = useStore.getState().nodes.find((x) => x.id === id);
+        if (n) {
+          setSelectedNodeId(id);
+          rfInstance.current?.setCenter(n.position.x + 260, n.position.y + 110, { zoom: 1, duration: 350 });
+        }
+      }} />
     </div>
   );
 }

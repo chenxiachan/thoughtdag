@@ -114,6 +114,28 @@ export const zh: Record<keyof typeof en, string> = {
   'panel.question': '问题',
   'panel.response': '回答',
   'panel.more': '更多操作',
+  // Material reader (the reading overlay)
+  'reader.open': '阅读并提问',
+  'reader.viewOriginal': '原版',
+  'reader.viewText': '提取文本',
+  'reader.scannedHint': '这份 PDF 没有内嵌文字层，原版视图无法选字。下面这份提取副本就是可读面。点「识别为 Markdown」可把页面图像重排为可读文本。',
+  'reader.pdfFailed': 'PDF 渲染失败：{msg}',
+  'reader.loading': '加载 PDF 中…',
+  'reader.askPlaceholder': '就选中的这段提问…',
+  'reader.grown': '已从此材料长出 {n} 个问题',
+  'reader.locate': '在画布上定位',
+  'reader.recognize': '识别为 Markdown',
+  'reader.recognizeTitle': '用视觉模型把每页图像重排为可读的 Markdown，公式转成 KaTeX。结果写入提取副本，可以编辑，下游上下文读到的就是它。',
+  'reader.recognizeConfirm': '识别 {n} 页？',
+  'reader.recognizing': '第 {a}/{b} 页…',
+  'reader.recognizeDone': '识别完成，提取副本已是可读的 Markdown。',
+  'reader.pageFail': '第 {n} 页识别失败',
+  'reader.noImages': '这份 PDF 没有页面图像，无法识别。请确认代理端装有 poppler，然后重新上传文件。',
+  'reader.editText': '编辑提取副本。外部 OCR 的结果（如 MinerU 的 Markdown）可以直接贴进来。',
+  'reader.empty': '这里还没有可读内容。',
+  'reader.stop': '停止',
+  'content.pdfPagePrompt': '把这一页 PDF 转写为干净的 Markdown。要求：\n- 数学公式用 $...$（行内）或 $$...$$（独立成行）\n- 保留标题层级、列表和表格结构\n- 图片位置用一行斜体描述代替（如 *图 2：…*）\n- 页眉、页脚和页码省略\n只输出内容本身，不要开场白。',
+
   'panel.close': '关闭面板',
 
   // Role line

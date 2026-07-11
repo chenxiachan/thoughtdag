@@ -1,8 +1,9 @@
 import { useRef, useState } from 'react';
 import { Handle, NodeResizeControl, Position, useStore as useRfStore, type NodeProps } from '@xyflow/react';
-import { ExternalLink, FileText, Link2, Link2Off, Loader2, MoveDiagonal2, Paperclip, RefreshCw, StickyNote, Trash2, X } from 'lucide-react';
+import { BookOpen, ExternalLink, FileText, Link2, Link2Off, Loader2, MoveDiagonal2, Paperclip, RefreshCw, StickyNote, Trash2, X } from 'lucide-react';
 import type { ThoughtNode as ThoughtNodeType } from '../types';
 import { useStore } from '../store';
+import { useUiStore } from '../lib/ui-store';
 import { triggerParadigmCascade } from '../store/streaming';
 import { extractImage, fetchLinkIntoNode, ingestFiles } from '../lib/content';
 import { FILE_INPUT_ACCEPT } from '../lib/attachments';
@@ -65,6 +66,10 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
         kind === 'note' ? 'bg-amber-50/90 border-amber-200' : 'bg-card border-line'
       } ${selectedNodeId === id ? 'ring-2 ring-accent selected-glow' : ''}`}
       onClick={() => setSelectedNodeId(id)}
+      onDoubleClick={() => {
+        // notes keep dblclick=edit (on the body); files and links open the reader
+        if (kind !== 'note') useUiStore.getState().setReaderNodeId(id);
+      }}
       onDrop={async (e) => {
         if (kind !== 'file') return;
         e.preventDefault();
@@ -89,6 +94,13 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
           )}
         </div>
         <div className="flex items-center gap-1 shrink-0">
+          <button
+            onClick={(e) => { e.stopPropagation(); useUiStore.getState().setReaderNodeId(id); }}
+            title={t('reader.open')}
+            className="text-ink-faint hover:text-accent rounded-full w-6 h-6 flex items-center justify-center transition-colors"
+          >
+            <BookOpen size={13} strokeWidth={1.75} />
+          </button>
           {kind === 'link' && data.linkUrl && (
             <a
               href={data.linkUrl}

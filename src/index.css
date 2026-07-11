@@ -353,3 +353,35 @@ textarea:focus-visible {
 body.tdag-connecting, body.tdag-connecting * {
   user-select: none !important;
 }
+
+/* ── MaterialReader: pdf.js text layer ─────────────────────────────
+   Invisible glyph boxes positioned over the canvas render — this is what
+   makes the ORIGINAL page selectable. pdf.js sets per-span inline geometry;
+   we only make the glyphs transparent and style the selection. */
+.tdag-textlayer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  line-height: 1;
+  text-align: initial;
+  forced-color-adjust: none;
+  caret-color: transparent;
+  z-index: 2;
+}
+.tdag-textlayer span,
+.tdag-textlayer br {
+  position: absolute;
+  color: transparent;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0 0;
+}
+.tdag-textlayer ::selection {
+  background: color-mix(in srgb, var(--color-accent) 32%, transparent);
+}
+
+/* KaTeX renders MathML (a11y) plus HTML glyphs; without this, selecting a
+   passage across a formula copies BOTH — the visible glyphs are enough. */
+.katex .katex-mathml {
+  user-select: none;
+}

@@ -47,6 +47,8 @@ interface UiState {
   /** Live overlay-panel width: the toolbar offsets itself by it so nothing
       hides underneath the panel. */
   panelWidth: number;
+  /** Material node currently open in the reading overlay (session only). */
+  readerNodeId: string | null;
   /** Selected LLM id; null = server default. */
   selectedModel: string | null;
   dismissToast: (id: string) => void;
@@ -59,6 +61,7 @@ interface UiState {
   setAnnotationsHidden: (hidden: boolean) => void;
   setDraft: (key: string, text: string) => void;
   setPanelWidth: (w: number) => void;
+  setReaderNodeId: (id: string | null) => void;
   setPanelOpen: (open: boolean) => void;
   setSelectedModel: (model: string | null) => void;
 }
@@ -95,6 +98,8 @@ export const useUiStore = create<UiState>((set, get) => ({
   },
   setPanelOpen: (open) => set({ panelOpen: open }),
   setPanelWidth: (w) => set({ panelWidth: w }),
+  readerNodeId: null,
+  setReaderNodeId: (id) => set({ readerNodeId: id }),
   drafts: {},
   setDraft: (key, text) => set((s) => {
     if (!text) {
