@@ -157,7 +157,12 @@ npm run dev            # → http://localhost:5173
 
 ## MCP 工具
 
-把 `mcp.config.example.json` 复制为 `mcp.config.json`，按 Claude Desktop 同款格式列出你的 [MCP](https://modelcontextprotocol.io) server，工具进入同一个 agentic 循环，模型自主决定何时调用。
+把 `mcp.config.example.json` 复制为 `mcp.config.json`，按 Claude Desktop 同款格式列出你的 [MCP](https://modelcontextprotocol.io) server。工具进入和联网搜索同一个 agentic 循环：只要有 server 接入，提问框旁就会出现一个插头开关，何时调用由模型判断。研究者最想接的两个：
+
+- **Zotero**（`zotero-mcp`）：模型回答时可以检索你的文献库。读论文时圈选一个论断，问「我库里有谁支持或反驳过这个」，答案带着你自己文献的引用回来。
+- **Obsidian**（社区的 vault server）：模型可以读你的笔记。笔记库仍是沉淀的长期知识，ThoughtDAG 是活的推理面，这座桥让多年积累随时进入某一轮回答，而不用搬库。
+
+MCP 工具是模型的手；你连线的材料才是显式的上下文通道。
 
 ```jsonc
 {

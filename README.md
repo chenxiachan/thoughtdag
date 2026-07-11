@@ -157,7 +157,12 @@ The industry aligns models inside their weights. A workbench does its part struc
 
 ## MCP tools
 
-Copy `mcp.config.example.json` to `mcp.config.json` and list any [MCP](https://modelcontextprotocol.io) servers (Claude-Desktop format; existing snippets just work). Their tools join the same agentic loop: the model decides when to call them.
+Copy `mcp.config.example.json` to `mcp.config.json` and list any [MCP](https://modelcontextprotocol.io) servers (Claude Desktop format; existing snippets just work). Their tools join the same agentic loop as web search: a plug button appears next to the search toggles whenever servers are connected, and the model decides when to call them. Two servers researchers will want:
+
+- **Zotero** (`zotero-mcp`): the model can search your reference library while answering. Select a claim in a paper and ask who in your library supports or contradicts it; the answer comes back citing your own references.
+- **Obsidian** (community vault servers): the model can read your notes. The vault stays your long-term store, ThoughtDAG stays the live reasoning surface, and the bridge pulls your accumulated thinking into a single turn without importing anything.
+
+MCP tools are the model's hands; the materials you wire in remain the explicit context channel.
 
 ```jsonc
 {

@@ -1,5 +1,6 @@
-import { Globe, GraduationCap } from 'lucide-react';
+import { Globe, GraduationCap, Plug } from 'lucide-react';
 import { useUiStore } from '../../lib/ui-store';
+import { useMcpServers } from '../../lib/use-mcp';
 import { useT } from '../../i18n';
 
 // Per-ask search permissions, shown next to every input that asks. The two
@@ -10,6 +11,11 @@ export default function SearchToggles({ size = 16 }: { size?: number }) {
   const setWeb = useUiStore((s) => s.setWebSearchEnabled);
   const scholar = useUiStore((s) => s.scholarSearchEnabled);
   const setScholar = useUiStore((s) => s.setScholarSearchEnabled);
+  const mcp = useUiStore((s) => s.mcpEnabled);
+  const setMcp = useUiStore((s) => s.setMcpEnabled);
+  // external knowledge (Zotero / Obsidian / ...): the plug only exists when
+  // servers are actually connected — no dead buttons
+  const mcpServers = useMcpServers();
   const t = useT();
 
   const cls = (on: boolean) =>
@@ -35,6 +41,16 @@ export default function SearchToggles({ size = 16 }: { size?: number }) {
       >
         <GraduationCap size={size} strokeWidth={1.75} />
       </button>
+      {mcpServers.length > 0 && (
+        <button
+          type="button"
+          onClick={() => setMcp(!mcp)}
+          title={`${mcp ? t('toolbar.mcp') : t('toolbar.mcpOff')}\n${mcpServers.map((s) => `${s.name} (${s.tools.length})`).join(' · ')}`}
+          className={cls(mcp)}
+        >
+          <Plug size={size} strokeWidth={1.75} />
+        </button>
+      )}
     </>
   );
 }

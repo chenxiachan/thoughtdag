@@ -15,7 +15,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import 'highlight.js/styles/github.css';
-import { BookOpen, CircleHelp, Dna, Download, Drama, FileText, Frame, GitBranch, LayoutGrid, Loader2, MessageCircleQuestion, Paperclip, Plug, Redo2, Scissors, SquareTerminal, StickyNote, Trash2, Undo2, Workflow, X, ListRestart } from 'lucide-react';
+import { BookOpen, CircleHelp, Dna, Download, Drama, FileText, Frame, GitBranch, LayoutGrid, Loader2, MessageCircleQuestion, Paperclip, Redo2, Scissors, SquareTerminal, StickyNote, Trash2, Undo2, Workflow, X, ListRestart } from 'lucide-react';
 import './index.css';
 import ThoughtNode from './components/ThoughtNode';
 import ParadigmNode from './components/ParadigmNode';
@@ -44,7 +44,6 @@ import { countTokens } from './utils';
 import { buildExampleGraph } from './lib/example-graph';
 import { COLORS, FRAME_COLORS, PANEL_INSET } from './lib/constants';
 import { confirmDialog, toast, useUiStore } from './lib/ui-store';
-import { useMcpServers } from './lib/use-mcp';
 import ConfirmDialog from './components/ui/ConfirmDialog';
 import Toaster from './components/ui/Toaster';
 import GlobalTooltip from './components/ui/GlobalTooltip';
@@ -93,9 +92,6 @@ function Canvas() {
   const setTutorialOpen = useUiStore((s) => s.setTutorialOpen);
   const annotationsHidden = useUiStore((s) => s.annotationsHidden);
   const setAnnotationsHidden = useUiStore((s) => s.setAnnotationsHidden);
-  const mcpEnabled = useUiStore((s) => s.mcpEnabled);
-  const setMcpEnabled = useUiStore((s) => s.setMcpEnabled);
-  const mcpServers = useMcpServers();
   const [inputValue, setInputValue] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
   const [rootRole, setRootRole] = useState('');
@@ -1049,19 +1045,6 @@ function Canvas() {
         )}
         {!isParadigm && <ModelPicker />}
         {!isParadigm && (<>
-        {mcpServers.length > 0 && (
-          <button
-            onClick={() => setMcpEnabled(!mcpEnabled)}
-            className={`bg-card/90 backdrop-blur border rounded-lg w-8 h-8 flex items-center justify-center shadow-sm transition-colors ${
-              mcpEnabled
-                ? 'border-accent/40 text-accent hover:bg-accent/10'
-                : 'border-line text-ink-faint hover:bg-wash'
-            }`}
-            title={`${mcpEnabled ? t('toolbar.mcp') : t('toolbar.mcpOff')} — ${mcpServers.map((s) => `${s.name} (${s.tools.length})`).join(', ')}`}
-          >
-            <Plug size={15} strokeWidth={1.75} />
-          </button>
-        )}
         </>)}
         {/* Batch replay: visible only when something is stale. Price at the
             decision point — N generations is the one many-calls-per-click
