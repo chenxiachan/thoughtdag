@@ -4,8 +4,8 @@ export const en = {
   // Landing
   'landing.tagline': 'Think in branches. One rule: a wire IS context',
   'landing.placeholder': 'What would you like to explore?',
-  'landing.setRole': 'Set role (optional)',
   'landing.rolePlaceholder': 'e.g. You are a physicist. Explain using first principles.',
+  'landing.roleTrayTitle': 'Set a role (optional system prompt): the first question gets answered from this perspective',
   'landing.roleLabel': 'Role (System Prompt)',
   'landing.send': 'Send',
   'landing.extracting': 'Extracting...',

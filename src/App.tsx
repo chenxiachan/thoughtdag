@@ -15,7 +15,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import 'highlight.js/styles/github.css';
-import { BookOpen, CircleHelp, Dna, Download, FileText, Frame, GitBranch, LayoutGrid, Loader2, MessageCircleQuestion, Paperclip, Plug, Redo2, Scissors, SquareTerminal, StickyNote, Trash2, Undo2, Workflow, X, ListRestart } from 'lucide-react';
+import { BookOpen, CircleHelp, Dna, Download, Drama, FileText, Frame, GitBranch, LayoutGrid, Loader2, MessageCircleQuestion, Paperclip, Plug, Redo2, Scissors, SquareTerminal, StickyNote, Trash2, Undo2, Workflow, X, ListRestart } from 'lucide-react';
 import './index.css';
 import ThoughtNode from './components/ThoughtNode';
 import ParadigmNode from './components/ParadigmNode';
@@ -832,34 +832,36 @@ function Canvas() {
                   ))}
                 </div>
               )}
-              {/* Optional role */}
-              <div className="mt-2">
-                {!showRootRole ? (
-                  <button
-                    onClick={() => setShowRootRole(true)}
-                    className="text-xs text-ink-faint hover:text-ink-muted transition-colors flex items-center gap-1"
-                  >
-                    {t('landing.setRole')}
-                  </button>
-                ) : (
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-ink-muted font-medium">{t('landing.roleLabel')}</span>
-                      <button onClick={() => { setShowRootRole(false); setRootRole(''); }} className="text-xs text-ink-faint hover:text-ink-muted"><X size={14} strokeWidth={1.75} /></button>
-                    </div>
-                    <textarea
-                      value={rootRole}
-                      onChange={(e) => setRootRole(e.target.value)}
-                      placeholder={t('landing.rolePlaceholder')}
-                      className="w-full text-xs border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-accent bg-surface resize-none leading-relaxed"
-                      rows={2}
-                    />
-                    <RoleTemplateChips onPick={setRootRole} />
+              {/* Role area: opened from the tray icon — an ask-time option,
+                  not a decision the landing asks you to make up front */}
+              {showRootRole && (
+                <div className="space-y-1 mt-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-ink-muted font-medium">{t('landing.roleLabel')}</span>
+                    <button onClick={() => { setShowRootRole(false); setRootRole(''); }} className="text-xs text-ink-faint hover:text-ink-muted"><X size={14} strokeWidth={1.75} /></button>
                   </div>
-                )}
-              </div>
+                  <textarea
+                    value={rootRole}
+                    onChange={(e) => setRootRole(e.target.value)}
+                    placeholder={t('landing.rolePlaceholder')}
+                    className="w-full text-xs border border-line rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-accent bg-surface resize-none leading-relaxed"
+                    rows={2}
+                    autoFocus
+                  />
+                  <RoleTemplateChips onPick={setRootRole} />
+                </div>
+              )}
               <div className="flex items-center justify-end mt-2 gap-2">
                 <SearchToggles />
+                <button
+                  onClick={() => setShowRootRole(!showRootRole)}
+                  title={t('landing.roleTrayTitle')}
+                  className={`rounded-full w-8 h-8 flex items-center justify-center transition-colors shrink-0 ${
+                    showRootRole || rootRole ? 'text-accent bg-accent/10 hover:bg-accent/20' : 'text-ink-faint hover:text-ink-muted hover:bg-line'
+                  }`}
+                >
+                  <Drama size={16} strokeWidth={1.75} />
+                </button>
                 <button
                   onClick={() => landingFileRef.current?.click()}
                   className="text-ink-faint hover:text-accent hover:bg-wash rounded-xl px-3 py-2 transition-colors text-sm"

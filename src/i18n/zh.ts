@@ -4,8 +4,8 @@ export const zh: Record<keyof typeof en, string> = {
   // Landing
   'landing.tagline': '让想法在分支中生长。唯一法则：连线即上下文',
   'landing.placeholder': '你想探索什么？',
-  'landing.setRole': '设置角色（可选）',
   'landing.rolePlaceholder': '例如：你是一位物理学家，请用第一性原理解释。',
+  'landing.roleTrayTitle': '设置角色（可选的 System Prompt）：第一问将以这个视角回答',
   'landing.roleLabel': '角色（System Prompt）',
   'landing.send': '发送',
   'landing.extracting': '解析中…',
