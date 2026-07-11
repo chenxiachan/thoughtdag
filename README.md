@@ -4,13 +4,9 @@
 
 # ThoughtDAG
 
-### Think in branches, not threads
+**Think in branches, not threads.**
 
-**An infinite canvas that turns LLM conversations into an editable thought graph.**
-
-**Drop in a paper, select a passage, ask. Your close reading grows into a map, every answer carrying page-level provenance.**
-
-**One rule: a wire IS context. You see and decide exactly what the model reads.**
+An infinite canvas where LLM conversations grow into an editable thought graph.
 
 ![React](https://img.shields.io/badge/React_19-087EA4?logo=react&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
@@ -18,25 +14,17 @@
 ![React Flow](https://img.shields.io/badge/React_Flow-FF0072)
 ![License](https://img.shields.io/badge/license-MIT-green) ![Status](https://img.shields.io/badge/status-active_development-6B5CE7)
 
-[中文](./README_ZH.md) · [Quick Start](#quick-start) · [Features](#features) · [Roadmap](#roadmap)
+[中文](./README_ZH.md) · [Quick start](#quick-start) · [Features](#features-at-a-glance) · [Models](#supported-models) · [Roadmap](#roadmap)
 
 <img src="docs/hero.png" alt="ThoughtDAG canvas: a PDF material node wearing its first page as a cover, questions grown from reading wired below it, a follow-up chain and an orange explore branch" width="100%"/>
 
 </div>
 
----
+## Why
 
-## See it in action
+Chat is linear and opaque: context dilutes as the thread grows, nothing can be removed, and you never see what the model actually reads. ThoughtDAG lays the conversation out as a graph. Every question is a node, every wire is context, and editing the graph edits the model's memory.
 
-<img src="docs/reader.png" alt="The material reader: original PDF with a selectable text layer on the left, the annotation rail streaming an answer on the right, question chips growing in the footer" width="100%"/>
-
-*The reading loop: drop a PDF, select a passage in the ORIGINAL page, ask. The answer streams into an annotation rail beside the document; on the canvas behind, the question lands as a node wired to the material with its page number. Follow up in the rail, highlight the key sentence, keep reading. The map of your close reading builds itself.*
-
-<img src="docs/demo.gif" alt="Select text in an answer, hit Explore, and an orange branch node streams in with the selection as context" width="100%"/>
-
-*The core gesture works everywhere: select any passage in an answer → **Explore** → an orange branch grows out of exactly that text, streams its answer, and never pollutes the main chain.*
-
-## Get running in 2 minutes
+## Quick start
 
 ```bash
 npm install
@@ -45,70 +33,48 @@ npm run server         # LLM proxy
 npm run dev            # → http://localhost:5173
 ```
 
-Your first launch lands on a **seeded example canvas** (including the ⚖️ context-pruning demo below), so you can feel the tool before typing anything. The fastest way in: **drop a PDF on the landing page**. It opens in the reader immediately and your questions start growing the graph. Have ChatGPT or Claude history? **Import your `conversations.json`** and your own conversations become editable graphs (branches preserved).
+The first launch opens a seeded example canvas, so there is something to play with before you type. The fastest way in: drop a PDF on the landing page and start reading. ChatGPT and Claude `conversations.json` exports import as editable graphs, branches preserved.
 
-## Why ThoughtDAG?
+## The One Rule: a wire is context
 
-Every mainstream LLM interface is **linear, append-only, and opaque**: context dilutes as chats grow and nothing can be removed; exploring in parallel means losing the connections; and you never control what the model actually sees.
-
-A conversation isn't a list. It's a **graph**.
-
-And there is a deeper split. Chat terminals are **harnesses for doing**: they optimize for handing you an answer, and hide everything else: what entered the context, how it was compacted, which agent did what. ThoughtDAG is an **instrument for thinking**: the unit of value is not the answer but the reasoning structure: what flowed in, who influenced whom, what changed since, and whether the whole run can be repeated. The more powerful and opaque agents become, the more you need a workbench that keeps human–AI collaboration **legible**.
-
-One line captures the division of labor: **the graph has no cycles; the loop is you.** Reading, asking, judging, revising is a cycle that only a person can close. The graph's job is to record every step of it, faithfully and without loops of its own.
-
-## The One Rule: a wire IS context
-
-**Node** = one Q&A turn. **Edge** = where context flows. The model sees exactly what wires in. **Adding an edge injects context, deleting one prunes it**, and a live "~N tok · M messages" preview shows the payload before every question.
-
-**Seeing is believing**: same question, twice. Node A inherits an off-topic cooking chat and it leaks straight into the answer; node B's edge to the noise is deleted:
+The model sees exactly what wires into a node. Adding an edge injects context, deleting one prunes it, and a live token preview prices the payload before every question.
 
 <img src="docs/context-compare.png" alt="Same question, two contexts: with the noise edge the answer absorbs dinner plans; with it deleted the summary stays technical" width="100%"/>
 
-*Left: an off-topic node feeding into question A. Right: A's answer absorbs the noise (bold), while B (same question, noise edge deleted) stays clean.*
+*Same question, asked twice. Left: an off-topic node wired in, and the noise leaks into the answer. Right: that edge deleted, and the answer stays clean.*
 
-## Features
+## Read a paper into a map
 
-### 📖 Read papers into a thought map
-Drop a PDF and read the **original pages** (real text layer, selectable). Select a passage and ask: the question lands on the canvas immediately, wired to the material, quoting the passage with its page number (`p.3`). The answer streams into an **annotation rail** beside the document: follow up there (turns chain on the canvas), select inside an answer to branch deeper or **highlight** the key sentence. A persistent input asks about the whole material when you need the wide view. Scanned PDF? **Recognize** rewrites its pages into readable Markdown (formulas become LaTeX) with a vision model, page by page, and the result stays editable (external OCR like MinerU pastes right in). The reader remembers where you were.
+Drop in a PDF and read the original pages. Select a passage and ask: the answer streams in beside the document, while the question lands on the canvas as a node wired to the material, page number included. Follow up in place, highlight what matters, keep reading. When you look up, the map of your close reading has drawn itself. Scanned documents rewrite into readable Markdown (formulas included) in one click.
 
-### 🧠 Context you can see and shape
-Drag an edge to merge branches, delete one to prune memory, archive dead ends out of every context. Two kinds of wires: **solid = the conversation** (full history flows; layout and paradigms follow it), **dashed = a reference** that quotes one node plus its upstream trail; select it for a token price chip and a quote ⇄ full toggle. Context assembles in layers (materials → references → conversation), so the same graph always produces the same prompt.
+<img src="docs/reader.png" alt="The material reader: original PDF with a selectable text layer on the left, the annotation rail streaming an answer on the right, question chips growing in the footer" width="100%"/>
 
-### 📥 Your history, unlocked
-Import ChatGPT / Claude `conversations.json`: each conversation becomes an editable canvas, ChatGPT's edit/regenerate forks preserved as visible branches.
+## The core gesture
 
-### 🌿 Branch anywhere
-Select any passage → an exploration branch grows from exactly that text; regenerate appends comparable versions in place (the parallel-branch variant is one menu click away); wire branches back together to merge.
+<img src="docs/demo.gif" alt="Select text in an answer, hit Explore, and an orange branch node streams in with the selection as context" width="100%"/>
 
-### 🧹 Converge, don't accumulate
-Redundant exploration is inevitable; keeping it in context is not. Box-select the sprawl → **Merge Summary** produces a structured synthesis (conclusions / evidence / open questions) → **Archive** the originals: still on canvas, dimmed, and excluded from every future context.
+*Select any passage in any answer, hit Explore, and a branch grows from exactly that text. The main chain stays clean.*
+
+## Features at a glance
+
+| | |
+|---|---|
+| 🧠 Context editing | Merge branches by drawing a wire, prune memory by deleting one, archive dead ends out of every future context |
+| 🔗 References | Dashed edges quote a node without dragging its conversation along; toggle quote ⇄ full with the price shown |
+| 🧹 Converge | Box-select redundant nodes, merge them into one structured synthesis, archive the originals |
+| 🗺️ Map view | Zoomed out, every card shows its one-line takeaway; the canvas reads like a lab notebook's table of contents |
+| 🧭 Staleness & replay | Upstream edits mark the answers they invalidate; replay them in dependency order, token estimate first |
+| 🩺 Topology check-up | One click flags structural diseases (duplicate context routes, broken blind pools), each with a jump and a fix |
+| 🧪 Paradigms | Reusable workflows of human and machine steps; change the input and replay the whole experiment |
+| 👁️ Live reviewers | A critic that follows the thread and re-critiques every new step, history versioned |
+| 🔍 Agentic search | Web, arXiv and Semantic Scholar with inline citations; the model decides when to look |
+| 📥 History import | ChatGPT and Claude exports become editable graphs, forks preserved |
+| 🎭 Roles | Per-node system prompts with inheritance, backed by an editable role library |
+| 🔒 Local-first | Your browser plus a thin proxy on your own machine; backups are plain JSON files you own |
 
 <img src="docs/converge.gif" alt="Box-select three redundant nodes, merge into a synthesis node, archive the originals" width="100%"/>
 
-### 📌 Anything on the canvas
-Paste anything: text becomes a note (Word tables → Markdown), a URL becomes a time-stamped web snapshot, an image is **auto-read into context** (tables, charts, scientific figures; the extracted text stays inspectable and editable). Every material opens in the reader for select-and-ask. Notes, files and colored frames live on the canvas, and nothing enters context without a wire.
-
-### 🧭 Staleness you can see, replay with a price tag
-Every answer records a fingerprint of what it depended on. Change anything upstream and the affected answers wear an amber **"Upstream changed"** badge; staleness travels along references too. Click a badge to re-run in place (old versions kept for comparison), or **replay everything stale in dependency order** after a confirm dialog that prices the run in tokens. A one-click **topology check-up** flags structural diseases (duplicate context routes, broken blind pools, overgrown chains), each finding with a locate jump and a one-click fix.
-
-### 🧪 Paradigms: run reasoning as experiments
-Design a workflow once (human steps, auto-running prompt steps, material slots), then instantiate it: the cascade runs every machine step and pauses wherever a person belongs. Edit the input afterwards and replay: the chain re-runs in order, each step appending a comparable version. Share as `.paradigm.json`; a rule-out / rule-in example ships built in.
-
-### 👁️ Reviewers that keep up
-One click attaches a critic whose red edge slides forward as your thread grows, and each new step gets re-critiqued (history versioned). A reviewer is an ordinary node: question it, branch from it, wire its opinion anywhere.
-
-### 🔍 Agentic search: web & scholarly
-The model decides when to search: web for facts, **arXiv + Semantic Scholar for papers**. Inline `[n]` citations, references persisted with the node, toolbar toggles per tool group.
-
-### 🗺️ Zoom out and read the map
-Zoomed out, every card becomes a **label plaque that leads with its takeaway**: one conclusion-first line, written automatically per answer version, with the question as a quiet eyebrow. A canvas of them reads like a lab notebook's table of contents: what was learned, decided, ruled out, and along which line of thought. Cards unfold into working form only near 1:1. Takeaways live in the display layer only: the model always reads the full text.
-
-### ✂️ Editing built for deep reading
-Everything is editable, answers keep multiple versions, LaTeX and syntax highlighting render inline, and one-click tidy layout re-organizes the whole graph by arrow order (chains grown from a material stay anchored below it).
-
-### 🗂️ Research-grade workflow
-Multi-canvas projects (one topic, one graph), IndexedDB auto-save, JSON backup/import, **ChatGPT/Claude history import** (branches preserved), one-click Markdown export of any context chain, an attachment system (image Vision / PDF text channel / precise inheritance control), a bilingual EN/中 interface, and a built-in ten-step tutorial.
+*Converge in action: three redundant nodes become one synthesis; the originals stay on canvas but leave every context.*
 
 <details>
 <summary><b>📜 Full feature list (60+)</b></summary>
@@ -175,13 +141,19 @@ Multi-canvas projects (one topic, one graph), IndexedDB auto-save, JSON backup/i
 
 </details>
 
+## Philosophy
+
+Chat terminals are harnesses for doing: they optimize for handing you an answer and hide everything else. ThoughtDAG is an instrument for thinking: the unit of value is the reasoning structure itself, kept legible, editable and repeatable.
+
+*The graph has no cycles. The loop is you.*
+
 ## Cost & privacy
 
 - **Free to run.** The Zhipu free tier (GLM-4.5-Flash text + GLM-4V-Flash vision) covers every feature; agentic web search costs ~¥0.01/query. Or point it at any provider you already pay for, or a local Ollama model, fully offline.
 - **Your data stays with you.** Canvases live in your browser's IndexedDB; the only server is a thin proxy on your own machine. Nothing is uploaded anywhere except the LLM API you chose. Backups are plain JSON files you own.
 - Optional: PDF page rendering wants poppler (`brew install poppler`); degrades gracefully to text without it.
 
-## MCP tools: plug in the whole ecosystem
+## MCP tools
 
 Copy `mcp.config.example.json` to `mcp.config.json` and list any [MCP](https://modelcontextprotocol.io) servers (Claude-Desktop format; existing snippets just work). Their tools join the same agentic loop: the model decides when to call them.
 
@@ -198,9 +170,9 @@ A mock server ships in `scripts/mock-mcp.mjs` for verifying the loop end-to-end.
 
 ## Supported models
 
-Built on the Vercel AI SDK: **every provider below activates automatically when its key is in `.env`**: no code changes, no config files. A toolbar picker switches models at any time; when a text-only model receives images, the proxy silently reroutes to a vision-capable one. Default model IDs can be overridden per provider (e.g. `OPENAI_MODELS=gpt-5.2`), so new releases never require an update.
+Built on the Vercel AI SDK. Any provider below activates when its key lands in `.env`; a toolbar picker switches models at any time, and text-only models reroute automatically when images appear. Default model IDs can be overridden per provider (e.g. `OPENAI_MODELS=gpt-5.2`).
 
-> **Image understanding needs a vision model.** Pasted images are auto-extracted once (objects, text, figure structure; scientific figures get axes/panels/trends) into companion text using the **strongest vision model you have configured**. The free `glm-4v-flash` works; flagship vision models read scientific figures noticeably better.
+> Image understanding needs a vision key. Pasted images are auto-read once, by the strongest vision model you have configured, into editable companion text. The free `glm-4v-flash` works; flagship models read scientific figures noticeably better.
 
 | Provider | Default models | `.env` key | Notes |
 |----------|----------------|------------|-------|
@@ -225,6 +197,9 @@ Built on the Vercel AI SDK: **every provider below activates automatically when 
 | LLM | Vercel AI SDK: 9 provider families, auto-registered from `.env` keys (see [Supported models](#supported-models)) |
 | Proxy | Express + Vercel AI SDK (server.mjs, default port 3001) |
 
+<details>
+<summary>Request flow</summary>
+
 ```
 Browser (localhost:5173)
   └─ React + React Flow canvas
@@ -237,6 +212,8 @@ Browser (localhost:5173)
                         └─ Express + AI SDK (server.mjs) → Zhipu / Qwen / any provider
                              └─ web_search tool (model-invoked, citations flow back)
 ```
+
+</details>
 
 ## Roadmap
 
