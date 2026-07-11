@@ -33,7 +33,7 @@ npm run server         # LLM proxy
 npm run dev            # → http://localhost:5173
 ```
 
-The first launch opens a seeded example canvas, so there is something to play with before you type. The fastest way in: drop a PDF on the landing page and start reading. ChatGPT and Claude `conversations.json` exports import as editable graphs, branches preserved.
+The first launch opens a seeded example canvas, so there is something to play with before you type. The fastest way in: drop a PDF on the landing page and start reading.
 
 ## The One Rule: a wire is context
 
@@ -68,7 +68,7 @@ Drop in a PDF and read the original pages. Select a passage and ask: the answer 
 | 🧪 Paradigms | Reusable workflows of human and machine steps; change the input and replay the whole experiment |
 | 👁️ Live reviewers | A critic that follows the thread and re-critiques every new step, history versioned |
 | 🔍 Agentic search | Web, arXiv and Semantic Scholar with inline citations; the model decides when to look |
-| 📥 History import | ChatGPT and Claude exports become editable graphs, forks preserved |
+| 🔌 Any model | Nine provider families register from `.env` keys; switch per node, or run fully local with Ollama |
 | 🎭 Roles | Per-node system prompts with inheritance, backed by an editable role library |
 | 🔒 Local-first | Your browser plus a thin proxy on your own machine; backups are plain JSON files you own |
 

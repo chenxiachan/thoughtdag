@@ -33,7 +33,7 @@ npm run server         # LLM 代理
 npm run dev            # → http://localhost:5173
 ```
 
-首次打开是预置的示例画布，不用输入任何东西就能上手。最快的入口：把一篇 PDF 拖到首页，从阅读开始。ChatGPT 和 Claude 的 `conversations.json` 可以直接导入，分支保留。
+首次打开是预置的示例画布，不用输入任何东西就能上手。最快的入口：把一篇 PDF 拖到首页，从阅读开始。
 
 ## 唯一法则：连线即上下文
 
@@ -68,7 +68,7 @@ npm run dev            # → http://localhost:5173
 | 🧪 范式 | 可复用的人机工作流；改个输入、一键重放，整个实验重跑一遍 |
 | 👁️ 随动评审 | 批评者沿着思路自动前移，每一步新内容都被重新评审，历史成版本 |
 | 🔍 Agentic 检索 | 网页、arXiv、Semantic Scholar，行内引用；何时检索由模型自己判断 |
-| 📥 历史导入 | ChatGPT / Claude 导出变成可编辑的图，分叉保留 |
+| 🔌 模型自由 | 九家 provider 填 key 即用，节点级切换模型，Ollama 完全本地离线 |
 | 🎭 角色 | 节点级 system prompt 沿链继承，角色库可自行增删改 |
 | 🔒 本地优先 | 浏览器 + 你自己机器上的轻代理；备份是你完全拥有的 JSON 文件 |
 
