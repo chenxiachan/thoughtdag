@@ -2,7 +2,7 @@
 // Naming: area.name (landing.*, tutorial.*, panel.*, node.*, switcher.*, ...)
 export const en = {
   // Landing
-  'landing.tagline': 'Think in branches. One rule: a wire IS context',
+  'landing.tagline': 'Your thinking deserves a map. One rule: a wire is context',
   'landing.placeholder': 'What would you like to explore?',
   'landing.rolePlaceholder': 'e.g. You are a physicist. Explain using first principles.',
   'roles.manage': 'Manage',

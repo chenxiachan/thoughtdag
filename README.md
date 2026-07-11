@@ -4,7 +4,7 @@
 
 # ThoughtDAG
 
-**Think in branches, not threads.**
+**Your thinking deserves a map.**
 
 An infinite canvas where LLM conversations grow into an editable thought graph.
 
@@ -22,7 +22,7 @@ An infinite canvas where LLM conversations grow into an editable thought graph.
 
 ## Why
 
-Chat is linear and opaque: context dilutes as the thread grows, nothing can be removed, and you never see what the model actually reads. ThoughtDAG lays the conversation out as a graph. Every question is a node, every wire is context, and editing the graph edits the model's memory.
+Chat is linear and opaque: context dilutes as the thread grows, nothing can be removed, and you never see what the model actually reads. ThoughtDAG lays the conversation out as a graph. Every question is a node, every wire is context, and editing the graph edits the model's memory. Think in branches, not threads.
 
 ## Quick start
 
@@ -144,6 +144,8 @@ Drop in a PDF and read the original pages. Select a passage and ask: the answer 
 ## Philosophy
 
 Chat terminals are harnesses for doing: they optimize for handing you an answer and hide everything else. ThoughtDAG is an instrument for thinking: the unit of value is the reasoning structure itself, kept legible, editable and repeatable.
+
+The industry aligns models inside their weights. A workbench does its part structurally: you see what the model read, every answer keeps its origin, stale conclusions announce themselves, and any run can be replayed. This is the older lineage of computing, from the memex to Engelbart: not machines that think for you, but instruments that let you think further.
 
 *The graph has no cycles. The loop is you.*
 
