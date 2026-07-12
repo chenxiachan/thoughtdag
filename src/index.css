@@ -391,15 +391,15 @@ body.tdag-connecting, body.tdag-connecting * {
    language: pill radius, stronger type-colored edge, no document bar. */
 .thought-node.map-node {
   border-radius: 26px;
-  border-width: 2px;
+  border-width: 3px;
 }
 .thought-node.map-node::before {
   display: none;
 }
-.map-node.root-node { border-color: color-mix(in srgb, var(--color-accent) 55%, var(--color-line)); }
-.map-node.orange-node { border-color: color-mix(in srgb, var(--color-warm) 60%, var(--color-line)); }
-.map-node.evaluator-node { border-color: color-mix(in srgb, var(--color-watch) 55%, var(--color-line)); }
-.map-node.human-node { border-color: color-mix(in srgb, #d97706 55%, var(--color-line)); }
+.map-node.root-node { border-color: color-mix(in srgb, var(--color-accent) 85%, var(--color-line)); }
+.map-node.orange-node { border-color: color-mix(in srgb, var(--color-warm) 88%, var(--color-line)); }
+.map-node.evaluator-node { border-color: color-mix(in srgb, var(--color-watch) 82%, var(--color-line)); }
+.map-node.human-node { border-color: color-mix(in srgb, #d97706 82%, var(--color-line)); }
 
 /* Global fast tooltip (replaces the browser's sluggish native title) */
 .tdag-tooltip {

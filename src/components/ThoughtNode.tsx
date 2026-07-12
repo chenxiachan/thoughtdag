@@ -258,7 +258,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
               </div>
               <div className="text-2xl font-semibold text-ink leading-snug line-clamp-3 mt-1.5">
                 {badge && (
-                  <span title={t(badge.key as Parameters<typeof t>[0])} className={`inline-flex items-center justify-center w-7 h-7 rounded-lg text-lg font-bold mr-2 align-middle ${badge.cls}`}>
+                  <span title={t(badge.key as Parameters<typeof t>[0])} className={`inline-flex items-center justify-center w-11 h-11 rounded-xl text-2xl font-bold mr-2.5 align-middle ${badge.cls}`}>
                     {badge.glyph}
                   </span>
                 )}
