@@ -76,6 +76,10 @@ export interface ThoughtData extends Record<string, unknown> {
   /** Display-only summaries, aligned with `responses` by index. Never enter
       context or fingerprints — the map layer, not the transcript. */
   summaries?: (string | undefined | null)[];
+  /** Which model produced each response version (id, vendor prefix and all).
+      Recorded at generation time so switching the global model later never
+      obscures where an old answer came from. */
+  generatedBy?: (string | undefined | null)[];
   rolePrompt?: string;
   appliedRole?: string; // the role actually used when generating the current response
   roleSourceNodeId?: string; // user-chosen role source node (for multi-parent role conflict)

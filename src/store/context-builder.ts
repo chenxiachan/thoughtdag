@@ -103,6 +103,7 @@ export function upstreamFingerprint(nodeId: string, nodes: ThoughtNode[], edges:
       isCollapsed: false,
       summary: undefined,
       summaries: undefined,
+      generatedBy: undefined,
       ...(n.id === nodeId ? { question: '', response: '', attachments: [] } : {}),
     },
   }));

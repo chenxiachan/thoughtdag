@@ -198,6 +198,14 @@ export default function ResponseSection({
           >
             <Copy size={14} strokeWidth={1.75} />
           </button>
+          {(data.generatedBy?.[data.responseIndex]) && (
+            <span
+              className="text-2xs text-ink-faint font-mono ml-1 truncate max-w-[170px]"
+              title={t('node.generatedByTitle')}
+            >
+              {data.generatedBy[data.responseIndex]!.split('/').pop()}
+            </span>
+          )}
           {hasMultipleVersions && (
             <div className="flex items-center gap-1 text-xs text-ink-muted ml-1">
               <button onClick={() => navigateVersion(nodeId, 'prev')} className="hover:text-accent hover:bg-wash rounded-full w-5 h-5 flex items-center justify-center transition-colors"><ChevronLeft size={14} strokeWidth={1.75} /></button>

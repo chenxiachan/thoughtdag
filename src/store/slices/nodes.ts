@@ -255,6 +255,7 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
             responseIndex: newIndex,
             response: newResponses[newIndex],
             summaries: n.data.summaries?.filter((_, i) => i !== versionIndex),
+            generatedBy: n.data.generatedBy?.filter((_, i) => i !== versionIndex),
             highlights: pruneHighlights(n.data.highlights, newResponses[newIndex]),
           },
         };

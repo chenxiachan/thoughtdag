@@ -5,6 +5,7 @@ import { pruneHighlights } from '../lib/highlight-match';
 import { llmCall, llmCallStream, type ContextMessage, type ImageAttachment } from '../lib/api';
 import { countTokens } from '../utils';
 import { toast, useUiStore } from '../lib/ui-store';
+import { getModelsOnce } from '../lib/use-models';
 import { t, fmt } from '../i18n';
 import type { Reference } from '../types';
 import type { StoreState } from './types';
@@ -77,18 +78,28 @@ export async function runNodeGeneration(
 
   let references: Reference[] | undefined;
 
+  // Model provenance: pinned override, else the global pick, else the
+  // server default (resolved lazily; the models list is cached from boot).
+  const pinnedModel = get().nodes.find((n) => n.id === nodeId)?.data.model;
+  let serverDefaultModel: string | null = null;
+  void getModelsOnce().then((d) => { serverDefaultModel = d?.default ?? null; });
+
   const writeFinal = (response: string, failed = false) => {
     const tokenCount = countTokens(question + response);
+    const modelUsed = pinnedModel ?? useUiStore.getState().selectedModel ?? serverDefaultModel ?? undefined;
     // Provenance: fingerprint what this answer depended on, AT completion —
     // the staleness pass compares this against the live upstream fingerprint.
     const contextHash = upstreamFingerprint(nodeId, get().nodes, get().edges);
     set((state) => ({
       nodes: state.nodes.map((n) => {
         if (n.id !== nodeId) return n;
-        const responses = versionMode === 'append'
-          ? [...n.data.responses.filter((r) => r), response]
-          : [response];
-        return { ...n, data: { ...n.data, response, responses, responseIndex: responses.length - 1, isLoading: false, tokenCount, generationFailed: failed || undefined, references, highlights: pruneHighlights(n.data.highlights, response), lastContextHash: contextHash, lastGeneratedAt: new Date().toISOString() } };
+        // keep (response, generatedBy) pairs aligned through the empty-filter
+        const kept = versionMode === 'append'
+          ? n.data.responses.map((r, i) => ({ r, by: n.data.generatedBy?.[i] })).filter(({ r }) => r)
+          : [];
+        const responses = [...kept.map(({ r }) => r), response];
+        const generatedBy = [...kept.map(({ by }) => by), modelUsed];
+        return { ...n, data: { ...n.data, response, responses, generatedBy, responseIndex: responses.length - 1, isLoading: false, tokenCount, generationFailed: failed || undefined, references, highlights: pruneHighlights(n.data.highlights, response), lastContextHash: contextHash, lastGeneratedAt: new Date().toISOString() } };
       }),
     }));
   };
