@@ -55,7 +55,8 @@ const envModels = (prefix, fallback) => {
 };
 const register = (ids, provider, make, opts = {}) => {
   for (const id of ids) {
-    modelRegistry[id] = { name: `${id} (${provider})`, provider, vision: opts.vision ?? true, model: () => make(id), ...opts, ...(opts.perId?.[id] || {}) };
+    const shortId = id.includes('/') ? id.split('/').slice(1).join('/') : id;
+    modelRegistry[id] = { name: `${shortId} (${provider})`, provider, vision: opts.vision ?? true, model: () => make(id), ...opts, ...(opts.perId?.[id] || {}) };
   }
 };
 
@@ -131,7 +132,23 @@ if (process.env.OPENROUTER_API_KEY) {
     name: 'openrouter', apiKey: process.env.OPENROUTER_API_KEY,
     baseURL: 'https://openrouter.ai/api/v1',
   });
-  register(envModels('OPENROUTER', ['openrouter/auto']), 'OpenRouter', (id) => openrouter(id));
+  register(envModels('OPENROUTER', ['openrouter/auto']), 'OpenRouter', (id) => openrouter(id), { vision: false });
+  // Vision capability per slug from OpenRouter's public model list — the
+  // registry defaults would otherwise claim every routed model sees images.
+  (async () => {
+    const slugged = Object.keys(modelRegistry).filter((id) => id.includes('/'));
+    if (slugged.length === 0) return;
+    try {
+      const res = await fetch('https://openrouter.ai/api/v1/models');
+      const { data } = await res.json();
+      const caps = new Map(data.map((m) => [m.id, m.architecture?.input_modalities ?? []]));
+      for (const id of slugged) {
+        const mods = caps.get(id);
+        if (mods) modelRegistry[id].vision = mods.includes('image');
+      }
+      console.log(`OpenRouter capabilities: ${slugged.filter((id) => modelRegistry[id].vision).length}/${slugged.length} vision-capable`);
+    } catch { /* offline: flags stay conservative (text-only) */ }
+  })();
 }
 
 if (process.env.OLLAMA_MODELS) {

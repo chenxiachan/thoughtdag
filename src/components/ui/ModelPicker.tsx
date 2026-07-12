@@ -91,7 +91,7 @@ export default function ModelPicker({ value, onChange, compact }: PickerProps) {
                     m.id === activeId ? 'text-accent font-medium' : 'text-ink'
                   }`}
                 >
-                  <span className="truncate flex-1">{m.name}</span>
+                  <span className="truncate flex-1">{m.name.replace(` (${m.provider})`, '')}</span>
                   {m.vision && <span className="text-2xs text-ink-faint shrink-0">{t('model.vision')}</span>}
                   {m.id === activeId && <Check size={13} strokeWidth={2} className="shrink-0" />}
                 </button>
