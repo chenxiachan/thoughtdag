@@ -6,6 +6,7 @@ import { llmCall, llmCallStream, type ContextMessage, type ImageAttachment } fro
 import { countTokens } from '../utils';
 import { toast, useUiStore } from '../lib/ui-store';
 import { getModelsOnce } from '../lib/use-models';
+import { memoryContextBlock, judgeMemory } from '../lib/memory';
 import { t, fmt } from '../i18n';
 import type { Reference } from '../types';
 import type { StoreState } from './types';
@@ -62,7 +63,8 @@ export async function runNodeGeneration(
     onSuccess?: (response: string) => void;
   },
 ): Promise<void> {
-  const { question, messages, images, onSuccess, versionMode = 'replace' } = opts;
+  const { question, images, onSuccess, versionMode = 'replace' } = opts;
+  let { messages } = opts;
   if (!opts.autoChain) autoRunCounts.clear(); // a fresh user action starts a new wave
   const abortController = new AbortController();
   activeAbortControllers.set(nodeId, abortController);
@@ -104,6 +106,17 @@ export async function runNodeGeneration(
     }));
   };
 
+  // Ambient memory rides the system layer of ordinary generations only —
+  // paradigm machine steps stay memory-free (experimental control), and
+  // fingerprints never see this block (memory edits must not mark answers
+  // stale; the block is assembled at generation time, after buildContext).
+  const selfKind = get().nodes.find((n) => n.id === nodeId)?.data.stepKind;
+  const memBlock = !selfKind ? memoryContextBlock() : null;
+  if (memBlock) {
+    const sysEnd = messages[0]?.role === 'system' ? 1 : 0;
+    messages = [...messages.slice(0, sysEnd), memBlock, ...messages.slice(sysEnd)];
+  }
+
   try {
     const response = await llmCallStream(messages, (_chunk, fullSoFar) => {
       set((state) => ({
@@ -139,6 +152,7 @@ export async function runNodeGeneration(
     onSuccess?.(response);
     get().pushHistory();
     generateSummary(nodeId, question, response, get().setSummary);
+    if (!selfKind) judgeMemory(question, response);
     triggerAutoReruns(set, get, nodeId);
     triggerParadigmCascade(get, nodeId);
   } catch (err) {

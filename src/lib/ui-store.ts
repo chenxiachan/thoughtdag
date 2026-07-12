@@ -72,6 +72,13 @@ interface UiState {
   /** Web search engine: 'server' = follow the proxy's .env default. */
   searchEnginePref: string;
   setSearchEnginePref: (id: string) => void;
+  /** Ambient long-term memory: ON by default, one switch, visible writes. */
+  memoryEnabled: boolean;
+  setMemoryEnabled: (on: boolean) => void;
+  memories: import('./memory').MemoryEntry[];
+  setMemories: (entries: import('./memory').MemoryEntry[]) => void;
+  memoryManagerOpen: boolean;
+  setMemoryManagerOpen: (open: boolean) => void;
   setReaderNodeId: (id: string | null) => void;
   setPanelOpen: (open: boolean) => void;
   setSelectedModel: (model: string | null) => void;
@@ -135,6 +142,25 @@ export const useUiStore = create<UiState>((set, get) => ({
     localStorage.setItem('thoughtdag.searchEngine', id);
     set({ searchEnginePref: id });
   },
+  memoryEnabled: localStorage.getItem('thoughtdag.memoryEnabled') !== 'off',
+  setMemoryEnabled: (on) => {
+    localStorage.setItem('thoughtdag.memoryEnabled', on ? 'on' : 'off');
+    set({ memoryEnabled: on });
+  },
+  memories: (() => {
+    try {
+      const raw = localStorage.getItem('thoughtdag.memory');
+      const parsed = raw ? JSON.parse(raw) : null;
+      if (Array.isArray(parsed)) return parsed;
+    } catch { /* fresh start */ }
+    return [];
+  })(),
+  setMemories: (entries) => {
+    localStorage.setItem('thoughtdag.memory', JSON.stringify(entries));
+    set({ memories: entries });
+  },
+  memoryManagerOpen: false,
+  setMemoryManagerOpen: (open) => set({ memoryManagerOpen: open }),
   readerNodeId: null,
   setReaderNodeId: (id) => set({ readerNodeId: id }),
   drafts: {},

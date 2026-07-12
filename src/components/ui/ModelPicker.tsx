@@ -119,6 +119,10 @@ function GlobalCapabilities() {
   const setVisionModelPref = useUiStore((s) => s.setVisionModelPref);
   const searchEnginePref = useUiStore((s) => s.searchEnginePref);
   const setSearchEnginePref = useUiStore((s) => s.setSearchEnginePref);
+  const memoryEnabled = useUiStore((s) => s.memoryEnabled);
+  const setMemoryEnabled = useUiStore((s) => s.setMemoryEnabled);
+  const memoryCount = useUiStore((s) => s.memories.length);
+  const setMemoryManagerOpen = useUiStore((s) => s.setMemoryManagerOpen);
   const caps = data?.capabilities;
   const visionModels = (data?.models ?? []).filter((m) => m.vision);
   // an old proxy / offline fetch reports nothing — say nothing, not "missing"
@@ -156,6 +160,28 @@ function GlobalCapabilities() {
         <p className="text-2xs text-ink-faint leading-relaxed flex-1">
           <span className="text-ink-muted font-medium">{t('caps.scholar')}</span>{' · '}{t('caps.scholarDesc')}
         </p>
+      </div>
+      <div className="px-3 py-1 flex items-start gap-2">
+        {dot(memoryEnabled)}
+        <div className="flex-1 min-w-0 flex items-center gap-2">
+          <p className="text-2xs text-ink-muted font-medium flex-1">
+            {t('caps.memory')}
+            <span className="text-ink-faint font-normal"> · {memoryCount}</span>
+          </p>
+          <button
+            onClick={(e) => { e.stopPropagation(); setMemoryManagerOpen(true); }}
+            className="text-2xs text-ink-faint hover:text-accent underline decoration-dotted transition-colors shrink-0"
+          >
+            {t('memory.manage')}
+          </button>
+          <button
+            onClick={(e) => { e.stopPropagation(); setMemoryEnabled(!memoryEnabled); }}
+            title={t('caps.memoryTitle')}
+            className={`text-2xs px-2 py-0.5 rounded-full transition-colors shrink-0 ${memoryEnabled ? 'bg-accent/10 text-accent' : 'bg-wash text-ink-faint'}`}
+          >
+            {memoryEnabled ? t('caps.on') : t('caps.off')}
+          </button>
+        </div>
       </div>
       <div className="px-3 py-1 flex items-start gap-2">
         {dot(hasVision)}
