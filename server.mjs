@@ -416,6 +416,12 @@ function makeTools(sources, onSearch, prefs = {}) {
 }
 
 // ─── Express App ────────────────────────────────────────────────
+// Output ceiling for every generation. OpenRouter pre-authorizes the FULL
+// requested max_tokens against your balance (65k+ when unspecified), so an
+// explicit modest cap is required for small credit balances — and no answer
+// in this tool legitimately needs more.
+const MAX_OUTPUT_TOKENS = Number(process.env.MAX_OUTPUT_TOKENS || 16384);
+
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: '50mb' })); // Support image uploads
@@ -564,6 +570,7 @@ app.post('/api/claude', async (req, res) => {
   try {
     const prompt = toSdkPrompt(messages, images);
     const { text, usage } = await generateText({
+      maxOutputTokens: MAX_OUTPUT_TOKENS,
       model: entry.model(),
       system: prompt.system,
       messages: prompt.messages,
@@ -623,6 +630,7 @@ app.post('/api/stream', async (req, res) => {
 
   try {
     const result = streamText({
+      maxOutputTokens: MAX_OUTPUT_TOKENS,
       model: entry.model(),
       system: prompt.system,
       messages: prompt.messages,
@@ -690,6 +698,7 @@ app.post('/api/stream', async (req, res) => {
         .join('\n\n');
       const lastUser = [...messages].reverse().find((m) => m.role === 'user');
       const synth = streamText({
+      maxOutputTokens: MAX_OUTPUT_TOKENS,
         model: entry.model(),
         system: prompt.system,
         messages: [
