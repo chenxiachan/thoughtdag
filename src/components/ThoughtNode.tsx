@@ -196,6 +196,16 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   // Map layer: the display summary for the ACTIVE version. Long answers wear
   // it instead of raw text; the full answer lives one double-click away.
   const versionSummary = activeSummary(data);
+  const takeawayType = data.summaryTypes?.[data.responseIndex] ?? undefined;
+  // Only the rare, high-signal moves wear a badge — a map where every node
+  // has one is a map where none do. insight = the unmarked default.
+  const TYPE_BADGE: Record<string, { glyph: string; cls: string; key: string }> = {
+    ruleout: { glyph: '✕', cls: 'text-red-500 bg-red-50', key: 'takeaway.ruleout' },
+    decision: { glyph: '⚖', cls: 'text-accent bg-accent/10', key: 'takeaway.decision' },
+    pivot: { glyph: '↩', cls: 'text-warm bg-warm/10', key: 'takeaway.pivot' },
+    open: { glyph: '?', cls: 'text-amber-600 bg-amber-500/10', key: 'takeaway.open' },
+  };
+  const badge = takeawayType && TYPE_BADGE[takeawayType] ? TYPE_BADGE[takeawayType] : null;
   const showSummaryCard = !!versionSummary && data.response.length > 400 && !data.isLoading && !data.isEditingResponse;
 
   return (
@@ -247,6 +257,11 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
                 {data.question}
               </div>
               <div className="text-2xl font-semibold text-ink leading-snug line-clamp-3 mt-1.5">
+                {badge && (
+                  <span title={t(badge.key as Parameters<typeof t>[0])} className={`inline-flex items-center justify-center w-7 h-7 rounded-lg text-lg font-bold mr-2 align-middle ${badge.cls}`}>
+                    {badge.glyph}
+                  </span>
+                )}
                 {versionSummary || data.response.replace(/[#*`>-]/g, '').slice(0, 140)}
               </div>
             </>
@@ -428,6 +443,11 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
               // full text; double-click opens the panel for humans)
               <div className="px-3 py-2.5 bg-surface rounded-xl nopan" title={t('node.summaryTitle')}>
                 <span className="text-2xs bg-wash text-ink-faint px-1.5 py-0.5 rounded-full">{t('node.summaryLabel')}</span>
+                {badge && (
+                  <span title={t(badge.key as Parameters<typeof t>[0])} className={`text-2xs px-1.5 py-0.5 rounded-full ml-1.5 font-medium ${badge.cls}`}>
+                    {badge.glyph} {t(badge.key as Parameters<typeof t>[0])}
+                  </span>
+                )}
                 <div className="text-sm text-ink-muted leading-relaxed mt-1.5">{versionSummary}</div>
               </div>
             ) : (

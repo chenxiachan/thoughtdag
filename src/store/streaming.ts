@@ -15,16 +15,20 @@ import type { StoreState } from './types';
 // the human reads the summary on the map, the model always reads the full
 // text. Short answers fit on the card as-is and skip the call.
 export const SUMMARY_MIN_CHARS = 400;
-export function generateSummary(nodeId: string, question: string, response: string, setSummary: (id: string, summary: string, forResponse: string) => void) {
+export function generateSummary(nodeId: string, question: string, response: string, setSummary: (id: string, summary: string, forResponse: string, type?: string) => void) {
   if (response.length < SUMMARY_MIN_CHARS) return;
   llmCall([
     { role: 'user', content: question },
     { role: 'assistant', content: response },
-    { role: 'user', content: 'Write the TAKEAWAY of the above exchange as one line, 40-70 characters: conclusion first — what was learned, decided or ruled out. A reader scanning a map of many such lines should see how the thinking progressed. Same language as the question. Output only the line, no quotes, no prefix.' },
-  ]).then((summary) => {
+    { role: 'user', content: 'Write the TAKEAWAY of the above exchange as one line, 40-70 characters: conclusion first. A reader scanning a map of many such lines should see how the thinking progressed. Same language as the question. Classify the epistemic move and prefix the line with exactly one tag: INSIGHT (learned or confirmed something), RULEOUT (killed a hypothesis or option), DECISION (chose among options), PIVOT (reframed the question or direction), OPEN (raised a new unresolved question). Most exchanges are INSIGHT. Format: TAG: takeaway text. Output only that line.' },
+  ]).then((raw) => {
+    // "TAG: text" — unknown/missing tags degrade to the unmarked default
+    const m = raw.trim().match(/^(INSIGHT|RULEOUT|DECISION|PIVOT|OPEN)[:：]\s*(.+)$/is);
+    const type = m ? m[1].toLowerCase() : 'insight';
+    const text = m ? m[2].trim() : raw.trim();
     // target the version this summary was computed FOR, not whichever
     // version the user has navigated to since
-    setSummary(nodeId, summary, response);
+    setSummary(nodeId, text, response, type);
   }).catch(() => {});
 }
 

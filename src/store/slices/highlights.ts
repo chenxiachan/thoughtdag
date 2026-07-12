@@ -37,7 +37,7 @@ export const createHighlightSlice: StateCreator<StoreState, [], [], HighlightSli
     }));
   },
 
-  setSummary: (nodeId: string, summary: string, forResponse: string) => {
+  setSummary: (nodeId: string, summary: string, forResponse: string, type?: string) => {
     set((state) => ({
       nodes: state.nodes.map((n) => {
         if (n.id !== nodeId) return n;
@@ -45,7 +45,9 @@ export const createHighlightSlice: StateCreator<StoreState, [], [], HighlightSli
         if (idx === -1) return n; // the version was edited/deleted meanwhile
         const summaries = [...(n.data.summaries ?? [])];
         summaries[idx] = summary;
-        return { ...n, data: { ...n.data, summaries } };
+        const summaryTypes = [...(n.data.summaryTypes ?? [])];
+        summaryTypes[idx] = type ?? 'insight';
+        return { ...n, data: { ...n.data, summaries, summaryTypes } };
       }),
     }));
   },

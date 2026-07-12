@@ -55,6 +55,7 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
                 responses: n.data.responses.map((r, i) => (i === n.data.responseIndex ? response : r)),
                 // a hand-edited answer invalidates its auto summary
                 summaries: n.data.summaries?.map((s, i) => (i === n.data.responseIndex ? undefined : s)),
+                summaryTypes: n.data.summaryTypes?.map((s, i) => (i === n.data.responseIndex ? undefined : s)),
                 highlights: pruneHighlights(n.data.highlights, response),
                 isEditingResponse: false,
                 tokenCount,
@@ -256,6 +257,7 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
             response: newResponses[newIndex],
             summaries: n.data.summaries?.filter((_, i) => i !== versionIndex),
             generatedBy: n.data.generatedBy?.filter((_, i) => i !== versionIndex),
+            summaryTypes: n.data.summaryTypes?.filter((_, i) => i !== versionIndex),
             highlights: pruneHighlights(n.data.highlights, newResponses[newIndex]),
           },
         };

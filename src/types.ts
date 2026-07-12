@@ -80,6 +80,10 @@ export interface ThoughtData extends Record<string, unknown> {
       Recorded at generation time so switching the global model later never
       obscures where an old answer came from. */
   generatedBy?: (string | undefined | null)[];
+  /** Epistemic move per version: insight (default, unmarked) | ruleout |
+      decision | pivot | open. Auto-labeled by the takeaway judge; display
+      layer only. */
+  summaryTypes?: (string | undefined | null)[];
   rolePrompt?: string;
   appliedRole?: string; // the role actually used when generating the current response
   roleSourceNodeId?: string; // user-chosen role source node (for multi-parent role conflict)
