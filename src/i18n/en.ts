@@ -330,7 +330,6 @@ export const en = {
 
   // Web search / references
   'refs.title': 'References',
-  'toolbar.capabilities': 'Capabilities: what this installation can do, what is missing, and the choices that exist',
   'caps.title': 'Capabilities',
   'caps.webSearch': 'Web search',
   'caps.webSearchOn': 'Available · engine {engine} · the model decides when to search',

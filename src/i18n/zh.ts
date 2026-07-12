@@ -329,7 +329,6 @@ export const zh: Record<keyof typeof en, string> = {
 
   // Web search / references
   'refs.title': '参考来源',
-  'toolbar.capabilities': '能力：这套安装能做什么、缺什么、有哪些可选项',
   'caps.title': '能力',
   'caps.webSearch': '联网搜索',
   'caps.webSearchOn': '已可用 · 引擎 {engine} · 何时搜索由模型判断',

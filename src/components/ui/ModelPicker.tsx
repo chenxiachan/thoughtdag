@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Check, ChevronDown, Cpu } from 'lucide-react';
 import { useUiStore } from '../../lib/ui-store';
 import { useModels } from '../../lib/use-models';
+import { fmt } from '../../i18n';
 import { useT } from '../../i18n';
 
 interface PickerProps {
@@ -35,8 +36,10 @@ export default function ModelPicker({ value, onChange, compact }: PickerProps) {
   }, [open]);
 
   const models = data?.models ?? [];
-  // With one model (or the server unreachable) there is nothing to pick
-  if (models.length < 2) return null;
+  // Node mode: with one model there is nothing to pin. The GLOBAL picker
+  // stays even then — it also carries the capability report, and a sparse
+  // install is exactly when the hints matter.
+  if (models.length < 2 && (nodeMode || !data)) return null;
 
   const globalId = selectedModel && models.some((m) => m.id === selectedModel) ? selectedModel : data?.default;
   const activeId = nodeMode ? (value ?? null) : globalId;
@@ -98,8 +101,68 @@ export default function ModelPicker({ value, onChange, compact }: PickerProps) {
               ))}
             </div>
           ))}
+          {!nodeMode && <GlobalCapabilities />}
         </div>
       )}
+    </div>
+  );
+}
+
+// ── Capabilities: the engine-room report at the picker's foot ──
+// What this installation can do, what is missing (the ONLY place that
+// hints at hidden features), and the one extra model choice: which
+// vision model reads images and recognizes scanned pages.
+function GlobalCapabilities() {
+  const t = useT();
+  const data = useModels();
+  const visionModelPref = useUiStore((s) => s.visionModelPref);
+  const setVisionModelPref = useUiStore((s) => s.setVisionModelPref);
+  const caps = data?.capabilities;
+  const visionModels = (data?.models ?? []).filter((m) => m.vision);
+  // an old proxy / offline fetch reports nothing — say nothing, not "missing"
+  if (!caps) return null;
+  const hasVision = visionModels.length > 0;
+  const dot = (on: boolean) => (
+    <span className={`w-1.5 h-1.5 rounded-full shrink-0 mt-1.5 ${on ? 'bg-emerald-500' : 'bg-line-strong'}`} />
+  );
+  return (
+    <div className="border-t border-line mt-1.5 pt-1 pb-1">
+      <p className="text-2xs text-ink-faint uppercase tracking-wider font-medium px-3 pt-1 pb-1">{t('caps.title')}</p>
+      <div className="px-3 py-1 flex items-start gap-2">
+        {dot(!!caps?.webSearch)}
+        <p className="text-2xs text-ink-faint leading-relaxed flex-1">
+          <span className="text-ink-muted font-medium">{t('caps.webSearch')}</span>{' · '}
+          {caps?.webSearch ? fmt(t('caps.webSearchOn'), { engine: caps.searchEngine }) : t('caps.webSearchOff')}
+        </p>
+      </div>
+      <div className="px-3 py-1 flex items-start gap-2">
+        {dot(true)}
+        <p className="text-2xs text-ink-faint leading-relaxed flex-1">
+          <span className="text-ink-muted font-medium">{t('caps.scholar')}</span>{' · '}{t('caps.scholarDesc')}
+        </p>
+      </div>
+      <div className="px-3 py-1 flex items-start gap-2">
+        {dot(hasVision)}
+        <div className="flex-1 min-w-0">
+          <p className="text-2xs text-ink-muted font-medium">{t('caps.vision')}</p>
+          {hasVision ? (
+            <select
+              value={visionModels.some((m) => m.id === visionModelPref) ? visionModelPref : 'auto'}
+              onChange={(e) => setVisionModelPref(e.target.value)}
+              onClick={(e) => e.stopPropagation()}
+              title={t('caps.visionPickTitle')}
+              className="mt-1 w-full text-2xs text-ink-muted bg-wash border border-line rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-accent/40"
+            >
+              <option value="auto">{t('caps.visionAuto')}</option>
+              {visionModels.map((m) => (
+                <option key={m.id} value={m.id}>{m.id.split('/').pop()}</option>
+              ))}
+            </select>
+          ) : (
+            <p className="text-2xs text-ink-faint leading-relaxed mt-0.5">{t('caps.visionOff')}</p>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

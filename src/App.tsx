@@ -26,7 +26,6 @@ import FocusPanel from './components/focus-panel';
 import SelectionToolbar from './components/SelectionToolbar';
 import SearchBar from './components/SearchBar';
 import DiagnosticsPanel from './components/DiagnosticsPanel';
-import CapabilitiesPanel from './components/CapabilitiesPanel';
 import MaterialReader from './components/MaterialReader';
 import ProjectSwitcher from './components/ProjectSwitcher';
 import { useStore } from './store';
@@ -1126,7 +1125,6 @@ function Canvas() {
         >
           <CircleHelp size={15} strokeWidth={1.75} />
         </button>
-        <CapabilitiesPanel />
         {hasNodes && !isParadigm && (
           <DiagnosticsPanel onLocate={(id) => {
             const n = useStore.getState().nodes.find((x) => x.id === id);
