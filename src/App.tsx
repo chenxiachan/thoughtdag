@@ -15,7 +15,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import 'highlight.js/styles/github.css';
-import { BookOpen, CircleHelp, Dna, Download, Drama, FileText, Frame, GitBranch, LayoutGrid, Loader2, MessageCircleQuestion, Paperclip, Redo2, Scissors, SquareTerminal, StickyNote, Trash2, Undo2, Workflow, X, ListRestart } from 'lucide-react';
+import { BookOpen, Brain, CircleHelp, Dna, Download, Drama, FileText, Frame, GitBranch, LayoutGrid, Loader2, MessageCircleQuestion, Paperclip, Redo2, Scissors, SquareTerminal, StickyNote, Trash2, Undo2, Workflow, X, ListRestart } from 'lucide-react';
 import './index.css';
 import ThoughtNode from './components/ThoughtNode';
 import ParadigmNode from './components/ParadigmNode';
@@ -1046,6 +1046,13 @@ function Canvas() {
           </>
         )}
         {!isParadigm && <ModelPicker />}
+        <button
+          onClick={() => useUiStore.getState().setMemoryManagerOpen(true)}
+          className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors text-ink-faint hover:text-accent"
+          title={t('memory.entryTitle')}
+        >
+          <Brain size={15} strokeWidth={1.75} />
+        </button>
         {!isParadigm && (<>
         </>)}
         {/* Batch replay: visible only when something is stale. Price at the

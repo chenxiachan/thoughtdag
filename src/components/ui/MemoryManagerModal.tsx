@@ -18,6 +18,8 @@ export default function MemoryManagerModal() {
   const setOpen = useUiStore((s) => s.setMemoryManagerOpen);
   const memories = useUiStore((s) => s.memories);
   const setMemories = useUiStore((s) => s.setMemories);
+  const enabled = useUiStore((s) => s.memoryEnabled);
+  const setEnabled = useUiStore((s) => s.setMemoryEnabled);
   const [importing, setImporting] = useState(false);
   const [importText, setImportText] = useState('');
   if (!open) return null;
@@ -46,6 +48,13 @@ export default function MemoryManagerModal() {
         <div className="flex items-center gap-2 px-5 py-3 border-b border-line shrink-0">
           <span className="text-sm font-semibold text-ink">{t('memory.managerTitle')}</span>
           <span className="text-2xs text-ink-faint flex-1">{fmt(t('memory.hint'), { n: memories.length })}</span>
+          <button
+            onClick={() => setEnabled(!enabled)}
+            title={t('caps.memoryTitle')}
+            className={`text-2xs px-2.5 py-1 rounded-full transition-colors shrink-0 ${enabled ? 'bg-accent/10 text-accent' : 'bg-wash text-ink-faint'}`}
+          >
+            {enabled ? t('caps.on') : t('caps.off')}
+          </button>
           <button onClick={() => setOpen(false)} className="text-ink-faint hover:text-ink w-7 h-7 rounded-lg hover:bg-wash flex items-center justify-center transition-colors shrink-0">
             <X size={15} strokeWidth={1.75} />
           </button>

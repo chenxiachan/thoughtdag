@@ -343,6 +343,7 @@ export const en = {
   'caps.memoryTitle': 'Ambient long-term memory: the model quietly remembers durable facts about you and uses them when relevant. Writes announce themselves; manage everything in one place.',
   'caps.on': 'On',
   'caps.off': 'Off',
+  'memory.entryTitle': 'Memory: what the model remembers about you, across all canvases. View, edit, import, export.',
   'memory.manage': 'Manage',
   'memory.managerTitle': 'Memory',
   'memory.hint': '{n} entries · used across all canvases when relevant',

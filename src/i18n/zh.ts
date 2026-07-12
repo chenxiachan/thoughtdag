@@ -342,6 +342,7 @@ export const zh: Record<keyof typeof en, string> = {
   'caps.memoryTitle': '常驻长期记忆：模型安静地记住关于你的持久事实，并在相关时使用。每次写入都会自我宣告；所有条目在管理器中统一维护。',
   'caps.on': '开',
   'caps.off': '关',
+  'memory.entryTitle': '记忆：模型跨画布记住的关于你的事。查看、编辑、导入、导出。',
   'memory.manage': '管理',
   'memory.managerTitle': '记忆',
   'memory.hint': '{n} 条 · 相关时用于所有画布',
