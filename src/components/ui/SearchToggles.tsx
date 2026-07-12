@@ -1,5 +1,6 @@
 import { Globe, GraduationCap } from 'lucide-react';
 import { useUiStore } from '../../lib/ui-store';
+import { useModels } from '../../lib/use-models';
 import { useT } from '../../i18n';
 
 // Per-ask search permissions, shown next to every input that asks. The two
@@ -11,6 +12,9 @@ export default function SearchToggles({ size = 16 }: { size?: number }) {
   const scholar = useUiStore((s) => s.scholarSearchEnabled);
   const setScholar = useUiStore((s) => s.setScholarSearchEnabled);
   const t = useT();
+  // no key, no button: search that cannot run must not be offerable
+  // (the capabilities panel is the one place that says why)
+  const webAvailable = useModels()?.capabilities?.webSearch ?? true;
 
   const cls = (on: boolean) =>
     `transition-colors shrink-0 rounded-full w-8 h-8 flex items-center justify-center ${
@@ -19,14 +23,16 @@ export default function SearchToggles({ size = 16 }: { size?: number }) {
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setWeb(!web)}
-        title={web ? t('toolbar.webSearch') : t('toolbar.webSearchOff')}
-        className={cls(web)}
-      >
-        <Globe size={size} strokeWidth={1.75} />
-      </button>
+      {webAvailable && (
+        <button
+          type="button"
+          onClick={() => setWeb(!web)}
+          title={web ? t('toolbar.webSearch') : t('toolbar.webSearchOff')}
+          className={cls(web)}
+        >
+          <Globe size={size} strokeWidth={1.75} />
+        </button>
+      )}
       <button
         type="button"
         onClick={() => setScholar(!scholar)}

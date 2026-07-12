@@ -576,7 +576,17 @@ app.get('/api/models', (req, res) => {
     provider: m.provider,
     vision: m.vision,
   }));
-  res.json({ models, default: DEFAULT_MODEL });
+  res.json({
+    models,
+    default: DEFAULT_MODEL,
+    // capability report: what the door sign may show, what stays hidden
+    capabilities: {
+      webSearch: !!ZHIPU_KEY,
+      searchEngine: process.env.ZHIPU_SEARCH_ENGINE || 'search_std',
+      scholarSearch: true,
+      vision: models.some((m) => m.vision),
+    },
+  });
 });
 
 // Non-streaming endpoint (background summaries)

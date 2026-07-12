@@ -8,7 +8,14 @@ export interface ModelInfo {
   vision: boolean;
 }
 
-type ModelData = { models: ModelInfo[]; default: string | null };
+export interface Capabilities {
+  webSearch: boolean;
+  searchEngine: string;
+  scholarSearch: boolean;
+  vision: boolean;
+}
+
+export type ModelData = { models: ModelInfo[]; default: string | null; capabilities?: Capabilities };
 
 // Model list is fetched once per session and shared by every picker
 let cache: ModelData | null = null;
@@ -19,7 +26,7 @@ export function getModelsOnce(): Promise<ModelData | null> {
   if (cache) return Promise.resolve(cache);
   inflight ??= fetch(`${API_BASE}/api/models`)
     .then((r) => r.json())
-    .then((d) => (cache = { models: d.models ?? [], default: d.default ?? null }))
+    .then((d) => (cache = { models: d.models ?? [], default: d.default ?? null, capabilities: d.capabilities }))
     .catch(() => null);
   return inflight;
 }

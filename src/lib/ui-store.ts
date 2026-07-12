@@ -66,6 +66,9 @@ interface UiState {
   setRoleLib: (lib: import('./role-templates').RoleLib) => void;
   roleManagerOpen: boolean;
   setRoleManagerOpen: (open: boolean) => void;
+  /** Image reading / Recognize model: 'auto' = strongest first (persisted). */
+  visionModelPref: string;
+  setVisionModelPref: (id: string) => void;
   setReaderNodeId: (id: string | null) => void;
   setPanelOpen: (open: boolean) => void;
   setSelectedModel: (model: string | null) => void;
@@ -119,6 +122,11 @@ export const useUiStore = create<UiState>((set, get) => ({
   },
   roleManagerOpen: false,
   setRoleManagerOpen: (open) => set({ roleManagerOpen: open }),
+  visionModelPref: localStorage.getItem('thoughtdag.visionModel') || 'auto',
+  setVisionModelPref: (id) => {
+    localStorage.setItem('thoughtdag.visionModel', id);
+    set({ visionModelPref: id });
+  },
   readerNodeId: null,
   setReaderNodeId: (id) => set({ readerNodeId: id }),
   drafts: {},

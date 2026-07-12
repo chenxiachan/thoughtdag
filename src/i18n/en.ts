@@ -330,6 +330,17 @@ export const en = {
 
   // Web search / references
   'refs.title': 'References',
+  'toolbar.capabilities': 'Capabilities: what this installation can do, what is missing, and the choices that exist',
+  'caps.title': 'Capabilities',
+  'caps.webSearch': 'Web search',
+  'caps.webSearchOn': 'Available · engine {engine} · the model decides when to search',
+  'caps.webSearchOff': 'Needs ZHIPU_API_KEY in .env (server-side search is powered by Zhipu). The search toggle stays hidden until then.',
+  'caps.scholar': 'Scholarly search',
+  'caps.scholarDesc': 'arXiv + Semantic Scholar · free public APIs, always available',
+  'caps.vision': 'Image reading & Recognize',
+  'caps.visionAuto': 'Auto (strongest model first)',
+  'caps.visionPickTitle': 'Which model reads pasted images and recognizes scanned pages. Auto prefers the strongest, which may be the most expensive.',
+  'caps.visionOff': 'Needs at least one vision model (the free glm-4v-flash qualifies). Image auto-reading and Recognize stay hidden until then.',
   'toolbar.webSearch': 'Web search: the model decides when to search',
   'toolbar.webSearchOff': 'Web search off',
   'toolbar.model': 'Model: applies to new generations',

@@ -4,6 +4,7 @@ import type { PDFDocumentProxy } from 'pdfjs-dist';
 import type { ThoughtNode } from '../types';
 import { useStore } from '../store';
 import { useUiStore } from '../lib/ui-store';
+import { useModels } from '../lib/use-models';
 import { recognizePdfPages } from '../lib/content';
 import { Markdown, HighlightedMarkdown } from './Markdown';
 import { generateId, isImeComposing } from '../utils';
@@ -214,6 +215,7 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
   };
 
   // ── recognize (per-page vision rewrite) ──
+  const hasVisionModel = (useModels()?.models ?? []).some((m) => m.vision);
   const [recog, setRecog] = useState<'idle' | 'confirm' | 'running'>('idle');
   const [progress, setProgress] = useState<[number, number] | null>(null);
   const cancelRef = useRef(false);
@@ -361,7 +363,7 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
               </button>
             </div>
           )}
-          {pdfAtt && view === 'text' && (
+          {pdfAtt && view === 'text' && hasVisionModel && (
             recog === 'running' ? (
               <span className="flex items-center gap-2 text-xs text-accent shrink-0">
                 <Loader2 size={13} strokeWidth={1.75} className="animate-spin" />

@@ -5,7 +5,7 @@ import { triggerParadigmCascade } from '../store/streaming';
 import { processFile } from './attachments';
 import { fetchUrlSnapshot, llmCall } from './api';
 import { getModelsOnce } from './use-models';
-import { toast } from './ui-store';
+import { toast, useUiStore } from './ui-store';
 import { t, fmt } from '../i18n';
 
 // Content nodes: canvas material (note / file / link). Shared creation and
@@ -101,6 +101,20 @@ function visionRank(m: { id: string; name: string }): number {
   return 2;
 }
 
+// Vision candidate order: the user's explicit pick (capabilities panel)
+// first, then strongest-first, session-failed keys pushed to the back.
+function rankVision(vision: { id: string; name: string }[]): { id: string; name: string }[] {
+  const ranked = [...vision].sort((a, b) => visionRank(b) - visionRank(a));
+  const usable = ranked.filter((m) => !extractionAuthFailed.has(m.id));
+  const base = usable.length > 0 ? usable : ranked; // stale cache shouldn't dead-end us
+  const pref = useUiStore.getState().visionModelPref;
+  if (pref && pref !== 'auto') {
+    const picked = vision.find((m) => m.id === pref);
+    if (picked) return [picked, ...base.filter((m) => m.id !== pref)];
+  }
+  return base;
+}
+
 // Models whose keys were rejected THIS session — a stale key in .env keeps
 // its models registered (registration is key-presence, not validation), so
 // remember failures instead of stumbling over them for every image.
@@ -156,13 +170,8 @@ export async function extractImage(nodeId: string, attId: string): Promise<void>
 
   const data = await getModelsOnce();
   const vision = (data?.models ?? []).filter((m) => m.vision);
-  if (vision.length === 0) {
-    toast('error', t('content.noVisionModel'));
-    return;
-  }
-  const ranked = [...vision].sort((a, b) => visionRank(b) - visionRank(a));
-  const usable = ranked.filter((m) => !extractionAuthFailed.has(m.id));
-  const candidates = usable.length > 0 ? usable : ranked; // stale cache shouldn't dead-end us
+  if (vision.length === 0) return; // no vision model: the capabilities panel explains
+  const candidates = rankVision(vision);
 
   st.setAttachmentData(nodeId, attId, { isExtracting: true });
   const image = await normalizeImageForVision(att.content, att.type);
@@ -213,13 +222,8 @@ export async function recognizePdfPages(
 
   const data = await getModelsOnce();
   const vision = (data?.models ?? []).filter((m) => m.vision);
-  if (vision.length === 0) {
-    toast('error', t('content.noVisionModel'));
-    return;
-  }
-  const ranked = [...vision].sort((a, b) => visionRank(b) - visionRank(a));
-  const usable = ranked.filter((m) => !extractionAuthFailed.has(m.id));
-  const candidates = usable.length > 0 ? usable : ranked;
+  if (vision.length === 0) return; // no vision model: the capabilities panel explains
+  const candidates = rankVision(vision);
 
   const pages = att.pageImages;
   const parts: string[] = [];

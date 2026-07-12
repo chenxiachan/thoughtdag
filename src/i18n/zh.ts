@@ -329,6 +329,17 @@ export const zh: Record<keyof typeof en, string> = {
 
   // Web search / references
   'refs.title': '参考来源',
+  'toolbar.capabilities': '能力：这套安装能做什么、缺什么、有哪些可选项',
+  'caps.title': '能力',
+  'caps.webSearch': '联网搜索',
+  'caps.webSearchOn': '已可用 · 引擎 {engine} · 何时搜索由模型判断',
+  'caps.webSearchOff': '需要在 .env 填入 ZHIPU_API_KEY（服务端搜索由智谱驱动）。在此之前搜索开关不会出现。',
+  'caps.scholar': '学术检索',
+  'caps.scholarDesc': 'arXiv + Semantic Scholar · 免费公开 API，始终可用',
+  'caps.vision': '图像识读与识别',
+  'caps.visionAuto': '自动（最强模型优先）',
+  'caps.visionPickTitle': '由哪个模型识读粘贴的图片、识别扫描页。自动模式优先最强，可能也最贵。',
+  'caps.visionOff': '需要至少一个视觉模型（免费的 glm-4v-flash 即可）。在此之前图像识读与识别按钮不会出现。',
   'toolbar.webSearch': '联网搜索：模型自行判断何时搜索',
   'toolbar.webSearchOff': '联网搜索已关闭',
   'toolbar.model': '模型：对新的生成生效',
