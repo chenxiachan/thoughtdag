@@ -117,6 +117,8 @@ function GlobalCapabilities() {
   const data = useModels();
   const visionModelPref = useUiStore((s) => s.visionModelPref);
   const setVisionModelPref = useUiStore((s) => s.setVisionModelPref);
+  const searchEnginePref = useUiStore((s) => s.searchEnginePref);
+  const setSearchEnginePref = useUiStore((s) => s.setSearchEnginePref);
   const caps = data?.capabilities;
   const visionModels = (data?.models ?? []).filter((m) => m.vision);
   // an old proxy / offline fetch reports nothing — say nothing, not "missing"
@@ -130,10 +132,24 @@ function GlobalCapabilities() {
       <p className="text-2xs text-ink-faint uppercase tracking-wider font-medium px-3 pt-1 pb-1">{t('caps.title')}</p>
       <div className="px-3 py-1 flex items-start gap-2">
         {dot(!!caps?.webSearch)}
-        <p className="text-2xs text-ink-faint leading-relaxed flex-1">
-          <span className="text-ink-muted font-medium">{t('caps.webSearch')}</span>{' · '}
-          {caps?.webSearch ? fmt(t('caps.webSearchOn'), { engine: caps.searchEngine }) : t('caps.webSearchOff')}
-        </p>
+        <div className="flex-1 min-w-0">
+          <p className="text-2xs text-ink-muted font-medium">{t('caps.webSearch')}</p>
+          {caps?.webSearch ? (
+            <select
+              value={searchEnginePref}
+              onChange={(e) => setSearchEnginePref(e.target.value)}
+              onClick={(e) => e.stopPropagation()}
+              title={t('caps.enginePickTitle')}
+              className="mt-1 w-full text-2xs text-ink-muted bg-wash border border-line rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-accent/40"
+            >
+              <option value="server">{fmt(t('caps.engineServer'), { engine: caps.searchEngine })}</option>
+              <option value="search_std">{t('caps.engineStd')}</option>
+              <option value="search_pro">{t('caps.enginePro')}</option>
+            </select>
+          ) : (
+            <p className="text-2xs text-ink-faint leading-relaxed mt-0.5">{t('caps.webSearchOff')}</p>
+          )}
+        </div>
       </div>
       <div className="px-3 py-1 flex items-start gap-2">
         {dot(true)}

@@ -33,7 +33,7 @@ npm run server         # LLM proxy
 npm run dev            # → http://localhost:5173
 ```
 
-The first launch opens a seeded example canvas, so there is something to play with before you type. The fastest way in: drop a PDF on the landing page and start reading.
+The first launch opens a seeded example canvas, so there is something to play with before you type. The fastest way in: drop a PDF on the landing page and start reading. The Zhipu key also powers web search (engine tiers switchable in the model menu); scholarly search (arXiv + Semantic Scholar) is free and needs no key at all.
 
 ## The One Rule: a wire is context
 

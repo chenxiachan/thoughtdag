@@ -134,6 +134,9 @@ export async function llmCallStream(
         webSearch: toolPrefs?.web,
         scholarSearch: toolPrefs?.scholar,
         mcpTools: toolPrefs?.mcp,
+        ...(useUiStore.getState().searchEnginePref !== 'server'
+          ? { searchEngine: useUiStore.getState().searchEnginePref }
+          : {}),
         model: modelOverride || useUiStore.getState().selectedModel || undefined,
       }),
       signal,

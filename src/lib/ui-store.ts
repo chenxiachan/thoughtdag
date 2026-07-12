@@ -69,6 +69,9 @@ interface UiState {
   /** Image reading / Recognize model: 'auto' = strongest first (persisted). */
   visionModelPref: string;
   setVisionModelPref: (id: string) => void;
+  /** Web search engine: 'server' = follow the proxy's .env default. */
+  searchEnginePref: string;
+  setSearchEnginePref: (id: string) => void;
   setReaderNodeId: (id: string | null) => void;
   setPanelOpen: (open: boolean) => void;
   setSelectedModel: (model: string | null) => void;
@@ -126,6 +129,11 @@ export const useUiStore = create<UiState>((set, get) => ({
   setVisionModelPref: (id) => {
     localStorage.setItem('thoughtdag.visionModel', id);
     set({ visionModelPref: id });
+  },
+  searchEnginePref: localStorage.getItem('thoughtdag.searchEngine') || 'server',
+  setSearchEnginePref: (id) => {
+    localStorage.setItem('thoughtdag.searchEngine', id);
+    set({ searchEnginePref: id });
   },
   readerNodeId: null,
   setReaderNodeId: (id) => set({ readerNodeId: id }),

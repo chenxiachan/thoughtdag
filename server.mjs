@@ -249,12 +249,12 @@ const isBlockedUrl = (url) => {
   catch { return false; }
 };
 
-async function zhipuWebSearch(query, count = 5) {
+async function zhipuWebSearch(query, count = 5, engine = SEARCH_ENGINE) {
   const r = await fetch('https://open.bigmodel.cn/api/paas/v4/web_search', {
     method: 'POST',
     headers: { Authorization: `Bearer ${ZHIPU_KEY}`, 'Content-Type': 'application/json' },
     // over-fetch so filtering still leaves `count` usable results
-    body: JSON.stringify({ search_engine: SEARCH_ENGINE, search_query: query, count: Math.min(count * 2, 10) }),
+    body: JSON.stringify({ search_engine: engine, search_query: query, count: Math.min(count * 2, 10) }),
   });
   if (!r.ok) throw new Error(`web_search HTTP ${r.status}`);
   const data = await r.json();
@@ -379,7 +379,7 @@ function makeTools(sources, onSearch, prefs = {}) {
       }),
       execute: async ({ query }) => {
         onSearch?.('web_search', query);
-        try { return pushNumbered(await zhipuWebSearch(query)); }
+        try { return pushNumbered(await zhipuWebSearch(query, 5, prefs.searchEngine || SEARCH_ENGINE)); }
         catch (e) { return `Search failed (${e.message}) — try a different tool or answer from your knowledge.`; }
       },
     });
@@ -613,7 +613,7 @@ app.post('/api/claude', async (req, res) => {
 // SSE streaming endpoint. The model decides on its own which tools to use
 // and when; `webSearch: false` / `scholarSearch: false` hide tool groups.
 app.post('/api/stream', async (req, res) => {
-  const { messages, model: modelId, images, webSearch, scholarSearch, mcpTools } = req.body;
+  const { messages, model: modelId, images, webSearch, scholarSearch, mcpTools, searchEngine } = req.body;
   const entry = resolveModel(modelId || DEFAULT_MODEL, images && images.length > 0);
 
   res.writeHead(200, {
@@ -636,7 +636,7 @@ app.post('/api/stream', async (req, res) => {
       // Progress ping so the UI can show what's being searched
       res.write(`data: ${JSON.stringify({ tool: { name, query } })}\n\n`);
     },
-    { web: webSearch !== false, scholar: scholarSearch !== false, mcp: mcpTools !== false }
+    { web: webSearch !== false, scholar: scholarSearch !== false, mcp: mcpTools !== false, searchEngine }
   );
 
   const prompt = toSdkPrompt(messages, images);
