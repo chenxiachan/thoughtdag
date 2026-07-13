@@ -16,7 +16,7 @@ An infinite canvas where LLM conversations grow into an editable thought graph.
 
 [中文](./README_ZH.md) · [Quick start](#quick-start) · [Features](#features-at-a-glance) · [Models](#supported-models) · [Roadmap](#roadmap)
 
-<img src="docs/hero.png" alt="ThoughtDAG canvas: a PDF material node wearing its first page as a cover, questions grown from reading wired below it, a follow-up chain and an orange explore branch" width="100%"/>
+<img src="docs/hero.png" alt="ThoughtDAG at map zoom: four framed chapters around one question, every card folded into its one-line takeaway, decisive moves wearing badges (ruled out, decided, pivoted, open), a PDF with its cover and a digest node in the reading-loop chapter" width="100%"/>
 
 </div>
 
@@ -33,7 +33,7 @@ npm run server         # LLM proxy
 npm run dev            # → http://localhost:5173
 ```
 
-The first launch opens a seeded example canvas, so there is something to play with before you type. The fastest way in: drop a PDF on the landing page and start reading. The Zhipu key also powers web search (engine tiers switchable in the model menu); scholarly search (arXiv + Semantic Scholar) is free and needs no key at all.
+The first launch opens a seeded example canvas — four chapters around one everyday question (why saved articles stay unread), from the conversation grammar to a real embedded PDF with its reading loop. Zoom out: the hero image above is that canvas as a map. The fastest way in: drop a PDF on the landing page and start reading. The Zhipu key also powers web search (engine tiers switchable in the model menu); scholarly search (arXiv + Semantic Scholar) is free and needs no key at all.
 
 ## The One Rule: a wire is context
 
@@ -45,9 +45,11 @@ The model sees exactly what wires into a node. Adding an edge injects context, d
 
 ## Read a paper into a map
 
-Drop in a PDF and read the original pages. Select a passage and ask: the answer streams in beside the document, while the question lands on the canvas as a node wired to the material, page number included. Follow up in place, highlight what matters, keep reading. When you look up, the map of your close reading has drawn itself. Scanned documents rewrite into readable Markdown (formulas included) in one click.
+Drop in a PDF and read the original pages. Select a passage and ask: the answer streams in beside the document, and the question lands on the canvas wired to the material, page number included. The asked passage keeps a mark on the page — a highlight wash and a bubble that reopens the conversation, so everything you asked stays reachable while you read. The trip works both ways: back on the canvas, the node wears a p.N chip that jumps straight back to that page in the reader.
 
-<img src="docs/reader.png" alt="The material reader: original PDF with a selectable text layer on the left, the annotation rail streaming an answer on the right, question chips growing in the footer" width="100%"/>
+One click writes a guided digest: a short structured post in your language, every point anchored to its page with jump buttons. The digest is itself a node — wire it downstream and later questions ride the material's best compression instead of its full text. Scanned documents rewrite into readable Markdown (formulas included) in one click.
+
+<img src="docs/reader.png" alt="The material reader: the asked sentence wearing its highlight and bubble on the original page, the annotation rail showing that conversation, a digest tab in the header and page-tagged question chips in the footer" width="100%"/>
 
 ## The core gesture
 
@@ -62,7 +64,8 @@ Drop in a PDF and read the original pages. Select a passage and ask: the answer 
 | 🧠 Context editing | Merge branches by drawing a wire, prune memory by deleting one, archive dead ends out of every future context |
 | 🔗 References | Dashed edges quote a node without dragging its conversation along; toggle quote ⇄ full with the price shown |
 | 🧹 Converge | Box-select redundant nodes, merge them into one structured synthesis, archive the originals |
-| 🗺️ Map view | Zoomed out, every card shows its one-line takeaway; the canvas reads like a lab notebook's table of contents |
+| 🗺️ Map view | Zoomed out, every card shows its one-line takeaway, badged by move: ✕ ruled out · ⚖ decided · ↩ pivoted · ? open |
+| 📖 Reading loop | Asked passages keep marks on the PDF pages; canvas nodes jump back with p.N chips; one-click guided digest as a wireable node |
 | 🧭 Staleness & replay | Upstream edits mark the answers they invalidate; replay them in dependency order, token estimate first |
 | 🩺 Topology check-up | One click flags structural diseases (duplicate context routes, broken blind pools), each with a jump and a fix |
 | 🧪 Paradigms | Reusable workflows of human and machine steps; change the input and replay the whole experiment |
@@ -79,8 +82,9 @@ Drop in a PDF and read the original pages. Select a passage and ask: the answer 
 <details>
 <summary><b>📜 Full feature list (60+)</b></summary>
 
-- **Material reader**: original PDF rendering with a selectable text layer (pdf.js); select → ask lands a branch node with `(p.N)` provenance; extracted-text view for scanned PDFs; per-page vision **Recognize** into Markdown/LaTeX (editable, MinerU paste point); whole-material ask input; per-material scroll memory
+- **Material reader**: original PDF rendering with a selectable text layer (pdf.js); select → ask lands a branch node with `(p.N)` provenance, and the passage keeps an anchor on the page (highlight wash + a bubble that reopens the thread); canvas nodes carry a p.N chip that jumps back into the reader; extracted-text view for scanned PDFs; per-page vision **Recognize** into Markdown/LaTeX (editable; external OCR output pastes in); whole-material ask input; a footer thread index tagging each conversation p.N or whole-material; per-material scroll memory
 - **Annotation rail**: answers stream beside the document; follow-ups chain onto the thread; selecting inside a rail answer explores (branch of THAT answer) or highlights; thread chips switch conversations, a crosshair jumps to the canvas
+- **Guided digest**: one click turns the material into a short structured post in the UI language, with (p.N) jump buttons back into the original pages; the digest is a canvas NODE (versioned on rewrite, model-stamped, wireable downstream as the material's compression); regenerating routes through the digest prompt against the full text
 - **Material-first landing**: drop a document on the landing page and it lands as a material node with the reader auto-opened; attachments to the root question stay behind the explicit paperclip
 - **Map mode**: below ~0.8 zoom cards render as takeaway-first label plaques (pill radius, type-colored border); hysteresis prevents boundary flapping; nodes awaiting human input and locked paradigm runs keep their working form
 - **Versioned takeaway summaries**: one conclusion-first line generated per answer version (display layer only, never enters context or fingerprints; short answers show whole and skip the call)
@@ -135,7 +139,7 @@ Drop in a PDF and read the original pages. Select a passage and ask: the answer 
 - **Staleness tracking**: per-generation upstream fingerprints; amber badges on nodes, dots in the context tree, explicit [Stale] marks in downstream payloads
 - **Batch replay**: one click re-runs every stale node in dependency order; confirm dialog with a token estimate; stop anytime
 - **Paradigm mode**: human/prompt steps + material slots; instantiate → cascade → unlock; edit the input + replay = re-run the experiment; bounded reviewer rounds declared in the file
-- **Example canvas on first run**: a seeded graph (with a context-pruning ⚖️ side-by-side demo) instead of a blank page; reload it anytime from the landing screen
+- **Example canvas on first run**: four framed chapters around one everyday question — conversation grammar, materials & references, the ⚖️ context-pruning pair, and a reading loop with a real embedded PDF (anchored question, digest node); every node carries a typed takeaway so zooming out lands on a working map; reload anytime from the landing screen
 - **Import ChatGPT / Claude exports**: drop conversations.json into Import; ChatGPT's edit/regenerate branches are preserved as graph forks, each conversation becomes its own canvas
 - **Environment-based config**: keys live in `.env`; available models register automatically per key
 
