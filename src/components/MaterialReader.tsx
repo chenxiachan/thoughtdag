@@ -172,9 +172,11 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
       const pageEl = el?.closest('[data-page]') as HTMLElement | null;
       const page = pageEl?.getAttribute('data-page');
       // selection rectangles in page-fraction space → durable anchors that
-      // survive zoom, reflow and future re-renders
+      // survive zoom, reflow and future re-renders. Original view only: the
+      // text view's sections are reflowed Markdown, their geometry says
+      // nothing about the printed page
       let rects: [number, number, number, number][] | undefined;
-      if (pageEl) {
+      if (pageEl && view === 'original') {
         const pb = pageEl.getBoundingClientRect();
         rects = Array.from(range.getClientRects()).slice(0, 8)
           .filter((r) => r.width > 2 && r.height > 2)
@@ -187,7 +189,13 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
   // ── the annotation rail: answers arrive WHERE you read. It shows one
   // thread (a question node grown from this material plus its linear
   // continuations) — a live view of canvas nodes, never a separate store.
-  const [threadId, setThreadId] = useState<string | null>(null);
+  // A canvas p.N chip can pre-address the landing: open on that thread,
+  // scroll to that page (one-shot; consumed here so reopen starts clean).
+  const jumpRef = useRef(useUiStore.getState().readerJump);
+  const [threadId, setThreadId] = useState<string | null>(jumpRef.current?.threadId ?? null);
+  useEffect(() => {
+    if (useUiStore.getState().readerJump) useUiStore.setState({ readerJump: null });
+  }, []);
 
   const submitAsk = () => {
     const q = draft.trim();
@@ -196,9 +204,10 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
     const passage = ask.targetNodeId ? ask.text : (ask.page != null ? `(p.${ask.page}) ${ask.text}` : ask.text);
     useStore.getState().addQuestion(q, { parentId: ask.targetNodeId ?? node.id, branchContext: passage });
     const freshId = useStore.getState().selectedNodeId;
-    // document selections leave a mark on the page they came from
-    if (!ask.targetNodeId && ask.page != null && ask.rects?.length && freshId) {
-      const anchor = { page: ask.page, rects: ask.rects };
+    // document selections remember the page they came from (both views);
+    // original-view ones additionally leave a mark on that page
+    if (!ask.targetNodeId && ask.page != null && freshId) {
+      const anchor = { page: ask.page, ...(ask.rects?.length ? { rects: ask.rects } : {}) };
       useStore.setState((s) => ({
         nodes: s.nodes.map((n) => (n.id === freshId ? { ...n, data: { ...n.data, anchor } } : n)),
       }));
@@ -338,6 +347,23 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
   // Recorded live on scroll (at unmount the DOM is already detached and
   // reads 0); restored once the document has grown tall enough to hold it.
   const scrollRestored = useRef(false);
+
+  // p.N jump landing: scroll to the addressed page once its holder exists
+  // (page holders mount with the document; sections mount immediately).
+  // Claims scrollRestored — an explicit destination beats session memory.
+  useEffect(() => {
+    const page = jumpRef.current?.page;
+    if (!page) return;
+    scrollRestored.current = true;
+    let tries = 0;
+    const attempt = () => {
+      const el = bodyRef.current?.querySelector(`[data-page="${page}"]`);
+      if (el) { el.scrollIntoView({ block: 'start' }); return; }
+      if (++tries < 25) window.setTimeout(attempt, 100);
+    };
+    window.setTimeout(attempt, 150);
+  }, [doc]);
+
   useEffect(() => {
     const el = bodyRef.current;
     const saved = scrollMemory.get(node.id);
@@ -638,6 +664,12 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
                 >
                   <button onClick={() => setThreadId(c.id)} className="flex items-center gap-1.5 min-w-0">
                     {c.data.isLoading && <Loader2 size={10} strokeWidth={2} className="animate-spin text-accent shrink-0" />}
+                    {/* provenance at a glance: page-anchored vs whole-material */}
+                    {(c.data.anchor || !c.data.branchContext) && (
+                      <span className={`font-mono shrink-0 ${threadId === c.id ? 'text-accent' : 'text-ink-faint'}`}>
+                        {c.data.anchor ? `p.${c.data.anchor.page}` : t('reader.wholeTag')}
+                      </span>
+                    )}
                     <span className="truncate">{c.data.question.replace(/\s+/g, ' ').slice(0, 32) || '…'}</span>
                   </button>
                   <button

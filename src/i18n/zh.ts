@@ -88,8 +88,8 @@ export const zh: Record<keyof typeof en, string> = {
   'canvas.deleteEdgeTitle': '删除连线（或按 Delete 键）',
 
   // Node (ThoughtNode + streaming placeholders)
-  'node.exploredFrom': '探索自：',
   'node.exploringFrom': '从选中内容探索：',
+  'node.openAtPage': '回到阅读器第 {n} 页，展开这条对话',
   'node.stoppedPlaceholder': '（已停止生成）',
   'node.failedPlaceholder': '_生成失败。_',
 
@@ -151,6 +151,7 @@ export const zh: Record<keyof typeof en, string> = {
   'reader.noImages': '这份 PDF 没有页面图像，无法识别。请确认代理端装有 poppler，然后重新上传文件。',
   'reader.editText': '编辑提取副本。外部 OCR 的结果（如 MinerU 的 Markdown）可以直接贴进来。',
   'reader.wholeThread': '关于整份材料',
+  'reader.wholeTag': '整篇',
   'reader.threadClose': '收起答案栏',
   'reader.askWhole': '就整份材料提问…',
   'reader.empty': '这里还没有可读内容。',

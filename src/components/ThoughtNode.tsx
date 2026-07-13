@@ -67,6 +67,20 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   const zoomedOut = mapMode && !isAwaitingHuman && !isAwaitingAsk && !(isParadigmNode && runLocked);
   // Upstream changed since this answer was written (see recomputeStaleness)
   const isStale = useStore((s) => s.staleIds.includes(id));
+  // Page-anchored questions wear a p.N chip that reopens the reader right
+  // there — the material node this question grew from is the reader target
+  const anchorMaterialId = useStore((s) => {
+    if (!data.anchor) return null;
+    const e = s.edges.find((e) =>
+      e.target === id && !e.data?.isCrossLink &&
+      s.nodes.some((n) => n.id === e.source && (n.data.stepKind === 'file' || n.data.stepKind === 'link' || n.data.stepKind === 'note')));
+    return e?.source ?? null;
+  });
+  const openReaderAtAnchor = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!data.anchor || !anchorMaterialId) return;
+    useUiStore.getState().setReaderNodeId(anchorMaterialId, { page: data.anchor.page, threadId: id });
+  };
 
   // Sync local edit buffer when the response changes externally (streaming, undo)
   const [prevResponse, setPrevResponse] = useState(data.response);
@@ -340,11 +354,24 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
       {!data.isCollapsed && (
         <div className="px-5 py-4">
           {/* The passage this branch explores: without it the user loses
-              the thread that spawned the node */}
+              the thread that spawned the node. Page-anchored ones carry a
+              p.N chip that reopens the reader at that page, thread open —
+              the same provenance grammar as the digest's page buttons. */}
           {data.branchContext && (
             <div className="mb-2.5 text-xs pl-3 py-1.5 pr-2 border-l-2 border-warm bg-warm/10 rounded-r text-ink-muted flex items-start gap-1.5">
               <GitBranch size={13} strokeWidth={1.75} className="text-warm shrink-0 mt-0.5" />
-              <span className="italic leading-relaxed">“{data.branchContext.slice(0, 180)}{data.branchContext.length > 180 ? '…' : ''}”</span>
+              <span className="italic leading-relaxed min-w-0">
+                “{(data.anchor ? data.branchContext.replace(/^\(p\.\s?\d+\)\s*/, '') : data.branchContext).slice(0, 180)}{data.branchContext.length > 180 ? '…' : ''}”
+              </span>
+              {data.anchor && anchorMaterialId && (
+                <button
+                  onClick={openReaderAtAnchor}
+                  title={fmt(t('node.openAtPage'), { n: data.anchor.page })}
+                  className="ml-auto shrink-0 text-2xs font-mono text-accent bg-accent/10 hover:bg-accent/20 rounded-full px-1.5 py-0.5 transition-colors"
+                >
+                  p.{data.anchor.page}
+                </button>
+              )}
             </div>
           )}
           {/* Question */}
@@ -381,13 +408,6 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
               className="text-sm text-ink font-semibold mb-3 cursor-pointer hover:bg-wash rounded-xl px-2 py-1.5 -mx-1 transition-colors"
             >
               {data.question}
-            </div>
-          )}
-
-          {/* Branch context */}
-          {data.branchContext && (
-            <div className="text-xs text-ink-muted italic mb-3 pl-3 border-l-2 border-warm/40 bg-warm/15 rounded-r py-1.5 pr-2">
-              <GitBranch size={14} strokeWidth={1.75} className="inline" /> {t('node.exploredFrom')} &ldquo;{data.branchContext.slice(0, 100)}{data.branchContext.length > 100 ? '...' : ''}&rdquo;
             </div>
           )}
 

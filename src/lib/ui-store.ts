@@ -49,6 +49,9 @@ interface UiState {
   panelWidth: number;
   /** Material node currently open in the reading overlay (session only). */
   readerNodeId: string | null;
+  /** One-shot landing spot for the reader: scroll to this page and open this
+      thread on mount (set by canvas p.N chips, consumed by the overlay). */
+  readerJump: { page?: number; threadId?: string } | null;
   /** Selected LLM id; null = server default. */
   selectedModel: string | null;
   dismissToast: (id: string) => void;
@@ -79,7 +82,7 @@ interface UiState {
   setMemories: (entries: import('./memory').MemoryEntry[]) => void;
   memoryManagerOpen: boolean;
   setMemoryManagerOpen: (open: boolean) => void;
-  setReaderNodeId: (id: string | null) => void;
+  setReaderNodeId: (id: string | null, jump?: { page?: number; threadId?: string }) => void;
   setPanelOpen: (open: boolean) => void;
   setSelectedModel: (model: string | null) => void;
 }
@@ -162,7 +165,8 @@ export const useUiStore = create<UiState>((set, get) => ({
   memoryManagerOpen: false,
   setMemoryManagerOpen: (open) => set({ memoryManagerOpen: open }),
   readerNodeId: null,
-  setReaderNodeId: (id) => set({ readerNodeId: id }),
+  readerJump: null,
+  setReaderNodeId: (id, jump) => set({ readerNodeId: id, readerJump: id ? (jump ?? null) : null }),
   drafts: {},
   setDraft: (key, text) => set((s) => {
     if (!text) {

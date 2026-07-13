@@ -88,8 +88,8 @@ export const en = {
   'canvas.deleteEdgeTitle': 'Delete edge (or press Delete)',
 
   // Node (ThoughtNode + streaming placeholders)
-  'node.exploredFrom': 'Explored from:',
   'node.exploringFrom': 'Exploring from selection:',
+  'node.openAtPage': 'Reopen the reader at page {n} with this thread',
   'node.stoppedPlaceholder': '(generation stopped)',
   'node.failedPlaceholder': '_Generation failed._',
 
@@ -151,6 +151,7 @@ export const en = {
   'reader.noImages': 'No page images were rendered for this PDF, so there is nothing to recognize. Make sure the proxy has poppler available, then re-upload the file.',
   'reader.editText': 'Edit the extracted copy. External OCR output (for example MinerU Markdown) can be pasted here.',
   'reader.wholeThread': 'About the whole material',
+  'reader.wholeTag': 'whole',
   'reader.threadClose': 'Close the answer rail',
   'reader.askWhole': 'Ask about the whole material…',
   'reader.empty': 'Nothing to read here yet.',

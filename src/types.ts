@@ -86,10 +86,11 @@ export interface ThoughtData extends Record<string, unknown> {
       decision | pivot | open. Auto-labeled by the takeaway judge; display
       layer only. */
   summaryTypes?: (string | undefined | null)[];
-  /** Where on the source PDF this question was asked from: page number and
-      selection rectangles as fractions of the page box. Rendered as
-      clickable marks in the reader. */
-  anchor?: { page: number; rects: [number, number, number, number][] };
+  /** Where on the source material this question was asked from: page number,
+      plus selection rectangles as fractions of the page box when asked in the
+      original PDF view (rects power the in-reader marks; page alone powers
+      the canvas p.N chip — text-view selections have no page-box geometry). */
+  anchor?: { page: number; rects?: [number, number, number, number][] };
   rolePrompt?: string;
   appliedRole?: string; // the role actually used when generating the current response
   roleSourceNodeId?: string; // user-chosen role source node (for multi-parent role conflict)
