@@ -136,6 +136,7 @@ export const zh: Record<keyof typeof en, string> = {
   'reader.digesting': '导读撰写中…',
   'reader.digestTitle': '把整份材料整理成一篇简短直观的中文导读，(p.N) 页码可点击跳回原文。使用当前选中的模型读全文。',
   'reader.redigest': '重写',
+  'reader.digestOnCanvas': '定位导读节点',
   'reader.scannedHint': '这份 PDF 没有内嵌文字层，原版视图无法选字。下面这份提取副本就是可读面。点「识别为 Markdown」可把页面图像重排为可读文本。',
   'reader.pdfFailed': 'PDF 渲染失败：{msg}',
   'reader.loading': '加载 PDF 中…',
@@ -158,6 +159,7 @@ export const zh: Record<keyof typeof en, string> = {
   'reader.stop': '停止',
   'content.digestPrompt': '把这份材料整理成一篇简短、直观的中文导读（不是逐段摘要）。开头用一句话说清它解决什么问题、为什么重要；然后用小标题组织：核心方法或论证、主要发现、局限与启发。凡是引用图表或具体段落，必须行内标注页码，格式严格为 (p.3)。公式用 $...$。长度 400～800 字。只输出导读的 Markdown 本身。',
   'content.digestFailed': '导读生成失败',
+  'content.digestNodeQuestion': '导读：{name}',
   'content.pdfPagePrompt': '把这一页 PDF 转写为干净的 Markdown。要求：\n- 数学公式用 $...$（行内）或 $$...$$（独立成行）\n- 保留标题层级、列表和表格结构\n- 图片位置用一行斜体描述代替（如 *图 2：…*）\n- 页眉、页脚和页码省略\n只输出内容本身，不要开场白。',
 
   'panel.close': '关闭面板',

@@ -2,6 +2,8 @@ import type { ThoughtData, ThoughtNode } from '../types';
 import { generateId, countTokens } from '../utils';
 import { useStore } from '../store';
 import { triggerParadigmCascade } from '../store/streaming';
+import { autoLayout } from './layout';
+import { COLORS } from './constants';
 import { processFile } from './attachments';
 import { fetchUrlSnapshot, llmCall } from './api';
 import { getModelsOnce } from './use-models';
@@ -260,25 +262,64 @@ export async function recognizePdfPages(
 /**
  * The reader's guided digest: one short, intuitive post (NOT a summary) in
  * the UI language, with (p.N) anchors that jump back into the original.
- * Runs on the user's selected model — this is a reading deliverable, not a
- * background chore — and caches on the attachment (editable like the
- * extracted copy).
+ * The digest is a NODE grown from the material — the One Rule applies: wire
+ * it downstream and later questions ride the material's best compression
+ * instead of its full text. The reader's digest tab is a view of this node;
+ * versions/rerun/model provenance all come from node machinery (rerunNode
+ * routes digestOf nodes through the digest prompt). Runs on the user's
+ * selected model — a reading deliverable, not a background chore.
  */
 export async function generateDigest(nodeId: string, attId: string): Promise<boolean> {
-  const att = useStore.getState().nodes.find((n) => n.id === nodeId)?.data.attachments?.find((a) => a.id === attId);
+  const st = useStore.getState();
+  const att = st.nodes.find((n) => n.id === nodeId)?.data.attachments?.find((a) => a.id === attId);
   if (!att?.extractedText?.trim()) return false;
-  try {
-    const digest = await llmCall([
-      { role: 'user', content: `${t('content.digestPrompt')}\n\n[Material: ${att.name}]\n${att.extractedText.slice(0, 120000)}` },
-    ]);
-    const model = useUiStore.getState().selectedModel ?? undefined;
-    useStore.getState().pushHistory();
-    useStore.getState().setAttachmentData(nodeId, attId, { digest: digest.trim(), digestBy: model });
-    return true;
-  } catch (err) {
-    toast('error', `${t('content.digestFailed')} — ${err instanceof Error ? err.message : String(err)}`);
+
+  let digestNode = st.nodes.find((n) => n.data.digestOf === attId);
+  if (!digestNode) {
+    const id = generateId();
+    const question = fmt(t('content.digestNodeQuestion'), { name: att.name });
+    const node: ThoughtNode = {
+      id,
+      type: 'thought',
+      position: { x: 0, y: 0 },
+      dragHandle: '.drag-handle',
+      data: {
+        question,
+        digestOf: attId,
+        response: '', responses: [], responseIndex: -1,
+        isCollapsed: false, isEditing: false, isEditingResponse: false, isLoading: false,
+        tokenCount: countTokens(question),
+        highlights: [], highlightMode: 'tag',
+        attachments: [], excludedAttachmentIds: [], includedAttachmentIds: [],
+        roleMode: 'inherit', isRoot: false, isBranch: false,
+      },
+    };
+    const edge = {
+      id: `edge-${nodeId}-${id}`,
+      source: nodeId,
+      target: id,
+      sourceHandle: 'continue',
+      targetHandle: 'top',
+      type: 'smoothstep',
+      style: { stroke: COLORS.accent, strokeWidth: 2 },
+      animated: false,
+      markerEnd: { type: 'arrowclosed' as const, color: COLORS.accent, width: 18, height: 18 },
+      data: {},
+    };
+    const edges = [...st.edges, edge];
+    useStore.setState({ nodes: autoLayout([...st.nodes, node], edges), edges });
+    st.pushHistory();
+    digestNode = useStore.getState().nodes.find((n) => n.id === id);
+    if (!digestNode) return false;
+  }
+
+  await useStore.getState().rerunNode(digestNode.id);
+  const after = useStore.getState().nodes.find((n) => n.id === digestNode.id);
+  if (!after || after.data.generationFailed || !after.data.response.trim()) {
+    toast('error', t('content.digestFailed'));
     return false;
   }
+  return true;
 }
 
 /** Fetch the URL server-side and store the stamped text snapshot on the node. */

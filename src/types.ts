@@ -91,6 +91,10 @@ export interface ThoughtData extends Record<string, unknown> {
       original PDF view (rects power the in-reader marks; page alone powers
       the canvas p.N chip — text-view selections have no page-box geometry). */
   anchor?: { page: number; rects?: [number, number, number, number][] };
+  /** Marks a guided-digest node: the attachment id it digests. The reader's
+      digest tab is a view of this node; rerun routes through the digest
+      prompt (see generateDigest). */
+  digestOf?: string;
   rolePrompt?: string;
   appliedRole?: string; // the role actually used when generating the current response
   roleSourceNodeId?: string; // user-chosen role source node (for multi-parent role conflict)

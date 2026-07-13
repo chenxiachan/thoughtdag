@@ -40,6 +40,27 @@ export const createEvaluatorSlice: StateCreator<StoreState, [], [], EvaluatorSli
     if (!node.data.question) return;
     if (['note', 'file', 'link', 'frame'].includes(node.data.stepKind ?? '')) return;
 
+    // Digest nodes regenerate through the digest prompt against the source
+    // attachment's full extracted text — not the context walk (the walk
+    // would summarize the summary once versions accumulate).
+    if (node.data.digestOf) {
+      const material = nodes.find((n) => n.data.attachments?.some((a) => a.id === node.data.digestOf));
+      const att = material?.data.attachments?.find((a) => a.id === node.data.digestOf);
+      if (!att?.extractedText?.trim()) return;
+      set((state) => ({
+        nodes: state.nodes.map((n) =>
+          n.id === nodeId ? { ...n, data: { ...n.data, isLoading: true, isCollapsed: false, response: '' } } : n
+        ),
+      }));
+      await runNodeGeneration(set, get, nodeId, {
+        question: node.data.question,
+        messages: [{ role: 'user', content: `${t('content.digestPrompt')}\n\n[Material: ${att.name}]\n${att.extractedText.slice(0, 120000)}` }],
+        versionMode: 'append',
+        autoChain: opts?.auto,
+      });
+      return;
+    }
+
     // Standard context with this node's own Q&A blanked out (same pattern
     // as editQuestion) — ancestors, roles, highlights, attachments all
     // resolve exactly like any other generation.

@@ -136,6 +136,7 @@ export const en = {
   'reader.digesting': 'Writing digest…',
   'reader.digestTitle': 'Write a short guided digest of the whole material in your language, with (p.N) links that jump back into the original. Uses your selected model on the full extracted text.',
   'reader.redigest': 'Rewrite',
+  'reader.digestOnCanvas': 'Locate the digest node',
   'reader.scannedHint': 'This PDF has no embedded text layer, so the original view is not selectable. The extracted copy below is the readable surface. Recognize rewrites the page images into Markdown.',
   'reader.pdfFailed': 'Could not render the PDF: {msg}',
   'reader.loading': 'Loading PDF…',
@@ -158,6 +159,7 @@ export const en = {
   'reader.stop': 'Stop',
   'content.digestPrompt': 'Turn this material into ONE short, intuitive guided digest (not a section-by-section summary). Open with a single sentence saying what problem it solves and why it matters. Then use small headings to organize: the core method or argument, the main findings, and limitations plus what they imply. Whenever you draw on a figure, table or specific passage, cite its page inline in exactly this format: (p.3). Formulas as $...$. Length 300-600 words. Write in English. Output only the digest markdown.',
   'content.digestFailed': 'Digest generation failed',
+  'content.digestNodeQuestion': 'Guided digest: {name}',
   'content.pdfPagePrompt': 'Transcribe this PDF page into clean Markdown. Rules:\n- Write formulas as $...$ inline or $$...$$ on their own line\n- Keep heading levels, lists and tables\n- Replace figures with a one-line italic description (e.g. *Figure 2: ...*)\n- Drop headers, footers and page numbers\nOutput the content only, no preamble.',
 
   'panel.close': 'Close panel',

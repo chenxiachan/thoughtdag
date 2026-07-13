@@ -111,11 +111,12 @@ export async function runNodeGeneration(
   };
 
   // Ambient memory rides the system layer of ordinary generations only —
-  // paradigm machine steps stay memory-free (experimental control), and
+  // paradigm machine steps stay memory-free (experimental control), digests
+  // must stay faithful to the material (no personalization), and
   // fingerprints never see this block (memory edits must not mark answers
   // stale; the block is assembled at generation time, after buildContext).
-  const selfKind = get().nodes.find((n) => n.id === nodeId)?.data.stepKind;
-  const memBlock = !selfKind ? memoryContextBlock() : null;
+  const selfData = get().nodes.find((n) => n.id === nodeId)?.data;
+  const memBlock = !selfData?.stepKind && !selfData?.digestOf ? memoryContextBlock() : null;
   if (memBlock) {
     const sysEnd = messages[0]?.role === 'system' ? 1 : 0;
     messages = [...messages.slice(0, sysEnd), memBlock, ...messages.slice(sysEnd)];
@@ -156,7 +157,7 @@ export async function runNodeGeneration(
     onSuccess?.(response);
     get().pushHistory();
     generateSummary(nodeId, question, response, get().setSummary);
-    if (!selfKind) judgeMemory(question, response);
+    if (!selfData?.stepKind && !selfData?.digestOf) judgeMemory(question, response);
     triggerAutoReruns(set, get, nodeId);
     triggerParadigmCascade(get, nodeId);
   } catch (err) {

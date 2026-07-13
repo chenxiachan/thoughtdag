@@ -90,13 +90,14 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
 
   // ── PDF document + text-layer probe ──
   const [view, setView] = useState<'original' | 'text' | 'digest'>(pdfAtt ? 'original' : 'text');
-  const [digesting, setDigesting] = useState(false);
+  const [digestBusy, setDigestBusy] = useState(false);
   const startDigest = async () => {
-    if (!pdfAtt || digesting) return;
-    setDigesting(true);
+    if (!pdfAtt || digestBusy) return;
+    setDigestBusy(true);
+    setView('digest'); // the digest node streams; watch it arrive in place
     const ok = await generateDigest(node.id, pdfAtt.id);
-    setDigesting(false);
-    if (ok) setView('digest');
+    setDigestBusy(false);
+    if (!ok) setView(pdfAtt ? 'original' : 'text');
   };
   // (p.N) references in the digest jump back into the original pages
   const jumpToPage = (n: number) => {
@@ -289,6 +290,19 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
     return nodes.filter((n) => ids.includes(n.id));
   }, [edges, nodes, node.id]);
 
+  // the guided digest lives on the canvas as a child node (One Rule: wire
+  // it downstream to ride the material's compression); the digest tab is
+  // that node's reading view. Legacy graphs may still carry a digest on
+  // the attachment itself — shown until a node replaces it.
+  const digestNode = pdfAtt ? children.find((c) => c.data.digestOf === pdfAtt.id) : undefined;
+  const digestText = digestNode?.data.response?.trim() || pdfAtt?.digest || '';
+  const digesting = digestBusy || !!digestNode?.data.isLoading;
+  const digestModel = digestNode
+    ? digestNode.data.generatedBy?.[digestNode.data.responseIndex]
+    : pdfAtt?.digestBy;
+  // the digest node has its own tab; the footer chips list the questions
+  const grownChildren = useMemo(() => children.filter((c) => !c.data.digestOf), [children]);
+
   // interacted places wear marks on the original pages: every child of this
   // material that carries an anchor, grouped by page
   const anchorsByPage = useMemo(() => {
@@ -434,7 +448,7 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
               >
                 {t('reader.viewText')}
               </button>
-              {pdfAtt.digest && (
+              {(digestText || digesting) && (
                 <button
                   onClick={() => setView('digest')}
                   className={`px-3 py-1.5 transition-colors border-l border-line ${view === 'digest' ? 'bg-accent/10 text-accent font-medium' : 'text-ink-muted hover:bg-wash'}`}
@@ -444,15 +458,14 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
               )}
             </div>
           )}
-          {pdfAtt && !pdfAtt.digest && !!pdfAtt.extractedText?.trim() && (
+          {pdfAtt && !digestText && !digesting && !!pdfAtt.extractedText?.trim() && (
             <button
               onClick={() => void startDigest()}
-              disabled={digesting}
               title={t('reader.digestTitle')}
-              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-line text-ink-muted hover:bg-wash transition-colors shrink-0 disabled:opacity-50"
+              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-line text-ink-muted hover:bg-wash transition-colors shrink-0"
             >
-              {digesting ? <Loader2 size={13} strokeWidth={1.75} className="animate-spin text-accent" /> : <Sparkles size={13} strokeWidth={1.75} />}
-              {digesting ? t('reader.digesting') : t('reader.digest')}
+              <Sparkles size={13} strokeWidth={1.75} />
+              {t('reader.digest')}
             </button>
           )}
           {pdfAtt && view === 'text' && hasVisionModel && (
@@ -512,17 +525,30 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
             )
           )}
 
-          {view === 'digest' && pdfAtt?.digest && (
+          {view === 'digest' && pdfAtt && (
             <div className="max-w-[760px] mx-auto px-8 py-8">
-              <div className="markdown-body text-[15px] text-ink leading-relaxed">
-                <DigestBody text={pdfAtt.digest} onJump={jumpToPage} />
-              </div>
-              <div className="mt-6 pt-4 border-t border-line flex items-center gap-3 text-2xs text-ink-faint">
-                <span className="font-mono">{pdfAtt.digestBy ? pdfAtt.digestBy.split('/').pop() : ''}</span>
-                <button onClick={() => void startDigest()} disabled={digesting} className="flex items-center gap-1 hover:text-ink-muted transition-colors disabled:opacity-50">
-                  {digesting ? <Loader2 size={11} className="animate-spin" /> : <RefreshCw size={11} strokeWidth={1.75} />} {t('reader.redigest')}
-                </button>
-              </div>
+              {digestText ? (
+                <div className="markdown-body text-[15px] text-ink leading-relaxed">
+                  <DigestBody text={digestText} onJump={jumpToPage} />
+                </div>
+              ) : (
+                <div className="flex items-center justify-center gap-2 py-16 text-sm text-ink-muted">
+                  <Loader2 size={16} strokeWidth={1.75} className="animate-spin text-accent" /> {t('reader.digesting')}
+                </div>
+              )}
+              {digestText && !digesting && (
+                <div className="mt-6 pt-4 border-t border-line flex items-center gap-3 text-2xs text-ink-faint">
+                  <span className="font-mono">{digestModel ? digestModel.split('/').pop() : ''}</span>
+                  <button onClick={() => void startDigest()} className="flex items-center gap-1 hover:text-ink-muted transition-colors">
+                    <RefreshCw size={11} strokeWidth={1.75} /> {t('reader.redigest')}
+                  </button>
+                  {digestNode && (
+                    <button onClick={() => { close(); onLocate(digestNode.id); }} className="flex items-center gap-1 hover:text-accent transition-colors" title={t('reader.locate')}>
+                      <Crosshair size={11} strokeWidth={1.75} /> {t('reader.digestOnCanvas')}
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           )}
 
@@ -652,10 +678,10 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
           >
             <Send size={14} strokeWidth={1.75} />
           </button>
-          {children.length > 0 && (
+          {grownChildren.length > 0 && (
             <div className="flex items-center gap-2 overflow-x-auto max-w-[45%] shrink-0">
-              <span className="text-2xs text-ink-faint shrink-0">{fmt(t('reader.grown'), { n: children.length })}</span>
-              {children.map((c) => (
+              <span className="text-2xs text-ink-faint shrink-0">{fmt(t('reader.grown'), { n: grownChildren.length })}</span>
+              {grownChildren.map((c) => (
                 <span
                   key={c.id}
                   className={`text-2xs rounded-full pl-2.5 pr-1 py-0.5 shrink-0 max-w-[220px] transition-colors flex items-center gap-1 ${
