@@ -16,7 +16,7 @@
 
 [English](./README.md) · [快速开始](#快速开始) · [功能总览](#功能总览) · [支持的模型](#支持的模型) · [Roadmap](#roadmap)
 
-<img src="docs/hero-zh.png" alt="ThoughtDAG 地图视角：一个问题、四个分区章节，每张卡收起成一句收获，关键动作带徽章（排除、决策、转向、待解），阅读闭环章里有带封面的 PDF 和导读节点" width="100%"/>
+<img src="docs/hero-zh.png" alt="ThoughtDAG 地图视角：五张卡各自收起成一句收获，关键动作带徽章（决策、排除、转向、待解），对话、分支与评审三种边清晰可见" width="100%"/>
 
 </div>
 
