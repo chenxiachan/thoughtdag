@@ -16,7 +16,7 @@ An infinite canvas where LLM conversations grow into an editable thought graph.
 
 [中文](./README_ZH.md) · [Quick start](#quick-start) · [Features](#features-at-a-glance) · [Models](#supported-models) · [Roadmap](#roadmap)
 
-<img src="docs/hero-en.png" alt="ThoughtDAG at map zoom: five cards folded into one-line takeaways, decisive moves wearing badges (decided, ruled out, pivoted, open), conversation, branch and reviewer edges visible" width="100%"/>
+<img src="docs/hero-en.png" alt="ThoughtDAG: on the left a map of takeaway plaques with badges (decided, ruled out, pivoted) and conversation and branch edges; on the right the focus panel open on one node, showing its full LLM question and answer plus the context chain the model received, priced in tokens" width="100%"/>
 
 </div>
 

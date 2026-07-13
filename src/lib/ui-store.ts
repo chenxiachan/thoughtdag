@@ -197,6 +197,11 @@ export const useUiStore = create<UiState>((set, get) => ({
   },
 }));
 
+// Debug: expose the UI store for screenshot/e2e scripts (DEV only)
+if (import.meta.env.DEV && typeof window !== 'undefined') {
+  Object.assign(window, { __ui: useUiStore });
+}
+
 let toastCounter = 0;
 
 /** Show a toast (bottom-right). duration 0 = sticky until dismissed.

@@ -708,7 +708,11 @@ function Canvas() {
         }}
       >
       <ReactFlow
-        onInit={(instance) => { rfInstance.current = instance; }}
+        onInit={(instance) => {
+          rfInstance.current = instance;
+          // Debug: expose the flow instance for screenshot/e2e scripts (DEV only)
+          if (import.meta.env.DEV) (window as unknown as { __rf?: typeof instance }).__rf = instance;
+        }}
         nodes={displayNodes}
         edges={highlightedEdges}
         onNodesChange={onNodesChange}
