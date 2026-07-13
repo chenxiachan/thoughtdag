@@ -10,6 +10,19 @@ import { fuzzyHighlightRegex } from '../lib/highlight-match';
 import { useT } from '../i18n';
 
 const REMARK_PLUGINS = [remarkGfm, remarkMath];
+
+// Models freely emit \( \) and \[ \] math delimiters; remark-math only
+// parses $-style. Normalize outside code fences/spans so formulas render
+// everywhere (cards, panel, rail, reader) instead of leaking raw.
+function normalizeMath(src: string): string {
+  if (!src || (!src.includes('\\(') && !src.includes('\\['))) return src;
+  const parts = src.split(/(```[\s\S]*?```|`[^`\n]*`)/g);
+  return parts
+    .map((seg, i) => (i % 2 === 1 ? seg : seg
+      .replace(/\\\[([\s\S]+?)\\\]/g, (_, m) => `\n$$\n${m.trim()}\n$$\n`)
+      .replace(/\\\((.+?)\\\)/g, (_, m) => `$${m.trim()}$`)))
+    .join('');
+}
 const REHYPE_PLUGINS = [rehypeRaw, rehypeHighlight, rehypeKatex];
 
 // Code blocks get a hover copy button (no toast: too frequent an action —
@@ -52,7 +65,7 @@ const COMPONENTS = { pre: Pre, table: Table };
 export function Markdown({ children }: { children: string }) {
   return (
     <ReactMarkdown remarkPlugins={REMARK_PLUGINS} rehypePlugins={REHYPE_PLUGINS} components={COMPONENTS}>
-      {children}
+      {normalizeMath(children)}
     </ReactMarkdown>
   );
 }

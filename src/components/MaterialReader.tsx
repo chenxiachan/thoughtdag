@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Crosshair, FileText, Highlighter, Link2, Loader2, Pencil, ScanText, Send, StickyNote, X } from 'lucide-react';
+import { Crosshair, FileText, Highlighter, Link2, Loader2, Pencil, RefreshCw, ScanText, Send, Sparkles, StickyNote, X } from 'lucide-react';
 import type { PDFDocumentProxy } from 'pdfjs-dist';
 import type { ThoughtNode } from '../types';
 import { useStore } from '../store';
 import { useUiStore } from '../lib/ui-store';
 import { useModels } from '../lib/use-models';
-import { recognizePdfPages } from '../lib/content';
+import { generateDigest, recognizePdfPages } from '../lib/content';
 import { Markdown, HighlightedMarkdown } from './Markdown';
 import { generateId, isImeComposing } from '../utils';
 import { useT, fmt } from '../i18n';
@@ -89,7 +89,22 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
   const sections = useMemo(() => splitByPageMarks(textBody), [textBody]);
 
   // ── PDF document + text-layer probe ──
-  const [view, setView] = useState<'original' | 'text'>(pdfAtt ? 'original' : 'text');
+  const [view, setView] = useState<'original' | 'text' | 'digest'>(pdfAtt ? 'original' : 'text');
+  const [digesting, setDigesting] = useState(false);
+  const startDigest = async () => {
+    if (!pdfAtt || digesting) return;
+    setDigesting(true);
+    const ok = await generateDigest(node.id, pdfAtt.id);
+    setDigesting(false);
+    if (ok) setView('digest');
+  };
+  // (p.N) references in the digest jump back into the original pages
+  const jumpToPage = (n: number) => {
+    setView('original');
+    window.setTimeout(() => {
+      bodyRef.current?.querySelector(`[data-page="${n}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 120);
+  };
   const [doc, setDoc] = useState<PDFDocumentProxy | null>(null);
   const [pdfjs, setPdfjs] = useState<Pdfjs | null>(null);
   const [hasTextLayer, setHasTextLayer] = useState<boolean | null>(null);
@@ -137,7 +152,7 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
 
   // ── selection → ask bar ──
   const bodyRef = useRef<HTMLDivElement>(null);
-  const [ask, setAsk] = useState<{ text: string; page: number | null; x: number; y: number; targetNodeId?: string } | null>(null);
+  const [ask, setAsk] = useState<{ text: string; page: number | null; x: number; y: number; targetNodeId?: string; rects?: [number, number, number, number][] } | null>(null);
   const [draft, setDraft] = useState('');
 
   const handleMouseUp = () => {
@@ -154,8 +169,18 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
       if (text.length < 2) return;
       const rect = range.getBoundingClientRect();
       const el = range.startContainer instanceof Element ? range.startContainer : range.startContainer.parentElement;
-      const page = el?.closest('[data-page]')?.getAttribute('data-page');
-      setAsk({ text, page: page ? Number(page) : null, x: rect.left + rect.width / 2, y: rect.bottom });
+      const pageEl = el?.closest('[data-page]') as HTMLElement | null;
+      const page = pageEl?.getAttribute('data-page');
+      // selection rectangles in page-fraction space → durable anchors that
+      // survive zoom, reflow and future re-renders
+      let rects: [number, number, number, number][] | undefined;
+      if (pageEl) {
+        const pb = pageEl.getBoundingClientRect();
+        rects = Array.from(range.getClientRects()).slice(0, 8)
+          .filter((r) => r.width > 2 && r.height > 2)
+          .map((r) => [(r.left - pb.left) / pb.width, (r.top - pb.top) / pb.height, r.width / pb.width, r.height / pb.height]);
+      }
+      setAsk({ text, page: page ? Number(page) : null, x: rect.left + rect.width / 2, y: rect.bottom, rects });
     }, 0);
   };
 
@@ -170,7 +195,15 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
     // p.N provenance rides inside the quoted passage (document selections only)
     const passage = ask.targetNodeId ? ask.text : (ask.page != null ? `(p.${ask.page}) ${ask.text}` : ask.text);
     useStore.getState().addQuestion(q, { parentId: ask.targetNodeId ?? node.id, branchContext: passage });
-    setThreadId(useStore.getState().selectedNodeId); // the freshly landed node
+    const freshId = useStore.getState().selectedNodeId;
+    // document selections leave a mark on the page they came from
+    if (!ask.targetNodeId && ask.page != null && ask.rects?.length && freshId) {
+      const anchor = { page: ask.page, rects: ask.rects };
+      useStore.setState((s) => ({
+        nodes: s.nodes.map((n) => (n.id === freshId ? { ...n, data: { ...n.data, anchor } } : n)),
+      }));
+    }
+    setThreadId(freshId); // the freshly landed node
     setDraft('');
     setAsk(null);
     window.getSelection()?.removeAllRanges();
@@ -246,6 +279,20 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
     const ids = edges.filter((e) => e.source === node.id && !e.data?.isCrossLink).map((e) => e.target);
     return nodes.filter((n) => ids.includes(n.id));
   }, [edges, nodes, node.id]);
+
+  // interacted places wear marks on the original pages: every child of this
+  // material that carries an anchor, grouped by page
+  const anchorsByPage = useMemo(() => {
+    const map = new Map<number, { id: string; question: string; rects: [number, number, number, number][] }[]>();
+    for (const c of children) {
+      const a = c.data.anchor;
+      if (!a?.rects?.length) continue;
+      const list = map.get(a.page) ?? [];
+      list.push({ id: c.id, question: c.data.question, rects: a.rects });
+      map.set(a.page, list);
+    }
+    return map;
+  }, [children]);
 
   // the rail's thread: the asked node plus its linear structural
   // continuations (follow-ups append here; forks belong to the canvas)
@@ -361,7 +408,26 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
               >
                 {t('reader.viewText')}
               </button>
+              {pdfAtt.digest && (
+                <button
+                  onClick={() => setView('digest')}
+                  className={`px-3 py-1.5 transition-colors border-l border-line ${view === 'digest' ? 'bg-accent/10 text-accent font-medium' : 'text-ink-muted hover:bg-wash'}`}
+                >
+                  {t('reader.viewDigest')}
+                </button>
+              )}
             </div>
+          )}
+          {pdfAtt && !pdfAtt.digest && !!pdfAtt.extractedText?.trim() && (
+            <button
+              onClick={() => void startDigest()}
+              disabled={digesting}
+              title={t('reader.digestTitle')}
+              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-line text-ink-muted hover:bg-wash transition-colors shrink-0 disabled:opacity-50"
+            >
+              {digesting ? <Loader2 size={13} strokeWidth={1.75} className="animate-spin text-accent" /> : <Sparkles size={13} strokeWidth={1.75} />}
+              {digesting ? t('reader.digesting') : t('reader.digest')}
+            </button>
           )}
           {pdfAtt && view === 'text' && hasVisionModel && (
             recog === 'running' ? (
@@ -408,7 +474,7 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
             doc && pdfjs ? (
               <div className="flex flex-col items-center gap-4 py-6 px-4">
                 {Array.from({ length: doc.numPages }, (_, i) => (
-                  <PdfPage key={i + 1} doc={doc} pdfjs={pdfjs} pageNo={i + 1} width={Math.min(860, window.innerWidth * (threadId ? 0.96 : 0.94) - (threadId ? 420 : 0) - 96)} />
+                  <PdfPage key={i + 1} doc={doc} pdfjs={pdfjs} pageNo={i + 1} width={Math.min(860, window.innerWidth * (threadId ? 0.96 : 0.94) - (threadId ? 420 : 0) - 96)} anchors={anchorsByPage.get(i + 1)} activeThreadId={threadId} onAnchorClick={setThreadId} />
                 ))}
               </div>
             ) : (
@@ -418,6 +484,20 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
                   : <><Loader2 size={16} strokeWidth={1.75} className="animate-spin text-accent" /> {t('reader.loading')}</>}
               </div>
             )
+          )}
+
+          {view === 'digest' && pdfAtt?.digest && (
+            <div className="max-w-[760px] mx-auto px-8 py-8">
+              <div className="markdown-body text-[15px] text-ink leading-relaxed">
+                <DigestBody text={pdfAtt.digest} onJump={jumpToPage} />
+              </div>
+              <div className="mt-6 pt-4 border-t border-line flex items-center gap-3 text-2xs text-ink-faint">
+                <span className="font-mono">{pdfAtt.digestBy ? pdfAtt.digestBy.split('/').pop() : ''}</span>
+                <button onClick={() => void startDigest()} disabled={digesting} className="flex items-center gap-1 hover:text-ink-muted transition-colors disabled:opacity-50">
+                  {digesting ? <Loader2 size={11} className="animate-spin" /> : <RefreshCw size={11} strokeWidth={1.75} />} {t('reader.redigest')}
+                </button>
+              </div>
+            </div>
           )}
 
           {view === 'text' && (
@@ -629,7 +709,12 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
 
 // One PDF page: canvas render + selectable text layer, lazily rendered as it
 // scrolls into range so long papers stay light.
-function PdfPage({ doc, pdfjs, pageNo, width }: { doc: PDFDocumentProxy; pdfjs: Pdfjs; pageNo: number; width: number }) {
+function PdfPage({ doc, pdfjs, pageNo, width, anchors, activeThreadId, onAnchorClick }: {
+  doc: PDFDocumentProxy; pdfjs: Pdfjs; pageNo: number; width: number;
+  anchors?: { id: string; question: string; rects: [number, number, number, number][] }[];
+  activeThreadId?: string | null;
+  onAnchorClick?: (id: string) => void;
+}) {
   const holderRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
@@ -690,7 +775,56 @@ function PdfPage({ doc, pdfjs, pageNo, width }: { doc: PDFDocumentProxy; pdfjs: 
     <div ref={holderRef} data-page={pageNo} className="relative bg-white shadow-md rounded-sm shrink-0" style={{ width, height }}>
       <canvas ref={canvasRef} className="absolute inset-0" />
       <div ref={textRef} className="tdag-textlayer" />
+      {/* interaction marks: a wash over the asked passage (never blocks
+          re-selection) plus one clickable bubble that reopens the thread */}
+      {anchors?.map((a) => (
+        <div key={a.id}>
+          {a.rects.map((r, i) => (
+            <div
+              key={i}
+              className={`absolute rounded-sm pointer-events-none ${activeThreadId === a.id ? 'bg-accent/25' : 'bg-accent/10'}`}
+              style={{ left: `${r[0] * 100}%`, top: `${r[1] * 100}%`, width: `${r[2] * 100}%`, height: `${r[3] * 100}%`, zIndex: 3 }}
+            />
+          ))}
+          <button
+            onClick={() => onAnchorClick?.(a.id)}
+            title={a.question}
+            className={`absolute w-6 h-6 rounded-full shadow-md border flex items-center justify-center text-xs transition-transform hover:scale-110 ${
+              activeThreadId === a.id ? 'bg-accent text-white border-accent' : 'bg-card text-accent border-accent/40'
+            }`}
+            style={{ left: `calc(${(a.rects[0][0] + a.rects[0][2]) * 100}% + 6px)`, top: `${a.rects[0][1] * 100}%`, zIndex: 4 }}
+            data-anchor-bubble={a.id}
+          >
+            💬
+          </button>
+        </div>
+      ))}
       <span className="absolute -left-9 top-1 text-2xs text-ink-faint font-mono select-none">p.{pageNo}</span>
     </div>
+  );
+}
+
+// Digest markdown with (p.N) references turned into jump buttons back into
+// the original pages — a digest with provenance, not a floating summary.
+function DigestBody({ text, onJump }: { text: string; onJump: (page: number) => void }) {
+  const parts = text.split(/(\(p\.\s?\d+\))/g);
+  return (
+    <>
+      {parts.map((seg, i) => {
+        const m = seg.match(/^\(p\.\s?(\d+)\)$/);
+        if (m) {
+          return (
+            <button
+              key={i}
+              onClick={() => onJump(Number(m[1]))}
+              className="inline-flex items-center text-2xs text-accent bg-accent/10 hover:bg-accent/20 rounded-full px-1.5 py-0.5 mx-0.5 align-middle transition-colors"
+            >
+              p.{m[1]}
+            </button>
+          );
+        }
+        return <Markdown key={i}>{seg}</Markdown>;
+      })}
+    </>
   );
 }

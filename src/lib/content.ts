@@ -257,6 +257,30 @@ export async function recognizePdfPages(
   toast('success', t('reader.recognizeDone'));
 }
 
+/**
+ * The reader's guided digest: one short, intuitive post (NOT a summary) in
+ * the UI language, with (p.N) anchors that jump back into the original.
+ * Runs on the user's selected model — this is a reading deliverable, not a
+ * background chore — and caches on the attachment (editable like the
+ * extracted copy).
+ */
+export async function generateDigest(nodeId: string, attId: string): Promise<boolean> {
+  const att = useStore.getState().nodes.find((n) => n.id === nodeId)?.data.attachments?.find((a) => a.id === attId);
+  if (!att?.extractedText?.trim()) return false;
+  try {
+    const digest = await llmCall([
+      { role: 'user', content: `${t('content.digestPrompt')}\n\n[Material: ${att.name}]\n${att.extractedText.slice(0, 120000)}` },
+    ]);
+    const model = useUiStore.getState().selectedModel ?? undefined;
+    useStore.getState().pushHistory();
+    useStore.getState().setAttachmentData(nodeId, attId, { digest: digest.trim(), digestBy: model });
+    return true;
+  } catch (err) {
+    toast('error', `${t('content.digestFailed')} — ${err instanceof Error ? err.message : String(err)}`);
+    return false;
+  }
+}
+
 /** Fetch the URL server-side and store the stamped text snapshot on the node. */
 export async function fetchLinkIntoNode(nodeId: string, url: string): Promise<void> {
   const patch = (p: Partial<ThoughtData>) => useStore.setState((s) => ({

@@ -13,6 +13,8 @@ export interface Attachment {
   numPages?: number; // PDF page count
   renderMode?: 'full' | 'text-only'; // PDF: include page images or text only
   isExtracting?: boolean; // PDF extraction in progress
+  digest?: string; // reader's guided digest (markdown, with (p.N) anchors)
+  digestBy?: string; // model that wrote the digest
 }
 
 export interface Highlight {
@@ -84,6 +86,10 @@ export interface ThoughtData extends Record<string, unknown> {
       decision | pivot | open. Auto-labeled by the takeaway judge; display
       layer only. */
   summaryTypes?: (string | undefined | null)[];
+  /** Where on the source PDF this question was asked from: page number and
+      selection rectangles as fractions of the page box. Rendered as
+      clickable marks in the reader. */
+  anchor?: { page: number; rects: [number, number, number, number][] };
   rolePrompt?: string;
   appliedRole?: string; // the role actually used when generating the current response
   roleSourceNodeId?: string; // user-chosen role source node (for multi-parent role conflict)
