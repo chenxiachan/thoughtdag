@@ -87,6 +87,22 @@ export const zh: Record<keyof typeof en, string> = {
   'canvas.deleteEdge': '删除连线',
   'canvas.deleteEdgeTitle': '删除连线（或按 Delete 键）',
 
+  // API key dialog (the .env-free path in)
+  'apikey.title': '配置模型 API',
+  'apikey.entryTitle': '配置模型 API（浏览器端 key，无需改 .env）',
+  'apikey.introEmpty': '还没有可用的模型。填一把 OpenRouter key 就能开始：一把 key 通向各家旗舰模型，也可以稍后在 .env 里配置其他服务商。',
+  'apikey.introHasEnv': '服务端 .env 已配置 {n} 个模型。这里填的 key 会在其基础上追加 OpenRouter 模型。',
+  'apikey.keyLabel': 'OpenRouter API Key',
+  'apikey.keyHint': '在这里创建：',
+  'apikey.modelsLabel': '要启用的模型（每行一个，vendor/model 格式）',
+  'apikey.modelsHint': '可增删。完整列表见 openrouter.ai/models。',
+  'apikey.privacy': 'key 只存在你的浏览器（localStorage）和本机代理的内存里，不写入任何文件，不上传到别处。清除即彻底移除。',
+  'apikey.save': '验证并保存',
+  'apikey.checking': '验证中…',
+  'apikey.saved': '已启用 {n} 个模型',
+  'apikey.clear': '清除 key',
+  'apikey.cleared': '浏览器端 key 已清除',
+
   // Node (ThoughtNode + streaming placeholders)
   'node.exploringFrom': '从选中内容探索：',
   'node.openAtPage': '回到阅读器第 {n} 页，展开这条对话',

@@ -15,7 +15,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import 'highlight.js/styles/github.css';
-import { BookOpen, Brain, CircleHelp, Dna, Download, Drama, FileText, Frame, GitBranch, LayoutGrid, Loader2, MessageCircleQuestion, Paperclip, Redo2, Scissors, SquareTerminal, StickyNote, Trash2, Undo2, Workflow, X, ListRestart } from 'lucide-react';
+import { BookOpen, Brain, CircleHelp, Dna, Download, Drama, FileText, Frame, GitBranch, KeyRound, LayoutGrid, Loader2, MessageCircleQuestion, Paperclip, Redo2, Scissors, SquareTerminal, StickyNote, Trash2, Undo2, Workflow, X, ListRestart } from 'lucide-react';
 import './index.css';
 import ThoughtNode from './components/ThoughtNode';
 import ParadigmNode from './components/ParadigmNode';
@@ -49,12 +49,14 @@ import Toaster from './components/ui/Toaster';
 import GlobalTooltip from './components/ui/GlobalTooltip';
 import RoleManagerModal from './components/ui/RoleManagerModal';
 import MemoryManagerModal from './components/ui/MemoryManagerModal';
+import ApiKeyModal from './components/ui/ApiKeyModal';
 import LangSwitch from './components/ui/LangSwitch';
 import ModelPicker from './components/ui/ModelPicker';
 import RoleTemplateChips from './components/ui/RoleTemplateChips';
 import SearchToggles from './components/ui/SearchToggles';
 import Tutorial from './components/Tutorial';
 import { useT, t as ti, fmt, useI18n } from './i18n';
+import { useModels } from './lib/use-models';
 
 // One node type key, three renderers: content nodes (notes / files) render
 // the same in every mode; otherwise the active project's kind decides
@@ -82,6 +84,7 @@ export default function App() {
       <GlobalTooltip />
       <RoleManagerModal />
       <MemoryManagerModal />
+      <ApiKeyModal />
       <ConfirmDialog />
       <Tutorial />
     </>
@@ -107,6 +110,18 @@ function Canvas() {
   const prevNodeCount = useRef(nodes.length);
   const lang = useI18n((s) => s.lang);
   const isParadigm = useProjects((s) => s.projects.find((p) => p.id === s.activeId)?.kind === 'paradigm');
+
+  // No configured model anywhere (.env empty, no stored browser key):
+  // surface the key dialog once — the app is inert until a model exists.
+  const modelData = useModels();
+  const keyPrompted = useRef(false);
+  useEffect(() => {
+    if (keyPrompted.current || !modelData) return;
+    if (modelData.models.length === 0) {
+      keyPrompted.current = true;
+      useUiStore.getState().setApiKeyModalOpen(true);
+    }
+  }, [modelData]);
 
   const loadExample = useCallback(() => {
     const { nodes: exNodes, edges: exEdges } = buildExampleGraph(lang);
@@ -1053,6 +1068,16 @@ function Canvas() {
         >
           <Brain size={15} strokeWidth={1.75} />
         </button>
+        {!hasNodes && (
+          <button
+            onClick={() => useUiStore.getState().setApiKeyModalOpen(true)}
+            className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors text-ink-faint hover:text-accent"
+            title={t('apikey.entryTitle')}
+            data-apikey-entry
+          >
+            <KeyRound size={15} strokeWidth={1.75} />
+          </button>
+        )}
         {!isParadigm && (<>
         </>)}
         {/* Batch replay: visible only when something is stale. Price at the

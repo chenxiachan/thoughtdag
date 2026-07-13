@@ -87,6 +87,22 @@ export const en = {
   'canvas.deleteEdge': 'Delete edge',
   'canvas.deleteEdgeTitle': 'Delete edge (or press Delete)',
 
+  // API key dialog (the .env-free path in)
+  'apikey.title': 'Set up a model API',
+  'apikey.entryTitle': 'Set up a model API (browser-side key, no .env needed)',
+  'apikey.introEmpty': 'No model is available yet. Paste an OpenRouter key to get going: one key routes to every major flagship model. You can also configure other providers in .env later.',
+  'apikey.introHasEnv': 'The proxy already has {n} models from .env. A key here adds OpenRouter models on top.',
+  'apikey.keyLabel': 'OpenRouter API key',
+  'apikey.keyHint': 'Create one at',
+  'apikey.modelsLabel': 'Models to enable (one per line, vendor/model)',
+  'apikey.modelsHint': 'Add or remove freely. Full catalog at openrouter.ai/models.',
+  'apikey.privacy': 'The key lives in your browser (localStorage) and this machine\'s proxy memory only. It is never written to a file or sent anywhere else. Clearing it removes it completely.',
+  'apikey.save': 'Verify & save',
+  'apikey.checking': 'Verifying…',
+  'apikey.saved': '{n} models enabled',
+  'apikey.clear': 'Clear key',
+  'apikey.cleared': 'Browser-side key cleared',
+
   // Node (ThoughtNode + streaming placeholders)
   'node.exploringFrom': 'Exploring from selection:',
   'node.openAtPage': 'Reopen the reader at page {n} with this thread',

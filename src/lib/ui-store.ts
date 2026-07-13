@@ -82,6 +82,9 @@ interface UiState {
   setMemories: (entries: import('./memory').MemoryEntry[]) => void;
   memoryManagerOpen: boolean;
   setMemoryManagerOpen: (open: boolean) => void;
+  /** Browser-side API key dialog (the .env-free path in). */
+  apiKeyModalOpen: boolean;
+  setApiKeyModalOpen: (open: boolean) => void;
   setReaderNodeId: (id: string | null, jump?: { page?: number; threadId?: string }) => void;
   setPanelOpen: (open: boolean) => void;
   setSelectedModel: (model: string | null) => void;
@@ -164,6 +167,8 @@ export const useUiStore = create<UiState>((set, get) => ({
   },
   memoryManagerOpen: false,
   setMemoryManagerOpen: (open) => set({ memoryManagerOpen: open }),
+  apiKeyModalOpen: false,
+  setApiKeyModalOpen: (open) => set({ apiKeyModalOpen: open }),
   readerNodeId: null,
   readerJump: null,
   setReaderNodeId: (id, jump) => set({ readerNodeId: id, readerJump: id ? (jump ?? null) : null }),

@@ -126,6 +126,23 @@ if (process.env.MOONSHOT_API_KEY) {
   register(envModels('MOONSHOT', ['kimi-k2-turbo-preview', 'kimi-latest']), 'Kimi', (id) => moonshot(id), { vision: false });
 }
 
+// Vision capability per slug from OpenRouter's public model list — the
+// registry defaults would otherwise claim every routed model sees images.
+async function applyOpenRouterVision() {
+  const slugged = Object.keys(modelRegistry).filter((id) => id.includes('/'));
+  if (slugged.length === 0) return;
+  try {
+    const res = await fetch('https://openrouter.ai/api/v1/models');
+    const { data } = await res.json();
+    const caps = new Map(data.map((m) => [m.id, m.architecture?.input_modalities ?? []]));
+    for (const id of slugged) {
+      const mods = caps.get(id);
+      if (mods) modelRegistry[id].vision = mods.includes('image');
+    }
+    console.log(`OpenRouter capabilities: ${slugged.filter((id) => modelRegistry[id].vision).length}/${slugged.length} vision-capable`);
+  } catch { /* offline: flags stay conservative (text-only) */ }
+}
+
 if (process.env.OPENROUTER_API_KEY) {
   // Gateway to 300+ models — put any "vendor/model" slugs in OPENROUTER_MODELS
   const openrouter = createOpenAICompatible({
@@ -133,22 +150,7 @@ if (process.env.OPENROUTER_API_KEY) {
     baseURL: 'https://openrouter.ai/api/v1',
   });
   register(envModels('OPENROUTER', ['openrouter/auto']), 'OpenRouter', (id) => openrouter(id), { vision: false });
-  // Vision capability per slug from OpenRouter's public model list — the
-  // registry defaults would otherwise claim every routed model sees images.
-  (async () => {
-    const slugged = Object.keys(modelRegistry).filter((id) => id.includes('/'));
-    if (slugged.length === 0) return;
-    try {
-      const res = await fetch('https://openrouter.ai/api/v1/models');
-      const { data } = await res.json();
-      const caps = new Map(data.map((m) => [m.id, m.architecture?.input_modalities ?? []]));
-      for (const id of slugged) {
-        const mods = caps.get(id);
-        if (mods) modelRegistry[id].vision = mods.includes('image');
-      }
-      console.log(`OpenRouter capabilities: ${slugged.filter((id) => modelRegistry[id].vision).length}/${slugged.length} vision-capable`);
-    } catch { /* offline: flags stay conservative (text-only) */ }
-  })();
+  void applyOpenRouterVision();
 }
 
 if (process.env.OLLAMA_MODELS) {
@@ -161,23 +163,21 @@ if (process.env.OLLAMA_MODELS) {
 }
 
 if (Object.keys(modelRegistry).length === 0) {
-  console.error(
-    '\n✗ No LLM API key found. 未找到任何 LLM API key。\n' +
-    '  请执行 cp .env.example .env，然后至少填入一把 key：\n' +
-    '    ZHIPU_API_KEY     — 智谱 GLM（免费，推荐）https://open.bigmodel.cn/\n' +
-    '    DASHSCOPE_API_KEY — 通义千问 / OPENAI_API_KEY / ANTHROPIC_API_KEY /\n' +
-    '    GOOGLE_API_KEY / DEEPSEEK_API_KEY / OPENROUTER_API_KEY / OLLAMA_MODELS\n'
+  console.warn(
+    '\n⚠ No LLM API key in .env — starting empty. 未在 .env 找到任何 LLM API key。\n' +
+    '  The app will ask for an OpenRouter key in the browser on first load.\n' +
+    '  Or: cp .env.example .env and fill in any key (ZHIPU_API_KEY is free).\n'
   );
-  process.exit(1);
 }
 
-const DEFAULT_MODEL = ZHIPU_KEY ? 'glm-4.5-flash' : Object.keys(modelRegistry)[0];
+let DEFAULT_MODEL = ZHIPU_KEY ? 'glm-4.5-flash' : Object.keys(modelRegistry)[0];
 
 // Choose model entry: if images are attached and the model is text-only,
 // switch to its provider's vision counterpart — or, failing that, any
 // registered vision-capable model.
 function resolveModel(modelId, hasImages) {
   const entry = modelRegistry[modelId] || modelRegistry[DEFAULT_MODEL];
+  if (!entry) return null; // empty registry: no .env key and no runtime key yet
   if (hasImages && !entry.vision) {
     if (entry.visionFallback && modelRegistry[entry.visionFallback]) {
       return modelRegistry[entry.visionFallback];
@@ -569,16 +569,16 @@ app.get('/api/tools', (req, res) => {
   });
 });
 
-app.get('/api/models', (req, res) => {
+function modelsPayload() {
   const models = Object.entries(modelRegistry).map(([id, m]) => ({
     id,
     name: m.name,
     provider: m.provider,
     vision: m.vision,
   }));
-  res.json({
+  return {
     models,
-    default: DEFAULT_MODEL,
+    default: DEFAULT_MODEL ?? null,
     // capability report: what the door sign may show, what stays hidden
     capabilities: {
       webSearch: !!ZHIPU_KEY,
@@ -586,13 +586,55 @@ app.get('/api/models', (req, res) => {
       scholarSearch: true,
       vision: models.some((m) => m.vision),
     },
-  });
+  };
+}
+
+app.get('/api/models', (req, res) => res.json(modelsPayload()));
+
+// Browser-supplied OpenRouter key: an alternative to .env for people who
+// try the app before touching a config file. The key lives in the BROWSER
+// (localStorage) and in this process's memory only — never written to disk.
+// The frontend re-pushes it on boot, so proxy restarts self-heal. Models
+// registered here are tagged runtime:true so a new push replaces them
+// without touching .env-registered ones.
+const RUNTIME_DEFAULT_SLUGS = ['openrouter/auto'];
+app.post('/api/runtime-key', async (req, res) => {
+  const { key, models } = req.body ?? {};
+  for (const id of Object.keys(modelRegistry)) {
+    if (modelRegistry[id].runtime) delete modelRegistry[id];
+  }
+  if (key) {
+    try {
+      const probe = await fetch('https://openrouter.ai/api/v1/auth/key', {
+        headers: { Authorization: `Bearer ${key}` },
+      });
+      if (!probe.ok) {
+        res.status(401).json({ error: `key rejected (HTTP ${probe.status})` });
+        return;
+      }
+    } catch (err) {
+      res.status(502).json({ error: `could not reach openrouter.ai: ${err.message}` });
+      return;
+    }
+    const openrouter = createOpenAICompatible({
+      name: 'openrouter', apiKey: key, baseURL: 'https://openrouter.ai/api/v1',
+    });
+    const slugs = (Array.isArray(models) && models.length > 0 ? models : RUNTIME_DEFAULT_SLUGS)
+      .map((s) => String(s).trim()).filter(Boolean).slice(0, 40);
+    // .env-registered ids win on collision (they were configured deliberately)
+    const fresh = slugs.filter((id) => !modelRegistry[id]);
+    register(fresh, 'OpenRouter', (id) => openrouter(id), { vision: false, runtime: true });
+    await applyOpenRouterVision();
+  }
+  if (!modelRegistry[DEFAULT_MODEL]) DEFAULT_MODEL = Object.keys(modelRegistry)[0];
+  res.json(modelsPayload());
 });
 
 // Non-streaming endpoint (background summaries)
 app.post('/api/claude', async (req, res) => {
   const { messages, model: modelId, images } = req.body;
   const entry = resolveModel(modelId || DEFAULT_MODEL, images && images.length > 0);
+  if (!entry) { res.status(503).json({ error: 'No model configured. Add an API key first.' }); return; }
 
   try {
     const prompt = toSdkPrompt(messages, images);
@@ -615,6 +657,7 @@ app.post('/api/claude', async (req, res) => {
 app.post('/api/stream', async (req, res) => {
   const { messages, model: modelId, images, webSearch, scholarSearch, mcpTools, searchEngine } = req.body;
   const entry = resolveModel(modelId || DEFAULT_MODEL, images && images.length > 0);
+  if (!entry) { res.status(503).json({ error: 'No model configured. Add an API key first.' }); return; }
 
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
