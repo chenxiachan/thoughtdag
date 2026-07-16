@@ -387,6 +387,8 @@ export const zh: Record<keyof typeof en, string> = {
   // Toolbar
   'toolbar.relayout': '一键排版',
   'toolbar.align': '对齐',
+  'toolbar.duplicate': '复制',
+  'toolbar.duplicateTitle': '把选中节点整体复制一份（内部连线保留，跨出选区的连线不带走）',
   'confirm.relayoutTitle': '一键排版',
   'confirm.relayoutMsg': '按箭头顺序重新排列全部节点？手动摆放的位置将被替换（可 Cmd+Z 撤销）。',
   'confirm.alignTitle': '对齐所选节点',

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { AlignVerticalJustifyStart, Archive, ClipboardList, FileDown, GitBranch, Trash2 } from 'lucide-react';
+import { AlignVerticalJustifyStart, Archive, ClipboardList, Copy, FileDown, GitBranch, Trash2 } from 'lucide-react';
 import { useStore } from '../store';
 import { confirmDialog } from '../lib/ui-store';
 import { selectionMarkdown, downloadMarkdown } from '../lib/export';
@@ -7,7 +7,7 @@ import { isImeComposing } from '../utils';
 import { useT, t as ti, fmt } from '../i18n';
 
 export default function SelectionToolbar() {
-  const { selectedNodeIds, nodes, batchDelete, batchMergeSummarize, exploreFrom, alignSelection, setArchived } = useStore();
+  const { selectedNodeIds, nodes, batchDelete, batchMergeSummarize, exploreFrom, alignSelection, setArchived, duplicateSelection } = useStore();
   const t = useT();
   const [exploreOpen, setExploreOpen] = useState(false);
   const [exploreInput, setExploreInput] = useState('');
@@ -94,6 +94,14 @@ export default function SelectionToolbar() {
             title={t('archive.batchTitle')}
           >
             <Archive size={14} strokeWidth={1.75} className="inline" /> {t('archive.label')}
+          </button>
+
+          <button
+            onClick={() => duplicateSelection(selectedNodeIds)}
+            className="text-xs bg-wash hover:bg-line text-ink-muted px-3 py-1.5 rounded-lg transition-colors"
+            title={t('toolbar.duplicateTitle')}
+          >
+            <Copy size={14} strokeWidth={1.75} className="inline" /> {t('toolbar.duplicate')}
           </button>
 
           <button

@@ -344,4 +344,94 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
     }));
     get().pushHistory();
   },
+
+  duplicateSelection: (nodeIds: string[]) => {
+    const { nodes, edges } = get();
+    const selected = new Set(nodeIds);
+    const originals = nodes.filter((n) => selected.has(n.id));
+    if (originals.length === 0) return;
+    get().pushHistory();
+
+    const boxOf = (n: ThoughtNode) => ({
+      x: n.position.x,
+      y: n.position.y,
+      w: n.measured?.width ?? n.width ?? 520,
+      h: n.measured?.height ?? n.height ?? nodeHeight(n),
+    });
+
+    // Selection bounding box → candidate landing spots (right, below,
+    // diagonal, then farther out) — first collision-free offset wins.
+    const boxes = originals.map(boxOf);
+    const bbox = {
+      x: Math.min(...boxes.map((b) => b.x)),
+      y: Math.min(...boxes.map((b) => b.y)),
+      right: Math.max(...boxes.map((b) => b.x + b.w)),
+      bottom: Math.max(...boxes.map((b) => b.y + b.h)),
+    };
+    const GAP = 80;
+    const stepX = bbox.right - bbox.x + GAP;
+    const stepY = bbox.bottom - bbox.y + GAP;
+    const candidates: { dx: number; dy: number }[] = [];
+    for (let k = 1; k <= 6; k++) {
+      candidates.push({ dx: k * stepX, dy: 0 }, { dx: 0, dy: k * stepY }, { dx: k * stepX, dy: k * stepY });
+    }
+    // Frames are background regions, not obstacles — copies may land inside one.
+    const obstacles = nodes.filter((n) => n.data.stepKind !== 'frame').map(boxOf);
+    const overlaps = (a: ReturnType<typeof boxOf>, b: ReturnType<typeof boxOf>) =>
+      a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+    const offset = candidates.find((c) =>
+      !boxes.some((b) => obstacles.some((o) => overlaps({ ...b, x: b.x + c.dx, y: b.y + c.dy }, o)))
+    ) ?? { dx: stepX, dy: stepY };
+
+    // Attachments are shared by REFERENCE (content is never copied) but get
+    // NEW ids: exclude/include and digest links work by id, so shared ids
+    // would entangle the copy with its source.
+    const idMap = new Map<string, string>();
+    const attIdMap = new Map<string, string>();
+    for (const n of originals) {
+      idMap.set(n.id, generateId());
+      for (const a of n.data.attachments ?? []) attIdMap.set(a.id, generateId());
+    }
+    const remapAttIds = (ids?: string[]) => (ids ?? []).map((x) => attIdMap.get(x) ?? x);
+
+    const copies: ThoughtNode[] = originals.map((n) => ({
+      ...n,
+      id: idMap.get(n.id)!,
+      position: { x: n.position.x + offset.dx, y: n.position.y + offset.dy },
+      selected: true,
+      data: {
+        ...n.data,
+        attachments: (n.data.attachments ?? []).map((a) => ({ ...a, id: attIdMap.get(a.id)! })),
+        excludedAttachmentIds: remapAttIds(n.data.excludedAttachmentIds),
+        includedAttachmentIds: remapAttIds(n.data.includedAttachmentIds),
+        digestOf: n.data.digestOf ? (attIdMap.get(n.data.digestOf) ?? n.data.digestOf) : undefined,
+        highlights: (n.data.highlights ?? []).map((h) => ({ ...h, id: generateId() })),
+        isEditing: false,
+        isEditingResponse: false,
+        isLoading: false,
+      },
+    }));
+
+    // Edges INSIDE the selection are copied; edges crossing the boundary are
+    // cut — the copy has no wires to the original graph, so its stale check
+    // (lastContextHash vs. the now-empty upstream) flags it naturally.
+    const innerEdges: ThoughtEdge[] = edges
+      .filter((e) => selected.has(e.source) && selected.has(e.target))
+      .map((e) => ({
+        ...e,
+        id: `edge-${idMap.get(e.source)!}-${idMap.get(e.target)!}`,
+        source: idMap.get(e.source)!,
+        target: idMap.get(e.target)!,
+        data: e.data ? { ...e.data } : e.data,
+      }));
+
+    const newIds = copies.map((c) => c.id);
+    set((state) => ({
+      nodes: [...state.nodes.map((n) => (n.selected ? { ...n, selected: false } : n)), ...copies],
+      edges: [...state.edges, ...innerEdges],
+      selectedNodeId: newIds.length === 1 ? newIds[0] : null,
+      selectedNodeIds: newIds,
+    }));
+    get().pushHistory();
+  },
 });

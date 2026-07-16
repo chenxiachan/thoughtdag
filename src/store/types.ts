@@ -35,6 +35,8 @@ export interface NodeSlice {
   navigateVersion: (nodeId: string, direction: 'prev' | 'next') => void;
   deleteVersion: (nodeId: string, versionIndex: number) => void;
   batchDelete: (nodeIds: string[]) => void;
+  /** Duplicate the multi-selection as a detached copy: inner edges kept, boundary edges cut, attachments shared by reference under new ids (undoable). */
+  duplicateSelection: (nodeIds: string[]) => void;
   /** Re-run the column-tree layout over the whole graph (undoable). */
   relayout: () => void;
   /** Stack the selected nodes into one vertical column, in conversation order (undoable). */

@@ -388,6 +388,8 @@ export const en = {
   // Toolbar
   'toolbar.relayout': 'Tidy layout',
   'toolbar.align': 'Align',
+  'toolbar.duplicate': 'Duplicate',
+  'toolbar.duplicateTitle': 'Copy the selection as a whole (inner links kept, links crossing the selection are not carried over)',
   'confirm.relayoutTitle': 'Tidy layout',
   'confirm.relayoutMsg': 'Rearrange all nodes by their arrow order? Your manual positions will be replaced (Cmd+Z to undo).',
   'confirm.alignTitle': 'Align selection',
