@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import { idbStorage } from '../lib/persistence';
+import { persist } from 'zustand/middleware';
+import { createIdbObjectStorage } from '../lib/persistence';
 import type { ThoughtNode } from '../types';
 import type { StoreState, PersistedState } from './types';
 import { buildContext } from './context-builder';
@@ -44,7 +44,7 @@ export const useStore = create<StoreState>()(persist((...a) => ({
   name: 'thoughtdag',
   version: 1,
   skipHydration: true,
-  storage: createJSONStorage(() => idbStorage),
+  storage: createIdbObjectStorage<PersistedState>(),
   // Persist only the graph. Undo history (full-graph snapshots ×50) and
   // selection are session-scoped and would bloat the stored payload.
   partialize: (state): PersistedState => ({
@@ -60,7 +60,7 @@ export const useStore = create<StoreState>()(persist((...a) => ({
       nodes,
       edges,
       // The restored graph becomes the base snapshot of the undo stack.
-      history: [{ nodes: JSON.parse(JSON.stringify(nodes)), edges: JSON.parse(JSON.stringify(edges)) }],
+      history: [{ nodes, edges }], // shallow baseline — updates never mutate
       historyIndex: 0,
     };
   },
