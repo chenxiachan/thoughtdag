@@ -3,7 +3,7 @@ import { walkUpAncestors } from '../lib/graph';
 import { upstreamFingerprint } from './context-builder';
 import { pruneHighlights } from '../lib/highlight-match';
 import { llmCall, llmCallStream, type ContextMessage, type ImageAttachment } from '../lib/api';
-import { countTokens } from '../utils';
+import { countTokens, activeSummary } from '../utils';
 import { toast, useUiStore } from '../lib/ui-store';
 import { getModelsOnce } from '../lib/use-models';
 import { memoryContextBlock, judgeMemory } from '../lib/memory';
@@ -14,13 +14,20 @@ import type { StoreState } from './types';
 // Background summary generation — fire and forget. Display channel ONLY:
 // the human reads the summary on the map, the model always reads the full
 // text. Short answers fit on the card as-is and skip the call.
+// The judge sees the MAP itself as context: the takeaway lines already on
+// the ancestor path (with their tags). That keeps terminology aligned
+// across plaques and classifications aware of what the thinking already
+// ruled out or decided — the lines read as one progression, not islands.
 export const SUMMARY_MIN_CHARS = 400;
-export function generateSummary(nodeId: string, question: string, response: string, setSummary: (id: string, summary: string, forResponse: string, type?: string) => void) {
+export function generateSummary(nodeId: string, question: string, response: string, setSummary: (id: string, summary: string, forResponse: string, type?: string) => void, mapLines?: string[]) {
   if (response.length < SUMMARY_MIN_CHARS) return;
+  const mapBlock = mapLines && mapLines.length > 0
+    ? `Takeaway lines already on the map, along this node's ancestor path (oldest first):\n${mapLines.join('\n')}\n\nAlign terminology with those lines and do not repeat them — the new line is the NEXT step of the same progression.\n\n`
+    : '';
   llmCall([
     { role: 'user', content: question },
     { role: 'assistant', content: response },
-    { role: 'user', content: 'Write the TAKEAWAY of the above exchange as one line, 40-70 characters: conclusion first. A reader scanning a map of many such lines should see how the thinking progressed. Same language as the question. Classify the epistemic move and prefix the line with exactly one tag: INSIGHT (learned or confirmed something), RULEOUT (killed a hypothesis or option), DECISION (chose among options), PIVOT (reframed the question or direction), OPEN (raised a new unresolved question). Most exchanges are INSIGHT. Format: TAG: takeaway text. Output only that line.' },
+    { role: 'user', content: `${mapBlock}Write the TAKEAWAY of the above exchange as one line, 40-70 characters: conclusion first. A reader scanning a map of many such lines should see how the thinking progressed. Same language as the question. Classify the epistemic move and prefix the line with exactly one tag: INSIGHT (learned or confirmed something), RULEOUT (killed a hypothesis or option), DECISION (chose among options), PIVOT (reframed the question or direction), OPEN (raised a new unresolved question). Most exchanges are INSIGHT. Format: TAG: takeaway text. Output only that line.` },
   ]).then((raw) => {
     // "TAG: text" — unknown/missing tags degrade to the unmarked default
     const m = raw.trim().match(/^(INSIGHT|RULEOUT|DECISION|PIVOT|OPEN)[:：]\s*(.+)$/is);
@@ -30,6 +37,26 @@ export function generateSummary(nodeId: string, question: string, response: stri
     // version the user has navigated to since
     setSummary(nodeId, text, response, type);
   }).catch(() => {});
+}
+
+/** The map lines a fresh takeaway should align with: the ancestor path's
+    tagged takeaways (nearest 8), prefixed by the map's opening question. */
+export function collectMapLines(nodeId: string, nodes: StoreState['nodes'], edges: StoreState['edges']): string[] {
+  const { ordered } = walkUpAncestors(nodeId, nodes, edges);
+  const TAG: Record<string, string> = { ruleout: 'RULEOUT', decision: 'DECISION', pivot: 'PIVOT', open: 'OPEN' };
+  const lines = ordered
+    .filter((n) => n.id !== nodeId)
+    .map((n) => {
+      const s = activeSummary(n.data);
+      if (!s) return null;
+      const type = n.data.summaryTypes?.[n.data.responseIndex];
+      return `- ${type && TAG[type] ? `${TAG[type]}: ` : ''}${s}`;
+    })
+    .filter((l): l is string => !!l)
+    .slice(-8);
+  const root = ordered.find((n) => n.data.isRoot && n.id !== nodeId);
+  if (root?.data.question) lines.unshift(`Opening question of the map: ${root.data.question.slice(0, 200)}`);
+  return lines;
 }
 
 // Track active AbortControllers per node
@@ -156,7 +183,7 @@ export async function runNodeGeneration(
     writeFinal(response);
     onSuccess?.(response);
     get().pushHistory();
-    generateSummary(nodeId, question, response, get().setSummary);
+    generateSummary(nodeId, question, response, get().setSummary, collectMapLines(nodeId, get().nodes, get().edges));
     if (!selfData?.stepKind && !selfData?.digestOf) judgeMemory(question, response);
     triggerAutoReruns(set, get, nodeId);
     triggerParadigmCascade(get, nodeId);
