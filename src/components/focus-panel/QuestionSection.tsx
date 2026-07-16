@@ -8,6 +8,8 @@ export default function QuestionSection({
   question,
   isEditing,
   isHuman,
+  awaiting,
+  placeholder,
   branchContext,
 }: {
   nodeId: string;
@@ -15,8 +17,10 @@ export default function QuestionSection({
   isEditing: boolean;
   /** Paradigm human turn: edits record the question without generating. */
   isHuman?: boolean;
-  /** The selected passage this branch explores (shown so the thread that
-      spawned the node is never lost). */
+  /** Node still waits for its own question: the box is open from the start
+      (same rule as the canvas card) and click-away keeps the draft. */
+  awaiting?: boolean;
+  placeholder?: string;
   branchContext?: string;
 }) {
   const editQuestion = useStore((s) => s.editQuestion);
@@ -50,12 +54,13 @@ export default function QuestionSection({
           “{branchContext.slice(0, 240)}{branchContext.length > 240 ? '…' : ''}”
         </div>
       )}
-      {isEditing ? (
+      {isEditing || awaiting ? (
         <textarea
           value={editValue}
           onChange={(e) => setEditValue(e.target.value)}
           onKeyDown={handleEditKeyDown}
-          onBlur={handleEditSubmit}
+          onBlur={awaiting || isHuman ? undefined : handleEditSubmit}
+          placeholder={placeholder}
           className="w-full bg-wash border border-accent rounded-xl p-3 text-sm text-ink resize-none focus:outline-none focus:ring-2 focus:ring-accent/20"
           rows={3}
           autoFocus

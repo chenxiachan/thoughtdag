@@ -5,6 +5,7 @@ import { useUiStore } from '../../lib/ui-store';
 import { partitionContext } from '../../lib/graph';
 import { buildContext, resolveRoleFor } from '../../store/context-builder';
 import { PANEL_WIDTH_KEY, PANEL_MIN_WIDTH, PANEL_DEFAULT_WIDTH, PANEL_INSET } from '../../lib/constants';
+import { awaitingInput } from '../../utils';
 import { useT } from '../../i18n';
 import RoleLine from './RoleLine';
 import AttachmentsSection from './AttachmentsSection';
@@ -71,6 +72,9 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
 
   const data = node.data;
   const hasMultipleVersions = data.responses.length > 1;
+  // Waiting for its own question → the question box is open and the
+  // follow-up input steps aside (nothing to follow up on yet)
+  const awaiting = awaitingInput(data);
 
   // Inherited role for the status line: the SAME resolution buildContext
   // injects (structural mainline, legacy roleMode honored) — what the panel
@@ -124,6 +128,8 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
           question={data.question}
           isEditing={data.isEditing}
           isHuman={data.stepKind === 'human'}
+          awaiting={!!awaiting}
+          placeholder={awaiting ? (data.instruction || t('node.askPlaceholder')) : undefined}
           branchContext={data.branchContext}
         />
 
@@ -163,13 +169,16 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
         />
       </div>
 
-      {/* The ONE input — pinned at bottom; selected text stages into it */}
-      <FollowUpInput
-        key={selectedNodeId}
-        nodeId={selectedNodeId!}
-        branchContext={branchContext}
-        onClearBranchContext={() => setBranchContext('')}
-      />
+      {/* The ONE input — pinned at bottom; selected text stages into it.
+          Hidden while the node waits for its own question above. */}
+      {!awaiting && (
+        <FollowUpInput
+          key={selectedNodeId}
+          nodeId={selectedNodeId!}
+          branchContext={branchContext}
+          onClearBranchContext={() => setBranchContext('')}
+        />
+      )}
     </div>
   );
 }

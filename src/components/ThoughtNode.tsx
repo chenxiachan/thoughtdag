@@ -5,7 +5,7 @@ import 'katex/dist/katex.min.css';
 import type { ThoughtNode as ThoughtNodeType } from '../types';
 import { useStore } from '../store';
 import { useZoomTier } from '../lib/use-map-mode';
-import { generateId, isImeComposing , activeSummary } from '../utils';
+import { generateId, isImeComposing , activeSummary, awaitingInput } from '../utils';
 import { processFile } from '../lib/attachments';
 import { copyText } from '../lib/export';
 import { isRunLocked } from '../lib/paradigm';
@@ -48,16 +48,15 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
 
   // ── Paradigm run semantics (instantiated human/prompt steps) ──
   const isHuman = data.stepKind === 'human';
-  // A human turn awaiting its input renders as an open question box. Must be
-  // derivable from node data alone: isEditing is stripped on persist.
-  const isAwaitingHuman = isHuman && !data.question;
+  // Awaiting its own question (empty ask node / human turn): shared
+  // predicate — the focus panel derives the same state from it.
+  const awaiting = awaitingInput(data);
+  const isAwaitingHuman = awaiting === 'human';
   // A prompt step that hasn't started yet — the cascade runs it once all its
   // structural parents complete (triggerParadigmCascade in store/streaming).
   const isWaitingUpstream = data.stepKind === 'prompt' && !data.response && !data.isLoading && !data.generationFailed;
   const isParadigmNode = isHuman || data.stepKind === 'prompt';
-  // A palette "ask node": an ordinary Q&A node dropped empty — wire material
-  // in, type the question, submit → generates from whatever the edges carry.
-  const isAwaitingAsk = !data.stepKind && !data.question && !data.response && !data.isLoading && !data.generationFailed;
+  const isAwaitingAsk = awaiting === 'ask';
   // While any paradigm step is incomplete the run is in progress: structure
   // is fixed (no follow-ups, no deletion) until the performance finishes.
   const runLocked = useStore((s) => isParadigmNode && isRunLocked(s.nodes));

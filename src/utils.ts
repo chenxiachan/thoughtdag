@@ -23,6 +23,16 @@ export function generateId(): string {
 }
 
 /** The display summary for a node's ACTIVE version (map layer only). */
+/** A node still waiting for ITS OWN question: an empty ask node, or a
+    paradigm human turn. Everywhere this is non-null, question inputs fill
+    THIS node (editQuestion / submitHumanTurn) instead of spawning a child —
+    the canvas card and the focus panel share this single source. */
+export function awaitingInput(data: { stepKind?: string; question: string; response: string; isLoading: boolean; generationFailed?: boolean }): 'ask' | 'human' | null {
+  if (data.stepKind === 'human' && !data.question) return 'human';
+  if (!data.stepKind && !data.question && !data.response && !data.isLoading && !data.generationFailed) return 'ask';
+  return null;
+}
+
 export function activeSummary(data: { summaries?: (string | undefined | null)[]; responseIndex: number; summary?: string }): string | undefined {
   return data.summaries?.[data.responseIndex] ?? data.summary ?? undefined;
 }
