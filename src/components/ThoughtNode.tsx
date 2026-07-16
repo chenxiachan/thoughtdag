@@ -262,23 +262,42 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
       )}
       {zoomedOut ? (
         // Map label: the TAKEAWAY is the headline (what this step yielded),
-        // the question a quiet eyebrow — the zoomed-out canvas reads like a
-        // lab notebook's table of contents, not a pile of shrunken documents
+        // the question a readable eyebrow — the zoomed-out canvas reads like
+        // a lab notebook's table of contents, not a pile of shrunken
+        // documents. EXCEPT the root: its opening question IS the map's
+        // title — the reader's entry point — so there question leads and
+        // the takeaway is the subtitle.
         <div className="drag-handle cursor-grab active:cursor-grabbing px-6 py-5">
           {(versionSummary || data.response) ? (
-            <>
-              <div className="text-lg text-ink-faint leading-snug line-clamp-1">
-                {data.question}
-              </div>
-              <div className="text-2xl font-semibold text-ink leading-snug line-clamp-3 mt-1.5">
-                {badge && (
-                  <span title={t(badge.key as Parameters<typeof t>[0])} className={`inline-flex items-center justify-center w-11 h-11 rounded-xl text-2xl font-bold mr-2.5 align-middle ${badge.cls}`}>
-                    {badge.glyph}
-                  </span>
-                )}
-                {versionSummary || data.response.replace(/[#*`>-]/g, '').slice(0, 140)}
-              </div>
-            </>
+            isRoot ? (
+              <>
+                <div className="text-2xl font-semibold text-ink leading-snug line-clamp-3">
+                  {data.question}
+                </div>
+                <div className="text-lg text-ink-muted leading-snug line-clamp-2 mt-1.5">
+                  {badge && (
+                    <span title={t(badge.key as Parameters<typeof t>[0])} className={`inline-flex items-center justify-center w-8 h-8 rounded-lg text-lg font-bold mr-2 align-middle ${badge.cls}`}>
+                      {badge.glyph}
+                    </span>
+                  )}
+                  {versionSummary || data.response.replace(/[#*`>-]/g, '').slice(0, 140)}
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="text-lg text-ink-muted leading-snug line-clamp-2">
+                  {data.question}
+                </div>
+                <div className="text-2xl font-semibold text-ink leading-snug line-clamp-3 mt-1.5">
+                  {badge && (
+                    <span title={t(badge.key as Parameters<typeof t>[0])} className={`inline-flex items-center justify-center w-11 h-11 rounded-xl text-2xl font-bold mr-2.5 align-middle ${badge.cls}`}>
+                      {badge.glyph}
+                    </span>
+                  )}
+                  {versionSummary || data.response.replace(/[#*`>-]/g, '').slice(0, 140)}
+                </div>
+              </>
+            )
           ) : (
             <div className="text-2xl font-semibold text-ink leading-snug line-clamp-3">
               {data.question}
