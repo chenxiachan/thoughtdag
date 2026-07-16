@@ -127,8 +127,10 @@ export default function FrameNode({ id, data, selected }: NodeProps<ThoughtNodeT
       <div className="drag-handle absolute inset-x-0 bottom-0 h-2.5 cursor-grab active:cursor-grabbing" />
       <div className="drag-handle absolute inset-y-0 left-0 w-2.5 cursor-grab active:cursor-grabbing" />
       <div className="drag-handle absolute inset-y-0 right-0 w-2.5 cursor-grab active:cursor-grabbing" />
-      {/* resize handles follow the same counter-scale so they stay grabbable on the map */}
-      <NodeResizer isVisible={selected} minWidth={280} minHeight={180} lineClassName="!border-accent/40" handleClassName="!bg-accent !rounded-sm" handleStyle={{ width: 10 * barScale, height: 10 * barScale }} />
+      {/* resize handles: NO manual scaling — React Flow's autoScale already
+          counter-scales them (Math.max(1/zoom, 1)), so they keep a constant
+          screen size; scaling here again would compound to huge squares */}
+      <NodeResizer isVisible={selected} minWidth={280} minHeight={180} lineClassName="!border-accent/40" handleClassName="!bg-accent !w-2.5 !h-2.5 !rounded-sm" />
     </div>
   );
 }
