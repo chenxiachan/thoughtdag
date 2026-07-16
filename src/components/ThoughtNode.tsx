@@ -293,7 +293,17 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
         // evaluators wear the red eye, digests the book, plain steps a dot.
         <div
           className="drag-handle cursor-grab active:cursor-grabbing w-full h-32 flex items-center justify-center"
-          title={`${data.question ? data.question.slice(0, 80) + '\n' : ''}${versionSummary ?? ''}`}
+          title={[
+            data.isEvaluator
+              ? t('evaluator.badge')
+              : data.digestOf
+                ? t('reader.viewDigest')
+                : glyphSeal
+                  ? t(glyphSeal.key as Parameters<typeof t>[0])
+                  : null,
+            data.question ? `${t('panel.question')}: ${data.question.replace(/\s+/g, ' ').slice(0, 120)}` : null,
+            versionSummary ? `${t('panel.response')}: ${versionSummary}` : null,
+          ].filter(Boolean).join('\n')}
           data-glyph-node
         >
           {data.isEvaluator ? (

@@ -70,7 +70,7 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
     return (
       <div className={`w-full h-full min-w-[340px] flex items-center justify-center ${selectedNodeId === id ? 'glyph-selected' : ''}`}
         onClick={() => setSelectedNodeId(id)} data-glyph-node
-        title={kind === 'file' ? (attachments[0]?.name ?? '') : kind === 'link' ? (data.linkTitle || data.linkUrl || '') : data.question.slice(0, 80)}>
+        title={`${t(kind === 'file' ? 'glyph.file' : kind === 'link' ? 'glyph.link' : 'glyph.note')}\n${kind === 'file' ? (attachments[0]?.name ?? '') : kind === 'link' ? (data.linkTitle || data.linkUrl || '') : data.question.replace(/\s+/g, ' ').slice(0, 120)}`}>
         <span className={`w-28 h-28 rounded-[2rem] flex items-center justify-center border-4 border-card shadow-lg text-white ${
           kind === 'note' ? 'bg-amber-400' : kind === 'link' ? 'bg-cyan-600' : 'bg-slate-500'
         }`}>
