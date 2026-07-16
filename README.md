@@ -16,7 +16,7 @@ An infinite canvas where LLM conversations grow into an editable thought graph.
 
 [中文](./README_ZH.md) · [Quick start](#quick-start) · [Features](#features-at-a-glance) · [Models](#supported-models) · [Roadmap](#roadmap)
 
-<img src="docs/hero-en.png" alt="ThoughtDAG overview: a six-node map — conversation chain, explore branch, a reviewer on a dashed watch edge — every plaque badged by cognitive move (ruled out, decided, pivoted, open question); the focus panel on the right shows the decision node's full deepseek-v4-pro answer under an inherited Cognitive-science-coach role, with attachments, highlights and the token-priced context chain" width="100%"/>
+<img src="docs/hero-en.png" alt="ThoughtDAG: a waterfall DAG of thought — the question enters at the top center, forks into a decision (left) and a ruled-out branch (right), flows through a pivot and a reviewer on a dashed watch edge, and exits through a centered open question; every plaque badged by cognitive move. The focus panel on the right shows the decision node's full deepseek-v4-pro answer under an inherited Cognitive-science-coach role, with attachments, highlights and the token-priced context chain" width="100%"/>
 
 </div>
 
