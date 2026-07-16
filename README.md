@@ -16,7 +16,7 @@ An infinite canvas where LLM conversations grow into an editable thought graph.
 
 [中文](./README_ZH.md) · [Quick start](#quick-start) · [Features](#features-at-a-glance) · [Models](#supported-models) · [Roadmap](#roadmap)
 
-<img src="docs/hero-en.png" alt="ThoughtDAG: a waterfall DAG of thought — the question enters at the top center, forks into a decision (left) and a ruled-out branch (right), flows through a pivot and a reviewer on a dashed watch edge, and exits through a centered open question; every plaque badged by cognitive move. The focus panel on the right shows the decision node's full deepseek-v4-pro answer under an inherited Cognitive-science-coach role, with attachments, highlights and the token-priced context chain" width="100%"/>
+<img src="docs/hero-en.png" alt="ThoughtDAG: a waterfall DAG of thought: the question enters at the top center, forks into a decision (left) and a ruled-out branch (right), flows through a pivot and a reviewer on a dashed watch edge, and exits through a centered open question; every plaque badged by cognitive move. The focus panel on the right shows the decision node's full deepseek-v4-pro answer under an inherited Cognitive-science-coach role, with attachments, highlights and the token-priced context chain" width="100%"/>
 
 </div>
 
@@ -32,23 +32,23 @@ npm run server         # LLM proxy
 npm run dev            # → http://localhost:5173
 ```
 
-No config needed to start: if `.env` has no key, the app asks for an OpenRouter key in the browser (it stays in localStorage and the proxy's memory, never on disk). Or copy `.env.example` to `.env` and fill in any provider key — `ZHIPU_API_KEY` is free (open.bigmodel.cn).
+No config needed to start: if `.env` has no key, the app asks for an OpenRouter key in the browser (it stays in localStorage and the proxy's memory, never on disk). Or copy `.env.example` to `.env` and fill in any provider key; `ZHIPU_API_KEY` is free (open.bigmodel.cn).
 
-The first launch opens a seeded example canvas — four chapters around one everyday question (why saved articles stay unread), from the conversation grammar to a real embedded PDF with its reading loop. Zoom out: the hero image above is that canvas as a map. The fastest way in: drop a PDF on the landing page and start reading. The Zhipu key also powers web search (engine tiers switchable in the model menu); scholarly search (arXiv + Semantic Scholar) is free and needs no key at all.
+The first launch opens a seeded example canvas: four chapters around one everyday question (why saved articles stay unread), from the conversation grammar to a real embedded PDF with its reading loop. Zoom out: the hero image above is that canvas as a map. The fastest way in: drop a PDF on the landing page and start reading. The Zhipu key also powers web search (engine tiers switchable in the model menu); scholarly search (arXiv + Semantic Scholar) is free and needs no key at all.
 
 ## Delete one edge, get a different answer
 
-The model sees exactly what wires into a node — that is the whole rule. Which makes the claim testable: keep the prompt identical, change one wire, and watch the answer change.
+The model sees exactly what wires into a node. That is the whole rule, and it makes the claim testable: keep the prompt identical, change one wire, and watch the answer change.
 
 <img src="docs/prune-en.gif" alt="Screen recording: a summary node wired to both the research chain and an off-topic dinner node absorbs the noise; the noise edge is clicked, deleted, and regeneration returns a clean summary" width="100%"/>
 
-*One summary node, two parents — and dinner plans leak into the answer. Delete the noise edge, regenerate, and the same prompt returns a clean summary. Recorded from the app (content preloaded so every run is inspectable); the mechanism is live behavior — reproduce it in chapter ③ of the example canvas.*
+*One summary node, two parents, and dinner plans leak into the answer. Delete the noise edge, regenerate, and the same prompt returns a clean summary. Recorded from the app (content preloaded so every run is inspectable); the mechanism is live behavior; reproduce it in chapter ③ of the example canvas.*
 
 ## Read a paper into a map
 
-Drop in a PDF and read the original pages. Select a passage and ask: the answer streams in beside the document, and the question lands on the canvas wired to the material, page number included. The asked passage keeps a mark on the page — a highlight wash and a bubble that reopens the conversation, so everything you asked stays reachable while you read. The trip works both ways: back on the canvas, the node wears a p.N chip that jumps straight back to that page in the reader.
+Drop in a PDF and read the original pages. Select a passage and ask: the answer streams in beside the document, and the question lands on the canvas wired to the material, page number included. The asked passage keeps a mark on the page: a highlight wash and a bubble that reopens the conversation, so everything you asked stays reachable while you read. The trip works both ways: back on the canvas, the node wears a p.N chip that jumps straight back to that page in the reader.
 
-One click writes a guided digest: a short structured post in your language, every point anchored to its page with jump buttons. The digest is itself a node — wire it downstream and later questions ride the material's best compression instead of its full text. Scanned documents rewrite into readable Markdown (formulas included) in one click.
+One click writes a guided digest: a short structured post in your language, every point anchored to its page with jump buttons. The digest is itself a node: wire it downstream and later questions ride the material's best compression instead of its full text. Scanned documents rewrite into readable Markdown (formulas included) in one click.
 
 <img src="docs/reading-en.gif" alt="Screen recording: selecting a sentence on the original PDF page, asking about it, the answer streaming into the annotation rail while the passage keeps a bubble mark, then a guided digest with page jumps" width="100%"/>
 
@@ -77,7 +77,7 @@ One click writes a guided digest: a short structured post in your language, ever
 <details>
 <summary><b>📜 Full feature list, by area</b></summary>
 
-### Canvas & context — the One Rule family
+### Canvas & context: the One Rule family
 
 - **DAG context engine**: `buildContext()` walks all incoming edges, builds history in topological order
 - **Layered context assembly**: materials → reference blocks → the conversation, ordering independent of wiring history (same graph, same prompt)
@@ -125,7 +125,7 @@ One click writes a guided digest: a short structured post in your language, ever
 ### Models & search
 
 - **Any model**: nine provider families register from `.env` keys; a toolbar picker switches at any time; text-only models reroute automatically when images appear
-- **Browser-side API key**: no `.env` needed — paste an OpenRouter key in the app (localStorage + proxy memory only, never on disk); the dialog auto-opens when no model is configured
+- **Browser-side API key**: no `.env` needed; paste an OpenRouter key in the app (localStorage + proxy memory only, never on disk); the dialog auto-opens when no model is configured
 - **Per-node model override**: any node can pin its own LLM (badge on the card, sibling regenerations inherit it); cheap models for exploration, flagship for the hard steps; every version records which model wrote it
 - **Agentic search**: AI SDK tool loop: web search + arXiv + Semantic Scholar (free APIs), `[n]` citations + persisted references, guaranteed synthesis fallback, per-group toolbar toggles
 - **MCP tool ecosystem**: `mcp.config.json` (stdio + HTTP/SSE transports); tools join the agentic loop with per-call progress; mock server included for testing
@@ -140,13 +140,13 @@ One click writes a guided digest: a short structured post in your language, ever
 - **Markdown + LaTeX**: full markdown, syntax highlighting, inline and block math
 - **Multi-select**: box-select nodes: Merge Summary / Merge & Delete / Align / Export / Delete
 - **Data persistence**: IndexedDB auto-save (1s debounce), survives refresh; multi-canvas projects (create/switch/rename/delete)
-- **Export system**: whole-graph JSON backup and import; context-chain / multi-select Markdown export; memory and roles export too — easy in, easy out
+- **Export system**: whole-graph JSON backup and import; context-chain / multi-select Markdown export; memory and roles export too: easy in, easy out
 - **Import ChatGPT / Claude exports**: drop conversations.json into Import; edit/regenerate branches are preserved as graph forks, each conversation becomes its own canvas
 - **Undo/Redo**: Cmd+Z / Cmd+Shift+Z, full state snapshots
 - **Keyboard shortcuts**: Space collapse, R regenerate, arrow keys walk the DAG, Esc steps out (legend in the tutorial)
 - **Bilingual UI**: auto-detects browser language, one-click EN/中 switch
 - **Built-in tutorial**: a ten-step illustrated hero page, from asking to paradigms
-- **Example canvas on first run**: four framed chapters around one everyday question — conversation grammar, materials & references, the ⚖️ context-pruning pair, and a reading loop with a real embedded PDF (anchored question, digest node); every node carries a typed takeaway so zooming out lands on a working map; reload anytime from the landing screen
+- **Example canvas on first run**: four framed chapters around one everyday question: conversation grammar, materials & references, the ⚖️ context-pruning pair, and a reading loop with a real embedded PDF (anchored question, digest node); every node carries a typed takeaway so zooming out lands on a working map; reload anytime from the landing screen
 
 </details>
 
@@ -164,7 +164,7 @@ Chat terminals are harnesses for doing: they optimize for handing you an answer 
 
 ## Supported models
 
-Built on the Vercel AI SDK. Any provider below activates when its key lands in `.env` — or skip `.env` entirely and paste an OpenRouter key in the app; a toolbar picker switches models at any time, and text-only models reroute automatically when images appear. Default model IDs can be overridden per provider (e.g. `OPENAI_MODELS=gpt-5.2`).
+Built on the Vercel AI SDK. Any provider below activates when its key lands in `.env`; or skip `.env` entirely and paste an OpenRouter key in the app. A toolbar picker switches models at any time, and text-only models reroute automatically when images appear. Default model IDs can be overridden per provider (e.g. `OPENAI_MODELS=gpt-5.2`).
 
 > Image understanding needs a vision key. Pasted images are auto-read once, by the strongest vision model you have configured, into editable companion text. The free `glm-4v-flash` works; flagship models read scientific figures noticeably better.
 
