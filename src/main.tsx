@@ -12,6 +12,13 @@ import { isViewerMode, bootViewer } from './lib/viewer'
 if (isViewerMode) void bootViewer()
 else void bootProjects()
 
+// Pasting a #view= link into an ALREADY-OPEN tab only changes the hash —
+// the browser won't reload, so the viewer/author decision above never
+// re-runs. Cross the boundary with an explicit reload (both directions).
+window.addEventListener('hashchange', () => {
+  if (window.location.hash.startsWith('#view=') !== isViewerMode) window.location.reload()
+})
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />

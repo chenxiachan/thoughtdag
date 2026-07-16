@@ -52,6 +52,7 @@ import RoleManagerModal from './components/ui/RoleManagerModal';
 import MemoryManagerModal from './components/ui/MemoryManagerModal';
 import ApiKeyModal from './components/ui/ApiKeyModal';
 import ResponseViewer from './components/ui/ResponseViewer';
+import ShareDialog from './components/ui/ShareDialog';
 import LangSwitch from './components/ui/LangSwitch';
 import ModelPicker from './components/ui/ModelPicker';
 import RoleTemplateChips from './components/ui/RoleTemplateChips';
@@ -90,6 +91,7 @@ export default function App() {
       <MemoryManagerModal />
       <ApiKeyModal />
       <ResponseViewer />
+      <ShareDialog />
       <ConfirmDialog />
       <Tutorial />
     </>
@@ -478,6 +480,7 @@ function Canvas() {
   // The panel is a MODE: double-click opens it, its X closes it; while on,
   // it follows the selection. Single clicks only select (no side effects).
   const panelMode = useUiStore((s) => s.panelOpen);
+  const viewerLoadError = useUiStore((s) => s.viewerLoadError);
   const staleCount = useStore((s) => s.staleIds.length);
   const livePanelWidth = useUiStore((s) => s.panelWidth);
   const selectedKind = nodes.find((nd) => nd.id === selectedNodeId)?.data.stepKind;
@@ -842,7 +845,24 @@ function Canvas() {
           </div>
         </div>
       )}
-      {!hasNodes && !isParadigm && (
+      {isViewerMode && !hasNodes && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="text-center max-w-[420px] px-6">
+            {viewerLoadError ? (
+              <>
+                <div className="text-3xl mb-3">🔗</div>
+                <div className="text-sm font-semibold text-ink mb-1.5">{t('viewer.loadError')}</div>
+                <p className="text-xs text-ink-muted leading-relaxed">{t('viewer.loadErrorHint')}</p>
+              </>
+            ) : (
+              <div className="flex items-center gap-2 text-sm text-ink-muted justify-center">
+                <Loader2 size={16} strokeWidth={1.75} className="animate-spin text-accent" /> {t('viewer.loading')}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+      {!hasNodes && !isParadigm && !isViewerMode && (
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden">
           {/* Watermark: faint DAG sketches anchoring the corners */}
           <svg className="absolute -left-10 top-[8%] w-[360px] h-[300px] opacity-[0.35] pointer-events-none" viewBox="0 0 360 300" aria-hidden>
@@ -1278,8 +1298,8 @@ function Canvas() {
               void (async () => {
                 const { nodes: ns, edges: es } = useStore.getState();
                 const url = await buildViewerLink(ns, es);
-                await navigator.clipboard.writeText(url);
-                toast('success', url.length > 60000 ? ti('viewer.linkLong') : ti('viewer.linkCopied'));
+                await navigator.clipboard.writeText(url).catch(() => {});
+                useUiStore.getState().setShareDialogUrl(url);
               })();
             }}
             className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors text-ink-muted hover:text-accent"

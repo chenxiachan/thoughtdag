@@ -88,6 +88,12 @@ interface UiState {
   /** Node whose answer is open in the large reading overlay. */
   responseViewerNodeId: string | null;
   setResponseViewerNodeId: (id: string | null) => void;
+  /** Share dialog: the freshly built read-only link (null = closed). */
+  shareDialogUrl: string | null;
+  setShareDialogUrl: (url: string | null) => void;
+  /** Viewer boot failed to decode the #view= hash (truncated link). */
+  viewerLoadError: boolean;
+  setViewerLoadError: (v: boolean) => void;
   setReaderNodeId: (id: string | null, jump?: { page?: number; threadId?: string }) => void;
   setPanelOpen: (open: boolean) => void;
   setSelectedModel: (model: string | null) => void;
@@ -174,6 +180,10 @@ export const useUiStore = create<UiState>((set, get) => ({
   setApiKeyModalOpen: (open) => set({ apiKeyModalOpen: open }),
   responseViewerNodeId: null,
   setResponseViewerNodeId: (id) => set({ responseViewerNodeId: id }),
+  shareDialogUrl: null,
+  setShareDialogUrl: (url) => set({ shareDialogUrl: url }),
+  viewerLoadError: false,
+  setViewerLoadError: (v) => set({ viewerLoadError: v }),
   readerNodeId: null,
   readerJump: null,
   setReaderNodeId: (id, jump) => set({ readerNodeId: id, readerJump: id ? (jump ?? null) : null }),

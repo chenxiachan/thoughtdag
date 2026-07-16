@@ -72,5 +72,7 @@ export async function bootViewer(): Promise<void> {
     });
   } catch (err) {
     console.error('[thoughtdag] viewer link decode failed:', err);
+    const { useUiStore } = await import('./ui-store');
+    useUiStore.getState().setViewerLoadError(true);
   }
 }
