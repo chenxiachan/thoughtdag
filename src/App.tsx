@@ -1183,7 +1183,7 @@ function Canvas() {
         >
           <Brain size={15} strokeWidth={1.75} />
         </button>
-        {!hasNodes && (
+        {(!hasNodes || modelData?.models.length === 0) && (
           <button
             onClick={() => useUiStore.getState().setApiKeyModalOpen(true)}
             className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors text-ink-faint hover:text-accent"

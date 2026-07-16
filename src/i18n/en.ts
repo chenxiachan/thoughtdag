@@ -145,6 +145,7 @@ export const en = {
   'node.askPlaceholder': 'Type a question… whatever flows in along the edges is its context',
   'palette.frameTitle': 'Frame: name a region of the canvas (never enters context; pure wayfinding)',
   'frame.titlePlaceholder': 'Frame title…',
+  'model.none': 'No model yet',
   'viewer.badge': 'Read-only view',
   'viewer.shareDialogTitle': 'Share the read-only view',
   'viewer.shareNote': 'Anyone opening the link can browse — zoom, read the panel, flip through files — but cannot change anything.',

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Check, ChevronDown, Cpu } from 'lucide-react';
+import { Check, ChevronDown, Cpu, KeyRound } from 'lucide-react';
 import { useUiStore } from '../../lib/ui-store';
 import { useModels } from '../../lib/use-models';
 import { fmt } from '../../i18n';
@@ -48,7 +48,7 @@ export default function ModelPicker({ value, onChange, compact }: PickerProps) {
 
   const label = nodeMode
     ? (active ? active.name : t('model.inherit'))
-    : (active?.name ?? activeId);
+    : (active?.name ?? activeId ?? (models.length === 0 ? t('model.none') : null));
 
   const pick = (id: string | null) => {
     if (nodeMode) onChange!(id ?? undefined);
@@ -101,6 +101,17 @@ export default function ModelPicker({ value, onChange, compact }: PickerProps) {
               ))}
             </div>
           ))}
+          {!nodeMode && (
+            <button
+              onClick={() => { setOpen(false); useUiStore.getState().setApiKeyModalOpen(true); }}
+              className={`w-full text-left px-3 py-1.5 text-xs flex items-center gap-2 transition-colors hover:bg-wash ${
+                models.length === 0 ? 'text-accent font-medium' : 'text-ink-muted'
+              }`}
+              data-picker-apikey
+            >
+              <KeyRound size={13} strokeWidth={1.75} className="shrink-0" /> {t('apikey.entryTitle')}
+            </button>
+          )}
           {!nodeMode && <GlobalCapabilities />}
         </div>
       )}

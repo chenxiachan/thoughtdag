@@ -145,6 +145,7 @@ export const zh: Record<keyof typeof en, string> = {
   'node.askPlaceholder': '输入问题……沿连线流入的内容就是它的上下文',
   'palette.frameTitle': '分区框：给一片画布起名（永不进入上下文，纯空间导航）',
   'frame.titlePlaceholder': '分区标题…',
+  'model.none': '未配置模型',
   'viewer.badge': '只读视图',
   'viewer.shareDialogTitle': '分享只读视图',
   'viewer.shareNote': '打开链接的人只能浏览：可以缩放、读侧栏、翻文件，不能改任何内容。',
