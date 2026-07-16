@@ -145,6 +145,8 @@ export const zh: Record<keyof typeof en, string> = {
   'node.askPlaceholder': '输入问题……沿连线流入的内容就是它的上下文',
   'palette.frameTitle': '分区框：给一片画布起名（永不进入上下文，纯空间导航）',
   'frame.titlePlaceholder': '分区标题…',
+  'frame.carryOn': '已链接：拖动框会带动框内节点。点击解开，只移动框本身',
+  'frame.carryOff': '未链接：拖动只移动框本身，方便调整覆盖范围。点击链接后框内节点随框移动',
   'frame.untitled': '（未命名分区）',
   'toolbar.frames': '分区导航：点击跳转到对应区域',
   'toolbar.hideAnnotations': '隐藏注释（分区框与未连线的材料）',

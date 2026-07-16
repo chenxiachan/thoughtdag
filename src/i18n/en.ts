@@ -145,6 +145,8 @@ export const en = {
   'node.askPlaceholder': 'Type a question… whatever flows in along the edges is its context',
   'palette.frameTitle': 'Frame: name a region of the canvas (never enters context; pure wayfinding)',
   'frame.titlePlaceholder': 'Frame title…',
+  'frame.carryOn': 'Linked: dragging the frame carries the nodes inside. Click to unlink and move the frame alone',
+  'frame.carryOff': 'Unlinked: dragging moves the frame alone while you adjust its range. Click to link so the nodes inside move with it',
   'frame.untitled': '(untitled frame)',
   'toolbar.frames': 'Frame navigator: click to jump to a region',
   'toolbar.hideAnnotations': 'Hide annotations (frames & unlinked material)',

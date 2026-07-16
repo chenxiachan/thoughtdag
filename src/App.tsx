@@ -174,6 +174,8 @@ function Canvas() {
       id, type: 'thought', position: pos, width: 640, height: 420, zIndex: -1, dragHandle: '.drag-handle',
       data: {
         question: '', stepKind: 'frame',
+        // spawn unlinked: the frame is adjusted over its nodes first, then linked
+        frameCarry: false,
         response: '', responses: [], responseIndex: -1,
         isCollapsed: false, isEditing: false, isEditingResponse: false, isLoading: false,
         tokenCount: 0, highlights: [], highlightMode: 'tag',
@@ -346,7 +348,9 @@ function Canvas() {
   // delta from ITS start position, so there is no incremental drift.
   const frameDrag = useRef<{ frameId: string; start: { x: number; y: number }; members: { id: string; start: { x: number; y: number } }[] } | null>(null);
   const onNodeDragStart: OnNodeDrag<ThoughtNodeType> = useCallback((_e, node) => {
-    if (node.data.stepKind !== 'frame') return;
+    // unlinked frames (frameCarry === false) move alone — the state while
+    // the frame itself is still being adjusted over its nodes
+    if (node.data.stepKind !== 'frame' || node.data.frameCarry === false) return;
     const st = useStore.getState();
     const frame = st.nodes.find((n) => n.id === node.id);
     if (!frame) return;

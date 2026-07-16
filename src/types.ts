@@ -67,6 +67,7 @@ export interface ThoughtData extends Record<string, unknown> {
   linkTitle?: string; // link node: page title (or a ⚠-prefixed fetch error)
   linkFetchedAt?: string; // link node: ISO timestamp of the snapshot (web content drifts)
   frameColor?: string; // frame node: fixed-palette color token (wayfinding, not decoration)
+  frameCarry?: boolean; // frame node: dragging carries contained nodes (absent = true; new frames start false so they can be adjusted into place first)
   instruction?: string; // paradigm body: the prompt (prompt node) or operator guidance (human node)
   fanoutRoles?: { name: string; prompt: string }[]; // role list carried by fanout steps/placeholders
   autoRerunRounds?: number; // max auto-triggered runs per user action (default 1); >1 enables loops
