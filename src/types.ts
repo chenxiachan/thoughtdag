@@ -59,6 +59,7 @@ export interface ThoughtData extends Record<string, unknown> {
   createdAt?: string; // when the node entered the canvas
   askedAt?: string; // when its question was (last) committed
   generatedAts?: (string | undefined)[]; // per-version answer completion times, parallel to responses[]
+  editedAts?: (string | undefined)[]; // per-version manual-revision times (the human intervened) — generation stamps stay untouched
   // ── node kind (beyond the default Q&A node) ──
   // 'human' = a dialogue turn (the human asks here); 'prompt' = a machine
   // processing step (fixed prompt, context only from upstream);
