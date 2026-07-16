@@ -180,14 +180,17 @@ let DEFAULT_MODEL = ZHIPU_KEY ? 'glm-4.5-flash' : Object.keys(modelRegistry)[0];
 // Choose model entry: if images are attached and the model is text-only,
 // switch to its provider's vision counterpart — or, failing that, any
 // registered vision-capable model.
-function resolveModel(modelId, hasImages) {
-  const entry = modelRegistry[modelId] || modelRegistry[DEFAULT_MODEL];
-  if (!entry) return null; // empty registry: no .env key and no runtime key yet
+function resolveModel(modelId, hasImages, reqProviders) {
+  // per-request overlay from browser-supplied providers; .env wins on collision
+  const reg = reqProviders?.length ? { ...providerEntries(reqProviders), ...modelRegistry } : modelRegistry;
+  const fallbackId = modelRegistry[DEFAULT_MODEL] ? DEFAULT_MODEL : Object.keys(reg)[0];
+  const entry = reg[modelId] || reg[fallbackId];
+  if (!entry) return null; // empty registry: no .env key and no request providers
   if (hasImages && !entry.vision) {
-    if (entry.visionFallback && modelRegistry[entry.visionFallback]) {
-      return modelRegistry[entry.visionFallback];
+    if (entry.visionFallback && reg[entry.visionFallback]) {
+      return reg[entry.visionFallback];
     }
-    const anyVision = Object.values(modelRegistry).find((m) => m.vision);
+    const anyVision = Object.values(reg).find((m) => m.vision);
     if (anyVision) return anyVision;
   }
   return entry;
@@ -635,11 +638,17 @@ app.post('/api/probe-models', async (req, res) => {
   }
 });
 
-/** Replace the whole set of browser-configured providers (idempotent). */
-async function applyRuntimeProviders(providers) {
-  for (const id of Object.keys(modelRegistry)) {
-    if (modelRegistry[id].runtime) delete modelRegistry[id];
-  }
+// ── Stateless browser-provider handling ────────────────────────────
+// Browser-configured providers are NEVER registered into server memory:
+// every generation request carries its own provider set, an overlay
+// registry is built per request and forgotten with it. This is what makes
+// a shared public deployment safe (no cross-user key leakage) and the
+// "your key is never stored" promise literally true — a stateless handler
+// has nowhere to put it.
+
+/** Build a per-request registry overlay from browser-supplied providers. */
+function providerEntries(providers) {
+  const out = {};
   for (const p of (Array.isArray(providers) ? providers : []).slice(0, 12)) {
     const baseURL = String(p.baseURL ?? '').replace(/\/$/, '');
     if (!baseURL) continue;
@@ -649,25 +658,56 @@ async function applyRuntimeProviders(providers) {
       apiKey: p.apiKey || 'none',
       baseURL,
     });
+    const extra = isOpenRouter(baseURL)
+      ? { providerOptions: { openrouter: { reasoning: { enabled: true } } } }
+      : {};
     const models = (Array.isArray(p.models) ? p.models : [])
       .map((m) => (typeof m === 'string' ? { id: m } : m))
       .filter((m) => m && m.id).slice(0, 60);
-    const perId = Object.fromEntries(models.map((m) => [m.id, { vision: !!m.vision }]));
-    const fresh = models.map((m) => m.id).filter((id) => !modelRegistry[id]); // .env wins on collision
-    register(fresh, name, (id) => make(id), {
-      vision: false, runtime: true, perId,
-      ...(isOpenRouter(baseURL) ? { providerOptions: { openrouter: { reasoning: { enabled: true } } } } : {}),
-    });
+    for (const m of models) {
+      if (out[m.id]) continue;
+      const shortId = m.id.includes('/') ? m.id.split('/').slice(1).join('/') : m.id;
+      out[m.id] = {
+        name: `${shortId} (${name})`, provider: name,
+        vision: m.vision ?? (openRouterCaps?.get(m.id)?.includes('image') ?? false),
+        model: () => make(m.id), ...extra,
+      };
+    }
   }
-  if (Object.values(modelRegistry).some((m) => m.runtime) && Object.keys(modelRegistry).some((id) => id.includes('/'))) {
-    await applyOpenRouterVision();
-  }
-  if (!modelRegistry[DEFAULT_MODEL]) DEFAULT_MODEL = Object.keys(modelRegistry)[0];
+  return out;
+}
+
+// OpenRouter's PUBLIC model-capability list — shared metadata, not user
+// state; cached so per-request overlays get vision flags without a fetch.
+let openRouterCaps = null;
+async function loadOpenRouterCaps() {
+  if (openRouterCaps) return;
+  try {
+    const res = await fetch('https://openrouter.ai/api/v1/models');
+    const { data } = await res.json();
+    openRouterCaps = new Map(data.map((m) => [m.id, m.architecture?.input_modalities ?? []]));
+  } catch { /* offline: overlay flags stay conservative */ }
+}
+
+/** Stateless echo: the model list this provider set would serve (.env models included). */
+async function modelsPayloadFor(providers) {
+  if ((providers ?? []).some((p) => isOpenRouter(p?.baseURL))) await loadOpenRouterCaps();
+  const overlay = providerEntries(providers);
+  const base = modelsPayload();
+  const extra = Object.entries(overlay)
+    .filter(([id]) => !modelRegistry[id]) // .env wins on collision
+    .map(([id, m]) => ({ id, name: m.name, provider: m.provider, vision: m.vision }));
+  const models = [...base.models, ...extra];
+  return {
+    ...base,
+    models,
+    default: base.default ?? extra[0]?.id ?? null,
+    capabilities: { ...base.capabilities, vision: models.some((m) => m.vision) },
+  };
 }
 
 app.post('/api/runtime-providers', async (req, res) => {
-  await applyRuntimeProviders(req.body?.providers);
-  res.json(modelsPayload());
+  res.json(await modelsPayloadFor(req.body?.providers));
 });
 
 // Legacy single-OpenRouter-key endpoint: a thin shim so keys stored by
@@ -685,17 +725,16 @@ app.post('/api/runtime-key', async (req, res) => {
       return;
     }
   }
-  await applyRuntimeProviders(key ? [{
+  res.json(await modelsPayloadFor(key ? [{
     name: 'OpenRouter', baseURL: 'https://openrouter.ai/api/v1', apiKey: key,
     models: (Array.isArray(models) && models.length > 0 ? models : ['openrouter/auto']),
-  }] : []);
-  res.json(modelsPayload());
+  }] : []));
 });
 
 // Non-streaming endpoint (background summaries)
 app.post('/api/claude', async (req, res) => {
-  const { messages, model: modelId, images } = req.body;
-  const entry = resolveModel(modelId || DEFAULT_MODEL, images && images.length > 0);
+  const { messages, model: modelId, images, providers } = req.body;
+  const entry = resolveModel(modelId || DEFAULT_MODEL, images && images.length > 0, providers);
   if (!entry) { res.status(503).json({ error: 'No model configured. Add an API key first.' }); return; }
 
   try {
@@ -717,8 +756,8 @@ app.post('/api/claude', async (req, res) => {
 // SSE streaming endpoint. The model decides on its own which tools to use
 // and when; `webSearch: false` / `scholarSearch: false` hide tool groups.
 app.post('/api/stream', async (req, res) => {
-  const { messages, model: modelId, images, webSearch, scholarSearch, mcpTools, searchEngine } = req.body;
-  const entry = resolveModel(modelId || DEFAULT_MODEL, images && images.length > 0);
+  const { messages, model: modelId, images, webSearch, scholarSearch, mcpTools, searchEngine, providers } = req.body;
+  const entry = resolveModel(modelId || DEFAULT_MODEL, images && images.length > 0, providers);
   if (!entry) { res.status(503).json({ error: 'No model configured. Add an API key first.' }); return; }
 
   res.writeHead(200, {

@@ -1,7 +1,15 @@
 import { API_BASE } from './constants';
 import { useUiStore } from './ui-store';
+import { storedProviders } from './runtime-providers';
 
 const API_URL = `${API_BASE}/api/claude`;
+// Providers only travel when configured; undefined keeps .env-only setups
+// byte-identical to before.
+const statelessProviders = () => {
+  const p = storedProviders();
+  return p.length > 0 ? p : undefined;
+};
+
 const STREAM_URL = `${API_BASE}/api/stream`;
 const PDF_EXTRACT_URL = `${API_BASE}/api/pdf-extract`;
 
@@ -86,6 +94,9 @@ export async function llmCall(contextMessages: ContextMessage[], images?: ImageA
         messages: contextMessages,
         images: images?.length ? images : undefined,
         model: modelOverride || useUiStore.getState().selectedModel || undefined,
+        // browser-configured providers ride along on EVERY request — the
+        // proxy builds a per-request registry and forgets it (stateless)
+        providers: statelessProviders(),
       }),
     });
 
@@ -140,6 +151,7 @@ export async function llmCallStream(
           ? { searchEngine: useUiStore.getState().searchEnginePref }
           : {}),
         model: modelOverride || useUiStore.getState().selectedModel || undefined,
+        providers: statelessProviders(),
       }),
       signal,
     });
