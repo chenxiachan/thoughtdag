@@ -55,11 +55,23 @@ const DIAGRAMS: Record<number, React.ReactNode> = {
   ),
   5: (
     <svg viewBox="0 0 120 84" className="w-full h-full">
-      <Card x={30} y={18} w={60} h={34} tone="accent" />
-      <rect x={38} y={26} width={30} height={3.5} rx={1.75} fill={COLORS.trace} opacity={0.55} />
-      <rect x={38} y={33} width={44} height={3.5} rx={1.75} fill={COLORS.line} />
-      <rect x={38} y={40} width={38} height={3.5} rx={1.75} fill={COLORS.line} />
-      <text x={60} y={68} textAnchor="middle" fontSize={7} fill={COLORS.inkMuted} fontFamily="JetBrains Mono Variable, monospace">~92 tok · 6 msgs</text>
+      {/* map tier: plaques with corner seals → glyph tier: bare seals */}
+      <Card x={12} y={14} w={40} h={15} />
+      <circle cx={14} cy={16} r={4.5} fill="#D64533" />
+      <text x={14} y={18.4} textAnchor="middle" fontSize={6} fontWeight={700} fill="white">✕</text>
+      <Card x={12} y={35} w={40} h={15} />
+      <circle cx={14} cy={37} r={4.5} fill={COLORS.accent} />
+      <text x={14} y={39.4} textAnchor="middle" fontSize={6} fontWeight={700} fill="white">⚖</text>
+      <Card x={12} y={56} w={40} h={15} />
+      <circle cx={14} cy={58} r={4.5} fill="#C9A227" />
+      <text x={14} y={60.4} textAnchor="middle" fontSize={6} fontWeight={700} fill="white">?</text>
+      <path d="M 62 42 L 74 42" stroke={COLORS.inkMuted} strokeWidth={1.2} />
+      <path d="M 71.5 39.5 L 76 42 L 71.5 44.5 Z" fill={COLORS.inkMuted} />
+      <rect x={86} y={14} width={13} height={13} rx={4.5} fill="#D64533" />
+      <line x1={92.5} y1={27} x2={92.5} y2={35} stroke={COLORS.accent} strokeWidth={1.4} />
+      <rect x={86} y={35} width={13} height={13} rx={4.5} fill={COLORS.accent} />
+      <line x1={92.5} y1={48} x2={92.5} y2={56} stroke={COLORS.accent} strokeWidth={1.4} />
+      <rect x={86} y={56} width={13} height={13} rx={4.5} fill="#C9A227" />
     </svg>
   ),
   7: (
@@ -114,17 +126,21 @@ const DIAGRAMS: Record<number, React.ReactNode> = {
   ),
   10: (
     <svg viewBox="0 0 120 84" className="w-full h-full">
-      {/* paradigm: human step (warm) → two prompt steps auto-running */}
-      <Card x={12} y={12} w={34} h={20} tone="warm" />
-      <circle cx={20} cy={22} r={3} fill={COLORS.warm} opacity={0.8} />
-      <line x1={29} y1={32} x2={29} y2={48} stroke={COLORS.accent} strokeWidth={1.75} />
-      <path d="M 26 45 L 29 50 L 32 45 Z" fill={COLORS.accent} />
-      <Card x={12} y={50} w={34} h={20} tone="accent" />
-      <path d="M 46 60 C 60 60, 62 30, 74 26" stroke={COLORS.accent} strokeWidth={1.75} fill="none" />
-      <path d="M 71 23.5 L 76 26 L 72 29.5 Z" fill={COLORS.accent} />
-      <Card x={76} y={16} w={34} h={20} tone="accent" />
-      <path d="M 88 58 L 96 62 L 88 66 Z" fill={COLORS.accent} />
-      <text x={100} y={65} fontSize={7} fill={COLORS.inkMuted} fontFamily="JetBrains Mono Variable, monospace">▶</text>
+      {/* canvas → read-only link → viewer with an eye badge */}
+      <Card x={10} y={18} w={30} h={17} tone="accent" />
+      <line x1={25} y1={35} x2={25} y2={48} stroke={COLORS.accent} strokeWidth={1.5} />
+      <path d="M 22.5 45.5 L 25 50 L 27.5 45.5 Z" fill={COLORS.accent} />
+      <Card x={10} y={50} w={30} h={17} />
+      <path d="M 46 42 L 60 42" stroke={COLORS.inkMuted} strokeWidth={1.2} />
+      <path d="M 57.5 39.5 L 62 42 L 57.5 44.5 Z" fill={COLORS.inkMuted} />
+      <rect x={68} y={20} width={44} height={44} rx={5} fill="white" stroke={COLORS.line} strokeWidth={1} />
+      <Card x={74} y={30} w={20} h={11} tone="accent" />
+      <Card x={88} y={46} w={20} h={11} />
+      <rect x={76} y={14} width={28} height={11} rx={5.5} fill="#2B2A28" />
+      <circle cx={84} cy={19.5} r={2.6} fill="none" stroke="white" strokeWidth={1} />
+      <circle cx={84} cy={19.5} r={0.9} fill="white" />
+      <text x={90} y={22} fontSize={6} fill="white" fontFamily="JetBrains Mono Variable, monospace">view</text>
+      <text x={60} y={78} textAnchor="middle" fontSize={7} fill={COLORS.inkMuted} fontFamily="JetBrains Mono Variable, monospace">#view= · read-only</text>
     </svg>
   ),
 };
