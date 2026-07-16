@@ -486,7 +486,7 @@ export const en = {
   'paradigm.newParadigm': 'New paradigm',
   'paradigm.exampleRuleOut': 'Example: Rule-out / Rule-in',
   'landing.paradigmTitle': 'Start from a paradigm',
-  'landing.paradigmDesc': 'A paradigm is a reusable collaboration structure: orchestrate the human\u2013AI division of labor, then instantiate it as a canvas and run',
+  'landing.paradigmDesc': 'Design the human\u2013AI division of labor once, then run it as a canvas',
   'paradigm.badge': 'Paradigm',
   'paradigm.expand': 'Expand {n} perspectives',
   'paradigm.expandTitle': 'Fan out this step into its configured role branches \u2014 you choose when',

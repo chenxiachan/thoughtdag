@@ -81,7 +81,7 @@ const CONTENT: Record<Lang, { nodes: SeedNode[] }> = {
         id: 'welcome',
         q: '👋 Welcome to ThoughtDAG: read me first',
         a: 'This canvas is a **conversation you can edit**. One rule powers everything: **a wire IS context**. Whatever connects into a node is what the model sees there.\n\n**The edges:**\n- **Purple solid** = the conversation chain (full history flows; layout and paradigms follow it)\n- **Orange solid** = a branch grown from selected text (structural too, just a different lineage)\n- **Purple dashed** = a *reference*: quotes that node\'s Q&A + a trail of its upstream questions; select the edge to see its token price and switch quote ⇄ full\n- **Red dashed** = a reviewer watching a thread\n\n**The marks:** an **amber badge** means "upstream changed since this answer". Click it to re-run in place (a new version is appended, old ones kept). The toolbar\'s amber chip replays everything stale in dependency order, with a price tag.\n\n**The map:** zoom out (wheel/trackpad) and every card folds into its one-line TAKEAWAY — the question becomes an eyebrow, the conclusion becomes the headline, and the decisive moves wear badges: ✕ ruled out · ⚖ decided · ↩ pivoted · ? open. Zoom back in to read in full.\n\n**Gestures:** double-click empty canvas = new question node · double-click a card = reading panel · drag a wire to empty space = continue from there · drop a wire on a card = reference it.\n\nEach framed region below is a chapter. Delete anything, drag anything. Press `?` for the tutorial. This graph is yours now.',
-        x: 40, y: -640,
+        x: 40, y: -400,
       },
       // ── ① the conversation chain ──
       {
@@ -134,21 +134,21 @@ const CONTENT: Record<Lang, { nodes: SeedNode[] }> = {
       {
         id: 'note',
         q: '# My library, audited\n847 saves. 23 opened in the past year — 15 of those were links I needed right then, and only **3** were genuine "come back and learn" visits.\n\n*(I am a NOTE, canvas material. I only enter context through my outgoing wire. Unwired material is decoration, and says so.)*',
-        a: '', x: 1450, y: 60, w: 460,
+        a: '', x: 1450, y: 150, w: 460,
         extra: { stepKind: 'note' },
       },
       {
         id: 'ask',
         q: 'Combining the branch\'s conclusion with this audit: what should happen to these 847 saves?',
         a: 'The data speaks first: a 3/847 learning-revisit rate means this library is **dead as a learning tool** — but 15 retrieval uses mean it\'s **alive as an index**, exactly the reviewer\'s distinction.\n\nDisposition:\n1. **Archive the backlog wholesale**: don\'t delete (keep the retrieval value), but move it out of the "to read" mental account. Declare reading bankruptcy.\n2. **New saves get a new protocol**: at save time, write one line on why it matters. Can\'t write the line — don\'t save.\n\n*Look at my two incoming wires: a **solid** one from the note (material) and a **purple dashed** one from the branch on the left, a REFERENCE. It quotes that node\'s Q&A plus a one-line trail of its upstream questions, without dragging the whole conversation in. Select the dashed edge: a chip shows its token price and flips quote ⇄ full.*',
-        x: 1450, y: 500,
+        x: 1450, y: 590,
         extra: { summaries: ['Decided: archive all 847, and new saves require one written line of why'], summaryTypes: ['decision'] },
       },
       {
         id: 'stale-demo',
         q: 'Condense everything above into a one-line takeaway',
         a: '**Takeaway: saving is not the start of learning — processing is. Change "save it" into "write one line" and the loop turns around.**\n\n*This node demonstrates two things.*\n\n*① The amber **"Upstream changed"** badge in my header: my upstream was edited after this answer was written, so my answer may no longer follow from what\'s above. Click the badge to re-run me in place, or use the amber **Replay stale** chip in the toolbar to fix the whole canvas in dependency order (it asks first, with a token estimate).*\n\n*② The **v2/2 pager** under my answer: every re-run appends a VERSION (old ones kept for comparison; switch back and watch downstream badges react). Versions are alternate answers to the same question; a BRANCH (⋯ menu → "Regenerate as branch") is a parallel node that can grow its own downstream.*',
-        x: 1450, y: 1000,
+        x: 1450, y: 1080,
         extra: {
           responses: ['Either archive the library or process new saves on the spot.', '**Takeaway: saving is not the start of learning — processing is. Change "save it" into "write one line" and the loop turns around.**\n\n*This node demonstrates two things.*\n\n*① The amber **"Upstream changed"** badge in my header: my upstream was edited after this answer was written, so my answer may no longer follow from what\'s above. Click the badge to re-run me in place, or use the amber **Replay stale** chip in the toolbar to fix the whole canvas in dependency order (it asks first, with a token estimate).*\n\n*② The **v2/2 pager** under my answer: every re-run appends a VERSION (old ones kept for comparison; switch back and watch downstream badges react). Versions are alternate answers to the same question; a BRANCH (⋯ menu → "Regenerate as branch") is a parallel node that can grow its own downstream.*'],
           responseIndex: 1,
@@ -163,34 +163,34 @@ const CONTENT: Record<Lang, { nodes: SeedNode[] }> = {
         id: 'noise',
         q: 'Unrelated: what should I cook tonight?',
         a: 'How about a quick mushroom risotto? Arborio rice, stock, parmesan, 30 minutes.\n\n*(This node exists to pollute the context of the ⚖️ demo below. In a linear chat you could never remove it.)*',
-        x: 2210, y: 60,
+        x: 2210, y: 150,
       },
       {
         id: 'cmp-full',
         q: '⚖️ Same question A: summarize what we know (WITH the cooking noise in context)',
         a: 'Here\'s a summary of our discussion:\n\nWe covered why saved articles stay unread (cost asymmetry, the collector\'s fallacy, anticipatory reward), ruled out switching tools, **and also dinner plans: mushroom risotto with arborio rice**.\n\n*Notice how the noise leaks in and dilutes the summary. The model can\'t tell what matters: everything upstream is "context".*',
-        x: 2210, y: 460,
+        x: 2210, y: 490,
         extra: { summaries: ['Control group: dinner chatter leaks into the summary and dilutes it'] },
       },
       {
         id: 'cmp-pruned',
         q: '⚖️ Same question B: summarize what we know (noise edge DELETED)',
         a: 'Here\'s a summary of our discussion:\n\n**Why libraries gather dust:** saving is nearly free, reading is expensive; the pleasure of collecting impersonates the progress of understanding (the collector\'s fallacy). **Switching tools is ruled out** — the bottleneck is processing. **The way out:** move processing to the moment of capture — one written line per save.\n\n*Same question, but this node\'s incoming edge skips the cooking node. Compare with node A: this is what "you control the context" means. The **will-send preview** above the ask box shows exactly what flows in, layer by layer (materials · references · conversation), before you spend a token.*',
-        x: 2210, y: 920,
+        x: 2210, y: 930,
         extra: { summaries: ['Delete one edge and the same question returns a clean summary'] },
       },
       // ── ④ the reading loop ──
       {
         id: 'brief',
         q: '',
-        a: '', x: 2980, y: 80, w: 400,
+        a: '', x: 2980, y: 150, w: 400,
         extra: { stepKind: 'file', attachments: [BRIEF_ATT] },
       },
       {
         id: 'brief-ask',
         q: '"The act of saving is mistaken for the act of learning" — isn\'t that too absolute?',
         a: 'For purely retrieval-type saves, yes: the correct use of a saved manual is "findable when needed", and nobody plans to read it cover to cover.\n\nBut for saves made **in order to learn**, the sentence is precise: the mechanism on page 2 (cost asymmetry) shows that as long as "saving" substitutes for "processing", the library keeps inflating (p.2). The three chapters on the left and this brief confirm each other.\n\n*(This node was asked by selecting that sentence inside the reader: double-click the file node to open it — page 1 wears the 💬 bubble this selection left behind; click it to reopen this thread. The p.1 chip next to my quote jumps the other way, from canvas back into the reader.)*',
-        x: 3620, y: 220,
+        x: 3580, y: 220,
         extra: {
           isBranch: true,
           branchContext: '(p.1) The act of saving is mistaken for the act of learning.',
@@ -202,7 +202,7 @@ const CONTENT: Record<Lang, { nodes: SeedNode[] }> = {
         id: 'brief-digest',
         q: 'Guided digest: unread-brief.pdf',
         a: '# Why your saved articles stay unread\n\n**In one line**: saving is nearly free and reading is expensive, so libraries inflate by default — "the act of saving is mistaken for the act of learning" (p.1).\n\n## The core concept\n\n**The collector\'s fallacy**: collecting delivers an immediate sense of progress while the understanding it promises is deferred (p.1).\n\n## Why it persists\n\nCost asymmetry: a save takes one second and pays out now; reading takes an hour and pays out later (p.2). Habits follow the cheaper loop.\n\n## What actually helps\n\nMove processing to the moment of capture: one line in your own words on why it matters, plus a scheduled review pass (p.2). A small processed library beats a complete dead one.\n\n*(I am a digest NODE, grown by the reader\'s "Guided digest" button. The reader\'s digest tab is my reading view — the (p.N) marks are clickable jump buttons there. Wire me downstream and later questions ride this compression instead of the full text.)*',
-        x: 2980, y: 620,
+        x: 2980, y: 690,
         extra: {
           digestOf: 'ex-att-brief',
           summaries: ['Digest done: saving ≠ learning, processing counts — every point page-anchored'],
@@ -210,9 +210,9 @@ const CONTENT: Record<Lang, { nodes: SeedNode[] }> = {
       },
       // ── frames: the chapters ──
       { id: 'frame-chain', q: '① The conversation: chain · branch · reviewer', a: '', x: 0, y: 240, w: 1290, h: 1460, extra: { stepKind: 'frame', frameColor: 'violet' } },
-      { id: 'frame-material', q: '② Material & references: wires decide what enters', a: '', x: 1400, y: 0, w: 640, h: 1560, extra: { stepKind: 'frame', frameColor: 'amber' } },
-      { id: 'frame-prune', q: '③ ⚖️ Prune the context, change the answer', a: '', x: 2160, y: 0, w: 640, h: 1440, extra: { stepKind: 'frame', frameColor: 'sky' } },
-      { id: 'frame-read', q: '④ The reading loop: literature grows into conversation', a: '', x: 2920, y: 0, w: 1270, h: 1240, extra: { stepKind: 'frame', frameColor: 'green' } },
+      { id: 'frame-material', q: '② Materials & wires', a: '', x: 1400, y: 0, w: 640, h: 1560, extra: { stepKind: 'frame', frameColor: 'amber' } },
+      { id: 'frame-prune', q: '③ ⚖️ Prune the context', a: '', x: 2160, y: 0, w: 640, h: 1240, extra: { stepKind: 'frame', frameColor: 'sky' } },
+      { id: 'frame-read', q: '④ The reading loop: paper → dialogue', a: '', x: 2920, y: 0, w: 1270, h: 1240, extra: { stepKind: 'frame', frameColor: 'green' } },
     ],
   },
   zh: {
@@ -221,7 +221,7 @@ const CONTENT: Record<Lang, { nodes: SeedNode[] }> = {
         id: 'welcome',
         q: '👋 欢迎来到 ThoughtDAG：先读我',
         a: '这张画布是一段**可以编辑的对话**。一条规则贯穿一切：**连线即上下文**。连进一个节点的东西，就是模型在那里看到的东西。\n\n**边的语言**：\n- **紫色实线** = 对话主链（完整历史流入；排版和范式沿它推进）\n- **橙色实线** = 从选中文字长出的探索分支（同样是结构边，只是另一条脉络）\n- **紫色虚线** = **引用**：把那个节点的问答+它上游问题的来路带进来，不拖整条对话。选中这条边能看到 token 价签，可切换 引用 ⇄ 全量\n- **红色虚线** = 盯着一条讨论线的评审\n\n**标记**：琥珀色**「上游已变」徽章** = 这个回答写成之后上游被改过。点徽章原地重放（追加新版本，旧版保留）；工具栏的琥珀 chip 可按依赖顺序**批量重放**全部陈旧节点（先确认、带 token 报价）。\n\n**地图**：缩小画布（滚轮/触控板），每张卡片会收起成一句「收获」——问题变眉题，结论当标题，关键动作带徽章：✕ 排除 · ⚖ 决策 · ↩ 转向 · ? 待解。放大回来继续读全文。\n\n**手势**：双击空白=新提问节点 · 双击卡片=阅读面板 · 拖线到空白=就地延续 · 拖线落在卡片上=引用它。\n\n下面每个虚线分区是一章。随便删、随便拖，`?` 打开教程，右上角的下载图标随时导出整张画布的备份。这张图现在是你的了。',
-        x: 40, y: -640,
+        x: 40, y: -400,
       },
       // ── ① 对话主链 ──
       {
@@ -274,21 +274,21 @@ const CONTENT: Record<Lang, { nodes: SeedNode[] }> = {
       {
         id: 'note',
         q: '# 我的收藏夹体检\n847 条收藏。最近一年打开过 23 条，其中 15 条是当场要用的链接，真正「回头学习」的只有 **3 条**。\n\n*（我是一张便签，画布材料。只有我的出边连到哪里，我才进入哪里的上下文。没连线的材料只是装饰，卡片上会明说。）*',
-        a: '', x: 1450, y: 60, w: 460,
+        a: '', x: 1450, y: 150, w: 460,
         extra: { stepKind: 'note' },
       },
       {
         id: 'ask',
         q: '结合左边分支的结论和这份体检数据：这 847 条收藏该怎么处置？',
         a: '数据先说话：3/847 的学习回访率意味着这个书库**作为学习工具已经死了**；但 15 次检索型使用说明它**作为索引还活着**——正好对应审稿人提出的区分。\n\n处置方案：\n1. **旧账整体归档**：不删除（保住检索价值），但移出「待读」心理账户，宣布阅读破产。\n2. **新收藏换协议**：存的那一刻写一句「为什么重要」；写不出来，就不配存。\n\n*看我的两条入边：便签过来的**实线**（材料），和左边分支过来的**紫色虚线**。那是一条**引用**：只带那个节点的问答+一行上游问题的来路，不把整条对话拖进来。选中那条虚线试试：有个小 chip 显示它的 token 价格，点击可在 引用 ⇄ 全量 之间切换。*',
-        x: 1450, y: 500,
+        x: 1450, y: 590,
         extra: { summaries: ['拍板：847 条旧收藏整体归档，新收藏当场写一句为什么'], summaryTypes: ['decision'] },
       },
       {
         id: 'stale-demo',
         q: '把上面的一切浓缩成一句 takeaway',
         a: '**Takeaway：收藏不是学习的开始，处理才是——把「存下来」改成「写一句」，环路才会掉头。**\n\n*这个节点演示两件事。*\n\n*① 我头部琥珀色的**「上游已变」徽章**：这个回答写成之后，上游被改过，所以我的回答可能已经接不上上文了。点徽章原地重放我；或者用顶部工具栏的琥珀色**「重放陈旧」**chip，按依赖顺序修复整张画布（会先确认，带 token 报价）。*\n\n*② 回答下方的 **v2/2 翻页**：每次重放都会**追加一个版本**（旧版保留可对比。切回旧版试试，下游的徽章会跟着反应）。版本=同一问题的备选回答；分支（⋯ 菜单 →「另开分支重答」）才是能各自发展下游的平行探索。*',
-        x: 1450, y: 1000,
+        x: 1450, y: 1080,
         extra: {
           responses: ['收藏夹要么归档，要么当场处理。', '**Takeaway：收藏不是学习的开始，处理才是——把「存下来」改成「写一句」，环路才会掉头。**\n\n*这个节点演示两件事。*\n\n*① 我头部琥珀色的**「上游已变」徽章**：这个回答写成之后，上游被改过，所以我的回答可能已经接不上上文了。点徽章原地重放我；或者用顶部工具栏的琥珀色**「重放陈旧」**chip，按依赖顺序修复整张画布（会先确认，带 token 报价）。*\n\n*② 回答下方的 **v2/2 翻页**：每次重放都会**追加一个版本**（旧版保留可对比。切回旧版试试，下游的徽章会跟着反应）。版本=同一问题的备选回答；分支（⋯ 菜单 →「另开分支重答」）才是能各自发展下游的平行探索。*'],
           responseIndex: 1,
@@ -303,34 +303,34 @@ const CONTENT: Record<Lang, { nodes: SeedNode[] }> = {
         id: 'noise',
         q: '无关插曲：今晚吃什么好？',
         a: '来个快手蘑菇烩饭怎么样？Arborio 米、高汤、帕玛森芝士，30 分钟搞定。\n\n*（这个节点专门用来污染右侧 ⚖️ 演示的上下文。在线性聊天里，你永远删不掉它。）*',
-        x: 2210, y: 60,
+        x: 2210, y: 150,
       },
       {
         id: 'cmp-full',
         q: '⚖️ 同一问题 A：总结我们聊了什么（上下文里带着做饭闲聊）',
         a: '以下是我们讨论的总结：\n\n我们讨论了收藏夹吃灰的原因（成本不对称、收藏家谬误、预期奖励），排除了换工具这条路，**还有晚饭计划：用 Arborio 米做蘑菇烩饭**。\n\n*注意闲聊如何漏进来稀释了主题总结。模型分不清什么重要：上游的一切都是「上下文」。*',
-        x: 2210, y: 460,
+        x: 2210, y: 490,
         extra: { summaries: ['对照组：晚饭闲聊漏进总结，主题结论被稀释'] },
       },
       {
         id: 'cmp-pruned',
         q: '⚖️ 同一问题 B：总结我们聊了什么（做饭那条边已删除）',
         a: '以下是我们讨论的总结：\n\n**收藏夹为何吃灰**：存下来几乎免费、读完很贵；收集的快感冒充理解的进度（收藏家谬误）。**换工具已排除**：瓶颈在处理不在收藏。**出路**：处理前置——存的那一刻写一句为什么。\n\n*同一个问题，但这个节点的入边跳过了做饭节点。对比 A 节点：这就是「你控制上下文」的含义。追问框上方的**「将发送」预览**会按 材料 · 引用 · 对话 三层展示到底有什么会流入。花 token 之前先看账单。*',
-        x: 2210, y: 920,
+        x: 2210, y: 930,
         extra: { summaries: ['删掉一条边，同一个问题得到干净的总结'] },
       },
       // ── ④ 阅读闭环 ──
       {
         id: 'brief',
         q: '',
-        a: '', x: 2980, y: 80, w: 400,
+        a: '', x: 2980, y: 150, w: 400,
         extra: { stepKind: 'file', attachments: [BRIEF_ATT] },
       },
       {
         id: 'brief-ask',
         q: '「存下来的动作被误当成学习的动作」——这句是不是说得太绝对了？',
         a: '对纯检索型收藏，确实太绝对：存一份手册的正确用法就是「要用时找得到」，没人打算通读它。\n\n但对**为学习而存**的收藏，这句话精确成立：简报第 2 页给出的机制（成本不对称）说明，只要「存」还在替代「处理」，书库就会继续膨胀 (p.2)。左边三章的推理链和这份简报互相印证。\n\n*（这个节点是在阅读器里圈选第 1 页那句话问出来的：双击文件节点打开阅读器，第 1 页留着这次圈选的 💬 气泡，点击就回到这条对话；我引文右侧的 p.1 芯片则反向从画布跳回阅读器那一页。）*',
-        x: 3620, y: 220,
+        x: 3580, y: 220,
         extra: {
           isBranch: true,
           branchContext: '(p.1) The act of saving is mistaken for the act of learning.',
@@ -342,7 +342,7 @@ const CONTENT: Record<Lang, { nodes: SeedNode[] }> = {
         id: 'brief-digest',
         q: '导读：unread-brief.pdf',
         a: '# 为什么收藏的文章总是没读\n\n**一句话**：存下来几乎免费、读完很贵，于是收藏夹默认膨胀——「存下来的动作被误当成学习的动作」(p.1)。\n\n## 核心概念\n\n**收藏家谬误**：收集带来即时的进度感，而它允诺的理解被无限推迟 (p.1)。\n\n## 为什么戒不掉\n\n成本不对称：收藏一秒钟、奖励当下兑现；阅读一小时、回报在远处 (p.2)。习惯永远沿着更便宜的环路走。\n\n## 有效的做法\n\n把「处理」前置到收藏那一刻：当场用自己的话写一句为什么重要，并安排定期回访，而不是指望收藏夹自己浮现 (p.2)。被处理的小书库，胜过完整的死书库。\n\n*（我是一个导读节点：在阅读器里点「生成导读」长出来的。阅读器顶部的「导读」标签页就是我的阅读视图，(p.N) 在那里是可点击的跳页按钮。把我连向下游，后续问题就以这份压缩为上下文，而不是整份原文。）*',
-        x: 2980, y: 620,
+        x: 2980, y: 690,
         extra: {
           digestOf: 'ex-att-brief',
           summaries: ['导读完成：存≠学，处理才算数；要点均带页码'],
@@ -350,8 +350,8 @@ const CONTENT: Record<Lang, { nodes: SeedNode[] }> = {
       },
       // ── 分区框：章节 ──
       { id: 'frame-chain', q: '① 对话：主链 · 分支 · 评审', a: '', x: 0, y: 240, w: 1290, h: 1460, extra: { stepKind: 'frame', frameColor: 'violet' } },
-      { id: 'frame-material', q: '② 材料与引用：连线决定什么进入', a: '', x: 1400, y: 0, w: 640, h: 1560, extra: { stepKind: 'frame', frameColor: 'amber' } },
-      { id: 'frame-prune', q: '③ ⚖️ 修剪上下文，改变回答', a: '', x: 2160, y: 0, w: 640, h: 1440, extra: { stepKind: 'frame', frameColor: 'sky' } },
+      { id: 'frame-material', q: '② 材料与引用：连线即门禁', a: '', x: 1400, y: 0, w: 640, h: 1560, extra: { stepKind: 'frame', frameColor: 'amber' } },
+      { id: 'frame-prune', q: '③ ⚖️ 修剪上下文', a: '', x: 2160, y: 0, w: 640, h: 1240, extra: { stepKind: 'frame', frameColor: 'sky' } },
       { id: 'frame-read', q: '④ 阅读闭环：文献长成对话', a: '', x: 2920, y: 0, w: 1270, h: 1240, extra: { stepKind: 'frame', frameColor: 'green' } },
     ],
   },
@@ -426,7 +426,6 @@ export function buildExampleGraph(lang: Lang): { nodes: ThoughtNode[]; edges: Th
     E('branch1', 'ask', { ref: true }),
     E('ask', 'stale-demo'),
     // ③ the ⚖️ demo pair: A inherits the noise, B skips it
-    E('root', 'noise'),
     E('noise', 'cmp-full'),
     E('chain1', 'cmp-full', { branch: true }),
     E('chain1', 'cmp-pruned', { branch: true }),
