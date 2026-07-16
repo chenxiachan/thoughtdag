@@ -602,39 +602,93 @@ app.get('/api/models', (req, res) => res.json(modelsPayload()));
 // The frontend re-pushes it on boot, so proxy restarts self-heal. Models
 // registered here are tagged runtime:true so a new push replaces them
 // without touching .env-registered ones.
-const RUNTIME_DEFAULT_SLUGS = ['openrouter/auto'];
-app.post('/api/runtime-key', async (req, res) => {
-  const { key, models } = req.body ?? {};
+// ── Browser-configured providers ─────────────────────────────────
+// Any OpenAI-compatible endpoint registers at runtime: OpenRouter, OpenAI,
+// DeepSeek, Zhipu, Kimi, a local Ollama, or any custom gateway. Keys live
+// in the BROWSER (localStorage) and this process's memory only — never on
+// disk. The frontend re-pushes on boot, so proxy restarts self-heal.
+
+const isOpenRouter = (baseURL) => /openrouter\.ai/i.test(String(baseURL));
+
+/** List models from an OpenAI-compatible endpoint (the /models standard).
+    Serves the frontend's "fetch model list" step — proxied here because
+    the browser would hit CORS on most providers. */
+app.post('/api/probe-models', async (req, res) => {
+  const { baseURL, apiKey } = req.body ?? {};
+  if (!baseURL) { res.status(400).json({ error: 'baseURL required' }); return; }
+  try {
+    const r = await fetch(`${String(baseURL).replace(/\/$/, '')}/models`, {
+      headers: apiKey ? { Authorization: `Bearer ${apiKey}` } : {},
+      signal: AbortSignal.timeout(15000),
+    });
+    if (!r.ok) { res.status(r.status).json({ error: `endpoint answered HTTP ${r.status}` }); return; }
+    const body = await r.json();
+    const list = Array.isArray(body.data) ? body.data : Array.isArray(body.models) ? body.models : [];
+    const models = list.map((m) => ({
+      id: m.id ?? m.name,
+      // OpenRouter ships modality metadata; elsewhere vision stays unknown
+      ...(m.architecture?.input_modalities ? { vision: m.architecture.input_modalities.includes('image') } : {}),
+    })).filter((m) => m.id);
+    res.json({ models });
+  } catch (err) {
+    res.status(502).json({ error: `could not reach the endpoint: ${err.message}` });
+  }
+});
+
+/** Replace the whole set of browser-configured providers (idempotent). */
+async function applyRuntimeProviders(providers) {
   for (const id of Object.keys(modelRegistry)) {
     if (modelRegistry[id].runtime) delete modelRegistry[id];
   }
+  for (const p of (Array.isArray(providers) ? providers : []).slice(0, 12)) {
+    const baseURL = String(p.baseURL ?? '').replace(/\/$/, '');
+    if (!baseURL) continue;
+    const name = String(p.name || 'Custom').slice(0, 40);
+    const make = createOpenAICompatible({
+      name: name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+      apiKey: p.apiKey || 'none',
+      baseURL,
+    });
+    const models = (Array.isArray(p.models) ? p.models : [])
+      .map((m) => (typeof m === 'string' ? { id: m } : m))
+      .filter((m) => m && m.id).slice(0, 60);
+    const perId = Object.fromEntries(models.map((m) => [m.id, { vision: !!m.vision }]));
+    const fresh = models.map((m) => m.id).filter((id) => !modelRegistry[id]); // .env wins on collision
+    register(fresh, name, (id) => make(id), {
+      vision: false, runtime: true, perId,
+      ...(isOpenRouter(baseURL) ? { providerOptions: { openrouter: { reasoning: { enabled: true } } } } : {}),
+    });
+  }
+  if (Object.values(modelRegistry).some((m) => m.runtime) && Object.keys(modelRegistry).some((id) => id.includes('/'))) {
+    await applyOpenRouterVision();
+  }
+  if (!modelRegistry[DEFAULT_MODEL]) DEFAULT_MODEL = Object.keys(modelRegistry)[0];
+}
+
+app.post('/api/runtime-providers', async (req, res) => {
+  await applyRuntimeProviders(req.body?.providers);
+  res.json(modelsPayload());
+});
+
+// Legacy single-OpenRouter-key endpoint: a thin shim so keys stored by
+// earlier builds keep working until the frontend migrates them.
+app.post('/api/runtime-key', async (req, res) => {
+  const { key, models } = req.body ?? {};
   if (key) {
     try {
       const probe = await fetch('https://openrouter.ai/api/v1/auth/key', {
         headers: { Authorization: `Bearer ${key}` },
       });
-      if (!probe.ok) {
-        res.status(401).json({ error: `key rejected (HTTP ${probe.status})` });
-        return;
-      }
+      if (!probe.ok) { res.status(401).json({ error: `key rejected (HTTP ${probe.status})` }); return; }
     } catch (err) {
       res.status(502).json({ error: `could not reach openrouter.ai: ${err.message}` });
       return;
     }
-    const openrouter = createOpenAICompatible({
-      name: 'openrouter', apiKey: key, baseURL: 'https://openrouter.ai/api/v1',
-    });
-    const slugs = (Array.isArray(models) && models.length > 0 ? models : RUNTIME_DEFAULT_SLUGS)
-      .map((s) => String(s).trim()).filter(Boolean).slice(0, 40);
-    // .env-registered ids win on collision (they were configured deliberately)
-    const fresh = slugs.filter((id) => !modelRegistry[id]);
-    register(fresh, 'OpenRouter', (id) => openrouter(id), {
-      vision: false, runtime: true,
-      providerOptions: { openrouter: { reasoning: { enabled: true } } },
-    });
-    await applyOpenRouterVision();
   }
-  if (!modelRegistry[DEFAULT_MODEL]) DEFAULT_MODEL = Object.keys(modelRegistry)[0];
+  await applyRuntimeProviders(key ? [{
+    name: 'OpenRouter', baseURL: 'https://openrouter.ai/api/v1', apiKey: key,
+    models: (Array.isArray(models) && models.length > 0 ? models : ['openrouter/auto']),
+  }] : []);
   res.json(modelsPayload());
 });
 

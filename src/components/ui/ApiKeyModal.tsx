@@ -1,43 +1,83 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { KeyRound, Loader2, X } from 'lucide-react';
+import { Camera, KeyRound, Loader2, Plus, Trash2, X } from 'lucide-react';
 import { useUiStore, toast } from '../../lib/ui-store';
 import { useModels, setModelsCache } from '../../lib/use-models';
-import { pushRuntimeKey, RUNTIME_KEY_LS, RUNTIME_MODELS_LS, RUNTIME_DEFAULT_MODELS, storedRuntimeKey } from '../../lib/runtime-key';
+import {
+  PROVIDER_PRESETS, type ProviderPreset, type RuntimeModel, type RuntimeProvider,
+  probeModels, pushProviders, saveProviders, storedProviders,
+} from '../../lib/runtime-providers';
 import { useT, fmt } from '../../i18n';
 
-// The .env-free path in: paste an OpenRouter key, pick model slugs, go.
-// The key lives in localStorage + the proxy's memory only — the dialog
-// says so, because "where does my key go" is the first question anyone
-// pasting a key should ask.
+// The model-interface manager: one door for every way in. Presets carry a
+// baseURL and a key page; the model list is always fetched live from the
+// endpoint's /models route (protocol standard), so nothing here goes stale.
+// Local runtimes need no key; a custom endpoint field catches everything
+// else that speaks the OpenAI-compatible protocol.
 
 export default function ApiKeyModal() {
   const t = useT();
   const open = useUiStore((s) => s.apiKeyModalOpen);
   const setOpen = useUiStore((s) => s.setApiKeyModalOpen);
   const data = useModels();
-  const stored = storedRuntimeKey();
-  const [key, setKey] = useState(stored?.key ?? '');
-  const [models, setModels] = useState((stored?.models ?? RUNTIME_DEFAULT_MODELS).join('\n'));
+  const [providers, setProviders] = useState<RuntimeProvider[]>(() => storedProviders());
+  const [adding, setAdding] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+
+  // ── add-flow state ──
+  const [preset, setPreset] = useState<ProviderPreset>(PROVIDER_PRESETS[0]);
+  const [key, setKey] = useState('');
+  const [customURL, setCustomURL] = useState('');
+  const [customName, setCustomName] = useState('');
+  const [probed, setProbed] = useState<RuntimeModel[] | null>(null);
+  const [picked, setPicked] = useState<Map<string, boolean>>(new Map()); // id → vision
+  const [filter, setFilter] = useState('');
+
+  const serverModels = useMemo(
+    () => (data?.models ?? []).filter((m) => !providers.some((p) => p.models.some((x) => x.id === m.id))),
+    [data, providers],
+  );
+  const visionCount = (data?.models ?? []).filter((m) => m.vision).length;
+
   if (!open) return null;
 
-  const modelCount = data?.models.length ?? 0;
+  const resetAdd = () => {
+    setAdding(false); setProbed(null); setPicked(new Map()); setKey(''); setCustomURL(''); setCustomName(''); setFilter(''); setError('');
+  };
 
-  const save = async () => {
-    const k = key.trim();
-    if (!k) return;
+  const commit = async (next: RuntimeProvider[]) => {
     setBusy(true);
     setError('');
     try {
-      const slugs = models.split(/[\n,]/).map((s) => s.trim()).filter(Boolean);
-      const fresh = await pushRuntimeKey(k, slugs);
-      localStorage.setItem(RUNTIME_KEY_LS, k);
-      localStorage.setItem(RUNTIME_MODELS_LS, slugs.join(','));
+      const fresh = await pushProviders(next);
+      saveProviders(next);
+      setProviders(next);
       setModelsCache(fresh);
-      toast('success', fmt(t('apikey.saved'), { n: fresh.models.length }));
-      setOpen(false);
+      return true;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+      return false;
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const doProbe = async () => {
+    setBusy(true);
+    setError('');
+    setProbed(null);
+    try {
+      const baseURL = preset.id === 'custom' ? customURL.trim() : preset.baseURL;
+      const models = await probeModels(baseURL, key.trim());
+      if (models.length === 0) throw new Error(t('provider.probeEmpty'));
+      setProbed(models);
+      const rec = new Set(preset.recommend ?? []);
+      const preselect = new Map<string, boolean>();
+      for (const m of models) {
+        if (rec.size > 0 ? rec.has(m.id) : models.length <= 12) preselect.set(m.id, !!m.vision);
+      }
+      setPicked(preselect);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -45,93 +85,186 @@ export default function ApiKeyModal() {
     }
   };
 
-  const clear = async () => {
-    setBusy(true);
-    try {
-      const fresh = await pushRuntimeKey('');
-      localStorage.removeItem(RUNTIME_KEY_LS);
-      localStorage.removeItem(RUNTIME_MODELS_LS);
-      setModelsCache(fresh);
-      setKey('');
-      toast('info', t('apikey.cleared'));
-      setOpen(false);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
-    } finally {
-      setBusy(false);
+  const doAdd = async () => {
+    const baseURL = preset.id === 'custom' ? customURL.trim() : preset.baseURL;
+    const name = preset.id === 'custom' ? (customName.trim() || t('provider.customName')) : preset.name;
+    const models: RuntimeModel[] = [...picked.entries()].map(([id, vision]) => ({ id, ...(vision ? { vision } : {}) }));
+    if (!baseURL || models.length === 0) return;
+    const next = [...providers.filter((p) => p.baseURL !== baseURL), {
+      preset: preset.id, name, baseURL, apiKey: key.trim(), models,
+    }];
+    if (await commit(next)) {
+      toast('success', fmt(t('provider.added'), { n: models.length, name }));
+      resetAdd();
     }
   };
+
+  const remove = async (baseURL: string) => {
+    await commit(providers.filter((p) => p.baseURL !== baseURL));
+  };
+
+  const shown = probed?.filter((m) => !filter || m.id.toLowerCase().includes(filter.toLowerCase())) ?? [];
 
   return createPortal((
-    <div className="fixed inset-0 z-[60] bg-ink/30 backdrop-blur-sm flex items-center justify-center p-6" onClick={() => setOpen(false)}>
-      <div className="bg-card rounded-2xl shadow-2xl border border-line w-[520px] max-h-[85vh] overflow-y-auto flex flex-col" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-[60] bg-ink/30 backdrop-blur-sm flex items-center justify-center p-6" onClick={() => { setOpen(false); resetAdd(); }}>
+      <div className="bg-card rounded-2xl shadow-2xl border border-line w-[560px] max-h-[86vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center gap-2 px-5 py-3 border-b border-line shrink-0">
           <KeyRound size={15} strokeWidth={1.75} className="text-accent shrink-0" />
-          <span className="text-sm font-semibold text-ink flex-1">{t('apikey.title')}</span>
-          <button onClick={() => setOpen(false)} className="text-ink-faint hover:text-ink w-7 h-7 rounded-lg hover:bg-wash flex items-center justify-center transition-colors shrink-0">
+          <span className="text-sm font-semibold text-ink flex-1">{t('provider.title')}</span>
+          <button onClick={() => { setOpen(false); resetAdd(); }} className="text-ink-faint hover:text-ink w-7 h-7 rounded-lg hover:bg-wash flex items-center justify-center transition-colors shrink-0">
             <X size={15} strokeWidth={1.75} />
           </button>
         </div>
 
-        <div className="px-5 py-4 space-y-4">
-          {modelCount === 0 ? (
-            <p className="text-xs text-ink-muted leading-relaxed">{t('apikey.introEmpty')}</p>
-          ) : (
-            <p className="text-xs text-ink-muted leading-relaxed">{fmt(t('apikey.introHasEnv'), { n: modelCount })}</p>
-          )}
+        <div className="flex-1 min-h-0 overflow-y-auto px-5 py-4 space-y-3">
+          {!adding && (<>
+            {(data?.models.length ?? 0) === 0 && (
+              <p className="text-xs text-ink-muted leading-relaxed">{t('provider.introEmpty')}</p>
+            )}
 
-          <div>
-            <label className="text-2xs font-medium text-ink-muted block mb-1.5">{t('apikey.keyLabel')}</label>
-            <input
-              type="password"
-              value={key}
-              onChange={(e) => setKey(e.target.value)}
-              placeholder="sk-or-…"
-              autoFocus
-              className="w-full bg-wash text-sm text-ink font-mono rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-accent/40 placeholder-ink-faint"
-              data-apikey-input
-            />
-            <p className="text-2xs text-ink-faint mt-1.5 leading-relaxed">
-              {t('apikey.keyHint')}{' '}
-              <a href="https://openrouter.ai/keys" target="_blank" rel="noreferrer" className="text-accent hover:underline">openrouter.ai/keys</a>
-            </p>
-          </div>
+            {serverModels.length > 0 && (
+              <div className="border border-line rounded-xl px-3 py-2.5 bg-wash/50 text-xs text-ink-muted">
+                {fmt(t('provider.serverRow'), { n: serverModels.length })}
+              </div>
+            )}
 
-          <div>
-            <label className="text-2xs font-medium text-ink-muted block mb-1.5">{t('apikey.modelsLabel')}</label>
-            <textarea
-              value={models}
-              onChange={(e) => setModels(e.target.value)}
-              rows={6}
-              className="w-full bg-wash text-xs text-ink font-mono rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-accent/40 resize-y leading-relaxed"
-            />
-            <p className="text-2xs text-ink-faint mt-1.5 leading-relaxed">{t('apikey.modelsHint')}</p>
-          </div>
+            {providers.map((p) => (
+              <div key={p.baseURL} className="border border-line rounded-xl px-3 py-2.5 bg-surface flex items-start gap-2">
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm text-ink font-medium">{p.name}</div>
+                  <div className="text-2xs text-ink-faint mt-0.5 font-mono truncate">{p.baseURL}</div>
+                  <div className="text-2xs text-ink-muted mt-1">
+                    {fmt(t('provider.modelCount'), { n: p.models.length })}
+                    {p.models.some((m) => m.vision) && <span> · 📷 {p.models.filter((m) => m.vision).length}</span>}
+                  </div>
+                </div>
+                <button onClick={() => void remove(p.baseURL)} disabled={busy} title={t('common.delete')} className="text-ink-faint hover:text-red-500 w-6 h-6 rounded-full flex items-center justify-center transition-colors shrink-0">
+                  <Trash2 size={13} strokeWidth={1.75} />
+                </button>
+              </div>
+            ))}
 
-          <p className="text-2xs text-ink-faint leading-relaxed bg-wash rounded-lg px-3 py-2">{t('apikey.privacy')}</p>
+            {(data?.models.length ?? 0) > 0 && (
+              <p className="text-2xs text-ink-faint leading-relaxed">
+                {fmt(t('provider.capabilityLine'), { n: data!.models.length, v: visionCount })}
+                {!data?.capabilities?.webSearch && ` ${t('provider.noSearchNote')}`}
+              </p>
+            )}
 
-          {error && <p className="text-xs text-red-600 leading-relaxed">{error}</p>}
+            <button onClick={() => setAdding(true)} className="flex items-center gap-1.5 text-xs text-accent hover:bg-accent/10 px-3 py-1.5 rounded-lg transition-colors" data-provider-add>
+              <Plus size={14} strokeWidth={1.75} /> {t('provider.add')}
+            </button>
+          </>)}
+
+          {adding && (<>
+            <div>
+              <label className="text-2xs font-medium text-ink-muted block mb-1.5">{t('provider.pickSource')}</label>
+              <div className="flex flex-wrap gap-1.5">
+                {PROVIDER_PRESETS.map((p) => (
+                  <button
+                    key={p.id}
+                    onClick={() => { setPreset(p); setProbed(null); setPicked(new Map()); setError(''); }}
+                    className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${preset.id === p.id ? 'border-accent bg-accent/10 text-accent font-medium' : 'border-line text-ink-muted hover:bg-wash'}`}
+                    data-preset={p.id}
+                  >
+                    {p.id === 'custom' ? t('provider.customName') : p.id === 'ollama' ? `${p.name} · ${t('provider.local')}` : p.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {preset.id === 'custom' && (<>
+              <div>
+                <label className="text-2xs font-medium text-ink-muted block mb-1.5">{t('provider.baseURL')}</label>
+                <input value={customURL} onChange={(e) => setCustomURL(e.target.value)} placeholder="https://…/v1"
+                  className="w-full bg-wash text-sm text-ink font-mono rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-accent/40 placeholder-ink-faint" data-provider-url />
+                <p className="text-2xs text-ink-faint mt-1">{t('provider.baseURLHint')}</p>
+              </div>
+              <div>
+                <label className="text-2xs font-medium text-ink-muted block mb-1.5">{t('provider.displayName')}</label>
+                <input value={customName} onChange={(e) => setCustomName(e.target.value)} placeholder={t('provider.customName')}
+                  className="w-full bg-wash text-sm text-ink rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-accent/40 placeholder-ink-faint" />
+              </div>
+            </>)}
+
+            {!preset.noKey && (
+              <div>
+                <label className="text-2xs font-medium text-ink-muted block mb-1.5">API key</label>
+                <input type="password" value={key} onChange={(e) => setKey(e.target.value)} placeholder="sk-…" autoFocus
+                  className="w-full bg-wash text-sm text-ink font-mono rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-accent/40 placeholder-ink-faint" data-provider-key />
+                {preset.keyUrl && (
+                  <p className="text-2xs text-ink-faint mt-1.5">
+                    {t('provider.keyHint')}{' '}
+                    <a href={preset.keyUrl} target="_blank" rel="noreferrer" className="text-accent hover:underline">{preset.keyUrl.replace('https://', '')}</a>
+                  </p>
+                )}
+              </div>
+            )}
+            {preset.noKey && <p className="text-2xs text-ink-faint leading-relaxed">{t('provider.localHint')}</p>}
+
+            {!probed && (
+              <button onClick={() => void doProbe()} disabled={busy || (preset.id === 'custom' ? !customURL.trim() : !preset.noKey && !key.trim())}
+                className="text-xs bg-accent text-white px-4 py-1.5 rounded-lg disabled:opacity-40 flex items-center gap-1.5" data-provider-probe>
+                {busy && <Loader2 size={12} className="animate-spin" />}
+                {busy ? t('provider.probing') : t('provider.probe')}
+              </button>
+            )}
+
+            {probed && (<>
+              <div>
+                <div className="flex items-center gap-2 mb-1.5">
+                  <label className="text-2xs font-medium text-ink-muted flex-1">{fmt(t('provider.pickModels'), { n: probed.length })}</label>
+                  {probed.length > 15 && (
+                    <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder={t('provider.filter')}
+                      className="bg-wash text-2xs text-ink rounded-md px-2 py-1 w-36 focus:outline-none focus:ring-1 focus:ring-accent/40 placeholder-ink-faint" />
+                  )}
+                </div>
+                <div className="border border-line rounded-xl max-h-[220px] overflow-y-auto divide-y divide-line/60" data-provider-models>
+                  {shown.slice(0, 200).map((m) => (
+                    <label key={m.id} className="flex items-center gap-2 px-3 py-1.5 text-xs text-ink hover:bg-wash cursor-pointer">
+                      <input type="checkbox" checked={picked.has(m.id)}
+                        onChange={(e) => {
+                          const next = new Map(picked);
+                          if (e.target.checked) next.set(m.id, !!m.vision); else next.delete(m.id);
+                          setPicked(next);
+                        }} />
+                      <span className="font-mono flex-1 truncate">{m.id}</span>
+                      {m.vision != null ? (
+                        m.vision && <span title={t('provider.visionYes')}>📷</span>
+                      ) : picked.has(m.id) && (
+                        <button
+                          onClick={(e) => { e.preventDefault(); const next = new Map(picked); next.set(m.id, !next.get(m.id)); setPicked(next); }}
+                          title={t('provider.visionToggle')}
+                          className={`flex items-center gap-0.5 text-2xs px-1.5 py-0.5 rounded-full transition-colors ${picked.get(m.id) ? 'bg-accent/10 text-accent' : 'bg-wash text-ink-faint'}`}
+                        >
+                          <Camera size={11} strokeWidth={1.75} />
+                        </button>
+                      )}
+                    </label>
+                  ))}
+                </div>
+                <p className="text-2xs text-ink-faint mt-1">{fmt(t('provider.pickedCount'), { n: picked.size })}</p>
+              </div>
+            </>)}
+
+            <p className="text-2xs text-ink-faint leading-relaxed bg-wash rounded-lg px-3 py-2">{t('provider.privacy')}</p>
+            {error && <p className="text-xs text-red-600 leading-relaxed">{error}</p>}
+          </>)}
+          {!adding && error && <p className="text-xs text-red-600 leading-relaxed">{error}</p>}
         </div>
 
         <div className="flex items-center gap-2 px-5 py-3 border-t border-line shrink-0">
-          {stored && (
-            <button onClick={() => void clear()} disabled={busy} className="text-xs text-ink-muted hover:text-red-500 px-3 py-1.5 rounded-lg hover:bg-wash transition-colors disabled:opacity-50">
-              {t('apikey.clear')}
-            </button>
-          )}
           <div className="flex-1" />
-          <button onClick={() => setOpen(false)} className="text-xs text-ink-muted hover:text-ink px-3 py-1.5 rounded-lg hover:bg-wash transition-colors">
-            {t('common.cancel')}
-          </button>
-          <button
-            onClick={() => void save()}
-            disabled={busy || !key.trim()}
-            className="text-xs bg-accent text-white px-4 py-1.5 rounded-lg disabled:opacity-40 flex items-center gap-1.5"
-            data-apikey-save
-          >
-            {busy && <Loader2 size={12} className="animate-spin" />}
-            {busy ? t('apikey.checking') : t('apikey.save')}
-          </button>
+          {adding ? (<>
+            <button onClick={resetAdd} className="text-xs text-ink-muted hover:text-ink px-3 py-1.5 rounded-lg hover:bg-wash transition-colors">{t('common.cancel')}</button>
+            <button onClick={() => void doAdd()} disabled={busy || picked.size === 0}
+              className="text-xs bg-accent text-white px-4 py-1.5 rounded-lg disabled:opacity-40 flex items-center gap-1.5" data-provider-save>
+              {busy && <Loader2 size={12} className="animate-spin" />}
+              {t('provider.save')}
+            </button>
+          </>) : (
+            <button onClick={() => { setOpen(false); resetAdd(); }} className="text-xs text-ink-muted hover:text-ink px-3 py-1.5 rounded-lg hover:bg-wash transition-colors">{t('common.close')}</button>
+          )}
         </div>
       </div>
     </div>

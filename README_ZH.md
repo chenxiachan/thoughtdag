@@ -32,7 +32,7 @@ npm run server         # LLM 代理
 npm run dev            # → http://localhost:5173
 ```
 
-不用配置也能开始：`.env` 里没有 key 时，应用会在浏览器里请你填一把 OpenRouter key（只存 localStorage 和代理内存，不落盘）。也可以把 `.env.example` 复制成 `.env` 填任意服务商的 key，`ZHIPU_API_KEY` 免费（open.bigmodel.cn）。
+不用配置也能开始：`.env` 里没有 key 时，应用会请你连接一个模型接口。选一家服务商填 key、接入本地运行的模型（Ollama 等），或者填任何兼容 OpenAI 协议的自定义端点；模型列表从接口现场拉取，key 只存 localStorage 和代理内存，不落盘。也可以把 `.env.example` 复制成 `.env` 填任意服务商的 key，`ZHIPU_API_KEY` 免费（open.bigmodel.cn）。
 
 首次打开是预置的示例画布：围绕一个日常问题（收藏夹为什么总在吃灰）展开四章，从对话语法到一份内嵌真 PDF 的阅读闭环。缩小画布看看，上面的 hero 图就是这张画布的地图形态。最快的入口：把一篇 PDF 拖到首页，从阅读开始。智谱 key 同时驱动联网搜索（引擎档位在模型菜单里可切换）；学术检索（arXiv + Semantic Scholar）免费、不需要任何 key。
 
@@ -125,7 +125,7 @@ npm run dev            # → http://localhost:5173
 ### 模型与检索
 
 - **模型自由**: 九家 provider 填 key 即注册；工具栏切换随时生效；带图请求自动改道视觉模型
-- **浏览器端 API key**: 不碰 `.env` 也能用：在应用里粘贴一把 OpenRouter key（只存 localStorage+代理内存，不落盘）；没有任何模型时对话框自动弹出
+- **模型接口管理器**: 不碰 `.env` 也能用：服务商预设只固化接口地址，模型列表从接口的 `/models` 现场拉取（永不过期）；本地 Ollama 免 key 自动探测；自定义端点兜住一切兼容 OpenAI 协议的服务；key 只存 localStorage+代理内存，不落盘；没有任何模型时管理器自动弹出
 - **节点级模型覆写**: 任意节点可钉住自己的 LLM（卡片带徽章，兄弟重答继承）；探索用便宜模型、关键步骤上旗舰；每个版本记录由哪个模型生成
 - **Agentic 检索**: AI SDK 工具循环：网页搜索 + arXiv + Semantic Scholar（免费 API），`[n]` 行内引用+持久化参考文献，保底综合回答，工具栏分组开关
 - **MCP 工具生态**: `mcp.config.json`（stdio + HTTP/SSE 两种传输）；工具加入 agentic 循环、逐调用进度；附带测试用 mock server
@@ -164,7 +164,7 @@ npm run dev            # → http://localhost:5173
 
 ## 支持的模型
 
-基于 Vercel AI SDK。下表任何一家，把 key 填进 `.env` 即自动激活；也可以完全跳过 `.env`，在应用里粘贴一把 OpenRouter key。工具栏随时换模型，纯文本模型遇到图片自动改道视觉模型。各家默认模型 id 可用环境变量覆盖（如 `OPENAI_MODELS=gpt-5.2`）。
+基于 Vercel AI SDK。下表任何一家，把 key 填进 `.env` 即自动激活；也可以完全跳过 `.env`，在应用里连接任何兼容 OpenAI 协议的接口（含本地 Ollama）。工具栏随时换模型，纯文本模型遇到图片自动改道视觉模型。各家默认模型 id 可用环境变量覆盖（如 `OPENAI_MODELS=gpt-5.2`）。
 
 > 图片理解需要一把视觉模型的 key。粘贴的图片会被你配置的最强视觉模型自动识读一次，结果是可编辑的伴随文本。免费的 `glm-4v-flash` 可用；旗舰视觉模型读科研图明显更好。
 

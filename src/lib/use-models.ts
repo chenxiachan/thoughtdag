@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { API_BASE } from './constants';
-import { storedRuntimeKey, pushRuntimeKey } from './runtime-key';
+import { storedProviders, pushProviders } from './runtime-providers';
 
 export interface ModelInfo {
   id: string;
@@ -27,13 +27,13 @@ const listeners = new Set<(d: ModelData) => void>();
 export function getModelsOnce(): Promise<ModelData | null> {
   if (cache) return Promise.resolve(cache);
   inflight ??= (async () => {
-    // a browser-stored key re-registers itself before the first list fetch
-    // (the proxy holds runtime keys in memory only, so restarts forget them)
-    const stored = storedRuntimeKey();
-    if (stored) {
+    // browser-stored providers re-register themselves before the first list
+    // fetch (the proxy holds them in memory only, so restarts forget them)
+    const stored = storedProviders();
+    if (stored.length > 0) {
       try {
-        return (cache = await pushRuntimeKey(stored.key, stored.models));
-      } catch { /* invalid key or proxy down: fall through to the plain list */ }
+        return (cache = await pushProviders(stored));
+      } catch { /* proxy down or bad config: fall through to the plain list */ }
     }
     return fetch(`${API_BASE}/api/models`)
       .then((r) => r.json())
