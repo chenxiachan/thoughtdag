@@ -333,6 +333,7 @@ export const en = {
   'toast.importFailedMissing': 'Import failed: missing nodes/edges arrays',
   'toast.generationFailed': 'Generation failed: {message}',
   'toast.editMakesStale': 'Question edited: {n} downstream answers were written against the old content (re-run manually)',
+  'takeaway.insight': 'Insight',
   'takeaway.ruleout': 'Ruled out',
   'takeaway.decision': 'Decision',
   'takeaway.pivot': 'Pivot',

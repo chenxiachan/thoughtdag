@@ -19,6 +19,8 @@ export default function FrameNode({ id, data, selected }: NodeProps<ThoughtNodeT
   const deleteNode = useStore((s) => s.deleteNode);
   const setSelectedNodeId = useStore((s) => s.setSelectedNodeId);
   const zoomedOut = useRfStore((s) => s.transform[2] < 0.55);
+  // glyph tier: the frame title becomes the region name on the skeleton map
+  const glyphTier = useRfStore((s) => s.transform[2] < 0.32);
 
   const [editing, setEditing] = useState(!data.question);
   const [draft, setDraft] = useState(data.question);
@@ -61,7 +63,7 @@ export default function FrameNode({ id, data, selected }: NodeProps<ThoughtNodeT
         ) : (
           <span
             onDoubleClick={() => { setDraft(data.question); setEditing(true); }}
-            className={`flex-1 min-w-0 truncate font-semibold text-ink-muted/80 uppercase tracking-wider select-none ${zoomedOut ? 'text-3xl normal-case tracking-normal' : 'text-xs'}`}
+            className={`flex-1 min-w-0 truncate font-semibold text-ink-muted/80 uppercase tracking-wider select-none ${glyphTier ? 'text-6xl normal-case tracking-normal' : zoomedOut ? 'text-3xl normal-case tracking-normal' : 'text-xs'}`}
             title={t('content.noteEditTitle')}
           >
             {data.question || <span className="text-ink-faint normal-case tracking-normal">{t('frame.titlePlaceholder')}</span>}

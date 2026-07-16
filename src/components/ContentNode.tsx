@@ -3,7 +3,7 @@ import { Handle, NodeResizeControl, Position, type NodeProps } from '@xyflow/rea
 import { BookOpen, ExternalLink, FileText, Link2, Link2Off, Loader2, MoveDiagonal2, Paperclip, RefreshCw, StickyNote, Trash2, X } from 'lucide-react';
 import type { ThoughtNode as ThoughtNodeType } from '../types';
 import { useStore } from '../store';
-import { useMapMode } from '../lib/use-map-mode';
+import { useZoomTier } from '../lib/use-map-mode';
 import { useUiStore } from '../lib/ui-store';
 import { triggerParadigmCascade } from '../store/streaming';
 import { extractImage, fetchLinkIntoNode, ingestFiles } from '../lib/content';
@@ -28,7 +28,9 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
   // Blindspot #8: on-canvas ≠ in-context — unlinked material is decoration
   const isLinked = useStore((s) => s.edges.some((e) => e.source === id));
   // Wiring material happens mostly from the overview — grow the handle there
-  const zoomedOut = useMapMode();
+  const zoomTier = useZoomTier();
+  const zoomedOut = zoomTier !== 'work';
+  const glyphTier = zoomTier === 'glyph';
 
   const kind = data.stepKind === 'file' ? 'file' : data.stepKind === 'link' ? 'link' : 'note';
   const [editing, setEditing] = useState(kind === 'note' && !data.question);
@@ -60,6 +62,24 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
     : kind === 'link'
       ? <Link2 size={14} strokeWidth={1.75} className="text-accent shrink-0" />
       : <Paperclip size={14} strokeWidth={1.75} className="text-ink-muted shrink-0" />;
+
+  if (glyphTier) {
+    // Glyph tier: material collapses to its own icon — a note, a document,
+    // a link. The footprint stays (edge anchors must not shift); only the
+    // centered seal renders.
+    return (
+      <div className={`w-full h-full min-w-[340px] flex items-center justify-center ${selectedNodeId === id ? 'glyph-selected' : ''}`}
+        onClick={() => setSelectedNodeId(id)} data-glyph-node
+        title={kind === 'file' ? (attachments[0]?.name ?? '') : kind === 'link' ? (data.linkTitle || data.linkUrl || '') : data.question.slice(0, 80)}>
+        <span className={`w-28 h-28 rounded-[2rem] flex items-center justify-center border-4 border-card shadow-lg text-white ${
+          kind === 'note' ? 'bg-amber-400' : kind === 'link' ? 'bg-cyan-600' : 'bg-slate-500'
+        }`}>
+          {kind === 'note' ? <StickyNote size={60} strokeWidth={2} /> : kind === 'link' ? <Link2 size={60} strokeWidth={2} /> : <FileText size={60} strokeWidth={2} />}
+        </span>
+        <Handle type="source" position={Position.Bottom} id="continue" className="!bg-ink-faint !border-2 !border-white tdag-handle !w-6 !h-6 tdag-handle-lg" />
+      </div>
+    );
+  }
 
   return (
     <div

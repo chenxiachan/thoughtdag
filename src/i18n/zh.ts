@@ -332,6 +332,7 @@ export const zh: Record<keyof typeof en, string> = {
   'toast.importFailedMissing': '导入失败：缺少 nodes/edges 数组',
   'toast.generationFailed': '生成失败：{message}',
   'toast.editMakesStale': '问题已修改：下游 {n} 个节点的回答基于旧内容（可手动重跑）',
+  'takeaway.insight': '洞见',
   'takeaway.ruleout': '排除',
   'takeaway.decision': '决策',
   'takeaway.pivot': '转向',

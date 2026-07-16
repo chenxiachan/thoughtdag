@@ -57,6 +57,7 @@ import SearchToggles from './components/ui/SearchToggles';
 import Tutorial from './components/Tutorial';
 import { useT, t as ti, fmt, useI18n } from './i18n';
 import { useModels } from './lib/use-models';
+import { useZoomTier } from './lib/use-map-mode';
 
 // One node type key, three renderers: content nodes (notes / files) render
 // the same in every mode; otherwise the active project's kind decides
@@ -745,6 +746,7 @@ function Canvas() {
         onPaneClick={() => { setSelectedNodeId(null); setSelectedNodeIds([]); }}
       >
         <Background variant={BackgroundVariant.Dots} gap={24} size={1} color="#E8E5E0" />
+        <ZoomTierTag />
         <Controls position="bottom-left" />
         <MiniMap
           nodeColor={(node) => {
@@ -1278,4 +1280,16 @@ function Canvas() {
       }} />
     </div>
   );
+}
+
+
+// Stamps the current semantic-zoom tier on the canvas element so CSS can
+// restyle global layers (edge widths at glyph zoom). Must live inside
+// <ReactFlow> to reach the flow store.
+function ZoomTierTag() {
+  const tier = useZoomTier();
+  useEffect(() => {
+    document.querySelector('.react-flow')?.setAttribute('data-zoom-tier', tier);
+  }, [tier]);
+  return null;
 }

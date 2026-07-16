@@ -418,3 +418,14 @@ body.tdag-connecting, body.tdag-connecting * {
   animation: fade-in 0.12s ease;
   white-space: pre-line;
 }
+
+/* ── Glyph tier (semantic zoom L3) ────────────────────────────── */
+/* Selected glyph node: a soft ring around the seal */
+.glyph-selected > div > span {
+  outline: 3px solid var(--color-accent, #6b5ce7);
+  outline-offset: 3px;
+}
+/* Edges thicken at glyph zoom so the skeleton stays legible at distance */
+[data-zoom-tier='glyph'] .react-flow__edge path.react-flow__edge-path {
+  stroke-width: 7px !important;
+}

@@ -1,10 +1,10 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Handle, Position, type NodeProps } from '@xyflow/react';
-import { AlertTriangle, Archive, ChevronDown, ChevronLeft, ChevronRight, Copy, Eye, GitBranch, Globe, Hourglass, Paperclip, RefreshCw, Send, Split, Square, Star, Trash2, UserRound, X } from 'lucide-react';
+import { AlertTriangle, Archive, BookOpen, ChevronDown, ChevronLeft, ChevronRight, Copy, Eye, GitBranch, Globe, Hourglass, Paperclip, RefreshCw, Send, Split, Square, Star, Trash2, UserRound, X } from 'lucide-react';
 import 'katex/dist/katex.min.css';
 import type { ThoughtNode as ThoughtNodeType } from '../types';
 import { useStore } from '../store';
-import { useMapMode } from '../lib/use-map-mode';
+import { useZoomTier } from '../lib/use-map-mode';
 import { generateId, isImeComposing , activeSummary } from '../utils';
 import { processFile } from '../lib/attachments';
 import { copyText } from '../lib/export';
@@ -43,7 +43,8 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   const nodeRef = useRef<HTMLDivElement>(null);
   const questionTaRef = useRef<HTMLTextAreaElement>(null);
   const addQuestion = useStore((s) => s.addQuestion);
-  const mapMode = useMapMode();
+  const zoomTier = useZoomTier();
+  const mapMode = zoomTier !== 'work';
 
   // ── Paradigm run semantics (instantiated human/prompt steps) ──
   const isHuman = data.stepKind === 'human';
@@ -66,6 +67,8 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   // (waiting/running states are what the human watches), not a map. Both
   // keep their working form at every zoom.
   const zoomedOut = mapMode && !isAwaitingHuman && !isAwaitingAsk && !(isParadigmNode && runLocked);
+  // Glyph tier: the node collapses to one seal — the thinking's skeleton
+  const glyphTier = zoomTier === 'glyph' && zoomedOut;
   // Upstream changed since this answer was written (see recomputeStaleness)
   const isStale = useStore((s) => s.staleIds.includes(id));
   // Page-anchored questions wear a p.N chip that reopens the reader right
@@ -221,14 +224,23 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
     decision: { glyph: '⚖', cls: 'text-accent bg-accent/10', solid: 'bg-accent text-white', key: 'takeaway.decision' },
     pivot: { glyph: '↩', cls: 'text-warm bg-warm/10', solid: 'bg-warm text-white', key: 'takeaway.pivot' },
     open: { glyph: '?', cls: 'text-amber-600 bg-amber-500/10', solid: 'bg-amber-500 text-white', key: 'takeaway.open' },
+    // glyph tier only: steps WITH a takeaway spark; plain steps stay dots
+    insight: { glyph: '✦', cls: 'text-sky-600 bg-sky-500/10', solid: 'bg-sky-500 text-white', key: 'takeaway.insight' },
   };
-  const badge = takeawayType && TYPE_BADGE[takeawayType] ? TYPE_BADGE[takeawayType] : null;
+  const badge = takeawayType && takeawayType !== 'insight' && TYPE_BADGE[takeawayType] ? TYPE_BADGE[takeawayType] : null;
+  // The glyph seal: typed moves keep their seal; insight sparks; evaluators
+  // wear their red eye; everything else is a neutral waypoint dot
+  const glyphSeal = takeawayType && TYPE_BADGE[takeawayType]
+    ? TYPE_BADGE[takeawayType]
+    : (versionSummary ? TYPE_BADGE.insight : null);
   const showSummaryCard = !!versionSummary && data.response.length > 400 && !data.isLoading && !data.isEditingResponse;
 
   return (
     <div
       ref={nodeRef}
-      className={`thought-node rounded-xl w-[520px] animate-fade-in transition-all duration-200 ${zoomedOut ? 'map-node ' : ''}${data.archived ? 'opacity-35 saturate-50 ' : ''}${isWaitingUpstream ? 'opacity-60 ' : ''}${
+      className={glyphTier
+        ? `w-[520px] animate-fade-in transition-all duration-200 ${data.archived ? 'opacity-35 saturate-50 ' : ''}${selectedNodeId === id ? 'glyph-selected ' : ''}`
+        : `thought-node rounded-xl w-[520px] animate-fade-in transition-all duration-200 ${zoomedOut ? 'map-node ' : ''}${data.archived ? 'opacity-35 saturate-50 ' : ''}${isWaitingUpstream ? 'opacity-60 ' : ''}${
         data.isEvaluator ? 'evaluator-node' : isHuman ? 'human-node' : isBranch ? 'orange-node' : isRoot ? 'root-node' : 'branch-node'
       } ${data.isLoading ? 'loading-border' : ''} ${selectedNodeId === id ? 'ring-2 ring-accent !border-accent selected-glow' : ''} ${isDropTarget ? 'ring-2 ring-accent/50 ring-dashed' : ''}`}
       onClick={() => setSelectedNodeId(id)}
@@ -263,7 +275,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
       {isStale && zoomedOut && (
         <span className="absolute top-2.5 right-2.5 w-3.5 h-3.5 rounded-full bg-amber-500 z-10" title={t('node.staleBadge')} />
       )}
-      {zoomedOut && badge && (
+      {zoomedOut && !glyphTier && badge && (
         // The cognitive move owns the plaque's top-left corner: a solid seal
         // (no translucency — edges passing behind must not bleed through),
         // glyph sized for map distance
@@ -275,7 +287,32 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
           {badge.glyph}
         </span>
       )}
-      {zoomedOut ? (
+      {glyphTier ? (
+        // Glyph tier: the node IS one seal — the skeleton of the thinking.
+        // Typed moves keep their color, takeaway-bearing steps spark ✦,
+        // evaluators wear the red eye, digests the book, plain steps a dot.
+        <div
+          className="drag-handle cursor-grab active:cursor-grabbing w-full h-32 flex items-center justify-center"
+          title={`${data.question ? data.question.slice(0, 80) + '\n' : ''}${versionSummary ?? ''}`}
+          data-glyph-node
+        >
+          {data.isEvaluator ? (
+            <span className="w-28 h-28 rounded-[2rem] bg-watch text-white flex items-center justify-center border-4 border-card shadow-lg">
+              <Eye size={60} strokeWidth={2} />
+            </span>
+          ) : data.digestOf ? (
+            <span className="w-28 h-28 rounded-[2rem] bg-teal-500 text-white flex items-center justify-center border-4 border-card shadow-lg">
+              <BookOpen size={60} strokeWidth={2} />
+            </span>
+          ) : glyphSeal ? (
+            <span className={`w-28 h-28 rounded-[2rem] text-7xl font-bold flex items-center justify-center border-4 border-card shadow-lg ${glyphSeal.solid}`}>
+              {glyphSeal.glyph}
+            </span>
+          ) : (
+            <span className="w-14 h-14 rounded-full bg-ink/25 border-4 border-card shadow-md" />
+          )}
+        </div>
+      ) : zoomedOut ? (
         // Map label: the TAKEAWAY is the headline (what this step yielded),
         // the question a readable eyebrow — the zoomed-out canvas reads like
         // a lab notebook's table of contents, not a pile of shrunken
