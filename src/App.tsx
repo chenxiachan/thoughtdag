@@ -8,6 +8,7 @@ import {
   type OnNodesChange,
   type OnEdgesChange,
   type OnConnect,
+  type OnNodeDrag,
   type ReactFlowInstance,
   applyNodeChanges,
   applyEdgeChanges,
@@ -338,6 +339,45 @@ function Canvas() {
     (changes) => setEdges(applyEdgeChanges(changes, useStore.getState().edges)),
     [setEdges]
   );
+
+  // Frame drag carries its contents: a frame is a region, so moving the
+  // region moves what's inside it. Membership is decided ONCE at drag start
+  // (node centers inside the frame box); positions then follow the frame's
+  // delta from ITS start position, so there is no incremental drift.
+  const frameDrag = useRef<{ frameId: string; start: { x: number; y: number }; members: { id: string; start: { x: number; y: number } }[] } | null>(null);
+  const onNodeDragStart: OnNodeDrag<ThoughtNodeType> = useCallback((_e, node) => {
+    if (node.data.stepKind !== 'frame') return;
+    const st = useStore.getState();
+    const frame = st.nodes.find((n) => n.id === node.id);
+    if (!frame) return;
+    const fw = frame.measured?.width ?? frame.width ?? 0;
+    const fh = frame.measured?.height ?? frame.height ?? 0;
+    const members = st.nodes
+      .filter((n) => {
+        // multi-select drag already moves selected nodes — don't move them twice
+        if (n.id === frame.id || n.data.stepKind === 'frame' || n.selected) return false;
+        const cx = n.position.x + (n.measured?.width ?? 520) / 2;
+        const cy = n.position.y + (n.measured?.height ?? 120) / 2;
+        return cx >= frame.position.x && cx <= frame.position.x + fw && cy >= frame.position.y && cy <= frame.position.y + fh;
+      })
+      .map((n) => ({ id: n.id, start: n.position }));
+    if (members.length === 0) return;
+    frameDrag.current = { frameId: frame.id, start: frame.position, members };
+  }, []);
+  const onNodeDrag: OnNodeDrag<ThoughtNodeType> = useCallback((_e, node) => {
+    const drag = frameDrag.current;
+    if (!drag || node.id !== drag.frameId) return;
+    const dx = node.position.x - drag.start.x;
+    const dy = node.position.y - drag.start.y;
+    const moved = new Map(drag.members.map((m) => [m.id, { x: m.start.x + dx, y: m.start.y + dy }]));
+    useStore.setState((st) => ({
+      nodes: st.nodes.map((n) => {
+        const pos = moved.get(n.id);
+        return pos ? { ...n, position: pos } : n;
+      }),
+    }));
+  }, []);
+  const onNodeDragStop: OnNodeDrag<ThoughtNodeType> = useCallback(() => { frameDrag.current = null; }, []);
 
   // Edge right-click context menu
   const [edgeMenu, setEdgeMenu] = useState<{ x: number; y: number; edgeId: string } | null>(null);
@@ -723,6 +763,9 @@ function Canvas() {
         edges={highlightedEdges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
+        onNodeDragStart={onNodeDragStart}
+        onNodeDrag={onNodeDrag}
+        onNodeDragStop={onNodeDragStop}
         onConnect={onConnect}
         onConnectStart={onConnectStart}
         onConnectEnd={onConnectEnd}
