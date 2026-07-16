@@ -16,7 +16,7 @@
 
 [English](./README.md) · [快速开始](#快速开始) · [功能总览](#功能总览) · [支持的模型](#支持的模型) · [Roadmap](#roadmap)
 
-<img src="docs/hero-zh.png" alt="ThoughtDAG：左侧是五节点地图——对话主链、探索分支、红色虚线上的评审——收获句门牌带徽章（排除、决策、转向）；右侧是打开的侧栏，展示决策节点完整的 deepseek-v4-pro 回答，以及附件、高亮、将发送的上下文链，按 token 计价" width="100%"/>
+<img src="docs/hero-zh.png" alt="ThoughtDAG 全景：六节点地图——对话主链、探索分支、红色虚线上的评审——每张门牌带认知徽章（排除、决策、转向、待解）；右侧侧栏展示决策节点在继承的「认知科学教练」角色下的完整 deepseek-v4-pro 回答，以及附件、高亮、按 token 计价的上下文链" width="100%"/>
 
 </div>
 
