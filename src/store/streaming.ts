@@ -22,7 +22,7 @@ export const SUMMARY_MIN_CHARS = 400;
 export function generateSummary(nodeId: string, question: string, response: string, setSummary: (id: string, summary: string, forResponse: string, type?: string) => void, mapLines?: string[]) {
   if (response.length < SUMMARY_MIN_CHARS) return;
   const mapBlock = mapLines && mapLines.length > 0
-    ? `Takeaway lines already on the map, along this node's ancestor path (oldest first):\n${mapLines.join('\n')}\n\nAlign terminology with those lines and do not repeat them — the new line is the NEXT step of the same progression.\n\n`
+    ? `Takeaway lines already on the map, along this node's ancestor path (oldest first):\n${mapLines.join('\n')}\n\nUse those lines ONLY to align terminology and avoid repeating them. Classify this exchange's epistemic move on its own merits, independent of the lines above.\n\n`
     : '';
   llmCall([
     { role: 'user', content: question },
