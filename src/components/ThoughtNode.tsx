@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { Handle, Position, type NodeProps } from '@xyflow/react';
+import { Handle, Position, useUpdateNodeInternals, type NodeProps } from '@xyflow/react';
 import { AlertTriangle, Archive, BookOpen, ChevronDown, ChevronLeft, ChevronRight, Copy, Eye, GitBranch, Globe, Hourglass, Paperclip, RefreshCw, Send, Split, Square, Star, Trash2, UserRound, X } from 'lucide-react';
 import 'katex/dist/katex.min.css';
 import type { ThoughtNode as ThoughtNodeType } from '../types';
@@ -69,6 +69,9 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   const zoomedOut = mapMode && !isAwaitingHuman && !isAwaitingAsk && !(isParadigmNode && runLocked);
   // Glyph tier: the node collapses to one seal — the thinking's skeleton
   const glyphTier = zoomTier === 'glyph' && zoomedOut;
+  // Handles move to hug the seal at glyph tier — tell React Flow to re-measure
+  const updateNodeInternals = useUpdateNodeInternals();
+  useEffect(() => { updateNodeInternals(id); }, [glyphTier, id, updateNodeInternals]);
   // Upstream changed since this answer was written (see recomputeStaleness)
   const isStale = useStore((s) => s.staleIds.includes(id));
   // Page-anchored questions wear a p.N chip that reopens the reader right
@@ -270,7 +273,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
           reference edges through them so cross-chain lines never cut across
           the vertical chain grammar. Two handles for people (top in, bottom
           out); four anchors for the layout. */}
-      <Handle type="target" position={Position.Left} id="left" isConnectable={false} className="!bg-transparent !w-0 !h-0 !border-0 !pointer-events-none" style={{ top: '40%' }} />
+      <Handle type="target" position={Position.Left} id="left" isConnectable={false} className="!bg-transparent !w-0 !h-0 !border-0 !pointer-events-none" style={glyphTier ? { top: '50%', left: 'calc(50% - 56px)' } : { top: '40%' }} />
 
       {isStale && zoomedOut && (
         <span className="absolute top-2.5 right-2.5 w-3.5 h-3.5 rounded-full bg-amber-500 z-10" title={t('node.staleBadge')} />
@@ -740,7 +743,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
         id="branch"
         isConnectable={false}
         className="!bg-transparent !w-0 !h-0 !border-0 !pointer-events-none"
-        style={{ top: '50%' }}
+        style={glyphTier ? { top: '50%', left: 'calc(50% + 56px)', right: 'auto' } : { top: '50%' }}
       />
 
       {/* Floating toolbar for text selection */}

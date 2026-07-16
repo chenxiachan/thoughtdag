@@ -1,5 +1,5 @@
-import { useRef, useState } from 'react';
-import { Handle, NodeResizeControl, Position, type NodeProps } from '@xyflow/react';
+import { useEffect, useRef, useState } from 'react';
+import { Handle, NodeResizeControl, Position, useUpdateNodeInternals, type NodeProps } from '@xyflow/react';
 import { BookOpen, ExternalLink, FileText, Link2, Link2Off, Loader2, MoveDiagonal2, Paperclip, RefreshCw, StickyNote, Trash2, X } from 'lucide-react';
 import type { ThoughtNode as ThoughtNodeType } from '../types';
 import { useStore } from '../store';
@@ -31,6 +31,8 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
   const zoomTier = useZoomTier();
   const zoomedOut = zoomTier !== 'work';
   const glyphTier = zoomTier === 'glyph';
+  const updateNodeInternals = useUpdateNodeInternals();
+  useEffect(() => { updateNodeInternals(id); }, [glyphTier, id, updateNodeInternals]);
 
   const kind = data.stepKind === 'file' ? 'file' : data.stepKind === 'link' ? 'link' : 'note';
   const [editing, setEditing] = useState(kind === 'note' && !data.question);
@@ -76,7 +78,10 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
         }`}>
           {kind === 'note' ? <StickyNote size={60} strokeWidth={2} /> : kind === 'link' ? <Link2 size={60} strokeWidth={2} /> : <FileText size={60} strokeWidth={2} />}
         </span>
-        <Handle type="source" position={Position.Bottom} id="continue" className="!bg-ink-faint !border-2 !border-white tdag-handle !w-6 !h-6 tdag-handle-lg" />
+        <Handle type="source" position={Position.Bottom} id="continue" className="!bg-ink-faint !border-2 !border-white tdag-handle !w-6 !h-6 tdag-handle-lg" style={{ left: '50%' }} />
+        {/* reader-grown branches leave through this handle — without it,
+            React Flow drops those edges entirely at glyph zoom */}
+        <Handle type="source" position={Position.Right} id="branch" isConnectable={false} className="!bg-transparent !w-0 !h-0 !border-0 !pointer-events-none" style={{ top: '50%', left: 'calc(50% + 56px)', right: 'auto' }} />
       </div>
     );
   }
