@@ -47,6 +47,28 @@ export function routeEdge(
   sourceId: string, targetId: string,
   nodes: ThoughtNode[],
 ): RoutedPath {
+  // Horizontal edges carry fixed semantic anchors (source right edge →
+  // target left edge). When the target sits ENTIRELY to the source's left
+  // (hand-placed nodes), mirror both anchors about their node's vertical
+  // centerline: the edge leaves left and enters right instead of looping
+  // around the source card. Render-time only — the stored handles keep
+  // their meaning. Overlapping nodes keep the default direction, so the
+  // overlap is a natural hysteresis band (no flip-flop mid-drag). Mirroring
+  // about the centerline also keeps glyph-tier anchors hugging the seal.
+  if (sourcePosition === 'right' && targetPosition === 'left') {
+    const src = nodes.find((n) => n.id === sourceId);
+    const tgt = nodes.find((n) => n.id === targetId);
+    if (src && tgt) {
+      const sW = src.measured?.width ?? NODE_CSS_WIDTH;
+      const tW = tgt.measured?.width ?? NODE_CSS_WIDTH;
+      if (tgt.position.x + tW < src.position.x) {
+        sourceX = 2 * (src.position.x + sW / 2) - sourceX;
+        targetX = 2 * (tgt.position.x + tW / 2) - targetX;
+        sourcePosition = 'left' as Position;
+        targetPosition = 'right' as Position;
+      }
+    }
+  }
   const p0: Pt = { x: sourceX, y: sourceY };
   const p3: Pt = { x: targetX, y: targetY };
   const dist = Math.hypot(targetX - sourceX, targetY - sourceY);
