@@ -216,11 +216,11 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   const versionReasoning = data.reasonings?.[data.responseIndex] ?? undefined;
   // Only the rare, high-signal moves wear a badge — a map where every node
   // has one is a map where none do. insight = the unmarked default.
-  const TYPE_BADGE: Record<string, { glyph: string; cls: string; key: string }> = {
-    ruleout: { glyph: '✕', cls: 'text-red-500 bg-red-50', key: 'takeaway.ruleout' },
-    decision: { glyph: '⚖', cls: 'text-accent bg-accent/10', key: 'takeaway.decision' },
-    pivot: { glyph: '↩', cls: 'text-warm bg-warm/10', key: 'takeaway.pivot' },
-    open: { glyph: '?', cls: 'text-amber-600 bg-amber-500/10', key: 'takeaway.open' },
+  const TYPE_BADGE: Record<string, { glyph: string; cls: string; solid: string; key: string }> = {
+    ruleout: { glyph: '✕', cls: 'text-red-500 bg-red-50', solid: 'bg-red-500 text-white', key: 'takeaway.ruleout' },
+    decision: { glyph: '⚖', cls: 'text-accent bg-accent/10', solid: 'bg-accent text-white', key: 'takeaway.decision' },
+    pivot: { glyph: '↩', cls: 'text-warm bg-warm/10', solid: 'bg-warm text-white', key: 'takeaway.pivot' },
+    open: { glyph: '?', cls: 'text-amber-600 bg-amber-500/10', solid: 'bg-amber-500 text-white', key: 'takeaway.open' },
   };
   const badge = takeawayType && TYPE_BADGE[takeawayType] ? TYPE_BADGE[takeawayType] : null;
   const showSummaryCard = !!versionSummary && data.response.length > 400 && !data.isLoading && !data.isEditingResponse;
@@ -261,14 +261,15 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
       <Handle type="target" position={Position.Left} id="left" isConnectable={false} className="!bg-transparent !w-0 !h-0 !border-0 !pointer-events-none" style={{ top: '40%' }} />
 
       {isStale && zoomedOut && (
-        <span className="absolute top-2.5 left-2.5 w-3.5 h-3.5 rounded-full bg-amber-500 z-10" title={t('node.staleBadge')} />
+        <span className="absolute top-2.5 right-2.5 w-3.5 h-3.5 rounded-full bg-amber-500 z-10" title={t('node.staleBadge')} />
       )}
       {zoomedOut && badge && (
-        // The cognitive move owns the plaque's top-right corner: big enough
-        // to read at map distance, floating out of the card like a seal
+        // The cognitive move owns the plaque's top-left corner: a solid seal
+        // (no translucency — edges passing behind must not bleed through),
+        // glyph sized for map distance
         <span
           title={t(badge.key as Parameters<typeof t>[0])}
-          className={`absolute -top-4 -right-4 w-14 h-14 rounded-2xl text-3xl font-bold flex items-center justify-center border-2 border-card shadow-md z-10 ${badge.cls}`}
+          className={`absolute -top-5 -left-5 w-14 h-14 rounded-2xl text-4xl font-bold flex items-center justify-center border-2 border-card shadow-md z-10 ${badge.solid}`}
           data-map-badge
         >
           {badge.glyph}
