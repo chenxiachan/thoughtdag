@@ -1,6 +1,8 @@
-// Base URL of the LLM proxy (server.mjs). Override with VITE_API_BASE if the
-// proxy runs on a non-default host/port.
-export const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:3001';
+// Base URL of the LLM proxy. Dev defaults to the local server.mjs; a
+// production build defaults to SAME-ORIGIN /api/* (the deployment's worker
+// serves it) — zero-config correct on any host. Override with VITE_API_BASE
+// when the proxy runs elsewhere (e.g. a static build against a LAN proxy).
+export const API_BASE = import.meta.env.VITE_API_BASE ?? (import.meta.env.DEV ? 'http://localhost:3001' : '');
 
 // PDFs above this page count default to text-only context (Vision page images
 // would cost ~1500 tokens per page).
