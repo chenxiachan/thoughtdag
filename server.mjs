@@ -149,7 +149,12 @@ if (process.env.OPENROUTER_API_KEY) {
     name: 'openrouter', apiKey: process.env.OPENROUTER_API_KEY,
     baseURL: 'https://openrouter.ai/api/v1',
   });
-  register(envModels('OPENROUTER', ['openrouter/auto']), 'OpenRouter', (id) => openrouter(id), { vision: false });
+  // Ask OpenRouter to include reasoning/thinking output; models that don't
+  // reason ignore the flag (it's a gateway-level parameter, normalized away)
+  register(envModels('OPENROUTER', ['openrouter/auto']), 'OpenRouter', (id) => openrouter(id), {
+    vision: false,
+    providerOptions: { openrouter: { reasoning: { enabled: true } } },
+  });
   void applyOpenRouterVision();
 }
 
@@ -623,7 +628,10 @@ app.post('/api/runtime-key', async (req, res) => {
       .map((s) => String(s).trim()).filter(Boolean).slice(0, 40);
     // .env-registered ids win on collision (they were configured deliberately)
     const fresh = slugs.filter((id) => !modelRegistry[id]);
-    register(fresh, 'OpenRouter', (id) => openrouter(id), { vision: false, runtime: true });
+    register(fresh, 'OpenRouter', (id) => openrouter(id), {
+      vision: false, runtime: true,
+      providerOptions: { openrouter: { reasoning: { enabled: true } } },
+    });
     await applyOpenRouterVision();
   }
   if (!modelRegistry[DEFAULT_MODEL]) DEFAULT_MODEL = Object.keys(modelRegistry)[0];
@@ -750,8 +758,16 @@ app.post('/api/stream', async (req, res) => {
       }
     };
 
-    for await (const delta of result.textStream) {
-      emitFiltered(delta);
+    // fullStream so reasoning models (DeepSeek, Claude thinking, GLM) get
+    // their thinking forwarded on its own channel; text keeps the filter.
+    for await (const part of result.fullStream) {
+      if (part.type === 'text-delta') {
+        emitFiltered(part.text);
+      } else if (part.type === 'reasoning-delta' && part.text) {
+        res.write(`data: ${JSON.stringify({ reasoning: part.text })}\n\n`);
+      } else if (part.type === 'error') {
+        throw part.error instanceof Error ? part.error : new Error(String(part.errorText ?? part.error));
+      }
     }
     if (holdback && !holdback.startsWith('<tool_call')) {
       emittedChars += holdback.length;
@@ -784,8 +800,9 @@ app.post('/api/stream', async (req, res) => {
         ],
         providerOptions: entry.providerOptions,
       });
-      for await (const delta of synth.textStream) {
-        res.write(`data: ${JSON.stringify({ text: delta })}\n\n`);
+      for await (const part of synth.fullStream) {
+        if (part.type === 'text-delta') res.write(`data: ${JSON.stringify({ text: part.text })}\n\n`);
+        else if (part.type === 'reasoning-delta' && part.text) res.write(`data: ${JSON.stringify({ reasoning: part.text })}\n\n`);
       }
     }
 

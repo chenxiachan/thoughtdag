@@ -100,11 +100,11 @@ export async function runNodeGeneration(
   const abortController = new AbortController();
   activeAbortControllers.set(nodeId, abortController);
 
-  // A retry is starting — clear any previous failure flag
+  // A retry is starting — clear any previous failure flag and reasoning buffer
   set((state) => ({
     nodes: state.nodes.map((n) =>
-      n.id === nodeId && n.data.generationFailed
-        ? { ...n, data: { ...n.data, generationFailed: undefined } }
+      n.id === nodeId && (n.data.generationFailed || n.data.reasoning)
+        ? { ...n, data: { ...n.data, generationFailed: undefined, reasoning: undefined } }
         : n
     ),
   }));
@@ -126,13 +126,14 @@ export async function runNodeGeneration(
     set((state) => ({
       nodes: state.nodes.map((n) => {
         if (n.id !== nodeId) return n;
-        // keep (response, generatedBy) pairs aligned through the empty-filter
+        // keep (response, generatedBy, reasoning) triplets aligned through the empty-filter
         const kept = versionMode === 'append'
-          ? n.data.responses.map((r, i) => ({ r, by: n.data.generatedBy?.[i] })).filter(({ r }) => r)
+          ? n.data.responses.map((r, i) => ({ r, by: n.data.generatedBy?.[i], rs: n.data.reasonings?.[i] })).filter(({ r }) => r)
           : [];
         const responses = [...kept.map(({ r }) => r), response];
         const generatedBy = [...kept.map(({ by }) => by), modelUsed];
-        return { ...n, data: { ...n.data, response, responses, generatedBy, responseIndex: responses.length - 1, isLoading: false, tokenCount, generationFailed: failed || undefined, references, highlights: pruneHighlights(n.data.highlights, response), lastContextHash: contextHash, lastGeneratedAt: new Date().toISOString() } };
+        const reasonings = [...kept.map(({ rs }) => rs), n.data.reasoning || undefined];
+        return { ...n, data: { ...n.data, response, responses, generatedBy, reasonings, reasoning: undefined, responseIndex: responses.length - 1, isLoading: false, tokenCount, generationFailed: failed || undefined, references, highlights: pruneHighlights(n.data.highlights, response), lastContextHash: contextHash, lastGeneratedAt: new Date().toISOString() } };
       }),
     }));
   };
@@ -169,6 +170,13 @@ export async function runNodeGeneration(
         }));
       },
       onSources: (sources) => { references = sources; },
+      onReasoning: (_chunk, fullSoFar) => {
+        set((state) => ({
+          nodes: state.nodes.map((n) =>
+            n.id === nodeId ? { ...n, data: { ...n.data, reasoning: fullSoFar } } : n
+          ),
+        }));
+      },
     }, (() => {
       // Search permissions live on the node (snapshotted at ask time);
       // legacy nodes without flags follow the current shared defaults

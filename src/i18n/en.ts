@@ -105,6 +105,8 @@ export const en = {
 
   // Node (ThoughtNode + streaming placeholders)
   'node.exploringFrom': 'Exploring from selection:',
+  'node.reasoning': 'Reasoning',
+  'node.reasoningLive': 'Thinking…',
   'node.openAtPage': 'Reopen the reader at page {n} with this thread',
   'node.stoppedPlaceholder': '(generation stopped)',
   'node.failedPlaceholder': '_Generation failed._',

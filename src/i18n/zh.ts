@@ -105,6 +105,8 @@ export const zh: Record<keyof typeof en, string> = {
 
   // Node (ThoughtNode + streaming placeholders)
   'node.exploringFrom': '从选中内容探索：',
+  'node.reasoning': '思考过程',
+  'node.reasoningLive': '思考中…',
   'node.openAtPage': '回到阅读器第 {n} 页，展开这条对话',
   'node.stoppedPlaceholder': '（已停止生成）',
   'node.failedPlaceholder': '_生成失败。_',

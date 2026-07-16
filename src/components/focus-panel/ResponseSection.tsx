@@ -5,6 +5,7 @@ import { generateId } from '../../utils';
 import { copyText } from '../../lib/export';
 import { Markdown, HighlightedMarkdown } from '../Markdown';
 import { useT } from '../../i18n';
+import ReasoningDisclosure from '../ui/ReasoningDisclosure';
 import type { ThoughtData } from '../../types';
 
 export default function ResponseSection({
@@ -115,9 +116,18 @@ export default function ResponseSection({
       </div>
 
       {data.isLoading && !data.response ? (
+        data.reasoning ? (
+          <div className="py-1">
+            <div className="text-2xs text-ink-faint mb-1">💭 {t('node.reasoningLive')}</div>
+            <div ref={streamRef} className="text-xs text-ink-faint italic leading-relaxed whitespace-pre-wrap break-words max-h-[300px] overflow-y-auto">
+              {data.reasoning}
+            </div>
+          </div>
+        ) : (
         <div className="flex items-center gap-2 text-sm text-ink-muted">
           <span className="animate-pulse text-accent">●</span> {t('common.thinking')}
         </div>
+        )
       ) : data.isLoading && data.response ? (
         <div ref={streamRef} className="markdown-body text-sm text-ink leading-relaxed max-h-[500px] overflow-y-auto py-1">
           <Markdown>{data.response}</Markdown>
@@ -140,6 +150,9 @@ export default function ResponseSection({
         </div>
       ) : (
         <div ref={responseRef} onDoubleClick={handleDoubleClickResponse} className="relative">
+          {data.reasonings?.[data.responseIndex] && (
+            <ReasoningDisclosure text={data.reasonings[data.responseIndex]!} />
+          )}
           <div className="markdown-body text-sm text-ink leading-relaxed cursor-text py-1">
             {highlightedTexts.size > 0 ? (
               <HighlightedMarkdown content={data.response} highlights={highlightedTexts} />

@@ -106,6 +106,8 @@ export interface StreamCallbacks {
   onToolCall?: (name: string, query: string) => void;
   /** All sources consulted during generation (sent once, at the end). */
   onSources?: (sources: import('../types').Reference[]) => void;
+  /** Reasoning/thinking tokens (models that emit them; never enters context). */
+  onReasoning?: (chunk: string, fullSoFar: string) => void;
 }
 
 export interface ToolPrefs {
@@ -151,6 +153,7 @@ export async function llmCallStream(
     const decoder = new TextDecoder();
     let buffer = '';
     let full = '';
+    let reasoningFull = '';
 
     while (true) {
       const { done, value } = await reader.read();
@@ -171,6 +174,10 @@ export async function llmCallStream(
           if (parsed.text) {
             full += parsed.text;
             onChunk(parsed.text, full);
+          }
+          if (parsed.reasoning) {
+            reasoningFull += parsed.reasoning;
+            callbacks?.onReasoning?.(parsed.reasoning, reasoningFull);
           }
           if (parsed.tool?.query) {
             callbacks?.onToolCall?.(parsed.tool.name, parsed.tool.query);

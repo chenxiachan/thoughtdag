@@ -13,6 +13,7 @@ import { useUiStore } from '../lib/ui-store';
 import SearchToggles from './ui/SearchToggles';
 import { Markdown, HighlightedMarkdown } from './Markdown';
 import FanOutModal from './FanOutModal';
+import ReasoningDisclosure from './ui/ReasoningDisclosure';
 import { useT, fmt } from '../i18n';
 
 export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
@@ -211,6 +212,8 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   // it instead of raw text; the full answer lives one double-click away.
   const versionSummary = activeSummary(data);
   const takeawayType = data.summaryTypes?.[data.responseIndex] ?? undefined;
+  // Reasoning of the ACTIVE version (models that emit it); display only
+  const versionReasoning = data.reasonings?.[data.responseIndex] ?? undefined;
   // Only the rare, high-signal moves wear a badge — a map where every node
   // has one is a map where none do. insight = the unmarked default.
   const TYPE_BADGE: Record<string, { glyph: string; cls: string; key: string }> = {
@@ -455,6 +458,15 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
                 {data.response.length > 400 ? '…' + data.response.slice(-400) : data.response}
                 <span className="inline-block w-2 h-4 bg-accent animate-pulse rounded-sm" />
               </div>
+            ) : data.reasoning ? (
+              // Reasoning models think before they answer — show the live
+              // tail of the thinking, visually quieter than an answer
+              <div className="px-3 py-2.5 bg-wash/70 rounded-xl max-h-[140px] overflow-hidden flex flex-col justify-end">
+                <div className="text-2xs text-ink-faint mb-1">💭 {t('node.reasoningLive')}</div>
+                <div className="text-xs text-ink-faint italic leading-relaxed whitespace-pre-wrap break-words">
+                  {data.reasoning.length > 300 ? '…' + data.reasoning.slice(-300) : data.reasoning}
+                </div>
+              </div>
             ) : (
               <div className="flex items-center gap-2 text-sm text-ink-muted">
                 <span className="animate-pulse text-accent">●</span> {t('common.thinking')}
@@ -490,6 +502,10 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
                 <div className="text-sm text-ink-muted leading-relaxed mt-1.5">{versionSummary}</div>
               </div>
             ) : (
+            <>
+            {versionReasoning && (
+              <ReasoningDisclosure text={versionReasoning} />
+            )}
             <div
               ref={responseRef}
               onDoubleClick={handleDoubleClickResponse}
@@ -501,6 +517,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
                 <Markdown>{data.response}</Markdown>
               )}
             </div>
+            </>
             )
           )}
 

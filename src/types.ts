@@ -95,6 +95,12 @@ export interface ThoughtData extends Record<string, unknown> {
       digest tab is a view of this node; rerun routes through the digest
       prompt (see generateDigest). */
   digestOf?: string;
+  /** Reasoning/thinking stream of the CURRENT generation (live buffer). */
+  reasoning?: string;
+  /** Per-version reasoning, aligned with `responses` by index. Display
+      only: never enters context, fingerprints or summaries. Models that
+      don't emit reasoning leave holes (undefined). */
+  reasonings?: (string | undefined | null)[];
   rolePrompt?: string;
   appliedRole?: string; // the role actually used when generating the current response
   roleSourceNodeId?: string; // user-chosen role source node (for multi-parent role conflict)
