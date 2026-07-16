@@ -221,9 +221,12 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   const versionReasoning = data.reasonings?.[data.responseIndex] ?? undefined;
   // Only the rare, high-signal moves wear a badge — a map where every node
   // has one is a map where none do. insight = the unmarked default.
-  const TYPE_BADGE: Record<string, { glyph: string; cls: string; solid: string; key: string }> = {
+  const TYPE_BADGE: Record<string, { glyph: string; cls: string; solid: string; key: string; nudge?: string }> = {
     ruleout: { glyph: '✕', cls: 'text-red-500 bg-red-50', solid: 'bg-red-500 text-white', key: 'takeaway.ruleout' },
-    decision: { glyph: '⚖', cls: 'text-accent bg-accent/10', solid: 'bg-accent text-white', key: 'takeaway.decision' },
+    // ⚖'s ink sits low in its em box (tall ascent, glyph rides the baseline),
+    // so a centered line box leaves it optically LOW — nudge up to visual
+    // center (pixel-measured on macOS system fonts; em unit tracks font size)
+    decision: { glyph: '⚖', cls: 'text-accent bg-accent/10', solid: 'bg-accent text-white', key: 'takeaway.decision', nudge: 'block -translate-y-[0.08em]' },
     pivot: { glyph: '↩', cls: 'text-warm bg-warm/10', solid: 'bg-warm text-white', key: 'takeaway.pivot' },
     open: { glyph: '?', cls: 'text-amber-600 bg-amber-500/10', solid: 'bg-amber-500 text-white', key: 'takeaway.open' },
     // glyph tier only: steps WITH a takeaway spark; plain steps stay dots
@@ -235,6 +238,9 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   const glyphSeal = takeawayType && TYPE_BADGE[takeawayType]
     ? TYPE_BADGE[takeawayType]
     : (versionSummary ? TYPE_BADGE.insight : null);
+  // Stale at glyph tier: the seal itself wears the amber ring — there is no
+  // card corner left to pin the dot to
+  const staleRing = isStale && glyphTier ? ' ring-4 ring-amber-400' : '';
   const showSummaryCard = !!versionSummary && data.response.length > 400 && !data.isLoading && !data.isEditingResponse;
 
   return (
@@ -274,7 +280,10 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
           out); four anchors for the layout. */}
       <Handle type="target" position={Position.Left} id="left" isConnectable={false} className="!bg-transparent !w-0 !h-0 !border-0 !pointer-events-none" style={glyphTier ? { top: '50%', left: 'calc(50% - 56px)' } : { top: '40%' }} />
 
-      {isStale && zoomedOut && (
+      {/* Stale dot pins to the CARD's corner — at glyph tier the card is
+          gone (one centered seal), so the seal wears an amber ring instead
+          of a dot floating where the card used to be */}
+      {isStale && zoomedOut && !glyphTier && (
         <span className="absolute top-2.5 right-2.5 w-3.5 h-3.5 rounded-full bg-amber-500 z-10" title={t('node.staleBadge')} />
       )}
       {zoomedOut && !glyphTier && badge && (
@@ -286,7 +295,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
           className={`absolute -top-5 -left-5 w-14 h-14 rounded-2xl text-4xl font-bold flex items-center justify-center border-2 border-card shadow-md z-10 ${badge.solid}`}
           data-map-badge
         >
-          {badge.glyph}
+          <span className={badge.nudge}>{badge.glyph}</span>
         </span>
       )}
       {glyphTier ? (
@@ -309,19 +318,19 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
           data-glyph-node
         >
           {data.isEvaluator ? (
-            <span className="w-28 h-28 rounded-[2rem] bg-watch text-white flex items-center justify-center border-4 border-card shadow-lg">
+            <span className={`w-28 h-28 rounded-[2rem] bg-watch text-white flex items-center justify-center border-4 border-card shadow-lg${staleRing}`}>
               <Eye size={60} strokeWidth={2} />
             </span>
           ) : data.digestOf ? (
-            <span className="w-28 h-28 rounded-[2rem] bg-teal-500 text-white flex items-center justify-center border-4 border-card shadow-lg">
+            <span className={`w-28 h-28 rounded-[2rem] bg-teal-500 text-white flex items-center justify-center border-4 border-card shadow-lg${staleRing}`}>
               <BookOpen size={60} strokeWidth={2} />
             </span>
           ) : glyphSeal ? (
-            <span className={`w-28 h-28 rounded-[2rem] text-7xl font-bold flex items-center justify-center border-4 border-card shadow-lg ${glyphSeal.solid}`}>
-              {glyphSeal.glyph}
+            <span className={`w-28 h-28 rounded-[2rem] text-7xl font-bold flex items-center justify-center border-4 border-card shadow-lg ${glyphSeal.solid}${staleRing}`}>
+              <span className={glyphSeal.nudge}>{glyphSeal.glyph}</span>
             </span>
           ) : (
-            <span className="w-14 h-14 rounded-full bg-ink/25 border-4 border-card shadow-md" />
+            <span className={`w-14 h-14 rounded-full bg-ink/25 border-4 border-card shadow-md${staleRing}`} />
           )}
         </div>
       ) : zoomedOut ? (
