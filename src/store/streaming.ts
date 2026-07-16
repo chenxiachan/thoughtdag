@@ -126,14 +126,16 @@ export async function runNodeGeneration(
     set((state) => ({
       nodes: state.nodes.map((n) => {
         if (n.id !== nodeId) return n;
-        // keep (response, generatedBy, reasoning) triplets aligned through the empty-filter
+        // keep (response, generatedBy, reasoning, generatedAt) tuples aligned through the empty-filter
         const kept = versionMode === 'append'
-          ? n.data.responses.map((r, i) => ({ r, by: n.data.generatedBy?.[i], rs: n.data.reasonings?.[i] })).filter(({ r }) => r)
+          ? n.data.responses.map((r, i) => ({ r, by: n.data.generatedBy?.[i], rs: n.data.reasonings?.[i], at: n.data.generatedAts?.[i] })).filter(({ r }) => r)
           : [];
+        const now = new Date().toISOString();
         const responses = [...kept.map(({ r }) => r), response];
         const generatedBy = [...kept.map(({ by }) => by), modelUsed];
         const reasonings = [...kept.map(({ rs }) => rs), n.data.reasoning || undefined];
-        return { ...n, data: { ...n.data, response, responses, generatedBy, reasonings, reasoning: undefined, responseIndex: responses.length - 1, isLoading: false, tokenCount, generationFailed: failed || undefined, references, highlights: pruneHighlights(n.data.highlights, response), lastContextHash: contextHash, lastGeneratedAt: new Date().toISOString() } };
+        const generatedAts = [...kept.map(({ at }) => at), now];
+        return { ...n, data: { ...n.data, response, responses, generatedBy, reasonings, generatedAts, reasoning: undefined, responseIndex: responses.length - 1, isLoading: false, tokenCount, generationFailed: failed || undefined, references, highlights: pruneHighlights(n.data.highlights, response), lastContextHash: contextHash, lastGeneratedAt: now } };
       }),
     }));
   };

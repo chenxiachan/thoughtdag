@@ -20,6 +20,7 @@ export function attachmentFingerprint(att: Attachment): string {
 export function readFileToAttachment(file: File): Promise<Attachment | null> {
   return new Promise((resolve) => {
     const id = generateId();
+    const addedAt = new Date().toISOString();
     const isImage = file.type.startsWith('image/');
     const isPDF = file.type === 'application/pdf' || file.name.endsWith('.pdf');
     const isText = file.type.startsWith('text/') || TEXT_EXTENSIONS.test(file.name);
@@ -29,7 +30,7 @@ export function readFileToAttachment(file: File): Promise<Attachment | null> {
       reader.onload = () => {
         const base64 = (reader.result as string).split(',')[1];
         resolve({
-          id, name: file.name, type: file.type, size: file.size,
+          id, name: file.name, type: file.type, size: file.size, addedAt,
           content: base64, thumbnailUrl: reader.result as string,
         });
       };
@@ -38,12 +39,12 @@ export function readFileToAttachment(file: File): Promise<Attachment | null> {
       const reader = new FileReader();
       reader.onload = () => {
         const base64 = (reader.result as string).split(',')[1];
-        resolve({ id, name: file.name, type: 'application/pdf', size: file.size, content: base64 });
+        resolve({ id, name: file.name, type: 'application/pdf', size: file.size, addedAt, content: base64 });
       };
       reader.readAsDataURL(file);
     } else if (isText) {
       file.text().then((text) => {
-        resolve({ id, name: file.name, type: file.type || 'text/plain', size: file.size, content: text });
+        resolve({ id, name: file.name, type: file.type || 'text/plain', size: file.size, addedAt, content: text });
       });
     } else {
       resolve(null);

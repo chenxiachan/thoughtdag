@@ -37,6 +37,7 @@ export function spawnContentNode(
       question,
       stepKind: kind,
       linkUrl: init?.linkUrl,
+      createdAt: new Date().toISOString(),
       response: '', responses: [], responseIndex: -1,
       isCollapsed: false, isEditing: false, isEditingResponse: false, isLoading: false,
       tokenCount: countTokens(question),

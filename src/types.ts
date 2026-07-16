@@ -5,6 +5,7 @@ export interface Attachment {
   name: string;
   type: string; // MIME type
   size: number;
+  addedAt?: string; // ISO timestamp: when this material entered the canvas (thinking-timeline raw data)
   content: string; // base64 for images/PDF, raw text for text files
   thumbnailUrl?: string; // data URL for image preview
   extractedText?: string; // companion text (PDF extraction / image auto-understanding)
@@ -52,6 +53,12 @@ export interface ThoughtData extends Record<string, unknown> {
       fingerprint to flag "upstream changed since this was written". */
   lastContextHash?: string;
   lastGeneratedAt?: string;
+  // ── thinking-timeline raw data (write-only for now: a future timeline /
+  //    process-replay view needs these recorded from day one — they cannot
+  //    be reconstructed later) ──
+  createdAt?: string; // when the node entered the canvas
+  askedAt?: string; // when its question was (last) committed
+  generatedAts?: (string | undefined)[]; // per-version answer completion times, parallel to responses[]
   // ── node kind (beyond the default Q&A node) ──
   // 'human' = a dialogue turn (the human asks here); 'prompt' = a machine
   // processing step (fixed prompt, context only from upstream);

@@ -258,6 +258,8 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
             summaries: n.data.summaries?.filter((_, i) => i !== versionIndex),
             generatedBy: n.data.generatedBy?.filter((_, i) => i !== versionIndex),
             summaryTypes: n.data.summaryTypes?.filter((_, i) => i !== versionIndex),
+            reasonings: n.data.reasonings?.filter((_, i) => i !== versionIndex),
+            generatedAts: n.data.generatedAts?.filter((_, i) => i !== versionIndex),
             highlights: pruneHighlights(n.data.highlights, newResponses[newIndex]),
           },
         };

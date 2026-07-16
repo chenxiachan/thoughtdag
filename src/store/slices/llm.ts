@@ -23,6 +23,8 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
       dragHandle: '.drag-handle',
       data: {
         question,
+        createdAt: new Date().toISOString(),
+        askedAt: new Date().toISOString(),
         response: '',
         responses: [],
         responseIndex: -1,
@@ -245,6 +247,8 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
       id, type: 'thought', position: { x: 0, y: 0 }, dragHandle: '.drag-handle',
       data: {
         question,
+        createdAt: new Date().toISOString(),
+        askedAt: new Date().toISOString(),
         response: '', responses: [], responseIndex: -1,
         isCollapsed: false, isEditing: false, isEditingResponse: false, isLoading: true,
         tokenCount: 0, highlights: [], highlightMode: 'tag',
@@ -296,7 +300,7 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
     }
     set((state) => ({
       nodes: state.nodes.map((n) =>
-        n.id === nodeId ? { ...n, data: { ...n.data, question: q, isEditing: false } } : n
+        n.id === nodeId ? { ...n, data: { ...n.data, question: q, askedAt: new Date().toISOString(), isEditing: false } } : n
       ),
     }));
     triggerParadigmCascade(get, nodeId);
@@ -314,7 +318,7 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
     }
     set((state) => ({
       nodes: state.nodes.map((n) =>
-        n.id === nodeId ? { ...n, data: { ...n.data, question, isEditing: false, isLoading: true } } : n
+        n.id === nodeId ? { ...n, data: { ...n.data, question, askedAt: new Date().toISOString(), isEditing: false, isLoading: true } } : n
       ),
     }));
     // Rebuild context with this node's own Q&A blanked out
