@@ -172,6 +172,7 @@ export const zh: Record<keyof typeof en, string> = {
   // Focus panel (shared)
   'panel.resizeTitle': '拖动调整宽度 · 双击恢复默认',
   'panel.question': '问题',
+  'panel.expandResponse': '放大阅读这条回答',
   'panel.response': '回答',
   'panel.more': '更多操作',
   // Material reader (the reading overlay)

@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { AlertTriangle, ChevronLeft, ChevronRight, Copy, GitBranch, RefreshCw, Star, Trash2 } from 'lucide-react';
+import { AlertTriangle, ChevronLeft, ChevronRight, Copy, GitBranch, Maximize2, RefreshCw, Star, Trash2 } from 'lucide-react';
 import { useStore } from '../../store';
+import { useUiStore } from '../../lib/ui-store';
 import { generateId } from '../../utils';
 import { copyText } from '../../lib/export';
 import { Markdown, HighlightedMarkdown } from '../Markdown';
@@ -36,12 +37,16 @@ export default function ResponseSection({
   const responseRef = useRef<HTMLDivElement>(null);
   const streamRef = useRef<HTMLDivElement>(null);
 
-  // Follow the stream: keep the cursor in view while tokens arrive
+  // Follow the stream — but only while the reader is at the bottom. Scroll
+  // up during generation and the view stays put (read from the top while
+  // the rest streams in); scroll back down to re-engage following.
   useEffect(() => {
-    if (data.isLoading && streamRef.current) {
-      streamRef.current.scrollTop = streamRef.current.scrollHeight;
+    const el = streamRef.current;
+    if (!data.isLoading || !el) return;
+    if (el.scrollHeight - el.scrollTop - el.clientHeight < 80) {
+      el.scrollTop = el.scrollHeight;
     }
-  }, [data.isLoading, data.response]);
+  }, [data.isLoading, data.response, data.reasoning]);
 
   // Text selection handler
   const handleTextSelection = useCallback((e: MouseEvent) => {
@@ -113,6 +118,16 @@ export default function ResponseSection({
     <div className="panel-card px-4 py-3">
       <div className="flex items-center justify-between mb-1.5">
         <label className="text-2xs font-semibold text-green-600">{t('panel.response')}</label>
+        {(data.response || data.isLoading) && (
+          <button
+            onClick={() => useUiStore.getState().setResponseViewerNodeId(nodeId)}
+            title={t('panel.expandResponse')}
+            className="text-ink-faint hover:text-accent w-6 h-6 rounded-md hover:bg-wash flex items-center justify-center transition-colors"
+            data-response-expand
+          >
+            <Maximize2 size={13} strokeWidth={1.75} />
+          </button>
+        )}
       </div>
 
       {data.isLoading && !data.response ? (

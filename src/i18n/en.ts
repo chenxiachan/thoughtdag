@@ -172,6 +172,7 @@ export const en = {
   // Focus panel (shared)
   'panel.resizeTitle': 'Drag to resize · double-click to reset',
   'panel.question': 'Question',
+  'panel.expandResponse': 'Open this answer in a large view',
   'panel.response': 'Response',
   'panel.more': 'More actions',
   // Material reader (the reading overlay)

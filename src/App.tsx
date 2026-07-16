@@ -50,6 +50,7 @@ import GlobalTooltip from './components/ui/GlobalTooltip';
 import RoleManagerModal from './components/ui/RoleManagerModal';
 import MemoryManagerModal from './components/ui/MemoryManagerModal';
 import ApiKeyModal from './components/ui/ApiKeyModal';
+import ResponseViewer from './components/ui/ResponseViewer';
 import LangSwitch from './components/ui/LangSwitch';
 import ModelPicker from './components/ui/ModelPicker';
 import RoleTemplateChips from './components/ui/RoleTemplateChips';
@@ -86,6 +87,7 @@ export default function App() {
       <RoleManagerModal />
       <MemoryManagerModal />
       <ApiKeyModal />
+      <ResponseViewer />
       <ConfirmDialog />
       <Tutorial />
     </>
@@ -629,8 +631,9 @@ function Canvas() {
   }, [nodes, edges, selectedNodeId, selectedNodeIds]);
 
   // The panel is an overlay — the canvas never resizes. When it opens (or
-  // the selection moves while it is open), nudge the viewport only if the
-  // selected node would be hidden underneath the panel.
+  // the selection moves while it is open) and the selected node would be
+  // hidden underneath it, the node re-centers in the space LEFT of the
+  // panel — the visible half becomes the stage, not a peek-out sliver.
   useEffect(() => {
     if (!panelOpen || !selectedNodeId) return;
     const timer = setTimeout(() => {
@@ -639,10 +642,12 @@ function Canvas() {
       const node = useStore.getState().nodes.find((n) => n.id === selectedNodeId);
       if (!node) return;
       const vp = rf.getViewport();
-      const nodeRight = (node.position.x + (node.measured?.width ?? node.width ?? 480)) * vp.zoom + vp.x;
+      const w = node.measured?.width ?? node.width ?? 480;
+      const nodeRight = (node.position.x + w) * vp.zoom + vp.x;
       const visibleRight = window.innerWidth - useUiStore.getState().panelWidth - PANEL_INSET - 24;
       if (nodeRight > visibleRight) {
-        rf.setViewport({ ...vp, x: vp.x - (nodeRight - visibleRight) }, { duration: 300 });
+        const nodeCenter = (node.position.x + w / 2) * vp.zoom + vp.x;
+        rf.setViewport({ ...vp, x: vp.x - (nodeCenter - visibleRight / 2) }, { duration: 300 });
       }
     }, 60);
     return () => clearTimeout(timer);

@@ -352,8 +352,11 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
   const railRef = useRef<HTMLDivElement>(null);
   const lastTurn = thread[thread.length - 1];
   useEffect(() => {
-    if (lastTurn?.data.isLoading && railRef.current) {
-      railRef.current.scrollTop = railRef.current.scrollHeight;
+    const el = railRef.current;
+    if (!lastTurn?.data.isLoading || !el) return;
+    // follow the stream only while the reader is near the bottom
+    if (el.scrollHeight - el.scrollTop - el.clientHeight < 80) {
+      el.scrollTop = el.scrollHeight;
     }
   }, [lastTurn?.data.response, lastTurn?.data.isLoading]);
 

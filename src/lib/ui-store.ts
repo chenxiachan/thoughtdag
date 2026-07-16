@@ -85,6 +85,9 @@ interface UiState {
   /** Browser-side API key dialog (the .env-free path in). */
   apiKeyModalOpen: boolean;
   setApiKeyModalOpen: (open: boolean) => void;
+  /** Node whose answer is open in the large reading overlay. */
+  responseViewerNodeId: string | null;
+  setResponseViewerNodeId: (id: string | null) => void;
   setReaderNodeId: (id: string | null, jump?: { page?: number; threadId?: string }) => void;
   setPanelOpen: (open: boolean) => void;
   setSelectedModel: (model: string | null) => void;
@@ -169,6 +172,8 @@ export const useUiStore = create<UiState>((set, get) => ({
   setMemoryManagerOpen: (open) => set({ memoryManagerOpen: open }),
   apiKeyModalOpen: false,
   setApiKeyModalOpen: (open) => set({ apiKeyModalOpen: open }),
+  responseViewerNodeId: null,
+  setResponseViewerNodeId: (id) => set({ responseViewerNodeId: id }),
   readerNodeId: null,
   readerJump: null,
   setReaderNodeId: (id, jump) => set({ readerNodeId: id, readerJump: id ? (jump ?? null) : null }),
