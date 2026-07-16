@@ -27,7 +27,7 @@ export function generateSummary(nodeId: string, question: string, response: stri
   llmCall([
     { role: 'user', content: question },
     { role: 'assistant', content: response },
-    { role: 'user', content: `${mapBlock}Write the TAKEAWAY of the above exchange as one line, 40-70 characters: conclusion first. A reader scanning a map of many such lines should see how the thinking progressed. Same language as the question. Classify the epistemic move and prefix the line with exactly one tag: INSIGHT (learned or confirmed something), RULEOUT (killed a hypothesis or option), DECISION (chose among options), PIVOT (reframed the question or direction), OPEN (raised a new unresolved question). Most exchanges are INSIGHT. Format: TAG: takeaway text. Output only that line.` },
+    { role: 'user', content: `${mapBlock}Write the TAKEAWAY of the above exchange as ONE short line, conclusion first. Hard length limit: at most 48 characters for CJK languages, at most 96 characters otherwise — the line must fit whole on a small map plaque, never truncated. A reader scanning a map of many such lines should see how the thinking progressed. Same language as the question. Classify the epistemic move and prefix the line with exactly one tag: INSIGHT (learned or confirmed something), RULEOUT (killed a hypothesis or option), DECISION (chose among options), PIVOT (reframed the question or direction), OPEN (raised a new unresolved question). Most exchanges are INSIGHT. Format: TAG: takeaway text. Output only that line.` },
   ]).then((raw) => {
     // "TAG: text" — unknown/missing tags degrade to the unmarked default
     const m = raw.trim().match(/^(INSIGHT|RULEOUT|DECISION|PIVOT|OPEN)[:：]\s*(.+)$/is);

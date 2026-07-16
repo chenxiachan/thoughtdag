@@ -261,7 +261,18 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
       <Handle type="target" position={Position.Left} id="left" isConnectable={false} className="!bg-transparent !w-0 !h-0 !border-0 !pointer-events-none" style={{ top: '40%' }} />
 
       {isStale && zoomedOut && (
-        <span className="absolute top-2.5 right-2.5 w-3.5 h-3.5 rounded-full bg-amber-500 z-10" title={t('node.staleBadge')} />
+        <span className="absolute top-2.5 left-2.5 w-3.5 h-3.5 rounded-full bg-amber-500 z-10" title={t('node.staleBadge')} />
+      )}
+      {zoomedOut && badge && (
+        // The cognitive move owns the plaque's top-right corner: big enough
+        // to read at map distance, floating out of the card like a seal
+        <span
+          title={t(badge.key as Parameters<typeof t>[0])}
+          className={`absolute -top-4 -right-4 w-14 h-14 rounded-2xl text-3xl font-bold flex items-center justify-center border-2 border-card shadow-md z-10 ${badge.cls}`}
+          data-map-badge
+        >
+          {badge.glyph}
+        </span>
       )}
       {zoomedOut ? (
         // Map label: the TAKEAWAY is the headline (what this step yielded),
@@ -278,11 +289,6 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
                   {data.question}
                 </div>
                 <div className="text-lg text-ink-muted leading-snug line-clamp-2 mt-1.5">
-                  {badge && (
-                    <span title={t(badge.key as Parameters<typeof t>[0])} className={`inline-flex items-center justify-center w-8 h-8 rounded-lg text-lg font-bold mr-2 align-middle ${badge.cls}`}>
-                      {badge.glyph}
-                    </span>
-                  )}
                   {versionSummary || data.response.replace(/[#*`>-]/g, '').slice(0, 140)}
                 </div>
               </>
@@ -292,11 +298,6 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
                   {data.question}
                 </div>
                 <div className="text-2xl font-semibold text-ink leading-snug line-clamp-3 mt-1.5">
-                  {badge && (
-                    <span title={t(badge.key as Parameters<typeof t>[0])} className={`inline-flex items-center justify-center w-11 h-11 rounded-xl text-2xl font-bold mr-2.5 align-middle ${badge.cls}`}>
-                      {badge.glyph}
-                    </span>
-                  )}
                   {versionSummary || data.response.replace(/[#*`>-]/g, '').slice(0, 140)}
                 </div>
               </>
