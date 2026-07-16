@@ -6,6 +6,7 @@ import { generateId } from '../../utils';
 import { copyText } from '../../lib/export';
 import { Markdown, HighlightedMarkdown } from '../Markdown';
 import { useT } from '../../i18n';
+import { isViewerMode } from '../../lib/viewer';
 import ReasoningDisclosure from '../ui/ReasoningDisclosure';
 import type { ThoughtData } from '../../types';
 
@@ -76,11 +77,14 @@ export default function ResponseSection({
   }, []);
 
   useEffect(() => {
+    if (isViewerMode) return; // selection menu stages writes
     document.addEventListener('mouseup', handleTextSelection);
     return () => document.removeEventListener('mouseup', handleTextSelection);
   }, [handleTextSelection]);
 
   const handleDoubleClickResponse = () => {
+    if (isViewerMode) return;
+    if (isViewerMode) return;
     setEditResponseValue(data.response);
     setEditingResponse(nodeId, true);
   };
@@ -212,13 +216,13 @@ export default function ResponseSection({
           the header's ⋯ menu */}
       {data.response && !data.isLoading && !data.isEditingResponse && !data.generationFailed && (
         <div className="mt-2 flex items-center gap-0.5 text-ink-faint">
-          <button
+          {!isViewerMode && <button
             onClick={() => void rerunNode(nodeId, {})}
             className="rounded-full w-7 h-7 flex items-center justify-center hover:text-accent hover:bg-wash transition-colors"
             title={t('common.regenerate')}
           >
             <RefreshCw size={15} strokeWidth={1.75} />
-          </button>
+          </button>}
           <button
             onClick={() => void copyText(data.response)}
             className="rounded-full w-7 h-7 flex items-center justify-center hover:text-accent hover:bg-wash transition-colors"
@@ -239,13 +243,13 @@ export default function ResponseSection({
               <button onClick={() => navigateVersion(nodeId, 'prev')} className="hover:text-accent hover:bg-wash rounded-full w-5 h-5 flex items-center justify-center transition-colors"><ChevronLeft size={14} strokeWidth={1.75} /></button>
               <span className="text-accent font-medium">v{data.responseIndex + 1}/{data.responses.length}</span>
               <button onClick={() => navigateVersion(nodeId, 'next')} className="hover:text-accent hover:bg-wash rounded-full w-5 h-5 flex items-center justify-center transition-colors"><ChevronRight size={14} strokeWidth={1.75} /></button>
-              <button
+              {!isViewerMode && <button
                 onClick={() => deleteVersion(nodeId, data.responseIndex)}
                 className="text-ink-faint hover:text-red-500 hover:bg-red-50 rounded-full w-5 h-5 flex items-center justify-center transition-colors"
                 title={t('common.deleteVersion')}
               >
                 <Trash2 size={13} strokeWidth={1.75} />
-              </button>
+              </button>}
             </div>
           )}
         </div>
@@ -280,12 +284,12 @@ export default function ResponseSection({
         <div className="mt-2 flex items-center gap-2 text-xs text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
           <AlertTriangle size={14} strokeWidth={1.75} className="shrink-0" />
           {t('common.generationFailed')}
-          <button
+          {!isViewerMode && <button
             onClick={() => editQuestion(nodeId, data.question)}
             className="ml-auto bg-card border border-red-200 hover:bg-red-100 text-red-600 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1"
           >
             <RefreshCw size={12} strokeWidth={1.75} /> {t('common.retry')}
-          </button>
+          </button>}
         </div>
       )}
     </div>

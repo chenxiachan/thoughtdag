@@ -3,6 +3,7 @@ import { ChevronRight, FileText, Loader2, Paperclip, X } from 'lucide-react';
 import { useStore } from '../../store';
 import { processFile, FILE_INPUT_ACCEPT } from '../../lib/attachments';
 import { useT, fmt } from '../../i18n';
+import { isViewerMode } from '../../lib/viewer';
 import type { Attachment } from '../../types';
 
 export default function AttachmentsSection({
@@ -72,7 +73,7 @@ export default function AttachmentsSection({
         </summary>
         <div className="mt-2 space-y-3">
           {/* Upload area */}
-          <div
+          {!isViewerMode && <div
             onDrop={handleDrop}
             onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
             onDragLeave={() => setIsDragging(false)}
@@ -101,7 +102,7 @@ export default function AttachmentsSection({
                 e.target.value = '';
               }}
             />
-          </div>
+          </div>}
 
           {/* Local attachments */}
           {attachments.length > 0 && (
@@ -139,12 +140,12 @@ export default function AttachmentsSection({
                       </div>
                     )}
                   </div>
-                  <button
+                  {!isViewerMode && <button
                     onClick={() => removeAttachment(nodeId, att.id)}
                     className="text-ink-faint hover:text-red-500 transition-colors shrink-0 opacity-0 group-hover:opacity-100"
                   >
                     <X size={14} strokeWidth={1.75} />
-                  </button>
+                  </button>}
                 </div>
               ))}
             </div>

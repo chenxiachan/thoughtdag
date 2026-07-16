@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { createIdbObjectStorage } from '../lib/persistence';
+import { isViewerMode } from '../lib/viewer';
 import type { ThoughtNode } from '../types';
 import type { StoreState, PersistedState } from './types';
 import { buildContext } from './context-builder';
@@ -44,7 +45,11 @@ export const useStore = create<StoreState>()(persist((...a) => ({
   name: 'thoughtdag',
   version: 1,
   skipHydration: true,
-  storage: createIdbObjectStorage<PersistedState>(),
+  // Viewer mode is a guest session: nothing it does may touch local storage —
+  // decided HERE at store creation so no early set() can race a later swap.
+  storage: isViewerMode
+    ? { getItem: () => null, setItem: () => {}, removeItem: () => {} }
+    : createIdbObjectStorage<PersistedState>(),
   // Persist only the graph. Undo history (full-graph snapshots ×50) and
   // selection are session-scoped and would bloat the stored payload.
   partialize: (state): PersistedState => ({

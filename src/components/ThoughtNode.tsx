@@ -15,6 +15,7 @@ import { Markdown, HighlightedMarkdown } from './Markdown';
 import FanOutModal from './FanOutModal';
 import ReasoningDisclosure from './ui/ReasoningDisclosure';
 import { useT, fmt } from '../i18n';
+import { isViewerMode } from '../lib/viewer';
 
 export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   const {
@@ -127,6 +128,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   }, []);
 
   useEffect(() => {
+    if (isViewerMode) return; // no selection menu (branch/highlight are writes)
     document.addEventListener('mouseup', handleTextSelection);
     return () => document.removeEventListener('mouseup', handleTextSelection);
   }, [handleTextSelection]);
@@ -169,12 +171,14 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
 
   const handleDoubleClickQuestion = (e: React.MouseEvent) => {
     e.stopPropagation(); // inline edit, not the panel
+    if (isViewerMode) return;
     setEditValue(data.question);
     setEditing(id, true);
   };
 
   const handleDoubleClickResponse = (e: React.MouseEvent) => {
     e.stopPropagation(); // inline edit, not the panel
+    if (isViewerMode) return;
     setEditResponseValue(data.response);
     setEditingResponse(id, true);
   };
@@ -378,7 +382,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
           <span className="text-xs text-ink-faint font-mono">{data.tokenCount} tok</span>
           {isStale && !data.isLoading && (
             <button
-              onClick={(e) => { e.stopPropagation(); void rerunNode(id, {}); }}
+              onClick={(e) => { e.stopPropagation(); if (!isViewerMode) void rerunNode(id, {}); }}
               title={t('node.staleTitle')}
               className="text-2xs bg-amber-500/10 text-amber-600 hover:bg-amber-500/25 px-1.5 py-0.5 rounded-md flex items-center gap-1 font-medium transition-colors"
             >
@@ -425,7 +429,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
               <Square size={10} strokeWidth={1.75} fill="currentColor" />
             </button>
           )}
-          {!(isParadigmNode && runLocked) && (
+          {!(isParadigmNode && runLocked) && !isViewerMode && (
             <button onClick={() => deleteNode(id)} className="text-ink-faint hover:text-red-500 hover:bg-red-50 rounded-full w-7 h-7 flex items-center justify-center transition-colors" title={t('common.delete')}>
               <X size={16} strokeWidth={1.75} />
             </button>
@@ -625,13 +629,15 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
               place; the sibling-branch variant lives in the panel's ⋯ menu) */}
           {data.response && !data.isLoading && !data.isEditingResponse && !isHuman && !isAwaitingAsk && !data.generationFailed && (
             <div className="mt-1.5 flex items-center gap-0.5 text-ink-faint">
-              <button
-                onClick={(e) => { e.stopPropagation(); void rerunNode(id, {}); }}
-                className={`rounded-full w-6 h-6 flex items-center justify-center transition-colors ${data.isEvaluator ? 'hover:text-watch hover:bg-red-50' : 'hover:text-accent hover:bg-wash'}`}
-                title={data.isEvaluator ? t('evaluator.rerun') : t('common.regenerate')}
-              >
-                <RefreshCw size={14} strokeWidth={1.75} />
-              </button>
+              {!isViewerMode && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); void rerunNode(id, {}); }}
+                  className={`rounded-full w-6 h-6 flex items-center justify-center transition-colors ${data.isEvaluator ? 'hover:text-watch hover:bg-red-50' : 'hover:text-accent hover:bg-wash'}`}
+                  title={data.isEvaluator ? t('evaluator.rerun') : t('common.regenerate')}
+                >
+                  <RefreshCw size={14} strokeWidth={1.75} />
+                </button>
+              )}
               <button
                 onClick={(e) => { e.stopPropagation(); void copyText(data.response); }}
                 className="rounded-full w-6 h-6 flex items-center justify-center hover:text-accent hover:bg-wash transition-colors"
@@ -652,13 +658,15 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
                   <button onClick={(e) => { e.stopPropagation(); navigateVersion(id, 'prev'); }} className="hover:text-accent hover:bg-wash rounded-full w-5 h-5 flex items-center justify-center transition-colors"><ChevronLeft size={14} strokeWidth={1.75} /></button>
                   <span className="text-accent font-medium">v{data.responseIndex + 1}/{data.responses.length}</span>
                   <button onClick={(e) => { e.stopPropagation(); navigateVersion(id, 'next'); }} className="hover:text-accent hover:bg-wash rounded-full w-5 h-5 flex items-center justify-center transition-colors"><ChevronRight size={14} strokeWidth={1.75} /></button>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); deleteVersion(id, data.responseIndex); }}
-                    className="text-ink-faint hover:text-red-500 hover:bg-red-50 rounded-full w-5 h-5 flex items-center justify-center transition-colors"
-                    title={t('common.deleteVersion')}
-                  >
-                    <Trash2 size={13} strokeWidth={1.75} />
-                  </button>
+                  {!isViewerMode && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); deleteVersion(id, data.responseIndex); }}
+                      className="text-ink-faint hover:text-red-500 hover:bg-red-50 rounded-full w-5 h-5 flex items-center justify-center transition-colors"
+                      title={t('common.deleteVersion')}
+                    >
+                      <Trash2 size={13} strokeWidth={1.75} />
+                    </button>
+                  )}
                 </div>
               )}
             </div>
@@ -669,12 +677,14 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
             <div className="mt-2 flex items-center gap-2 text-xs text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
               <AlertTriangle size={14} strokeWidth={1.75} className="shrink-0" />
               {t('common.generationFailed')}
-              <button
-                onClick={(e) => { e.stopPropagation(); editQuestion(id, data.question); }}
-                className="ml-auto bg-card border border-red-200 hover:bg-red-100 text-red-600 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1"
-              >
-                <RefreshCw size={12} strokeWidth={1.75} /> {t('common.retry')}
-              </button>
+              {!isViewerMode && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); editQuestion(id, data.question); }}
+                  className="ml-auto bg-card border border-red-200 hover:bg-red-100 text-red-600 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1"
+                >
+                  <RefreshCw size={12} strokeWidth={1.75} /> {t('common.retry')}
+                </button>
+              )}
             </div>
           )}
 
@@ -688,7 +698,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
 
           {/* Inline continue input — hidden while a paradigm run is in
               progress (the structure IS the paradigm); returns on unlock */}
-          {!data.isLoading && !data.isEditingResponse && !isAwaitingAsk && !(isParadigmNode && runLocked) && (
+          {!data.isLoading && !data.isEditingResponse && !isAwaitingAsk && !(isParadigmNode && runLocked) && !isViewerMode && (
             <div className="mt-3 pt-3 border-t border-line">
               <div className="flex items-end gap-2 bg-wash rounded-xl px-4 py-2.5 transition-shadow focus-within:ring-1 focus-within:ring-accent/40">
                 <textarea

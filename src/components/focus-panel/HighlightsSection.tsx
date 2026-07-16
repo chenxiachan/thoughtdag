@@ -3,6 +3,7 @@ import { ChevronRight, GitBranch, Scissors, Star, Tag, X } from 'lucide-react';
 import { useStore } from '../../store';
 import { isImeComposing } from '../../utils';
 import { useT } from '../../i18n';
+import { isViewerMode } from '../../lib/viewer';
 import type { Highlight } from '../../types';
 
 // Highlights: the list, how they pass downstream (tag / filter-only — no
@@ -62,12 +63,12 @@ export default function HighlightsSection({
                     <span className="text-xs text-amber-700 flex-1 leading-relaxed">
                       <Star size={14} strokeWidth={1.75} className="inline" /> {h.text.slice(0, 80)}{h.text.length > 80 ? '…' : ''}
                     </span>
-                    <button
+                    {!isViewerMode && <button
                       onClick={() => removeHighlight(nodeId, h.id)}
                       className="text-amber-300 hover:text-red-500 transition-colors shrink-0 opacity-0 group-hover/hl:opacity-100"
                     >
                       <X size={14} strokeWidth={1.75} />
-                    </button>
+                    </button>}
                   </div>
                 ))}
               </div>

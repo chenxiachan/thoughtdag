@@ -7,6 +7,7 @@ import { buildContext, resolveRoleFor } from '../../store/context-builder';
 import { PANEL_WIDTH_KEY, PANEL_MIN_WIDTH, PANEL_DEFAULT_WIDTH, PANEL_INSET } from '../../lib/constants';
 import { awaitingInput } from '../../utils';
 import { useT } from '../../i18n';
+import { isViewerMode } from '../../lib/viewer';
 import RoleLine from './RoleLine';
 import AttachmentsSection from './AttachmentsSection';
 import QuestionSection from './QuestionSection';
@@ -109,7 +110,7 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
       <div className="flex items-start gap-2 pl-4 pr-3 py-1.5 border-b border-line/70 shrink-0">
         <RoleLine nodeId={selectedNodeId!} data={data} inheritedRole={inheritedRole} />
         <div className="flex items-center gap-1 shrink-0">
-          <HeaderActions nodeId={selectedNodeId!} isLoading={data.isLoading} />
+          {!isViewerMode && <HeaderActions nodeId={selectedNodeId!} isLoading={data.isLoading} />}
           <button
             onClick={() => { useUiStore.getState().setPanelOpen(false); setSelectedNodeId(null); }}
             title={t('panel.close')}
@@ -171,7 +172,7 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
 
       {/* The ONE input — pinned at bottom; selected text stages into it.
           Hidden while the node waits for its own question above. */}
-      {!awaiting && (
+      {!awaiting && !isViewerMode && (
         <FollowUpInput
           key={selectedNodeId}
           nodeId={selectedNodeId!}

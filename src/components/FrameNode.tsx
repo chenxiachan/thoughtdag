@@ -6,6 +6,7 @@ import { useStore } from '../store';
 import { isImeComposing } from '../utils';
 import { FRAME_COLORS } from '../lib/constants';
 import { useT } from '../i18n';
+import { isViewerMode } from '../lib/viewer';
 
 // Frame: a labeled background region — THE spatial annotation. No handles
 // (it can never be wired, so it can never touch context), ignored by
@@ -24,7 +25,7 @@ export default function FrameNode({ id, data, selected }: NodeProps<ThoughtNodeT
   // Quantized to 0.1 steps so zooming doesn't re-render every frame.
   const barScale = useRfStore((s) => Math.min(5, Math.max(1, Math.round(10 / s.transform[2]) / 10)));
 
-  const [editing, setEditing] = useState(!data.question);
+  const [editing, setEditing] = useState(!isViewerMode && !data.question);
   const [draft, setDraft] = useState(data.question);
 
   const color = FRAME_COLORS[data.frameColor ?? 'gray'] ?? FRAME_COLORS.gray;
@@ -74,7 +75,7 @@ export default function FrameNode({ id, data, selected }: NodeProps<ThoughtNodeT
              the region name to nothing — the row overflows the frame edge
              instead (the title is the higher-value signal on the map) */
           <span
-            onDoubleClick={() => { setDraft(data.question); setEditing(true); }}
+            onDoubleClick={() => { if (isViewerMode) return; setDraft(data.question); setEditing(true); }}
             className={`flex-1 min-w-24 truncate font-semibold text-ink-muted/80 select-none text-xs ${barScale > 1 ? 'normal-case' : 'uppercase tracking-wider'}`}
             title={t('content.noteEditTitle')}
           >
@@ -83,7 +84,7 @@ export default function FrameNode({ id, data, selected }: NodeProps<ThoughtNodeT
         )}
         {/* Carry toggle — always visible: it changes what dragging does, and
             dragging doesn't require selecting first */}
-        <button
+        {!isViewerMode && <button
           onClick={(e) => { e.stopPropagation(); useStore.getState().pushHistory(); patch({ frameCarry: !carry }); }}
           title={carry ? t('frame.carryOn') : t('frame.carryOff')}
           className={`rounded-full w-6 h-6 flex items-center justify-center transition-colors shrink-0 nodrag ${
@@ -91,8 +92,8 @@ export default function FrameNode({ id, data, selected }: NodeProps<ThoughtNodeT
           }`}
         >
           {carry ? <Link2 size={13} strokeWidth={1.75} /> : <Link2Off size={13} strokeWidth={1.75} />}
-        </button>
-        {selected && (
+        </button>}
+        {selected && !isViewerMode && (
           <>
             {/* fixed palette — color is wayfinding, not decoration; hidden on
                 the deepest zoom, where the scaled row would spill over
@@ -130,7 +131,7 @@ export default function FrameNode({ id, data, selected }: NodeProps<ThoughtNodeT
       {/* resize handles: NO manual scaling — React Flow's autoScale already
           counter-scales them (Math.max(1/zoom, 1)), so they keep a constant
           screen size; scaling here again would compound to huge squares */}
-      <NodeResizer isVisible={selected} minWidth={280} minHeight={180} lineClassName="!border-accent/40" handleClassName="!bg-accent !w-2.5 !h-2.5 !rounded-sm" />
+      <NodeResizer isVisible={selected && !isViewerMode} minWidth={280} minHeight={180} lineClassName="!border-accent/40" handleClassName="!bg-accent !w-2.5 !h-2.5 !rounded-sm" />
     </div>
   );
 }

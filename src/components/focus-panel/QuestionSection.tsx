@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useStore } from '../../store';
 import { isImeComposing } from '../../utils';
 import { useT } from '../../i18n';
+import { isViewerMode } from '../../lib/viewer';
 
 export default function QuestionSection({
   nodeId,
@@ -32,6 +33,7 @@ export default function QuestionSection({
 
   const handleDoubleClickQuestion = () => {
     setEditValue(question);
+    if (isViewerMode) return;
     setEditing(nodeId, true);
   };
 
@@ -54,7 +56,7 @@ export default function QuestionSection({
           “{branchContext.slice(0, 240)}{branchContext.length > 240 ? '…' : ''}”
         </div>
       )}
-      {isEditing || awaiting ? (
+      {(isEditing || awaiting) && !isViewerMode ? (
         <textarea
           value={editValue}
           onChange={(e) => setEditValue(e.target.value)}

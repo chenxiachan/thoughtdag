@@ -3,6 +3,7 @@ import { Paperclip, UserCog } from 'lucide-react';
 import { useStore } from '../../store';
 import { isImeComposing } from '../../utils';
 import { useT } from '../../i18n';
+import { isViewerMode } from '../../lib/viewer';
 import RoleTemplateChips from '../ui/RoleTemplateChips';
 import type { ThoughtData } from '../../types';
 
@@ -46,7 +47,7 @@ export default function RoleLine({
         {effective ? (
           canEdit ? (
             <button
-              onClick={() => { setValue(own ?? ''); setEditing(true); }}
+              onClick={() => { if (isViewerMode) return; setValue(own ?? ''); setEditing(true); }}
               className="text-warm hover:underline decoration-dotted underline-offset-2 truncate font-medium max-w-[45%] shrink-0"
               title={`${effective} — ${t('role.edit')}`}
             >
@@ -55,7 +56,7 @@ export default function RoleLine({
           ) : (
             <span className="text-warm/90 truncate max-w-[45%] shrink-0" title={effective}>{effective}</span>
           )
-        ) : canEdit ? (
+        ) : canEdit && !isViewerMode ? (
           <button
             onClick={() => { setValue(''); setEditing(true); }}
             className="hover:text-warm transition-colors shrink-0"

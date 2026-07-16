@@ -16,7 +16,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import 'highlight.js/styles/github.css';
-import { BookOpen, Brain, CircleHelp, Dna, Download, Drama, FileText, Frame, GitBranch, KeyRound, LayoutGrid, Loader2, MessageCircleQuestion, Paperclip, Redo2, Scissors, SquareTerminal, StickyNote, Trash2, Undo2, Workflow, X, ListRestart } from 'lucide-react';
+import { BookOpen, Brain, CircleHelp, Dna, Download, Drama, Eye, FileText, Frame, GitBranch, KeyRound, LayoutGrid, Loader2, MessageCircleQuestion, Paperclip, Redo2, Scissors, Share2, SquareTerminal, StickyNote, Trash2, Undo2, Workflow, X, ListRestart } from 'lucide-react';
 import './index.css';
 import ThoughtNode from './components/ThoughtNode';
 import ParadigmNode from './components/ParadigmNode';
@@ -58,6 +58,7 @@ import RoleTemplateChips from './components/ui/RoleTemplateChips';
 import SearchToggles from './components/ui/SearchToggles';
 import Tutorial from './components/Tutorial';
 import { useT, t as ti, fmt, useI18n } from './i18n';
+import { isViewerMode, buildViewerLink } from './lib/viewer';
 import { useModels } from './lib/use-models';
 import { useZoomTier } from './lib/use-map-mode';
 
@@ -78,7 +79,7 @@ const edgeTypes = { smoothstep: ThoughtEdgeView };
 // mounting the canvas only after hydration lets ReactFlow's fitView see the
 // restored graph (and avoids flashing the landing input).
 export default function App() {
-  const [hydrated, setHydrated] = useState(useStore.persist.hasHydrated());
+  const [hydrated, setHydrated] = useState(isViewerMode || useStore.persist.hasHydrated());
   useEffect(() => useStore.persist.onFinishHydration(() => setHydrated(true)), []);
   return (
     <>
@@ -120,7 +121,7 @@ function Canvas() {
   const modelData = useModels();
   const keyPrompted = useRef(false);
   useEffect(() => {
-    if (keyPrompted.current || !modelData) return;
+    if (isViewerMode || keyPrompted.current || !modelData) return;
     if (modelData.models.length === 0) {
       keyPrompted.current = true;
       useUiStore.getState().setApiKeyModalOpen(true);
@@ -250,6 +251,7 @@ function Canvas() {
     // Canvas paste: text → note, a lone URL → link snapshot, files → file
     // node with the image/document itself. Inputs keep their own paste.
     const onPaste = (e: ClipboardEvent) => {
+      if (isViewerMode) return;
       const target = e.target as HTMLElement | null;
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) return;
       const meta = useProjects.getState();
@@ -488,6 +490,8 @@ function Canvas() {
     const handleKeyDown = (e: KeyboardEvent) => {
       // While the confirm dialog is open it owns the keyboard
       if (useUiStore.getState().confirmRequest) return;
+      // Viewer: only Cmd+F search survives; every mutating shortcut is inert
+      if (isViewerMode && !((e.metaKey || e.ctrlKey) && e.key === 'f')) return;
       if ((e.metaKey || e.ctrlKey) && e.key === 'z') {
         if (e.shiftKey) { e.preventDefault(); redo(); }
         else { e.preventDefault(); undo(); }
@@ -717,6 +721,7 @@ function Canvas() {
           }
         }}
         onDrop={(e) => {
+          if (isViewerMode) return;
           const el = e.target as HTMLElement;
           // Landing (empty canvas): dropping a document means "start from
           // this material" — file nodes + the reader, not attachments
@@ -790,8 +795,10 @@ function Canvas() {
         nodeDragThreshold={5}
         connectionRadius={40}
         selectionMode={SelectionMode.Partial}
-        selectionOnDrag
-        panOnDrag={[1, 2]}
+        selectionOnDrag={!isViewerMode}
+        nodesDraggable={!isViewerMode}
+        nodesConnectable={!isViewerMode}
+        panOnDrag={isViewerMode ? true : [1, 2]}
         zoomOnDoubleClick={false}
         connectionLineStyle={{ stroke: COLORS.accent, strokeDasharray: '8 4', strokeWidth: 2 }}
         onSelectionChange={onSelectionChange}
@@ -1040,12 +1047,12 @@ function Canvas() {
       )}
 
       {/* Project switcher */}
-      <ProjectSwitcher onSwitched={afterProjectSwitch} />
+      {!isViewerMode && <ProjectSwitcher onSwitched={afterProjectSwitch} />}
 
       {/* Content palette — canvas material, both modes. Click drops at the
           viewport center; DRAG drops at the pointer. Paste works anywhere:
           text → note, a URL → link snapshot, image/files → file node. */}
-      {(hasNodes || isParadigm) && (
+      {(hasNodes || isParadigm) && !isViewerMode && (
         <div className="absolute top-1/2 -translate-y-1/2 left-4 z-10 flex flex-col gap-1.5 bg-card/90 backdrop-blur border border-line rounded-xl p-1.5 shadow-sm">
           {!isParadigm && (
             <button
@@ -1088,9 +1095,39 @@ function Canvas() {
         </div>
       )}
 
+      {/* Viewer: the toolbar collapses to a read-only badge + download + brand
+          link — every mutating control lives in the author toolbar below. */}
+      {isViewerMode && (
+        <div
+          className="absolute top-4 z-10 flex gap-1.5 items-center transition-[right] duration-200"
+          style={{ right: panelOpen ? livePanelWidth + PANEL_INSET + 12 : 16 }}
+        >
+          <span className="bg-card/90 backdrop-blur border border-line rounded-lg h-8 px-3 flex items-center gap-1.5 shadow-sm text-ink-muted text-xs font-medium" data-viewer-badge>
+            <Eye size={14} strokeWidth={1.75} /> {t('viewer.badge')}
+          </span>
+          <LangSwitch />
+          <button
+            onClick={() => exportActiveProjectJson()}
+            className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors text-ink-muted hover:text-accent"
+            title={t('viewer.downloadJson')}
+          >
+            <Download size={15} strokeWidth={1.75} />
+          </button>
+          <a
+            href="https://github.com/chenxiachan/thoughtdag"
+            target="_blank"
+            rel="noreferrer"
+            className="bg-ink text-white rounded-lg h-8 px-3 flex items-center gap-1.5 shadow-sm hover:bg-ink/85 transition-colors text-xs font-medium"
+          >
+            {t('viewer.openApp')}
+          </a>
+        </div>
+      )}
+
       {/* Toolbar: web search, language, tutorial, relayout, undo/redo.
           Positioned relative to the VISIBLE canvas: when the overlay panel
           is open it slides left instead of hiding underneath. */}
+      {!isViewerMode && (
       <div
         className="absolute top-4 z-10 flex gap-1.5 items-center transition-[right] duration-200"
         style={{ right: panelOpen ? livePanelWidth + PANEL_INSET + 12 : 16 }}
@@ -1235,6 +1272,23 @@ function Canvas() {
             <Download size={15} strokeWidth={1.75} />
           </button>
         )}
+        {hasNodes && !isParadigm && (
+          <button
+            onClick={() => {
+              void (async () => {
+                const { nodes: ns, edges: es } = useStore.getState();
+                const url = await buildViewerLink(ns, es);
+                await navigator.clipboard.writeText(url);
+                toast('success', url.length > 60000 ? ti('viewer.linkLong') : ti('viewer.linkCopied'));
+              })();
+            }}
+            className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors text-ink-muted hover:text-accent"
+            title={t('viewer.shareTitle')}
+            data-share-link
+          >
+            <Share2 size={15} strokeWidth={1.75} />
+          </button>
+        )}
         {hasNodes && (
           <button
             onClick={() => {
@@ -1271,9 +1325,10 @@ function Canvas() {
           <Redo2 size={16} strokeWidth={1.75} />
         </button>
       </div>
+      )}
 
       {/* Multi-select toolbar */}
-      {multiSelected && <SelectionToolbar />}
+      {multiSelected && !isViewerMode && <SelectionToolbar />}
 
       {/* Cmd+F node search */}
       <SearchBar

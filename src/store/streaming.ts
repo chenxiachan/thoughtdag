@@ -8,6 +8,7 @@ import { toast, useUiStore } from '../lib/ui-store';
 import { getModelsOnce } from '../lib/use-models';
 import { memoryContextBlock, judgeMemory } from '../lib/memory';
 import { t, fmt } from '../i18n';
+import { isViewerMode } from '../lib/viewer';
 import type { Reference } from '../types';
 import type { StoreState } from './types';
 
@@ -94,6 +95,9 @@ export async function runNodeGeneration(
     onSuccess?: (response: string) => void;
   },
 ): Promise<void> {
+  // Read-only viewer: no generation whatsoever — belt-and-braces behind the
+  // hidden UI (a missed button must still be inert).
+  if (isViewerMode) return;
   const { question, images, onSuccess, versionMode = 'replace' } = opts;
   let { messages } = opts;
   if (!opts.autoChain) autoRunCounts.clear(); // a fresh user action starts a new wave

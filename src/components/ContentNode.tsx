@@ -11,6 +11,7 @@ import { FILE_INPUT_ACCEPT } from '../lib/attachments';
 import { Markdown } from './Markdown';
 import { countTokens } from '../utils';
 import { useT, fmt } from '../i18n';
+import { isViewerMode } from '../lib/viewer';
 
 // Content nodes: canvas material, not turns. A note (markdown), a file
 // (attachments) or a link (stamped web snapshot) that never generates — it
@@ -35,7 +36,7 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
   useEffect(() => { updateNodeInternals(id); }, [glyphTier, id, updateNodeInternals]);
 
   const kind = data.stepKind === 'file' ? 'file' : data.stepKind === 'link' ? 'link' : 'note';
-  const [editing, setEditing] = useState(kind === 'note' && !data.question);
+  const [editing, setEditing] = useState(!isViewerMode && kind === 'note' && !data.question);
   const [draft, setDraft] = useState(data.question);
   const [openExtract, setOpenExtract] = useState<string | null>(null); // attId whose extraction panel is open
   const setAttachmentData = useStore((s) => s.setAttachmentData);
@@ -97,7 +98,7 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
         if (kind !== 'note') useUiStore.getState().setReaderNodeId(id);
       }}
       onDrop={async (e) => {
-        if (kind !== 'file') return;
+        if (kind !== 'file' || isViewerMode) return;
         e.preventDefault();
         e.stopPropagation();
         await ingestFiles(id, e.dataTransfer.files);
@@ -139,12 +140,12 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
               <ExternalLink size={13} strokeWidth={1.75} />
             </a>
           )}
-          <button
+          {!isViewerMode && <button
             onClick={(e) => { e.stopPropagation(); deleteNode(id); }}
             className="text-ink-faint hover:text-red-500 rounded-full w-6 h-6 flex items-center justify-center transition-colors"
           >
             <Trash2 size={13} strokeWidth={1.75} />
-          </button>
+          </button>}
         </div>
       </div>
 
@@ -165,7 +166,7 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
             />
           ) : (
             <div
-              onDoubleClick={() => { setDraft(data.question); setEditing(true); }}
+              onDoubleClick={() => { if (isViewerMode) return; setDraft(data.question); setEditing(true); }}
               className="markdown-body text-sm text-ink leading-relaxed cursor-text nopan"
               title={t('content.noteEditTitle')}
             >

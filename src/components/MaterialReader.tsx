@@ -9,6 +9,7 @@ import { generateDigest, recognizePdfPages } from '../lib/content';
 import { Markdown, HighlightedMarkdown } from './Markdown';
 import { generateId, isImeComposing } from '../utils';
 import { useT, fmt } from '../i18n';
+import { isViewerMode } from '../lib/viewer';
 
 // MaterialReader: the reading overlay — a VIEW onto a material node, never a
 // container. Select a passage (in the original PDF's text layer, or in the
@@ -95,6 +96,7 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
     if (!pdfAtt || digestBusy) return;
     setDigestBusy(true);
     setView('digest'); // the digest node streams; watch it arrive in place
+    if (isViewerMode) return;
     const ok = await generateDigest(node.id, pdfAtt.id);
     setDigestBusy(false);
     if (!ok) setView(pdfAtt ? 'original' : 'text');
@@ -157,6 +159,7 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
   const [draft, setDraft] = useState('');
 
   const handleMouseUp = () => {
+    if (isViewerMode) return;
     window.setTimeout(() => {
       const sel = window.getSelection();
       // a plain click (no selection) anywhere in the reading surface
@@ -231,6 +234,7 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
   // selection inside the rail: only ANSWER text is explorable (the answer
   // node becomes the parent); question text and chrome stay inert
   const handleRailMouseUp = () => {
+    if (isViewerMode) return;
     window.setTimeout(() => {
       const sel = window.getSelection();
       if (!sel || sel.isCollapsed || !railRef.current) { setAsk((a) => (a?.targetNodeId ? null : a)); return; }
@@ -266,6 +270,7 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
     if (!pdfAtt?.pageImages?.length) return;
     setRecog('running');
     cancelRef.current = false;
+    if (isViewerMode) return;
     await recognizePdfPages(node.id, pdfAtt.id, (a, b) => setProgress([a, b]), () => cancelRef.current);
     setRecog('idle');
     setProgress(null);
@@ -461,7 +466,7 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
               )}
             </div>
           )}
-          {pdfAtt && !digestText && !digesting && !!pdfAtt.extractedText?.trim() && (
+          {pdfAtt && !digestText && !digesting && !!pdfAtt.extractedText?.trim() && !isViewerMode && (
             <button
               onClick={() => void startDigest()}
               title={t('reader.digestTitle')}
@@ -471,7 +476,7 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
               {t('reader.digest')}
             </button>
           )}
-          {pdfAtt && view === 'text' && hasVisionModel && (
+          {pdfAtt && view === 'text' && hasVisionModel && !isViewerMode && (
             recog === 'running' ? (
               <span className="flex items-center gap-2 text-xs text-accent shrink-0">
                 <Loader2 size={13} strokeWidth={1.75} className="animate-spin" />
