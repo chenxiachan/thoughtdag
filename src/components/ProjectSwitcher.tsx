@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ChevronDown, Dna, FolderOpen, Loader2, Pencil, Plus, Trash2, Upload, FolderSync } from 'lucide-react';
+import { ChevronDown, Dna, FolderOpen, Loader2, Pencil, Plus, Trash2, Upload } from 'lucide-react';
 import { useProjects, switchProject, createProject, renameProject, deleteProject, createBuiltinParadigm } from '../store/projects';
 import { useI18n } from '../i18n';
 import { parseImportFile } from '../lib/export';
@@ -8,8 +8,6 @@ import type { ImportableConversation } from '../lib/import-chat';
 import { confirmDialog, toast } from '../lib/ui-store';
 import { isImeComposing } from '../utils';
 import { useT, t as ti, fmt } from '../i18n';
-import { backupSupported, enableAutoBackup, disableAutoBackup } from '../lib/local-backup';
-import { useUiStore as useUi } from '../lib/ui-store';
 
 function relativeTime(ts: number): string {
   const diff = Date.now() - ts;
@@ -160,7 +158,6 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
             >
               <Upload size={15} strokeWidth={1.75} /> {t('switcher.importBackup')}
             </button>
-            <AutoBackupRow />
             <input
               ref={importFileRef}
               type="file"
@@ -192,24 +189,5 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
         />
       )}
     </div>
-  );
-}
-
-// Auto-backup toggle row: pick a folder once, every change lands as a real
-// file (point it at a synced folder for free cross-device backup).
-function AutoBackupRow() {
-  const t = useT();
-  const dir = useUi((s) => s.autoBackupDir);
-  if (!backupSupported) return null;
-  return (
-    <button
-      onClick={() => { if (dir) void disableAutoBackup(); else void enableAutoBackup(); }}
-      className="w-full text-left px-3 py-2 text-xs hover:bg-wash transition-colors flex items-center gap-2 text-ink-muted"
-      title={dir ? t('backup.autoOffTitle') : t('backup.autoOnTitle')}
-      data-auto-backup
-    >
-      <FolderSync size={15} strokeWidth={1.75} className={dir ? 'text-emerald-600' : ''} />
-      {dir ? `${t('backup.autoOn')} · ${dir}` : t('backup.autoSetup')}
-    </button>
   );
 }

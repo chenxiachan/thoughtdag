@@ -1,6 +1,6 @@
 import { get as idbGet, set as idbSet, del as idbDel } from 'idb-keyval';
 import { useStore, stripTransient } from '../store';
-import { useProjects } from '../store/projects';
+import { useProjects, projectStorageKey } from '../store/projects';
 import { toast, useUiStore } from './ui-store';
 import { t } from '../i18n';
 import { EXPORT_FORMAT_VERSION, activeProjectName } from './export';
@@ -46,6 +46,40 @@ async function writeActiveProject(): Promise<void> {
   await w.write(payload);
   await w.close();
   localStorage.setItem('thoughtdag.lastBackupAt', String(Date.now()));
+  useUiStore.getState().setLastAutoBackupAt(Date.now());
+}
+
+/** Manual "backup now": every project, not just the active one. */
+export async function backupAllProjects(): Promise<number> {
+  if (!handle) return 0;
+  const { projects, activeId } = useProjects.getState();
+  let written = 0;
+  for (const proj of projects) {
+    let nodes; let edges;
+    if (proj.id === activeId) {
+      ({ nodes, edges } = useStore.getState());
+    } else {
+      const raw = await idbGet(projectStorageKey(proj.id)).catch(() => null);
+      const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+      nodes = parsed?.state?.nodes ?? [];
+      edges = parsed?.state?.edges ?? [];
+    }
+    if (!nodes || nodes.length === 0) continue;
+    const fname = `${proj.name.replace(/[\\/:*?"<>|]/g, '_') || 'canvas'}.thoughtdag.json`;
+    const payload = JSON.stringify({
+      version: EXPORT_FORMAT_VERSION, name: proj.name,
+      exportedAt: new Date().toISOString(), instantiatedFrom: proj.instantiatedFrom,
+      nodes: stripTransient(nodes), edges,
+    });
+    const file = await handle.getFileHandle(fname, { create: true });
+    const w2 = await file.createWritable();
+    await w2.write(payload);
+    await w2.close();
+    written++;
+  }
+  localStorage.setItem('thoughtdag.lastBackupAt', String(Date.now()));
+  useUiStore.getState().setLastAutoBackupAt(Date.now());
+  return written;
 }
 
 function schedule(): void {

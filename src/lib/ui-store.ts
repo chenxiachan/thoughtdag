@@ -91,6 +91,10 @@ interface UiState {
   /** Auto-backup folder name (null = off) — display only, handle lives in idb. */
   autoBackupDir: string | null;
   setAutoBackupDir: (name: string | null) => void;
+  lastAutoBackupAt: number | null;
+  setLastAutoBackupAt: (t: number | null) => void;
+  backupDialogOpen: boolean;
+  setBackupDialogOpen: (v: boolean) => void;
   /** Share dialog: the freshly built read-only link (null = closed). */
   shareDialogUrl: string | null;
   setShareDialogUrl: (url: string | null) => void;
@@ -185,6 +189,10 @@ export const useUiStore = create<UiState>((set, get) => ({
   setResponseViewerNodeId: (id) => set({ responseViewerNodeId: id }),
   autoBackupDir: null,
   setAutoBackupDir: (name) => set({ autoBackupDir: name }),
+  lastAutoBackupAt: null,
+  setLastAutoBackupAt: (t) => set({ lastAutoBackupAt: t }),
+  backupDialogOpen: false,
+  setBackupDialogOpen: (v) => set({ backupDialogOpen: v }),
   shareDialogUrl: null,
   setShareDialogUrl: (url) => set({ shareDialogUrl: url }),
   viewerLoadError: false,

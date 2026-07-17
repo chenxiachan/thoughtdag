@@ -16,7 +16,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import 'highlight.js/styles/github.css';
-import { BookOpen, Brain, CircleHelp, Dna, Download, Drama, Eye, FileText, Frame, GitBranch, KeyRound, LayoutGrid, Loader2, MessageCircleQuestion, Paperclip, Redo2, Scissors, Share2, SquareTerminal, StickyNote, Trash2, Undo2, Workflow, X, ListRestart } from 'lucide-react';
+import { BookOpen, Brain, CircleHelp, Dna, Download, Drama, Eye, FileText, Frame, GitBranch, KeyRound, LayoutGrid, Loader2, MessageCircleQuestion, Paperclip, Redo2, Scissors, Share2, SquareTerminal, StickyNote, Trash2, Undo2, Workflow, X, ListRestart, FolderSync } from 'lucide-react';
 import './index.css';
 import ThoughtNode from './components/ThoughtNode';
 import ParadigmNode from './components/ParadigmNode';
@@ -53,6 +53,8 @@ import MemoryManagerModal from './components/ui/MemoryManagerModal';
 import ApiKeyModal from './components/ui/ApiKeyModal';
 import ResponseViewer from './components/ui/ResponseViewer';
 import ShareDialog from './components/ui/ShareDialog';
+import BackupDialog from './components/ui/BackupDialog';
+import { backupSupported } from './lib/local-backup';
 import LangSwitch from './components/ui/LangSwitch';
 import ModelPicker from './components/ui/ModelPicker';
 import RoleTemplateChips from './components/ui/RoleTemplateChips';
@@ -92,6 +94,7 @@ export default function App() {
       <ApiKeyModal />
       <ResponseViewer />
       <ShareDialog />
+      <BackupDialog />
       <ConfirmDialog />
       <Tutorial />
     </>
@@ -140,7 +143,7 @@ function Canvas() {
     if (Date.now() - last < 7 * 24 * 3600 * 1000) return;
     if (sessionStorage.getItem('thoughtdag.backupNudged')) return;
     sessionStorage.setItem('thoughtdag.backupNudged', 'yes');
-    toast('info', ti('backup.nudge'), 0, { label: ti('backup.now'), run: () => exportActiveProjectJson() });
+    toast('info', ti('backup.nudge'), 0, { label: ti('backup.nudgeBtn'), run: () => exportActiveProjectJson() });
   }, [hasNodes]);
 
   const loadExample = useCallback(() => {
@@ -1189,6 +1192,16 @@ function Canvas() {
           </>
         )}
         {!isParadigm && <ModelPicker />}
+        {backupSupported && (
+          <button
+            onClick={() => useUiStore.getState().setBackupDialogOpen(true)}
+            className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors text-ink-faint hover:text-accent"
+            title={t('backup.dialogTitle')}
+            data-backup-entry
+          >
+            <FolderSync size={15} strokeWidth={1.75} />
+          </button>
+        )}
         <button
           onClick={() => useUiStore.getState().setMemoryManagerOpen(true)}
           className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors text-ink-faint hover:text-accent"
