@@ -98,6 +98,34 @@ export async function processFile(file: File, cb: ProcessFileCallbacks): Promise
       isExtracting: false,
     });
   } catch {
-    cb.update(att.id, { isExtracting: false });
+    // No extraction backend (the public demo has none): extract the text
+    // layer in the browser with pdfjs instead. Summaries, digests and the
+    // text view all work; page images stay absent and the reader falls
+    // back to its text view.
+    try {
+      const [m, worker] = await Promise.all([
+        import('pdfjs-dist'),
+        import('pdfjs-dist/build/pdf.worker.min.mjs?url'),
+      ]);
+      m.GlobalWorkerOptions.workerSrc = worker.default;
+      const bytes = Uint8Array.from(atob(att.content), (c) => c.charCodeAt(0));
+      const doc = await m.getDocument({ data: bytes, verbosity: 0 }).promise;
+      const pages: string[] = [];
+      for (let i = 1; i <= doc.numPages; i++) {
+        try {
+          const page = await doc.getPage(i);
+          const content = await page.getTextContent();
+          pages.push(content.items.map((it) => ('str' in it ? it.str : '')).join(' '));
+        } catch { pages.push(''); }
+      }
+      cb.update(att.id, {
+        extractedText: pages.join('\n\n').trim(),
+        numPages: doc.numPages,
+        renderMode: 'text-only',
+        isExtracting: false,
+      });
+    } catch {
+      cb.update(att.id, { isExtracting: false });
+    }
   }
 }
