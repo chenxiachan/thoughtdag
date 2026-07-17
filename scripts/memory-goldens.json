@@ -1,0 +1,25 @@
+{
+  "_comment": "Golden set for the memory judge (JUDGE_PROMPT_VERSION discipline): run .local-e2e/test-memory-judge.mjs BEFORE and AFTER any prompt wording change. 'expect' is the admissible outcome AFTER the code-level constitution is applied: none | preference | identity | project. Cases marked tolerant:true accept either 'none' or the given category (borderline by design).",
+  "cases": [
+    { "q": "以后回答我都用中文，代码注释保持英文。", "a": "好的，以后中文回答，注释保持英文。", "expect": "preference" },
+    { "q": "我是做因果推断方向的博士后，主要用 R。", "a": "明白了，因果推断方向，R 为主力工具。", "expect": "identity" },
+    { "q": "我在准备 DFG 的项目申请书，这几周都会围绕它提问。", "a": "好的，随时可以围绕申请书讨论。", "expect": "project" },
+    { "q": "什么是工具变量法？", "a": "工具变量法是一种处理内生性的识别策略……", "expect": "none" },
+    { "q": "帮我把这段话翻译成英文：今天天气很好。", "a": "The weather is nice today.", "expect": "none" },
+    { "q": "这个画布的节点怎么折叠？", "a": "点击卡片右上角的折叠按钮即可。", "expect": "none" },
+    { "q": "回答尽量短一些，两三句话为好。", "a": "好的，之后保持简短。", "expect": "preference" },
+    { "q": "我的 API key 是 sk-test-abcdef123456，帮我看看格式对吗？", "a": "格式正确，但请不要在对话里分享密钥。", "expect": "none" },
+    { "q": "解释一下 LIF 神经元模型。", "a": "LIF（leaky integrate-and-fire）模型是……", "expect": "none" },
+    { "q": "记住我偏好用 DeepSeek 模型来做摘要类任务。", "a": "已了解，摘要类任务优先 DeepSeek。", "expect": "preference" },
+    { "q": "帮我算一下 37 乘 89。", "a": "3293。", "expect": "none" },
+    { "q": "我们实验室主要研究睡眠对记忆巩固的作用。", "a": "了解，睡眠与记忆巩固方向。", "expect": "identity" },
+    { "q": "接下来一个月我要写 solarisnet 的方法学章节。", "a": "好的，围绕方法学章节展开。", "expect": "project" },
+    { "q": "把刚才的回答改成表格形式。", "a": "已改为表格。", "expect": "none", "tolerant": true },
+    { "q": "markdown 输出时别用一级标题，从二级开始。", "a": "明白，从二级标题开始。", "expect": "preference" },
+    { "q": "今天巴黎的天气怎么样？", "a": "我无法获取实时天气。", "expect": "none" },
+    { "q": "这篇论文的局限性有哪些？", "a": "样本量小、缺乏纵向数据……", "expect": "none" },
+    { "q": "顺便说一句，我平时在慕尼黑工作。", "a": "了解。", "expect": "identity", "tolerant": true },
+    { "q": "总结这份 PDF 的第三章。", "a": "第三章主要讨论……", "expect": "none" },
+    { "q": "以后遇到统计问题，默认我懂研究生水平的统计，不用从头解释。", "a": "好的，按研究生水平展开。", "expect": "preference" }
+  ]
+}

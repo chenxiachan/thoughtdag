@@ -25,6 +25,11 @@ export default function MemoryManagerModal() {
   if (!open) return null;
 
   const kindLabel = (k: string) => t(k === 'auto' ? 'memory.kindAuto' : k === 'imported' ? 'memory.kindImported' : 'memory.kindManual');
+  const catBadge = (c?: string) =>
+    c === 'preference' ? { label: t('memory.catPreference'), cls: 'bg-sky-500/10 text-sky-600' }
+    : c === 'identity' ? { label: t('memory.catIdentity'), cls: 'bg-violet-500/10 text-violet-600' }
+    : c === 'project' ? { label: t('memory.catProject'), cls: 'bg-amber-500/10 text-amber-600' }
+    : null;
 
   const add = () => setMemories([...memories, { id: generateId(), text: '', kind: 'manual', at: new Date().toISOString() }]);
   const commit = (id: string, text: string) => {
@@ -81,8 +86,9 @@ export default function MemoryManagerModal() {
                   <Trash2 size={13} strokeWidth={1.75} />
                 </button>
               </div>
-              <p className="text-2xs text-ink-faint mt-1 font-mono">
-                {kindLabel(m.kind)}{m.project ? ` · ${m.project}` : ''} · {m.at.slice(0, 10)}
+              <p className="text-2xs text-ink-faint mt-1 font-mono flex items-center gap-1.5 flex-wrap">
+                {(() => { const b = catBadge(m.category); return b ? <span className={`px-1.5 py-px rounded-full font-sans ${b.cls}`}>{b.label}</span> : null; })()}
+                <span>{kindLabel(m.kind)}{m.project ? ` · ${m.project}` : ''} · {m.at.slice(0, 10)}</span>
               </p>
             </div>
           ))}

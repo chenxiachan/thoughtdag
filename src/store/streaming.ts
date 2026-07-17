@@ -153,8 +153,15 @@ export async function runNodeGeneration(
   const selfData = get().nodes.find((n) => n.id === nodeId)?.data;
   const memBlock = !selfData?.stepKind && !selfData?.digestOf ? memoryContextBlock() : null;
   if (memBlock) {
-    const sysEnd = messages[0]?.role === 'system' ? 1 : 0;
-    messages = [...messages.slice(0, sysEnd), memBlock, ...messages.slice(sysEnd)];
+    // Insert AFTER the last assistant turn: the material+chain prefix stays
+    // byte-stable across turns, so provider prompt caches keep hitting.
+    // Memory entries change often — at the front they would invalidate the
+    // cached prefix on every write.
+    let insertAt = messages.length - 1; // no upstream yet → before the question
+    for (let i = messages.length - 1; i >= 0; i--) {
+      if (messages[i].role === 'assistant') { insertAt = i + 1; break; }
+    }
+    messages = [...messages.slice(0, insertAt), memBlock, ...messages.slice(insertAt)];
   }
 
   try {

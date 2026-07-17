@@ -104,6 +104,9 @@ async function streamOnePass(
       messages: body,
       reasoning: { enabled: true },
       stream_options: { include_usage: true },
+      // Detailed accounting (incl. cached_tokens) — chained follow-ups share
+      // their upstream prefix, so provider prompt caches cut real cost.
+      usage: { include: true },
     }),
     signal,
   });
