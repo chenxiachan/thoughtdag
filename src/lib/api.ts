@@ -203,7 +203,10 @@ export async function llmCallStream(
       }
     }
 
-    return full || 'No response';
+    // An empty stream returns empty — the caller turns it into a retryable
+    // failure. (This used to return a literal 'No response' string, which
+    // masqueraded as a real answer and bypassed the empty-output handling.)
+    return full;
   } catch (err: unknown) {
     // AbortError passes through untouched for stop-generation handling
     throw wrapError(err);
