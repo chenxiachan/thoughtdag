@@ -151,7 +151,7 @@ export const zh: Record<keyof typeof en, string> = {
   'frame.titlePlaceholder': '分区标题…',
   'model.none': '未配置模型',
   'model.refreshList': '刷新模型列表：重新向已配置的服务商获取',
-  'provider.refreshTitle': '重新获取模型列表（保留已选，更新元数据；小目录服务商自动纳入新模型）',
+  'provider.refreshTitle': '重新获取模型列表：已选的保持勾选，新上架的模型都会出现在清单里',
   'provider.refreshed': '模型列表已更新，现有 {n} 个模型',
   'backup.dialogTitle': '本地自动备份',
   'backup.dialogHow': '开启后：画布有改动，约 1 分钟内自动把当前画布写入所选文件夹（真实文件，清浏览器数据也不丢）。把文件夹选在网盘同步目录里，即自带跨设备备份。',

@@ -69,39 +69,37 @@ export default function ApiKeyModal() {
   // newly listed models automatically. Huge catalogs (gateways) stay on the
   // picked+recommended whitelist; use Add to browse their new arrivals.
   const refresh = async (p: RuntimeProvider) => {
-    setBusy(true);
-    setError('');
-    try {
-      const fresh = await probeModels(p.baseURL, p.apiKey);
-      const had = new Map(p.models.map((m) => [m.id, m]));
-      const rec = new Set(PROVIDER_PRESETS.find((x) => x.baseURL === p.baseURL)?.recommend ?? []);
-      const small = fresh.length <= 40;
-      const models = fresh
-        .filter((m) => had.has(m.id) || rec.has(m.id) || small)
-        .map((m) => ({ id: m.id, ...(m.vision !== undefined ? { vision: m.vision } : had.get(m.id)?.vision ? { vision: true } : {}) }));
-      if (models.length === 0) throw new Error(t('provider.probeEmpty'));
-      const next = providers.map((x) => (x.baseURL === p.baseURL ? { ...x, models } : x));
-      if (await commit(next)) toast('success', fmt(t('provider.refreshed'), { n: models.length }));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
-    } finally {
-      setBusy(false);
-    }
+    const match = PROVIDER_PRESETS.find((x) => x.baseURL === p.baseURL);
+    setPreset(match ?? PROVIDER_PRESETS.find((x) => x.id === 'custom')!);
+    if (!match) { setCustomURL(p.baseURL); setCustomName(p.name); }
+    setKey(p.apiKey);
+    setAdding(true);
+    await doProbe(p.baseURL, p.apiKey, p.models);
   };
 
-  const doProbe = async () => {
+
+  const doProbe = async (baseURLArg?: string, keyArg?: string, keepPicked?: RuntimeModel[]) => {
     setBusy(true);
     setError('');
     setProbed(null);
     try {
-      const baseURL = preset.id === 'custom' ? customURL.trim() : preset.baseURL;
-      const models = await probeModels(baseURL, key.trim());
+      const baseURL = baseURLArg ?? (preset.id === 'custom' ? customURL.trim() : preset.baseURL);
+      const models = await probeModels(baseURL, (keyArg ?? key).trim());
       if (models.length === 0) throw new Error(t('provider.probeEmpty'));
       setProbed(models);
-      const rec = new Set(preset.recommend ?? []);
       const preselect = new Map<string, boolean>();
-      for (const m of models) {
-        if (rec.size > 0 ? rec.has(m.id) : models.length <= 12) preselect.set(m.id, !!m.vision);
+      if (keepPicked) {
+        // refresh flow: your current picks stay checked; everything the
+        // provider newly lists is visible right here, unchecked
+        const listed = new Set(models.map((m) => m.id));
+        for (const m of keepPicked) if (listed.has(m.id)) {
+          preselect.set(m.id, models.find((x) => x.id === m.id)?.vision ?? !!m.vision);
+        }
+      } else {
+        const rec = new Set(preset.recommend ?? []);
+        for (const m of models) {
+          if (rec.size > 0 ? rec.has(m.id) : models.length <= 12) preselect.set(m.id, !!m.vision);
+        }
       }
       setPicked(preselect);
     } catch (err) {
