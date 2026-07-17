@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Camera, KeyRound, Loader2, Plus, Trash2, X, RefreshCw } from 'lucide-react';
+import { Camera, KeyRound, Loader2, Plus, Trash2, X, RefreshCw, Pencil } from 'lucide-react';
 import { useUiStore, toast } from '../../lib/ui-store';
 import { useModels, setModelsCache } from '../../lib/use-models';
 import {
@@ -163,7 +163,7 @@ export default function ApiKeyModal() {
                   </div>
                 </div>
                 <button onClick={() => void refresh(p)} disabled={busy} title={t('provider.refreshTitle')} className="text-ink-faint hover:text-accent w-6 h-6 rounded-full flex items-center justify-center transition-colors shrink-0" data-provider-refresh>
-                  <RefreshCw size={13} strokeWidth={1.75} />
+                  <Pencil size={13} strokeWidth={1.75} />
                 </button>
                 <button onClick={() => void remove(p.baseURL)} disabled={busy} title={t('common.delete')} className="text-ink-faint hover:text-red-500 w-6 h-6 rounded-full flex items-center justify-center transition-colors shrink-0">
                   <Trash2 size={13} strokeWidth={1.75} />

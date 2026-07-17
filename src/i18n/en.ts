@@ -151,7 +151,7 @@ export const en = {
   'frame.titlePlaceholder': 'Frame title…',
   'model.none': 'No model yet',
   'model.refreshList': 'Refresh the model list: re-fetch from your configured providers',
-  'provider.refreshTitle': 'Re-fetch the model list: your picks stay checked, newly listed models all appear in the list',
+  'provider.refreshTitle': 'Edit models: re-fetches the full list, your picks stay checked - re-select and save to update',
   'provider.refreshed': 'Model list updated - {n} models now',
   'backup.dialogTitle': 'Local auto-backup',
   'backup.dialogHow': 'When on: about a minute after any canvas change, the active canvas is written into your chosen folder as a real file (survives clearing browser data). Pick a cloud-synced folder and it doubles as cross-device backup.',
