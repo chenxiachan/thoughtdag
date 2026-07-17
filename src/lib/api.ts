@@ -1,6 +1,7 @@
 import { API_BASE } from './constants';
 import { useUiStore } from './ui-store';
 import { storedProviders } from './runtime-providers';
+import { directOpenRouterProvider, directLlmStream, directLlmCall } from './direct-llm';
 
 const API_URL = `${API_BASE}/api/claude`;
 // Providers only travel when configured; undefined keeps .env-only setups
@@ -86,6 +87,9 @@ function wrapError(err: unknown): Error {
 
 // Non-streaming call (used for background summaries)
 export async function llmCall(contextMessages: ContextMessage[], images?: ImageAttachment[], modelOverride?: string): Promise<string> {
+  const modelId = modelOverride || useUiStore.getState().selectedModel || undefined;
+  const direct = directOpenRouterProvider(modelId);
+  if (direct && modelId) return directLlmCall(direct, modelId, contextMessages, images);
   try {
     const res = await fetch(API_URL, {
       method: 'POST',
@@ -137,6 +141,14 @@ export async function llmCallStream(
   toolPrefs?: ToolPrefs,
   modelOverride?: string,
 ): Promise<string> {
+  // On the Workers deployment, OpenRouter models stream straight from the
+  // browser — the proxy's CPU allowance can't survive big contexts + heavy
+  // thinking models, and the key staying local is a feature in itself.
+  const modelId = modelOverride || useUiStore.getState().selectedModel || undefined;
+  const direct = directOpenRouterProvider(modelId);
+  if (direct && modelId) {
+    return directLlmStream(direct, modelId, contextMessages, onChunk, signal, images, callbacks, toolPrefs?.web);
+  }
   try {
     const res = await fetch(STREAM_URL, {
       method: 'POST',

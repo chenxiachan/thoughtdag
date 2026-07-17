@@ -160,7 +160,7 @@ export const en = {
   'backup.dialogTitle': 'Local auto-backup',
   'backup.dialogHow': 'When on: about a minute after any canvas change, the active canvas is written into your chosen folder as a real file (survives clearing browser data). Pick a cloud-synced folder and it doubles as cross-device backup.',
   'backup.folder': 'Folder: ',
-  'backup.lastAt': 'Last write: ~{min} min ago',
+  'backup.lastAt': 'Last write: {time}',
   'backup.lastNever': 'Nothing written this session yet (triggers ~1 min after a change)',
   'backup.wroteAll': 'Wrote {n} canvases',
   'backup.changeFolder': 'Change folder',

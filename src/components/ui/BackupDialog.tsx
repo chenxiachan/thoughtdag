@@ -18,8 +18,9 @@ export default function BackupDialog() {
   const close = () => useUiStore.getState().setBackupDialogOpen(false);
   if (!open || !backupSupported) return null;
 
+  // Absolute clock time keeps the render pure (no Date.now() while rendering)
   const rel = lastAt
-    ? fmt(t('backup.lastAt'), { min: String(Math.max(0, Math.round((Date.now() - lastAt) / 60000))) })
+    ? fmt(t('backup.lastAt'), { time: new Date(lastAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) })
     : t('backup.lastNever');
 
   return createPortal((

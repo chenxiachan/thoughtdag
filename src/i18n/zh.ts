@@ -160,7 +160,7 @@ export const zh: Record<keyof typeof en, string> = {
   'backup.dialogTitle': '本地自动备份',
   'backup.dialogHow': '开启后：画布有改动，约 1 分钟内自动把当前画布写入所选文件夹（真实文件，清浏览器数据也不丢）。把文件夹选在网盘同步目录里，即自带跨设备备份。',
   'backup.folder': '文件夹：',
-  'backup.lastAt': '上次写入：约 {min} 分钟前',
+  'backup.lastAt': '上次写入：{time}',
   'backup.lastNever': '本次会话尚未写入（改动画布后约 1 分钟触发）',
   'backup.wroteAll': '已写入 {n} 张画布',
   'backup.changeFolder': '更换文件夹',
