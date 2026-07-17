@@ -11,7 +11,7 @@
 // (needs poppler; the frontend degrades gracefully), .env providers.
 // Scholarly search stays — arXiv / Semantic Scholar are free public APIs.
 
-import { streamText, generateText, tool, stepCountIs, smoothStream } from 'ai';
+import { streamText, generateText, tool, stepCountIs } from 'ai';
 import { z } from 'zod';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 
@@ -179,11 +179,31 @@ async function handleStream(body) {
   const stream = new ReadableStream({
     async start(controller) {
       const write = (obj) => controller.enqueue(enc.encode(`data: ${JSON.stringify(obj)}\n\n`));
+      // Batched delta forwarding. Workers get a small per-request CPU
+      // allowance; heavy thinking models (Kimi, GLM) emit thousands of tiny
+      // reasoning deltas and a per-delta stringify+enqueue burns through it —
+      // the runtime then kills the stream mid-thought with no error frame.
+      // Coalescing to a few writes per second is invisible client-side.
+      let pendingKind = null;
+      let pending = '';
+      let lastFlush = 0;
+      const flushBuf = () => {
+        if (!pending) return;
+        write(pendingKind === 'text' ? { text: pending } : { reasoning: pending });
+        pending = '';
+      };
+      const push = (kind, chunk) => {
+        if (pendingKind !== kind) { flushBuf(); pendingKind = kind; }
+        pending += chunk;
+        const now = Date.now();
+        if (now - lastFlush >= 250 || pending.length >= 4096) { lastFlush = now; flushBuf(); }
+      };
       const sources = [];
       let emittedChars = 0;
       let charsAtLastSearch = 0;
       const tools = makeTools(sources, (name, query) => {
         charsAtLastSearch = emittedChars;
+        flushBuf();
         write({ tool: { name, query } });
       }, { scholar: scholarSearch !== false });
 
@@ -207,7 +227,9 @@ async function handleStream(body) {
           messages: prompt.messages,
           providerOptions: entry.providerOptions,
           tools,
-          experimental_transform: smoothStream({ chunking: /[\u3040-\u30ff\u4e00-\u9fff]|\S+\s+/ }),
+          // No smoothStream here: its per-word re-chunking multiplies the
+          // delta count ~10\u00d7 \u2014 pure CPU cost on Workers with no upside once
+          // deltas are batched anyway.
           stopWhen: stepCountIs(5),
           prepareStep: ({ stepNumber }) =>
             stepNumber >= 3 && tools
@@ -233,15 +255,16 @@ async function handleStream(body) {
               if ('<tool_call'.startsWith(buf.slice(-k))) { holdback = buf.slice(-k); buf = buf.slice(0, -k); break; }
             }
           }
-          if (buf) { emittedChars += buf.length; write({ text: buf }); }
+          if (buf) { emittedChars += buf.length; push('text', buf); }
         };
 
         for await (const part of result.fullStream) {
           if (part.type === 'text-delta') emitFiltered(part.text);
-          else if (part.type === 'reasoning-delta' && part.text) write({ reasoning: part.text });
+          else if (part.type === 'reasoning-delta' && part.text) push('reasoning', part.text);
           else if (part.type === 'error') throw part.error instanceof Error ? part.error : new Error(String(part.errorText ?? part.error));
         }
-        if (holdback && !holdback.startsWith('<tool_call')) { emittedChars += holdback.length; write({ text: holdback }); }
+        if (holdback && !holdback.startsWith('<tool_call')) { emittedChars += holdback.length; push('text', holdback); }
+        flushBuf();
 
         // :online sometimes closes with zero text (thinking models most of
         // all) — retry once with the plain model so the visitor always gets
@@ -252,10 +275,11 @@ async function handleStream(body) {
             providerOptions: entry.providerOptions,
           });
           for await (const part of retry.fullStream) {
-            if (part.type === 'text-delta') { emittedChars += part.text.length; write({ text: part.text }); }
-            else if (part.type === 'reasoning-delta' && part.text) write({ reasoning: part.text });
+            if (part.type === 'text-delta') { emittedChars += part.text.length; push('text', part.text); }
+            else if (part.type === 'reasoning-delta' && part.text) push('reasoning', part.text);
             else if (part.type === 'error') throw part.error instanceof Error ? part.error : new Error(String(part.errorText ?? part.error));
           }
+          flushBuf();
         }
 
         // synthesis fallback: searched but wrote almost nothing after it
@@ -281,9 +305,10 @@ async function handleStream(body) {
             providerOptions: entry.providerOptions,
           });
           for await (const part of synth.fullStream) {
-            if (part.type === 'text-delta') write({ text: part.text });
-            else if (part.type === 'reasoning-delta' && part.text) write({ reasoning: part.text });
+            if (part.type === 'text-delta') push('text', part.text);
+            else if (part.type === 'reasoning-delta' && part.text) push('reasoning', part.text);
           }
+          flushBuf();
         }
 
         if (emittedChars === 0) {
@@ -297,6 +322,7 @@ async function handleStream(body) {
         if (usage) write({ usage });
         controller.enqueue(enc.encode('data: [DONE]\n\n'));
       } catch (err) {
+        flushBuf(); // deliver whatever was buffered before the failure
         let message = err?.message || 'LLM request failed';
         if (/context.{0,20}(length|window)|maximum.{0,20}tokens|too (long|many tokens)|input.{0,10}too large/i.test(message)) {
           message = `Context exceeds the model's window. Prune upstream: collapse nodes to summaries, archive dead ends, or switch a reference edge back to quote depth. (${message})`;
