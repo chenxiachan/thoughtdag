@@ -322,9 +322,10 @@ function Canvas() {
   // First run ever: seed the example canvas so newcomers land on a living
   // graph (incl. the context-pruning ⚖️ demo) instead of a blank page.
   useEffect(() => {
+    // First visit lands on the LANDING page — the example canvas is one
+    // labeled click away there, not an ambush. (The flag stays for tests.)
     if (nodes.length === 0 && !isParadigm && !localStorage.getItem('thoughtdag.seeded')) {
       localStorage.setItem('thoughtdag.seeded', 'yes');
-      loadExample();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

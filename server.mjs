@@ -445,7 +445,7 @@ function makeTools(sources, onSearch, prefs = {}) {
 // requested max_tokens against your balance (65k+ when unspecified), so an
 // explicit modest cap is required for small credit balances — and no answer
 // in this tool legitimately needs more.
-const MAX_OUTPUT_TOKENS = Number(process.env.MAX_OUTPUT_TOKENS || 16384);
+const MAX_OUTPUT_TOKENS = Number(process.env.MAX_OUTPUT_TOKENS || 32768); // thinking models spend reasoning from the same budget
 
 const app = express();
 app.use(cors());

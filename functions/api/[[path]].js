@@ -15,7 +15,7 @@ import { streamText, generateText, tool, stepCountIs, smoothStream } from 'ai';
 import { z } from 'zod';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 
-const MAX_OUTPUT_TOKENS = 8192;
+const MAX_OUTPUT_TOKENS = 32768; // thinking models spend reasoning tokens from the same budget
 const isOpenRouter = (baseURL) => /openrouter\.ai/i.test(String(baseURL));
 
 // ── per-request provider registry (mirror of server.mjs providerEntries) ──
