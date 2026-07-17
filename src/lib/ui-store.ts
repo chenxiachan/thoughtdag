@@ -110,9 +110,7 @@ export const useUiStore = create<UiState>((set, get) => ({
   toasts: [],
   confirmRequest: null,
   tutorialOpen: false,
-  // Web search defaults OFF: with BYOK the :online path bills per search,
-  // so searching must be an informed opt-in, not a silent default.
-  webSearchEnabled: localStorage.getItem(WEB_SEARCH_KEY) === 'on',
+  webSearchEnabled: localStorage.getItem(WEB_SEARCH_KEY) !== 'off',
   scholarSearchEnabled: localStorage.getItem(SCHOLAR_SEARCH_KEY) !== 'off',
   // MCP is parked until the personalization system is designed (external
   // knowledge needs its own provenance surface first) — hidden AND off.
