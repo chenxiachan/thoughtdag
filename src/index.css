@@ -429,3 +429,10 @@ body.tdag-connecting, body.tdag-connecting * {
 [data-zoom-tier='glyph'] .react-flow__edge path.react-flow__edge-path {
   stroke-width: 7px !important;
 }
+
+/* Unbroken long tokens (URLs, DOIs, hashes) must wrap instead of escaping
+   the card / plaque / panel box — anywhere-wrap is safe for CJK and Latin */
+.thought-node, .map-node, [data-focus-panel], .markdown-body, [data-glyph-node] {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
