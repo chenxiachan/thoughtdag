@@ -15,7 +15,8 @@ import { streamText, generateText, tool, stepCountIs, smoothStream } from 'ai';
 import { z } from 'zod';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 
-const MAX_OUTPUT_TOKENS = 32768; // thinking models spend reasoning tokens from the same budget
+// No output cap is sent: providers apply their own defaults, and a cap
+// larger than a model's allowed max makes some upstreams reject outright.
 const isOpenRouter = (baseURL) => /openrouter\.ai/i.test(String(baseURL));
 
 // ── per-request provider registry (mirror of server.mjs providerEntries) ──
@@ -197,7 +198,6 @@ async function handleStream(body) {
 
       try {
         const result = streamText({
-          maxOutputTokens: MAX_OUTPUT_TOKENS,
           model: entry.model(),
           system: prompt.system,
           messages: prompt.messages,
@@ -246,7 +246,6 @@ async function handleStream(body) {
             .join('\n\n');
           const lastUser = [...messages].reverse().find((m) => m.role === 'user');
           const synth = streamText({
-            maxOutputTokens: MAX_OUTPUT_TOKENS,
             model: entry.model(),
             system: prompt.system,
             messages: [
@@ -295,7 +294,6 @@ async function handleClaude(body) {
   try {
     const prompt = toSdkPrompt(messages, images);
     const result = await generateText({
-      maxOutputTokens: MAX_OUTPUT_TOKENS,
       model: entry.model(),
       system: prompt.system,
       messages: prompt.messages,
