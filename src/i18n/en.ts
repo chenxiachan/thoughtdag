@@ -22,7 +22,7 @@ export const en = {
   'landing.attach': 'Attach files',
   'landing.howItWorks': 'How it works',
   'landing.docStart': 'Or drop a document and explore from reading',
-  'landing.docFormats': 'PDF · images · Markdown · code · plain text (convert .docx to PDF first)',
+  'landing.docFormats': 'PDF · Word (.docx) · images · Markdown · code · plain text',
   'landing.docPrivacy': 'Files stay local. Only what you ask about is sent to the model you chose.',
   'landing.loadExample': 'Load example canvas',
   'landing.feature1.title': 'Branch anywhere',
@@ -418,7 +418,7 @@ export const en = {
   'diag.loadBearing': 'Load-bearing node: “{a}” supports {n} downstream nodes; editing it stales a wide area',
   'toast.unknownError': 'Unknown error',
   'toast.projectsLoadFailed': 'Failed to load projects. Starting with an empty canvas',
-  'toast.unsupportedFile': 'Unsupported format: {name}. For .docx / .doc documents, export as PDF or plain text first.',
+  'toast.unsupportedFile': 'Unsupported format: {name}. For legacy .doc files, save as .docx or PDF first.',
 
   // Markdown export (subtitles / labels)
   'export.contextChain': 'Context chain',

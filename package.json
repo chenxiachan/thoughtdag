@@ -29,6 +29,7 @@
     "idb-keyval": "^6.2.6",
     "katex": "^0.16.28",
     "lucide-react": "^1.23.0",
+    "mammoth": "^1.12.0",
     "pdfjs-dist": "^4.10.38",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

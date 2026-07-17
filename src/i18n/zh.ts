@@ -21,7 +21,7 @@ export const zh: Record<keyof typeof en, string> = {
   'landing.extracting': '解析中…',
   'landing.attach': '添加附件',
   'landing.docStart': '或者，把文档拖进来，从阅读开始探索',
-  'landing.docFormats': 'PDF · 图片 · Markdown · 代码 · 纯文本（.docx 请先转 PDF）',
+  'landing.docFormats': 'PDF · Word (.docx) · 图片 · Markdown · 代码 · 纯文本',
   'landing.docPrivacy': '文件留在本地。只有你提问的内容会发给你选择的模型。',
   'landing.loadExample': '载入示例画布',
   'landing.howItWorks': '如何使用',
@@ -417,7 +417,7 @@ export const zh: Record<keyof typeof en, string> = {
   'diag.loadBearing': '承重节点：「{a}」支撑下游 {n} 个节点，编辑它会大面积陈旧',
   'toast.unknownError': '未知错误',
   'toast.projectsLoadFailed': '加载画布失败，将以空画布启动',
-  'toast.unsupportedFile': '暂不支持 {name} 的格式。.docx / .doc 文档请另存为 PDF 或纯文本后再拖入。',
+  'toast.unsupportedFile': '暂不支持 {name} 的格式。旧版 .doc 请另存为 .docx 或 PDF 后再拖入。',
 
   // Markdown export (subtitles / labels)
   'export.contextChain': '上下文链',

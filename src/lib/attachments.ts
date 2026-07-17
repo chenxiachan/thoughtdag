@@ -24,6 +24,7 @@ export function readFileToAttachment(file: File): Promise<Attachment | null> {
     const isImage = file.type.startsWith('image/');
     const isPDF = file.type === 'application/pdf' || file.name.endsWith('.pdf');
     const isText = file.type.startsWith('text/') || TEXT_EXTENSIONS.test(file.name);
+    const isDocx = file.name.toLowerCase().endsWith('.docx');
 
     if (isImage) {
       const reader = new FileReader();
@@ -42,6 +43,18 @@ export function readFileToAttachment(file: File): Promise<Attachment | null> {
         resolve({ id, name: file.name, type: 'application/pdf', size: file.size, addedAt, content: base64 });
       };
       reader.readAsDataURL(file);
+    } else if (isDocx) {
+      // Word docs: extract the text layer in the browser (mammoth is loaded
+      // lazily — first .docx pays the module download, everyone else never does)
+      void file.arrayBuffer().then(async (buf) => {
+        try {
+          const mammoth = await import('mammoth');
+          const r = await mammoth.extractRawText({ arrayBuffer: buf });
+          resolve({ id, name: file.name, type: 'text/plain', size: file.size, addedAt, content: r.value.trim() });
+        } catch {
+          resolve(null);
+        }
+      });
     } else if (isText) {
       file.text().then((text) => {
         resolve({ id, name: file.name, type: file.type || 'text/plain', size: file.size, addedAt, content: text });
