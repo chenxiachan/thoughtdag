@@ -29,15 +29,17 @@ export interface ProviderPreset {
 }
 
 export const PROVIDER_PRESETS: ProviderPreset[] = [
+  // GLM leads: a free-tier model and the fewest integration quirks make it
+  // the smoothest first key. International endpoint first for the demo.
+  { id: 'zai', name: 'Z.ai GLM (Intl)', baseURL: 'https://api.z.ai/api/paas/v4', keyUrl: 'https://z.ai', recommend: ['glm-4.5-flash', 'glm-5'] },
+  { id: 'zhipu', name: '智谱 GLM (中国)', baseURL: 'https://open.bigmodel.cn/api/paas/v4', keyUrl: 'https://open.bigmodel.cn', recommend: ['glm-4.5-flash', 'glm-4v-flash', 'glm-5'] },
   {
     id: 'openrouter', name: 'OpenRouter', baseURL: 'https://openrouter.ai/api/v1',
     keyUrl: 'https://openrouter.ai/keys',
     recommend: ['openrouter/auto', 'anthropic/claude-sonnet-5', 'openai/gpt-5.5', 'google/gemini-3.1-pro-preview', 'deepseek/deepseek-v4-pro', 'z-ai/glm-5', 'qwen/qwen3.7-max', 'moonshotai/kimi-k2.6'],
   },
-  { id: 'openai', name: 'OpenAI', baseURL: 'https://api.openai.com/v1', keyUrl: 'https://platform.openai.com/api-keys' },
   { id: 'deepseek', name: 'DeepSeek', baseURL: 'https://api.deepseek.com/v1', keyUrl: 'https://platform.deepseek.com/api_keys' },
-  { id: 'zai', name: 'Z.ai GLM (Intl)', baseURL: 'https://api.z.ai/api/paas/v4', keyUrl: 'https://z.ai' },
-  { id: 'zhipu', name: '智谱 GLM (中国)', baseURL: 'https://open.bigmodel.cn/api/paas/v4', keyUrl: 'https://open.bigmodel.cn' },
+  { id: 'openai', name: 'OpenAI', baseURL: 'https://api.openai.com/v1', keyUrl: 'https://platform.openai.com/api-keys' },
   { id: 'moonshot-intl', name: 'Kimi (Intl)', baseURL: 'https://api.moonshot.ai/v1', keyUrl: 'https://platform.moonshot.ai/console/api-keys' },
   { id: 'moonshot', name: 'Kimi (中国)', baseURL: 'https://api.moonshot.cn/v1', keyUrl: 'https://platform.moonshot.cn/console/api-keys' },
   { id: 'ollama', name: 'Ollama', baseURL: 'http://localhost:11434/v1', noKey: true },
@@ -61,7 +63,7 @@ export function storedProviders(): RuntimeProvider[] {
     const migrated: RuntimeProvider[] = [{
       preset: 'openrouter', name: 'OpenRouter',
       baseURL: 'https://openrouter.ai/api/v1', apiKey: legacyKey,
-      models: (models.length > 0 ? models : PROVIDER_PRESETS[0].recommend!).map((id) => ({ id })),
+      models: (models.length > 0 ? models : PROVIDER_PRESETS.find((p) => p.id === 'openrouter')!.recommend!).map((id) => ({ id })),
     }];
     saveProviders(migrated);
     localStorage.removeItem(LEGACY_KEY);
