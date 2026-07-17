@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { useUiStore } from '../lib/ui-store';
-import { useT } from '../i18n';
+import { useT, useI18n } from '../i18n';
 import { COLORS } from '../lib/constants';
 
 // Miniature diagrams for each concept — same visual language as the canvas:
@@ -146,10 +146,15 @@ const DIAGRAMS: Record<number, React.ReactNode> = {
   ),
 };
 
+// Gesture-heavy concepts show the real product moving; structural concepts
+// keep their diagrams. GIFs load lazily, per UI language, from /tutorial/.
+const GIF_STEPS: Record<number, string> = { 4: 'prune', 5: 'map', 6: 'reading', 7: 'ref' };
+
 export default function Tutorial() {
   const open = useUiStore((s) => s.tutorialOpen);
   const setOpen = useUiStore((s) => s.setTutorialOpen);
   const t = useT();
+  const lang = useI18n((st) => st.lang);
   const [page, setPage] = useState(0);
 
   // Slides: 2-3 concepts each, grouped by theme (not a feature list)
@@ -201,7 +206,9 @@ export default function Tutorial() {
             {slide.steps.map((n) => (
               <div key={n} className="bg-surface border border-line/70 rounded-xl p-4 flex flex-col animate-fade-in">
                 <div className="w-full aspect-[120/72] bg-card rounded-lg border border-line/60 mb-3 overflow-hidden">
-                  {DIAGRAMS[n]}
+                  {GIF_STEPS[n]
+                    ? <img src={`/tutorial/${GIF_STEPS[n]}-${lang}.gif`} loading="lazy" alt="" className="w-full h-full object-cover" />
+                    : DIAGRAMS[n]}
                 </div>
                 <h3 className="text-[13px] font-semibold text-ink leading-snug">{t(`tutorial.step${n}.title` as Parameters<typeof t>[0])}</h3>
                 <p className="text-xs text-ink-muted leading-relaxed mt-1.5">{t(`tutorial.step${n}.desc` as Parameters<typeof t>[0])}</p>
