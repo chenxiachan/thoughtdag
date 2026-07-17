@@ -195,6 +195,13 @@ export async function runNodeGeneration(
       };
     })(), get().nodes.find((n) => n.id === nodeId)?.data.model);
     activeAbortControllers.delete(nodeId);
+    if (!response.trim()) {
+      // The stream closed cleanly but the model sent nothing (upstream
+      // hiccup, tool-only turn) — silent emptiness reads as a hang, so
+      // surface it as a retryable failure instead.
+      writeFinal(t('node.emptyResponse'), true);
+      return;
+    }
     writeFinal(response);
     onSuccess?.(response);
     get().pushHistory();

@@ -143,6 +143,7 @@ export const zh: Record<keyof typeof en, string> = {
   'node.openAtPage': '回到阅读器第 {n} 页，展开这条对话',
   'node.stoppedPlaceholder': '（已停止生成）',
   'node.failedPlaceholder': '_生成失败。_',
+  'node.emptyResponse': '模型没有返回内容。可能是上游瞬时故障——点重试再来一次。',
 
   // Content palette + content nodes (canvas material)
   'palette.askTitle': '提问节点：把材料连进来，在这里提问；回答只基于流入的连线',
