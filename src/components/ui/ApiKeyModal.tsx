@@ -38,6 +38,7 @@ export default function ApiKeyModal() {
   const [probed, setProbed] = useState<RuntimeModel[] | null>(null);
   const [picked, setPicked] = useState<Map<string, boolean>>(new Map()); // id → vision
   const [filter, setFilter] = useState('');
+  const [topPerVendor, setTopPerVendor] = useState(false);
 
   const serverModels = useMemo(
     () => (data?.models ?? []).filter((m) => !providers.some((p) => p.models.some((x) => x.id === m.id))),
@@ -105,9 +106,10 @@ export default function ApiKeyModal() {
         }
       }
       setPicked(preselect);
-      // checked-first, once at probe time (stable while you tick/untick):
-      // your current picks sit on top, easy to unselect
-      setProbed([...models].sort((a, b) => Number(preselect.has(b.id)) - Number(preselect.has(a.id))));
+      // checked-first, then newest-first (OpenRouter reports release time),
+      // sorted once at probe time so the list stays stable while ticking
+      setProbed([...models].sort((a, b) =>
+        (Number(preselect.has(b.id)) - Number(preselect.has(a.id))) || ((b.created ?? 0) - (a.created ?? 0))));
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -133,7 +135,24 @@ export default function ApiKeyModal() {
     await commit(providers.filter((p) => p.baseURL !== baseURL));
   };
 
-  const shown = probed?.filter((m) => !filter || m.id.toLowerCase().includes(filter.toLowerCase())) ?? [];
+  // "newest 3 per vendor" lens: id prefix before '/' groups the catalog,
+  // release time ranks it; your picks always stay visible
+  const topSet = (() => {
+    if (!topPerVendor || !probed) return null;
+    const byVendor = new Map<string, RuntimeModel[]>();
+    for (const m of probed) {
+      const v = m.id.includes('/') ? m.id.split('/')[0] : 'default';
+      byVendor.set(v, [...(byVendor.get(v) ?? []), m]);
+    }
+    const keep = new Set<string>();
+    for (const group of byVendor.values()) {
+      [...group].sort((a, b) => (b.created ?? 0) - (a.created ?? 0)).slice(0, 3).forEach((m) => keep.add(m.id));
+    }
+    for (const id of picked.keys()) keep.add(id);
+    return keep;
+  })();
+  const shown = probed?.filter((m) =>
+    (!filter || m.id.toLowerCase().includes(filter.toLowerCase())) && (!topSet || topSet.has(m.id))) ?? [];
 
   return createPortal((
     <div className="fixed inset-0 z-[60] bg-ink/30 backdrop-blur-sm flex items-center justify-center p-6" onClick={() => { setOpen(false); resetAdd(); }}>
@@ -250,6 +269,15 @@ export default function ApiKeyModal() {
                   {probed.length > 15 && (
                     <input value={filter} onChange={(e) => setFilter(e.target.value)} placeholder={t('provider.filter')}
                       className="bg-wash text-2xs text-ink rounded-md px-2 py-1 w-36 focus:outline-none focus:ring-1 focus:ring-accent/40 placeholder-ink-faint" />
+                  )}
+                  {probed.some((m) => m.created) && (
+                    <button
+                      onClick={() => setTopPerVendor((v) => !v)}
+                      className={`text-2xs px-2.5 py-1.5 rounded-lg border transition-colors shrink-0 ${topPerVendor ? 'border-accent bg-accent/10 text-accent font-medium' : 'border-line text-ink-muted hover:bg-wash'}`}
+                      data-top-filter
+                    >
+                      {t('provider.topPerVendor')}
+                    </button>
                   )}
                 </div>
                 <div className="border border-line rounded-xl max-h-[220px] overflow-y-auto divide-y divide-line/60" data-provider-models>

@@ -152,6 +152,7 @@ export const zh: Record<keyof typeof en, string> = {
   'frame.titlePlaceholder': '分区标题…',
   'model.none': '未配置模型',
   'model.refreshList': '刷新模型列表：重新向已配置的服务商获取',
+  'provider.topPerVendor': '每家最新 3 个',
   'provider.refreshTitle': '修改模型：重新获取完整列表，已选的保持勾选，重新点选后保存即更新',
   'provider.refreshed': '模型列表已更新，现有 {n} 个模型',
   'backup.dialogTitle': '本地自动备份',

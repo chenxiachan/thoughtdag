@@ -8,7 +8,7 @@ import type { ModelData } from './use-models';
 // /models route, so new releases never require a code change here.
 // Keys live in localStorage and the proxy's memory only, never on disk.
 
-export interface RuntimeModel { id: string; vision?: boolean }
+export interface RuntimeModel { id: string; vision?: boolean; created?: number }
 export interface RuntimeProvider {
   preset: string; // preset id or 'custom'
   name: string;   // display name (also the provider tag on models)

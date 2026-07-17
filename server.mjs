@@ -631,6 +631,7 @@ app.post('/api/probe-models', async (req, res) => {
     const list = Array.isArray(body.data) ? body.data : Array.isArray(body.models) ? body.models : [];
     const models = list.map((m) => ({
       id: m.id ?? m.name,
+      ...(typeof m.created === 'number' ? { created: m.created } : {}),
       // OpenRouter ships modality metadata; elsewhere vision stays unknown
       ...(m.architecture?.input_modalities ? { vision: m.architecture.input_modalities.includes('image') } : {}),
     })).filter((m) => m.id);

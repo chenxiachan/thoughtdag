@@ -152,6 +152,7 @@ export const en = {
   'frame.titlePlaceholder': 'Frame title…',
   'model.none': 'No model yet',
   'model.refreshList': 'Refresh the model list: re-fetch from your configured providers',
+  'provider.topPerVendor': 'Newest 3 per vendor',
   'provider.refreshTitle': 'Edit models: re-fetches the full list, your picks stay checked - re-select and save to update',
   'provider.refreshed': 'Model list updated - {n} models now',
   'backup.dialogTitle': 'Local auto-backup',

@@ -321,6 +321,7 @@ async function handleProbeModels(body) {
     const list = Array.isArray(data.data) ? data.data : Array.isArray(data.models) ? data.models : [];
     const models = list.map((m) => ({
       id: m.id ?? m.name,
+      ...(typeof m.created === 'number' ? { created: m.created } : {}),
       ...(m.architecture?.input_modalities ? { vision: m.architecture.input_modalities.includes('image') } : {}),
     })).filter((m) => m.id);
     return json({ models });
