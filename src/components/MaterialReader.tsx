@@ -90,7 +90,7 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
   const sections = useMemo(() => splitByPageMarks(textBody), [textBody]);
 
   // ── PDF document + text-layer probe ──
-  const [view, setView] = useState<'original' | 'text' | 'digest'>(pdfAtt ? 'original' : 'text');
+  const [view, setView] = useState<'original' | 'text' | 'digest'>(pdfAtt?.pageImages?.length ? 'original' : 'text');
   const [digestBusy, setDigestBusy] = useState(false);
   const startDigest = async () => {
     if (!pdfAtt || digestBusy) return;

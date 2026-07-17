@@ -101,3 +101,26 @@ export async function probeModels(baseURL: string, apiKey: string): Promise<Runt
   }
   return ((await res.json()).models ?? []) as RuntimeModel[];
 }
+
+/** Re-probe every stored provider: picked models kept, metadata updated,
+    delisted ids dropped; small catalogs adopt new models automatically. */
+export async function refreshStoredProviders(): Promise<ModelData | null> {
+  const stored = storedProviders();
+  if (stored.length === 0) return null;
+  const next: RuntimeProvider[] = [];
+  for (const p of stored) {
+    try {
+      const fresh = await probeModels(p.baseURL, p.apiKey);
+      const had = new Map(p.models.map((m) => [m.id, m]));
+      const rec = new Set(PROVIDER_PRESETS.find((x) => x.baseURL === p.baseURL)?.recommend ?? []);
+      const small = fresh.length <= 40;
+      const models = fresh
+        .filter((m) => had.has(m.id) || rec.has(m.id) || small)
+        .map((m) => ({ id: m.id, ...(m.vision !== undefined ? { vision: m.vision } : had.get(m.id)?.vision ? { vision: true } : {}) }));
+      next.push(models.length > 0 ? { ...p, models } : p);
+    } catch { next.push(p); } // unreachable endpoint: keep the stored entry
+  }
+  const data = await pushProviders(next);
+  saveProviders(next);
+  return data;
+}

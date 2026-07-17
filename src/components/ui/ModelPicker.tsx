@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { Check, ChevronDown, Cpu, KeyRound } from 'lucide-react';
+import { Check, ChevronDown, Cpu, KeyRound, RefreshCw } from 'lucide-react';
 import { useUiStore } from '../../lib/ui-store';
-import { useModels } from '../../lib/use-models';
+import { useModels, setModelsCache } from '../../lib/use-models';
+import { refreshStoredProviders } from '../../lib/runtime-providers';
 import { fmt } from '../../i18n';
 import { useT } from '../../i18n';
 
@@ -24,6 +25,7 @@ export default function ModelPicker({ value, onChange, compact }: PickerProps) {
   const setSelectedModel = useUiStore((s) => s.setSelectedModel);
   const data = useModels();
   const [open, setOpen] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -102,15 +104,31 @@ export default function ModelPicker({ value, onChange, compact }: PickerProps) {
             </div>
           ))}
           {!nodeMode && (
+            <div className="flex items-center pr-1">
             <button
               onClick={() => { setOpen(false); useUiStore.getState().setApiKeyModalOpen(true); }}
-              className={`w-full text-left px-3 py-1.5 text-xs flex items-center gap-2 transition-colors hover:bg-wash ${
+              className={`flex-1 text-left px-3 py-1.5 text-xs flex items-center gap-2 transition-colors hover:bg-wash ${
                 models.length === 0 ? 'text-accent font-medium' : 'text-ink-muted'
               }`}
               data-picker-apikey
             >
               <KeyRound size={13} strokeWidth={1.75} className="shrink-0" /> {t('apikey.entryTitle')}
             </button>
+            <button
+              onClick={() => {
+                setRefreshing(true);
+                void refreshStoredProviders()
+                  .then((d) => { if (d) setModelsCache(d); })
+                  .finally(() => setRefreshing(false));
+              }}
+              disabled={refreshing}
+              title={t('model.refreshList')}
+              className="w-6 h-6 rounded-full flex items-center justify-center text-ink-faint hover:text-accent hover:bg-wash transition-colors shrink-0"
+              data-model-refresh
+            >
+              <RefreshCw size={12} strokeWidth={1.75} className={refreshing ? 'animate-spin' : ''} />
+            </button>
+            </div>
           )}
           {!nodeMode && <GlobalCapabilities />}
         </div>

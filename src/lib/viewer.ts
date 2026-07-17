@@ -39,7 +39,21 @@ export async function buildViewerLink(nodes: ThoughtNode[], edges: ThoughtEdge[]
     nodes: nodes.map((n) => ({
       ...n,
       selected: false,
-      data: { ...n.data, isLoading: false, isEditing: false, isEditingResponse: false, reasoning: undefined },
+      data: {
+        ...n.data,
+        isLoading: false, isEditing: false, isEditingResponse: false, reasoning: undefined,
+        // Heavy asset bytes stay home: original PDF bytes, rendered page
+        // images and full-size image originals would blow the URL past what
+        // address bars and share intents carry (and sharing a paper's file
+        // is not ours to do). Extracted text, digests and thumbnails travel,
+        // so the visitor still reads everything.
+        attachments: (n.data.attachments ?? []).map((a) => ({
+          ...a,
+          content: a.type.startsWith('image/') ? '' : a.type === 'application/pdf' ? '' : a.content,
+          pageImages: undefined,
+          isExtracting: false,
+        })),
+      },
     })),
     edges: edges.map((e) => (e.selected ? { ...e, selected: false } : e)),
   };

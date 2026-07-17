@@ -122,7 +122,7 @@ export const zh: Record<keyof typeof en, string> = {
 
   // API key dialog (the .env-free path in)
   'apikey.title': '配置模型 API',
-  'apikey.entryTitle': '配置模型 API（浏览器端 key，无需改 .env）',
+  'apikey.entryTitle': '配置模型 API',
   'apikey.introEmpty': '还没有可用的模型。填一把 OpenRouter key 就能开始：一把 key 通向各家旗舰模型，也可以稍后在 .env 里配置其他服务商。',
   'apikey.introHasEnv': '服务端 .env 已配置 {n} 个模型。这里填的 key 会在其基础上追加 OpenRouter 模型。',
   'apikey.keyLabel': 'OpenRouter API Key',
@@ -150,6 +150,7 @@ export const zh: Record<keyof typeof en, string> = {
   'palette.frameTitle': '分区框：给一片画布起名（永不进入上下文，纯空间导航）',
   'frame.titlePlaceholder': '分区标题…',
   'model.none': '未配置模型',
+  'model.refreshList': '刷新模型列表：重新向已配置的服务商获取',
   'provider.refreshTitle': '重新获取模型列表（保留已选，更新元数据；小目录服务商自动纳入新模型）',
   'provider.refreshed': '模型列表已更新，现有 {n} 个模型',
   'backup.autoSetup': '开启自动备份到本地文件夹…',

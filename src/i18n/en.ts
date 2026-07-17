@@ -122,7 +122,7 @@ export const en = {
 
   // API key dialog (the .env-free path in)
   'apikey.title': 'Set up a model API',
-  'apikey.entryTitle': 'Set up a model API (browser-side key, no .env needed)',
+  'apikey.entryTitle': 'Set up a model API',
   'apikey.introEmpty': 'No model is available yet. Paste an OpenRouter key to get going: one key routes to every major flagship model. You can also configure other providers in .env later.',
   'apikey.introHasEnv': 'The proxy already has {n} models from .env. A key here adds OpenRouter models on top.',
   'apikey.keyLabel': 'OpenRouter API key',
@@ -150,6 +150,7 @@ export const en = {
   'palette.frameTitle': 'Frame: name a region of the canvas (never enters context; pure wayfinding)',
   'frame.titlePlaceholder': 'Frame title…',
   'model.none': 'No model yet',
+  'model.refreshList': 'Refresh the model list: re-fetch from your configured providers',
   'provider.refreshTitle': 'Re-fetch the model list (keeps your picks, updates metadata; small catalogs adopt new models automatically)',
   'provider.refreshed': 'Model list updated - {n} models now',
   'backup.autoSetup': 'Enable auto-backup to a local folder\u2026',

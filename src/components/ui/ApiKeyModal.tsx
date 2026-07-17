@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Camera, KeyRound, Loader2, Plus, Trash2, X, RefreshCw } from 'lucide-react';
 import { useUiStore, toast } from '../../lib/ui-store';
@@ -21,6 +21,7 @@ export default function ApiKeyModal() {
   const setOpen = useUiStore((s) => s.setApiKeyModalOpen);
   const data = useModels();
   const [providers, setProviders] = useState<RuntimeProvider[]>(() => storedProviders());
+  useEffect(() => { if (open) setProviders(storedProviders()); }, [open]);
   const [adding, setAdding] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
