@@ -677,6 +677,13 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
             <div className="mt-2 flex items-center gap-2 text-xs text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">
               <AlertTriangle size={14} strokeWidth={1.75} className="shrink-0" />
               {t('common.generationFailed')}
+              {hasMultipleVersions && (
+                <span className="flex items-center gap-1 text-ink-muted shrink-0" title={t('node.backToVersionTitle')}>
+                  <button onClick={(e) => { e.stopPropagation(); navigateVersion(id, 'prev'); }} className="hover:text-accent rounded-full w-5 h-5 flex items-center justify-center"><ChevronLeft size={14} strokeWidth={1.75} /></button>
+                  v{data.responseIndex + 1}/{data.responses.length}
+                  <button onClick={(e) => { e.stopPropagation(); navigateVersion(id, 'next'); }} className="hover:text-accent rounded-full w-5 h-5 flex items-center justify-center"><ChevronRight size={14} strokeWidth={1.75} /></button>
+                </span>
+              )}
               {!isViewerMode && (
                 <button
                   onClick={(e) => { e.stopPropagation(); editQuestion(id, data.question); }}

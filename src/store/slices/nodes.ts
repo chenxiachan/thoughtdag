@@ -236,7 +236,8 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
         if (newIndex >= responses.length) newIndex = 0;
         return {
           ...n,
-          data: { ...n.data, responseIndex: newIndex, response: responses[newIndex], highlights: pruneHighlights(n.data.highlights, responses[newIndex]) },
+          // navigating away from a failed placeholder reclaims the older answer
+          data: { ...n.data, responseIndex: newIndex, response: responses[newIndex], generationFailed: undefined, highlights: pruneHighlights(n.data.highlights, responses[newIndex]) },
         };
       }),
     }));

@@ -144,6 +144,7 @@ export const en = {
   'node.stoppedPlaceholder': '(generation stopped)',
   'node.failedPlaceholder': '_Generation failed._',
   'node.emptyResponse': 'The model returned nothing. Likely a transient upstream hiccup - hit retry.',
+  'node.backToVersionTitle': 'A failed run never destroys history: switch back to an earlier version',
 
   // Content palette + content nodes (canvas material)
   'palette.askTitle': 'Ask node: wire material in and ask here; the answer draws only on incoming edges',
