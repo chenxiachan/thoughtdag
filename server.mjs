@@ -923,6 +923,10 @@ app.post('/api/stream', async (req, res) => {
       }
     }
 
+    if (emittedChars === 0) {
+      const fr = await result.finishReason.catch(() => 'unknown');
+      res.write(`data: ${JSON.stringify({ error: `Model produced no text (finish: ${fr}, model: ${modelId}${gatewayOnline ? ' via :online' : ''})` })}\n\n`);
+    }
     if (sources.length > 0) {
       res.write(`data: ${JSON.stringify({ sources })}\n\n`);
     }

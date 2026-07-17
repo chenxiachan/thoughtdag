@@ -286,6 +286,12 @@ async function handleStream(body) {
           }
         }
 
+        if (emittedChars === 0) {
+          // Still nothing after the fallback: surface WHY (finish reason is
+          // the diagnosis: 'length' = token budget, 'content-filter', ...)
+          const fr = await result.finishReason.catch(() => 'unknown');
+          write({ error: `Model produced no text (finish: ${fr}, model: ${modelId}${useOnline ? ' via :online' : ''})` });
+        }
         if (sources.length > 0) write({ sources });
         const usage = await result.totalUsage;
         if (usage) write({ usage });
