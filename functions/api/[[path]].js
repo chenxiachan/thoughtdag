@@ -43,6 +43,9 @@ function providerEntries(providers) {
       out[m.id] = {
         name: `${shortId} (${name})`, provider: name, vision: !!m.vision,
         model: () => make(m.id), ...extra,
+        // OpenRouter's :online variant makes the GATEWAY search the web —
+        // same key, no extra configuration
+        ...(isOpenRouter(baseURL) ? { online: () => make(`${m.id}:online`) } : {}),
       };
     }
   }
@@ -168,7 +171,7 @@ const json = (obj, status = 200) =>
   new Response(JSON.stringify(obj), { status, headers: { 'Content-Type': 'application/json' } });
 
 async function handleStream(body) {
-  const { messages, model: modelId, images, scholarSearch, providers } = body;
+  const { messages, model: modelId, images, webSearch, scholarSearch, providers } = body;
   const entry = resolveModel(modelId, images && images.length > 0, providers);
   if (!entry) return json({ error: 'No model configured. Add an API key first.' }, 503);
 
@@ -198,7 +201,7 @@ async function handleStream(body) {
 
       try {
         const result = streamText({
-          model: entry.model(),
+          model: webSearch !== false && entry.online ? entry.online() : entry.model(),
           system: prompt.system,
           messages: prompt.messages,
           providerOptions: entry.providerOptions,
@@ -332,7 +335,12 @@ function modelsPayloadFor(providers) {
   return {
     models,
     default: models[0]?.id ?? null,
-    capabilities: { webSearch: false, searchEngine: 'none', scholarSearch: true, vision: models.some((m) => m.vision) },
+    capabilities: {
+      webSearch: Object.values(overlay).some((m) => m.online),
+      searchEngine: 'openrouter-online',
+      scholarSearch: true,
+      vision: models.some((m) => m.vision),
+    },
   };
 }
 

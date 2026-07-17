@@ -36,8 +36,10 @@ export const PROVIDER_PRESETS: ProviderPreset[] = [
   },
   { id: 'openai', name: 'OpenAI', baseURL: 'https://api.openai.com/v1', keyUrl: 'https://platform.openai.com/api-keys' },
   { id: 'deepseek', name: 'DeepSeek', baseURL: 'https://api.deepseek.com/v1', keyUrl: 'https://platform.deepseek.com/api_keys' },
-  { id: 'zhipu', name: 'Zhipu GLM', baseURL: 'https://open.bigmodel.cn/api/paas/v4', keyUrl: 'https://open.bigmodel.cn' },
-  { id: 'moonshot', name: 'Kimi (Moonshot)', baseURL: 'https://api.moonshot.cn/v1', keyUrl: 'https://platform.moonshot.cn/console/api-keys' },
+  { id: 'zai', name: 'Z.ai GLM (Intl)', baseURL: 'https://api.z.ai/api/paas/v4', keyUrl: 'https://z.ai' },
+  { id: 'zhipu', name: '智谱 GLM (中国)', baseURL: 'https://open.bigmodel.cn/api/paas/v4', keyUrl: 'https://open.bigmodel.cn' },
+  { id: 'moonshot-intl', name: 'Kimi (Intl)', baseURL: 'https://api.moonshot.ai/v1', keyUrl: 'https://platform.moonshot.ai/console/api-keys' },
+  { id: 'moonshot', name: 'Kimi (中国)', baseURL: 'https://api.moonshot.cn/v1', keyUrl: 'https://platform.moonshot.cn/console/api-keys' },
   { id: 'ollama', name: 'Ollama', baseURL: 'http://localhost:11434/v1', noKey: true },
   { id: 'custom', name: '', baseURL: '' },
 ];

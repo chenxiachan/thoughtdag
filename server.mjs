@@ -673,6 +673,7 @@ function providerEntries(providers) {
         name: `${shortId} (${name})`, provider: name,
         vision: m.vision ?? (openRouterCaps?.get(m.id)?.includes('image') ?? false),
         model: () => make(m.id), ...extra,
+        ...(isOpenRouter(baseURL) ? { online: () => make(`${m.id}:online`) } : {}),
       };
     }
   }
@@ -704,7 +705,11 @@ async function modelsPayloadFor(providers) {
     ...base,
     models,
     default: base.default ?? extra[0]?.id ?? null,
-    capabilities: { ...base.capabilities, vision: models.some((m) => m.vision) },
+    capabilities: {
+      ...base.capabilities,
+      webSearch: base.capabilities.webSearch || Object.values(overlay).some((m) => m.online),
+      vision: models.some((m) => m.vision),
+    },
   };
 }
 
@@ -802,9 +807,12 @@ app.post('/api/stream', async (req, res) => {
   }
 
   try {
+    // No local search key but an OpenRouter model: the gateway's :online
+    // variant searches instead (same key, zero extra config)
+    const gatewayOnline = !ZHIPU_KEY && webSearch !== false && entry.online;
     const result = streamText({
       maxOutputTokens: MAX_OUTPUT_TOKENS,
-      model: entry.model(),
+      model: gatewayOnline ? entry.online() : entry.model(),
       system: prompt.system,
       messages: prompt.messages,
       providerOptions: entry.providerOptions,
