@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Camera, KeyRound, Loader2, Plus, Trash2, X, RefreshCw, Pencil } from 'lucide-react';
+import { Camera, KeyRound, Loader2, Plus, Trash2, X, Pencil } from 'lucide-react';
 import { useUiStore, toast } from '../../lib/ui-store';
 import { useModels, setModelsCache } from '../../lib/use-models';
 import {
