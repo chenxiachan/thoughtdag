@@ -88,7 +88,7 @@ const CONTENT: Record<Lang, { nodes: SeedNode[] }> = {
         id: 'root',
         q: 'Why do I save hundreds of articles and almost never reopen one?',
         a: 'Three forces stack up:\n\n1. **Cost asymmetry**: saving is nearly free, reading is expensive. A save takes one second and even pays out a small "handled it" reward; reading demands a solid block of time with the payoff far away.\n2. **No resurfacing mechanism**: a bookmark library is a warehouse with an entrance and no exit — nothing is responsible for pushing old items back in front of you.\n3. **The saver is an optimist**: you save for a future self with free time, and that self never shows up.\n\nSo the library inflates by default: growth happens at whichever end the action is cheapest.',
-        x: 40, y: 330,
+        x: 40, y: 390,
         extra: { isRoot: true, summaries: ['Root cause is cost asymmetry: saving is nearly free, reading is expensive'] },
       },
       {
@@ -228,7 +228,7 @@ const CONTENT: Record<Lang, { nodes: SeedNode[] }> = {
         id: 'root',
         q: '为什么我收藏了几百篇文章，却几乎一篇都没回头读过？',
         a: '三股力量叠在一起：\n\n1. **成本不对称**：存下来几乎免费，读完很贵。收藏一秒钟完成，还立刻发一点「已处理」的小奖励；阅读要一整块时间，回报却在远处。\n2. **没有浮现机制**：收藏夹是只进不出的仓库，没有任何东西负责把旧条目推回你眼前。\n3. **收藏时的自己过度乐观**：存的是给「未来有空的我」读的，而那个我从不出现。\n\n于是书库默认膨胀：增长发生在动作最便宜的那一端。',
-        x: 40, y: 330,
+        x: 40, y: 390,
         extra: { isRoot: true, summaries: ['根因是成本不对称：存下来几乎免费，读完很贵'] },
       },
       {
@@ -350,7 +350,7 @@ const CONTENT: Record<Lang, { nodes: SeedNode[] }> = {
       },
       // ── 分区框：章节 ──
       { id: 'frame-chain', q: '① 对话：主链 · 分支 · 评审', a: '', x: 0, y: 240, w: 1290, h: 1460, extra: { stepKind: 'frame', frameColor: 'violet' } },
-      { id: 'frame-material', q: '② 材料与引用：连线即门禁', a: '', x: 1400, y: 0, w: 640, h: 1560, extra: { stepKind: 'frame', frameColor: 'amber' } },
+      { id: 'frame-material', q: '② 材料与引用', a: '', x: 1400, y: 0, w: 640, h: 1560, extra: { stepKind: 'frame', frameColor: 'amber' } },
       { id: 'frame-prune', q: '③ ⚖️ 修剪上下文', a: '', x: 2160, y: 0, w: 640, h: 1240, extra: { stepKind: 'frame', frameColor: 'sky' } },
       { id: 'frame-read', q: '④ 阅读闭环：文献长成对话', a: '', x: 2920, y: 0, w: 1270, h: 1240, extra: { stepKind: 'frame', frameColor: 'green' } },
     ],
@@ -427,8 +427,11 @@ export function buildExampleGraph(lang: Lang): { nodes: ThoughtNode[]; edges: Th
     E('ask', 'stale-demo'),
     // ③ the ⚖️ demo pair: A inherits the noise, B skips it
     E('noise', 'cmp-full'),
-    E('chain1', 'cmp-full', { branch: true }),
-    E('chain1', 'cmp-pruned', { branch: true }),
+    // the compare pair hangs off chapter ②'s chain TAIL — the full story
+    // (branch conclusion + audit + decision + pivot) is what it summarizes,
+    // and adjacent-chapter edges keep the map free of cross-canvas arcs
+    E('stale-demo', 'cmp-full', { branch: true }),
+    E('stale-demo', 'cmp-pruned', { branch: true }),
     // ④ the reading loop: an anchored selection ask + the digest node
     E('brief', 'brief-ask', { branch: true }),
     E('brief', 'brief-digest'),
