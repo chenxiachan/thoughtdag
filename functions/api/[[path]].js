@@ -187,6 +187,7 @@ async function handleStream(body) {
         write({ tool: { name, query } });
       }, { scholar: scholarSearch !== false });
 
+      const useOnline = webSearch !== false && !!entry.online;
       const prompt = toSdkPrompt(messages, images);
       if (tools) {
         const directive = [
@@ -201,7 +202,7 @@ async function handleStream(body) {
 
       try {
         const result = streamText({
-          model: webSearch !== false && entry.online ? entry.online() : entry.model(),
+          model: useOnline ? entry.online() : entry.model(),
           system: prompt.system,
           messages: prompt.messages,
           providerOptions: entry.providerOptions,
@@ -241,6 +242,21 @@ async function handleStream(body) {
           else if (part.type === 'error') throw part.error instanceof Error ? part.error : new Error(String(part.errorText ?? part.error));
         }
         if (holdback && !holdback.startsWith('<tool_call')) { emittedChars += holdback.length; write({ text: holdback }); }
+
+        // :online sometimes closes with zero text (thinking models most of
+        // all) — retry once with the plain model so the visitor always gets
+        // an answer; the search just silently didn't happen this turn.
+        if (useOnline && emittedChars === 0) {
+          const retry = streamText({
+            model: entry.model(), system: prompt.system, messages: prompt.messages,
+            providerOptions: entry.providerOptions,
+          });
+          for await (const part of retry.fullStream) {
+            if (part.type === 'text-delta') { emittedChars += part.text.length; write({ text: part.text }); }
+            else if (part.type === 'reasoning-delta' && part.text) write({ reasoning: part.text });
+            else if (part.type === 'error') throw part.error instanceof Error ? part.error : new Error(String(part.errorText ?? part.error));
+          }
+        }
 
         // synthesis fallback: searched but wrote almost nothing after it
         if (sources.length > 0 && emittedChars - charsAtLastSearch < 200) {

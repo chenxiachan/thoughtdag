@@ -878,6 +878,19 @@ app.post('/api/stream', async (req, res) => {
       res.write(`data: ${JSON.stringify({ text: holdback })}\n\n`);
     }
 
+    // :online closed with zero text (thinking models most of all): retry
+    // once with the plain model so the user always gets an answer.
+    if (gatewayOnline && emittedChars === 0) {
+      const retry = streamText({
+        model: entry.model(), system: prompt.system, messages: prompt.messages,
+        providerOptions: entry.providerOptions,
+      });
+      for await (const part of retry.fullStream) {
+        if (part.type === 'text-delta') { emittedChars += part.text.length; res.write(`data: ${JSON.stringify({ text: part.text })}\n\n`); }
+        else if (part.type === 'reasoning-delta' && part.text) res.write(`data: ${JSON.stringify({ reasoning: part.text })}\n\n`);
+      }
+    }
+
     // Deterministic synthesis fallback: if the model searched but wrote
     // almost nothing AFTER its last search (an opening "I'll look that up"
     // before the search doesn't count), run one tool-free pass that can
