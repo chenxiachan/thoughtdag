@@ -86,7 +86,6 @@ export default function ApiKeyModal() {
       const baseURL = baseURLArg ?? (preset.id === 'custom' ? customURL.trim() : preset.baseURL);
       const models = await probeModels(baseURL, (keyArg ?? key).trim());
       if (models.length === 0) throw new Error(t('provider.probeEmpty'));
-      setProbed(models);
       const preselect = new Map<string, boolean>();
       if (keepPicked) {
         // refresh flow: your current picks stay checked; everything the
@@ -102,6 +101,9 @@ export default function ApiKeyModal() {
         }
       }
       setPicked(preselect);
+      // checked-first, once at probe time (stable while you tick/untick):
+      // your current picks sit on top, easy to unselect
+      setProbed([...models].sort((a, b) => Number(preselect.has(b.id)) - Number(preselect.has(a.id))));
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
