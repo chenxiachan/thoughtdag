@@ -34,6 +34,10 @@ export const en = {
 
   // Tutorial
   'tutorial.title': 'How ThoughtDAG works',
+  'tutorial.pg1': 'The graph is the conversation',
+  'tutorial.pg2': 'Prune the context, zoom out to the map',
+  'tutorial.pg3': 'Material joins the canvas',
+  'tutorial.pg4': 'Batch · staleness · sharing',
   'tutorial.subtitle': 'Ten ideas, three minutes, from asking to sharing',
   'tutorial.groupBasics': 'Basics: the graph is the conversation',
   'tutorial.groupAdvanced': 'Beyond: material · batch · staleness · sharing',
@@ -146,6 +150,8 @@ export const en = {
   'palette.frameTitle': 'Frame: name a region of the canvas (never enters context; pure wayfinding)',
   'frame.titlePlaceholder': 'Frame title…',
   'model.none': 'No model yet',
+  'backup.nudge': 'Your canvas lives in browser storage: it survives restarts, but clearing site data erases it. This canvas has not been backed up for a while — export a canvas file.',
+  'backup.now': 'Export now',
   'viewer.badge': 'Read-only view',
   'viewer.shareDialogTitle': 'Share the read-only view',
   'viewer.shareNote': 'Anyone opening the link can browse — zoom, read the panel, flip through files — but cannot change anything.',

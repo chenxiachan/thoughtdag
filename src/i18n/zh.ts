@@ -34,6 +34,10 @@ export const zh: Record<keyof typeof en, string> = {
 
   // Tutorial
   'tutorial.title': 'ThoughtDAG 是怎么工作的',
+  'tutorial.pg1': '图即对话',
+  'tutorial.pg2': '剪出上下文，缩出地图',
+  'tutorial.pg3': '材料进画布',
+  'tutorial.pg4': '批量 · 陈旧 · 分享',
   'tutorial.subtitle': '十个概念，三分钟，从提问到分享',
   'tutorial.groupBasics': '基础：图即对话',
   'tutorial.groupAdvanced': '进阶：材料 · 批量 · 陈旧 · 分享',
@@ -146,6 +150,8 @@ export const zh: Record<keyof typeof en, string> = {
   'palette.frameTitle': '分区框：给一片画布起名（永不进入上下文，纯空间导航）',
   'frame.titlePlaceholder': '分区标题…',
   'model.none': '未配置模型',
+  'backup.nudge': '画布数据保存在浏览器本地：重启不丢，但「清除站点数据」会清掉。这张画布有些日子没备份了，建议导出一份画布文件。',
+  'backup.now': '立即导出',
   'viewer.badge': '只读视图',
   'viewer.shareDialogTitle': '分享只读视图',
   'viewer.shareNote': '打开链接的人只能浏览：可以缩放、读侧栏、翻文件，不能改任何内容。',

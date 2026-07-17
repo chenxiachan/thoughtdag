@@ -130,6 +130,19 @@ function Canvas() {
     }
   }, [modelData]);
 
+  // Backup nudge: the canvas lives in browser storage — durable across
+  // restarts, but "clear site data" erases it. A substantial canvas that
+  // hasn't been exported for a week earns one sticky reminder per session.
+  useEffect(() => {
+    if (isViewerMode || !hasNodes) return;
+    if (useStore.getState().nodes.length < 10) return;
+    const last = Number(localStorage.getItem('thoughtdag.lastBackupAt') ?? 0);
+    if (Date.now() - last < 7 * 24 * 3600 * 1000) return;
+    if (sessionStorage.getItem('thoughtdag.backupNudged')) return;
+    sessionStorage.setItem('thoughtdag.backupNudged', 'yes');
+    toast('info', ti('backup.nudge'), 0, { label: ti('backup.now'), run: () => exportActiveProjectJson() });
+  }, [hasNodes]);
+
   const loadExample = useCallback(() => {
     const { nodes: exNodes, edges: exEdges } = buildExampleGraph(lang);
     const st = useStore.getState();

@@ -38,6 +38,7 @@ function activeProjectName(): string {
 
 // ─── Whole-canvas JSON backup ───────────────────────────────────
 export function exportActiveProjectJson(): void {
+  localStorage.setItem('thoughtdag.lastBackupAt', String(Date.now()));
   const { nodes, edges } = useStore.getState();
   const { projects, activeId } = useProjects.getState();
   const name = activeProjectName();

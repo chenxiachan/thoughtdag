@@ -1,4 +1,5 @@
-import { X } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { useUiStore } from '../lib/ui-store';
 import { useT } from '../i18n';
 import { COLORS } from '../lib/constants';
@@ -149,15 +150,31 @@ export default function Tutorial() {
   const open = useUiStore((s) => s.tutorialOpen);
   const setOpen = useUiStore((s) => s.setTutorialOpen);
   const t = useT();
+  const [page, setPage] = useState(0);
+
+  // Slides: 2-3 concepts each, grouped by theme (not a feature list)
+  const SLIDES: { label: string; steps: number[] }[] = [
+    { label: t('tutorial.pg1'), steps: [1, 2, 3] },
+    { label: t('tutorial.pg2'), steps: [4, 5] },
+    { label: t('tutorial.pg3'), steps: [6, 7] },
+    { label: t('tutorial.pg4'), steps: [8, 9, 10] },
+  ];
+  const last = page === SLIDES.length - 1;
+
+  useEffect(() => {
+    if (!open) return;
+    setPage(0);
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight') setPage((p) => Math.min(p + 1, SLIDES.length - 1));
+      if (e.key === 'ArrowLeft') setPage((p) => Math.max(p - 1, 0));
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   if (!open) return null;
-
-  // Hero layout: everything on one large floating page — two labeled rows
-  // of five compact chapter cards, no scrolling on a normal desktop.
-  const GROUPS: { label: string; steps: number[] }[] = [
-    { label: t('tutorial.groupBasics'), steps: [1, 2, 3, 4, 5] },
-    { label: t('tutorial.groupAdvanced'), steps: [6, 7, 8, 9, 10] },
-  ];
+  const slide = SLIDES[page];
 
   return (
     <div
@@ -165,57 +182,77 @@ export default function Tutorial() {
       onClick={() => setOpen(false)}
     >
       <div
-        className="bg-card border border-line rounded-2xl shadow-2xl w-[min(1440px,95vw)] max-h-[94vh] flex flex-col"
+        className="bg-card border border-line rounded-2xl shadow-2xl w-[min(980px,94vw)] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-start justify-between px-7 pt-5 pb-3 shrink-0">
-          <div className="flex items-baseline gap-3">
-            <h2 className="text-lg font-semibold text-ink tracking-tight">{t('tutorial.title')}</h2>
-            <p className="text-xs text-ink-faint">{t('tutorial.subtitle')}</p>
+        <div className="flex items-start justify-between px-7 pt-5 pb-1 shrink-0">
+          <div className="flex items-baseline gap-3 min-w-0">
+            <h2 className="text-lg font-semibold text-ink tracking-tight shrink-0">{t('tutorial.title')}</h2>
+            <p className="text-xs text-ink-faint truncate">{t('tutorial.subtitle')}</p>
           </div>
           <button onClick={() => setOpen(false)} className="text-ink-faint hover:text-ink transition-colors mt-1">
             <X size={18} strokeWidth={1.75} />
           </button>
         </div>
 
-        <div className="overflow-y-auto px-7 pb-2">
-          {GROUPS.map((g) => (
-            <div key={g.label} className="mb-4 last:mb-1">
-              <p className="text-2xs font-semibold text-ink-faint mb-2">{g.label}</p>
-              <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3">
-                {g.steps.map((n) => (
-                  <div key={n} className="bg-surface border border-line/70 rounded-xl p-3 flex flex-col">
-                    <div className="w-full aspect-[120/70] bg-card rounded-lg border border-line/60 mb-2 overflow-hidden">
-                      {DIAGRAMS[n]}
-                    </div>
-                    <h3 className="text-xs font-semibold text-ink leading-snug">{t(`tutorial.step${n}.title` as Parameters<typeof t>[0])}</h3>
-                    <p className="text-2xs text-ink-muted leading-relaxed mt-1">{t(`tutorial.step${n}.desc` as Parameters<typeof t>[0])}</p>
-                  </div>
-                ))}
+        <div className="px-7 pt-3 pb-1 min-h-[380px]">
+          <p className="text-2xs font-semibold text-accent mb-3 uppercase tracking-wider">{slide.label}</p>
+          <div className={`grid gap-4 ${slide.steps.length === 3 ? 'grid-cols-1 sm:grid-cols-3' : 'grid-cols-1 sm:grid-cols-2'}`}>
+            {slide.steps.map((n) => (
+              <div key={n} className="bg-surface border border-line/70 rounded-xl p-4 flex flex-col animate-fade-in">
+                <div className="w-full aspect-[120/72] bg-card rounded-lg border border-line/60 mb-3 overflow-hidden">
+                  {DIAGRAMS[n]}
+                </div>
+                <h3 className="text-[13px] font-semibold text-ink leading-snug">{t(`tutorial.step${n}.title` as Parameters<typeof t>[0])}</h3>
+                <p className="text-xs text-ink-muted leading-relaxed mt-1.5">{t(`tutorial.step${n}.desc` as Parameters<typeof t>[0])}</p>
               </div>
-            </div>
-          ))}
-        </div>
-
-        <div className="px-6 py-3 border-t border-line/60 shrink-0">
-          <p className="text-2xs text-ink-faint uppercase tracking-wider font-medium mb-1.5">{t('tutorial.shortcuts')}</p>
-          <div className="flex flex-wrap gap-x-4 gap-y-1 text-2xs text-ink-muted font-mono">
-            <span>{'\u2318'}F {t('shortcut.search')}</span>
-            <span>Space {t('shortcut.collapse')}</span>
-            <span>R {t('shortcut.regenerate')}</span>
-            <span>{'\u2191\u2193\u2190\u2192'} {t('shortcut.navigate')}</span>
-            <span>{'\u2318'}Z {t('shortcut.undo')}</span>
-            <span>Esc {t('shortcut.escape')}</span>
+            ))}
           </div>
         </div>
 
-        <div className="px-6 py-4 border-t border-line shrink-0 flex justify-end">
+        {/* Pager: arrows + dots; the last page closes */}
+        <div className="px-7 py-4 shrink-0 flex items-center justify-between">
           <button
-            onClick={() => setOpen(false)}
-            className="text-xs bg-accent hover:bg-accent-strong text-white px-5 py-2 rounded-lg transition-colors"
+            onClick={() => setPage((p) => Math.max(p - 1, 0))}
+            disabled={page === 0}
+            className="w-8 h-8 rounded-lg border border-line text-ink-muted hover:bg-wash transition-colors flex items-center justify-center disabled:opacity-25 disabled:cursor-not-allowed"
           >
-            {t('tutorial.close')}
+            <ChevronLeft size={16} strokeWidth={1.75} />
           </button>
+          <div className="flex items-center gap-2">
+            {SLIDES.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setPage(i)}
+                className={`h-2 rounded-full transition-all ${i === page ? 'w-6 bg-accent' : 'w-2 bg-line hover:bg-line-strong'}`}
+                aria-label={`${i + 1}/${SLIDES.length}`}
+              />
+            ))}
+          </div>
+          {last ? (
+            <button
+              onClick={() => setOpen(false)}
+              className="text-xs bg-accent hover:bg-accent-strong text-white px-5 py-2 rounded-lg transition-colors"
+            >
+              {t('tutorial.close')}
+            </button>
+          ) : (
+            <button
+              onClick={() => setPage((p) => p + 1)}
+              className="w-8 h-8 rounded-lg border border-line text-ink-muted hover:bg-wash transition-colors flex items-center justify-center"
+            >
+              <ChevronRight size={16} strokeWidth={1.75} />
+            </button>
+          )}
+        </div>
+
+        <div className="px-7 py-2.5 border-t border-line/60 shrink-0 flex flex-wrap gap-x-4 gap-y-1 text-2xs text-ink-faint font-mono">
+          <span>{'\u2318'}F {t('shortcut.search')}</span>
+          <span>Space {t('shortcut.collapse')}</span>
+          <span>R {t('shortcut.regenerate')}</span>
+          <span>{'\u2191\u2193\u2190\u2192'} {t('shortcut.navigate')}</span>
+          <span>{'\u2318'}Z {t('shortcut.undo')}</span>
+          <span>Esc {t('shortcut.escape')}</span>
         </div>
       </div>
     </div>

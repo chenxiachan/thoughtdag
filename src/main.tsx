@@ -10,7 +10,13 @@ import { isViewerMode, bootViewer } from './lib/viewer'
 // mounts — App's hydration gate opens when this finishes. A #view= link
 // boots read-only instead: graph from the URL, persistence silenced.
 if (isViewerMode) void bootViewer()
-else void bootProjects()
+else {
+  void bootProjects()
+  // Ask the browser to mark this origin's storage persistent — exempts the
+  // IndexedDB canvases from best-effort eviction under disk pressure.
+  // Browsers grant it silently based on engagement; a refusal is harmless.
+  if (navigator.storage?.persist) void navigator.storage.persist()
+}
 
 // Pasting a #view= link into an ALREADY-OPEN tab only changes the hash —
 // the browser won't reload, so the viewer/author decision above never
