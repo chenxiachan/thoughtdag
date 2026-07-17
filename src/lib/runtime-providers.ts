@@ -18,6 +18,8 @@ export interface RuntimeProvider {
 }
 
 export interface ProviderPreset {
+  /** Region twin: shown only when the UI language matches (undefined = always). */
+  region?: 'zh' | 'en';
   id: string;
   name: string;
   baseURL: string;
@@ -31,8 +33,8 @@ export interface ProviderPreset {
 export const PROVIDER_PRESETS: ProviderPreset[] = [
   // GLM leads: a free-tier model and the fewest integration quirks make it
   // the smoothest first key. International endpoint first for the demo.
-  { id: 'zai', name: 'Z.ai GLM (Intl)', baseURL: 'https://api.z.ai/api/paas/v4', keyUrl: 'https://z.ai', recommend: ['glm-4.5-flash', 'glm-5'] },
-  { id: 'zhipu', name: '智谱 GLM (中国)', baseURL: 'https://open.bigmodel.cn/api/paas/v4', keyUrl: 'https://open.bigmodel.cn', recommend: ['glm-4.5-flash', 'glm-4v-flash', 'glm-5'] },
+  { id: 'zai', name: 'Z.ai GLM', region: 'en', baseURL: 'https://api.z.ai/api/paas/v4', keyUrl: 'https://z.ai', recommend: ['glm-4.5-flash', 'glm-5'] },
+  { id: 'zhipu', name: '智谱 GLM', region: 'zh', baseURL: 'https://open.bigmodel.cn/api/paas/v4', keyUrl: 'https://open.bigmodel.cn', recommend: ['glm-4.5-flash', 'glm-4v-flash', 'glm-5'] },
   {
     id: 'openrouter', name: 'OpenRouter', baseURL: 'https://openrouter.ai/api/v1',
     keyUrl: 'https://openrouter.ai/keys',
@@ -40,8 +42,8 @@ export const PROVIDER_PRESETS: ProviderPreset[] = [
   },
   { id: 'deepseek', name: 'DeepSeek', baseURL: 'https://api.deepseek.com/v1', keyUrl: 'https://platform.deepseek.com/api_keys' },
   { id: 'openai', name: 'OpenAI', baseURL: 'https://api.openai.com/v1', keyUrl: 'https://platform.openai.com/api-keys' },
-  { id: 'moonshot-intl', name: 'Kimi (Intl)', baseURL: 'https://api.moonshot.ai/v1', keyUrl: 'https://platform.moonshot.ai/console/api-keys' },
-  { id: 'moonshot', name: 'Kimi (中国)', baseURL: 'https://api.moonshot.cn/v1', keyUrl: 'https://platform.moonshot.cn/console/api-keys' },
+  { id: 'moonshot-intl', name: 'Kimi', region: 'en', baseURL: 'https://api.moonshot.ai/v1', keyUrl: 'https://platform.moonshot.ai/console/api-keys' },
+  { id: 'moonshot', name: 'Kimi', region: 'zh', baseURL: 'https://api.moonshot.cn/v1', keyUrl: 'https://platform.moonshot.cn/console/api-keys' },
   { id: 'ollama', name: 'Ollama', baseURL: 'http://localhost:11434/v1', noKey: true },
   { id: 'custom', name: '', baseURL: '' },
 ];

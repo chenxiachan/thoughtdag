@@ -7,7 +7,7 @@ import {
   PROVIDER_PRESETS, type ProviderPreset, type RuntimeModel, type RuntimeProvider,
   probeModels, pushProviders, saveProviders, storedProviders,
 } from '../../lib/runtime-providers';
-import { useT, fmt } from '../../i18n';
+import { useT, fmt, useI18n } from '../../i18n';
 
 // The model-interface manager: one door for every way in. Presets carry a
 // baseURL and a key page; the model list is always fetched live from the
@@ -27,7 +27,11 @@ export default function ApiKeyModal() {
   const [error, setError] = useState('');
 
   // ── add-flow state ──
-  const [preset, setPreset] = useState<ProviderPreset>(PROVIDER_PRESETS[0]);
+  const lang = useI18n((st) => st.lang);
+  // Region twins (智谱/Z.ai, Kimi cn/intl) collapse to the one matching the
+  // UI language — the same provider never appears twice in the row.
+  const visiblePresets = PROVIDER_PRESETS.filter((p) => !p.region || p.region === lang);
+  const [preset, setPreset] = useState<ProviderPreset>(visiblePresets[0]);
   const [key, setKey] = useState('');
   const [customURL, setCustomURL] = useState('');
   const [customName, setCustomName] = useState('');
@@ -189,7 +193,7 @@ export default function ApiKeyModal() {
             <div>
               <label className="text-2xs font-medium text-ink-muted block mb-1.5">{t('provider.pickSource')}</label>
               <div className="flex flex-wrap gap-1.5">
-                {PROVIDER_PRESETS.map((p) => (
+                {visiblePresets.map((p) => (
                   <button
                     key={p.id}
                     onClick={() => { setPreset(p); setProbed(null); setPicked(new Map()); setError(''); }}
