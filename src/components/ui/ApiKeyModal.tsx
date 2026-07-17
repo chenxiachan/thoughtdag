@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Camera, KeyRound, Loader2, Plus, Trash2, X } from 'lucide-react';
+import { Camera, KeyRound, Loader2, Plus, Trash2, X, RefreshCw } from 'lucide-react';
 import { useUiStore, toast } from '../../lib/ui-store';
 import { useModels, setModelsCache } from '../../lib/use-models';
 import {
@@ -58,6 +58,31 @@ export default function ApiKeyModal() {
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
       return false;
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  // One-click re-probe: keeps your picked models, updates vision metadata,
+  // drops delisted ids, and — for providers with small catalogs — adopts
+  // newly listed models automatically. Huge catalogs (gateways) stay on the
+  // picked+recommended whitelist; use Add to browse their new arrivals.
+  const refresh = async (p: RuntimeProvider) => {
+    setBusy(true);
+    setError('');
+    try {
+      const fresh = await probeModels(p.baseURL, p.apiKey);
+      const had = new Map(p.models.map((m) => [m.id, m]));
+      const rec = new Set(PROVIDER_PRESETS.find((x) => x.baseURL === p.baseURL)?.recommend ?? []);
+      const small = fresh.length <= 40;
+      const models = fresh
+        .filter((m) => had.has(m.id) || rec.has(m.id) || small)
+        .map((m) => ({ id: m.id, ...(m.vision !== undefined ? { vision: m.vision } : had.get(m.id)?.vision ? { vision: true } : {}) }));
+      if (models.length === 0) throw new Error(t('provider.probeEmpty'));
+      const next = providers.map((x) => (x.baseURL === p.baseURL ? { ...x, models } : x));
+      if (await commit(next)) toast('success', fmt(t('provider.refreshed'), { n: models.length }));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
     } finally {
       setBusy(false);
     }
@@ -138,6 +163,9 @@ export default function ApiKeyModal() {
                     {p.models.some((m) => m.vision) && <span> · 📷 {p.models.filter((m) => m.vision).length}</span>}
                   </div>
                 </div>
+                <button onClick={() => void refresh(p)} disabled={busy} title={t('provider.refreshTitle')} className="text-ink-faint hover:text-accent w-6 h-6 rounded-full flex items-center justify-center transition-colors shrink-0" data-provider-refresh>
+                  <RefreshCw size={13} strokeWidth={1.75} />
+                </button>
                 <button onClick={() => void remove(p.baseURL)} disabled={busy} title={t('common.delete')} className="text-ink-faint hover:text-red-500 w-6 h-6 rounded-full flex items-center justify-center transition-colors shrink-0">
                   <Trash2 size={13} strokeWidth={1.75} />
                 </button>

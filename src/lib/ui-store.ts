@@ -88,6 +88,9 @@ interface UiState {
   /** Node whose answer is open in the large reading overlay. */
   responseViewerNodeId: string | null;
   setResponseViewerNodeId: (id: string | null) => void;
+  /** Auto-backup folder name (null = off) — display only, handle lives in idb. */
+  autoBackupDir: string | null;
+  setAutoBackupDir: (name: string | null) => void;
   /** Share dialog: the freshly built read-only link (null = closed). */
   shareDialogUrl: string | null;
   setShareDialogUrl: (url: string | null) => void;
@@ -180,6 +183,8 @@ export const useUiStore = create<UiState>((set, get) => ({
   setApiKeyModalOpen: (open) => set({ apiKeyModalOpen: open }),
   responseViewerNodeId: null,
   setResponseViewerNodeId: (id) => set({ responseViewerNodeId: id }),
+  autoBackupDir: null,
+  setAutoBackupDir: (name) => set({ autoBackupDir: name }),
   shareDialogUrl: null,
   setShareDialogUrl: (url) => set({ shareDialogUrl: url }),
   viewerLoadError: false,

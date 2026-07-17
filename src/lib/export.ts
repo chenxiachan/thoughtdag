@@ -10,7 +10,7 @@ import { t, fmt } from '../i18n';
 import type { ThoughtNode, ThoughtEdge } from '../types';
 import type { ProjectMeta } from '../store/projects';
 
-const EXPORT_FORMAT_VERSION = 1;
+export const EXPORT_FORMAT_VERSION = 1;
 // Must match the main store's persist `version` — a mismatched envelope
 // silently hydrates to an empty canvas.
 const PERSIST_VERSION = 1;
@@ -31,7 +31,7 @@ export async function copyText(text: string): Promise<void> {
   toast('success', t('toast.copied'));
 }
 
-function activeProjectName(): string {
+export function activeProjectName(): string {
   const { projects, activeId } = useProjects.getState();
   return projects.find((p) => p.id === activeId)?.name ?? 'canvas';
 }

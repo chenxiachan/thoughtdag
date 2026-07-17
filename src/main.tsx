@@ -16,6 +16,7 @@ else {
   // IndexedDB canvases from best-effort eviction under disk pressure.
   // Browsers grant it silently based on engagement; a refusal is harmless.
   if (navigator.storage?.persist) void navigator.storage.persist()
+  void import('./lib/local-backup').then((m) => m.bootAutoBackup())
 }
 
 // Pasting a #view= link into an ALREADY-OPEN tab only changes the hash —
