@@ -7,6 +7,11 @@
 // builder ([Important] tags) and stale-highlight pruning — so "does this
 // highlight still exist" always means the same thing everywhere.
 const MD_NOISE = '[*_`~()#>\\[\\]-]*';
+// A whitespace gap in the selection may be a BLOCK boundary in the source:
+// "\n- item", "\n\n2. item", "\n> quote". After the whitespace, allow any
+// number of list/quote/heading prefixes (each followed by more whitespace) —
+// without this, any highlight crossing a list item can never match.
+const WS_GAP = `\\s+(?:(?:\\d{1,3}[.)]|[-*+>]|#{1,6})\\s+)*`;
 
 export function fuzzyHighlightRegex(text: string): RegExp | null {
   const chars = [...text.trim()];
@@ -17,7 +22,7 @@ export function fuzzyHighlightRegex(text: string): RegExp | null {
     if (/\s/.test(ch)) { pendingWs = true; continue; }
     const escaped = ch.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     if (parts.length === 0) parts.push(escaped);
-    else if (pendingWs) parts.push(`${MD_NOISE}\\s+${MD_NOISE}${escaped}`);
+    else if (pendingWs) parts.push(`${MD_NOISE}${WS_GAP}${MD_NOISE}${escaped}`);
     else parts.push(`${MD_NOISE}${escaped}`);
     pendingWs = false;
   }

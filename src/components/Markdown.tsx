@@ -70,6 +70,25 @@ export function Markdown({ children }: { children: string }) {
   );
 }
 
+const MARK_OPEN = '<mark class="bg-amber-100 text-amber-800 px-0.5 rounded">';
+
+// A match spanning list items / paragraphs cannot live in ONE <mark>: an
+// inline tag wrapped around "\n- item" breaks the block parse (the list
+// stops being a list, the tag never closes in its block). Wrap each line's
+// CONTENT separately, leaving list/quote/heading prefixes outside the tag.
+function wrapMatch(m: string): string {
+  if (!m.includes('\n')) return `${MARK_OPEN}${m}</mark>`;
+  return m
+    .split('\n')
+    .map((line) => {
+      const parsed = line.match(/^(\s*(?:(?:\d{1,3}[.)]|[-*+>]|#{1,6})\s+)*)(.*)$/);
+      const prefix = parsed?.[1] ?? '';
+      const rest = parsed?.[2] ?? line;
+      return rest.trim() ? `${prefix}${MARK_OPEN}${rest}</mark>` : line;
+    })
+    .join('\n');
+}
+
 // Markdown with user highlights wrapped in <mark> before rendering.
 export function HighlightedMarkdown({ content, highlights }: { content: string; highlights: Set<string> }) {
   // Fuzzy-locate each highlight in the markdown source (selections come from
@@ -79,7 +98,7 @@ export function HighlightedMarkdown({ content, highlights }: { content: string; 
   for (const h of highlights) {
     const re = fuzzyHighlightRegex(h);
     if (!re) continue;
-    processed = processed.replace(re, (m) => `<mark class="bg-amber-100 text-amber-800 px-0.5 rounded">${m}</mark>`);
+    processed = processed.replace(re, wrapMatch);
   }
   return <Markdown>{processed}</Markdown>;
 }

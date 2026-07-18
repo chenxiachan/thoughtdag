@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { Loader2, X } from 'lucide-react';
 import { useStore } from '../../store';
 import { useUiStore } from '../../lib/ui-store';
-import { Markdown } from '../Markdown';
+import { Markdown, HighlightedMarkdown } from '../Markdown';
 import ReasoningDisclosure from './ReasoningDisclosure';
 import { useT } from '../../i18n';
 
@@ -55,7 +55,11 @@ export default function ResponseViewer() {
               )
             ) : (
               <div className="markdown-body text-[15px] text-ink leading-relaxed">
-                <Markdown>{data.response}</Markdown>
+                {data.highlights.length > 0 && !data.isLoading ? (
+                  <HighlightedMarkdown content={data.response} highlights={new Set(data.highlights.map((h) => h.text))} />
+                ) : (
+                  <Markdown>{data.response}</Markdown>
+                )}
                 {data.isLoading && <span className="inline-block w-2 h-4 bg-accent animate-pulse rounded-sm ml-0.5" />}
               </div>
             )}
