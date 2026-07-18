@@ -7,7 +7,6 @@
 **思考值得一张地图。**
 
 在无限画布上，AI 对话长成一张可编辑的思维图。
-*为每天与文献搏斗的人而造。*
 
 ![React](https://img.shields.io/badge/React_19-087EA4?logo=react&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
@@ -15,7 +14,7 @@
 ![React Flow](https://img.shields.io/badge/React_Flow-FF0072)
 ![License](https://img.shields.io/badge/许可-MIT-green) ![Status](https://img.shields.io/badge/状态-活跃开发中-6B5CE7)
 
-**[▶ 在线试用](https://thoughtdag.xia-chen.workers.dev)** · [🎬 30 秒看它工作](#删一条边换一个答案)。无需安装、无需注册。打开后从首页载入示例画布，就能看到上图同款的活地图。智谱免费档即可全功能使用，国内直连，数据全程留在你的浏览器；还没有 key 的话，[智谱](https://open.bigmodel.cn)手机号注册即送免费额度，国际用户可用 [OpenRouter](https://openrouter.ai) 的免费社区模型。
+**[▶ 在线试用](https://thoughtdag.xia-chen.workers.dev)**。无需安装、无需注册。示例画布（上图的来源）不需要 key；连接模型只需任意兼容 OpenAI 协议的 API key，在应用内完成。
 
 [English](./README.md) · [在线 Demo](https://thoughtdag.xia-chen.workers.dev) · [快速开始](#快速开始) · [功能总览](#功能总览) · [支持的模型](#支持的模型) · [Roadmap](#roadmap)
 
@@ -247,7 +246,7 @@ npm run dev            # → http://localhost:5173
 
 ## 反馈
 
-这个工具由一名博士后为自己的日常文献工作而造，每天自用；每个功能都来自真实阅读中的需要。它是一个活跃开发中的早期项目，正是反馈最有价值的时候：
+ThoughtDAG 是一个活跃开发中的早期项目，正是反馈最有价值的时候：
 
 - ⭐ 觉得这个思路有意思？**点个 Star**，这真的很有帮助
 - 🐛 遇到 bug 或不顺手的地方？[提个 issue](https://github.com/chenxiachan/thoughtdag/issues)

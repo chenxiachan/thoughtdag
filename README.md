@@ -7,7 +7,6 @@
 **Your thinking deserves a map.**
 
 An infinite canvas where LLM conversations grow into an editable thought graph.
-*Built for people who read papers for a living.*
 
 ![React](https://img.shields.io/badge/React_19-087EA4?logo=react&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
@@ -15,7 +14,7 @@ An infinite canvas where LLM conversations grow into an editable thought graph.
 ![React Flow](https://img.shields.io/badge/React_Flow-FF0072)
 ![License](https://img.shields.io/badge/license-MIT-green) ![Status](https://img.shields.io/badge/status-active_development-6B5CE7)
 
-**[▶ Try it live](https://thoughtdag.xia-chen.workers.dev)** · [🎬 See it work in 30s](#delete-one-edge-get-a-different-answer). No install, no signup. Load the example canvas from the landing page to see the map above, live. No API key yet? Two free routes: [Zhipu](https://open.bigmodel.cn) ships a free tier (CN, phone signup), [OpenRouter](https://openrouter.ai) has free community models (international, Google login) — paste either into the demo's model manager.
+**[▶ Try it live](https://thoughtdag.xia-chen.workers.dev)**. No install, no signup. The example canvas (the source of the map above) needs no key; connecting a model takes any OpenAI-compatible API key, in the app.
 
 [中文](./README_ZH.md) · [Live demo](https://thoughtdag.xia-chen.workers.dev) · [Quick start](#quick-start) · [Features](#features-at-a-glance) · [Models](#supported-models) · [Roadmap](#roadmap)
 
@@ -247,7 +246,7 @@ If ThoughtDAG plays a role in your research, please cite it (GitHub's "Cite this
 
 ## Feedback
 
-ThoughtDAG is built by a postdoc for his own daily literature work, and used every day; every feature here exists because real reading demanded it. It is an early, actively developed project, which is exactly when feedback matters most:
+ThoughtDAG is an early, actively developed project. This is exactly when feedback matters most:
 
 - ⭐ **Star the repo** if the idea resonates; it genuinely helps
 - 🐛 Hit a bug or a rough edge? [Open an issue](https://github.com/chenxiachan/thoughtdag/issues)
