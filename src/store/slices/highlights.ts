@@ -6,7 +6,7 @@ export const createHighlightSlice: StateCreator<StoreState, [], [], HighlightSli
   addHighlight: (nodeId: string, highlight: Highlight) => {
     get().pushHistory();
     // Normalize: collapse whitespace/newlines to single space
-    const normalizedHighlight = { ...highlight, text: highlight.text.replace(/\s+/g, ' ').trim() };
+    const normalizedHighlight = { at: new Date().toISOString(), ...highlight, text: highlight.text.replace(/\s+/g, ' ').trim() };
     set((state) => ({
       nodes: state.nodes.map((n) =>
         n.id === nodeId

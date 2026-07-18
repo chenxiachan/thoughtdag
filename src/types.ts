@@ -21,6 +21,7 @@ export interface Attachment {
 export interface Highlight {
   id: string;
   text: string;
+  at?: string; // ISO timestamp: when the user marked it (thinking-timeline raw data)
 }
 
 /** A web source the model consulted while generating a response. */
@@ -47,6 +48,7 @@ export interface ThoughtData extends Record<string, unknown> {
   scholarSearch?: boolean; // same for arXiv / Semantic Scholar tools
   autoRerun?: boolean; // regenerate in place whenever an upstream ancestor finishes (generic primitive)
   archived?: boolean; // pruned-but-kept: dimmed on canvas, EXCLUDED from every context walk
+  archivedAt?: string; // ISO timestamp: when it was pruned (thinking-timeline raw data)
   /** Provenance seed for staleness tracking: fingerprint of the exact
       context this node's current response was generated from, plus when.
       A future staleness pass compares this against the CURRENT upstream
@@ -141,6 +143,10 @@ export interface ThoughtEdge extends Edge {
         whole structural chain behind the source, still fenced as one
         reference block. Solid (structural) edges ignore this. */
     contextDepth?: 'full';
+    /** ISO timestamp for edges wired INDEPENDENTLY of node birth (manual
+        connect). Most edges are born with their target node — consumers
+        should fall back to the target's createdAt. */
+    createdAt?: string;
   };
 }
 

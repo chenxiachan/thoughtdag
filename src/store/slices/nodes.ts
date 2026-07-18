@@ -169,7 +169,9 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
       type: 'smoothstep',
       style: { stroke: COLORS.accent, strokeDasharray: '8 4', strokeWidth: 2 },
       animated: true,
-      data: { isCrossLink: true },
+      // createdAt only here: manual connect is the one edge born
+      // independently of a node (elsewhere edge time = target's createdAt)
+      data: { isCrossLink: true, createdAt: new Date().toISOString() },
     };
     set((state) => ({ edges: [...state.edges, newEdge] }));
     get().pushHistory();
@@ -283,7 +285,9 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
     get().pushHistory();
     set((state) => ({
       nodes: state.nodes.map((n) =>
-        ids.has(n.id) ? { ...n, data: { ...n.data, archived: archived || undefined } } : n
+        ids.has(n.id)
+          ? { ...n, data: { ...n.data, archived: archived || undefined, archivedAt: archived ? new Date().toISOString() : undefined } }
+          : n
       ),
     }));
     get().pushHistory();
