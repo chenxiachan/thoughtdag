@@ -531,7 +531,7 @@ ${intent.trim()}` : ''}` },
     });
   },
 
-  weaveHighlights: async (nodeIds: string[], intent?: string) => {
+  weaveHighlights: async (nodeIds: string[], intent?: string, highlightIds?: string[]) => {
     // The other converge action. Merge compresses RAW content; weave works
     // on the user's OWN marks — highlights are already human-curated, so
     // the model's job is editorial (thread the judged pieces together), the
@@ -542,11 +542,13 @@ ${intent.trim()}` : ''}` },
       .map((id) => nodes.find((n) => n.id === id))
       .filter(Boolean) as ThoughtNode[];
     // Stable numbering: canvas order (nodes array), then mark order per node
+    const wanted = highlightIds ? new Set(highlightIds) : null;
     const entries: { n: number; text: string; from: string }[] = [];
     for (const node of nodes) {
       if (!selected.some((s) => s.id === node.id)) continue;
       const title = node.data.question.replace(/\s+/g, ' ').trim().slice(0, 60);
       for (const h of node.data.highlights || []) {
+        if (wanted && !wanted.has(h.id)) continue;
         entries.push({ n: entries.length + 1, text: h.text, from: title });
       }
     }

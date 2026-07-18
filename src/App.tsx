@@ -16,7 +16,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import 'highlight.js/styles/github.css';
-import { BookOpen, Brain, CircleHelp, Dna, Download, Drama, Eye, FileText, Frame, GitBranch, KeyRound, LayoutGrid, Loader2, MessageCircleQuestion, MoreHorizontal, Paperclip, Redo2, Scissors, Share2, SquareTerminal, StickyNote, Trash2, Undo2, Workflow, X, ListRestart, FolderSync } from 'lucide-react';
+import { BookOpen, Brain, CircleHelp, Dna, Download, Drama, Eye, FileText, Frame, GitBranch, Highlighter, KeyRound, LayoutGrid, Loader2, MessageCircleQuestion, MoreHorizontal, Paperclip, Redo2, Scissors, Share2, SquareTerminal, StickyNote, Trash2, Undo2, Workflow, X, ListRestart, FolderSync } from 'lucide-react';
 import './index.css';
 import ThoughtNode from './components/ThoughtNode';
 import ParadigmNode from './components/ParadigmNode';
@@ -26,6 +26,7 @@ import ThoughtEdgeView from './components/ThoughtEdgeView';
 import FocusPanel from './components/focus-panel';
 import SelectionToolbar from './components/SelectionToolbar';
 import NodeContextMenu from './components/NodeContextMenu';
+import HighlightsOverviewModal from './components/ui/HighlightsOverviewModal';
 import SearchBar from './components/SearchBar';
 import DiagnosticsPanel from './components/DiagnosticsPanel';
 import MaterialReader from './components/MaterialReader';
@@ -118,6 +119,7 @@ function Canvas() {
   const docFileRef = useRef<HTMLInputElement>(null);
   const hasNodes = nodes.length > 0;
   const hasEvents = useStore((s) => s.events.length > 0);
+  const highlightCount = useStore((s) => s.nodes.reduce((sum, n) => sum + (n.data.highlights?.length ?? 0), 0));
   const rfInstance = useRef<ReactFlowInstance<ThoughtNodeType, ThoughtEdge> | null>(null);
   const prevNodeCount = useRef(nodes.length);
   const lang = useI18n((s) => s.lang);
@@ -1385,6 +1387,16 @@ function Canvas() {
                   <LayoutGrid size={14} strokeWidth={1.75} className="text-ink-faint shrink-0" /> {t('toolbar.relayout')}
                 </button>
               )}
+              {highlightCount > 0 && (
+                <button
+                  onClick={() => { setMoreOpen(false); useUiStore.getState().setHighlightsOverviewOpen(true); }}
+                  className="w-full text-left px-3 py-2 text-xs text-ink hover:bg-wash transition-colors flex items-center gap-2.5"
+                  title={t('hlov.entryTitle')}
+                  data-hlov-entry
+                >
+                  <Highlighter size={14} strokeWidth={1.75} className="text-ink-faint shrink-0" /> {fmt(t('hlov.entry'), { n: highlightCount })}
+                </button>
+              )}
               {hasEvents && (
                 <button
                   onClick={() => { setMoreOpen(false); exportEventLogCsv(); }}
@@ -1443,6 +1455,13 @@ function Canvas() {
       {nodeMenu && (
         <NodeContextMenu x={nodeMenu.x} y={nodeMenu.y} nodeId={nodeMenu.nodeId} onClose={() => setNodeMenu(null)} />
       )}
+      <HighlightsOverviewModal onLocate={(nid) => {
+        const n = useStore.getState().nodes.find((x) => x.id === nid);
+        if (n) {
+          setSelectedNodeId(nid);
+          rfInstance.current?.setCenter(n.position.x + 260, n.position.y + 110, { zoom: 1, duration: 350 });
+        }
+      }} />
       {edgeMenu && (
         <div
           className="fixed z-50 bg-card border border-line rounded-xl shadow-lg py-1 min-w-[120px]"

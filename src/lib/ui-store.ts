@@ -81,6 +81,8 @@ interface UiState {
   memories: import('./memory').MemoryEntry[];
   setMemories: (entries: import('./memory').MemoryEntry[]) => void;
   memoryManagerOpen: boolean;
+  highlightsOverviewOpen: boolean;
+  setHighlightsOverviewOpen: (open: boolean) => void;
   setMemoryManagerOpen: (open: boolean) => void;
   /** Browser-side API key dialog (the .env-free path in). */
   apiKeyModalOpen: boolean;
@@ -182,6 +184,8 @@ export const useUiStore = create<UiState>((set, get) => ({
     set({ memories: entries });
   },
   memoryManagerOpen: false,
+  highlightsOverviewOpen: false,
+  setHighlightsOverviewOpen: (open) => set({ highlightsOverviewOpen: open }),
   setMemoryManagerOpen: (open) => set({ memoryManagerOpen: open }),
   apiKeyModalOpen: false,
   setApiKeyModalOpen: (open) => set({ apiKeyModalOpen: open }),

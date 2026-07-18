@@ -85,7 +85,7 @@ export interface LlmSlice {
    *  Input = the user's OWN marks (already-human-curated), so context stays
    *  small even for whole-canvas selections; the passage cites [n] back to
    *  its source highlights. Optional intent steers angle/purpose. */
-  weaveHighlights: (nodeIds: string[], intent?: string) => Promise<void>;
+  weaveHighlights: (nodeIds: string[], intent?: string, highlightIds?: string[]) => Promise<void>;
   stopGeneration: (nodeId: string) => void;
 }
 
