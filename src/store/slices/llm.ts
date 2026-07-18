@@ -2,7 +2,7 @@ import type { StateCreator } from 'zustand';
 import type { ThoughtNode, ThoughtEdge } from '../../types';
 import { generateId } from '../../utils';
 import { autoLayout } from '../../lib/layout';
-import { getDescendantIds, selectionSinks } from '../../lib/graph';
+import { getDescendantIds, selectionSinks, walkUpAncestors } from '../../lib/graph';
 import { COLORS } from '../../lib/constants';
 import type { ContextMessage, ImageAttachment } from '../../lib/api';
 import { buildContext, resolveExplicitRole, applyRoleOverride } from '../context-builder';
@@ -13,7 +13,7 @@ import type { StoreState, LlmSlice, AddQuestionOptions } from '../types';
 
 export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, get) => ({
   addQuestion: async (question: string, opts: AddQuestionOptions = {}) => {
-    const { parentId, branchContext, branchYRatio, inheritRole, rolePrompt, initialAttachments, excludeAllInheritedAttachments } = opts;
+    const { parentId, branchContext, branchYRatio, inheritRole, rolePrompt, initialAttachments, excludeAllInheritedAttachments, mentions } = opts;
     const id = generateId();
     get().logEvent('ask', id, { chars: question.length, ...(parentId ? {} : { root: true }), ...(branchContext ? { branch: true } : {}) });
     const isRoot = !parentId;
@@ -80,7 +80,34 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
       }),
     } : null;
 
-    const newEdges = newEdge ? [...get().edges, newEdge] : get().edges;
+    let newEdges: ThoughtEdge[] = newEdge ? [...get().edges, newEdge] : get().edges;
+    // @-mentions: any mentioned node NOT already flowing into this one gets
+    // a real dashed reference edge — @ is the keyboard's way of drawing a
+    // wire, never an invisible injection. Ones already upstream stay pure
+    // designators (their content is in the walk; nothing double-feeds).
+    const mentionIds = (mentions ?? []).filter((mid) => mid !== id && mid !== parentId && get().nodes.some((n) => n.id === mid));
+    if (mentionIds.length > 0) {
+      const structural = newEdges.filter((e) => !e.data?.isCrossLink);
+      const upstream = parentId
+        ? new Set(walkUpAncestors(parentId, get().nodes, structural).ordered.map((n) => n.id))
+        : new Set<string>();
+      const refSources = new Set(newEdges.filter((e) => e.data?.isCrossLink && e.target === id).map((e) => e.source));
+      let wired = 0;
+      for (const mid of mentionIds) {
+        if (upstream.has(mid) || refSources.has(mid)) continue;
+        newEdges = [...newEdges, {
+          id: `crosslink-${mid}-${id}`,
+          source: mid, target: id,
+          sourceHandle: 'branch', targetHandle: 'left',
+          type: 'smoothstep',
+          style: { stroke: COLORS.accent, strokeDasharray: '8 4', strokeWidth: 2 },
+          animated: true,
+          data: { isCrossLink: true, createdAt: new Date().toISOString() },
+        }];
+        wired++;
+      }
+      if (wired > 0) toast('info', fmt(t('mention.wired'), { n: wired }), 6000);
+    }
     // Auto-collapse parent node when creating a child
     const updatedNodes = parentId
       ? get().nodes.map((n) => n.id === parentId ? { ...n, data: { ...n.data, isCollapsed: true } } : n)

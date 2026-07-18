@@ -195,6 +195,8 @@ export const zh: Record<keyof typeof en, string> = {
   'frame.untitled': '（未命名分区）',
   'toolbar.frames': '分区导航：点击跳转到对应区域',
   'toolbar.more': '更多操作',
+  'mention.hint': '@ 引用节点：不在上游的会自动连一条摘要引用线',
+  'mention.wired': '@ 引用已连线 {n} 条（虚线摘要，可在边上转全量）',
   'matov.entry': '全部材料 ({n})',
   'matov.entryTitle': '画布上的所有附件、便签和链接快照，一处查看',
   'matov.title': '全部材料',

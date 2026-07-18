@@ -15,6 +15,8 @@ import { Markdown, HighlightedMarkdown } from './Markdown';
 import FanOutModal from './FanOutModal';
 import ReasoningDisclosure from './ui/ReasoningDisclosure';
 import { useT, fmt } from '../i18n';
+import MentionSurface from './ui/NodeMention';
+import { useMentions } from '../lib/mentions';
 import { isViewerMode } from '../lib/viewer';
 
 export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
@@ -32,6 +34,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   const [selectionPos, setSelectionPos] = useState<{ x: number; y: number } | null>(null);
   const inlineDraftKey = `inline:${id}`;
   const [inputValue, setInputValueState] = useState(() => useUiStore.getState().drafts[inlineDraftKey] ?? '');
+  const mention = useMentions(id);
   const setInputValue = (v: string) => {
     setInputValueState(v);
     useUiStore.getState().setDraft(inlineDraftKey, v);
@@ -162,7 +165,9 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
       parentId: id,
       branchContext: branchFromText || undefined,
       branchYRatio: branchFromText ? branchYRatio : undefined,
+      mentions: mention.mentions.map((x) => x.nodeId),
     });
+    mention.clear();
     setInputValue('');
     setBranchFromText('');
     setSelectedText('');
@@ -211,6 +216,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   };
 
   const handleInputKeyDown = (e: React.KeyboardEvent) => {
+    if (mention.invokeKey(e)) return; // @-picker owns the key
     if (e.key === 'Enter' && !e.shiftKey && !isImeComposing(e)) { e.preventDefault(); handleSubmitBranch(); }
     if (e.key === 'Escape') { setBranchFromText(''); }
   };
@@ -709,13 +715,16 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
           {/* Inline continue input — hidden while a paradigm run is in
               progress (the structure IS the paradigm); returns on unlock */}
           {!data.isLoading && !data.isEditingResponse && !isAwaitingAsk && !(isParadigmNode && runLocked) && !isViewerMode && (
-            <div className="mt-3 pt-3 border-t border-line">
+            <div className="mt-3 pt-3 border-t border-line relative">
+              <MentionSurface m={mention} text={inputValue} setText={setInputValue} />
               <div className="flex items-end gap-2 bg-wash rounded-xl px-4 py-2.5 transition-shadow focus-within:ring-1 focus-within:ring-accent/40">
                 <textarea
                   rows={1}
+                  ref={mention.bindAnchor}
                   value={inputValue}
                   onChange={(e) => {
                     setInputValue(e.target.value);
+                    mention.track(e.target.value, e.target.selectionStart ?? e.target.value.length);
                     e.target.style.height = 'auto';
                     e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
                   }}

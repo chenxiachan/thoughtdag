@@ -9,6 +9,8 @@ import SearchToggles from '../ui/SearchToggles';
 import type { Attachment } from '../../types';
 import { countTokens } from '../../utils';
 import { useT, fmt } from '../../i18n';
+import MentionSurface from '../ui/NodeMention';
+import { useMentions } from '../../lib/mentions';
 
 const ROLE_STYLES: Record<string, string> = {
   system: 'bg-accent/10 text-accent',
@@ -40,6 +42,7 @@ export default function FollowUpInput({
     useUiStore.getState().setDraft(draftKey, v);
   };
   const [continueInheritAttachments, setContinueInheritAttachments] = useState(true);
+  const mention = useMentions(nodeId);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [pendingAttachments, setPendingAttachments] = useState<Attachment[]>([]);
   const continueRef = useRef<HTMLTextAreaElement>(null);
@@ -100,7 +103,9 @@ export default function FollowUpInput({
       branchContext: branchContext || undefined,
       excludeAllInheritedAttachments: !continueInheritAttachments,
       initialAttachments: pendingAttachments.length > 0 ? pendingAttachments : undefined,
+      mentions: mention.mentions.map((x) => x.nodeId),
     });
+    mention.clear();
     setContinueInput('');
     setPendingAttachments([]);
     setPreviewOpen(false);
@@ -175,17 +180,19 @@ export default function FollowUpInput({
         </div>
       )}
 
+      <MentionSurface m={mention} text={continueInput} setText={setContinueInput} />
       <div
         className="flex items-end gap-2 bg-wash rounded-xl px-4 py-2.5 transition-shadow focus-within:ring-1 focus-within:ring-accent/40"
         onDrop={(e) => { e.preventDefault(); e.stopPropagation(); void addFiles(e.dataTransfer.files); }}
         onDragOver={(e) => e.preventDefault()}
       >
         <textarea
-          ref={continueRef}
+          ref={(el) => { continueRef.current = el; mention.bindAnchor(el); }}
           rows={1}
           value={continueInput}
-          onChange={(e) => { setContinueInput(e.target.value); autoGrow(e.target); }}
+          onChange={(e) => { setContinueInput(e.target.value); mention.track(e.target.value, e.target.selectionStart ?? e.target.value.length); autoGrow(e.target); }}
           onKeyDown={(e) => {
+            if (mention.invokeKey(e)) return; // @-picker owns the key
             // Enter sends, Shift+Enter breaks the line; an IME-confirming
             // Enter (picking a pinyin candidate) never submits.
             if (e.key === 'Enter' && !e.shiftKey && !isImeComposing(e)) {

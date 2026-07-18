@@ -195,6 +195,8 @@ export const en = {
   'frame.untitled': '(untitled frame)',
   'toolbar.frames': 'Frame navigator: click to jump to a region',
   'toolbar.more': 'More actions',
+  'mention.hint': '@ a node — ones not upstream get a summary reference wire',
+  'mention.wired': '@ wired {n} reference(s) (dashed summary; convert to solid on the edge)',
   'matov.entry': 'All materials ({n})',
   'matov.entryTitle': 'Every attachment, note and link snapshot on this canvas, in one place',
   'matov.title': 'All materials',

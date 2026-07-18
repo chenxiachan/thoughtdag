@@ -71,6 +71,9 @@ export interface AddQuestionOptions {
   rolePrompt?: string;
   initialAttachments?: Attachment[];
   excludeAllInheritedAttachments?: boolean;
+  /** @-mentioned node ids: any not already in the new node's context get a
+      real dashed reference edge (the graph stays honest). */
+  mentions?: string[];
 }
 
 export interface LlmSlice {
