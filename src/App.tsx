@@ -25,6 +25,7 @@ import FrameNode from './components/FrameNode';
 import ThoughtEdgeView from './components/ThoughtEdgeView';
 import FocusPanel from './components/focus-panel';
 import SelectionToolbar from './components/SelectionToolbar';
+import NodeContextMenu from './components/NodeContextMenu';
 import SearchBar from './components/SearchBar';
 import DiagnosticsPanel from './components/DiagnosticsPanel';
 import MaterialReader from './components/MaterialReader';
@@ -407,6 +408,14 @@ function Canvas() {
 
   // Edge right-click context menu
   const [edgeMenu, setEdgeMenu] = useState<{ x: number; y: number; edgeId: string } | null>(null);
+  const [nodeMenu, setNodeMenu] = useState<{ x: number; y: number; nodeId: string } | null>(null);
+  const onNodeContextMenu = useCallback((e: React.MouseEvent, node: { id: string }) => {
+    if (isViewerMode) return; // read-only: keep the browser menu
+    // Right-click on selected TEXT keeps the native menu (copy must work)
+    if (window.getSelection()?.toString()) return;
+    e.preventDefault();
+    setNodeMenu({ x: e.clientX, y: e.clientY, nodeId: node.id });
+  }, []);
 
   const onEdgeContextMenu = useCallback(
     (event: React.MouseEvent, edge: { id: string }) => {
@@ -814,6 +823,7 @@ function Canvas() {
         onConnectStart={onConnectStart}
         onConnectEnd={onConnectEnd}
         onEdgeContextMenu={onEdgeContextMenu}
+        onNodeContextMenu={onNodeContextMenu}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         deleteKeyCode={null}
@@ -837,7 +847,7 @@ function Canvas() {
         zoomOnDoubleClick={false}
         connectionLineStyle={{ stroke: COLORS.accent, strokeDasharray: '8 4', strokeWidth: 2 }}
         onSelectionChange={onSelectionChange}
-        onPaneClick={() => { setSelectedNodeId(null); setSelectedNodeIds([]); }}
+        onPaneClick={() => { setSelectedNodeId(null); setSelectedNodeIds([]); setNodeMenu(null); }}
       >
         <Background variant={BackgroundVariant.Dots} gap={24} size={1} color="#E8E5E0" />
         <ZoomTierTag />
@@ -1430,6 +1440,9 @@ function Canvas() {
       />
 
       {/* Edge context menu */}
+      {nodeMenu && (
+        <NodeContextMenu x={nodeMenu.x} y={nodeMenu.y} nodeId={nodeMenu.nodeId} onClose={() => setNodeMenu(null)} />
+      )}
       {edgeMenu && (
         <div
           className="fixed z-50 bg-card border border-line rounded-xl shadow-lg py-1 min-w-[120px]"
