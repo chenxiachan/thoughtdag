@@ -20,6 +20,7 @@ interface Entry {
   at?: string;
   nodeId: string;
   nodeTitle: string;
+  showGroup?: boolean;
 }
 
 export default function HighlightsOverviewModal({ onLocate }: { onLocate: (nodeId: string) => void }) {
@@ -41,10 +42,10 @@ export default function HighlightsOverviewModal({ onLocate }: { onLocate: (nodeI
         out.push({ hlId: h.id, text: h.text, at: h.at, nodeId: n.id, nodeTitle: title });
       }
     }
-    if (sort === 'time') {
-      return [...out].sort((a, b) => (b.at ?? '').localeCompare(a.at ?? ''));
-    }
-    return out; // canvas order = grouped by node already
+    const sorted = sort === 'time'
+      ? [...out].sort((a, b) => (b.at ?? '').localeCompare(a.at ?? ''))
+      : out; // canvas order = grouped by node already
+    return sorted.map((e, i) => ({ ...e, showGroup: sort === 'node' && (i === 0 || sorted[i - 1].nodeTitle !== e.nodeTitle) }));
   }, [nodes, sort]);
 
   if (!open) return null;
@@ -80,8 +81,6 @@ export default function HighlightsOverviewModal({ onLocate }: { onLocate: (nodeI
     </button>
   );
 
-  let lastNode = '';
-
   return createPortal((
     <div className="fixed inset-0 z-[60] bg-ink/30 backdrop-blur-sm flex items-center justify-center p-6" onClick={close}>
       <div className="bg-card rounded-2xl shadow-2xl border border-line w-[640px] max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
@@ -100,11 +99,9 @@ export default function HighlightsOverviewModal({ onLocate }: { onLocate: (nodeI
         <div className="flex-1 min-h-0 overflow-y-auto px-5 py-3">
           {entries.length === 0 && <p className="text-xs text-ink-faint italic py-2">{t('hlov.empty')}</p>}
           {entries.map((e) => {
-            const showGroup = sort === 'node' && e.nodeTitle !== lastNode;
-            lastNode = e.nodeTitle;
             return (
               <div key={e.hlId}>
-                {showGroup && (
+                {e.showGroup && (
                   <div className="text-2xs text-ink-faint font-medium mt-3 mb-1 first:mt-0 truncate">{e.nodeTitle}</div>
                 )}
                 <div className="group flex items-start gap-2.5 py-1.5 border-b border-line/50 last:border-0">

@@ -1,5 +1,6 @@
 import { set as idbSet } from 'idb-keyval';
 import { useStore, stripTransient } from '../store';
+import { getModelsOnce, reconcileModelId } from './use-models';
 import { useProjects, projectStorageKey, adoptImportedProject } from '../store/projects';
 import { detectFormat, listConversations, type ImportableConversation } from './import-chat';
 import { isParadigmFile } from './paradigm';
@@ -82,7 +83,8 @@ export async function parseImportFile(file: File): Promise<
   }
   if (isParadigmFile(parsed)) {
     const id = crypto.randomUUID();
-    await idbSet(projectStorageKey(id), JSON.stringify({ state: { nodes: parsed.nodes, edges: parsed.edges }, version: PERSIST_VERSION }));
+    const reconciled = await reconcileImportedModels(parsed.nodes);
+    await idbSet(projectStorageKey(id), JSON.stringify({ state: { nodes: reconciled, edges: parsed.edges }, version: PERSIST_VERSION }));
     await adoptImportedProject(id, parsed.name || 'Paradigm', 'paradigm');
     toast('success', fmt(t('toast.imported'), { name: parsed.name, n: parsed.nodes.length }));
     return { kind: 'own', ok: true };
@@ -138,6 +140,30 @@ export async function importChatConversations(convs: ImportableConversation[]): 
   }
 }
 
+/** Imported canvases carry the AUTHOR's model pins (e.g. gateway slugs);
+    the importer may reach the same families through different providers.
+    Same family here → remap to the local id; unreachable → keep the pin
+    (the author's intent survives a round-trip) and warn — generation
+    falls back honestly at run time. */
+async function reconcileImportedModels(nodes: ThoughtNode[]): Promise<ThoughtNode[]> {
+  const data = await getModelsOnce();
+  if (!data || data.models.length === 0) return nodes;
+  const remapped = new Set<string>();
+  const missing = new Set<string>();
+  const out = nodes.map((n) => {
+    const pin = n.data?.model;
+    if (!pin) return n;
+    const r = reconcileModelId(pin, data.models);
+    if (r === pin) return n;
+    if (r) { remapped.add(`${pin} → ${r}`); return { ...n, data: { ...n.data, model: r } }; }
+    missing.add(pin);
+    return n;
+  });
+  if (remapped.size) toast('info', fmt(t('import.modelsRemapped'), { list: [...remapped].join('，') }), 9000);
+  if (missing.size) toast('info', fmt(t('import.modelsMissing'), { list: [...missing].join('，') }), 10000);
+  return out;
+}
+
 export async function importProjectFromFile(file: File, pre?: unknown): Promise<boolean> {
   let parsed: { name?: string; nodes?: ThoughtNode[]; edges?: ThoughtEdge[]; events?: unknown[]; instantiatedFrom?: ProjectMeta['instantiatedFrom'] };
   try {
@@ -155,9 +181,10 @@ export async function importProjectFromFile(file: File, pre?: unknown): Promise<
     return false;
   }
   const id = crypto.randomUUID();
+  const reconciled = await reconcileImportedModels(parsed.nodes);
   // Write in the zustand-persist envelope format so rehydration accepts it.
   await idbSet(projectStorageKey(id), JSON.stringify({
-    state: { nodes: stripTransient(parsed.nodes), edges: parsed.edges, ...(Array.isArray(parsed.events) ? { events: parsed.events } : {}) },
+    state: { nodes: stripTransient(reconciled), edges: parsed.edges, ...(Array.isArray(parsed.events) ? { events: parsed.events } : {}) },
     version: PERSIST_VERSION,
   }));
   const name = parsed.name?.trim() || file.name.replace(/\.thoughtdag\.json$|\.json$/i, '') || 'Imported canvas';

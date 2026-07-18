@@ -65,8 +65,12 @@ export default function ResponseViewer() {
     return () => document.removeEventListener('mouseup', handleTextSelection);
   }, [nodeId, handleTextSelection]);
 
-  // Reset staged input when the viewer swaps nodes
-  useEffect(() => { setBranchFrom(''); setInput(''); setSelectedText(''); setSelectionPos(null); }, [nodeId]);
+  // Reset staged input when the viewer swaps nodes (render-time adjust)
+  const [prevNodeId, setPrevNodeId] = useState(nodeId);
+  if (prevNodeId !== nodeId) {
+    setPrevNodeId(nodeId);
+    setBranchFrom(''); setInput(''); setSelectedText(''); setSelectionPos(null);
+  }
 
   if (!nodeId || !node) return null;
   const data = node.data;

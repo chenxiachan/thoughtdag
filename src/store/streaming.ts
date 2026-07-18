@@ -5,7 +5,7 @@ import { pruneHighlights } from '../lib/highlight-match';
 import { llmCall, llmCallStream, type ContextMessage, type ImageAttachment } from '../lib/api';
 import { countTokens, activeSummary } from '../utils';
 import { toast, useUiStore } from '../lib/ui-store';
-import { getModelsOnce } from '../lib/use-models';
+import { getModelsOnce, reconcileModelId } from '../lib/use-models';
 import { memoryContextBlock, judgeMemory } from '../lib/memory';
 import { t, fmt } from '../i18n';
 import { isViewerMode } from '../lib/viewer';
@@ -130,10 +130,21 @@ export async function runNodeGeneration(
   let references: Reference[] | undefined;
 
   // Model provenance: pinned override, else the global pick, else the
-  // server default (resolved lazily; the models list is cached from boot).
-  const pinnedModel = get().nodes.find((n) => n.id === nodeId)?.data.model;
-  let serverDefaultModel: string | null = null;
-  void getModelsOnce().then((d) => { serverDefaultModel = d?.default ?? null; });
+  // server default. A pin that isn't reachable here (imported canvas,
+  // revoked key) reconciles to the same family locally, or falls back to
+  // the global pick — SAID OUT LOUD and recorded as what actually ran,
+  // never silently mismatched between execution and provenance.
+  const pinnedRaw = get().nodes.find((n) => n.id === nodeId)?.data.model;
+  let pinnedModel = pinnedRaw;
+  const modelData = await getModelsOnce();
+  const serverDefaultModel: string | null = modelData?.default ?? null;
+  if (pinnedRaw && modelData && modelData.models.length > 0) {
+    const r = reconcileModelId(pinnedRaw, modelData.models);
+    if (r !== pinnedRaw) {
+      pinnedModel = r ?? undefined;
+      toast('info', fmt(t(r ? 'node.pinnedModelRemapped' : 'node.pinnedModelUnavailable'), r ? { m: pinnedRaw, r } : { m: pinnedRaw }), 7000);
+    }
+  }
 
   const writeFinal = (response: string, failed = false) => {
     if (!isCurrent()) return; // superseded: a newer generation owns this node
@@ -219,7 +230,7 @@ export async function runNodeGeneration(
         scholar: selfData?.scholarSearch ?? useUiStore.getState().scholarSearchEnabled,
         mcp: useUiStore.getState().mcpEnabled,
       };
-    })(), get().nodes.find((n) => n.id === nodeId)?.data.model);
+    })(), pinnedModel);
     if (!isCurrent()) return; // superseded while finishing: drop everything
     activeAbortControllers.delete(nodeId);
     if (!response.trim()) {

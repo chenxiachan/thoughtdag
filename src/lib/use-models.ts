@@ -43,6 +43,23 @@ export function getModelsOnce(): Promise<ModelData | null> {
   return inflight;
 }
 
+/** Family-level id for cross-provider comparison: the gateway slug
+    'deepseek/deepseek-v4-pro' and the direct id 'deepseek-v4-pro' are the
+    same model reached through different doors. */
+function modelBasename(id: string): string {
+  return (id.split('/').pop() ?? id).toLowerCase();
+}
+
+/** Reconcile a pinned model id against the locally available list: exact id
+    → itself; same family under a different provider → the local id;
+    otherwise null (not reachable here). */
+export function reconcileModelId(pinned: string, models: ModelInfo[]): string | null {
+  if (models.some((m) => m.id === pinned)) return pinned;
+  const base = modelBasename(pinned);
+  const match = models.find((m) => modelBasename(m.id) === base);
+  return match ? match.id : null;
+}
+
 /** Replace the shared cache (after a runtime-key change) and notify every subscribed picker. */
 export function setModelsCache(d: ModelData): void {
   cache = d;

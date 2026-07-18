@@ -241,7 +241,8 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
       edges: state.edges.map((e) => {
         if (e.id !== edgeId) return e;
         if (structural) {
-          const { isCrossLink: _c, contextDepth: _d, isWatch: _w, ...rest } = e.data ?? {};
+          const rest = { ...(e.data ?? {}) };
+          delete rest.isCrossLink; delete rest.contextDepth; delete rest.isWatch;
           return {
             ...e,
             sourceHandle: 'continue', targetHandle: 'top',
