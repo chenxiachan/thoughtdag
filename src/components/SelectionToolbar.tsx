@@ -1,28 +1,34 @@
 import { useState, useRef, useEffect } from 'react';
-import { AlignVerticalJustifyStart, Archive, ClipboardList, Copy, FileDown, GitBranch, Trash2 } from 'lucide-react';
+import { AlignVerticalJustifyStart, Archive, ClipboardList, Copy, FileDown, GitBranch, Highlighter, Trash2 } from 'lucide-react';
 import { useStore } from '../store';
 import { confirmDialog } from '../lib/ui-store';
 import { selectionMarkdown, downloadMarkdown } from '../lib/export';
 import { isImeComposing } from '../utils';
 import { useT, t as ti, fmt } from '../i18n';
 
+// The two families of batch actions share one input row:
+//   explore   → REQUIRED question (a new direction needs words)
+//   merge / merge-delete / weave → OPTIONAL intent (empty = standard run);
+// the row opens under whichever button was pressed, Enter runs, Esc closes.
+type PendingAction = 'explore' | 'merge' | 'mergeDelete' | 'weave' | null;
+
 export default function SelectionToolbar() {
-  const { selectedNodeIds, nodes, batchDelete, batchMergeSummarize, exploreFrom, alignSelection, setArchived, duplicateSelection } = useStore();
+  const { selectedNodeIds, nodes, batchDelete, batchMergeSummarize, weaveHighlights, exploreFrom, alignSelection, setArchived, duplicateSelection } = useStore();
   const t = useT();
-  const [exploreOpen, setExploreOpen] = useState(false);
-  const [exploreInput, setExploreInput] = useState('');
-  const exploreRef = useRef<HTMLInputElement>(null);
+  const [pending, setPending] = useState<PendingAction>(null);
+  const [input, setInput] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (exploreOpen) setTimeout(() => exploreRef.current?.focus(), 100);
-  }, [exploreOpen]);
+    if (pending) setTimeout(() => inputRef.current?.focus(), 100);
+  }, [pending]);
 
-  // Reset explore when selection changes
+  // Reset the input row when selection changes
   const [prevSelectionCount, setPrevSelectionCount] = useState(selectedNodeIds.length);
   if (prevSelectionCount !== selectedNodeIds.length) {
     setPrevSelectionCount(selectedNodeIds.length);
-    setExploreOpen(false);
-    setExploreInput('');
+    setPending(null);
+    setInput('');
   }
 
   if (selectedNodeIds.length < 2) return null;
@@ -36,14 +42,29 @@ export default function SelectionToolbar() {
   // Collect all highlights from selected nodes
   const allHighlights = selectedNodes.flatMap((n) => n?.data.highlights || []);
 
-  const handleExplore = () => {
-    if (!exploreInput.trim()) return;
-    // One Rule: the new node hangs from EVERY selected node — edges carry
-    // the context, nothing is smuggled in as invisible text
-    void exploreFrom(selectedNodeIds, exploreInput.trim());
-    setExploreOpen(false);
-    setExploreInput('');
+  const run = () => {
+    const text = input.trim();
+    if (pending === 'explore') {
+      if (!text) return;
+      void exploreFrom(selectedNodeIds, text);
+    } else if (pending === 'merge') {
+      batchMergeSummarize(selectedNodeIds, false, text || undefined);
+    } else if (pending === 'mergeDelete') {
+      batchMergeSummarize(selectedNodeIds, true, text || undefined);
+    } else if (pending === 'weave') {
+      void weaveHighlights(selectedNodeIds, text || undefined);
+    }
+    setPending(null);
+    setInput('');
   };
+
+  const toggle = (a: Exclude<PendingAction, null>) => {
+    setPending(pending === a ? null : a);
+    setInput('');
+  };
+
+  const actionBtn = (a: Exclude<PendingAction, null>, active: string, idle: string) =>
+    `text-xs px-3 py-1.5 rounded-lg transition-colors ${pending === a ? active : idle}`;
 
   return (
     <div className="absolute top-16 left-1/2 -translate-x-1/2 z-20 animate-fade-in">
@@ -61,28 +82,34 @@ export default function SelectionToolbar() {
         {/* Action buttons */}
         <div className="flex items-center gap-2 flex-wrap">
           <button
-            onClick={() => batchMergeSummarize(selectedNodeIds)}
-            className="text-xs bg-blue-50 hover:bg-blue-100 text-blue-600 px-3 py-1.5 rounded-lg transition-colors"
+            onClick={() => toggle('merge')}
+            className={actionBtn('merge', 'bg-blue-600 text-white', 'bg-blue-50 hover:bg-blue-100 text-blue-600')}
             title={t('toolbar.mergeSummaryTitle')}
           >
             <ClipboardList size={14} strokeWidth={1.75} className="inline" /> {t('toolbar.mergeSummary')}
           </button>
 
           <button
-            onClick={() => batchMergeSummarize(selectedNodeIds, true)}
-            className="text-xs bg-accent/10 hover:bg-accent/20 text-accent px-3 py-1.5 rounded-lg transition-colors"
+            onClick={() => toggle('mergeDelete')}
+            className={actionBtn('mergeDelete', 'bg-accent text-white', 'bg-accent/10 hover:bg-accent/20 text-accent')}
             title={t('toolbar.mergeDeleteTitle')}
           >
             <ClipboardList size={14} strokeWidth={1.75} className="inline" /> {t('toolbar.mergeDelete')}
           </button>
 
+          {allHighlights.length > 0 && (
+            <button
+              onClick={() => toggle('weave')}
+              className={actionBtn('weave', 'bg-amber-500 text-white', 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-600')}
+              title={t('toolbar.weaveTitle')}
+            >
+              <Highlighter size={14} strokeWidth={1.75} className="inline" /> {t('toolbar.weave')}
+            </button>
+          )}
+
           <button
-            onClick={() => setExploreOpen(!exploreOpen)}
-            className={`text-xs px-3 py-1.5 rounded-lg transition-colors ${
-              exploreOpen
-                ? 'bg-accent text-white'
-                : 'bg-accent/10 hover:bg-accent/20 text-accent'
-            }`}
+            onClick={() => toggle('explore')}
+            className={actionBtn('explore', 'bg-accent text-white', 'bg-accent/10 hover:bg-accent/20 text-accent')}
             title={t('toolbar.exploreTitle')}
           >
             <GitBranch size={14} strokeWidth={1.75} className="inline" /> {t('common.explore')}
@@ -145,24 +172,24 @@ export default function SelectionToolbar() {
           </button>
         </div>
 
-        {/* Explore input */}
-        {exploreOpen && (
+        {/* Shared input row: question (explore) or optional intent (converge) */}
+        {pending && (
           <div className="flex gap-1.5 pt-1">
             <input
-              ref={exploreRef}
+              ref={inputRef}
               type="text"
-              value={exploreInput}
-              onChange={(e) => setExploreInput(e.target.value)}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === 'Enter' && !isImeComposing(e) && exploreInput.trim()) handleExplore();
-                if (e.key === 'Escape') { setExploreOpen(false); setExploreInput(''); }
+                if (e.key === 'Enter' && !isImeComposing(e) && (pending !== 'explore' || input.trim())) run();
+                if (e.key === 'Escape') { setPending(null); setInput(''); }
               }}
-              placeholder={t('toolbar.explorePlaceholder')}
+              placeholder={pending === 'explore' ? t('toolbar.explorePlaceholder') : t('toolbar.intentPlaceholder')}
               className="flex-1 text-xs border border-accent/30 rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-accent bg-accent/5 min-w-[300px]"
             />
             <button
-              onClick={handleExplore}
-              disabled={!exploreInput.trim()}
+              onClick={run}
+              disabled={pending === 'explore' && !input.trim()}
               className="text-xs bg-accent text-white px-3 py-2 rounded-lg hover:bg-accent-strong transition-colors shrink-0 disabled:opacity-30"
             >
               {t('common.go')}

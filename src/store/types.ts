@@ -74,7 +74,12 @@ export interface LlmSlice {
   /** Fan out N perspectives: once = blind candidate branches; follow = reviewers that auto-rerun with the thread. */
   fanOut: (parentId: string, question: string, roles: { name: string; prompt: string }[], opts?: { follow?: boolean; rounds?: number }) => Promise<void>;
   regenerate: (nodeId: string) => void;
-  batchMergeSummarize: (nodeIds: string[], deleteAfter?: boolean) => void;
+  batchMergeSummarize: (nodeIds: string[], deleteAfter?: boolean, intent?: string) => void;
+  /** Weave the highlights of the selected nodes into one cited passage.
+   *  Input = the user's OWN marks (already-human-curated), so context stays
+   *  small even for whole-canvas selections; the passage cites [n] back to
+   *  its source highlights. Optional intent steers angle/purpose. */
+  weaveHighlights: (nodeIds: string[], intent?: string) => Promise<void>;
   stopGeneration: (nodeId: string) => void;
 }
 

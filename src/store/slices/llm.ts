@@ -391,7 +391,7 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
     await runNodeGeneration(set, get, id, { question: node.data.question, messages: contextMessages, images: regenCtx.images });
   },
 
-  batchMergeSummarize: async (nodeIds: string[], deleteAfter?: boolean) => {
+  batchMergeSummarize: async (nodeIds: string[], deleteAfter?: boolean, intent?: string) => {
     // One-Rule honest converge: the synthesis node hangs from the selection's
     // SINKS with real edges — ancestors flow in along the chains (transitive
     // reduction, same as exploreFrom), nothing embedded as invisible text.
@@ -402,9 +402,10 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
     if (selected.length === 0) return;
     const sinkIds = selectionSinks(selected.map((n) => n.id), edges);
 
-    // Create summary node
+    // Create summary node — the user's intent (if any) becomes the visible
+    // question, so the card says what this synthesis is FOR
     const id = generateId();
-    const summaryQuestion = `Merge summary of ${selected.length} nodes`;
+    const summaryQuestion = intent?.trim() || `Merge summary of ${selected.length} nodes`;
     const newNode: ThoughtNode = {
       id,
       type: 'thought',
@@ -470,7 +471,10 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
    - **依据 (Key evidence)** — 支撑结论的关键论据/数据/引用 (the arguments, data or citations that carry the conclusions)
    - **分歧与未决 (Open questions)** — 节点间的矛盾之处与尚未回答的问题 (contradictions between nodes and what remains unanswered)
 4. 保留所有独特洞见与引用标注，丢弃寒暄和重复。(Keep every unique insight and citation marker; drop filler and repetition.)
-5. 只输出综合后的内容，不要元评论。(Output ONLY the synthesis.)` },
+5. 只输出综合后的内容，不要元评论。(Output ONLY the synthesis.)${intent?.trim() ? `
+
+用户对这次综合的额外要求（优先满足，可覆盖上面的结构）/ The user's specific request for this synthesis (takes priority, may override the structure above):
+${intent.trim()}` : ''}` },
     ];
 
     await runNodeGeneration(set, get, id, {
@@ -518,6 +522,86 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
         set((state) => ({ nodes: autoLayout(state.nodes, state.edges) }));
       },
     });
+  },
+
+  weaveHighlights: async (nodeIds: string[], intent?: string) => {
+    // The other converge action. Merge compresses RAW content; weave works
+    // on the user's OWN marks — highlights are already human-curated, so
+    // the model's job is editorial (thread the judged pieces together), the
+    // context stays small even canvas-wide, and every sentence can cite [n]
+    // back to a specific mark. Human decides first, machine writes second.
+    const { nodes, edges } = get();
+    const selected = nodeIds
+      .map((id) => nodes.find((n) => n.id === id))
+      .filter(Boolean) as ThoughtNode[];
+    // Stable numbering: canvas order (nodes array), then mark order per node
+    const entries: { n: number; text: string; from: string }[] = [];
+    for (const node of nodes) {
+      if (!selected.some((s) => s.id === node.id)) continue;
+      const title = node.data.question.replace(/\s+/g, ' ').trim().slice(0, 60);
+      for (const h of node.data.highlights || []) {
+        entries.push({ n: entries.length + 1, text: h.text, from: title });
+      }
+    }
+    if (entries.length === 0) return;
+    const sinkIds = selectionSinks(selected.map((n) => n.id), edges);
+
+    const id = generateId();
+    const weaveQuestion = intent?.trim() || fmt(t('weave.defaultQuestion'), { n: entries.length });
+    const newNode: ThoughtNode = {
+      id,
+      type: 'thought',
+      position: { x: selected[0].position.x, y: selected[0].position.y },
+      dragHandle: '.drag-handle',
+      data: {
+        question: weaveQuestion,
+        response: '', responses: [''], responseIndex: 0,
+        isCollapsed: false, isEditing: false, isEditingResponse: false, isLoading: true,
+        tokenCount: 0, highlights: [], highlightMode: 'tag',
+        attachments: [], excludedAttachmentIds: [], includedAttachmentIds: [],
+        roleMode: 'inherit' as const, isRoot: false, isBranch: false,
+        webSearch: false, scholarSearch: false, // editorial task: no search
+      },
+    };
+    const fanIn: ThoughtEdge[] = sinkIds.map((nid) => ({
+      id: `edge-${nid}-${id}`,
+      source: nid,
+      target: id,
+      sourceHandle: 'continue',
+      targetHandle: 'top',
+      type: 'smoothstep',
+      style: { stroke: COLORS.accent, strokeWidth: 2 },
+      markerEnd: { type: 'arrowclosed' as const, color: COLORS.accent, width: 18, height: 18 },
+      data: {},
+    }));
+
+    get().pushHistory();
+    const newEdges = [...edges, ...fanIn];
+    set({ nodes: autoLayout([...nodes, newNode], newEdges), edges: newEdges, selectedNodeId: id, selectedNodeIds: [] });
+
+    // First generation feeds ONLY the marks (the whole point: human-curated
+    // input). The fan-in edges carry provenance and the full upstream for
+    // any follow-up question asked on this node later.
+    const list = entries.map((e) => `${fmt(t('weave.entry'), { n: String(e.n), from: e.from })}\n${e.text}`).join('\n\n');
+    const messages: ContextMessage[] = [
+      { role: 'system', content: 'You weave a user\'s own highlighted passages into one coherent text. CRITICAL: Your output language MUST match the primary language of the highlights. Do not translate.' },
+      { role: 'user', content: `以下是我在一次探索中亲手标记的 ${entries.length} 条高光，按画布顺序编号，每条注明出处节点。(Below are the ${entries.length} passages I highlighted myself during an exploration, numbered in canvas order, each with its source node.)
+
+${list}` },
+      { role: 'user', content: `把这些高光串联成一段连贯的文字。(Weave these highlights into one coherent passage.)
+
+规则 / Rules:
+1. 输出语言与高光的主要语言一致。(Match the highlights' primary language.)
+2. 这些是我自己判断过的重点：忠实串联与衔接，不要引入高光之外的新论断。(These are MY judged marks: thread and connect them faithfully; introduce no claims beyond the highlights.)
+3. 每个来自高光的表述标注 [n] 引用其编号，方便我回溯。(Cite [n] for every statement drawn from a highlight.)
+4. 高光之间的矛盾要点明，不要抹平。(Name contradictions between highlights; do not smooth them over.)
+5. 只输出串联后的文字。(Output only the woven passage.)${intent?.trim() ? `
+
+用户对这次串联的额外要求（优先满足）/ The user's specific request (takes priority):
+${intent.trim()}` : ''}` },
+    ];
+
+    await runNodeGeneration(set, get, id, { question: weaveQuestion, messages });
   },
 
   stopGeneration: (nodeId: string) => {
