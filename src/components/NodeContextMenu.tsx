@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Archive, ArchiveRestore, BookOpen, Copy, Files, Maximize2, RefreshCw, Trash2 } from 'lucide-react';
+import { Archive, ArchiveRestore, BookOpen, Copy, Files, GitFork, Maximize2, RefreshCw, Trash2 } from 'lucide-react';
 import { useStore } from '../store';
 import { useUiStore, confirmDialog, toast } from '../lib/ui-store';
 import { useT, fmt, t as ti } from '../i18n';
@@ -62,6 +62,11 @@ export default function NodeContextMenu({ x, y, nodeId, onClose }: {
       {hasResponse && (
         <button className={item} onClick={run(() => { void useStore.getState().rerunNode(nodeId); })}>
           <RefreshCw size={14} strokeWidth={1.75} className={icon} /> {t('ctx.rerun')}
+        </button>
+      )}
+      {hasResponse && (
+        <button className={item} title={ti('actions.regenBranchTitle')} onClick={run(() => { void useStore.getState().regenerate(nodeId); })}>
+          <GitFork size={14} strokeWidth={1.75} className={icon} /> {t('ctx.regenBranch')}
         </button>
       )}
       {copyText && (

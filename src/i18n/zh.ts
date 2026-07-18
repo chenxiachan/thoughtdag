@@ -212,6 +212,7 @@ export const zh: Record<keyof typeof en, string> = {
   'ctx.openPanel': '打开面板',
   'ctx.readingView': '阅读视图',
   'ctx.rerun': '重新生成（追加版本）',
+  'ctx.regenBranch': '重新生成（新节点）',
   'ctx.copyContent': '复制内容',
   'ctx.copied': '已复制',
   'ctx.duplicate': '复制副本',

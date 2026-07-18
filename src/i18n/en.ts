@@ -212,6 +212,7 @@ export const en = {
   'ctx.openPanel': 'Open panel',
   'ctx.readingView': 'Reading view',
   'ctx.rerun': 'Regenerate (new version)',
+  'ctx.regenBranch': 'Regenerate (new node)',
   'ctx.copyContent': 'Copy content',
   'ctx.copied': 'Copied',
   'ctx.duplicate': 'Duplicate',

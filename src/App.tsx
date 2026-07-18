@@ -66,6 +66,7 @@ import { useT, t as ti, fmt, useI18n } from './i18n';
 import { isViewerMode, buildViewerLink } from './lib/viewer';
 import { useModels } from './lib/use-models';
 import { useZoomTier } from './lib/use-map-mode';
+import { useStore as useRfStore } from '@xyflow/react';
 
 // One node type key, three renderers: content nodes (notes / files) render
 // the same in every mode; otherwise the active project's kind decides
@@ -1508,12 +1509,18 @@ function Canvas() {
 
 
 // Stamps the current semantic-zoom tier on the canvas element so CSS can
-// restyle global layers (edge widths at glyph zoom). Must live inside
-// <ReactFlow> to reach the flow store.
+// restyle global layers, and streams the live zoom into a CSS variable so
+// glyph seals and edges can counter-scale (POI style: world position,
+// fixed screen size — the icon map stays dense however far you zoom out).
+// Must live inside <ReactFlow> to reach the flow store.
 function ZoomTierTag() {
   const tier = useZoomTier();
+  const zoom = useRfStore((s) => s.transform[2]);
   useEffect(() => {
     document.querySelector('.react-flow')?.setAttribute('data-zoom-tier', tier);
   }, [tier]);
+  useEffect(() => {
+    (document.querySelector('.react-flow') as HTMLElement | null)?.style.setProperty('--tdag-zoom', String(zoom));
+  }, [zoom]);
   return null;
 }

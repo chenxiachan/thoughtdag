@@ -425,9 +425,17 @@ body.tdag-connecting, body.tdag-connecting * {
   outline: 3px solid var(--color-accent, #6b5ce7);
   outline-offset: 3px;
 }
+/* Glyph seals keep a FIXED SCREEN SIZE (POI style, like map pins): the
+   scale cancels the viewport zoom below the glyph threshold (0.32), so
+   zooming further out tightens the map instead of shrinking the seals.
+   At zoom = 0.32 the factor is exactly 1 — the tier transition is seamless. */
+[data-zoom-tier='glyph'] [data-glyph-node] > span {
+  transform: scale(calc(0.32 / var(--tdag-zoom, 0.32)));
+}
+
 /* Edges thicken at glyph zoom so the skeleton stays legible at distance */
 [data-zoom-tier='glyph'] .react-flow__edge path.react-flow__edge-path {
-  stroke-width: 7px !important;
+  stroke-width: calc(7px * 0.32 / var(--tdag-zoom, 0.32)) !important;
 }
 
 /* Unbroken long tokens (URLs, DOIs, hashes) must wrap instead of escaping
