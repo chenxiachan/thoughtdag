@@ -1303,7 +1303,7 @@ function Canvas() {
         {hasNodes && (
           <button
             onClick={() => (isParadigm ? exportActiveParadigm() : exportActiveProjectJson())}
-            className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors text-ink-muted hover:text-accent"
+            className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors text-ink-faint hover:text-accent"
             title={isParadigm ? t('paradigm.exportParadigm') : t('switcher.exportBackup')}
           >
             <Download size={15} strokeWidth={1.75} />
@@ -1312,7 +1312,7 @@ function Canvas() {
         {backupSupported && (
           <button
             onClick={() => useUiStore.getState().setBackupDialogOpen(true)}
-            className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors text-ink-faint hover:text-accent"
+            className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors text-ink-muted hover:text-accent"
             title={t('backup.dialogTitle')}
             data-backup-entry
           >
