@@ -1285,8 +1285,29 @@ function Canvas() {
             }
           }} />
         )}
-        {/* ⋯ overflow: share, export, backup, memory, annotations, relayout,
-            tutorial — one slot regardless of language or panel width. */}
+        {/* Saving stays standing — deliberate export matters too much to
+            hide behind a menu. */}
+        {hasNodes && (
+          <button
+            onClick={() => (isParadigm ? exportActiveParadigm() : exportActiveProjectJson())}
+            className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors text-ink-muted hover:text-accent"
+            title={isParadigm ? t('paradigm.exportParadigm') : t('switcher.exportBackup')}
+          >
+            <Download size={15} strokeWidth={1.75} />
+          </button>
+        )}
+        {backupSupported && (
+          <button
+            onClick={() => useUiStore.getState().setBackupDialogOpen(true)}
+            className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors text-ink-faint hover:text-accent"
+            title={t('backup.dialogTitle')}
+            data-backup-entry
+          >
+            <FolderSync size={15} strokeWidth={1.75} />
+          </button>
+        )}
+        {/* ⋯ overflow: share, memory, annotations, relayout, tutorial —
+            one slot regardless of language or panel width. */}
         <div ref={moreRef} className="relative">
           <button
             onClick={() => setMoreOpen((v) => !v)}
@@ -1316,23 +1337,6 @@ function Canvas() {
                   title={t('viewer.shareTitle')}
                 >
                   <Share2 size={14} strokeWidth={1.75} className="text-ink-faint shrink-0" /> {t('toolbar.menuShare')}
-                </button>
-              )}
-              {hasNodes && (
-                <button
-                  onClick={() => { setMoreOpen(false); if (isParadigm) exportActiveParadigm(); else exportActiveProjectJson(); }}
-                  className="w-full text-left px-3 py-2 text-xs text-ink hover:bg-wash transition-colors flex items-center gap-2.5"
-                >
-                  <Download size={14} strokeWidth={1.75} className="text-ink-faint shrink-0" /> {isParadigm ? t('paradigm.exportParadigm') : t('switcher.exportBackup')}
-                </button>
-              )}
-              {backupSupported && (
-                <button
-                  onClick={() => { setMoreOpen(false); useUiStore.getState().setBackupDialogOpen(true); }}
-                  className="w-full text-left px-3 py-2 text-xs text-ink hover:bg-wash transition-colors flex items-center gap-2.5"
-                  data-backup-entry
-                >
-                  <FolderSync size={14} strokeWidth={1.75} className="text-ink-faint shrink-0" /> {t('backup.dialogTitle')}
                 </button>
               )}
               <button
