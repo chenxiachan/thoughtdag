@@ -195,6 +195,8 @@ export const en = {
   'frame.untitled': '(untitled frame)',
   'toolbar.frames': 'Frame navigator: click to jump to a region',
   'toolbar.more': 'More actions',
+  'update.available': 'A new version is live — refresh to get it',
+  'update.refresh': 'Refresh',
   'toolbar.exportEvents': 'Export event log (.csv)',
   'toolbar.exportEventsTitle': 'Timestamped record of canvas operations (asks, generations, highlights, archiving) for R/Python analysis',
   'toolbar.menuShare': 'Share read-only link',

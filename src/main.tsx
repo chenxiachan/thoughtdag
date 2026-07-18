@@ -19,6 +19,10 @@ else {
   void import('./lib/local-backup').then((m) => m.bootAutoBackup())
 }
 
+// A long-lived tab keeps running the bundle it loaded; nudge when a newer
+// deploy lands (viewer tabs included — a shared link can sit open for days).
+void import('./lib/update-check').then((m) => m.bootUpdateCheck())
+
 // Pasting a #view= link into an ALREADY-OPEN tab only changes the hash —
 // the browser won't reload, so the viewer/author decision above never
 // re-runs. Cross the boundary with an explicit reload (both directions).
