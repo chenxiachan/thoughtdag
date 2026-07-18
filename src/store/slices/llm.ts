@@ -17,6 +17,11 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
     const id = generateId();
     get().logEvent('ask', id, { chars: question.length, ...(parentId ? {} : { root: true }), ...(branchContext ? { branch: true } : {}) });
     const isRoot = !parentId;
+    // Model follows the LINE, not the toolbar: a child inherits its parent's
+    // pinned model, so a deepseek thread stays deepseek even while the
+    // global picker sits on something else. No pin on the parent = keep
+    // following the global pick (undefined), as before.
+    const inheritedModel = parentId ? get().nodes.find((n) => n.id === parentId)?.data.model : undefined;
     const newNode: ThoughtNode = {
       id,
       type: 'thought',
@@ -26,6 +31,7 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
         question,
         createdAt: new Date().toISOString(),
         askedAt: new Date().toISOString(),
+        model: inheritedModel,
         response: '',
         responses: [],
         responseIndex: -1,
@@ -246,10 +252,14 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
     get().pushHistory();
     const id = generateId();
     get().logEvent('explore', id, { sources: parents.length });
+    // Single-parent explore stays on that line's model; multi-parent is
+    // ambiguous — follow the global pick.
+    const exploreModel = parents.length === 1 ? nodes.find((n) => n.id === parents[0])?.data.model : undefined;
     const newNode: ThoughtNode = {
       id, type: 'thought', position: { x: 0, y: 0 }, dragHandle: '.drag-handle',
       data: {
         question,
+        model: exploreModel,
         createdAt: new Date().toISOString(),
         askedAt: new Date().toISOString(),
         response: '', responses: [], responseIndex: -1,
