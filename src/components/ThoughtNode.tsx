@@ -185,6 +185,9 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
 
   const handleEditSubmit = () => {
     if (!editValue.trim()) return;
+    // Unchanged question = the user opened the editor to read or copy, not
+    // to regenerate — closing must never cost them their answer.
+    if (editValue.trim() === data.question) { setEditing(id, false); return; }
     if (isHuman) {
       // Human turn: record the question only — no generation on this node;
       // downstream prompt steps answer (and the cascade advances).

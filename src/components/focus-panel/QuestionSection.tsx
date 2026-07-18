@@ -39,6 +39,8 @@ export default function QuestionSection({
 
   const handleEditSubmit = () => {
     if (!editValue.trim()) return;
+    // Unchanged question: close the editor, never regenerate
+    if (editValue.trim() === question) { setEditing(nodeId, false); return; }
     if (isHuman) submitHumanTurn(nodeId, editValue.trim());
     else editQuestion(nodeId, editValue.trim());
   };

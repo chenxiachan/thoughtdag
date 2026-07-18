@@ -147,17 +147,36 @@ export function autoLayout(allNodes: ThoughtNode[], allEdges: ThoughtEdge[]): Th
       assignColumns(continuation, col);
     }
 
-    // Regenerate siblings: columns immediately adjacent (col+1, col+2, ...)
+    // Regenerate siblings: columns immediately adjacent (col+1, col+2, ...).
+    // On an ANCHORED chain (virtual column) the sibling must take a fresh
+    // virtual column pinned beside the chain — arithmetic on a virtual
+    // column id would land in the grid formula at x ≈ 62 million, and
+    // feeding it into nextColumn would catapult every later root after it.
     for (let i = 0; i < regenerates.length; i++) {
-      const regenCol = col + 1 + i;
-      nextColumn = Math.max(nextColumn, regenCol + 1);
+      let regenCol: number;
+      if (col >= VIRT_BASE) {
+        regenCol = nextVirt++;
+        colXOverride.set(regenCol, colX(col) + (i + 1) * (NODE_WIDTH + H_GAP));
+      } else {
+        regenCol = col + 1 + i;
+        nextColumn = Math.max(nextColumn, regenCol + 1);
+      }
       assignColumns(regenerates[i], regenCol);
     }
 
-    // Explore branches: after all regenerate columns
+    // Explore branches: after all regenerate columns (anchored chains keep
+    // them beside the chain too, past the sibling columns)
+    let exploreOffset = 0;
     for (const ec of explores) {
-      const exploreCol = nextColumn;
-      nextColumn++;
+      let exploreCol: number;
+      if (col >= VIRT_BASE) {
+        exploreCol = nextVirt++;
+        colXOverride.set(exploreCol, colX(col) + (regenerates.length + 1 + exploreOffset) * (NODE_WIDTH + H_GAP));
+        exploreOffset++;
+      } else {
+        exploreCol = nextColumn;
+        nextColumn++;
+      }
       assignColumns(ec, exploreCol);
     }
   }
