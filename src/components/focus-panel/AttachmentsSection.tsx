@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
-import { ChevronRight, FileText, Loader2, Paperclip, X } from 'lucide-react';
+import { ChevronRight, FileText, Loader2, Paperclip, X, BookOpen } from 'lucide-react';
 import { useStore } from '../../store';
+import { useUiStore } from '../../lib/ui-store';
 import { processFile, FILE_INPUT_ACCEPT } from '../../lib/attachments';
 import { useT, fmt } from '../../i18n';
 import { isViewerMode } from '../../lib/viewer';
@@ -140,6 +141,15 @@ export default function AttachmentsSection({
                       </div>
                     )}
                   </div>
+                  {att.type === 'application/pdf' && !att.isExtracting && (
+                    <button
+                      onClick={() => useUiStore.getState().setReaderNodeId(nodeId)}
+                      title={t('attach.openReader')}
+                      className="text-ink-faint hover:text-accent transition-colors shrink-0"
+                    >
+                      <BookOpen size={14} strokeWidth={1.75} />
+                    </button>
+                  )}
                   {!isViewerMode && <button
                     onClick={() => removeAttachment(nodeId, att.id)}
                     className="text-ink-faint hover:text-red-500 transition-colors shrink-0 opacity-0 group-hover:opacity-100"
@@ -155,7 +165,7 @@ export default function AttachmentsSection({
           {inherited.length > 0 && (
             <div className="space-y-1.5">
               <span className="text-2xs text-ink-faint font-medium">{t('attach.inheritedFrom')}</span>
-              {inherited.map(({ attachment: att, sourceQuestion, excludedByAncestor }) => {
+              {inherited.map(({ attachment: att, sourceNodeId, sourceQuestion, excludedByAncestor }) => {
                 const isExcludedSelf = excludeSet.has(att.id);
                 const includeSet = new Set(includedAttachmentIds);
                 const isOverridden = includeSet.has(att.id); // re-included despite ancestor exclusion
@@ -175,6 +185,15 @@ export default function AttachmentsSection({
                         {isOverridden && <span className="ml-1 text-green-500">• {t('attach.reIncluded')}</span>}
                       </p>
                     </div>
+                    {att.type === 'application/pdf' && (
+                      <button
+                        onClick={() => useUiStore.getState().setReaderNodeId(sourceNodeId)}
+                        title={t('attach.openReader')}
+                        className="text-ink-faint hover:text-accent transition-colors shrink-0"
+                      >
+                        <BookOpen size={14} strokeWidth={1.75} />
+                      </button>
+                    )}
                     <button
                       onClick={() => toggleExcludeAttachment(nodeId, att.id, excludedByAncestor)}
                       className={`text-xs px-2 py-1 rounded-lg transition-colors shrink-0 ${

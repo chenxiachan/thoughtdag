@@ -27,6 +27,7 @@ import FocusPanel from './components/focus-panel';
 import SelectionToolbar from './components/SelectionToolbar';
 import NodeContextMenu from './components/NodeContextMenu';
 import HighlightsOverviewModal from './components/ui/HighlightsOverviewModal';
+import MaterialsOverviewModal from './components/ui/MaterialsOverviewModal';
 import SearchBar from './components/SearchBar';
 import DiagnosticsPanel from './components/DiagnosticsPanel';
 import MaterialReader from './components/MaterialReader';
@@ -121,6 +122,8 @@ function Canvas() {
   const hasNodes = nodes.length > 0;
   const hasEvents = useStore((s) => s.events.length > 0);
   const highlightCount = useStore((s) => s.nodes.reduce((sum, n) => sum + (n.data.highlights?.length ?? 0), 0));
+  const materialCount = useStore((s) => s.nodes.reduce((sum, n) =>
+    sum + (n.data.attachments?.length ?? 0) + (['note', 'link'].includes(n.data.stepKind ?? '') ? 1 : 0), 0));
   const rfInstance = useRef<ReactFlowInstance<ThoughtNodeType, ThoughtEdge> | null>(null);
   const prevNodeCount = useRef(nodes.length);
   const lang = useI18n((s) => s.lang);
@@ -1398,6 +1401,16 @@ function Canvas() {
                   <Highlighter size={14} strokeWidth={1.75} className="text-ink-faint shrink-0" /> {fmt(t('hlov.entry'), { n: highlightCount })}
                 </button>
               )}
+              {materialCount > 0 && (
+                <button
+                  onClick={() => { setMoreOpen(false); useUiStore.getState().setMaterialsOverviewOpen(true); }}
+                  className="w-full text-left px-3 py-2 text-xs text-ink hover:bg-wash transition-colors flex items-center gap-2.5"
+                  title={t('matov.entryTitle')}
+                  data-matov-entry
+                >
+                  <Paperclip size={14} strokeWidth={1.75} className="text-ink-faint shrink-0" /> {fmt(t('matov.entry'), { n: materialCount })}
+                </button>
+              )}
               {hasEvents && (
                 <button
                   onClick={() => { setMoreOpen(false); exportEventLogCsv(); }}
@@ -1456,6 +1469,13 @@ function Canvas() {
       {nodeMenu && (
         <NodeContextMenu x={nodeMenu.x} y={nodeMenu.y} nodeId={nodeMenu.nodeId} onClose={() => setNodeMenu(null)} />
       )}
+      <MaterialsOverviewModal onLocate={(nid) => {
+        const n = useStore.getState().nodes.find((x) => x.id === nid);
+        if (n) {
+          setSelectedNodeId(nid);
+          rfInstance.current?.setCenter(n.position.x + 260, n.position.y + 110, { zoom: 1, duration: 350 });
+        }
+      }} />
       <HighlightsOverviewModal onLocate={(nid) => {
         const n = useStore.getState().nodes.find((x) => x.id === nid);
         if (n) {

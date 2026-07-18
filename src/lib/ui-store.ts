@@ -83,6 +83,8 @@ interface UiState {
   memoryManagerOpen: boolean;
   highlightsOverviewOpen: boolean;
   setHighlightsOverviewOpen: (open: boolean) => void;
+  materialsOverviewOpen: boolean;
+  setMaterialsOverviewOpen: (open: boolean) => void;
   setMemoryManagerOpen: (open: boolean) => void;
   /** Browser-side API key dialog (the .env-free path in). */
   apiKeyModalOpen: boolean;
@@ -186,6 +188,8 @@ export const useUiStore = create<UiState>((set, get) => ({
   memoryManagerOpen: false,
   highlightsOverviewOpen: false,
   setHighlightsOverviewOpen: (open) => set({ highlightsOverviewOpen: open }),
+  materialsOverviewOpen: false,
+  setMaterialsOverviewOpen: (open) => set({ materialsOverviewOpen: open }),
   setMemoryManagerOpen: (open) => set({ memoryManagerOpen: open }),
   apiKeyModalOpen: false,
   setApiKeyModalOpen: (open) => set({ apiKeyModalOpen: open }),

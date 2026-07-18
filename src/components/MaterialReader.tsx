@@ -73,7 +73,10 @@ export default function MaterialReader({ onLocate }: { onLocate: (id: string) =>
 function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: string) => void }) {
   const t = useT();
   const data = node.data;
-  const kind = data.stepKind === 'file' ? 'file' : data.stepKind === 'link' ? 'link' : 'note';
+  // Plain thought nodes carrying a PDF read as files too — the reading
+  // loop belongs to the material, not to the node kind.
+  const kind = data.stepKind === 'file' || (!data.stepKind && (data.attachments ?? []).some((a) => a.type === 'application/pdf'))
+    ? 'file' : data.stepKind === 'link' ? 'link' : 'note';
   const attachments = useMemo(() => data.attachments ?? [], [data.attachments]);
   const pdfAtt = attachments.find((a) => a.type === 'application/pdf');
   const close = () => useUiStore.getState().setReaderNodeId(null);
