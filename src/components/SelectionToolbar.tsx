@@ -88,20 +88,22 @@ export default function SelectionToolbar() {
             <GitBranch size={14} strokeWidth={1.75} className="inline" /> {t('common.explore')}
           </button>
 
+          {/* Low-frequency actions: icon-only so the row stays one line in
+              both languages (full label lives in the tooltip). */}
           <button
             onClick={() => { setArchived(selectedNodeIds, true); }}
-            className="text-xs bg-wash hover:bg-line text-ink-muted px-3 py-1.5 rounded-lg transition-colors"
-            title={t('archive.batchTitle')}
+            className="bg-wash hover:bg-line text-ink-muted w-8 h-7 rounded-lg transition-colors flex items-center justify-center"
+            title={`${t('archive.label')} — ${t('archive.batchTitle')}`}
           >
-            <Archive size={14} strokeWidth={1.75} className="inline" /> {t('archive.label')}
+            <Archive size={14} strokeWidth={1.75} />
           </button>
 
           <button
             onClick={() => duplicateSelection(selectedNodeIds)}
-            className="text-xs bg-wash hover:bg-line text-ink-muted px-3 py-1.5 rounded-lg transition-colors"
-            title={t('toolbar.duplicateTitle')}
+            className="bg-wash hover:bg-line text-ink-muted w-8 h-7 rounded-lg transition-colors flex items-center justify-center"
+            title={`${t('toolbar.duplicate')} — ${t('toolbar.duplicateTitle')}`}
           >
-            <Copy size={14} strokeWidth={1.75} className="inline" /> {t('toolbar.duplicate')}
+            <Copy size={14} strokeWidth={1.75} />
           </button>
 
           <button
@@ -112,18 +114,18 @@ export default function SelectionToolbar() {
                 confirmLabel: t('common.confirmAlign'),
               }).then((ok) => { if (ok) alignSelection(selectedNodeIds); });
             }}
-            className="text-xs bg-wash hover:bg-line text-ink-muted px-3 py-1.5 rounded-lg transition-colors"
-            title={t('confirm.alignTitle')}
+            className="bg-wash hover:bg-line text-ink-muted w-8 h-7 rounded-lg transition-colors flex items-center justify-center"
+            title={`${t('toolbar.align')} — ${t('confirm.alignTitle')}`}
           >
-            <AlignVerticalJustifyStart size={14} strokeWidth={1.75} className="inline" /> {t('toolbar.align')}
+            <AlignVerticalJustifyStart size={14} strokeWidth={1.75} />
           </button>
 
           <button
             onClick={() => downloadMarkdown(selectionMarkdown(selectedNodeIds))}
-            className="text-xs bg-wash hover:bg-line text-ink-muted px-3 py-1.5 rounded-lg transition-colors"
-            title={t('toolbar.exportTitle')}
+            className="bg-wash hover:bg-line text-ink-muted w-8 h-7 rounded-lg transition-colors flex items-center justify-center"
+            title={`${t('common.exportMd')} — ${t('toolbar.exportTitle')}`}
           >
-            <FileDown size={14} strokeWidth={1.75} className="inline" /> {t('common.exportMd')}
+            <FileDown size={14} strokeWidth={1.75} />
           </button>
 
           <div className="w-px h-5 bg-line" />

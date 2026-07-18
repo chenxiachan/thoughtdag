@@ -16,7 +16,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import 'highlight.js/styles/github.css';
-import { BookOpen, Brain, CircleHelp, Dna, Download, Drama, Eye, FileText, Frame, GitBranch, KeyRound, LayoutGrid, Loader2, MessageCircleQuestion, Paperclip, Redo2, Scissors, Share2, SquareTerminal, StickyNote, Trash2, Undo2, Workflow, X, ListRestart, FolderSync } from 'lucide-react';
+import { BookOpen, Brain, CircleHelp, Dna, Download, Drama, Eye, FileText, Frame, GitBranch, KeyRound, LayoutGrid, Loader2, MessageCircleQuestion, MoreHorizontal, Paperclip, Redo2, Scissors, Share2, SquareTerminal, StickyNote, Trash2, Undo2, Workflow, X, ListRestart, FolderSync } from 'lucide-react';
 import './index.css';
 import ThoughtNode from './components/ThoughtNode';
 import ParadigmNode from './components/ParadigmNode';
@@ -654,6 +654,20 @@ function Canvas() {
     return () => window.removeEventListener('mousedown', handler);
   }, [frameNavOpen]);
 
+  // Toolbar overflow menu: low-frequency actions live behind one ⋯ button
+  // so the top-right row stays short in both languages and with the panel
+  // dragged wide.
+  const [moreOpen, setMoreOpen] = useState(false);
+  const moreRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!moreOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (!moreRef.current?.contains(e.target as Node)) setMoreOpen(false);
+    };
+    window.addEventListener('mousedown', handler);
+    return () => window.removeEventListener('mousedown', handler);
+  }, [moreOpen]);
+
   // Annotation view mode: hide frames + UNLINKED content nodes (linked
   // material stays — it's part of the reasoning record). A filter over the
   // render, not a layer system: the semantic layering already lives in edges.
@@ -1193,23 +1207,6 @@ function Canvas() {
           </>
         )}
         {!isParadigm && <ModelPicker />}
-        {backupSupported && (
-          <button
-            onClick={() => useUiStore.getState().setBackupDialogOpen(true)}
-            className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors text-ink-faint hover:text-accent"
-            title={t('backup.dialogTitle')}
-            data-backup-entry
-          >
-            <FolderSync size={15} strokeWidth={1.75} />
-          </button>
-        )}
-        <button
-          onClick={() => useUiStore.getState().setMemoryManagerOpen(true)}
-          className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors text-ink-faint hover:text-accent"
-          title={t('memory.entryTitle')}
-        >
-          <Brain size={15} strokeWidth={1.75} />
-        </button>
         {(!hasNodes || modelData?.models.length === 0) && (
           <button
             onClick={() => useUiStore.getState().setApiKeyModalOpen(true)}
@@ -1220,8 +1217,6 @@ function Canvas() {
             <KeyRound size={15} strokeWidth={1.75} />
           </button>
         )}
-        {!isParadigm && (<>
-        </>)}
         {/* Batch replay: visible only when something is stale. Price at the
             decision point — N generations is the one many-calls-per-click
             action in the app, so it confirms with a token estimate. */}
@@ -1280,27 +1275,7 @@ function Canvas() {
             )}
           </div>
         )}
-        {hasNodes && (
-          <button
-            onClick={() => setAnnotationsHidden(!annotationsHidden)}
-            className={`bg-card/90 backdrop-blur border rounded-lg w-8 h-8 flex items-center justify-center shadow-sm transition-colors ${
-              annotationsHidden
-                ? 'border-accent/40 text-accent hover:bg-accent/10'
-                : 'border-line text-ink-faint hover:bg-wash'
-            }`}
-            title={annotationsHidden ? t('toolbar.showAnnotations') : t('toolbar.hideAnnotations')}
-          >
-            <StickyNote size={15} strokeWidth={1.75} />
-          </button>
-        )}
         <LangSwitch />
-        <button
-          onClick={() => setTutorialOpen(true)}
-          className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors text-ink-muted hover:text-accent"
-          title={t('landing.howItWorks')}
-        >
-          <CircleHelp size={15} strokeWidth={1.75} />
-        </button>
         {hasNodes && !isParadigm && (
           <DiagnosticsPanel onLocate={(id) => {
             const n = useStore.getState().nodes.find((x) => x.id === id);
@@ -1310,51 +1285,100 @@ function Canvas() {
             }
           }} />
         )}
-        {hasNodes && (
+        {/* ⋯ overflow: share, export, backup, memory, annotations, relayout,
+            tutorial — one slot regardless of language or panel width. */}
+        <div ref={moreRef} className="relative">
           <button
-            onClick={() => (isParadigm ? exportActiveParadigm() : exportActiveProjectJson())}
-            className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors text-ink-muted hover:text-accent"
-            title={isParadigm ? t('paradigm.exportParadigm') : t('switcher.exportBackup')}
+            onClick={() => setMoreOpen((v) => !v)}
+            className={`bg-card/90 backdrop-blur border rounded-lg w-8 h-8 flex items-center justify-center shadow-sm transition-colors ${
+              moreOpen ? 'border-accent/40 text-accent' : 'border-line text-ink-faint hover:bg-wash'
+            }`}
+            title={t('toolbar.more')}
+            data-toolbar-more
           >
-            <Download size={15} strokeWidth={1.75} />
+            <MoreHorizontal size={15} strokeWidth={1.75} />
           </button>
-        )}
-        {hasNodes && !isParadigm && (
-          <button
-            onClick={() => {
-              void (async () => {
-                const { nodes: ns, edges: es } = useStore.getState();
-                const url = await buildViewerLink(ns, es);
-                await navigator.clipboard.writeText(url).catch(() => {});
-                useUiStore.getState().setShareDialogUrl(url);
-              })();
-            }}
-            className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors text-ink-muted hover:text-accent"
-            title={t('viewer.shareTitle')}
-            data-share-link
-          >
-            <Share2 size={15} strokeWidth={1.75} />
-          </button>
-        )}
-        {hasNodes && (
-          <button
-            onClick={() => {
-              void confirmDialog({
-                title: t('confirm.relayoutTitle'),
-                message: t('confirm.relayoutMsg'),
-                confirmLabel: t('toolbar.relayout'),
-              }).then((ok) => {
-                if (!ok) return;
-                relayout();
-                setTimeout(() => rfInstance.current?.fitView({ duration: 400, padding: 0.15 }), 50);
-              });
-            }}
-            className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors text-ink-muted hover:text-accent"
-            title={t('toolbar.relayout')}
-          >
-            <LayoutGrid size={15} strokeWidth={1.75} />
-          </button>
-        )}
+          {moreOpen && (
+            <div className="absolute right-0 top-full mt-1.5 bg-card border border-line rounded-xl shadow-lg py-1 w-[220px] z-30 animate-fade-in">
+              {hasNodes && !isParadigm && (
+                <button
+                  onClick={() => {
+                    setMoreOpen(false);
+                    void (async () => {
+                      const { nodes: ns, edges: es } = useStore.getState();
+                      const url = await buildViewerLink(ns, es);
+                      await navigator.clipboard.writeText(url).catch(() => {});
+                      useUiStore.getState().setShareDialogUrl(url);
+                    })();
+                  }}
+                  className="w-full text-left px-3 py-2 text-xs text-ink hover:bg-wash transition-colors flex items-center gap-2.5"
+                  data-share-link
+                  title={t('viewer.shareTitle')}
+                >
+                  <Share2 size={14} strokeWidth={1.75} className="text-ink-faint shrink-0" /> {t('toolbar.menuShare')}
+                </button>
+              )}
+              {hasNodes && (
+                <button
+                  onClick={() => { setMoreOpen(false); if (isParadigm) exportActiveParadigm(); else exportActiveProjectJson(); }}
+                  className="w-full text-left px-3 py-2 text-xs text-ink hover:bg-wash transition-colors flex items-center gap-2.5"
+                >
+                  <Download size={14} strokeWidth={1.75} className="text-ink-faint shrink-0" /> {isParadigm ? t('paradigm.exportParadigm') : t('switcher.exportBackup')}
+                </button>
+              )}
+              {backupSupported && (
+                <button
+                  onClick={() => { setMoreOpen(false); useUiStore.getState().setBackupDialogOpen(true); }}
+                  className="w-full text-left px-3 py-2 text-xs text-ink hover:bg-wash transition-colors flex items-center gap-2.5"
+                  data-backup-entry
+                >
+                  <FolderSync size={14} strokeWidth={1.75} className="text-ink-faint shrink-0" /> {t('backup.dialogTitle')}
+                </button>
+              )}
+              <button
+                onClick={() => { setMoreOpen(false); useUiStore.getState().setMemoryManagerOpen(true); }}
+                className="w-full text-left px-3 py-2 text-xs text-ink hover:bg-wash transition-colors flex items-center gap-2.5"
+                title={t('memory.entryTitle')}
+              >
+                <Brain size={14} strokeWidth={1.75} className="text-ink-faint shrink-0" /> {t('memory.managerTitle')}
+              </button>
+              {hasNodes && (
+                <button
+                  onClick={() => { setMoreOpen(false); setAnnotationsHidden(!annotationsHidden); }}
+                  className="w-full text-left px-3 py-2 text-xs text-ink hover:bg-wash transition-colors flex items-center gap-2.5"
+                  title={annotationsHidden ? t('toolbar.showAnnotations') : t('toolbar.hideAnnotations')}
+                >
+                  <StickyNote size={14} strokeWidth={1.75} className={`shrink-0 ${annotationsHidden ? 'text-accent' : 'text-ink-faint'}`} /> {annotationsHidden ? t('toolbar.menuAnnotationsShow') : t('toolbar.menuAnnotationsHide')}
+                </button>
+              )}
+              {hasNodes && (
+                <button
+                  onClick={() => {
+                    setMoreOpen(false);
+                    void confirmDialog({
+                      title: t('confirm.relayoutTitle'),
+                      message: t('confirm.relayoutMsg'),
+                      confirmLabel: t('toolbar.relayout'),
+                    }).then((ok) => {
+                      if (!ok) return;
+                      relayout();
+                      setTimeout(() => rfInstance.current?.fitView({ duration: 400, padding: 0.15 }), 50);
+                    });
+                  }}
+                  className="w-full text-left px-3 py-2 text-xs text-ink hover:bg-wash transition-colors flex items-center gap-2.5"
+                >
+                  <LayoutGrid size={14} strokeWidth={1.75} className="text-ink-faint shrink-0" /> {t('toolbar.relayout')}
+                </button>
+              )}
+              <button
+                onClick={() => { setMoreOpen(false); setTutorialOpen(true); }}
+                className="w-full text-left px-3 py-2 text-xs text-ink hover:bg-wash transition-colors flex items-center gap-2.5"
+              >
+                <CircleHelp size={14} strokeWidth={1.75} className="text-ink-faint shrink-0" /> {t('landing.howItWorks')}
+              </button>
+            </div>
+          )}
+        </div>
         <button
           onClick={undo}
           disabled={historyIndex <= 0}
