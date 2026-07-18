@@ -72,21 +72,31 @@ export function Markdown({ children }: { children: string }) {
 
 const MARK_OPEN = '<mark class="bg-amber-100 text-amber-800 px-0.5 rounded">';
 
-// A match spanning list items / paragraphs cannot live in ONE <mark>: an
-// inline tag wrapped around "\n- item" breaks the block parse (the list
-// stops being a list, the tag never closes in its block). Wrap each line's
-// CONTENT separately, leaving list/quote/heading prefixes outside the tag.
+// A match spanning list items / paragraphs / table cells cannot live in
+// ONE <mark>: an inline tag wrapped around "\n- item" breaks the block
+// parse, and a tag swallowing a table's "|" breaks the row into mismatched
+// cells. Wrap each line's CONTENT separately — list/quote/heading prefixes
+// and cell pipes stay OUTSIDE the tag; table delimiter rows pass untouched.
+function wrapLine(line: string): string {
+  const parsed = line.match(/^(\s*(?:(?:\d{1,3}[.)]|[-*+>]|#{1,6})\s+)*)(.*)$/);
+  const prefix = parsed?.[1] ?? '';
+  const rest = parsed?.[2] ?? line;
+  if (!rest.trim()) return line;
+  if (rest.includes('|')) {
+    if (/^[\s|:-]+$/.test(rest)) return line; // |---|---| delimiter row
+    return prefix + rest
+      .split('|')
+      .map((cell) => cell.trim()
+        ? cell.replace(/^(\s*)([\s\S]*?)(\s*)$/, (_, a, c, b) => `${a}${MARK_OPEN}${c}</mark>${b}`)
+        : cell)
+      .join('|');
+  }
+  return `${prefix}${MARK_OPEN}${rest}</mark>`;
+}
+
 function wrapMatch(m: string): string {
-  if (!m.includes('\n')) return `${MARK_OPEN}${m}</mark>`;
-  return m
-    .split('\n')
-    .map((line) => {
-      const parsed = line.match(/^(\s*(?:(?:\d{1,3}[.)]|[-*+>]|#{1,6})\s+)*)(.*)$/);
-      const prefix = parsed?.[1] ?? '';
-      const rest = parsed?.[2] ?? line;
-      return rest.trim() ? `${prefix}${MARK_OPEN}${rest}</mark>` : line;
-    })
-    .join('\n');
+  if (!m.includes('\n') && !m.includes('|')) return `${MARK_OPEN}${m}</mark>`;
+  return m.split('\n').map(wrapLine).join('\n');
 }
 
 // Markdown with user highlights wrapped in <mark> before rendering.

@@ -6,12 +6,14 @@
 // single matcher shared by the response renderer (<mark>), the context
 // builder ([Important] tags) and stale-highlight pruning — so "does this
 // highlight still exist" always means the same thing everywhere.
-const MD_NOISE = '[*_`~()#>\\[\\]-]*';
+const MD_NOISE = '[*_`~()#>\\[\\]|-]*';
 // A whitespace gap in the selection may be a BLOCK boundary in the source:
-// "\n- item", "\n\n2. item", "\n> quote". After the whitespace, allow any
-// number of list/quote/heading prefixes (each followed by more whitespace) —
-// without this, any highlight crossing a list item can never match.
-const WS_GAP = `\\s+(?:(?:\\d{1,3}[.)]|[-*+>]|#{1,6})\\s+)*`;
+// "\n- item", "\n\n2. item", "\n> quote", " | " between table cells, or a
+// whole table delimiter row ("|---|---|") between header and body. After
+// the whitespace, allow any run of list/quote/heading/cell prefixes —
+// without this, any highlight crossing a list item or table cell can
+// never match.
+const WS_GAP = `\\s+(?:(?:\\d{1,3}[.)]|[-*+>|]|#{1,6}|[-:|]{3,})\\s+)*`;
 
 export function fuzzyHighlightRegex(text: string): RegExp | null {
   const chars = [...text.trim()];
