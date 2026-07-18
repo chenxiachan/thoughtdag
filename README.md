@@ -14,7 +14,9 @@ An infinite canvas where LLM conversations grow into an editable thought graph.
 ![React Flow](https://img.shields.io/badge/React_Flow-FF0072)
 ![License](https://img.shields.io/badge/license-MIT-green) ![Status](https://img.shields.io/badge/status-active_development-6B5CE7)
 
-[中文](./README_ZH.md) · [Quick start](#quick-start) · [Features](#features-at-a-glance) · [Models](#supported-models) · [Roadmap](#roadmap)
+**[▶ Try it live](https://thoughtdag.xia-chen.workers.dev)**. No install, no signup. Bring any OpenAI-compatible key (it stays in your browser) or just walk the example canvas.
+
+[中文](./README_ZH.md) · [Live demo](https://thoughtdag.xia-chen.workers.dev) · [Quick start](#quick-start) · [Features](#features-at-a-glance) · [Models](#supported-models) · [Roadmap](#roadmap)
 
 <img src="docs/hero-en.png" alt="ThoughtDAG: a waterfall DAG of thought: the question enters at the top center, forks into a decision (left) and a ruled-out branch (right), flows through a pivot and a reviewer on a dashed watch edge, and exits through a centered open question; every plaque badged by cognitive move. The focus panel on the right shows the decision node's full deepseek-v4-pro answer under an inherited Cognitive-science-coach role, with attachments, highlights and the token-priced context chain" width="100%"/>
 
@@ -25,6 +27,8 @@ An infinite canvas where LLM conversations grow into an editable thought graph.
 Chat is linear and opaque: context dilutes as the thread grows, nothing can be removed, and you never see what the model actually reads. ThoughtDAG lays the conversation out as a graph. Every question is a node, every wire is context, and editing the graph edits the model's memory. Think in branches, not threads.
 
 ## Quick start
+
+The fastest path is the [live demo](https://thoughtdag.xia-chen.workers.dev): open, paste a key (or don't, and browse the example canvas), go. Model traffic runs browser-direct to the gateway, so your key never touches the demo's server. To run it yourself:
 
 ```bash
 npm install
@@ -62,9 +66,10 @@ One click writes a guided digest: a short structured post in your language, ever
 |---|---|
 | 🧠 Context editing | Merge branches by drawing a wire, prune memory by deleting one, archive dead ends out of every future context |
 | 🔗 References | Dashed edges quote a node without dragging its conversation along; toggle quote ⇄ full with the price shown |
-| 🧹 Converge | Box-select redundant nodes, merge them into one structured synthesis, archive the originals |
-| 🗺️ Map view | Zoomed out, every card shows its one-line takeaway, badged by move: ✕ ruled out · ⚖ decided · ↩ pivoted · ? open |
+| 🧹 Converge | Box-select redundant nodes, merge them into one structured synthesis (steer it with an optional intent), archive the originals |
+| 🗺️ Map view | Three semantic-zoom tiers: cards → takeaway plaques (✕ ruled out · ⚖ decided · ↩ pivoted · ? open) → an icon skeleton whose seals keep a fixed screen size, so the far view stays dense |
 | 📖 Reading loop | Asked passages keep marks on the PDF pages; canvas nodes jump back with p.N chips; one-click guided digest as a wireable node |
+| ✨ Highlights | Select to mark what matters; one overview lists every mark (by time or by node, each pinpointing its source); weave any subset into one cited passage |
 | 🧭 Staleness & replay | Upstream edits mark the answers they invalidate; replay them in dependency order, token estimate first |
 | 🩺 Topology check-up | One click flags structural diseases (duplicate context routes, broken blind pools), each with a jump and a fix |
 | 🧪 Paradigms | Reusable workflows of human and machine steps; change the input and replay the whole experiment |
@@ -72,7 +77,7 @@ One click writes a guided digest: a short structured post in your language, ever
 | 🔍 Agentic search | Web, arXiv and Semantic Scholar with inline citations; the model decides when to look |
 | 🔌 Any model | Nine provider families register from `.env` keys; switch per node, or run fully local with Ollama |
 | 🎭 Roles | Per-node system prompts with inheritance, backed by an editable role library |
-| 🔒 Local-first | Your browser plus a thin proxy on your own machine; backups are plain JSON files you own |
+| 🔒 Local-first | Data lives in your browser; automatic folder backup writes real files on disk (point it at a synced folder for zero-server cross-device); backups are plain JSON you own |
 
 <details>
 <summary><b>📜 Full feature list, by area</b></summary>
@@ -88,7 +93,7 @@ One click writes a guided digest: a short structured post in your language, ever
 - **Click-to-delete edges**: select an edge for a floating delete button; right-click menu works too; Cmd+Z undoes
 - **Archive (prune-but-keep)**: dimmed on canvas, excluded from every context walk, restorable; batch via multi-select
 - **Merge Synthesis**: box-select nodes → structured synthesis (conclusions / evidence / open questions)
-- **Highlight system**: three downstream modes: 📄 Full text / 🏷️ Tag important / ✂️ Highlights only; stale highlights auto-clean on edit
+- **Highlight system**: three downstream modes: 📄 Full text / 🏷️ Tag important / ✂️ Highlights only; marks render across lists and tables; stale highlights auto-clean on edit; an all-highlights overview (by time / by node) pinpoints each mark's source node, exports Markdown, and weaves any checked subset into one cited passage
 - **Node role system**: per-node system prompt with three modes (inherit / set for next / reset here), `appliedRole` recorded at generation time, radio picker for multi-parent conflicts
 - **Role library, user-editable**: built-ins plus your own roles; add, edit and remove in a manager (editing a built-in makes your copy; restore anytime); applied roles stay frozen on their nodes
 - **Token counting**: per-node usage display
@@ -97,6 +102,7 @@ One click writes a guided digest: a short structured post in your language, ever
 
 - **Material reader**: original PDF rendering with a selectable text layer (pdf.js); select → ask lands a branch node with `(p.N)` provenance, and the passage keeps an anchor on the page (highlight wash + a bubble that reopens the thread); canvas nodes carry a p.N chip that jumps back into the reader; extracted-text view for scanned PDFs; a footer thread index tagging each conversation p.N or whole-material; per-material scroll memory
 - **Annotation rail**: answers stream beside the document; follow-ups chain onto the thread; selecting inside a rail answer explores (branch of THAT answer) or highlights; thread chips switch conversations, a crosshair jumps to the canvas
+- **Answers get the reading loop too**: every response opens reading-size; select to highlight or to branch from that passage, ask follow-ups below, and the viewer swaps to the new node so a whole chain of questions streams in place
 - **Guided digest**: one click turns the material into a short structured post in the UI language, with (p.N) jump buttons back into the original pages; the digest is a canvas NODE (versioned on rewrite, model-stamped, wireable downstream as the material's compression); regenerating routes through the digest prompt against the full text
 - **Recognize (scanned PDFs)**: per-page vision rewrite into Markdown/LaTeX, editable; external OCR output pastes in
 - **Content nodes**: notes (markdown), file nodes with PDF covers, time-stamped link snapshots; paste-driven creation; image auto-reading picks the strongest configured vision model; every material opens in the reader
@@ -105,7 +111,7 @@ One click writes a guided digest: a short structured post in your language, ever
 
 ### Map & review
 
-- **Map mode**: below ~0.8 zoom cards render as takeaway-first label plaques (pill radius, type-colored border); hysteresis prevents boundary flapping; nodes awaiting human input and locked paradigm runs keep their working form
+- **Map mode**: three tiers with hysteresis: full cards → takeaway plaques → glyph seals (one icon per node); seals and edges counter-scale to a fixed screen size (map-pin style), so zooming further out tightens the map instead of shrinking it; nodes awaiting human input keep their working form
 - **Typed takeaways**: one conclusion-first line per answer version, auto-classified (✕ ruled out · ⚖ decided · ↩ pivoted · ? open; insight stays unmarked); display layer only, never enters context or fingerprints
 - **Staleness tracking**: per-generation upstream fingerprints; amber badges on nodes, dots in the context tree, explicit [Stale] marks in downstream payloads
 - **Batch replay**: one click re-runs every stale node in dependency order; confirm dialog with a token estimate; stop anytime
@@ -119,7 +125,7 @@ One click writes a guided digest: a short structured post in your language, ever
 - **Streaming responses**: SSE token-by-token rendering with blinking cursor, in node and panel; Stop keeps partial content; failed generations show Retry (errors go to toasts, never into answers)
 - **Reviewer preset**: critic role on a sliding red edge; re-critiques each new step automatically, history versioned; reviewers are ordinary nodes (question them, branch from them)
 - **Paradigm mode**: human/prompt steps + material slots; instantiate → cascade → unlock; edit the input + replay = re-run the experiment; bounded reviewer rounds declared in the file
-- **Ambient memory**: a background judge saves durable facts with a visible toast + undo; one global switch (default on), manager with paste-import and JSON export; machine steps and digests stay memory-free
+- **Ambient memory**: a background judge classifies durable facts (preference / identity / project) with admission rules in code, visible toast + undo on every write; project entries decay out of context after 45 days; one global switch (default on), manager with category badges, paste-import and JSON export; machine steps and digests stay memory-free
 - **Edit everything**: double-click to edit questions or responses; text selection toolbar (Branch / Highlight)
 
 ### Models & search
@@ -140,6 +146,9 @@ One click writes a guided digest: a short structured post in your language, ever
 - **Markdown + LaTeX**: full markdown, syntax highlighting, inline and block math
 - **Multi-select**: box-select nodes: Merge Summary / Merge & Delete / Align / Export / Delete
 - **Data persistence**: IndexedDB auto-save (1s debounce), survives refresh; multi-canvas projects (create/switch/rename/delete)
+- **Automatic folder backup**: grant a folder once and every change debounces into a real `.thoughtdag.json` on disk; point it at a synced directory and it doubles as cross-device sync with zero servers; a toolbar control center shows the last write and backs up every canvas on demand
+- **Event log**: an append-only record of semantic operations (asks, generations, highlights, archiving, undo) with timestamps, metadata-only; travels in backups, exports as CSV for R/Python analysis
+- **Node context menu**: right-click for open panel / reading view / regenerate (in place or as a new node) / copy / duplicate / archive / delete; right-clicking selected text keeps the native menu
 - **Export system**: whole-graph JSON backup and import; context-chain / multi-select Markdown export; memory and roles export too: easy in, easy out
 - **Import ChatGPT / Claude exports**: drop conversations.json into Import; edit/regenerate branches are preserved as graph forks, each conversation becomes its own canvas
 - **Undo/Redo**: Cmd+Z / Cmd+Shift+Z, full state snapshots
@@ -159,7 +168,7 @@ Chat terminals are harnesses for doing: they optimize for handing you an answer 
 ## Cost & privacy
 
 - **Free to run.** The Zhipu free tier (GLM-4.5-Flash text + GLM-4V-Flash vision) covers every feature; agentic web search costs ~¥0.01/query. Or point it at any provider you already pay for, or a local Ollama model, fully offline.
-- **Your data stays with you.** Canvases live in your browser's IndexedDB; the only server is a thin proxy on your own machine. Nothing is uploaded anywhere except the LLM API you chose. Backups are plain JSON files you own.
+- **Your data stays with you.** Canvases live in your browser's IndexedDB; the only server is a thin proxy on your own machine. Nothing is uploaded anywhere except the LLM API you chose. On the hosted demo, model traffic runs browser-direct to the gateway, so keys and conversations never pass through the demo's server at all. Backups are plain JSON files you own, and the automatic folder backup keeps them current without a click.
 - Optional: PDF page rendering wants poppler (`brew install poppler`); degrades gracefully to text without it.
 
 ## Supported models
@@ -212,7 +221,6 @@ Browser (localhost:5173)
 ## Roadmap
 
 **Near term**
-- [ ] Event-log export (canvas operations → CSV/JSON, the measurement layer for human-AI interaction studies)
 - [ ] Save any canvas as a paradigm (reverse instantiation)
 - [ ] Attachment blob separation (scaling image-heavy canvases)
 
