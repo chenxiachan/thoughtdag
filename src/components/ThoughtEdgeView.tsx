@@ -24,24 +24,37 @@ export default function ThoughtEdgeView({
   style, markerEnd, markerStart, selected, interactionWidth, data,
 }: EdgeProps<ThoughtEdge>) {
   const deleteEdges = useStore((s) => s.deleteEdges);
-  const setCrossLinkDepth = useStore((s) => s.setCrossLinkDepth);
+  const setEdgeStructural = useStore((s) => s.setEdgeStructural);
   const nodes = useStore((s) => s.nodes);
   const edges = useStore((s) => s.edges);
   const t = useT();
 
-  // Reference edges wear their depth on the line: selected, they show a
-  // toggle chip pricing what the block would feed (quote vs full chain).
+  // The line kind IS the context weight: dashed = summary reference, solid
+  // = full wiring (files included). Selected, the edge wears a chip that
+  // prices and performs the conversion. Explore and watch edges keep their
+  // own semantics and don't convert.
   const isRef = !!data?.isCrossLink;
   const depth = data?.contextDepth === 'full' ? 'full' : 'quote';
+  const src = nodes.find((n) => n.id === source);
+  const srcIsMaterial = !src || ['note', 'file', 'link'].includes(src.data.stepKind ?? '');
+  const convertible = isRef
+    ? !data?.isWatch && !srcIsMaterial
+    : !data?.isBranchFromSelection && !data?.isWatch && !srcIsMaterial;
   const refTok = useMemo(() => {
-    if (!selected || !isRef) return 0;
-    const src = nodes.find((n) => n.id === source);
-    if (!src || ['note', 'file', 'link'].includes(src.data.stepKind ?? '')) return 0;
-    const structural = edges.filter((e) => !e.data?.isCrossLink);
+    if (!selected || !convertible) return 0;
+    if (!src) return 0;
+    if (isRef) {
+      const structural = edges.filter((e) => !e.data?.isCrossLink);
+      const chain = walkUpAncestors(source, nodes, structural).ordered
+        .filter((n) => n.id !== source && !['note', 'file', 'link'].includes(n.data.stepKind ?? ''));
+      return countTokens(referenceBlockContent({ source: src, edge: { id, source, target, data } as ThoughtEdge, depth, chain }));
+    }
+    // solid: price what the SUMMARY would be after demotion
+    const structural = edges.filter((e) => !e.data?.isCrossLink && e.id !== id);
     const chain = walkUpAncestors(source, nodes, structural).ordered
       .filter((n) => n.id !== source && !['note', 'file', 'link'].includes(n.data.stepKind ?? ''));
-    return countTokens(referenceBlockContent({ source: src, edge: { id, source, target, data } as ThoughtEdge, depth, chain }));
-  }, [selected, isRef, depth, source, target, id, nodes, edges, data]);
+    return countTokens(referenceBlockContent({ source: src, edge: { id, source, target, data } as ThoughtEdge, depth: 'quote', chain }));
+  }, [selected, convertible, isRef, depth, source, target, id, nodes, edges, data, src]);
   const { path, labelX, labelY } = useMemo(
     () => routeEdge(sourceX, sourceY, sourcePosition, targetX, targetY, targetPosition, source, target, nodes),
     [sourceX, sourceY, sourcePosition, targetX, targetY, targetPosition, source, target, nodes],
@@ -71,13 +84,15 @@ export default function ThoughtEdgeView({
             }}
           >
             <div className="flex items-center gap-1">
-              {isRef && refTok > 0 && (
+              {convertible && refTok > 0 && (
                 <button
-                  onClick={(e) => { e.stopPropagation(); setCrossLinkDepth(id, depth === 'full' ? 'quote' : 'full'); }}
+                  onClick={(e) => { e.stopPropagation(); setEdgeStructural(id, isRef); }}
                   className="h-6 px-2 rounded-full bg-card border border-line shadow-md flex items-center text-2xs text-ink-muted hover:text-accent hover:border-accent/40 transition-colors whitespace-nowrap"
-                  title={t('edge.depthToggleTitle')}
+                  title={isRef ? t('edge.depthToggleTitle') : t('edge.solidChipTitle')}
                 >
-                  {fmt(t(depth === 'full' ? 'edge.fullChip' : 'edge.quoteChip'), { n: refTok })}
+                  {isRef
+                    ? fmt(t(depth === 'full' ? 'edge.fullChip' : 'edge.quoteChip'), { n: refTok })
+                    : fmt(t('edge.solidChip'), { n: refTok })}
                 </button>
               )}
               <button

@@ -4,7 +4,7 @@ import { generateId, countTokens } from '../../utils';
 import { COLORS } from '../../lib/constants';
 import { autoLayout, estimateNodeHeight, nodeHeight } from '../../lib/layout';
 import { getDescendantIds, walkUpAncestors } from '../../lib/graph';
-import { referenceBlockContent, upstreamFingerprint } from '../context-builder';
+import { referenceBlockContent, upstreamFingerprint, buildContext } from '../context-builder';
 import { pruneHighlights } from '../../lib/highlight-match';
 import { toast } from '../../lib/ui-store';
 import { t, fmt } from '../../i18n';
@@ -187,10 +187,14 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
       const chain = ordered.filter((n) => n.id !== sourceId && !['note', 'file', 'link'].includes(n.data.stepKind ?? ''));
       if (chain.length > 0) {
         const quoteTok = countTokens(referenceBlockContent({ source: src, edge: newEdge, depth: 'quote', chain }));
-        const fullTok = countTokens(referenceBlockContent({ source: src, edge: newEdge, depth: 'full', chain }));
+        // Full tier = SOLID wiring: the target reads the source's whole
+        // upstream, files included — price the real thing, not a transcript.
+        const ctx = buildContext(sourceId, nodes, edges);
+        const fullTok = ctx.messages.reduce((sum, m) => sum + countTokens(m.content), 0)
+          + countTokens(src.data.question + src.data.response);
         toast('info', fmt(t('edge.linkedQuote'), { n: quoteTok }), 8000, {
           label: fmt(t('edge.makeFull'), { m: fullTok }),
-          run: () => get().setCrossLinkDepth(newEdge.id, 'full'),
+          run: () => get().setEdgeStructural(newEdge.id, true),
         });
       }
     }
@@ -214,6 +218,51 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
     const prev = get().staleIds;
     if (prev.length === stale.length && prev.every((id, i) => id === stale[i])) return;
     set({ staleIds: stale });
+  },
+
+  setEdgeStructural: (edgeId: string, structural: boolean) => {
+    const { nodes, edges } = get();
+    const edge = edges.find((e) => e.id === edgeId);
+    if (!edge) return;
+    if (structural) {
+      // Dashed → solid: the target will read the source's whole upstream.
+      // Guard the DAG: if the source already sits downstream of the target
+      // along structural edges, going solid would close a cycle.
+      const structuralEdges = edges.filter((e) => !e.data?.isCrossLink);
+      const { ordered } = walkUpAncestors(edge.source, nodes, structuralEdges);
+      if (ordered.some((n) => n.id === edge.target)) {
+        toast('error', t('edge.cycleBlocked'));
+        return;
+      }
+    }
+    get().pushHistory();
+    get().logEvent(structural ? 'connect' : 'disconnect', edgeId, { convert: true });
+    set((state) => ({
+      edges: state.edges.map((e) => {
+        if (e.id !== edgeId) return e;
+        if (structural) {
+          const { isCrossLink: _c, contextDepth: _d, isWatch: _w, ...rest } = e.data ?? {};
+          return {
+            ...e,
+            sourceHandle: 'continue', targetHandle: 'top',
+            animated: false,
+            style: { stroke: COLORS.accent, strokeWidth: 2 },
+            markerEnd: { type: 'arrowclosed' as const, color: COLORS.accent, width: 18, height: 18 },
+            data: rest,
+          };
+        }
+        return {
+          ...e,
+          animated: true,
+          style: { stroke: COLORS.accent, strokeDasharray: '8 4', strokeWidth: 2 },
+          markerEnd: { type: 'arrowclosed' as const, color: COLORS.accent, width: 18, height: 18 },
+          data: { ...(e.data ?? {}), isCrossLink: true, contextDepth: undefined },
+        };
+      }),
+    }));
+    // Solid lines obey the arrow grammar — re-run the column tree
+    set((state) => ({ nodes: autoLayout(state.nodes, state.edges) }));
+    get().pushHistory();
   },
 
   setCrossLinkDepth: (edgeId: string, depth: 'quote' | 'full') => {

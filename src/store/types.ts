@@ -36,8 +36,12 @@ export interface NodeSlice {
   setEditingResponse: (nodeId: string, editing: boolean) => void;
   duplicateNode: (nodeId: string) => void;
   addCrossLink: (sourceId: string, targetId: string) => void;
-  /** Flip a dashed reference between quote (default) and full-chain depth. */
+  /** Flip a dashed reference between quote (default) and full-chain depth. (Legacy: kept for stored canvases; new UI converts line kind instead.) */
   setCrossLinkDepth: (edgeId: string, depth: 'quote' | 'full') => void;
+  /** Convert an edge between dashed summary reference and solid full-context
+   *  wiring. Solid = the target reads the source's WHOLE upstream (files
+   *  included); dashed = a light quote block. Cycle-guarded. */
+  setEdgeStructural: (edgeId: string, structural: boolean) => void;
   navigateVersion: (nodeId: string, direction: 'prev' | 'next') => void;
   deleteVersion: (nodeId: string, versionIndex: number) => void;
   batchDelete: (nodeIds: string[]) => void;
