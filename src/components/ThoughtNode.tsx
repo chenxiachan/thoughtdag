@@ -516,7 +516,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
               <Hourglass size={13} strokeWidth={1.75} /> {t('paradigm.waitingUpstream')}
             </div>
           ) : data.isLoading ? (
-            data.response ? (
+            data.response && !data.restreaming ? (
               // Streaming: show the live tail of the response on the canvas
               <div className="text-sm text-ink-muted leading-relaxed px-3 py-2.5 bg-surface rounded-xl max-h-[180px] overflow-hidden flex flex-col justify-end whitespace-pre-wrap break-words">
                 {data.response.length > 400 ? '…' + data.response.slice(-400) : data.response}

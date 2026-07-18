@@ -51,8 +51,13 @@ export default function HeaderActions({ nodeId, isLoading }: { nodeId: string; i
           <Square size={12} strokeWidth={1.75} fill="currentColor" />
         </button>
       ) : (
-        <button onClick={() => void rerunNode(nodeId, {})} title={t('common.regenerate')} className={iconBtn}>
-          <RefreshCw size={16} strokeWidth={1.75} />
+        <button
+          onClick={() => void rerunNode(nodeId, {})}
+          disabled={isLoading}
+          title={isLoading ? t('node.generatingTitle') : t('common.regenerate')}
+          className={`${iconBtn} disabled:opacity-25 disabled:cursor-not-allowed`}
+        >
+          <RefreshCw size={16} strokeWidth={1.75} className={isLoading ? 'animate-spin' : ''} />
         </button>
       )}
       <button

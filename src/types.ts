@@ -47,6 +47,10 @@ export interface ThoughtData extends Record<string, unknown> {
   webSearch?: boolean; // may this node's generation use web search? (snapshotted at ask time; undefined = legacy, follow global)
   scholarSearch?: boolean; // same for arXiv / Semantic Scholar tools
   autoRerun?: boolean; // regenerate in place whenever an upstream ancestor finishes (generic primitive)
+  /** Transient: a regeneration is streaming and data.response still holds
+      the OLD text (cleared on the first new chunk) — display shows the live
+      thinking, not the stale answer. */
+  restreaming?: boolean;
   archived?: boolean; // pruned-but-kept: dimmed on canvas, EXCLUDED from every context walk
   archivedAt?: string; // ISO timestamp: when it was pruned (thinking-timeline raw data)
   /** Provenance seed for staleness tracking: fingerprint of the exact

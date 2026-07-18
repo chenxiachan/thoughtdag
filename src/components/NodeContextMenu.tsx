@@ -28,7 +28,7 @@ export default function NodeContextMenu({ x, y, nodeId, onClose }: {
   if (!node) return null;
   const kind = node.data.stepKind;
   const isContent = !!kind; // note / file / link / frame
-  const hasResponse = !isContent && !!node.data.response;
+  const hasResponse = !isContent && !!node.data.response && !node.data.isLoading;
   const copyText = isContent
     ? (kind === 'note' || kind === 'link' ? node.data.question : '')
     : node.data.response;

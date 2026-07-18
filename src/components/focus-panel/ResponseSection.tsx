@@ -134,7 +134,7 @@ export default function ResponseSection({
         )}
       </div>
 
-      {data.isLoading && !data.response ? (
+      {data.isLoading && (!data.response || data.restreaming) ? (
         data.reasoning ? (
           <div className="py-1">
             <div className="text-2xs text-ink-faint mb-1">💭 {t('node.reasoningLive')}</div>
@@ -147,7 +147,7 @@ export default function ResponseSection({
           <span className="animate-pulse text-accent">●</span> {t('common.thinking')}
         </div>
         )
-      ) : data.isLoading && data.response ? (
+      ) : data.isLoading && data.response && !data.restreaming ? (
         <div ref={streamRef} className="markdown-body text-sm text-ink leading-relaxed max-h-[500px] overflow-y-auto py-1">
           <Markdown>{data.response}</Markdown>
           <span className="inline-block w-2 h-4 bg-accent animate-pulse rounded-sm ml-0.5 align-text-bottom" />

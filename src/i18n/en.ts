@@ -195,6 +195,7 @@ export const en = {
   'frame.untitled': '(untitled frame)',
   'toolbar.frames': 'Frame navigator: click to jump to a region',
   'toolbar.more': 'More actions',
+  'node.generatingTitle': 'Generating',
   'hlov.entry': 'All highlights ({n})',
   'hlov.entryTitle': 'Every highlight you marked across this canvas',
   'hlov.title': 'All highlights',

@@ -195,6 +195,7 @@ export const zh: Record<keyof typeof en, string> = {
   'frame.untitled': '（未命名分区）',
   'toolbar.frames': '分区导航：点击跳转到对应区域',
   'toolbar.more': '更多操作',
+  'node.generatingTitle': '正在生成中',
   'hlov.entry': '全部高光 ({n})',
   'hlov.entryTitle': '查看整张画布上你标过的所有高光',
   'hlov.title': '全部高光',

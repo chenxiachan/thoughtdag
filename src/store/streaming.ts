@@ -63,6 +63,12 @@ export function collectMapLines(nodeId: string, nodes: StoreState['nodes'], edge
 // Track active AbortControllers per node
 export const activeAbortControllers = new Map<string, AbortController>();
 
+// Generation sequence per node: a new generation SUPERSEDES any in-flight
+// one (its stream is aborted and every late write it still attempts is
+// dropped). Without this, edit-question + rerun raced two streams into the
+// same node — alternating reasoning, clobbered answers.
+const generationSeq = new Map<string, number>();
+
 // Auto-chain budget: how many times each autoRerun node has fired since the
 // last MANUAL action. A fresh user action resets all counters, so budgets
 // mean "auto rounds per user action" — and loops (writer->critic->writer)
@@ -101,14 +107,22 @@ export async function runNodeGeneration(
   const { question, images, onSuccess, versionMode = 'replace' } = opts;
   let { messages } = opts;
   if (!opts.autoChain) autoRunCounts.clear(); // a fresh user action starts a new wave
+  // Supersede: abort any generation already running on this node; its late
+  // callbacks are dropped via the sequence check below.
+  activeAbortControllers.get(nodeId)?.abort();
+  const myGen = (generationSeq.get(nodeId) ?? 0) + 1;
+  generationSeq.set(nodeId, myGen);
+  const isCurrent = () => generationSeq.get(nodeId) === myGen;
   const abortController = new AbortController();
   activeAbortControllers.set(nodeId, abortController);
 
-  // A retry is starting — clear any previous failure flag and reasoning buffer
+  // A retry is starting — clear any previous failure flag and reasoning
+  // buffer, and mark the old response as awaiting replacement (the canvas
+  // shows the live thinking instead of the stale text while it streams).
   set((state) => ({
     nodes: state.nodes.map((n) =>
-      n.id === nodeId && (n.data.generationFailed || n.data.reasoning)
-        ? { ...n, data: { ...n.data, generationFailed: undefined, reasoning: undefined } }
+      n.id === nodeId
+        ? { ...n, data: { ...n.data, generationFailed: undefined, reasoning: undefined, restreaming: n.data.response ? true : undefined } }
         : n
     ),
   }));
@@ -122,6 +136,7 @@ export async function runNodeGeneration(
   void getModelsOnce().then((d) => { serverDefaultModel = d?.default ?? null; });
 
   const writeFinal = (response: string, failed = false) => {
+    if (!isCurrent()) return; // superseded: a newer generation owns this node
     const tokenCount = countTokens(question + response);
     const modelUsed = pinnedModel ?? useUiStore.getState().selectedModel ?? serverDefaultModel ?? undefined;
     get().logEvent('generate', nodeId, { chars: response.length, ...(modelUsed ? { model: modelUsed } : {}), ...(failed ? { failed: true } : {}) });
@@ -141,7 +156,7 @@ export async function runNodeGeneration(
         const reasonings = [...kept.map(({ rs }) => rs), n.data.reasoning || undefined];
         const generatedAts = [...kept.map(({ at }) => at), now];
         const editedAts = [...kept.map(({ ed }) => ed), undefined];
-        return { ...n, data: { ...n.data, response, responses, generatedBy, reasonings, generatedAts, editedAts, reasoning: undefined, responseIndex: responses.length - 1, isLoading: false, tokenCount, generationFailed: failed || undefined, references, highlights: pruneHighlights(n.data.highlights, response), lastContextHash: contextHash, lastGeneratedAt: now } };
+        return { ...n, data: { ...n.data, response, responses, generatedBy, reasonings, generatedAts, editedAts, reasoning: undefined, restreaming: undefined, responseIndex: responses.length - 1, isLoading: false, tokenCount, generationFailed: failed || undefined, references, highlights: pruneHighlights(n.data.highlights, response), lastContextHash: contextHash, lastGeneratedAt: now } };
       }),
     }));
   };
@@ -167,13 +182,15 @@ export async function runNodeGeneration(
 
   try {
     const response = await llmCallStream(messages, (_chunk, fullSoFar) => {
+      if (!isCurrent()) return;
       set((state) => ({
         nodes: state.nodes.map((n) =>
-          n.id === nodeId ? { ...n, data: { ...n.data, response: fullSoFar } } : n
+          n.id === nodeId ? { ...n, data: { ...n.data, response: fullSoFar, restreaming: undefined } } : n
         ),
       }));
     }, abortController.signal, images, {
       onToolCall: (name, query) => {
+        if (!isCurrent()) return;
         // Show what's being searched while the answer hasn't started streaming
         const icon = name === 'arxiv_search' ? '📚' : name === 'semantic_scholar' ? '🎓' : name.startsWith('mcp:') ? '🔧' : '🔍';
         set((state) => ({
@@ -186,6 +203,7 @@ export async function runNodeGeneration(
       },
       onSources: (sources) => { references = sources; },
       onReasoning: (_chunk, fullSoFar) => {
+        if (!isCurrent()) return;
         set((state) => ({
           nodes: state.nodes.map((n) =>
             n.id === nodeId ? { ...n, data: { ...n.data, reasoning: fullSoFar } } : n
@@ -202,6 +220,7 @@ export async function runNodeGeneration(
         mcp: useUiStore.getState().mcpEnabled,
       };
     })(), get().nodes.find((n) => n.id === nodeId)?.data.model);
+    if (!isCurrent()) return; // superseded while finishing: drop everything
     activeAbortControllers.delete(nodeId);
     if (!response.trim()) {
       // The stream closed cleanly but the model sent nothing (upstream
@@ -218,6 +237,7 @@ export async function runNodeGeneration(
     triggerAutoReruns(set, get, nodeId);
     triggerParadigmCascade(get, nodeId);
   } catch (err) {
+    if (!isCurrent()) return; // superseded: the abort was ours to swallow
     activeAbortControllers.delete(nodeId);
     const partial = get().nodes.find((n) => n.id === nodeId)?.data.response || '';
     const isAbort = err instanceof DOMException && err.name === 'AbortError';
