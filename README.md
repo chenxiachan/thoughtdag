@@ -7,6 +7,7 @@
 **Your thinking deserves a map.**
 
 An infinite canvas where LLM conversations grow into an editable thought graph.
+*Built for people who read papers for a living.*
 
 ![React](https://img.shields.io/badge/React_19-087EA4?logo=react&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
@@ -14,7 +15,7 @@ An infinite canvas where LLM conversations grow into an editable thought graph.
 ![React Flow](https://img.shields.io/badge/React_Flow-FF0072)
 ![License](https://img.shields.io/badge/license-MIT-green) ![Status](https://img.shields.io/badge/status-active_development-6B5CE7)
 
-**[▶ Try it live](https://thoughtdag.xia-chen.workers.dev)**. No install, no signup. Bring any OpenAI-compatible key (it stays in your browser) or just walk the example canvas.
+**[▶ Try it live](https://thoughtdag.xia-chen.workers.dev)** · [🎬 See it work in 30s](#delete-one-edge-get-a-different-answer). No install, no signup. Load the example canvas from the landing page to see the map above, live. No API key yet? Two free routes: [Zhipu](https://open.bigmodel.cn) ships a free tier (CN, phone signup), [OpenRouter](https://openrouter.ai) has free community models (international, Google login) — paste either into the demo's model manager.
 
 [中文](./README_ZH.md) · [Live demo](https://thoughtdag.xia-chen.workers.dev) · [Quick start](#quick-start) · [Features](#features-at-a-glance) · [Models](#supported-models) · [Roadmap](#roadmap)
 
@@ -40,14 +41,6 @@ No config needed to start: if `.env` has no key, the app asks you to connect a m
 
 The first launch opens a seeded example canvas: four chapters around one everyday question (why saved articles stay unread), from the conversation grammar to a real embedded PDF with its reading loop. Zoom out: the hero image above is that canvas as a map. The fastest way in: drop a PDF on the landing page and start reading. The Zhipu key also powers web search (engine tiers switchable in the model menu); scholarly search (arXiv + Semantic Scholar) is free and needs no key at all.
 
-## Delete one edge, get a different answer
-
-The model sees exactly what wires into a node. That is the whole rule, and it makes the claim testable: keep the prompt identical, change one wire, and watch the answer change.
-
-<img src="docs/prune-en.gif" alt="Screen recording: a summary node wired to both the research chain and an off-topic dinner node absorbs the noise; the noise edge is clicked, deleted, and regeneration returns a clean summary" width="100%"/>
-
-*One summary node, two parents, and dinner plans leak into the answer. Delete the noise edge, regenerate, and the same prompt returns a clean summary. Recorded from the app (content preloaded so every run is inspectable); the mechanism is live behavior; reproduce it in chapter ③ of the example canvas.*
-
 ## Read a paper into a map
 
 Drop in a PDF and read the original pages. Select a passage and ask: the answer streams in beside the document, and the question lands on the canvas wired to the material, page number included. The asked passage keeps a mark on the page: a highlight wash and a bubble that reopens the conversation, so everything you asked stays reachable while you read. The trip works both ways: back on the canvas, the node wears a p.N chip that jumps straight back to that page in the reader.
@@ -56,28 +49,31 @@ One click writes a guided digest: a short structured post in your language, ever
 
 <img src="docs/reading-en.gif" alt="Screen recording: selecting a sentence on the original PDF page, asking about it, the answer streaming into the annotation rail while the passage keeps a bubble mark, then a guided digest with page jumps" width="100%"/>
 
-## The core gesture
+**The core gesture, everywhere:** select text, hit Explore, and a branch grows from exactly that passage — in the reader, in any answer, on any card. The new node inherits only what you selected; the main chain stays clean.
 
-**Select text → Explore → a branch grows from exactly that passage.** The new node inherits only what you selected; the main chain stays clean.
+## Delete one edge, get a different answer
+
+The model sees exactly what wires into a node. That is the whole rule, and it makes the claim testable: keep the prompt identical, change one wire, and watch the answer change.
+
+<img src="docs/prune-en.gif" alt="Screen recording: a summary node wired to both the research chain and an off-topic dinner node absorbs the noise; the noise edge is clicked, deleted, and regeneration returns a clean summary" width="100%"/>
+
+*One summary node, two parents, and dinner plans leak into the answer. Delete the noise edge, regenerate, and the same prompt returns a clean summary. Recorded from the app (content preloaded so every run is inspectable); the mechanism is live behavior; reproduce it in chapter ③ of the example canvas.*
 
 ## Features at a glance
 
 | | |
 |---|---|
 | 🧠 Context editing | Merge branches by drawing a wire, prune memory by deleting one, archive dead ends out of every future context |
-| 🔗 References | Dashed edges quote a node without dragging its conversation along; toggle quote ⇄ full with the price shown |
-| 🧹 Converge | Box-select redundant nodes, merge them into one structured synthesis (steer it with an optional intent), archive the originals |
-| 🗺️ Map view | Three semantic-zoom tiers: cards → takeaway plaques (✕ ruled out · ⚖ decided · ↩ pivoted · ? open) → an icon skeleton whose seals keep a fixed screen size, so the far view stays dense |
 | 📖 Reading loop | Asked passages keep marks on the PDF pages; canvas nodes jump back with p.N chips; one-click guided digest as a wireable node |
 | ✨ Highlights | Select to mark what matters; one overview lists every mark (by time or by node, each pinpointing its source); weave any subset into one cited passage |
+| 🗺️ Map view | Three semantic-zoom tiers: cards → takeaway plaques (✕ ruled out · ⚖ decided · ↩ pivoted · ? open) → an icon skeleton whose seals keep a fixed screen size, so the far view stays dense |
+| 📤 Share read-only | One link turns the canvas into a read-only page anyone can walk; the link itself carries the graph, no account and no server storage involved |
 | 🧭 Staleness & replay | Upstream edits mark the answers they invalidate; replay them in dependency order, token estimate first |
-| 🩺 Topology check-up | One click flags structural diseases (duplicate context routes, broken blind pools), each with a jump and a fix |
 | 🧪 Paradigms | Reusable workflows of human and machine steps; change the input and replay the whole experiment |
-| 👁️ Live reviewers | A critic that follows the thread and re-critiques every new step, history versioned |
-| 🔍 Agentic search | Web, arXiv and Semantic Scholar with inline citations; the model decides when to look |
-| 🔌 Any model | Nine provider families register from `.env` keys; switch per node, or run fully local with Ollama |
-| 🎭 Roles | Per-node system prompts with inheritance, backed by an editable role library |
+| 🔌 Any model | Nine provider families, or connect any OpenAI-compatible endpoint in the app; switch per node, pins follow the line, fully local with Ollama |
 | 🔒 Local-first | Data lives in your browser; automatic folder backup writes real files on disk (point it at a synced folder for zero-server cross-device); backups are plain JSON you own |
+
+More below the fold: dashed references with priced quote ⇄ full conversion, converge with intent, live reviewers, topology check-up, agentic search, roles, @-mentions.
 
 <details>
 <summary><b>📜 Full feature list, by area</b></summary>
@@ -146,6 +142,8 @@ One click writes a guided digest: a short structured post in your language, ever
 - **Markdown + LaTeX**: full markdown, syntax highlighting, inline and block math
 - **Multi-select**: box-select nodes: Merge Summary / Merge & Delete / Align / Export / Delete
 - **Data persistence**: IndexedDB auto-save (1s debounce), survives refresh; multi-canvas projects (create/switch/rename/delete)
+- **Read-only share links**: one link carries the whole graph (compressed into the URL, no server storage); the viewer walks, zooms and reads but cannot edit; share from the ⋯ menu
+- **@-mentions**: type @ in any ask box to reference a node by name; mentions not already upstream get a real dashed reference edge (visible, priced, convertible), upstream ones become precise designators
 - **Automatic folder backup**: grant a folder once and every change debounces into a real `.thoughtdag.json` on disk; point it at a synced directory and it doubles as cross-device sync with zero servers; a toolbar control center shows the last write and backs up every canvas on demand
 - **Event log**: an append-only record of semantic operations (asks, generations, highlights, archiving, undo) with timestamps, metadata-only; travels in backups, exports as CSV for R/Python analysis
 - **Node context menu**: right-click for open panel / reading view / regenerate (in place or as a new node) / copy / duplicate / archive / delete; right-clicking selected text keeps the native menu
@@ -163,12 +161,16 @@ One click writes a guided digest: a short structured post in your language, ever
 
 Chat terminals are harnesses for doing: they optimize for handing you an answer and hide everything else. ThoughtDAG is an instrument for thinking: the unit of value is the reasoning structure itself, kept legible, editable and repeatable.
 
+Mind maps are drawn; this map grows. Chat leaves no map at all.
+
 *The graph has no cycles. The loop is you.*
 
 ## Cost & privacy
 
 - **Free to run.** The Zhipu free tier (GLM-4.5-Flash text + GLM-4V-Flash vision) covers every feature; agentic web search costs ~¥0.01/query. Or point it at any provider you already pay for, or a local Ollama model, fully offline.
-- **Your data stays with you.** Canvases live in your browser's IndexedDB; the only server is a thin proxy on your own machine. Nothing is uploaded anywhere except the LLM API you chose. On the hosted demo, model traffic runs browser-direct to the gateway, so keys and conversations never pass through the demo's server at all. Backups are plain JSON files you own, and the automatic folder backup keeps them current without a click.
+- **Your data stays with you.** Canvases live in your browser's storage; the only server is a thin proxy on your own machine. Nothing is uploaded anywhere except the LLM API you chose. On the hosted demo, model traffic runs browser-direct to the gateway, so keys and conversations never pass through the demo's server at all.
+- **Your PDFs stay local.** Dropped documents never leave your machine as files; only the extracted text travels, to the model API you picked, when you ask about them. Unpublished manuscripts are safe to read here.
+- **Losing the browser is not losing the work.** The automatic folder backup writes real `.thoughtdag.json` files to a folder you choose (Chromium browsers — Chrome, Edge, Arc; on Safari/Firefox use the one-click manual export). Backup format stays backward compatible, and Markdown export is the format-free escape hatch either way.
 - Optional: PDF page rendering wants poppler (`brew install poppler`); degrades gracefully to text without it.
 
 ## Supported models
@@ -245,7 +247,7 @@ If ThoughtDAG plays a role in your research, please cite it (GitHub's "Cite this
 
 ## Feedback
 
-ThoughtDAG is an early, actively developed project. This is exactly when feedback matters most:
+ThoughtDAG is built by a postdoc for his own daily literature work, and used every day; every feature here exists because real reading demanded it. It is an early, actively developed project, which is exactly when feedback matters most:
 
 - ⭐ **Star the repo** if the idea resonates; it genuinely helps
 - 🐛 Hit a bug or a rough edge? [Open an issue](https://github.com/chenxiachan/thoughtdag/issues)
