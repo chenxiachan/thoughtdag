@@ -29,7 +29,7 @@ let dirty = false;
 
 async function writeActiveProject(): Promise<void> {
   if (!handle) return;
-  const { nodes, edges } = useStore.getState();
+  const { nodes, edges, events } = useStore.getState();
   if (nodes.length === 0) return;
   const { projects, activeId } = useProjects.getState();
   const name = activeProjectName().replace(/[\\/:*?"<>|]/g, '_') || 'canvas';
@@ -40,6 +40,7 @@ async function writeActiveProject(): Promise<void> {
     instantiatedFrom: projects.find((p) => p.id === activeId)?.instantiatedFrom,
     nodes: stripTransient(nodes),
     edges,
+    events,
   });
   const file = await handle.getFileHandle(`${name}.thoughtdag.json`, { create: true });
   const w = await file.createWritable();
@@ -55,21 +56,22 @@ export async function backupAllProjects(): Promise<number> {
   const { projects, activeId } = useProjects.getState();
   let written = 0;
   for (const proj of projects) {
-    let nodes; let edges;
+    let nodes; let edges; let events;
     if (proj.id === activeId) {
-      ({ nodes, edges } = useStore.getState());
+      ({ nodes, edges, events } = useStore.getState());
     } else {
       const raw = await idbGet(projectStorageKey(proj.id)).catch(() => null);
       const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
       nodes = parsed?.state?.nodes ?? [];
       edges = parsed?.state?.edges ?? [];
+      events = parsed?.state?.events ?? [];
     }
     if (!nodes || nodes.length === 0) continue;
     const fname = `${proj.name.replace(/[\\/:*?"<>|]/g, '_') || 'canvas'}.thoughtdag.json`;
     const payload = JSON.stringify({
       version: EXPORT_FORMAT_VERSION, name: proj.name,
       exportedAt: new Date().toISOString(), instantiatedFrom: proj.instantiatedFrom,
-      nodes: stripTransient(nodes), edges,
+      nodes: stripTransient(nodes), edges, events,
     });
     const file = await handle.getFileHandle(fname, { create: true });
     const w2 = await file.createWritable();

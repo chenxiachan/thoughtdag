@@ -195,6 +195,8 @@ export const zh: Record<keyof typeof en, string> = {
   'frame.untitled': '（未命名分区）',
   'toolbar.frames': '分区导航：点击跳转到对应区域',
   'toolbar.more': '更多操作',
+  'toolbar.exportEvents': '导出事件日志 (.csv)',
+  'toolbar.exportEventsTitle': '画布操作的时间戳记录（提问、生成、高光、归档等），可进 R/Python 分析',
   'toolbar.menuShare': '分享只读链接',
   'toolbar.menuAnnotationsHide': '隐藏批注',
   'toolbar.menuAnnotationsShow': '显示批注',

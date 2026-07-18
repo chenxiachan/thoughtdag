@@ -6,6 +6,7 @@ import type { StoreState, AttachmentSlice } from '../types';
 
 export const createAttachmentSlice: StateCreator<StoreState, [], [], AttachmentSlice> = (set, get) => ({
   addAttachment: (nodeId: string, attachment: Attachment) => {
+    get().logEvent('material-add', nodeId, { type: attachment.type });
     // Dedup: skip if same file already on this node (name + size + content prefix)
     const existing = get().nodes.find((n) => n.id === nodeId)?.data.attachments || [];
     const fingerprint = attachmentFingerprint(attachment);

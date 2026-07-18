@@ -40,7 +40,7 @@ import type { Attachment, ThoughtNode as ThoughtNodeType, ThoughtEdge } from './
 import { processFile, FILE_INPUT_ACCEPT } from './lib/attachments';
 import { walkUpAncestors } from './lib/graph';
 import { buildContext } from './store/context-builder';
-import { exportActiveParadigm, exportActiveProjectJson } from './lib/export';
+import { exportActiveParadigm, exportActiveProjectJson, exportEventLogCsv } from './lib/export';
 import { countTokens } from './utils';
 import { buildExampleGraph } from './lib/example-graph';
 import { COLORS, FRAME_COLORS, PANEL_INSET } from './lib/constants';
@@ -116,6 +116,7 @@ function Canvas() {
   const landingFileRef = useRef<HTMLInputElement>(null);
   const docFileRef = useRef<HTMLInputElement>(null);
   const hasNodes = nodes.length > 0;
+  const hasEvents = useStore((s) => s.events.length > 0);
   const rfInstance = useRef<ReactFlowInstance<ThoughtNodeType, ThoughtEdge> | null>(null);
   const prevNodeCount = useRef(nodes.length);
   const lang = useI18n((s) => s.lang);
@@ -1372,6 +1373,15 @@ function Canvas() {
                   className="w-full text-left px-3 py-2 text-xs text-ink hover:bg-wash transition-colors flex items-center gap-2.5"
                 >
                   <LayoutGrid size={14} strokeWidth={1.75} className="text-ink-faint shrink-0" /> {t('toolbar.relayout')}
+                </button>
+              )}
+              {hasEvents && (
+                <button
+                  onClick={() => { setMoreOpen(false); exportEventLogCsv(); }}
+                  className="w-full text-left px-3 py-2 text-xs text-ink hover:bg-wash transition-colors flex items-center gap-2.5"
+                  title={t('toolbar.exportEventsTitle')}
+                >
+                  <FileText size={14} strokeWidth={1.75} className="text-ink-faint shrink-0" /> {t('toolbar.exportEvents')}
                 </button>
               )}
               <button

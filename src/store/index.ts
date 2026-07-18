@@ -12,6 +12,7 @@ import { createRoleSlice } from './slices/roles';
 import { createHighlightSlice } from './slices/highlights';
 import { createAttachmentSlice } from './slices/attachments';
 import { createEvaluatorSlice } from './slices/evaluator';
+import { createEventSlice } from './slices/events';
 
 // Reset transient UI flags — applied both when persisting and when rehydrating,
 // so a refresh mid-stream/mid-edit never restores a node stuck in loading state.
@@ -39,6 +40,7 @@ export const useStore = create<StoreState>()(persist((...a) => ({
   ...createHighlightSlice(...a),
   ...createAttachmentSlice(...a),
   ...createEvaluatorSlice(...a),
+  ...createEventSlice(...a),
 }), {
   // Placeholder name — bootProjects() (src/store/projects.ts) points this at
   // the active project's key via persist.setOptions() before rehydrating.
@@ -55,6 +57,7 @@ export const useStore = create<StoreState>()(persist((...a) => ({
   partialize: (state): PersistedState => ({
     nodes: stripTransient(state.nodes),
     edges: state.edges.map((e) => (e.selected ? { ...e, selected: false } : e)),
+    events: state.events,
   }),
   merge: (persisted, current) => {
     const p = (persisted ?? { nodes: [], edges: [] }) as PersistedState;
@@ -64,6 +67,7 @@ export const useStore = create<StoreState>()(persist((...a) => ({
       ...current,
       nodes,
       edges,
+      events: p.events ?? [],
       // The restored graph becomes the base snapshot of the undo stack.
       history: [{ nodes, edges }], // shallow baseline — updates never mutate
       historyIndex: 0,

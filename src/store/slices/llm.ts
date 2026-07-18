@@ -15,6 +15,7 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
   addQuestion: async (question: string, opts: AddQuestionOptions = {}) => {
     const { parentId, branchContext, branchYRatio, inheritRole, rolePrompt, initialAttachments, excludeAllInheritedAttachments } = opts;
     const id = generateId();
+    get().logEvent('ask', id, { chars: question.length, ...(parentId ? {} : { root: true }), ...(branchContext ? { branch: true } : {}) });
     const isRoot = !parentId;
     const newNode: ThoughtNode = {
       id,
@@ -127,6 +128,7 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
    * Generations run concurrently (bounded); one history entry for the batch.
    */
   fanOut: async (parentId: string, question: string, roles: { name: string; prompt: string }[], opts: { follow?: boolean; rounds?: number } = {}) => {
+    get().logEvent('fanout', parentId, { roles: roles.length, chars: question.length });
     const parent = get().nodes.find((n) => n.id === parentId);
     if (!parent || roles.length === 0) return;
     const follow = !!opts.follow;
@@ -243,6 +245,7 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
     if (parents.length === 0 || !question.trim()) return;
     get().pushHistory();
     const id = generateId();
+    get().logEvent('explore', id, { sources: parents.length });
     const newNode: ThoughtNode = {
       id, type: 'thought', position: { x: 0, y: 0 }, dragHandle: '.drag-handle',
       data: {
@@ -288,6 +291,7 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
     const q = question.trim();
     if (!q) return;
     get().pushHistory();
+    get().logEvent('ask', nodeId, { chars: q.length, human: true });
     autoRunCounts.clear(); // a human turn is a manual action: new auto wave
     // Second run of a paradigm: changing the input makes every answered
     // step downstream stale — the replay chip is the "re-run experiment"
@@ -308,6 +312,7 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
 
   editQuestion: async (nodeId: string, question: string) => {
     get().pushHistory();
+    get().logEvent('edit-question', nodeId, { chars: question.length });
     // Staleness seed: descendants keep answers written against the OLD
     // content — surface the blast radius now, replay stays manual.
     const prevQuestion = get().nodes.find((n) => n.id === nodeId)?.data.question;
@@ -344,6 +349,7 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
 
     // Create a new sibling node with the same question
     const id = generateId();
+    get().logEvent('regenerate', nodeId);
     const newNode: ThoughtNode = {
       id,
       type: 'thought',
@@ -405,6 +411,7 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
     // Create summary node — the user's intent (if any) becomes the visible
     // question, so the card says what this synthesis is FOR
     const id = generateId();
+    get().logEvent('merge', id, { n: selected.length, intent: !!intent?.trim() });
     const summaryQuestion = intent?.trim() || `Merge summary of ${selected.length} nodes`;
     const newNode: ThoughtNode = {
       id,
@@ -547,6 +554,7 @@ ${intent.trim()}` : ''}` },
     const sinkIds = selectionSinks(selected.map((n) => n.id), edges);
 
     const id = generateId();
+    get().logEvent('weave', id, { marks: entries.length, n: selected.length, intent: !!intent?.trim() });
     const weaveQuestion = intent?.trim() || fmt(t('weave.defaultQuestion'), { n: entries.length });
     const newNode: ThoughtNode = {
       id,

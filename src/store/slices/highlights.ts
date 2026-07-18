@@ -5,6 +5,7 @@ import type { StoreState, HighlightSlice } from '../types';
 export const createHighlightSlice: StateCreator<StoreState, [], [], HighlightSlice> = (set, get) => ({
   addHighlight: (nodeId: string, highlight: Highlight) => {
     get().pushHistory();
+    get().logEvent('highlight-add', nodeId, { chars: highlight.text.length });
     // Normalize: collapse whitespace/newlines to single space
     const normalizedHighlight = { at: new Date().toISOString(), ...highlight, text: highlight.text.replace(/\s+/g, ' ').trim() };
     set((state) => ({
@@ -19,6 +20,7 @@ export const createHighlightSlice: StateCreator<StoreState, [], [], HighlightSli
 
   removeHighlight: (nodeId: string, highlightId: string) => {
     get().pushHistory();
+    get().logEvent('highlight-remove', nodeId);
     set((state) => ({
       nodes: state.nodes.map((n) =>
         n.id === nodeId

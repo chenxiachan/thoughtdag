@@ -156,3 +156,24 @@ export interface DAGState {
   history: { nodes: ThoughtNode[]; edges: ThoughtEdge[] }[];
   historyIndex: number;
 }
+
+/** Semantic operations recorded in the canvas event log (form 2 of the
+    thinking timeline). View-level noise (drag, collapse, typing) is
+    deliberately NOT here; ops record that something happened, never the
+    content itself (the canvas carries the content). */
+export type CanvasOp =
+  | 'ask' | 'generate' | 'edit-question' | 'edit-response' | 'regenerate'
+  | 'delete' | 'archive' | 'unarchive'
+  | 'highlight-add' | 'highlight-remove'
+  | 'connect' | 'disconnect'
+  | 'merge' | 'weave' | 'explore' | 'fanout'
+  | 'material-add' | 'undo' | 'redo';
+
+export interface CanvasEvent {
+  t: string; // ISO timestamp
+  op: CanvasOp;
+  /** Primary object (node or edge id). */
+  id?: string;
+  /** Light metadata only — counts, model names, flags. NEVER text content. */
+  d?: Record<string, string | number | boolean>;
+}

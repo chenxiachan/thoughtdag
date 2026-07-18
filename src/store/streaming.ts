@@ -124,6 +124,7 @@ export async function runNodeGeneration(
   const writeFinal = (response: string, failed = false) => {
     const tokenCount = countTokens(question + response);
     const modelUsed = pinnedModel ?? useUiStore.getState().selectedModel ?? serverDefaultModel ?? undefined;
+    get().logEvent('generate', nodeId, { chars: response.length, ...(modelUsed ? { model: modelUsed } : {}), ...(failed ? { failed: true } : {}) });
     // Provenance: fingerprint what this answer depended on, AT completion —
     // the staleness pass compares this against the live upstream fingerprint.
     const contextHash = upstreamFingerprint(nodeId, get().nodes, get().edges);

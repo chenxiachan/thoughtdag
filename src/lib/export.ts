@@ -39,7 +39,7 @@ export function activeProjectName(): string {
 // ─── Whole-canvas JSON backup ───────────────────────────────────
 export function exportActiveProjectJson(): void {
   localStorage.setItem('thoughtdag.lastBackupAt', String(Date.now()));
-  const { nodes, edges } = useStore.getState();
+  const { nodes, edges, events } = useStore.getState();
   const { projects, activeId } = useProjects.getState();
   const name = activeProjectName();
   const payload = JSON.stringify({
@@ -51,6 +51,7 @@ export function exportActiveProjectJson(): void {
     instantiatedFrom: projects.find((p) => p.id === activeId)?.instantiatedFrom,
     nodes: stripTransient(nodes),
     edges,
+    events,
   });
   downloadFile(`${sanitizeFilename(name)}.thoughtdag.json`, payload, 'application/json');
   toast('success', fmt(t('toast.exported'), { name }));
@@ -138,7 +139,7 @@ export async function importChatConversations(convs: ImportableConversation[]): 
 }
 
 export async function importProjectFromFile(file: File, pre?: unknown): Promise<boolean> {
-  let parsed: { name?: string; nodes?: ThoughtNode[]; edges?: ThoughtEdge[]; instantiatedFrom?: ProjectMeta['instantiatedFrom'] };
+  let parsed: { name?: string; nodes?: ThoughtNode[]; edges?: ThoughtEdge[]; events?: unknown[]; instantiatedFrom?: ProjectMeta['instantiatedFrom'] };
   try {
     parsed = (pre ?? JSON.parse(await file.text())) as typeof parsed;
   } catch {
@@ -156,13 +157,24 @@ export async function importProjectFromFile(file: File, pre?: unknown): Promise<
   const id = crypto.randomUUID();
   // Write in the zustand-persist envelope format so rehydration accepts it.
   await idbSet(projectStorageKey(id), JSON.stringify({
-    state: { nodes: stripTransient(parsed.nodes), edges: parsed.edges },
+    state: { nodes: stripTransient(parsed.nodes), edges: parsed.edges, ...(Array.isArray(parsed.events) ? { events: parsed.events } : {}) },
     version: PERSIST_VERSION,
   }));
   const name = parsed.name?.trim() || file.name.replace(/\.thoughtdag\.json$|\.json$/i, '') || 'Imported canvas';
   await adoptImportedProject(id, name, 'chat', { instantiatedFrom: parsed.instantiatedFrom });
   toast('success', fmt(t('toast.imported'), { name, n: parsed.nodes.length }));
   return true;
+}
+
+// ─── Event-log CSV export (research measurement layer) ──────────
+export function exportEventLogCsv(): void {
+  const { events } = useStore.getState();
+  if (events.length === 0) return;
+  const esc = (v: string) => `"${v.replace(/"/g, '""')}"`;
+  const rows = events.map((e) => [e.t, e.op, e.id ?? '', e.d ? esc(JSON.stringify(e.d)) : ''].join(','));
+  const csv = ['t,op,id,detail', ...rows].join('\n');
+  downloadFile(`${sanitizeFilename(activeProjectName())}.events.csv`, csv, 'text/csv');
+  toast('success', fmt(t('toast.exported'), { name: activeProjectName() }));
 }
 
 // ─── Markdown export ────────────────────────────────────────────

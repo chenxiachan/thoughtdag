@@ -29,6 +29,7 @@ export const createHistorySlice: StateCreator<StoreState, [], [], HistorySlice> 
     if (historyIndex <= 0) return;
     const prev = history[historyIndex - 1];
     set({ nodes: prev.nodes, edges: prev.edges, historyIndex: historyIndex - 1 });
+    get().logEvent('undo');
   },
 
   redo: () => {
@@ -36,5 +37,6 @@ export const createHistorySlice: StateCreator<StoreState, [], [], HistorySlice> 
     if (historyIndex >= history.length - 1) return;
     const next = history[historyIndex + 1];
     set({ nodes: next.nodes, edges: next.edges, historyIndex: historyIndex + 1 });
+    get().logEvent('redo');
   },
 });

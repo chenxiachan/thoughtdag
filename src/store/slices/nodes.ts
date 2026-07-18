@@ -22,6 +22,7 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
   setSelectedNodeIds: (ids) => set({ selectedNodeIds: ids, selectedNodeId: ids.length === 1 ? ids[0] : null }),
 
   deleteNode: (nodeId: string) => {
+    get().logEvent('delete', nodeId, { n: 1 });
     get().pushHistory();
     const { edges } = get();
     const descendants = getDescendantIds(nodeId, edges);
@@ -34,6 +35,7 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
   },
 
   deleteEdges: (edgeIds: string[]) => {
+    get().logEvent('disconnect', edgeIds[0], { n: edgeIds.length });
     const remove = new Set(edgeIds);
     if (!get().edges.some((e) => remove.has(e.id))) return;
     get().pushHistory();
@@ -42,6 +44,7 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
   },
 
   editResponse: (nodeId: string, response: string) => {
+    get().logEvent('edit-response', nodeId, { chars: response.length });
     get().pushHistory();
     const tokenCount = countTokens(get().nodes.find((n) => n.id === nodeId)?.data.question + response || response);
     set((state) => ({
@@ -174,6 +177,7 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
       data: { isCrossLink: true, createdAt: new Date().toISOString() },
     };
     set((state) => ({ edges: [...state.edges, newEdge] }));
+    get().logEvent('connect', newEdge.id);
     get().pushHistory();
     // Price tag at the moment of connection — BOTH prices, so it's a
     // decision, not a nudge. When the source has no upstream chain the two
@@ -283,6 +287,7 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
   setArchived: (nodeIds: string[], archived: boolean) => {
     const ids = new Set(nodeIds);
     get().pushHistory();
+    get().logEvent(archived ? 'archive' : 'unarchive', nodeIds[0], { n: nodeIds.length });
     set((state) => ({
       nodes: state.nodes.map((n) =>
         ids.has(n.id)
@@ -344,6 +349,7 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
   },
 
   batchDelete: (nodeIds: string[]) => {
+    get().logEvent('delete', nodeIds[0], { n: nodeIds.length });
     get().pushHistory();
     const removeSet = new Set(nodeIds);
     set((state) => ({

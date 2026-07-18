@@ -1,8 +1,14 @@
-import type { ThoughtNode, ThoughtEdge, Highlight, Attachment } from '../types';
+import type { ThoughtNode, ThoughtEdge, Highlight, Attachment, CanvasEvent, CanvasOp } from '../types';
 
 export interface Snapshot {
   nodes: ThoughtNode[];
   edges: ThoughtEdge[];
+}
+
+export interface EventSlice {
+  /** Append-only semantic operation log (thinking timeline, form 2). */
+  events: CanvasEvent[];
+  logEvent: (op: CanvasOp, id?: string, d?: Record<string, string | number | boolean>) => void;
 }
 
 export interface HistorySlice {
@@ -115,6 +121,6 @@ export interface AttachmentSlice {
   getInheritedAttachments: (nodeId: string) => { attachment: Attachment; sourceNodeId: string; sourceQuestion: string; excludedByAncestor: boolean }[];
 }
 
-export type StoreState = HistorySlice & NodeSlice & LlmSlice & RoleSlice & HighlightSlice & AttachmentSlice & EvaluatorSlice;
+export type StoreState = HistorySlice & NodeSlice & LlmSlice & RoleSlice & HighlightSlice & AttachmentSlice & EvaluatorSlice & EventSlice;
 
-export type PersistedState = { nodes: ThoughtNode[]; edges: ThoughtEdge[] };
+export type PersistedState = { nodes: ThoughtNode[]; edges: ThoughtEdge[]; events?: CanvasEvent[] };
