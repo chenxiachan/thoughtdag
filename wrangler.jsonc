@@ -1,6 +1,6 @@
 // Cloudflare Workers deployment config (Workers Builds reads this on push).
 {
-  "name": "app",
+  "name": "thoughtdag",
   "main": "worker.js",
   "compatibility_date": "2026-07-01",
   "assets": {
