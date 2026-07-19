@@ -15,6 +15,8 @@
 
 [English](./README.md) · [快速开始](#快速开始) · [更多能力](#更多能力) · [支持的模型](#支持的模型) · [成本与隐私](#成本与隐私)
 
+<img src="docs/hero-demo-zh.gif" alt="真实录屏的 Hero 演示：在 PDF 阅读器圈选段落提问；删掉噪音边重新生成干净答案；三层语义缩放缩到地图形态；打开备份控制中心导出真实文件" width="100%"/>
+
 </div>
 
 ## 唯一法则
@@ -34,8 +36,6 @@ ThoughtDAG 用一条法则替换整个黑箱：
 
 ## 它长什么样
 
-<img src="docs/hero-demo-zh.gif" alt="真实录屏的 Hero 演示：在 PDF 阅读器圈选段落提问；删掉噪音边重新生成干净答案；三层语义缩放缩到地图形态；打开备份控制中心导出真实文件" width="100%"/>
-
 <table>
 <tr>
 <td width="45%"><img src="docs/illus/reading-zh.svg" alt="示意图：在原文页面圈选一段文字，旁边浮出紫色提问气泡，段落带 p.3 出处"/></td>
@@ -48,8 +48,6 @@ ThoughtDAG 用一条法则替换整个黑箱：
 </td>
 </tr>
 </table>
-
-<img src="docs/reading-zh.gif" alt="真实录屏：在原版 PDF 页面圈选一句话提问，答案在批注栏流式出现，段落留下气泡印记，然后生成带页码跳转的导读" width="100%"/>
 
 <table>
 <tr>
@@ -64,8 +62,6 @@ ThoughtDAG 用一条法则替换整个黑箱：
 </tr>
 </table>
 
-<img src="docs/prune-zh.gif" alt="真实录屏：总结节点同时连着研究主链和无关的晚饭节点，噪音漏进回答；点选噪音边、删除、重新生成，同一提示词返回干净的总结" width="100%"/>
-
 <table>
 <tr>
 <td width="45%"><img src="docs/illus/map-zh.svg" alt="示意图：三个收获句门牌，分别带排除、决策、转向徽章，虚线相连"/></td>
@@ -78,8 +74,6 @@ ThoughtDAG 用一条法则替换整个黑箱：
 </td>
 </tr>
 </table>
-
-<img src="docs/hero-zh.png" alt="ThoughtDAG 地图形态：瀑布形思维 DAG，每张门牌带认知徽章，右侧侧栏展示节点的完整回答与上下文链" width="100%"/>
 
 <table>
 <tr>

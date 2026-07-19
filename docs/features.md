@@ -12,6 +12,8 @@ Mind maps are drawn; this map grows. Chat leaves no map at all.
 
 ## Canvas & context: the One Rule family
 
+<img src="prune-en.gif" alt="Screen recording: a summary node wired to both the research chain and an off-topic dinner node absorbs the noise; the noise edge is clicked, deleted, and regeneration returns a clean summary" width="100%"/>
+
 - **DAG context engine**: `buildContext()` walks all incoming edges, builds history in topological order
 - **Layered context assembly**: materials → reference blocks → the conversation, ordering independent of wiring history (same graph, same prompt)
 - **Purple edges** (continue): inherit the full ancestor context
@@ -28,6 +30,8 @@ Mind maps are drawn; this map grows. Chat leaves no map at all.
 
 ## Reading & materials
 
+<img src="reading-en.gif" alt="Screen recording: selecting a sentence on the original PDF page, asking about it, the answer streaming into the annotation rail while the passage keeps a bubble mark, then a guided digest with page jumps" width="100%"/>
+
 - **Material reader**: original PDF rendering with a selectable text layer (pdf.js); select → ask lands a branch node with `(p.N)` provenance, and the passage keeps an anchor on the page (highlight wash + a bubble that reopens the thread); canvas nodes carry a p.N chip that jumps back into the reader; extracted-text view for scanned PDFs; a footer thread index tagging each conversation p.N or whole-material; per-material scroll memory
 - **Annotation rail**: answers stream beside the document; follow-ups chain onto the thread; selecting inside a rail answer explores (branch of THAT answer) or highlights; thread chips switch conversations, a crosshair jumps to the canvas
 - **Answers get the reading loop too**: every response opens reading-size; select to highlight or to branch from that passage, ask follow-ups below, and the viewer swaps to the new node so a whole chain of questions streams in place
@@ -38,6 +42,8 @@ Mind maps are drawn; this map grows. Chat leaves no map at all.
 - **Material-first landing**: drop a document on the landing page and it lands as a material node with the reader auto-opened; attachments to the root question stay behind the explicit paperclip
 
 ## Map & review
+
+<img src="hero-en.png" alt="ThoughtDAG map view: a waterfall DAG of thought, every plaque badged by cognitive move, with the focus panel showing a node's full answer and its token-priced context chain" width="100%"/>
 
 - **Map mode**: three tiers with hysteresis: full cards → takeaway plaques → glyph seals (one icon per node); seals and edges counter-scale to a fixed screen size (map-pin style), so zooming further out tightens the map instead of shrinking it; nodes awaiting human input keep their working form
 - **Typed takeaways**: one conclusion-first line per answer version, auto-classified (✕ ruled out · ⚖ decided · ↩ pivoted · ? open; insight stays unmarked); display layer only, never enters context or fingerprints

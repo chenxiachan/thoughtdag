@@ -15,6 +15,8 @@
 
 [中文](./README_ZH.md) · [Quick start](#quick-start) · [More capabilities](#more-capabilities) · [Models](#supported-models) · [Cost & privacy](#cost--privacy)
 
+<img src="docs/hero-demo-en.gif" alt="Hero demo, recorded from the live app: selecting a passage in the PDF reader and asking about it; deleting a noise edge and regenerating a clean answer; zooming out through three semantic tiers to the map; opening the backup control center and exporting a real file" width="100%"/>
+
 </div>
 
 ## The one rule
@@ -34,8 +36,6 @@ ThoughtDAG replaces the whole black box with one rule:
 
 ## In action
 
-<img src="docs/hero-demo-en.gif" alt="Hero demo, recorded from the live app: selecting a passage in the PDF reader and asking about it; deleting a noise edge and regenerating a clean answer; zooming out through three semantic tiers to the map; opening the backup control center and exporting a real file" width="100%"/>
-
 <table>
 <tr>
 <td width="45%"><img src="docs/illus/reading-en.svg" alt="Illustration: a passage selected on the original page, a purple ask bubble beside it, the paragraph tagged p.3"/></td>
@@ -48,8 +48,6 @@ Read the original pages; select a passage and ask. The answer streams in beside 
 </td>
 </tr>
 </table>
-
-<img src="docs/reading-en.gif" alt="Screen recording: selecting a sentence on the original PDF page, asking about it, the answer streaming into the annotation rail while the passage keeps a bubble mark, then a guided digest with page jumps" width="100%"/>
 
 <table>
 <tr>
@@ -64,8 +62,6 @@ Merging branches is drawing a wire; pruning memory is deleting one; archived nod
 </tr>
 </table>
 
-<img src="docs/prune-en.gif" alt="Screen recording: a summary node wired to both the research chain and an off-topic dinner node absorbs the noise; the noise edge is clicked, deleted, and regeneration returns a clean summary" width="100%"/>
-
 <table>
 <tr>
 <td width="45%"><img src="docs/illus/map-en.svg" alt="Illustration: three takeaway plaques with ruled-out, decided and pivoted badges, linked by dashed lines"/></td>
@@ -78,8 +74,6 @@ Three semantic-zoom tiers: full cards, takeaway plaques, an icon skeleton. Every
 </td>
 </tr>
 </table>
-
-<img src="docs/hero-en.png" alt="ThoughtDAG map view: a waterfall DAG of thought, every plaque badged by cognitive move, with the focus panel showing a node's full answer and its token-priced context chain" width="100%"/>
 
 <table>
 <tr>
