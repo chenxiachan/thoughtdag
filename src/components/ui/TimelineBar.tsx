@@ -1,47 +1,24 @@
 import { useEffect, useMemo, useState } from 'react';
+import { History } from 'lucide-react';
 import { useReactFlow, useStore as useRfStore } from '@xyflow/react';
 import { useStore } from '../../store';
+import { useUiStore } from '../../lib/ui-store';
 import { useZoomTier } from '../../lib/use-map-mode';
 import { useT } from '../../i18n';
-import type { ThoughtData } from '../../types';
+import { collectTimeline } from '../../lib/timeline';
 
-// The map's second axis. Space answers "where is it in the graph"; this bar
-// answers "when did I think it". Nodes line up by creation time (immutable —
-// the moment you remember is the moment it was born, and regeneration must
-// not teleport a point), evenly spaced (navigation wants order, not gaps),
-// with date ticks where the sequence crosses midnight. Appears only at map /
+// The map's second axis. Space answers "where is it in the graph"; this rail
+// answers "when did I think it". A vertical track under the content palette —
+// time flows down, the same direction conversation chains flow on the canvas.
+// Nodes line up by creation time inside a fixed-height scroll window, with
+// date ticks where the sequence crosses midnight. Appears only at map /
 // glyph tiers: zoomed in you are working, zoomed out you are searching.
-
-const DOT_COLOR: Record<string, string> = {
-  ruleout: '#ef4444',
-  decision: '#6B5CE7',
-  pivot: '#e8890c',
-  open: '#d97706',
-  insight: '#0284c7',
-};
-
-type Entry = {
-  id: string;
-  label: string;
-  createdAt?: string;
-  modifiedAt?: string;
-  color: string;
-  archived: boolean;
-  recentlyEdited: boolean;
-  x: number;
-  y: number;
-};
-
-const last = (arr?: (string | undefined)[]) => {
-  if (!arr) return undefined;
-  for (let i = arr.length - 1; i >= 0; i--) if (arr[i]) return arr[i];
-  return undefined;
-};
 
 export function TimelineBar() {
   const tier = useZoomTier();
   const nodes = useStore((s) => s.nodes);
   const setSelectedNodeId = useStore((s) => s.setSelectedNodeId);
+  const setOverviewOpen = useUiStore((s) => s.setTimelineOverviewOpen);
   const rf = useReactFlow();
   const t = useT();
   const [hover, setHover] = useState<string | null>(null);
@@ -57,47 +34,7 @@ export function TimelineBar() {
   const vw = useRfStore((s) => s.width);
   const vh = useRfStore((s) => s.height);
 
-  const entries = useMemo<Entry[]>(() => {
-    const list = nodes
-      .filter((n) => {
-        const d = n.data as ThoughtData;
-        return d.stepKind !== 'frame';
-      })
-      .map((n) => {
-        const d = n.data as ThoughtData;
-        const createdAt = d.createdAt ?? d.askedAt ?? d.generatedAts?.[0] ?? d.lastGeneratedAt;
-        const modifiedAt = [d.askedAt, last(d.generatedAts), last(d.editedAts)]
-          .filter(Boolean)
-          .sort()
-          .pop() as string | undefined;
-        const type = d.summaryTypes?.[d.responseIndex ?? 0] ?? undefined;
-        const summary = d.summaries?.[d.responseIndex ?? 0];
-        const created = createdAt ? Date.parse(createdAt) : NaN;
-        const modified = modifiedAt ? Date.parse(modifiedAt) : NaN;
-        return {
-          id: n.id,
-          label: (summary || d.question || '').slice(0, 60),
-          createdAt,
-          modifiedAt,
-          color: (type && DOT_COLOR[type]) || '#b8b3c7',
-          archived: !!d.archived,
-          // Second-order signal: touched noticeably after birth, and recently.
-          recentlyEdited:
-            !isNaN(created) && !isNaN(modified) && modified - created > 60_000 && now - modified < 30 * 60_000,
-          x: n.position.x,
-          y: n.position.y,
-        };
-      });
-    // Stable sort: undated nodes keep graph order at the head of the track.
-    return list
-      .map((e, i) => ({ e, i }))
-      .sort((a, b) => {
-        const ka = a.e.createdAt ?? '';
-        const kb = b.e.createdAt ?? '';
-        return ka < kb ? -1 : ka > kb ? 1 : a.i - b.i;
-      })
-      .map(({ e }) => e);
-  }, [nodes, now]);
+  const entries = useMemo(() => collectTimeline(nodes, now), [nodes, now]);
 
   const inView = useMemo(() => {
     const [tx, ty, z] = transform;
@@ -113,16 +50,22 @@ export function TimelineBar() {
 
   const dayOf = (iso?: string) => (iso ? iso.slice(0, 10) : '');
   const fmtDay = (iso: string) => iso.slice(5).replace('-', '/');
-  const fmtTime = (iso?: string) => (iso ? new Date(iso).toLocaleString() : '—');
+  const fmtTime = (iso?: string) => (iso ? new Date(iso).toLocaleString() : '');
   const hovered = hover ? entries.find((e) => e.id === hover) : null;
 
   return (
-    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-10 tdag-timeline" data-timeline-bar>
+    <div
+      className="absolute left-4 top-[52%] z-10 tdag-timeline flex flex-col bg-card/90 backdrop-blur border border-line rounded-xl shadow-sm w-12"
+      style={{ height: 'min(38vh, 420px)' }}
+      data-timeline-bar
+      role="navigation"
+      aria-label={t('timeline.label')}
+    >
       {hovered && (
-        <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 max-w-[340px] bg-card border border-line rounded-lg shadow-md px-3 py-2 text-xs pointer-events-none whitespace-nowrap overflow-hidden text-ellipsis">
+        <div className="absolute left-full ml-2 top-2 max-w-[320px] bg-card border border-line rounded-lg shadow-md px-3 py-2 text-xs pointer-events-none z-20">
           <div className="font-medium text-ink truncate">{hovered.label || '…'}</div>
           {(hovered.createdAt || hovered.modifiedAt) && (
-            <div className="text-ink-faint mt-0.5">
+            <div className="text-ink-faint mt-0.5 whitespace-nowrap">
               {hovered.createdAt && <>{t('timeline.created')} {fmtTime(hovered.createdAt)}</>}
               {hovered.modifiedAt && hovered.modifiedAt !== hovered.createdAt && (
                 <>{hovered.createdAt ? ' · ' : ''}{t('timeline.modified')} {fmtTime(hovered.modifiedAt)}</>
@@ -131,22 +74,27 @@ export function TimelineBar() {
           )}
         </div>
       )}
-      <div
-        className="flex items-center bg-card/90 backdrop-blur border border-line rounded-full shadow-sm px-4 h-9 max-w-[72vw]"
-        role="navigation"
-        aria-label={t('timeline.label')}
+      <button
+        onClick={() => setOverviewOpen(true)}
+        title={t('timeline.openOverview')}
+        data-timeline-overview-btn
+        className="shrink-0 h-8 mx-1.5 mt-1.5 rounded-lg flex items-center justify-center text-ink-faint hover:text-accent hover:bg-accent/10 transition-colors"
       >
-        <div className="flex items-center justify-between gap-[5px] min-w-[180px]">
+        <History size={15} strokeWidth={1.75} />
+      </button>
+      <div className="mx-2.5 border-t border-line shrink-0" />
+      <div className="flex-1 min-h-0 overflow-y-auto tdag-timeline-scroll py-2">
+        <div className="flex flex-col items-center gap-[7px]">
           {entries.map((e, i) => {
             const prevDay = i > 0 ? dayOf(entries[i - 1].createdAt) : '';
             const day = dayOf(e.createdAt);
             const newDay = day && day !== prevDay;
             return (
-              <span key={e.id} className="flex items-center gap-[5px] shrink min-w-0">
+              <span key={e.id} className="flex flex-col items-center gap-[7px] shrink-0">
                 {newDay && i > 0 && (
-                  <span className="flex items-center gap-1 shrink-0 text-[9px] text-ink-faint select-none">
-                    <span className="w-px h-3.5 bg-line" />
-                    {fmtDay(day)}
+                  <span className="flex flex-col items-center gap-0.5 select-none">
+                    <span className="w-5 h-px bg-line" />
+                    <span className="text-[8px] leading-none text-ink-faint">{fmtDay(day)}</span>
                   </span>
                 )}
                 <button
@@ -157,13 +105,12 @@ export function TimelineBar() {
                     setSelectedNodeId(e.id);
                     rf.setCenter(e.x + 260, e.y + 110, { zoom: 1, duration: 350 });
                   }}
-                  className={`shrink rounded-full transition-transform hover:scale-150 ${
+                  className={`shrink-0 rounded-full transition-transform hover:scale-150 ${
                     e.recentlyEdited ? 'tdag-timeline-pulse' : ''
                   }`}
                   style={{
                     width: 8,
                     height: 8,
-                    minWidth: 4,
                     background: e.color,
                     opacity: e.archived ? 0.35 : 1,
                     boxShadow: inView.has(e.id) ? '0 0 0 2.5px rgba(107,92,231,.35)' : undefined,

@@ -68,6 +68,7 @@ import { isViewerMode, buildViewerLink } from './lib/viewer';
 import { useModels } from './lib/use-models';
 import { useZoomTier } from './lib/use-map-mode';
 import { TimelineBar } from './components/ui/TimelineBar';
+import TimelineOverviewModal from './components/ui/TimelineOverviewModal';
 import { useStore as useRfStore } from '@xyflow/react';
 
 // One node type key, three renderers: content nodes (notes / files) render
@@ -1123,7 +1124,7 @@ function Canvas() {
           viewport center; DRAG drops at the pointer. Paste works anywhere:
           text → note, a URL → link snapshot, image/files → file node. */}
       {(hasNodes || isParadigm) && !isViewerMode && (
-        <div className="absolute top-1/2 -translate-y-1/2 left-4 z-10 flex flex-col gap-1.5 bg-card/90 backdrop-blur border border-line rounded-xl p-1.5 shadow-sm">
+        <div className="absolute top-[38%] -translate-y-1/2 left-4 z-10 flex flex-col gap-1.5 bg-card/90 backdrop-blur border border-line rounded-xl p-1.5 shadow-sm">
           {!isParadigm && (
             <button
               onClick={() => spawnAskNode(flowPosAt(null))}
@@ -1472,6 +1473,13 @@ function Canvas() {
         <NodeContextMenu x={nodeMenu.x} y={nodeMenu.y} nodeId={nodeMenu.nodeId} onClose={() => setNodeMenu(null)} />
       )}
       <MaterialsOverviewModal onLocate={(nid) => {
+        const n = useStore.getState().nodes.find((x) => x.id === nid);
+        if (n) {
+          setSelectedNodeId(nid);
+          rfInstance.current?.setCenter(n.position.x + 260, n.position.y + 110, { zoom: 1, duration: 350 });
+        }
+      }} />
+      <TimelineOverviewModal onLocate={(nid) => {
         const n = useStore.getState().nodes.find((x) => x.id === nid);
         if (n) {
           setSelectedNodeId(nid);
