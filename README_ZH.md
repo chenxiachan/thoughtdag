@@ -14,9 +14,9 @@
 ![React Flow](https://img.shields.io/badge/React_Flow-FF0072)
 ![License](https://img.shields.io/badge/许可-MIT-green) ![Status](https://img.shields.io/badge/状态-活跃开发中-6B5CE7)
 
-**[▶ 在线试用](https://thoughtdag.xia-chen.workers.dev)**。无需安装、无需注册。示例画布（上图的来源）不需要 key；连接模型只需任意兼容 OpenAI 协议的 API key，在应用内完成。
+**[▶ 在线试用](https://app.thoughtdag.workers.dev)**。无需安装、无需注册。示例画布（上图的来源）不需要 key；连接模型只需任意兼容 OpenAI 协议的 API key，在应用内完成。
 
-[English](./README.md) · [在线 Demo](https://thoughtdag.xia-chen.workers.dev) · [快速开始](#快速开始) · [功能总览](#功能总览) · [支持的模型](#支持的模型) · [Roadmap](#roadmap)
+[English](./README.md) · [在线 Demo](https://app.thoughtdag.workers.dev) · [快速开始](#快速开始) · [功能总览](#功能总览) · [支持的模型](#支持的模型) · [Roadmap](#roadmap)
 
 <img src="docs/hero-zh.png" alt="ThoughtDAG：瀑布形思维 DAG：问题从顶部居中流入，分叉为左侧的决策与右侧被排除的分支，流经转向和红色虚线上的评审，最后汇入底部居中的待解问题；每张门牌带认知徽章。右侧侧栏展示决策节点在继承的「认知科学教练」角色下的完整 deepseek-v4-pro 回答，以及附件、高亮、按 token 计价的上下文链" width="100%"/>
 
@@ -24,11 +24,22 @@
 
 ## 为什么
 
-聊天是线性而不透明的：对话越长上下文越稀释，说过的话删不掉，你也永远不知道模型到底读了什么。ThoughtDAG 把对话铺成一张图：问题是节点，连线是上下文，编辑图，就是在编辑模型的记忆。让思考长成图，不再挤成一条线。
+**长对话在稀释上下文，而你看不见模型读了什么。**
+在这里，模型看到的精确等于连进节点的内容。删一条边，换一个答案。
+
+**好答案埋在第 47 轮，再找到它像一场考古。**
+缩小画布：收获句门牌和认知徽章，把画布变成你思考过程的地图。
+
+**你的思考锁在别人的服务器里。**
+画布在你的浏览器里；备份是你磁盘上的真实文件，随时带走。
+
+问题是节点，连线是上下文，编辑图，就是在编辑模型的记忆。让思考长成图，不再挤成一条线。
+
+<img src="docs/hero-demo-zh.gif" alt="真实录屏的 Hero 演示：在 PDF 阅读器圈选段落提问；删掉噪音边重新生成干净答案；三层语义缩放缩到地图形态；打开备份控制中心导出真实文件" width="100%"/>
 
 ## 快速开始
 
-最快的路径是[在线 Demo](https://thoughtdag.xia-chen.workers.dev)：打开、粘贴一个 key（不粘贴也行，可以先逛示例画布）就能用。模型流量从浏览器直连网关，key 不会经过 Demo 的服务器。想自己跑：
+最快的路径是[在线 Demo](https://app.thoughtdag.workers.dev)：打开、粘贴一个 key（不粘贴也行，可以先逛示例画布）就能用。模型流量从浏览器直连网关，key 不会经过 Demo 的服务器。想自己跑：
 
 ```bash
 npm install

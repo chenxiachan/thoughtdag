@@ -23,3 +23,9 @@ PRODUCT_MAP.md
 TOPOLOGY_DIAGNOSTICS.md
 HANDOFF.md
 .local-e2e/
+
+# OS
+.DS_Store
+
+# Video render output
+video/out/

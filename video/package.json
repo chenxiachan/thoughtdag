@@ -1,0 +1,19 @@
+{
+  "name": "thoughtdag-hero-video",
+  "private": true,
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts Hero out/hero.mp4",
+    "render:gif": "remotion render src/index.ts Hero out/hero.gif --codec=gif --every-nth-frame=2"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.493",
+    "@types/react": "^19.2.17",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7",
+    "remotion": "^4.0.493"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3"
+  }
+}

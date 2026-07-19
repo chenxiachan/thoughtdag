@@ -14,9 +14,9 @@ An infinite canvas where LLM conversations grow into an editable thought graph.
 ![React Flow](https://img.shields.io/badge/React_Flow-FF0072)
 ![License](https://img.shields.io/badge/license-MIT-green) ![Status](https://img.shields.io/badge/status-active_development-6B5CE7)
 
-**[▶ Try it live](https://thoughtdag.xia-chen.workers.dev)**. No install, no signup. The example canvas (the source of the map above) needs no key; connecting a model takes any OpenAI-compatible API key, in the app.
+**[▶ Try it live](https://app.thoughtdag.workers.dev)**. No install, no signup. The example canvas (the source of the map above) needs no key; connecting a model takes any OpenAI-compatible API key, in the app.
 
-[中文](./README_ZH.md) · [Live demo](https://thoughtdag.xia-chen.workers.dev) · [Quick start](#quick-start) · [Features](#features-at-a-glance) · [Models](#supported-models) · [Roadmap](#roadmap)
+[中文](./README_ZH.md) · [Live demo](https://app.thoughtdag.workers.dev) · [Quick start](#quick-start) · [Features](#features-at-a-glance) · [Models](#supported-models) · [Roadmap](#roadmap)
 
 <img src="docs/hero-en.png" alt="ThoughtDAG: a waterfall DAG of thought: the question enters at the top center, forks into a decision (left) and a ruled-out branch (right), flows through a pivot and a reviewer on a dashed watch edge, and exits through a centered open question; every plaque badged by cognitive move. The focus panel on the right shows the decision node's full deepseek-v4-pro answer under an inherited Cognitive-science-coach role, with attachments, highlights and the token-priced context chain" width="100%"/>
 
@@ -24,11 +24,22 @@ An infinite canvas where LLM conversations grow into an editable thought graph.
 
 ## Why
 
-Chat is linear and opaque: context dilutes as the thread grows, nothing can be removed, and you never see what the model actually reads. ThoughtDAG lays the conversation out as a graph. Every question is a node, every wire is context, and editing the graph edits the model's memory. Think in branches, not threads.
+**Long chats dilute context — and you can't see what the model reads.**
+Here the model sees exactly what wires into the node. Delete one edge, get a different answer.
+
+**The good answer is buried at turn 47, and finding it again is archaeology.**
+Zoom out: takeaway plaques and cognitive badges turn the canvas into a map of what you learned.
+
+**Your thinking is locked in someone else's server.**
+The canvas lives in your browser; backups are real files on your disk, yours to take anywhere.
+
+Every question is a node, every wire is context, and editing the graph edits the model's memory. Think in branches, not threads.
+
+<img src="docs/hero-demo-en.gif" alt="Hero demo, recorded from the live app: selecting a passage in the PDF reader and asking about it; deleting a noise edge and regenerating a clean answer; zooming out through three semantic tiers to the map; opening the backup control center and exporting a real file" width="100%"/>
 
 ## Quick start
 
-The fastest path is the [live demo](https://thoughtdag.xia-chen.workers.dev): open, paste a key (or don't, and browse the example canvas), go. Model traffic runs browser-direct to the gateway, so your key never touches the demo's server. To run it yourself:
+The fastest path is the [live demo](https://app.thoughtdag.workers.dev): open, paste a key (or don't, and browse the example canvas), go. Model traffic runs browser-direct to the gateway, so your key never touches the demo's server. To run it yourself:
 
 ```bash
 npm install
