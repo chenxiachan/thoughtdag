@@ -64,19 +64,20 @@ export function TimelineBar() {
   const hovered = hover ? entries.find((e) => e.id === hover.id) : null;
 
   return (
-    // Top rides just under the content palette (its center sits at 38% and
-    // it is ~230px tall), bottom-36 keeps the rail clear of the React Flow
-    // zoom controls — both hold at any viewport height. pointer-events pass
-    // through everywhere except the rows and the button themselves.
+    // One left-side axis group with the content palette: the rail hangs just
+    // under it, sized to its content (capped at 240px, then it scrolls), and
+    // everything — History button, resting ticks — centers on the palette's
+    // own centerline (x≈41px). pointer-events pass through except the rows
+    // and the button themselves.
     <div
-      className="absolute left-[2px] top-[calc(38%+128px)] bottom-36 w-[76px] z-10 tdag-timeline pointer-events-none"
+      className="absolute left-[2px] top-[calc(38%+126px)] w-[90px] z-10 tdag-timeline pointer-events-none flex flex-col items-stretch"
       data-timeline-bar
       role="navigation"
       aria-label={t('timeline.label')}
     >
       {hovered && hover && (
         <div
-          className="fixed left-[86px] max-w-[320px] bg-card border border-line rounded-lg shadow-md px-3 py-2 text-xs pointer-events-none z-20"
+          className="fixed left-[98px] max-w-[320px] bg-card border border-line rounded-lg shadow-md px-3 py-2 text-xs pointer-events-none z-20"
           style={{ top: hover.y - 14 }}
         >
           <div className="font-medium text-ink truncate">{hovered.label || '…'}</div>
@@ -94,11 +95,11 @@ export function TimelineBar() {
         onClick={() => setOverviewOpen(true)}
         title={t('timeline.openOverview')}
         data-timeline-overview-btn
-        className="pointer-events-auto absolute top-0 left-[20px] w-7 h-7 rounded-lg flex items-center justify-center text-ink-faint/70 hover:text-accent hover:bg-accent/10 transition-colors"
+        className="pointer-events-auto self-start ml-[25px] w-7 h-7 rounded-lg flex items-center justify-center text-ink-faint/70 hover:text-accent hover:bg-accent/10 transition-colors"
       >
         <History size={14} strokeWidth={1.75} />
       </button>
-      <div className="pointer-events-auto absolute top-8 bottom-0 inset-x-0 overflow-y-auto tdag-noscrollbar">
+      <div className="pointer-events-auto overflow-y-auto tdag-noscrollbar max-h-[240px] mt-1">
         <div className="flex flex-col py-1">
           {entries.map((e, i) => {
             const prevDay = i > 0 ? dayOf(entries[i - 1].createdAt) : '';
@@ -117,7 +118,7 @@ export function TimelineBar() {
                   setSelectedNodeId(e.id);
                   rf.setCenter(e.x + 260, e.y + 110, { zoom: 1, duration: 350 });
                 }}
-                className="relative flex items-center w-full h-[9px] shrink-0 pl-[26px] cursor-pointer"
+                className="relative flex items-center w-full h-[9px] shrink-0 pl-[32px] cursor-pointer"
                 aria-label={e.label}
               >
                 <span
@@ -131,7 +132,7 @@ export function TimelineBar() {
                   }}
                 />
                 {newDay && (
-                  <span className="absolute left-[62px] top-1/2 -translate-y-1/2 text-[8px] leading-none text-ink-faint select-none whitespace-nowrap">
+                  <span className="absolute left-[64px] top-1/2 -translate-y-1/2 text-[8px] leading-none text-ink-faint select-none whitespace-nowrap">
                     {fmtDay(day)}
                   </span>
                 )}
