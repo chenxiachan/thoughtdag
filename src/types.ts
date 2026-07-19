@@ -101,6 +101,11 @@ export interface ThoughtData extends Record<string, unknown> {
       decision | pivot | open. Auto-labeled by the takeaway judge; display
       layer only. */
   summaryTypes?: (string | undefined | null)[];
+  /** Micro topic per version (≤6 CJK chars / ≤14 latin): the noun phrase the
+      narrow surfaces show — timeline tooltips, unbadged plaques. Written by
+      the same judge call as the summary; display layer only. Older canvases
+      lack it — every consumer must fall back to the summary itself. */
+  summaryTopics?: (string | undefined | null)[];
   /** Where on the source material this question was asked from: page number,
       plus selection rectangles as fractions of the page box when asked in the
       original PDF view (rects power the in-reader marks; page alone powers

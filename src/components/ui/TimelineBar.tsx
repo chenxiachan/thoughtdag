@@ -16,12 +16,15 @@ import { collectTimeline } from '../../lib/timeline';
 // run at full strength; the rest fade back. Appears only at map / glyph
 // tiers: zoomed in you are working, zoomed out you are searching.
 
-const TICK_W = 20;
+/** Landmarks (badged turns) rest longer than plain waypoints — the rail
+    thins the same way the map does. */
+const restWidth = (badged: boolean) => (badged ? 24 : 16);
 /** Fisheye: the hovered tick swells, neighbours ripple down by distance. */
-const tickWidth = (i: number, hoverIdx: number | null) => {
-  if (hoverIdx == null) return TICK_W;
+const tickWidth = (i: number, hoverIdx: number | null, badged: boolean) => {
+  const rest = restWidth(badged);
+  if (hoverIdx == null) return rest;
   const d = Math.abs(i - hoverIdx);
-  return d === 0 ? 34 : d === 1 ? 27 : d === 2 ? 23 : TICK_W;
+  return d === 0 ? rest + 14 : d === 1 ? rest + 7 : d === 2 ? rest + 3 : rest;
 };
 
 export function TimelineBar() {
@@ -80,7 +83,10 @@ export function TimelineBar() {
           className="fixed left-[108px] max-w-[320px] bg-card border border-line rounded-lg shadow-md px-3 py-2 text-xs pointer-events-none z-20"
           style={{ top: hover.y - 14 }}
         >
-          <div className="font-medium text-ink truncate">{hovered.label || '…'}</div>
+          <div className="font-medium text-ink truncate">
+            {hovered.topic && <span className="text-accent">{hovered.topic} · </span>}
+            {hovered.label || '…'}
+          </div>
           {hovered.createdAt && (
             <div className="text-ink-faint mt-0.5">{t('timeline.created')} {fmtTime(hovered.createdAt)}</div>
           )}
@@ -122,7 +128,7 @@ export function TimelineBar() {
                 <span
                   className={`rounded-full ${e.recentlyEdited ? 'tdag-timeline-pulse' : ''}`}
                   style={{
-                    width: tickWidth(i, hover?.idx ?? null),
+                    width: tickWidth(i, hover?.idx ?? null, e.badged),
                     height: 4,
                     background: e.color,
                     opacity: e.archived ? 0.3 : inView.has(e.id) ? 1 : 0.45,

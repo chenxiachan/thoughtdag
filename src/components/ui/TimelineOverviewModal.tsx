@@ -60,7 +60,10 @@ export default function TimelineOverviewModal({ onLocate }: { onLocate: (nodeId:
                   />
                   <span className="text-2xs font-mono text-ink-faint shrink-0 w-11">{fmtClock(e.createdAt)}</span>
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm truncate ${e.archived ? 'text-ink-faint line-through' : 'text-ink'}`}>{e.label || '…'}</p>
+                    <p className={`text-sm truncate ${e.archived ? 'text-ink-faint line-through' : e.badged ? 'text-ink' : 'text-ink-muted'}`}>
+                      {e.topic && <span className="font-medium text-accent">{e.topic} · </span>}
+                      {e.label || '…'}
+                    </p>
                     {e.modifiedAt && e.modifiedAt !== e.createdAt && (
                       <p className="text-2xs text-ink-faint">{t('timeline.modified')} {new Date(e.modifiedAt).toLocaleString()}</p>
                     )}

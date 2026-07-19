@@ -5,7 +5,7 @@ import 'katex/dist/katex.min.css';
 import type { ThoughtNode as ThoughtNodeType } from '../types';
 import { useStore } from '../store';
 import { useZoomTier } from '../lib/use-map-mode';
-import { generateId, isImeComposing , activeSummary, awaitingInput } from '../utils';
+import { generateId, isImeComposing , activeSummary, activeTopic, awaitingInput } from '../utils';
 import { processFile } from '../lib/attachments';
 import { copyText } from '../lib/export';
 import { isRunLocked } from '../lib/paradigm';
@@ -365,12 +365,17 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
                 </div>
               </>
             ) : (
+              // Thinning by signal: badged turns (ruled out / decided /
+              // pivoted / open) keep the full takeaway in full ink — the
+              // map's landmarks. Unbadged waypoints shrink to their micro
+              // topic (when the judge wrote one) in muted ink, so the
+              // turning points read first.
               <>
                 <div className="text-lg text-ink-muted leading-snug line-clamp-2">
                   {data.question}
                 </div>
-                <div className="text-2xl font-semibold text-ink leading-snug line-clamp-3 mt-1.5">
-                  {versionSummary || data.response.replace(/[#*`>-]/g, '').slice(0, 140)}
+                <div className={`text-2xl font-semibold leading-snug line-clamp-3 mt-1.5 ${badge ? 'text-ink' : 'text-ink-muted'}`}>
+                  {(badge ? versionSummary : (activeTopic(data) ?? versionSummary)) || data.response.replace(/[#*`>-]/g, '').slice(0, 140)}
                 </div>
               </>
             )

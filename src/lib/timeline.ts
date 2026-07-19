@@ -17,6 +17,12 @@ export const DOT_COLOR: Record<string, string> = {
 export type TimelineEntry = {
   id: string;
   label: string;
+  /** Micro topic (≤6 CJK chars) when the judge wrote one — narrow surfaces
+      lead with it. */
+  topic?: string;
+  /** A typed turn (ruled out / decided / pivoted / open) — the landmarks;
+      unbadged waypoints render lighter and shorter. */
+  badged: boolean;
   createdAt?: string;
   modifiedAt?: string;
   color: string;
@@ -44,12 +50,15 @@ export function collectTimeline(nodes: ThoughtNode[], now: number): TimelineEntr
         .pop() as string | undefined;
       const type = d.summaryTypes?.[d.responseIndex ?? 0] ?? undefined;
       const summary = d.summaries?.[d.responseIndex ?? 0];
+      const topic = d.summaryTopics?.[d.responseIndex ?? 0] ?? undefined;
       const created = createdAt ? Date.parse(createdAt) : NaN;
       const modified = modifiedAt ? Date.parse(modifiedAt) : NaN;
       return {
         entry: {
           id: n.id,
           label: (summary || d.question || '').slice(0, 60),
+          topic,
+          badged: !!type && type !== 'insight',
           createdAt,
           modifiedAt,
           color: (type && DOT_COLOR[type]) || '#b8b3c7',

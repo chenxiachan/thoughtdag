@@ -20,7 +20,7 @@ import type { StoreState } from './types';
 // across plaques and classifications aware of what the thinking already
 // ruled out or decided — the lines read as one progression, not islands.
 export const SUMMARY_MIN_CHARS = 400;
-export function generateSummary(nodeId: string, question: string, response: string, setSummary: (id: string, summary: string, forResponse: string, type?: string) => void, mapLines?: string[]) {
+export function generateSummary(nodeId: string, question: string, response: string, setSummary: (id: string, summary: string, forResponse: string, type?: string, topic?: string) => void, mapLines?: string[]) {
   if (response.length < SUMMARY_MIN_CHARS) return;
   const mapBlock = mapLines && mapLines.length > 0
     ? `Takeaway lines already on the map, along this node's ancestor path (oldest first):\n${mapLines.join('\n')}\n\nUse those lines ONLY to align terminology and avoid repeating them. Classify this exchange's epistemic move on its own merits, independent of the lines above.\n\n`
@@ -28,15 +28,19 @@ export function generateSummary(nodeId: string, question: string, response: stri
   llmCall([
     { role: 'user', content: question },
     { role: 'assistant', content: response },
-    { role: 'user', content: `${mapBlock}Write the TAKEAWAY of the above exchange as ONE short line, conclusion first. Hard length limit: at most 48 characters for CJK languages, at most 96 characters otherwise — the line must fit whole on a small map plaque, never truncated. A reader scanning a map of many such lines should see how the thinking progressed. Same language as the question. Classify the epistemic move and prefix the line with exactly one tag: INSIGHT (learned or confirmed something), RULEOUT (killed a hypothesis or option), DECISION (chose among options), PIVOT (reframed the question or direction), OPEN (raised a new unresolved question). Most exchanges are INSIGHT. Format: TAG: takeaway text. Output only that line.` },
+    { role: 'user', content: `${mapBlock}Compress the above exchange for a map plaque. Output exactly ONE line in the format: TAG | topic | takeaway\n\nTAG classifies the epistemic move: INSIGHT (learned or confirmed something), RULEOUT (killed a hypothesis or option), DECISION (chose among options), PIVOT (reframed the question or direction), OPEN (raised a new unresolved question). Most exchanges are INSIGHT.\n\ntopic: the subject as a bare noun phrase. Hard limit: 6 characters for CJK languages, 14 characters otherwise.\n\ntakeaway: the conclusion, stated first and plainly, as one clause. Hard limit: 18 characters for CJK languages, 40 characters otherwise — it must fit whole on a small plaque, never truncated. A reader scanning many such lines should see how the thinking progressed.\n\nBoth in the same language as the question. Never use dash characters (—, –, -) inside topic or takeaway; use commas or colons instead. Output only that one line.` },
   ]).then((raw) => {
-    // "TAG: text" — unknown/missing tags degrade to the unmarked default
-    const m = raw.trim().match(/^(INSIGHT|RULEOUT|DECISION|PIVOT|OPEN)[:：]\s*(.+)$/is);
-    const type = m ? m[1].toLowerCase() : 'insight';
-    const text = m ? m[2].trim() : raw.trim();
+    // "TAG | topic | takeaway" — older models or drift may still answer
+    // "TAG: text"; unknown/missing tags degrade to the unmarked default
+    const line = raw.trim().split('\n')[0].trim();
+    const three = line.match(/^(INSIGHT|RULEOUT|DECISION|PIVOT|OPEN)\s*[|｜:：]\s*([^|｜]+?)\s*[|｜]\s*(.+)$/is);
+    const two = three ? null : line.match(/^(INSIGHT|RULEOUT|DECISION|PIVOT|OPEN)[:：|｜]\s*(.+)$/is);
+    const type = (three?.[1] ?? two?.[1])?.toLowerCase() ?? 'insight';
+    const topic = three ? three[2].trim() : undefined;
+    const text = three ? three[3].trim() : (two ? two[2].trim() : line);
     // target the version this summary was computed FOR, not whichever
     // version the user has navigated to since
-    setSummary(nodeId, text, response, type);
+    setSummary(nodeId, text, response, type, topic);
   }).catch(() => {});
 }
 

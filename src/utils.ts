@@ -36,3 +36,9 @@ export function awaitingInput(data: { stepKind?: string; question: string; respo
 export function activeSummary(data: { summaries?: (string | undefined | null)[]; responseIndex: number; summary?: string }): string | undefined {
   return data.summaries?.[data.responseIndex] ?? data.summary ?? undefined;
 }
+
+/** The micro topic for the active version — the ≤6-char noun phrase narrow
+    surfaces show. Older canvases have none; callers fall back to the summary. */
+export function activeTopic(data: { summaryTopics?: (string | undefined | null)[]; responseIndex: number }): string | undefined {
+  return data.summaryTopics?.[data.responseIndex] ?? undefined;
+}
