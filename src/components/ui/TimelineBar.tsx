@@ -64,11 +64,12 @@ export function TimelineBar() {
   const hovered = hover ? entries.find((e) => e.id === hover.id) : null;
 
   return (
-    // bottom-36 keeps the rail clear of the React Flow zoom controls in the
-    // bottom-left corner at any viewport height. pointer-events pass through
-    // everywhere except the ticks and the button themselves.
+    // Top rides just under the content palette (its center sits at 38% and
+    // it is ~230px tall), bottom-36 keeps the rail clear of the React Flow
+    // zoom controls — both hold at any viewport height. pointer-events pass
+    // through everywhere except the rows and the button themselves.
     <div
-      className="absolute left-[2px] top-[52%] bottom-36 w-[76px] z-10 tdag-timeline pointer-events-none"
+      className="absolute left-[2px] top-[calc(38%+128px)] bottom-36 w-[76px] z-10 tdag-timeline pointer-events-none"
       data-timeline-bar
       role="navigation"
       aria-label={t('timeline.label')}
@@ -93,34 +94,34 @@ export function TimelineBar() {
         onClick={() => setOverviewOpen(true)}
         title={t('timeline.openOverview')}
         data-timeline-overview-btn
-        className="pointer-events-auto absolute top-0 left-[24px] w-7 h-7 rounded-lg flex items-center justify-center text-ink-faint/70 hover:text-accent hover:bg-accent/10 transition-colors"
+        className="pointer-events-auto absolute top-0 left-[20px] w-7 h-7 rounded-lg flex items-center justify-center text-ink-faint/70 hover:text-accent hover:bg-accent/10 transition-colors"
       >
         <History size={14} strokeWidth={1.75} />
       </button>
-      {/* the axis itself: a hairline through the tick centers */}
-      <div className="absolute left-[37px] top-8 bottom-0 w-px bg-line/70" />
       <div className="pointer-events-auto absolute top-8 bottom-0 inset-x-0 overflow-y-auto tdag-noscrollbar">
-        <div className="flex flex-col items-center gap-[6px] py-1.5">
+        <div className="flex flex-col py-1">
           {entries.map((e, i) => {
             const prevDay = i > 0 ? dayOf(entries[i - 1].createdAt) : '';
             const day = dayOf(e.createdAt);
             const newDay = day !== '' && day !== prevDay;
             return (
-              <span key={e.id} className="relative flex justify-center w-full shrink-0">
-                {newDay && (
-                  <span className="absolute left-[calc(50%+18px)] top-1/2 -translate-y-1/2 text-[8px] leading-none text-ink-faint select-none whitespace-nowrap">
-                    {fmtDay(day)}
-                  </span>
-                )}
-                <button
-                  data-timeline-dot={e.id}
-                  onMouseEnter={(ev) => setHover({ id: e.id, idx: i, y: ev.currentTarget.getBoundingClientRect().top })}
-                  onMouseLeave={() => setHover((h) => (h?.id === e.id ? null : h))}
-                  onClick={() => {
-                    setSelectedNodeId(e.id);
-                    rf.setCenter(e.x + 260, e.y + 110, { zoom: 1, duration: 350 });
-                  }}
-                  className={`shrink-0 rounded-full ${e.recentlyEdited ? 'tdag-timeline-pulse' : ''}`}
+              // Each row is a full-width, gap-free hit area — the pointer
+              // never falls between ticks. The tick itself is the visual
+              // child, left-anchored, swelling rightward under the fisheye.
+              <button
+                key={e.id}
+                data-timeline-dot={e.id}
+                onMouseEnter={(ev) => setHover({ id: e.id, idx: i, y: ev.currentTarget.getBoundingClientRect().top })}
+                onMouseLeave={() => setHover((h) => (h?.id === e.id ? null : h))}
+                onClick={() => {
+                  setSelectedNodeId(e.id);
+                  rf.setCenter(e.x + 260, e.y + 110, { zoom: 1, duration: 350 });
+                }}
+                className="relative flex items-center w-full h-[9px] shrink-0 pl-[26px] cursor-pointer"
+                aria-label={e.label}
+              >
+                <span
+                  className={`rounded-full ${e.recentlyEdited ? 'tdag-timeline-pulse' : ''}`}
                   style={{
                     width: tickWidth(i, hover?.idx ?? null),
                     height: 3,
@@ -128,9 +129,13 @@ export function TimelineBar() {
                     opacity: e.archived ? 0.3 : inView.has(e.id) ? 1 : 0.45,
                     transition: 'width .18s ease, opacity .3s ease',
                   }}
-                  aria-label={e.label}
                 />
-              </span>
+                {newDay && (
+                  <span className="absolute left-[62px] top-1/2 -translate-y-1/2 text-[8px] leading-none text-ink-faint select-none whitespace-nowrap">
+                    {fmtDay(day)}
+                  </span>
+                )}
+              </button>
             );
           })}
         </div>
