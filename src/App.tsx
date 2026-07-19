@@ -67,6 +67,7 @@ import { useT, t as ti, fmt, useI18n } from './i18n';
 import { isViewerMode, buildViewerLink } from './lib/viewer';
 import { useModels } from './lib/use-models';
 import { useZoomTier } from './lib/use-map-mode';
+import { TimelineBar } from './components/ui/TimelineBar';
 import { useStore as useRfStore } from '@xyflow/react';
 
 // One node type key, three renderers: content nodes (notes / files) render
@@ -857,6 +858,7 @@ function Canvas() {
       >
         <Background variant={BackgroundVariant.Dots} gap={24} size={1} color="#E8E5E0" />
         <ZoomTierTag />
+        <TimelineBar />
         <Controls position="bottom-left" />
         <MiniMap
           nodeColor={(node) => {

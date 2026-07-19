@@ -444,3 +444,11 @@ body.tdag-connecting, body.tdag-connecting * {
   overflow-wrap: anywhere;
   word-break: break-word;
 }
+
+/* ── Timeline bar (map/glyph tiers): recently-edited dots breathe ── */
+@keyframes tdag-timeline-glow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(107, 92, 231, 0.45); }
+  50% { box-shadow: 0 0 0 5px rgba(107, 92, 231, 0); }
+}
+.tdag-timeline-pulse { animation: tdag-timeline-glow 2s ease-in-out infinite; }
+.tdag-timeline { animation: fadeIn 0.25s ease; }
