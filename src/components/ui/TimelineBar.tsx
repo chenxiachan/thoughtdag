@@ -93,6 +93,7 @@ export function TimelineBar() {
           {hovered.modifiedAt && hovered.modifiedAt !== hovered.createdAt && (
             <div className="text-ink-faint">{t('timeline.modified')} {fmtTime(hovered.modifiedAt)}</div>
           )}
+          <div className="text-[10px] text-ink-faint/80 mt-1">{t('timeline.clickHint')}</div>
         </div>
       )}
       <button
@@ -118,7 +119,14 @@ export function TimelineBar() {
                 data-timeline-dot={e.id}
                 onMouseEnter={(ev) => setHover({ id: e.id, idx: i, y: ev.currentTarget.getBoundingClientRect().top })}
                 onMouseLeave={() => setHover((h) => (h?.id === e.id ? null : h))}
+                // Single click = pinpoint: pan the node into view at the
+                // CURRENT zoom, so the rail survives and a miss costs one
+                // more click. Double click = commit: fly into the card tier.
                 onClick={() => {
+                  setSelectedNodeId(e.id);
+                  rf.setCenter(e.x + 260, e.y + 110, { zoom: rf.getViewport().zoom, duration: 300 });
+                }}
+                onDoubleClick={() => {
                   setSelectedNodeId(e.id);
                   rf.setCenter(e.x + 260, e.y + 110, { zoom: 1, duration: 350 });
                 }}

@@ -455,6 +455,7 @@ export const zh: Record<keyof typeof en, string> = {
   'tlov.gedankenStale': '图已变化',
   'tlov.gedankenRedo': '重新生成',
   'tlov.gedankenFailed': '导语生成失败，请重试。',
+  'timeline.clickHint': '单击定位 · 双击打开',
   'takeaway.insight': '洞见',
   'takeaway.ruleout': '排除',
   'takeaway.decision': '决策',

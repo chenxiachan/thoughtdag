@@ -456,6 +456,7 @@ export const en = {
   'tlov.gedankenStale': 'The graph has changed',
   'tlov.gedankenRedo': 'Regenerate',
   'tlov.gedankenFailed': 'Could not write the journey. Try again.',
+  'timeline.clickHint': 'Click to locate · double-click to open',
   'takeaway.insight': 'Insight',
   'takeaway.ruleout': 'Ruled out',
   'takeaway.decision': 'Decision',
