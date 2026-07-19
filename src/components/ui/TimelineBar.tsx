@@ -16,12 +16,12 @@ import { collectTimeline } from '../../lib/timeline';
 // run at full strength; the rest fade back. Appears only at map / glyph
 // tiers: zoomed in you are working, zoomed out you are searching.
 
-const TICK_W = 14;
+const TICK_W = 20;
 /** Fisheye: the hovered tick swells, neighbours ripple down by distance. */
 const tickWidth = (i: number, hoverIdx: number | null) => {
   if (hoverIdx == null) return TICK_W;
   const d = Math.abs(i - hoverIdx);
-  return d === 0 ? 28 : d === 1 ? 21 : d === 2 ? 17 : TICK_W;
+  return d === 0 ? 34 : d === 1 ? 27 : d === 2 ? 23 : TICK_W;
 };
 
 export function TimelineBar() {
@@ -70,24 +70,22 @@ export function TimelineBar() {
     // own centerline (x≈41px). pointer-events pass through except the rows
     // and the button themselves.
     <div
-      className="absolute left-[2px] top-[calc(38%+126px)] w-[90px] z-10 tdag-timeline pointer-events-none flex flex-col items-stretch"
+      className="absolute left-[2px] top-[calc(38%+116px)] w-[100px] z-10 tdag-timeline pointer-events-none flex flex-col items-stretch"
       data-timeline-bar
       role="navigation"
       aria-label={t('timeline.label')}
     >
       {hovered && hover && (
         <div
-          className="fixed left-[98px] max-w-[320px] bg-card border border-line rounded-lg shadow-md px-3 py-2 text-xs pointer-events-none z-20"
+          className="fixed left-[108px] max-w-[320px] bg-card border border-line rounded-lg shadow-md px-3 py-2 text-xs pointer-events-none z-20"
           style={{ top: hover.y - 14 }}
         >
           <div className="font-medium text-ink truncate">{hovered.label || '…'}</div>
-          {(hovered.createdAt || hovered.modifiedAt) && (
-            <div className="text-ink-faint mt-0.5 whitespace-nowrap">
-              {hovered.createdAt && <>{t('timeline.created')} {fmtTime(hovered.createdAt)}</>}
-              {hovered.modifiedAt && hovered.modifiedAt !== hovered.createdAt && (
-                <>{hovered.createdAt ? ' · ' : ''}{t('timeline.modified')} {fmtTime(hovered.modifiedAt)}</>
-              )}
-            </div>
+          {hovered.createdAt && (
+            <div className="text-ink-faint mt-0.5">{t('timeline.created')} {fmtTime(hovered.createdAt)}</div>
+          )}
+          {hovered.modifiedAt && hovered.modifiedAt !== hovered.createdAt && (
+            <div className="text-ink-faint">{t('timeline.modified')} {fmtTime(hovered.modifiedAt)}</div>
           )}
         </div>
       )}
@@ -99,7 +97,7 @@ export function TimelineBar() {
       >
         <History size={14} strokeWidth={1.75} />
       </button>
-      <div className="pointer-events-auto overflow-y-auto tdag-noscrollbar max-h-[240px] mt-1">
+      <div className="pointer-events-auto overflow-y-auto tdag-noscrollbar max-h-[170px] mt-0.5">
         <div className="flex flex-col py-1">
           {entries.map((e, i) => {
             const prevDay = i > 0 ? dayOf(entries[i - 1].createdAt) : '';
@@ -118,21 +116,21 @@ export function TimelineBar() {
                   setSelectedNodeId(e.id);
                   rf.setCenter(e.x + 260, e.y + 110, { zoom: 1, duration: 350 });
                 }}
-                className="relative flex items-center w-full h-[9px] shrink-0 pl-[32px] cursor-pointer"
+                className="relative flex items-center w-full h-[14px] shrink-0 pl-[29px] cursor-pointer"
                 aria-label={e.label}
               >
                 <span
                   className={`rounded-full ${e.recentlyEdited ? 'tdag-timeline-pulse' : ''}`}
                   style={{
                     width: tickWidth(i, hover?.idx ?? null),
-                    height: 3,
+                    height: 4,
                     background: e.color,
                     opacity: e.archived ? 0.3 : inView.has(e.id) ? 1 : 0.45,
                     transition: 'width .18s ease, opacity .3s ease',
                   }}
                 />
                 {newDay && (
-                  <span className="absolute left-[64px] top-1/2 -translate-y-1/2 text-[8px] leading-none text-ink-faint select-none whitespace-nowrap">
+                  <span className="absolute left-[67px] top-1/2 -translate-y-1/2 text-[10px] leading-none text-ink-faint select-none whitespace-nowrap">
                     {fmtDay(day)}
                   </span>
                 )}
