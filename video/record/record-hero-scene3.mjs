@@ -1,18 +1,107 @@
 // Hero scene 3 — semantic zoom: work cards → takeaway plaques → glyph seals.
 // One continuous camera pull-back over a staged canvas, center locked.
-// Output: video/public/scene3.mp4 (1600×900, h264, 30fps, ~8s).
+// Usage: node record-hero-scene3.mjs zh|en
+// Output: video/public/scene3-<lang>.mp4 (1600×900, h264, 30fps, ~8s).
 import { chromium } from '/Users/chatchan/Library/CloudStorage/Dropbox/Academic/1_Postdoc/ResearchIdeas/thoughtdag-main/node_modules/playwright-core/index.mjs';
-import { mkdirSync, rmSync, readdirSync } from 'node:fs';
+import { mkdirSync, rmSync } from 'node:fs';
 import { execSync } from 'node:child_process';
+
+const LANG = process.argv[2];
+if (LANG !== 'zh' && LANG !== 'en') {
+  console.error('usage: node record-hero-scene3.mjs zh|en');
+  process.exit(1);
+}
 
 const ROOT = '/Users/chatchan/Library/CloudStorage/Dropbox/Academic/1_Postdoc/ResearchIdeas/thoughtdag-main';
 const SCRATCH = '/private/tmp/claude-501/-Users-chatchan-Library-CloudStorage-Dropbox-Academic-1-Postdoc-ResearchIdeas-thoughtdag-main/8d9eb892-d9e7-4beb-b06f-d05137fa2c7a/scratchpad';
-const RAW = `${SCRATCH}/scene3-raw`;
-const OUT = `${ROOT}/video/public/scene3.mp4`;
+const RAW = `${SCRATCH}/scene3-raw-${LANG}`;
+const OUT = `${ROOT}/video/public/scene3-${LANG}.mp4`;
 const FFMPEG = '/opt/homebrew/bin/ffmpeg';
 const FFPROBE = '/opt/homebrew/bin/ffprobe';
 rmSync(RAW, { recursive: true, force: true });
 mkdirSync(RAW, { recursive: true });
+
+// ── node copy, per language. Keys: q(uestion), a(nswer), s(ummary), ctx (branch context). ──
+const TEXT = {
+  zh: {
+    root: {
+      q: '为什么我收藏了几百篇文章，却几乎一篇都没回头读过？',
+      a: '三股力量叠在一起：\n\n1. **成本不对称**：存下来几乎免费，读完很贵。收藏一秒钟完成，还立刻发一点「已处理」的小奖励；阅读要一整块时间，回报却在远处。\n2. **没有浮现机制**：收藏夹是只进不出的仓库，没有任何东西负责把旧条目推回你眼前。\n3. **收藏时的自己过度乐观**：存的是给「未来有空的我」读的，而那个我从不出现。\n\n于是书库默认膨胀：增长发生在动作最便宜的那一端。',
+      s: '根因是成本不对称：存下来几乎免费，读完很贵',
+    },
+    name: {
+      q: '这种「收藏了就等于读了」的错觉，有正式的名字吗？',
+      a: '有，通常叫**收藏家谬误**（collector’s fallacy）：收集一份材料带来即时的进度感，而它允诺的理解被无限期推迟。研究里更极端的形态叫**数字囤积**：无差别保存、从不整理、一删就焦虑。\n\n两者的共同点：**收集的快感冒充了理解的进度**。系统一（快、省力）负责存，系统二（慢、费力）才负责读——「存」这个动作天然获胜。',
+      s: '它有名字：收藏家谬误——收集的快感冒充理解的进度',
+    },
+    dec: {
+      q: '那这 847 条旧收藏该怎么处置？',
+      a: '数据先说话：一年只回访过 3 条，这个书库**作为学习工具已经死了**；但十几次检索型使用说明它**作为索引还活着**。\n\n处置方案：\n1. **旧账整体归档**：不删除（保住检索价值），但移出「待读」心理账户，宣布阅读破产。\n2. **新收藏换协议**：存的那一刻写一句「为什么重要」；写不出来，就不配存。',
+      s: '拍板：旧收藏整体归档，新收藏当场写一句为什么',
+    },
+    ruleout: {
+      q: '那我换一个更强大的收藏工具，问题不就解决了？',
+      a: '大概率不会。工具优化的是**收藏那一秒**：更快的剪藏、更好的标签、更全的同步。但瓶颈全部在**处理**：什么时候读、读完留下什么、下次怎么被想起。\n\n换工具常常还有反效果——迁移期的整理幻觉又发一轮「在进步」的奖励，而书库只是换了个地址继续膨胀。\n\n**这条路可以排除了：不是工具不够好，是环路方向错了。**',
+      s: '换工具解决不了囤积：瓶颈在处理不在工具',
+      ctx: '存下来几乎免费，读完很贵',
+    },
+    ins: {
+      q: '为什么收集这个动作本身就能带来满足感？',
+      a: '因为它触发的是**预期奖励**：拿到一份「将来会有用」的材料时，奖励系统对**可能性**放电，而不是对实际收益放电。拥有感于是成了学习的心理代餐——材料在手，仿佛知识已在途中。\n\n实体收藏时代，这个循环被物理成本约束着；数字收藏把边际成本压到零，循环就没了刹车。',
+      s: '收集触发预期奖励：拥有感成了「未来会学」的心理代餐',
+    },
+    pivot: {
+      q: '所以问题从一开始就问错了？',
+      a: '对。「用什么存、怎么整理」优化的都是仓库；而仓库从来不是瓶颈。真正的变量只有一个：**读的那一刻什么时候发生**。\n\n把问题从「存什么」换成「何时读」，答案立刻具体起来——读的时机必须被**预先决定**（收藏当下、每周固定回访），而不是寄希望于某个「有空的未来」。存是仓储问题，读才是日程问题。',
+      s: '转向：从「存什么」转向「何时读」，处理前置到收藏那一刻',
+    },
+    rule3: {
+      q: '有没有一条当场就能执行的小规矩？',
+      a: '**三分钟法则**：遇到想收藏的东西，先花三分钟扫读。\n\n- 三分钟内能读完的：**当场读掉**，不进收藏夹。\n- 三分钟读不完但说得出「为什么重要」的：存，并把那句话写进备注。\n- 说不出来的：**当场删掉**。\n\n它把处理成本从「未来的一小时」换成「现在的三分钟」，正好打在成本不对称的骨节上。',
+      s: '三分钟法则：三分钟内读或当场删，处理成本付在当下',
+      ctx: '预期奖励',
+    },
+  },
+  en: {
+    root: {
+      q: 'Why have I saved hundreds of articles but almost never gone back to read a single one?',
+      a: 'Three forces stack together:\n\n1. **Asymmetric cost**: saving is nearly free, reading is expensive. A bookmark takes one second and even pays out a tiny "handled it" reward on the spot; reading demands a solid block of time, with the payoff far away.\n2. **No resurfacing mechanism**: the reading list is a warehouse with an entrance and no exit — nothing is in charge of pushing old items back in front of you.\n3. **The saving self is over-optimistic**: everything is saved for a "future me with free time", and that person never shows up.\n\nSo the library bloats by default: growth happens at the end where the action is cheapest.',
+      s: 'Root cause is asymmetric cost: saving is nearly free, reading is expensive',
+    },
+    name: {
+      q: 'Does this "saved it, so I\'ve basically read it" illusion have a formal name?',
+      a: 'Yes — it\'s usually called the **collector\'s fallacy**: collecting a piece of material delivers an instant sense of progress, while the understanding it promises is deferred indefinitely. The more extreme form studied in research is **digital hoarding**: saving indiscriminately, never organizing, anxious at the thought of deleting.\n\nWhat the two share: **the pleasure of collecting impersonates the progress of understanding**. System 1 (fast, effortless) does the saving; System 2 (slow, effortful) has to do the reading — so "save" wins by default.',
+      s: 'It has a name: the collector\'s fallacy — collecting substitutes the feel of progress for understanding',
+    },
+    dec: {
+      q: 'So what should I actually do with the 847 old saves?',
+      a: 'Let the data speak first: only 3 items were revisited in a whole year, so **as a learning tool this library is already dead**; but a dozen search-style lookups show it **is still alive as an index**.\n\nThe plan:\n1. **Archive the backlog wholesale**: don\'t delete (keep the retrieval value), but move it out of the "to read" mental account — declare reading bankruptcy.\n2. **New saves get a new protocol**: at the moment of saving, write one line on why it matters; if you can\'t, it doesn\'t deserve to be saved.',
+      s: 'Decision: archive the old saves wholesale; every new save gets a one-line why, on the spot',
+    },
+    ruleout: {
+      q: 'What if I just switch to a more powerful bookmarking tool — wouldn\'t that solve it?',
+      a: 'Almost certainly not. Tools optimize **the one second of saving**: faster clipping, better tags, fuller sync. But the bottleneck lives entirely in **processing**: when you read, what you keep after reading, how it resurfaces next time.\n\nSwitching tools often backfires — the migration\'s organizing spree pays out another round of "making progress" rewards, while the library just keeps bloating at a new address.\n\n**This path can be ruled out: the tool isn\'t too weak, the loop is pointed the wrong way.**',
+      s: 'Switching tools won\'t fix hoarding: the bottleneck is processing, not the tool',
+      ctx: 'saving is nearly free, reading is expensive',
+    },
+    ins: {
+      q: 'Why does the act of collecting feel satisfying all by itself?',
+      a: 'Because it triggers **anticipatory reward**: when you grab something that "will be useful someday", the reward system fires on the **possibility**, not on the realized benefit. Ownership becomes a psychological stand-in for learning — with the material in hand, knowledge feels like it\'s already on its way.\n\nIn the age of physical collections this loop was constrained by physical cost; digital collecting drives the marginal cost to zero, and the loop loses its brakes.',
+      s: 'Collecting fires anticipatory reward: ownership becomes a stand-in for "I\'ll learn it later"',
+    },
+    pivot: {
+      q: 'So the question was wrong from the very start?',
+      a: 'Right. "Which tool to save with, how to organize" all optimize the warehouse — and the warehouse was never the bottleneck. There is only one real variable: **when the moment of reading actually happens**.\n\nSwap the question from "what to save" to "when to read" and the answer turns concrete at once — the reading moment must be **decided in advance** (at the moment of saving, or in a fixed weekly revisit), not entrusted to some "free time in the future". Saving is a storage problem; reading is a scheduling problem.',
+      s: 'Pivot: from what to save to when to read — processing moves up to the moment of saving',
+    },
+    rule3: {
+      q: 'Is there one small rule I can enforce on the spot?',
+      a: '**The three-minute rule**: when you feel the urge to save something, skim it for three minutes first.\n\n- Finishable within three minutes: **read it now** — it never enters the list.\n- Not finishable, but you can say why it matters: save it, and write that sentence into the note.\n- Can\'t say why: **delete it on the spot**.\n\nIt swaps the processing cost from "an hour in the future" to "three minutes right now" — striking the cost asymmetry exactly on the joint.',
+      s: 'Three-minute rule: read it within three minutes or delete it — pay the processing cost now',
+      ctx: 'anticipatory reward',
+    },
+  },
+};
 
 const W = 1600, H = 900;
 // world center to lock (middle-column card sits here) — x = W/2 - cx*z, y = H/2 - cy*z
@@ -26,11 +115,11 @@ const context = await browser.newContext({
 });
 const page = await context.newPage();
 const tPageOpen = Date.now();
-await page.addInitScript(() => {
+await page.addInitScript((lang) => {
   localStorage.setItem('thoughtdag.seeded', 'yes');
-  localStorage.setItem('thoughtdag.lang', 'zh');
+  localStorage.setItem('thoughtdag.lang', lang);
   localStorage.setItem('thoughtdag.memoryEnabled', 'off');
-});
+}, LANG);
 await page.route('**/api/**', async (route) => {
   if (route.request().method() !== 'POST') {
     await route.fulfill({ status: 200, contentType: 'application/json', body: '{"models":[{"id":"mock-model","name":"Mock","provider":"Mock","vision":false}],"default":"mock-model"}' });
@@ -43,12 +132,12 @@ await page.waitForTimeout(1500);
 await page.keyboard.press('Escape');
 
 // ── stage the canvas: 7 nodes, 3 columns, two chains + one offshoot ──
-await page.evaluate(() => {
-  const mk = (id, x, y, q, a, s, type, extra = {}) => ({
+await page.evaluate((T) => {
+  const mk = (id, x, y, type, extra = {}) => ({
     id, type: 'thought', position: { x, y }, dragHandle: '.drag-handle',
     data: {
-      question: q, response: a, responses: [a], responseIndex: 0,
-      summaries: [s], summaryTypes: [type],
+      question: T[id].q, response: T[id].a, responses: [T[id].a], responseIndex: 0,
+      summaries: [T[id].s], summaryTypes: [type],
       isCollapsed: false, isEditing: false, isEditingResponse: false, isLoading: false,
       tokenCount: 40, highlights: [], highlightMode: 'tag', attachments: [],
       excludedAttachmentIds: [], includedAttachmentIds: [], roleMode: 'inherit',
@@ -65,36 +154,13 @@ await page.evaluate(() => {
   });
   window.__store.setState({
     nodes: [
-      mk('root', 0, 0,
-        '为什么我收藏了几百篇文章，却几乎一篇都没回头读过？',
-        '三股力量叠在一起：\n\n1. **成本不对称**：存下来几乎免费，读完很贵。收藏一秒钟完成，还立刻发一点「已处理」的小奖励；阅读要一整块时间，回报却在远处。\n2. **没有浮现机制**：收藏夹是只进不出的仓库，没有任何东西负责把旧条目推回你眼前。\n3. **收藏时的自己过度乐观**：存的是给「未来有空的我」读的，而那个我从不出现。\n\n于是书库默认膨胀：增长发生在动作最便宜的那一端。',
-        '根因是成本不对称：存下来几乎免费，读完很贵', undefined, { isRoot: true }),
-      mk('name', 0, 620,
-        '这种「收藏了就等于读了」的错觉，有正式的名字吗？',
-        '有，通常叫**收藏家谬误**（collector’s fallacy）：收集一份材料带来即时的进度感，而它允诺的理解被无限期推迟。研究里更极端的形态叫**数字囤积**：无差别保存、从不整理、一删就焦虑。\n\n两者的共同点：**收集的快感冒充了理解的进度**。系统一（快、省力）负责存，系统二（慢、费力）才负责读——「存」这个动作天然获胜。',
-        '它有名字：收藏家谬误——收集的快感冒充理解的进度', 'insight'),
-      mk('dec', 0, 1240,
-        '那这 847 条旧收藏该怎么处置？',
-        '数据先说话：一年只回访过 3 条，这个书库**作为学习工具已经死了**；但十几次检索型使用说明它**作为索引还活着**。\n\n处置方案：\n1. **旧账整体归档**：不删除（保住检索价值），但移出「待读」心理账户，宣布阅读破产。\n2. **新收藏换协议**：存的那一刻写一句「为什么重要」；写不出来，就不配存。',
-        '拍板：旧收藏整体归档，新收藏当场写一句为什么', 'decision'),
-      mk('ruleout', 680, 80,
-        '那我换一个更强大的收藏工具，问题不就解决了？',
-        '大概率不会。工具优化的是**收藏那一秒**：更快的剪藏、更好的标签、更全的同步。但瓶颈全部在**处理**：什么时候读、读完留下什么、下次怎么被想起。\n\n换工具常常还有反效果——迁移期的整理幻觉又发一轮「在进步」的奖励，而书库只是换了个地址继续膨胀。\n\n**这条路可以排除了：不是工具不够好，是环路方向错了。**',
-        '换工具解决不了囤积：瓶颈在处理不在工具', 'ruleout',
-        { isBranch: true, branchContext: '存下来几乎免费，读完很贵' }),
-      mk('ins', 680, 700,
-        '为什么收集这个动作本身就能带来满足感？',
-        '因为它触发的是**预期奖励**：拿到一份「将来会有用」的材料时，奖励系统对**可能性**放电，而不是对实际收益放电。拥有感于是成了学习的心理代餐——材料在手，仿佛知识已在途中。\n\n实体收藏时代，这个循环被物理成本约束着；数字收藏把边际成本压到零，循环就没了刹车。',
-        '收集触发预期奖励：拥有感成了「未来会学」的心理代餐', 'insight'),
-      mk('pivot', 680, 1320,
-        '所以问题从一开始就问错了？',
-        '对。「用什么存、怎么整理」优化的都是仓库；而仓库从来不是瓶颈。真正的变量只有一个：**读的那一刻什么时候发生**。\n\n把问题从「存什么」换成「何时读」，答案立刻具体起来——读的时机必须被**预先决定**（收藏当下、每周固定回访），而不是寄希望于某个「有空的未来」。存是仓储问题，读才是日程问题。',
-        '转向：从「存什么」转向「何时读」，处理前置到收藏那一刻', 'pivot'),
-      mk('rule3', 1360, 700,
-        '有没有一条当场就能执行的小规矩？',
-        '**三分钟法则**：遇到想收藏的东西，先花三分钟扫读。\n\n- 三分钟内能读完的：**当场读掉**，不进收藏夹。\n- 三分钟读不完但说得出「为什么重要」的：存，并把那句话写进备注。\n- 说不出来的：**当场删掉**。\n\n它把处理成本从「未来的一小时」换成「现在的三分钟」，正好打在成本不对称的骨节上。',
-        '三分钟法则：三分钟内读或当场删，处理成本付在当下', 'decision',
-        { isBranch: true, branchContext: '预期奖励' }),
+      mk('root', 0, 0, undefined, { isRoot: true }),
+      mk('name', 0, 620, 'insight'),
+      mk('dec', 0, 1240, 'decision'),
+      mk('ruleout', 680, 80, 'ruleout', { isBranch: true, branchContext: T.ruleout.ctx }),
+      mk('ins', 680, 700, 'insight'),
+      mk('pivot', 680, 1320, 'pivot'),
+      mk('rule3', 1360, 700, 'decision', { isBranch: true, branchContext: T.rule3.ctx }),
     ],
     edges: [
       E('root', 'name'), E('name', 'dec'),
@@ -103,7 +169,7 @@ await page.evaluate(() => {
     ],
     selectedNodeIds: [], selectedNodeId: null,
   });
-});
+}, TEXT[LANG]);
 await page.waitForTimeout(400);
 
 // camera helpers — center-locked viewport
@@ -132,19 +198,19 @@ const tStart = Date.now();
 // ① work tier hold — full cards, readable
 await page.waitForTimeout(1200);
 console.log('tier@1.10:', await tier());
-await page.screenshot({ path: `${SCRATCH}/s3-work.png` });
+await page.screenshot({ path: `${SCRATCH}/s3-${LANG}-work.png` });
 
 // ② glide to map tier (plaques with badges), hold
 await glide(1.1, 0.55, 1500);
 await page.waitForTimeout(1200);
 console.log('tier@0.55:', await tier());
-await page.screenshot({ path: `${SCRATCH}/s3-map.png` });
+await page.screenshot({ path: `${SCRATCH}/s3-${LANG}-map.png` });
 
 // ③ glide to glyph tier (seals, POI freeze), hold
 await glide(0.55, 0.18, 1500);
 await page.waitForTimeout(1500);
 console.log('tier@0.18:', await tier());
-await page.screenshot({ path: `${SCRATCH}/s3-glyph.png` });
+await page.screenshot({ path: `${SCRATCH}/s3-${LANG}-glyph.png` });
 
 // ④ tail hold
 await page.waitForTimeout(1000);
@@ -163,5 +229,5 @@ execSync(`${FFMPEG} -y -i "${webm}" -ss ${offset.toFixed(2)} -t ${dur.toFixed(2)
 const probe = execSync(`${FFPROBE} -v error -show_entries format=duration,size -of default=noprint_wrappers=1 "${OUT}"`).toString();
 console.log(probe);
 const seconds = parseFloat(probe.match(/duration=([\d.]+)/)?.[1] ?? '0');
-if (seconds < 6) { console.error(`FAIL: scene3.mp4 only ${seconds}s (<6s)`); process.exit(1); }
-console.log(`OK: scene3.mp4 ${seconds.toFixed(2)}s`);
+if (seconds < 6) { console.error(`FAIL: scene3-${LANG}.mp4 only ${seconds}s (<6s)`); process.exit(1); }
+console.log(`OK: scene3-${LANG}.mp4 ${seconds.toFixed(2)}s`);

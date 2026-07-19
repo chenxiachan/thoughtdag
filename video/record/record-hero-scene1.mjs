@@ -1,22 +1,47 @@
-// Hero video · Scene 1 — "圈选原文，直接提问"
+// Hero video · Scene 1 — "圈选原文，直接提问" / "Select the source, ask right there"
 // Records the real app: load the example canvas → open the embedded PDF in
 // the MaterialReader → drag-select the anchored sentence → the ask bar pops →
 // type a question → the answer streams into the rail (store-paced, honest UI).
-// Output: video/public/scene1.mp4 (1600×900, H.264, ≥6.5s effective).
+// Usage: node record-hero-scene1.mjs [zh|en]   (default zh)
+// Output: video/public/scene1-<lang>.mp4 (1600×900, H.264, ≥6.5s effective).
 import { chromium } from '/Users/chatchan/Library/CloudStorage/Dropbox/Academic/1_Postdoc/ResearchIdeas/thoughtdag-main/node_modules/playwright-core/index.mjs';
 import { execFileSync } from 'node:child_process';
 import { mkdirSync, statSync } from 'node:fs';
 
+const LANG = process.argv[2] ?? 'zh';
+if (LANG !== 'zh' && LANG !== 'en') throw new Error(`usage: node record-hero-scene1.mjs [zh|en] (got "${LANG}")`);
+
 const ROOT = '/Users/chatchan/Library/CloudStorage/Dropbox/Academic/1_Postdoc/ResearchIdeas/thoughtdag-main';
-const RAW_DIR = `${ROOT}/.local-e2e/scene1-raw`;
-const OUT = `${ROOT}/video/public/scene1.mp4`;
+const RAW_DIR = `${ROOT}/.local-e2e/scene1-raw-${LANG}`;
+const OUT = `${ROOT}/video/public/scene1-${LANG}.mp4`;
 mkdirSync(RAW_DIR, { recursive: true });
 mkdirSync(`${ROOT}/video/public`, { recursive: true });
 
-const QUESTION = '这段回路机制的证据是什么？';
-const ANSWER =
-  '持续注意依赖工作记忆与外部线索的耦合回路。文中的双任务实验显示，移除外部线索后维持时间下降约 40%，说明回路的一半在环境里。';
-// sentence needles, in preference order (primary = the example brief's anchor line)
+const COPY = {
+  zh: {
+    question: '这段回路机制的证据是什么？',
+    answer:
+      '持续注意依赖工作记忆与外部线索的耦合回路。文中的双任务实验显示，移除外部线索后维持时间下降约 40%，说明回路的一半在环境里。',
+    exampleBtn: '载入示例画布', // i18n zh.ts landing.loadExample
+    exampleBtnFallback: '示例',
+    fallbackFileText:
+      '# 持续注意的回路机制\n\n持续注意的维持依赖工作记忆与外部线索的耦合回路：内部表征提供目标，环境线索按节拍把注意拉回目标。\n\n双任务实验显示，移除外部线索后，注意维持时间显著下降，说明回路的一半在环境里。',
+  },
+  en: {
+    question: "What's the evidence for this loop mechanism?",
+    answer:
+      'Sustained attention rides a coupled loop of working memory and external cues. The dual-task experiments in the brief show retention dropping about 40% once external cues are removed — half the loop lives in the environment.',
+    exampleBtn: 'Load example canvas', // i18n en.ts landing.loadExample
+    exampleBtnFallback: 'example',
+    fallbackFileText:
+      '# The loop mechanism of sustained attention\n\nSustained attention rides a coupled loop of working memory and external cues: internal representations hold the goal, and environmental cues pull attention back to it on a beat.\n\nDual-task experiments show that removing external cues sharply shortens sustained attention — half the loop lives in the environment.',
+  },
+}[LANG];
+
+const QUESTION = COPY.question;
+const ANSWER = COPY.answer;
+// sentence needles, in preference order (primary = the example brief's anchor
+// line — English in the source PDF, so shared by both language takes)
 const NEEDLES = ['The act of saving', '耦合回路', 'cost asymmetry'];
 
 const browser = await chromium.launch({ channel: 'chrome' });
@@ -28,12 +53,12 @@ const page = await context.newPage();
 const tRecord = Date.now(); // recording starts ~when the page opens
 page.setDefaultTimeout(20000);
 
-await page.addInitScript(() => {
+await page.addInitScript((lang) => {
   localStorage.setItem('thoughtdag.seeded', 'yes');
-  localStorage.setItem('thoughtdag.lang', 'zh');
+  localStorage.setItem('thoughtdag.lang', lang);
   localStorage.setItem('thoughtdag.memoryEnabled', 'off');
   localStorage.setItem('thoughtdag.lastBackupAt', String(Date.now())); // no backup-nudge toast in frame
-});
+}, LANG);
 
 await page.route('**/api/**', async (route) => {
   const req = route.request();
@@ -61,11 +86,11 @@ await page.addStyleTag({
 });
 
 // ── landing → example canvas ──
-const exampleBtn = page.getByText('载入示例画布').first();
+const exampleBtn = page.getByText(COPY.exampleBtn).first();
 if (await exampleBtn.count()) {
   await exampleBtn.click();
 } else {
-  await page.getByText('示例').first().click();
+  await page.getByText(COPY.exampleBtnFallback).first().click();
 }
 await page.waitForTimeout(2000);
 
@@ -85,10 +110,8 @@ let fileNodeId = await page.evaluate(() => {
   return f?.id ?? null;
 });
 if (!fileNodeId) {
-  fileNodeId = await page.evaluate(() => {
+  fileNodeId = await page.evaluate((text) => {
     const id = `hero-file-${Date.now()}`;
-    const text =
-      '# 持续注意的回路机制\n\n持续注意的维持依赖工作记忆与外部线索的耦合回路：内部表征提供目标，环境线索按节拍把注意拉回目标。\n\n双任务实验显示，移除外部线索后，注意维持时间显著下降，说明回路的一半在环境里。';
     window.__store.setState((s) => ({
       nodes: [...s.nodes, {
         id, type: 'thought', position: { x: 200, y: 200 }, dragHandle: '.drag-handle',
@@ -104,7 +127,7 @@ if (!fileNodeId) {
       }],
     }));
     return id;
-  });
+  }, COPY.fallbackFileText);
   await page.waitForTimeout(300);
 }
 await page.evaluate((id) => window.__ui.getState().setReaderNodeId(id), fileNodeId);
@@ -257,6 +280,6 @@ trim = Math.min(trim, Math.max(0, rawDur - 6.8)); // never trim below 6.8s remai
 execFileSync('ffmpeg', ['-y', '-ss', trim.toFixed(2), '-i', webm, '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', '18', '-r', '30', '-an', OUT], { stdio: 'inherit' });
 const outDur = probe(OUT);
 const outSize = statSync(OUT).size;
-console.log(JSON.stringify({ webm, rawDur, offset, effective, trim, outDur, outSizeKB: Math.round(outSize / 1024) }, null, 2));
+console.log(JSON.stringify({ lang: LANG, webm, rawDur, offset, effective, trim, outDur, outSizeKB: Math.round(outSize / 1024) }, null, 2));
 if (outDur < 6 || outSize < 200 * 1024) throw new Error(`verify failed: dur=${outDur}s size=${outSize}B`);
-console.log('scene1.mp4 OK');
+console.log(`scene1-${LANG}.mp4 OK`);

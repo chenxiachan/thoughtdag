@@ -2,31 +2,54 @@
 // Small staged canvas → mouse to top-right toolbar → open the local
 // auto-backup control center (pre-faked as configured: folder + last write
 // 2 min ago) → close → click "export backup (.json)" → success toast.
-// Output: video/public/scene4.mp4 (1600×900, H.264, 30fps, ≥5.5s usable).
+// Usage: node record-hero-scene4.mjs [zh|en]   (default zh)
+// Output: video/public/scene4-<lang>.mp4 (1600×900, H.264, 30fps, ≥5.5s usable).
 import { chromium } from '/Users/chatchan/Library/CloudStorage/Dropbox/Academic/1_Postdoc/ResearchIdeas/thoughtdag-main/node_modules/playwright-core/index.mjs';
 import { mkdirSync, rmSync, readdirSync, statSync } from 'node:fs';
 import { execSync } from 'node:child_process';
 
+const LANG = process.argv[2] === 'en' ? 'en' : 'zh';
 const ROOT = '/Users/chatchan/Library/CloudStorage/Dropbox/Academic/1_Postdoc/ResearchIdeas/thoughtdag-main';
-const RAW_DIR = '/tmp/hero-scene4-raw';
-const OUT = `${ROOT}/video/public/scene4.mp4`;
+const RAW_DIR = `/tmp/hero-scene4-raw-${LANG}`;
+const OUT = `${ROOT}/video/public/scene4-${LANG}.mp4`;
 rmSync(RAW_DIR, { recursive: true, force: true });
 mkdirSync(RAW_DIR, { recursive: true });
 
-const T = {
-  rootQ: '为什么我收藏了几百篇文章，却几乎没回头读过？',
-  rootA: '**成本不对称**：存下来几乎免费，读完很贵。收藏一秒完成，阅读要一整块时间。',
-  rootS: '根因是成本不对称：存下来免费，读完很贵',
-  ruleQ: '换个更强的收藏工具呢？',
-  ruleA: '工具优化的是收藏那一秒，瓶颈在处理。此路不通。',
-  ruleS: '换工具已排除：瓶颈在处理不在工具',
-  insQ: '为什么收集本身让人满足？',
-  insA: '收集触发预期奖励，拥有感成了「未来会学」的心理代餐。',
-  insS: '收集的快感冒充理解的进度',
-  decQ: '那从哪里改起？',
-  decA: '拍板：新收藏当场写一句为什么。',
-  decS: '拍板：收藏当场写一句为什么',
+const CONTENT = {
+  zh: {
+    rootQ: '为什么我收藏了几百篇文章，却几乎没回头读过？',
+    rootA: '**成本不对称**：存下来几乎免费，读完很贵。收藏一秒完成，阅读要一整块时间。',
+    rootS: '根因是成本不对称：存下来免费，读完很贵',
+    ruleQ: '换个更强的收藏工具呢？',
+    ruleA: '工具优化的是收藏那一秒，瓶颈在处理。此路不通。',
+    ruleS: '换工具已排除：瓶颈在处理不在工具',
+    insQ: '为什么收集本身让人满足？',
+    insA: '收集触发预期奖励，拥有感成了「未来会学」的心理代餐。',
+    insS: '收集的快感冒充理解的进度',
+    decQ: '那从哪里改起？',
+    decA: '拍板：新收藏当场写一句为什么。',
+    decS: '拍板：收藏当场写一句为什么',
+  },
+  en: {
+    rootQ: 'Why do I save hundreds of articles but almost never read them again?',
+    rootA: '**Asymmetric cost**: saving is nearly free, reading is expensive. A bookmark takes one second; reading takes a solid block of time.',
+    rootS: 'Root cause is asymmetric cost: saving is free, reading is expensive',
+    ruleQ: 'What about a more powerful bookmarking tool?',
+    ruleA: 'Tools optimize the one second of saving; the bottleneck is processing. Dead end.',
+    ruleS: 'Ruled out new tools: the bottleneck is processing, not saving',
+    insQ: 'Why does collecting itself feel so satisfying?',
+    insA: 'Collecting triggers anticipatory reward; the feeling of owning becomes a stand-in for "I will learn it later."',
+    insS: 'The thrill of collecting masquerades as progress',
+    decQ: 'So where do we start?',
+    decA: 'Decision: every new save gets one sentence on why, right then.',
+    decS: 'Decision: write one line of why at save time',
+  },
 };
+const T = CONTENT[LANG];
+// UI copy differences the script depends on (looked up in src/i18n/{zh,en}.ts —
+// key 'switcher.exportBackup'). Everything else the app localizes itself once
+// localStorage thoughtdag.lang is set.
+const EXPORT_TITLE = LANG === 'en' ? 'Export backup (.json)' : '导出备份 (.json)';
 
 const browser = await chromium.launch({ channel: 'chrome' });
 const context = await browser.newContext({
@@ -38,11 +61,11 @@ const page = await context.newPage();
 const t0 = Date.now(); // recording starts with page creation
 page.on('download', () => {}); // accept the export download silently
 
-await page.addInitScript(() => {
+await page.addInitScript((lang) => {
   localStorage.setItem('thoughtdag.seeded', 'yes');
-  localStorage.setItem('thoughtdag.lang', 'zh');
+  localStorage.setItem('thoughtdag.lang', lang);
   localStorage.setItem('thoughtdag.memoryEnabled', 'off');
-});
+}, LANG);
 await page.route('**/api/**', async (route) => route.fulfill({
   status: 200, contentType: 'application/json',
   body: '{"models":[{"id":"m","name":"M","provider":"P","vision":false}],"default":"m"}',
@@ -105,15 +128,17 @@ await page.mouse.down(); await page.mouse.up();
 
 // Backup control center: folder + "last write 2 minutes ago".
 await page.waitForSelector('[data-backup-dialog]');
-await page.waitForTimeout(1500);
+await page.waitForTimeout(750);
+const tDialog = Date.now(); // mid-hold: dialog fully settled and readable
+await page.waitForTimeout(750);
 
 // Close by clicking the overlay, off to the lower-left of the dialog card.
 await page.mouse.move(330, 700, { steps: 16 });
 await page.mouse.down(); await page.mouse.up();
 await page.waitForTimeout(400);
 
-// Glide to the export button (Download icon, exact title) and click.
-const exportBtn = page.locator('button[title="导出备份 (.json)"]');
+// Glide to the export button (Download icon, exact localized title) and click.
+const exportBtn = page.locator(`button[title="${EXPORT_TITLE}"]`);
 const xb = await exportBtn.boundingBox();
 if (!xb) throw new Error('export button not found');
 await page.mouse.move(xb.x + xb.width / 2, xb.y + xb.height / 2, { steps: 24 });
@@ -121,7 +146,9 @@ await page.waitForTimeout(200);
 await page.mouse.down(); await page.mouse.up();
 
 // Success toast bottom-right; hold so the payoff lands.
-await page.waitForTimeout(1800);
+await page.waitForTimeout(900);
+const tToast = Date.now(); // mid-hold: toast on screen
+await page.waitForTimeout(900);
 
 await page.close();
 await context.close();
@@ -138,5 +165,7 @@ execSync(
 );
 const dur = execSync(`/opt/homebrew/bin/ffprobe -v error -show_entries format=duration -of csv=p=0 ${OUT}`).toString().trim();
 const size = statSync(OUT).size;
-console.log(`scene4.mp4: ${dur}s, ${(size / 1024).toFixed(0)} KB (trimmed ${trim.toFixed(2)}s of staging)`);
+const at = (t) => Math.max(0, (t - t0) / 1000 - trim).toFixed(2);
+console.log(`scene4-${LANG}.mp4: ${dur}s, ${(size / 1024).toFixed(0)} KB (trimmed ${trim.toFixed(2)}s of staging)`);
+console.log(`frame marks: dialog @ ${at(tDialog)}s, toast @ ${at(tToast)}s`);
 if (parseFloat(dur) < 5) throw new Error(`too short: ${dur}s`);

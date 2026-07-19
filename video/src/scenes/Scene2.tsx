@@ -13,7 +13,7 @@ const T = {
 export const Scene2: React.FC<{ lang?: Lang }> = ({ lang = 'zh' }) => (
   <SceneShell
     duration={SCENE2_DURATION}
-    footage="scene2.mp4"
+    footage={`scene2-${lang}.mp4`}
     title={T[lang].title}
     sub={T[lang].sub}
     left={[

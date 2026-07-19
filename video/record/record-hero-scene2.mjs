@@ -1,17 +1,47 @@
 // Hero video — Scene 2: "delete an edge, change an answer".
 // Three-card canvas (A research root, B noise, C summary polluted by B).
 // Real mouse selects the B→C edge, clicks the floating X to delete it,
-// then C re-streams a clean answer (store-driven). Output: video/public/scene2.mp4
+// then C re-streams a clean answer (store-driven).
+// Usage: node record-hero-scene2.mjs [zh|en]  → video/public/scene2-<lang>.mp4
+//
+// Layout rule (fixes the hidden-edge rework): React Flow renders edges under
+// nodes, so both edges must travel through empty canvas only. A and C share a
+// column (chain stays vertically aligned); B sits to the upper-right with a
+// clear horizontal gap. Positions are computed from MEASURED card heights so
+// the B→C smoothstep's horizontal run lands in the empty band between A's
+// bottom edge and C's top edge in both languages.
 import { chromium } from '/Users/chatchan/Library/CloudStorage/Dropbox/Academic/1_Postdoc/ResearchIdeas/thoughtdag-main/node_modules/playwright-core/index.mjs';
 import { mkdirSync } from 'node:fs';
 import { execSync } from 'node:child_process';
 
+const LANG = process.argv[2] === 'en' ? 'en' : 'zh';
 const ROOT = '/Users/chatchan/Library/CloudStorage/Dropbox/Academic/1_Postdoc/ResearchIdeas/thoughtdag-main';
-const SCRATCH = '/private/tmp/claude-501/-Users-chatchan-Library-CloudStorage-Dropbox-Academic-1-Postdoc-ResearchIdeas-thoughtdag-main/8d9eb892-d9e7-4beb-b06f-d05137fa2c7a/scratchpad/scene2';
-const OUT = `${ROOT}/video/public/scene2.mp4`;
+const SCRATCH = `/private/tmp/claude-501/-Users-chatchan-Library-CloudStorage-Dropbox-Academic-1-Postdoc-ResearchIdeas-thoughtdag-main/8d9eb892-d9e7-4beb-b06f-d05137fa2c7a/scratchpad/scene2-${LANG}`;
+const OUT = `${ROOT}/video/public/scene2-${LANG}.mp4`;
 mkdirSync(SCRATCH, { recursive: true });
 
-const CLEAN = '要点一：检索式要含同义词扩展。\n\n要点二：双人独立筛选。\n\n要点三：冲突由第三人仲裁。';
+const COPY = {
+  zh: {
+    qA: '系统综述的检索策略',
+    aA: '先在两个主要数据库各建一条检索式，主题词加同义词扩展，再用引文追溯补充遗漏。检索日期与数据库版本都要记录，保证可复现。',
+    qB: '今晚吃什么',
+    aB: '火锅吧，或者烤肉。楼下那家新开的串串也不错，人少的话随到随吃。',
+    qC: '给我一份要点总结',
+    aC: '要点一：检索式要含同义词扩展。\n\n要点二：双人独立筛选。\n\n另外，晚饭可以考虑火锅。',
+    clean: '要点一：检索式要含同义词扩展。\n\n要点二：双人独立筛选。\n\n要点三：冲突由第三人仲裁。',
+    delTitle: '删除连线（或按 Delete 键）',
+  },
+  en: {
+    qA: 'Search strategy for the systematic review',
+    aA: 'One query per major database, expanded with synonyms; citation chasing to fill gaps. Log search dates and database versions so the run is reproducible.',
+    qB: "What's for dinner tonight",
+    aB: 'Hotpot, maybe, or barbecue. The new skewer place downstairs is decent too.',
+    qC: 'Give me a summary of key points',
+    aC: 'Point one: expand queries with synonyms.\n\nPoint two: dual independent screening.\n\nAlso, hotpot could work for dinner.',
+    clean: 'Point one: expand queries with synonyms.\n\nPoint two: dual independent screening.\n\nPoint three: conflicts settled by a third reviewer.',
+    delTitle: 'Delete edge (or press Delete)',
+  },
+}[LANG];
 
 const browser = await chromium.launch({ channel: 'chrome' });
 const context = await browser.newContext({
@@ -22,11 +52,11 @@ const context = await browser.newContext({
 const page = await context.newPage();
 const tRec = Date.now();
 
-await page.addInitScript(() => {
+await page.addInitScript((lang) => {
   localStorage.setItem('thoughtdag.seeded', 'yes');
-  localStorage.setItem('thoughtdag.lang', 'zh');
+  localStorage.setItem('thoughtdag.lang', lang);
   localStorage.setItem('thoughtdag.memoryEnabled', 'off');
-});
+}, LANG);
 await page.route('**/api/**', async (route) => {
   await route.fulfill({
     status: 200, contentType: 'application/json',
@@ -39,8 +69,8 @@ await page.goto('http://localhost:5173');
 await page.waitForTimeout(1500);
 await page.keyboard.press('Escape');
 
-// ── Seed the three-card canvas ────────────────────────────────────────────
-await page.evaluate(() => {
+// ── Seed the three-card canvas (rough positions; refined after measure) ───
+await page.evaluate((c) => {
   const base = (id, x, y, q, a, extra = {}) => ({
     id, type: 'thought', position: { x, y }, dragHandle: '.drag-handle',
     data: {
@@ -53,13 +83,9 @@ await page.evaluate(() => {
   });
   window.__store.setState({
     nodes: [
-      base('A', 0, 0, '系统综述的检索策略',
-        '先在两个主要数据库各建一条检索式，主题词加同义词扩展，再用引文追溯补充遗漏。检索日期与数据库版本都要记录，保证可复现。',
-        { isRoot: true }),
-      base('B', 620, 40, '今晚吃什么',
-        '火锅吧，或者烤肉。楼下那家新开的串串也不错，人少的话随到随吃。'),
-      base('C', 0, 420, '给我一份要点总结',
-        '要点一：检索式要含同义词扩展。\n\n要点二：双人独立筛选。\n\n另外，晚饭可以考虑火锅。'),
+      base('A', 0, 0, c.qA, c.aA, { isRoot: true }),
+      base('B', 760, 60, c.qB, c.aB),
+      base('C', 0, 520, c.qC, c.aC),
     ],
     edges: [
       { id: 'eAC', source: 'A', target: 'C', sourceHandle: 'continue', targetHandle: 'top', type: 'smoothstep', data: {} },
@@ -67,8 +93,29 @@ await page.evaluate(() => {
     ],
     selectedNodeIds: [], selectedNodeId: null,
   });
-});
+}, COPY);
 await page.waitForTimeout(700);
+
+// ── Layout pass: keep every edge in empty canvas (edges render UNDER nodes)
+// A/C share the column at x=0 (chain alignment). B goes upper-right at x=760
+// so its card never overlaps A's column. The B→C smoothstep runs horizontal
+// at midY = (B.bottom + C.top) / 2; we pick positions so that band sits
+// strictly BELOW A's bottom edge and ABOVE C's top edge, with margin.
+await page.evaluate(() => {
+  const ns = window.__rf.getNodes();
+  const h = (id, dflt) => ns.find((n) => n.id === id)?.measured?.height ?? dflt;
+  const Ha = h('A', 320), Hb = h('B', 220);
+  const By = Math.max(0, Ha - 40 - Hb);        // B's bottom ≈ A's bottom − 40
+  const Cy = Math.max(Ha + 190, By + Hb + 150); // gap band under A ≥ 190px
+  const s = window.__store.getState();
+  window.__store.setState({
+    nodes: s.nodes.map((n) =>
+      n.id === 'B' ? { ...n, position: { x: 760, y: By } }
+      : n.id === 'C' ? { ...n, position: { x: 0, y: Cy } }
+      : n),
+  });
+});
+await page.waitForTimeout(500);
 
 // ── Frame the shot: fit the 3-card union large and centered ───────────────
 await page.evaluate(() => {
@@ -131,7 +178,7 @@ await clickPulse();
 await page.waitForTimeout(600); // floating chip + X appear
 
 // 3) Click the floating delete (X) button — real mouse.
-const delBtn = page.locator('button[title="删除连线（或按 Delete 键）"]');
+const delBtn = page.locator(`button[title="${COPY.delTitle}"]`);
 await delBtn.waitFor({ state: 'visible', timeout: 3000 });
 const bb = await delBtn.boundingBox();
 const target = { x: bb.x + bb.width / 2, y: bb.y + bb.height / 2 };
@@ -158,10 +205,10 @@ const patchC = (patch) => page.evaluate(([p]) => {
 await patchC({ isLoading: true, response: '', reasoning: '', restreaming: false });
 await page.waitForTimeout(450); // "thinking" pulse
 for (let i = 1; i <= 10; i++) {
-  await patchC({ response: CLEAN.slice(0, Math.ceil((CLEAN.length * i) / 10)) });
+  await patchC({ response: COPY.clean.slice(0, Math.ceil((COPY.clean.length * i) / 10)) });
   await page.waitForTimeout(120);
 }
-await patchC({ isLoading: false, response: CLEAN, responses: [CLEAN], responseIndex: 0, tokenCount: 70 });
+await patchC({ isLoading: false, response: COPY.clean, responses: [COPY.clean], responseIndex: 0, tokenCount: 70 });
 
 // 5) Hold on the clean summary — the hotpot line is gone.
 await page.waitForTimeout(1500);
@@ -175,4 +222,4 @@ await browser.close();
 const offset = Math.max(0, (tScene - tRec) / 1000 - 0.2);
 execSync(`/opt/homebrew/bin/ffmpeg -y -ss ${offset.toFixed(2)} -i "${webm}" -c:v libx264 -pix_fmt yuv420p -crf 18 -r 30 -movflags +faststart "${OUT}"`, { stdio: 'inherit' });
 const probe = execSync(`/opt/homebrew/bin/ffprobe -v error -show_entries format=duration,size -of default=noprint_wrappers=1 "${OUT}"`).toString().trim();
-console.log(`scene2.mp4 → ${probe}`);
+console.log(`scene2-${LANG}.mp4 → ${probe}`);
