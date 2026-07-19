@@ -453,3 +453,5 @@ body.tdag-connecting, body.tdag-connecting * {
 .tdag-timeline-pulse { animation: tdag-timeline-glow 2s ease-in-out infinite; }
 .tdag-timeline { animation: fadeIn 0.25s ease; }
 .tdag-timeline-scroll { scrollbar-width: thin; scrollbar-color: var(--color-line, #e6e4ee) transparent; }
+.tdag-noscrollbar { scrollbar-width: none; }
+.tdag-noscrollbar::-webkit-scrollbar { display: none; }
