@@ -1,10 +1,11 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { History, X } from 'lucide-react';
+import { History, Sparkles, X } from 'lucide-react';
 import { useStore } from '../../store';
 import { useUiStore } from '../../lib/ui-store';
 import { useT, fmt } from '../../i18n';
 import { collectTimeline } from '../../lib/timeline';
+import { generateGedankengang, getCached, graphFingerprint, type Gedankengang } from '../../lib/gedankengang';
 
 // The third overview, after highlights and materials: the canvas as a
 // chronicle. Every node in creation order, grouped by day, each row carrying
@@ -19,6 +20,23 @@ export default function TimelineOverviewModal({ onLocate }: { onLocate: (nodeId:
   const t = useT();
   // The modal never renders the recent-edit glow, so the clock is moot: 0.
   const entries = useMemo(() => collectTimeline(nodes, 0), [nodes]);
+  // The journey paragraph: session-cached by graph fingerprint, so reopening
+  // is free until the map actually changes.
+  const fp = useMemo(() => graphFingerprint(nodes), [nodes]);
+  const [ged, setGed] = useState<Gedankengang | null>(null);
+  const [gedLoading, setGedLoading] = useState(false);
+  const [gedFailed, setGedFailed] = useState(false);
+  const shown = ged ?? getCached(fp) ?? null;
+  const stale = !!shown && shown.fp !== fp;
+  const writeJourney = () => {
+    setGedLoading(true);
+    setGedFailed(false);
+    const { nodes: ns, edges: es } = useStore.getState();
+    generateGedankengang(ns, es)
+      .then(setGed)
+      .catch(() => setGedFailed(true))
+      .finally(() => setGedLoading(false));
+  };
 
   if (!open) return null;
 
@@ -38,6 +56,39 @@ export default function TimelineOverviewModal({ onLocate }: { onLocate: (nodeId:
           <button onClick={close} className="text-ink-faint hover:text-ink w-7 h-7 rounded-lg hover:bg-wash flex items-center justify-center transition-colors">
             <X size={15} strokeWidth={1.75} />
           </button>
+        </div>
+
+        <div className="px-5 pt-3 shrink-0" data-gedankengang>
+          {!shown && !gedLoading && (
+            <button
+              onClick={writeJourney}
+              className="flex items-center gap-1.5 text-2xs text-accent bg-accent/10 hover:bg-accent/20 rounded-full px-3 py-1.5 transition-colors"
+            >
+              <Sparkles size={12} strokeWidth={1.75} />
+              {t('tlov.gedankenGenerate')}
+            </button>
+          )}
+          {gedLoading && (
+            <p className="text-2xs text-ink-faint italic py-1.5">{t('tlov.gedankenLoading')}</p>
+          )}
+          {gedFailed && !gedLoading && (
+            <p className="text-2xs text-red-500 py-1">{t('tlov.gedankenFailed')}</p>
+          )}
+          {shown && !gedLoading && (
+            <div className={`rounded-xl bg-wash px-4 py-3 ${stale ? 'opacity-60' : ''}`}>
+              <p className="text-sm text-ink leading-relaxed">{shown.text}</p>
+              <div className="flex items-center gap-2 mt-1.5">
+                <span className="text-2xs text-ink-faint">
+                  {stale ? t('tlov.gedankenStale') : new Date(shown.at).toLocaleString()}
+                </span>
+                {stale && (
+                  <button onClick={writeJourney} className="text-2xs text-accent hover:underline">
+                    {t('tlov.gedankenRedo')}
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="flex-1 min-h-0 overflow-y-auto px-5 py-3" data-timeline-overview>
