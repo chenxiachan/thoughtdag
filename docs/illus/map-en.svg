@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 280" font-family="-apple-system, 'Segoe UI', sans-serif">
+  <rect width="440" height="280" rx="14" fill="#f6f8fa" stroke="#d8dde3"/>
+  <!-- connective drops -->
+  <line x1="150" y1="78" x2="165" y2="112" stroke="#b0a7f0" stroke-width="1.5" stroke-dasharray="3 4"/>
+  <line x1="225" y1="140" x2="240" y2="176" stroke="#b0a7f0" stroke-width="1.5" stroke-dasharray="3 4"/>
+  <!-- plaque 1: ruled out -->
+  <rect x="40" y="50" width="250" height="34" rx="17" fill="#fff" stroke="#e2a19c" stroke-width="1.5"/>
+  <text x="56" y="72" font-size="13" fill="#b04b43">✕ Switching tools won't fix hoarding</text>
+  <!-- plaque 2: decided -->
+  <rect x="78" y="114" width="270" height="34" rx="17" fill="#fff" stroke="#b0a7f0" stroke-width="1.5"/>
+  <text x="94" y="136" font-size="13" fill="#5f51cf">⚖ Three-minute rule: read it or delete it</text>
+  <!-- plaque 3: pivoted -->
+  <rect x="116" y="178" width="286" height="34" rx="17" fill="#fff" stroke="#eec488" stroke-width="1.5"/>
+  <text x="132" y="200" font-size="13" fill="#b06f10">↩ From what to save to when to read</text>
+  <text x="220" y="248" font-size="12" fill="#8b949e" text-anchor="middle">Zoom out: every step wears a cognitive badge</text>
+</svg>

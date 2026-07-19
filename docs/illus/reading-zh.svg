@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 280" font-family="-apple-system, 'PingFang SC', 'Noto Sans SC', sans-serif">
+  <rect width="440" height="280" rx="14" fill="#f6f8fa" stroke="#d8dde3"/>
+  <!-- page -->
+  <rect x="36" y="36" width="340" height="208" rx="10" fill="#fffdf6" stroke="#d8dde3" stroke-width="1.5"/>
+  <g font-size="14" fill="#a9a493">
+    <text x="60" y="72">「注意的持续，是</text>
+    <rect x="60" y="84" width="296" height="22" rx="4" fill="#6B5CE7" opacity="0.15"/>
+    <text x="64" y="100" fill="#55508a">工作记忆与外部线索共同维持的回路</text>
+    <text x="60" y="130">，而非意志的独角戏。移除外部线索后，</text>
+    <text x="60" y="156">维持时间下降约 40%——回路的一半在</text>
+    <text x="60" y="182">环境里……」</text>
+  </g>
+  <text x="60" y="222" font-size="12" fill="#8b949e">p.3</text>
+  <!-- ask bubble -->
+  <circle cx="376" cy="95" r="15" fill="#6B5CE7"/>
+  <text x="376" y="101" font-size="14" fill="#fff" text-anchor="middle">?</text>
+</svg>

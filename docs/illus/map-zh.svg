@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 280" font-family="-apple-system, 'PingFang SC', 'Noto Sans SC', sans-serif">
+  <rect width="440" height="280" rx="14" fill="#f6f8fa" stroke="#d8dde3"/>
+  <!-- connective drops -->
+  <line x1="150" y1="78" x2="170" y2="112" stroke="#b0a7f0" stroke-width="1.5" stroke-dasharray="3 4"/>
+  <line x1="230" y1="140" x2="250" y2="176" stroke="#b0a7f0" stroke-width="1.5" stroke-dasharray="3 4"/>
+  <!-- plaque 1: ruled out -->
+  <rect x="60" y="50" width="212" height="34" rx="17" fill="#fff" stroke="#e2a19c" stroke-width="1.5"/>
+  <text x="76" y="72" font-size="13.5" fill="#b04b43">✕ 换工具解决不了囤积</text>
+  <!-- plaque 2: decided -->
+  <rect x="98" y="114" width="228" height="34" rx="17" fill="#fff" stroke="#b0a7f0" stroke-width="1.5"/>
+  <text x="114" y="136" font-size="13.5" fill="#5f51cf">⚖ 三分钟法则：读或删</text>
+  <!-- plaque 3: pivoted -->
+  <rect x="136" y="178" width="252" height="34" rx="17" fill="#fff" stroke="#eec488" stroke-width="1.5"/>
+  <text x="152" y="200" font-size="13.5" fill="#b06f10">↩ 从「存什么」转向「何时读」</text>
+  <text x="220" y="248" font-size="12" fill="#8b949e" text-anchor="middle">缩小画布，每步思考带认知徽章</text>
+</svg>

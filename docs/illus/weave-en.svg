@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 280" font-family="-apple-system, 'Segoe UI', sans-serif">
+  <rect width="440" height="280" rx="14" fill="#f6f8fa" stroke="#d8dde3"/>
+  <!-- highlight card -->
+  <rect x="55" y="40" width="330" height="58" rx="9" fill="#fff" stroke="#d8dde3" stroke-width="1.5"/>
+  <text x="71" y="63" font-size="13" font-weight="600" fill="#24292f">Highlight</text>
+  <rect x="71" y="72" width="290" height="20" rx="4" fill="#fde9b8"/>
+  <text x="75" y="87" font-size="11.5" fill="#8a6d1a">dissipation forces the system to learn invariants</text>
+  <!-- edge -->
+  <line x1="220" y1="98" x2="220" y2="128" stroke="#6B5CE7" stroke-width="2"/>
+  <!-- weave block -->
+  <rect x="40" y="128" width="360" height="104" rx="10" fill="#fffbeb" stroke="#f1dfae" stroke-width="1.5"/>
+  <text x="58" y="156" font-size="13" font-weight="600" fill="#7a6420">Woven passage</text>
+  <text x="58" y="182" font-size="12" fill="#7a6420">As the experiments show, dissipation forces the</text>
+  <text x="58" y="204" font-size="12" fill="#7a6420">
+    <tspan>system to learn invariants</tspan>
+    <tspan fill="#6B5CE7" baseline-shift="super" font-size="9">[1]</tspan>
+    <tspan>, while local rules…</tspan>
+    <tspan fill="#6B5CE7" baseline-shift="super" font-size="9">[2]</tspan>
+  </text>
+  <text x="220" y="256" font-size="12" fill="#8b949e" text-anchor="middle">Check a few highlights, weave one cited passage</text>
+</svg>

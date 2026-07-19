@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 280" font-family="-apple-system, 'Segoe UI', sans-serif">
+  <rect width="440" height="280" rx="14" fill="#f6f8fa" stroke="#d8dde3"/>
+  <!-- card 1 -->
+  <rect x="110" y="26" width="220" height="52" rx="9" fill="#fff" stroke="#d8dde3" stroke-width="1.5"/>
+  <text x="126" y="48" font-size="13" font-weight="600" fill="#24292f">Research chain</text>
+  <text x="126" y="66" font-size="12" fill="#57606a">Search strategy for the review…</text>
+  <!-- edge -->
+  <line x1="220" y1="78" x2="220" y2="104" stroke="#6B5CE7" stroke-width="2"/>
+  <!-- card 2 -->
+  <rect x="110" y="104" width="220" height="52" rx="9" fill="#fff" stroke="#d8dde3" stroke-width="1.5"/>
+  <text x="126" y="126" font-size="13" font-weight="600" fill="#24292f">Summary</text>
+  <text x="126" y="144" font-size="12" fill="#57606a">Point one, two, three…</text>
+  <!-- cut edge -->
+  <line x1="220" y1="156" x2="220" y2="196" stroke="#d4574e" stroke-width="2" stroke-dasharray="5 6"/>
+  <text x="232" y="180" font-size="14">✂</text>
+  <!-- card 3 (noise, dimmed) -->
+  <g opacity="0.45">
+    <rect x="110" y="196" width="220" height="52" rx="9" fill="#fff" stroke="#d8dde3" stroke-width="1.5"/>
+    <text x="126" y="218" font-size="13" font-weight="600" fill="#24292f">What's for dinner</text>
+    <text x="126" y="236" font-size="12" fill="#57606a">Hotpot or barbecue…</text>
+  </g>
+</svg>

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 280" font-family="-apple-system, 'PingFang SC', 'Noto Sans SC', sans-serif">
+  <rect width="440" height="280" rx="14" fill="#f6f8fa" stroke="#d8dde3"/>
+  <!-- highlight card -->
+  <rect x="70" y="40" width="300" height="58" rx="9" fill="#fff" stroke="#d8dde3" stroke-width="1.5"/>
+  <text x="86" y="63" font-size="13" font-weight="600" fill="#24292f">高光</text>
+  <rect x="86" y="72" width="212" height="20" rx="4" fill="#fde9b8"/>
+  <text x="90" y="87" font-size="12.5" fill="#8a6d1a">耗散逼迫系统习得不变性</text>
+  <!-- edge -->
+  <line x1="220" y1="98" x2="220" y2="128" stroke="#6B5CE7" stroke-width="2"/>
+  <!-- weave block -->
+  <rect x="52" y="128" width="336" height="104" rx="10" fill="#fffbeb" stroke="#f1dfae" stroke-width="1.5"/>
+  <text x="70" y="156" font-size="13" font-weight="600" fill="#7a6420">串联成文</text>
+  <text x="70" y="182" font-size="12.5" fill="#7a6420">
+    <tspan>正如实验所示，耗散逼迫系统习得不变性</tspan>
+    <tspan fill="#6B5CE7" baseline-shift="super" font-size="9">[1]</tspan>
+    <tspan>，</tspan>
+  </text>
+  <text x="70" y="204" font-size="12.5" fill="#7a6420">
+    <tspan>而局部规则决定了收敛速度</tspan>
+    <tspan fill="#6B5CE7" baseline-shift="super" font-size="9">[2]</tspan>
+    <tspan>……</tspan>
+  </text>
+  <text x="220" y="256" font-size="12" fill="#8b949e" text-anchor="middle">勾选高光，串成带引用的一段文字</text>
+</svg>
