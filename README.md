@@ -27,7 +27,7 @@ no install, no signup; the example canvas needs no key
 
 ## In action
 
-One principle behind every gesture: **the human stays in the loop, the model stays on the wires**. No autonomous agent redraws your graph.
+One principle behind every gesture: **the human in the loop, the model on the wires**. No autonomous agent redraws your graph.
 
 <table>
 <tr>
@@ -148,7 +148,7 @@ If ThoughtDAG plays a role in your research, please cite it (GitHub's "Cite this
 
 <div align="center">
 
-*The graph has no cycles. The loop is you.*
+*The graph is acyclic. You are the loop.*
 
 [MIT](./LICENSE) © 2026 Xia Chen · [Roadmap](docs/features.md#roadmap) · [Feedback](https://github.com/chenxiachan/thoughtdag/issues)
 

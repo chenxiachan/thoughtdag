@@ -8,7 +8,7 @@ Chat terminals are harnesses for doing: they optimize for handing you an answer 
 
 Mind maps are drawn; this map grows. Chat leaves no map at all.
 
-*The graph has no cycles. The loop is you.*
+*The graph is acyclic. You are the loop.*
 
 ## Canvas & context: the One Rule family
 
