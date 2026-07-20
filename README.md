@@ -21,18 +21,7 @@
 
 ## The one rule
 
-**Long chats dilute context — and you can't see what the model reads.**
-Here the model sees exactly what wires into the node. Delete one edge, get a different answer.
-
-**The good answer is buried at turn 47, and finding it again is archaeology.**
-Zoom out: takeaway plaques and cognitive badges turn the canvas into a map of what you learned.
-
-**Your thinking is locked in someone else's server.**
-The canvas lives in your browser; backups are real files on your disk, yours to take anywhere.
-
-ThoughtDAG replaces the whole black box with one rule:
-
-> **Wires are the context.** Every question is a node, every wire is context, and editing the graph edits the model's memory.
+> **Wires are the context.** What the model sees is exactly what wires into the node. Editing the graph edits the model's memory.
 
 ## In action
 
