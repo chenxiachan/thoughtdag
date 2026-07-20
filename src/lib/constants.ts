@@ -15,9 +15,11 @@ export const HISTORY_LIMIT = 50;
 export const NODE_CSS_WIDTH = 520;
 
 // Layout column pitch — wider than the card so edges have breathing room.
+// Gaps sit at the tight end: enough air for the wires and the edge chips,
+// no more — a denser canvas keeps more of the graph in one glance.
 export const LAYOUT_COL_WIDTH = 540;
-export const LAYOUT_H_GAP = 80;
-export const LAYOUT_V_GAP = 100;
+export const LAYOUT_H_GAP = 48;
+export const LAYOUT_V_GAP = 64;
 
 // Collapsed node card height, used by layout estimation and collapse shifting.
 export const COLLAPSED_NODE_HEIGHT = 80;
