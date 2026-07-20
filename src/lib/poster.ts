@@ -1,4 +1,6 @@
-import type { TimelineEntry } from './timeline';
+import { useStore } from '../store';
+import { collectTimeline, type TimelineEntry } from './timeline';
+import { generateGedankengang, getCached, graphFingerprint, type Gedankengang } from './gedankengang';
 
 // The Gedankengang poster: the timeline overview rendered as a manuscript
 // chronicle — paper ground, serif ink, badge seals strung on a spine, the
@@ -228,4 +230,36 @@ export async function drawGedankengangPoster({ title, journey, entries, lang }: 
   return new Promise((resolve, reject) => {
     canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('toBlob failed'))), 'image/png');
   });
+}
+
+/** One-call export used by every poster entry point (timeline overview,
+    share dialog): ensure a journey paragraph (cached or freshly written —
+    the chronicle alone still makes a poster if the call fails), draw, and
+    hand the PNG to the browser as a download. */
+export async function exportGedankengangPoster(
+  lang: 'zh' | 'en',
+  hooks?: { onJourney?: (g: Gedankengang) => void },
+): Promise<void> {
+  const { nodes, edges } = useStore.getState();
+  const fp = graphFingerprint(nodes);
+  let journey = getCached(fp)?.text;
+  if (!journey) {
+    try {
+      const g = await generateGedankengang(nodes, edges);
+      hooks?.onJourney?.(g);
+      journey = g.text;
+    } catch { /* proceed without the paragraph */ }
+  }
+  const root = nodes.find((n) => n.data.isRoot);
+  const blob = await drawGedankengangPoster({
+    title: (root?.data.question ?? 'ThoughtDAG').replace(/\s+/g, ' ').slice(0, 80),
+    journey,
+    entries: collectTimeline(nodes, 0),
+    lang,
+  });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'thoughtdag-gedankengang.png';
+  a.click();
+  URL.revokeObjectURL(a.href);
 }

@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { AlertTriangle, Check, Copy, Eye, Mail, X } from 'lucide-react';
+import { AlertTriangle, Check, Copy, Eye, ImageDown, Mail, X } from 'lucide-react';
 import { useUiStore } from '../../lib/ui-store';
 import { useStore } from '../../store';
-import { useT } from '../../i18n';
+import { useI18n, useT } from '../../i18n';
+import { exportGedankengangPoster } from '../../lib/poster';
 
 // Share the read-only link: copy + hand-off buttons to the platforms with a
 // web share intent. Platform names here are functional identifiers (the
@@ -16,7 +17,9 @@ const INTENT_LIMIT = 4000;
 export default function ShareDialog() {
   const url = useUiStore((s) => s.shareDialogUrl);
   const t = useT();
+  const lang = useI18n((s) => s.lang);
   const [copied, setCopied] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const close = () => useUiStore.getState().setShareDialogUrl(null);
 
   useEffect(() => {
@@ -105,6 +108,19 @@ export default function ShareDialog() {
               {s.name}
             </a>
           ))}
+          <span className="flex-1" />
+          {/* The picture path: a link is cold in a feed — the chronicle
+              poster is the same canvas as something you can actually post. */}
+          <button
+            onClick={() => { setExporting(true); void exportGedankengangPoster(lang).finally(() => setExporting(false)); }}
+            disabled={exporting}
+            data-share-poster
+            title={t('tlov.exportPosterTitle')}
+            className="text-xs px-3 py-1.5 rounded-lg border border-line text-ink-muted hover:bg-wash hover:text-ink transition-colors flex items-center gap-1.5 disabled:opacity-50"
+          >
+            <ImageDown size={13} strokeWidth={1.75} />
+            {exporting ? t('tlov.exportingPoster') : t('tlov.exportPoster')}
+          </button>
         </div>
       </div>
     </div>

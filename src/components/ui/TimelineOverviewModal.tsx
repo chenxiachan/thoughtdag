@@ -6,7 +6,7 @@ import { useUiStore } from '../../lib/ui-store';
 import { useI18n, useT, fmt } from '../../i18n';
 import { collectTimeline } from '../../lib/timeline';
 import { generateGedankengang, getCached, graphFingerprint, type Gedankengang } from '../../lib/gedankengang';
-import { drawGedankengangPoster } from '../../lib/poster';
+import { exportGedankengangPoster } from '../../lib/poster';
 
 // The third overview, after highlights and materials: the canvas as a
 // chronicle. Every node in creation order, grouped by day, each row carrying
@@ -40,36 +40,13 @@ export default function TimelineOverviewModal({ onLocate }: { onLocate: (nodeId:
   };
 
   // The poster IS this overview, printable: journey paragraph + the badge
-  // chronicle on manuscript paper. Missing journey? Write it first, then draw.
+  // chronicle on manuscript paper. Missing journey? It writes one first —
+  // and shows it here too, via the hook.
   const lang = useI18n((s) => s.lang);
   const [exporting, setExporting] = useState(false);
-  const exportPoster = async () => {
+  const exportPoster = () => {
     setExporting(true);
-    try {
-      const { nodes: ns, edges: es } = useStore.getState();
-      let journey = shown && !stale ? shown.text : undefined;
-      if (!journey) {
-        try {
-          const g = await generateGedankengang(ns, es);
-          setGed(g);
-          journey = g.text;
-        } catch { /* the chronicle alone still makes a poster */ }
-      }
-      const root = ns.find((n) => n.data.isRoot);
-      const blob = await drawGedankengangPoster({
-        title: (root?.data.question ?? 'ThoughtDAG').replace(/\s+/g, ' ').slice(0, 80),
-        journey,
-        entries,
-        lang,
-      });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'thoughtdag-gedankengang.png';
-      a.click();
-      URL.revokeObjectURL(a.href);
-    } finally {
-      setExporting(false);
-    }
+    exportGedankengangPoster(lang, { onJourney: setGed }).finally(() => setExporting(false));
   };
 
   if (!open) return null;
