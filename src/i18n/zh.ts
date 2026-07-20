@@ -176,7 +176,7 @@ export const zh: Record<keyof typeof en, string> = {
   'backup.nudgeBtn': '导出备份',
   'backup.now': '立即备份全部画布',
   'viewer.badge': '只读视图',
-  'viewer.shareDialogTitle': '分享只读视图',
+  'viewer.shareDialogTitle': '分享链接',
   'viewer.shareNote': '打开链接的人只能浏览：可以缩放、读侧栏、翻文件，不能改任何内容。',
   'viewer.copyLink': '复制链接',
   'viewer.copied': '已复制',

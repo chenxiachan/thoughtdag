@@ -176,7 +176,7 @@ export const en = {
   'backup.nudgeBtn': 'Export a backup',
   'backup.now': 'Back up all canvases now',
   'viewer.badge': 'Read-only view',
-  'viewer.shareDialogTitle': 'Share the read-only view',
+  'viewer.shareDialogTitle': 'Share link',
   'viewer.shareNote': 'Anyone opening the link can browse — zoom, read the panel, flip through files — but cannot change anything.',
   'viewer.copyLink': 'Copy link',
   'viewer.copied': 'Copied',
