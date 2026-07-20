@@ -11,7 +11,9 @@
 ![License](https://img.shields.io/badge/许可-MIT-green)
 ![Status](https://img.shields.io/badge/状态-活跃开发中-6B5CE7)
 
-**[▶ 在线试用](https://app.thoughtdag.workers.dev)**：无需安装注册，示例画布免 key
+### [▶ 在线试用](https://app.thoughtdag.workers.dev)
+
+无需安装注册，示例画布免 key
 
 [English](./README.md) · [快速开始](#快速开始) · [更多能力](#更多能力) · [支持的模型](#支持的模型) · [成本与隐私](#成本与隐私)
 

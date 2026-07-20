@@ -11,7 +11,9 @@
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Status](https://img.shields.io/badge/status-active_development-6B5CE7)
 
-**[▶ Try it live](https://app.thoughtdag.workers.dev)**: no install, no signup; the example canvas needs no key
+### [▶ Try it live](https://app.thoughtdag.workers.dev)
+
+no install, no signup; the example canvas needs no key
 
 [中文](./README_ZH.md) · [Quick start](#quick-start) · [More capabilities](#more-capabilities) · [Models](#supported-models) · [Cost & privacy](#cost--privacy)
 
