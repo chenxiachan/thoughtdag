@@ -106,7 +106,7 @@ const CONTENT: Record<Lang, { nodes: SeedNode[] }> = {
         q: 'Does this "saved it, so I\'ve basically read it" illusion have a formal name?',
         a: 'Yes — it\'s usually called the **collector\'s fallacy**: collecting a resource produces an immediate sense of progress while the understanding it promises is deferred indefinitely. Research calls the extreme form **digital hoarding**: saving indiscriminately, never organizing, feeling anxious about deleting.\n\nWhat they share: **the pleasure of collecting impersonates the progress of understanding.** System 1 (fast, cheap) does the saving; System 2 (slow, costly) would have to do the reading — the save wins by default.',
         x: 40, y: 640,
-        extra: { highlights: [{ id: 'h-ex-1', text: "collector's fallacy" }], summaries: ["It has a name: the collector's fallacy — collecting impersonates understanding"] },
+        extra: { highlights: [{ id: 'h-ex-1', text: "collector's fallacy" }], summaries: ["It has a name: the collector's fallacy, collecting impersonates understanding"] },
       },
       {
         id: 'branch1',
@@ -127,7 +127,7 @@ const CONTENT: Record<Lang, { nodes: SeedNode[] }> = {
         extra: {
           isEvaluator: true, autoRerun: true,
           rolePrompt: 'You are a rigorous peer reviewer. Critique the reasoning above: identify overclaims, missing evidence, and unstated assumptions.',
-          summaries: ['Open: retrieval value of saves is unquantified — "worthless" is premature'], summaryTypes: ['open'],
+          summaries: ['Open: retrieval value of saves is unquantified, "worthless" is premature'], summaryTypes: ['open'],
         },
       },
       // ── ② materials & references ──
@@ -152,7 +152,7 @@ const CONTENT: Record<Lang, { nodes: SeedNode[] }> = {
         extra: {
           responses: ['Either archive the library or process new saves on the spot.', '**Takeaway: saving is not the start of learning — processing is. Change "save it" into "write one line" and the loop turns around.**\n\n*This node demonstrates two things.*\n\n*① The amber **"Upstream changed"** badge in my header: my upstream was edited after this answer was written, so my answer may no longer follow from what\'s above. Click the badge to re-run me in place, or use the amber **Replay stale** chip in the toolbar to fix the whole canvas in dependency order (it asks first, with a token estimate).*\n\n*② The **v2/2 pager** under my answer: every re-run appends a VERSION (old ones kept for comparison; switch back and watch downstream badges react). Versions are alternate answers to the same question; a BRANCH (⋯ menu → "Regenerate as branch") is a parallel node that can grow its own downstream.*'],
           responseIndex: 1,
-          summaries: [null, 'Pivot: from "save it" to "write one line" — processing moves to the moment of capture'],
+          summaries: [null, 'Pivot: from "save it" to "write one line", processing moves to the moment of capture'],
           summaryTypes: [null, 'pivot'],
           lastContextHash: 'demo-stale',
           lastGeneratedAt: '2026-07-09T09:00:00.000Z',
@@ -205,7 +205,7 @@ const CONTENT: Record<Lang, { nodes: SeedNode[] }> = {
         x: 2980, y: 690,
         extra: {
           digestOf: 'ex-att-brief',
-          summaries: ['Digest done: saving ≠ learning, processing counts — every point page-anchored'],
+          summaries: ['Digest done: saving ≠ learning, processing counts; every point page-anchored'],
         },
       },
       // ── frames: the chapters ──
@@ -246,7 +246,7 @@ const CONTENT: Record<Lang, { nodes: SeedNode[] }> = {
         q: '这种「收藏了就等于读了」的错觉，有正式的名字吗？',
         a: '有，通常叫**收藏家谬误**（collector\'s fallacy）：收集一份材料带来即时的进度感，而它允诺的理解被无限期推迟。研究里更极端的形态叫**数字囤积**：无差别保存、从不整理、一删就焦虑。\n\n两者的共同点：**收集的快感冒充了理解的进度**。系统一（快、省力）负责存，系统二（慢、费力）才负责读——「存」这个动作天然获胜。',
         x: 40, y: 640,
-        extra: { highlights: [{ id: 'h-ex-1', text: '收藏家谬误' }], summaries: ['它有名字：收藏家谬误——收集的快感冒充理解的进度'] },
+        extra: { highlights: [{ id: 'h-ex-1', text: '收藏家谬误' }], summaries: ['它有名字：收藏家谬误，收集的快感冒充理解的进度'] },
       },
       {
         id: 'branch1',

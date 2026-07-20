@@ -67,7 +67,9 @@ export function collectTimeline(nodes: ThoughtNode[], now: number): TimelineEntr
       return {
         entry: {
           id: n.id,
-          label: (summary || materialName(d) || d.question || '').slice(0, 60),
+          // 120 chars: sixty was plenty for CJK but truncated English
+          // takeaways mid-clause (narrow surfaces clamp via CSS anyway).
+          label: (summary || materialName(d) || d.question || '').slice(0, 120),
           topic,
           badged: !!type && type !== 'insight',
           type: type ?? undefined,

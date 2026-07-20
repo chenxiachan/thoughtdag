@@ -23,8 +23,8 @@ const SEAL: Record<string, { color: string; glyph: string }> = {
 const SERIF = "'Songti SC', 'Noto Serif SC', Georgia, serif";
 const MONO = "'SF Mono', Menlo, monospace";
 
-/** Greedy wrap that treats every CJK glyph as a break point. Closing
-    punctuation never starts a line — it hangs onto the full line instead. */
+/** Greedy wrap: CJK glyphs break anywhere, Latin words stay whole (break
+    retreats to the last space), closing punctuation never starts a line. */
 const NO_LINE_HEAD = '。，、；：？！）」』】…';
 function wrapText(ctx: CanvasRenderingContext2D, text: string, maxW: number): string[] {
   const lines: string[] = [];
@@ -34,8 +34,15 @@ function wrapText(ctx: CanvasRenderingContext2D, text: string, maxW: number): st
     const probe = line + ch;
     if (ctx.measureText(probe).width > maxW && line) {
       if (NO_LINE_HEAD.includes(ch)) { lines.push(probe); line = ''; continue; }
-      lines.push(line);
-      line = ch === ' ' ? '' : ch;
+      const sp = line.lastIndexOf(' ');
+      if (/[A-Za-z0-9]/.test(ch) && sp > 0) {
+        // mid-word overflow: break at the last space, carry the word over
+        lines.push(line.slice(0, sp));
+        line = line.slice(sp + 1) + ch;
+      } else {
+        lines.push(line);
+        line = ch === ' ' ? '' : ch;
+      }
     } else {
       line = probe;
     }
