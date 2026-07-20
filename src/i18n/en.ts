@@ -467,6 +467,7 @@ export const en = {
   'question.lockedWhileGenerating': 'The answer is still generating — stop it first to edit the question.',
   'question.editHintChanged': 'Enter regenerates the answer · Shift+Enter new line · Esc discards',
   'question.editHintUnchanged': 'Enter closes · Shift+Enter new line · Esc closes',
+  'toast.noModelYet': 'No model connected yet. Pick a provider and paste a key, then hit Retry on the node.',
   'takeaway.insight': 'Insight',
   'takeaway.ruleout': 'Ruled out',
   'takeaway.decision': 'Decision',

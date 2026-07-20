@@ -466,6 +466,7 @@ export const zh: Record<keyof typeof en, string> = {
   'question.lockedWhileGenerating': '回答生成中，先停止再编辑问题。',
   'question.editHintChanged': '回车重新生成回答 · Shift+回车换行 · Esc 放弃修改',
   'question.editHintUnchanged': '回车关闭 · Shift+回车换行 · Esc 关闭',
+  'toast.noModelYet': '还没有连接模型。选一家服务商填 key，然后回到节点点重试。',
   'takeaway.insight': '洞见',
   'takeaway.ruleout': '排除',
   'takeaway.decision': '决策',

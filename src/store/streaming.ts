@@ -262,7 +262,14 @@ export async function runNodeGeneration(
     } else {
       // Real failure: details go to a toast, the node gets a Retry affordance
       const message = err instanceof Error ? err.message : t('toast.unknownError');
-      toast('error', fmt(t('toast.generationFailed'), { message }));
+      if (/no model configured/i.test(message)) {
+        // The one failure with an obvious remedy: summon the key dialog
+        // right here, with a localized line instead of the raw server text.
+        toast('info', t('toast.noModelYet'));
+        useUiStore.getState().setApiKeyModalOpen(true);
+      } else {
+        toast('error', fmt(t('toast.generationFailed'), { message }));
+      }
       writeFinal(partial || t('node.failedPlaceholder'), true);
     }
     get().pushHistory();

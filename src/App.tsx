@@ -131,17 +131,13 @@ function Canvas() {
   const lang = useI18n((s) => s.lang);
   const isParadigm = useProjects((s) => s.projects.find((p) => p.id === s.activeId)?.kind === 'paradigm');
 
-  // No configured model anywhere (.env empty, no stored browser key):
-  // surface the key dialog once — the app is inert until a model exists.
+  // No configured model: do NOT ambush the first open with the key dialog —
+  // the example canvas needs no key and must be the first thing a newcomer
+  // sees. The dialog is summoned where it has context instead: the toolbar
+  // key button, the model picker, and the moment a generation actually
+  // needs a model (streaming.ts opens it on the no-model error).
   const modelData = useModels();
-  const keyPrompted = useRef(false);
-  useEffect(() => {
-    if (isViewerMode || keyPrompted.current || !modelData) return;
-    if (modelData.models.length === 0) {
-      keyPrompted.current = true;
-      useUiStore.getState().setApiKeyModalOpen(true);
-    }
-  }, [modelData]);
+  void modelData;
 
   // Backup nudge: the canvas lives in browser storage — durable across
   // restarts, but "clear site data" erases it. A substantial canvas that
@@ -150,6 +146,9 @@ function Canvas() {
     if (isViewerMode || !hasNodes) return;
     if (useStore.getState().nodes.length < 10) return;
     const last = Number(localStorage.getItem('thoughtdag.lastBackupAt') ?? 0);
+    // First run ever: start the 7-day clock now instead of nagging a
+    // newcomer who loaded the example canvas ten seconds ago.
+    if (last === 0) { localStorage.setItem('thoughtdag.lastBackupAt', String(Date.now())); return; }
     if (Date.now() - last < 7 * 24 * 3600 * 1000) return;
     if (sessionStorage.getItem('thoughtdag.backupNudged')) return;
     sessionStorage.setItem('thoughtdag.backupNudged', 'yes');
