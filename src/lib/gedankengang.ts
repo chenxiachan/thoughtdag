@@ -10,7 +10,7 @@ import type { ThoughtNode, ThoughtEdge, ThoughtData } from '../types';
 // until the graph actually changes. Deliberately NOT canvas data (yet): the
 // narrative is a reading of the map, not part of it.
 
-export type Gedankengang = { text: string; fp: string; at: string };
+export type Gedankengang = { text: string; fp: string; at: string; lang: 'zh' | 'en' };
 
 /** Cheap stable fingerprint over what the narrator actually reads. */
 export function graphFingerprint(nodes: ThoughtNode[]): string {
@@ -23,14 +23,17 @@ export function graphFingerprint(nodes: ThoughtNode[]): string {
   return String(h >>> 0);
 }
 
+// Cached per (graph, interface language): the journey is narration FOR the
+// reader, so it follows the language toggle — switching EN/中 and
+// regenerating yields that language's version, each cached separately.
 const cache = new Map<string, Gedankengang>();
-export const getCached = (fp: string) => cache.get(fp);
+export const getCached = (fp: string, lang: 'zh' | 'en') => cache.get(`${lang}:${fp}`);
 
 const TAG: Record<string, string> = { ruleout: 'RULEOUT', decision: 'DECISION', pivot: 'PIVOT', open: 'OPEN', insight: 'INSIGHT' };
 
-export async function generateGedankengang(nodes: ThoughtNode[], edges: ThoughtEdge[]): Promise<Gedankengang> {
+export async function generateGedankengang(nodes: ThoughtNode[], edges: ThoughtEdge[], lang: 'zh' | 'en'): Promise<Gedankengang> {
   const fp = graphFingerprint(nodes);
-  const hit = cache.get(fp);
+  const hit = cache.get(`${lang}:${fp}`);
   if (hit) return hit;
 
   const root = nodes.find((n) => (n.data as ThoughtData).isRoot);
@@ -59,10 +62,10 @@ export async function generateGedankengang(nodes: ThoughtNode[], edges: ThoughtE
   const raw = await llmCall([
     {
       role: 'user',
-      content: `Opening question of a thinking map: ${root?.data.question?.slice(0, 300) ?? '(untitled)'}\n\nThe takeaway of every step, in the order they were thought (tags: RULEOUT = killed an option, DECISION = chose, PIVOT = reframed, OPEN = still unresolved):\n${lines.join('\n')}\n\nWrite the JOURNEY of this thinking as one flowing paragraph a reader absorbs in twenty seconds: where it started, what got ruled out, where it turned, where it landed, what remains open. Only the turns that mattered — do not enumerate every step. Hard limit: 250 characters for CJK languages, 500 characters otherwise. Same language as the takeaway lines. Never use dash characters (—, –, -); use commas, colons or full stops. Output only the paragraph.`,
+      content: `Opening question of a thinking map: ${root?.data.question?.slice(0, 300) ?? '(untitled)'}\n\nThe takeaway of every step, in the order they were thought (tags: RULEOUT = killed an option, DECISION = chose, PIVOT = reframed, OPEN = still unresolved):\n${lines.join('\n')}\n\nWrite the JOURNEY of this thinking as one flowing paragraph a reader absorbs in twenty seconds: where it started, what got ruled out, where it turned, where it landed, what remains open. Only the turns that mattered — do not enumerate every step. Hard limit: 250 characters for CJK languages, 500 characters otherwise. Write in ${lang === 'zh' ? 'Chinese' : 'English'} (the reader's interface language), even if the takeaway lines mix languages. Never use dash characters (—, –, -); use commas, colons or full stops. Output only the paragraph.`,
     },
   ]);
-  const result: Gedankengang = { text: raw.trim(), fp, at: new Date().toISOString() };
-  cache.set(fp, result);
+  const result: Gedankengang = { text: raw.trim(), fp, at: new Date().toISOString(), lang };
+  cache.set(`${lang}:${fp}`, result);
   return result;
 }

@@ -3,12 +3,18 @@ import { getDescendantIds } from './graph';
 import { COLLAPSED_NODE_HEIGHT, LAYOUT_COL_WIDTH, LAYOUT_H_GAP, LAYOUT_V_GAP } from './constants';
 
 // Estimated rendered height of a node — fallback when React Flow hasn't
-// measured the DOM yet (fresh nodes) and for collapse shifting.
+// measured the DOM yet (fresh nodes) and for collapse shifting. Every
+// variable region of the card is height-capped in CSS (question scrolls at
+// 180px, the answer at 400px), so the estimate caps each part the same way
+// — an uncapped formula here would keep spreading nodes for content the
+// card no longer grows for.
 export function estimateNodeHeight(node: ThoughtNode): number {
   if (node.data.isCollapsed) return COLLAPSED_NODE_HEIGHT;
-  const responseLen = (node.data.response || '').length;
-  // header + question + response body + follow-up input, at the current type scale
-  const estimated = 230 + (responseLen / 2.6);
+  // ~30 CJK chars per line at card width, ~22px per line; capped like the CSS
+  const questionH = Math.min(180, 30 + (node.data.question || '').length / 1.4);
+  const responseH = Math.min(400, (node.data.response || '').length / 2.6);
+  // header + paddings + follow-up input + summary chrome
+  const estimated = 190 + questionH + responseH;
   return Math.max(260, Math.min(820, estimated));
 }
 

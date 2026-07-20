@@ -242,10 +242,10 @@ export async function exportGedankengangPoster(
 ): Promise<void> {
   const { nodes, edges } = useStore.getState();
   const fp = graphFingerprint(nodes);
-  let journey = getCached(fp)?.text;
+  let journey = getCached(fp, lang)?.text;
   if (!journey) {
     try {
-      const g = await generateGedankengang(nodes, edges);
+      const g = await generateGedankengang(nodes, edges, lang);
       hooks?.onJourney?.(g);
       journey = g.text;
     } catch { /* proceed without the paragraph */ }

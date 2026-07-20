@@ -20,30 +20,30 @@ export default function TimelineOverviewModal({ onLocate }: { onLocate: (nodeId:
   const nodes = useStore((s) => s.nodes);
   const t = useT();
   const dateLocale = useDateLocale();
+  const lang = useI18n((s) => s.lang);
   // The modal never renders the recent-edit glow, so the clock is moot: 0.
   const entries = useMemo(() => collectTimeline(nodes, 0), [nodes]);
-  // The journey paragraph: session-cached by graph fingerprint, so reopening
-  // is free until the map actually changes.
+  // The journey paragraph: session-cached per (graph fingerprint, interface
+  // language) — reopening is free until the map changes, and switching the
+  // language toggle narrates in the other language.
   const fp = useMemo(() => graphFingerprint(nodes), [nodes]);
   const [ged, setGed] = useState<Gedankengang | null>(null);
   const [gedLoading, setGedLoading] = useState(false);
   const [gedFailed, setGedFailed] = useState(false);
-  const shown = ged ?? getCached(fp) ?? null;
-  const stale = !!shown && shown.fp !== fp;
+  // Prefer the cache for the CURRENT (graph, language) pair; fall back to
+  // the last generated one so a stale/other-language paragraph still shows,
+  // dimmed, with the regenerate affordance.
+  const shown = getCached(fp, lang) ?? ged;
+  const stale = !!shown && (shown.fp !== fp || shown.lang !== lang);
   const writeJourney = () => {
     setGedLoading(true);
     setGedFailed(false);
     const { nodes: ns, edges: es } = useStore.getState();
-    generateGedankengang(ns, es)
+    generateGedankengang(ns, es, lang)
       .then(setGed)
       .catch(() => setGedFailed(true))
       .finally(() => setGedLoading(false));
   };
-
-  // The poster IS this overview, printable: journey paragraph + the badge
-  // chronicle on manuscript paper. Missing journey? It writes one first —
-  // and shows it here too, via the hook.
-  const lang = useI18n((s) => s.lang);
   const [exporting, setExporting] = useState(false);
   const exportPoster = () => {
     setExporting(true);
