@@ -6,6 +6,8 @@ import { useUiStore } from '../../lib/ui-store';
 import { useZoomTier } from '../../lib/use-map-mode';
 import { useDateLocale, useT } from '../../i18n';
 import { collectTimeline } from '../../lib/timeline';
+import { PANEL_INSET } from '../../lib/constants';
+import type { ThoughtData } from '../../types';
 
 // The map's second axis. Space answers "where is it in the graph"; this rail
 // answers "when did I think it". Not a floating panel — a bare ruler drawn
@@ -15,6 +17,17 @@ import { collectTimeline } from '../../lib/timeline';
 // zoom controls below via bottom-anchoring. Ticks in the current viewport
 // run at full strength; the rest fade back. Appears only at map / glyph
 // tiers: zoomed in you are working, zoomed out you are searching.
+
+/** Screen pixels the focus panel will occupy on the right once this node is
+    selected — 0 when the panel mode is off or the node is canvas material
+    (content nodes never open the panel). */
+function panelShift(nodeId: string): number {
+  const ui = useUiStore.getState();
+  if (!ui.panelOpen) return 0;
+  const kind = (useStore.getState().nodes.find((n) => n.id === nodeId)?.data as ThoughtData | undefined)?.stepKind;
+  if (kind === 'note' || kind === 'file' || kind === 'link' || kind === 'frame') return 0;
+  return ui.panelWidth + PANEL_INSET + 12;
+}
 
 /** Landmarks (badged turns) rest longer than plain waypoints — the rail
     thins the same way the map does. */
@@ -123,13 +136,18 @@ export function TimelineBar() {
                 // Single click = pinpoint: pan the node into view at the
                 // CURRENT zoom, so the rail survives and a miss costs one
                 // more click. Double click = commit: fly into the card tier.
+                // Either way the target is the center of the VISIBLE canvas:
+                // selecting a Q&A node opens the focus panel on the right,
+                // so the world target shifts right by half the panel width
+                // (in world units) to land the node beside it, not under it.
                 onClick={() => {
                   setSelectedNodeId(e.id);
-                  rf.setCenter(e.x + 260, e.y + 110, { zoom: rf.getViewport().zoom, duration: 300 });
+                  const zoom = rf.getViewport().zoom;
+                  rf.setCenter(e.x + 260 + panelShift(e.id) / (2 * zoom), e.y + 110, { zoom, duration: 300 });
                 }}
                 onDoubleClick={() => {
                   setSelectedNodeId(e.id);
-                  rf.setCenter(e.x + 260, e.y + 110, { zoom: 1, duration: 350 });
+                  rf.setCenter(e.x + 260 + panelShift(e.id) / 2, e.y + 110, { zoom: 1, duration: 350 });
                 }}
                 className="relative flex items-center w-full h-[14px] shrink-0 pl-[29px] cursor-pointer"
                 aria-label={e.label}
