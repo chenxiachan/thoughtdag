@@ -35,6 +35,10 @@ export const PROVIDER_PRESETS: ProviderPreset[] = [
   // the smoothest first key. International endpoint first for the demo.
   { id: 'zai', name: 'Z.ai GLM', region: 'en', baseURL: 'https://api.z.ai/api/paas/v4', keyUrl: 'https://z.ai', recommend: ['glm-4.5-flash', 'glm-5'] },
   { id: 'zhipu', name: '智谱 GLM', region: 'zh', baseURL: 'https://open.bigmodel.cn/api/paas/v4', keyUrl: 'https://open.bigmodel.cn', recommend: ['glm-4.5-flash', 'glm-4v-flash', 'glm-5'] },
+  // Google AI Studio keys are free without a card, and the Gemini API's
+  // OpenAI-compatible endpoint allows browser CORS — for many users abroad
+  // this is the lowest-friction key there is (a Google account suffices).
+  { id: 'google', name: 'Google AI Studio', baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai', keyUrl: 'https://aistudio.google.com/apikey', recommend: ['gemini-2.5-flash', 'gemini-2.5-pro'] },
   {
     id: 'openrouter', name: 'OpenRouter', baseURL: 'https://openrouter.ai/api/v1',
     keyUrl: 'https://openrouter.ai/keys',

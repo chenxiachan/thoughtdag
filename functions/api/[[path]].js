@@ -368,7 +368,8 @@ async function handleProbeModels(body) {
     const data = await r.json();
     const list = Array.isArray(data.data) ? data.data : Array.isArray(data.models) ? data.models : [];
     const models = list.map((m) => ({
-      id: m.id ?? m.name,
+      // Google's OpenAI-compat layer prefixes ids with "models/" — strip it
+      id: (m.id ?? m.name)?.replace?.(/^models\//, ''),
       ...(typeof m.created === 'number' ? { created: m.created } : {}),
       ...(m.architecture?.input_modalities ? { vision: m.architecture.input_modalities.includes('image') } : {}),
     })).filter((m) => m.id);
