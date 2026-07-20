@@ -23,6 +23,8 @@ export type TimelineEntry = {
   /** A typed turn (ruled out / decided / pivoted / open) — the landmarks;
       unbadged waypoints render lighter and shorter. */
   badged: boolean;
+  /** The raw epistemic move, for consumers that need the glyph itself. */
+  type?: string;
   createdAt?: string;
   modifiedAt?: string;
   color: string;
@@ -59,6 +61,7 @@ export function collectTimeline(nodes: ThoughtNode[], now: number): TimelineEntr
           label: (summary || d.question || '').slice(0, 60),
           topic,
           badged: !!type && type !== 'insight',
+          type: type ?? undefined,
           createdAt,
           modifiedAt,
           color: (type && DOT_COLOR[type]) || '#b8b3c7',
