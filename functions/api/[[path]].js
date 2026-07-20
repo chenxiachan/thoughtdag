@@ -94,6 +94,44 @@ function toSdkPrompt(messages, images) {
   return { system: [baseDirective(), ...systemParts].join('\n\n'), messages: out };
 }
 
+// ── web search via a GLM key (mirror of server.mjs) ──────────────────
+// Non-OpenRouter models get web search when the user has ALSO connected a
+// GLM interface (Zhipu or Z.ai — a free key suffices): that key powers the
+// provider's web_search endpoint as the engine, stateless like everything
+// else here (the key arrives with the request and is forgotten with it).
+const GLM_BASES = ['open.bigmodel.cn', 'api.z.ai'];
+function findGlmSearch(providers) {
+  for (const p of Array.isArray(providers) ? providers : []) {
+    const base = String(p.baseURL ?? '');
+    if (p.apiKey && GLM_BASES.some((h) => base.includes(h))) {
+      return { key: p.apiKey, endpoint: `${base.replace(/\/$/, '')}/web_search` };
+    }
+  }
+  return null;
+}
+const SEARCH_BLOCKED = [
+  'doc88.com', 'docin.com', 'book118.com', 'renrendoc.com', 'taodocs.com',
+  'wenku.baidu.com', 'zhidao.baidu.com', 'baijiahao.baidu.com',
+  'wenwen.sogou.com', 'zhihu.com', '360doc.com', 'docs.qq.com', 'jianshu.com',
+];
+const isBlockedUrl = (url) => {
+  try { const h = new URL(url).hostname; return SEARCH_BLOCKED.some((d) => h === d || h.endsWith(`.${d}`)); }
+  catch { return false; }
+};
+async function glmWebSearch(glm, query, count = 5) {
+  const r = await fetch(glm.endpoint, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${glm.key}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ search_engine: 'search_std', search_query: query, count: Math.min(count * 2, 10) }),
+  });
+  if (!r.ok) throw new Error(`web_search HTTP ${r.status}`);
+  const data = await r.json();
+  return (data.search_result || [])
+    .filter((x) => !isBlockedUrl(x.link))
+    .slice(0, count)
+    .map((x) => ({ title: x.title, url: x.link, content: (x.content || '').slice(0, 600), media: x.media, date: x.publish_date }));
+}
+
 // ── scholarly search (free public APIs — mirror of server.mjs) ──
 async function arxivSearch(query, maxResults = 5) {
   const url = `https://export.arxiv.org/api/query?search_query=all:${encodeURIComponent(query)}&max_results=${maxResults}&sortBy=relevance`;
@@ -140,6 +178,22 @@ function makeTools(sources, onSearch, prefs = {}) {
       .join('\n\n');
   };
   const tools = {};
+  if (prefs.web && prefs.glm) {
+    tools.web_search = tool({
+      description:
+        'ONLY for current events, time-sensitive facts, or specific verifiable claims you cannot answer confidently from your own knowledge. ' +
+        'NEVER use for conceptual, definitional, reasoning or creative questions — answer those directly. ' +
+        'Results are numbered [1], [2], ... — when you use information from a result, cite it inline as [n]. At most 3 searches per answer.',
+      inputSchema: z.object({
+        query: z.string().describe('The search query, in the language most likely to find good results'),
+      }),
+      execute: async ({ query }) => {
+        onSearch?.('web_search', query);
+        try { return pushNumbered(await glmWebSearch(prefs.glm, query)); }
+        catch (e) { return `Search failed (${e.message}) — try a different tool or answer from your knowledge.`; }
+      },
+    });
+  }
   if (prefs.scholar !== false) {
     tools.arxiv_search = tool({
       description:
@@ -201,13 +255,16 @@ async function handleStream(body) {
       const sources = [];
       let emittedChars = 0;
       let charsAtLastSearch = 0;
+      const useOnline = webSearch !== false && !!entry.online;
+      // OpenRouter models search through the gateway's :online variant; for
+      // every other model a connected GLM key powers the web_search tool.
+      // Never both — that would run two searches for one question.
+      const glm = useOnline ? null : findGlmSearch(providers);
       const tools = makeTools(sources, (name, query) => {
         charsAtLastSearch = emittedChars;
         flushBuf();
         write({ tool: { name, query } });
-      }, { scholar: scholarSearch !== false });
-
-      const useOnline = webSearch !== false && !!entry.online;
+      }, { scholar: scholarSearch !== false, web: webSearch !== false, glm });
       const prompt = toSdkPrompt(messages, images);
       if (tools) {
         const directive = [
@@ -386,8 +443,11 @@ function modelsPayloadFor(providers) {
     models,
     default: models[0]?.id ?? null,
     capabilities: {
-      webSearch: Object.values(overlay).some((m) => m.online),
-      searchEngine: 'openrouter-online',
+      // Web search exists when EITHER an OpenRouter interface (gateway
+      // :online) or a GLM interface (its key doubles as the search engine
+      // for every other model) is connected.
+      webSearch: Object.values(overlay).some((m) => m.online) || !!findGlmSearch(providers),
+      searchEngine: Object.values(overlay).some((m) => m.online) ? 'openrouter-online' : 'glm-tools',
       scholarSearch: true,
       vision: models.some((m) => m.vision),
     },

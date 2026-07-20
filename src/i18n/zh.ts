@@ -98,7 +98,7 @@ export const zh: Record<keyof typeof en, string> = {
   'provider.serverRow': '服务端 .env 已配置 {n} 个模型（只读，重启代理生效）',
   'provider.modelCount': '{n} 个模型',
   'provider.capabilityLine': '当前共 {n} 个模型可用，其中 {v} 个支持图片理解。',
-  'provider.noSearchNote': '联网搜索需要服务端配置 ZHIPU_API_KEY。',
+  'provider.noSearchNote': '联网搜索：OpenRouter 接口自带；其他接口需再连接一个智谱 GLM 接口（免费 key 即可）作为搜索引擎。学术检索始终可用。',
   'provider.add': '添加接口',
   'provider.pickSource': '来源',
   'provider.local': '本地',

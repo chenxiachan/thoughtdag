@@ -98,7 +98,7 @@ export const en = {
   'provider.serverRow': '{n} models configured server-side in .env (read-only; restart the proxy to change)',
   'provider.modelCount': '{n} models',
   'provider.capabilityLine': '{n} models available, {v} of them understand images.',
-  'provider.noSearchNote': 'Web search needs ZHIPU_API_KEY on the server side.',
+  'provider.noSearchNote': 'Web search: OpenRouter interfaces have it built in; for any other interface, also connect a Z.ai GLM interface (a free key works) to power the engine. Scholarly search always works.',
   'provider.add': 'Add an interface',
   'provider.pickSource': 'Source',
   'provider.local': 'local',

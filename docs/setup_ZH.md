@@ -34,6 +34,8 @@ npm run dev            # → http://localhost:5173
 | **OpenRouter** | openrouter/auto | `OPENROUTER_API_KEY` | 一把 key 通 300+ 模型，`OPENROUTER_MODELS` 填任意 `vendor/model` |
 | **Ollama** | （你本地的）| `OLLAMA_MODELS=qwen3:8b,…` | 完全本地离线 |
 
+> **联网搜索的可用条件**：OpenRouter 接口自带（网关 `:online`）；其他任何接口，只要同时连接一个智谱 GLM 接口（免费 key 即可），它的 key 就为所有模型驱动搜索引擎。学术检索（arXiv + Semantic Scholar）无需任何条件。
+
 ## 成本与隐私（细节版）
 
 - **免费可用。** 智谱免费档（GLM-4.5-Flash 文本 + GLM-4V-Flash 视觉）覆盖全部功能；联网搜索约 ¥0.01/次。也可以接任何你已付费的模型，或本地 Ollama 完全离线。

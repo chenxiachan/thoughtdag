@@ -257,10 +257,23 @@ const isBlockedUrl = (url) => {
   catch { return false; }
 };
 
-async function zhipuWebSearch(query, count = 5, engine = SEARCH_ENGINE) {
-  const r = await fetch('https://open.bigmodel.cn/api/paas/v4/web_search', {
+// A GLM interface configured in the BROWSER can power search too (same key
+// shape as the .env one; the international z.ai endpoint is symmetric).
+const GLM_SEARCH_BASES = ['open.bigmodel.cn', 'api.z.ai'];
+function findGlmSearch(providers) {
+  for (const p of (Array.isArray(providers) ? providers : [])) {
+    const base = String(p.baseURL ?? '');
+    if (p.apiKey && GLM_SEARCH_BASES.some((h) => base.includes(h))) {
+      return { key: p.apiKey, endpoint: `${base.replace(/\/$/, '')}/web_search` };
+    }
+  }
+  return null;
+}
+
+async function zhipuWebSearch(query, count = 5, engine = SEARCH_ENGINE, glm = null) {
+  const r = await fetch(glm?.endpoint ?? 'https://open.bigmodel.cn/api/paas/v4/web_search', {
     method: 'POST',
-    headers: { Authorization: `Bearer ${ZHIPU_KEY}`, 'Content-Type': 'application/json' },
+    headers: { Authorization: `Bearer ${glm?.key ?? ZHIPU_KEY}`, 'Content-Type': 'application/json' },
     // over-fetch so filtering still leaves `count` usable results
     body: JSON.stringify({ search_engine: engine, search_query: query, count: Math.min(count * 2, 10) }),
   });
@@ -376,7 +389,7 @@ function makeTools(sources, onSearch, prefs = {}) {
   };
   const tools = {};
 
-  if (prefs.web !== false && ZHIPU_KEY) {
+  if (prefs.web !== false && (ZHIPU_KEY || prefs.glm)) {
     tools.web_search = tool({
       description:
         'ONLY for current events, time-sensitive facts, or specific verifiable claims you cannot answer confidently from your own knowledge. ' +
@@ -387,7 +400,7 @@ function makeTools(sources, onSearch, prefs = {}) {
       }),
       execute: async ({ query }) => {
         onSearch?.('web_search', query);
-        try { return pushNumbered(await zhipuWebSearch(query, 5, prefs.searchEngine || SEARCH_ENGINE)); }
+        try { return pushNumbered(await zhipuWebSearch(query, 5, prefs.searchEngine || SEARCH_ENGINE, ZHIPU_KEY ? null : prefs.glm)); }
         catch (e) { return `Search failed (${e.message}) — try a different tool or answer from your knowledge.`; }
       },
     });
@@ -709,7 +722,7 @@ async function modelsPayloadFor(providers) {
     default: base.default ?? extra[0]?.id ?? null,
     capabilities: {
       ...base.capabilities,
-      webSearch: base.capabilities.webSearch || Object.values(overlay).some((m) => m.online),
+      webSearch: base.capabilities.webSearch || Object.values(overlay).some((m) => m.online) || !!findGlmSearch(providers),
       vision: models.some((m) => m.vision),
     },
   };
@@ -789,7 +802,7 @@ app.post('/api/stream', async (req, res) => {
       // Progress ping so the UI can show what's being searched
       res.write(`data: ${JSON.stringify({ tool: { name, query } })}\n\n`);
     },
-    { web: webSearch !== false, scholar: scholarSearch !== false, mcp: mcpTools !== false, searchEngine }
+    { web: webSearch !== false, scholar: scholarSearch !== false, mcp: mcpTools !== false, searchEngine, glm: findGlmSearch(providers) }
   );
 
   const prompt = toSdkPrompt(messages, images);
