@@ -267,6 +267,11 @@ export async function runNodeGeneration(
         // right here, with a localized line instead of the raw server text.
         toast('info', t('toast.noModelYet'));
         useUiStore.getState().setApiKeyModalOpen(true);
+      } else if (/429|too many requests|rate.?limit|quota/i.test(message)) {
+        // Free tiers meter requests per minute — a pause fixes it, and the
+        // raw provider text reads like a failure of the app rather than a
+        // property of the free key. Say what it actually is.
+        toast('info', t('toast.rateLimited'));
       } else {
         toast('error', fmt(t('toast.generationFailed'), { message }));
       }

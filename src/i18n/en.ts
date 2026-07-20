@@ -468,6 +468,7 @@ export const en = {
   'question.editHintChanged': 'Enter regenerates the answer · Shift+Enter new line · Esc discards',
   'question.editHintUnchanged': 'Enter closes · Shift+Enter new line · Esc closes',
   'toast.noModelYet': 'No model connected yet. Pick a provider and paste a key, then hit Retry on the node.',
+  'toast.rateLimited': 'The model rate-limited this request (free tiers meter requests per minute). Wait half a minute and hit Retry.',
   'takeaway.insight': 'Insight',
   'takeaway.ruleout': 'Ruled out',
   'takeaway.decision': 'Decision',

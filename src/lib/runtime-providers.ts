@@ -38,7 +38,11 @@ export const PROVIDER_PRESETS: ProviderPreset[] = [
   // Google AI Studio keys are free without a card, and the Gemini API's
   // OpenAI-compatible endpoint allows browser CORS — for many users abroad
   // this is the lowest-friction key there is (a Google account suffices).
-  { id: 'google', name: 'Google AI Studio', baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai', keyUrl: 'https://aistudio.google.com/apikey', recommend: ['gemini-2.5-flash', 'gemini-2.5-pro'] },
+  // Recommend only the models whose FREE-tier rate limits are livable:
+  // flash-lite has the highest free RPM, flash next. Pro's free quota is a
+  // handful of requests per minute — with the takeaway judge doubling our
+  // calls, it 429s almost immediately, so it stays off this list.
+  { id: 'google', name: 'Google AI Studio', baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai', keyUrl: 'https://aistudio.google.com/apikey', recommend: ['gemini-2.5-flash', 'gemini-2.5-flash-lite'] },
   {
     id: 'openrouter', name: 'OpenRouter', baseURL: 'https://openrouter.ai/api/v1',
     keyUrl: 'https://openrouter.ai/keys',
