@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 280" font-family="-apple-system, 'Segoe UI', sans-serif">
+  <rect width="440" height="280" rx="14" fill="#f6f8fa" stroke="#d8dde3"/>
+  <!-- upstream card, just edited -->
+  <rect x="52" y="28" width="210" height="50" rx="9" fill="#fff" stroke="#d97706" stroke-width="1.5"/>
+  <text x="68" y="50" font-size="13" font-weight="600" fill="#24292f">Search strategy</text>
+  <text x="68" y="68" font-size="12" fill="#57606a">you just edited this ✎</text>
+  <!-- edge down -->
+  <line x1="157" y1="78" x2="157" y2="108" stroke="#6B5CE7" stroke-width="2"/>
+  <!-- downstream card, stale -->
+  <rect x="52" y="108" width="210" height="50" rx="9" fill="#fff" stroke="#d8dde3" stroke-width="1.5"/>
+  <circle cx="258" cy="112" r="6" fill="#f59e0b"/>
+  <text x="68" y="130" font-size="13" font-weight="600" fill="#24292f">Key points</text>
+  <text x="68" y="148" font-size="12" fill="#b45309">written against the old text</text>
+  <!-- the human's decision chip -->
+  <rect x="52" y="186" width="196" height="34" rx="17" fill="#fff" stroke="#eec488" stroke-width="1.5"/>
+  <text x="68" y="208" font-size="12.5" fill="#b06f10">▶ Replay 1 node · ~1.2k tok</text>
+  <text x="52" y="248" font-size="11.5" fill="#8b949e">Priced first, runs when you say so</text>
+  <!-- archived card, out of every context -->
+  <g opacity="0.4">
+    <rect x="300" y="108" width="118" height="50" rx="9" fill="#fff" stroke="#d8dde3" stroke-width="1.5"/>
+    <text x="314" y="130" font-size="13" font-weight="600" fill="#24292f">Dead end</text>
+    <text x="314" y="148" font-size="12" fill="#57606a">archived</text>
+  </g>
+  <text x="296" y="182" font-size="11" fill="#8b949e">archived = out of context</text>
+</svg>

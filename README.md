@@ -25,6 +25,8 @@
 
 ## In action
 
+One principle behind every gesture: **the human stays in the loop, the model stays on the wires**. No autonomous agent redraws your graph.
+
 <table>
 <tr>
 <td width="45%"><img src="docs/illus/reading-en.svg" alt="Illustration: a passage selected on the original page, a purple ask bubble beside it, the paragraph tagged p.3"/></td>
@@ -70,10 +72,23 @@ Three semantic-zoom tiers: full cards, takeaway plaques, an icon skeleton. Every
 
 ### ✨ The passages you marked, woven into cited prose
 
-Highlights are the content you judged worth keeping. One overview lists every mark — by time or by node, each pinpointing its source; check any subset and weave it into one passage where every sentence traces back.
+The model does not pick your highlights: they are the passages you selected and judged worth keeping. One overview lists every mark — by time or by node, each pinpointing its source; check any subset and weave it into one passage where every sentence traces back.
 
 </td>
 <td width="45%"><img src="docs/illus/weave-en.svg" alt="Illustration: a highlighted sentence in a card woven into a cited passage below, with reference numbers"/></td>
+</tr>
+</table>
+
+<table>
+<tr>
+<td width="45%"><img src="docs/illus/replay-en.svg" alt="Illustration: an upstream node just edited, the downstream answer wearing an amber stale mark, a replay chip showing the token price, and a dimmed archived card"/></td>
+<td width="55%">
+
+### 🧭 Every generation is yours to fire
+
+Edit anything upstream and the answers it invalidates light up; what replays, in what order, at what token cost — priced first, run on your command. Archived nodes exit every future context. **Every wire and every generation is a human decision.**
+
+</td>
 </tr>
 </table>
 

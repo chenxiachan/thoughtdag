@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 280" font-family="-apple-system, 'PingFang SC', 'Noto Sans SC', sans-serif">
+  <rect width="440" height="280" rx="14" fill="#f6f8fa" stroke="#d8dde3"/>
+  <!-- upstream card, just edited -->
+  <rect x="60" y="28" width="200" height="50" rx="9" fill="#fff" stroke="#d97706" stroke-width="1.5"/>
+  <text x="76" y="50" font-size="13" font-weight="600" fill="#24292f">检索策略</text>
+  <text x="76" y="68" font-size="12" fill="#57606a">刚被你改过 ✎</text>
+  <!-- edge down -->
+  <line x1="160" y1="78" x2="160" y2="108" stroke="#6B5CE7" stroke-width="2"/>
+  <!-- downstream card, stale -->
+  <rect x="60" y="108" width="200" height="50" rx="9" fill="#fff" stroke="#d8dde3" stroke-width="1.5"/>
+  <circle cx="256" cy="112" r="6" fill="#f59e0b"/>
+  <text x="76" y="130" font-size="13" font-weight="600" fill="#24292f">要点总结</text>
+  <text x="76" y="148" font-size="12" fill="#b45309">基于旧内容生成</text>
+  <!-- the human's decision chip -->
+  <rect x="60" y="186" width="176" height="34" rx="17" fill="#fff" stroke="#eec488" stroke-width="1.5"/>
+  <text x="76" y="208" font-size="13" fill="#b06f10">▶ 重放 1 个节点 · ~1.2k tok</text>
+  <text x="60" y="248" font-size="11.5" fill="#8b949e">先报价，你按下才执行</text>
+  <!-- archived card, out of every context -->
+  <g opacity="0.4">
+    <rect x="300" y="108" width="112" height="50" rx="9" fill="#fff" stroke="#d8dde3" stroke-width="1.5"/>
+    <text x="314" y="130" font-size="13" font-weight="600" fill="#24292f">死胡同</text>
+    <text x="314" y="148" font-size="12" fill="#57606a">已归档</text>
+  </g>
+  <text x="300" y="182" font-size="11.5" fill="#8b949e">归档＝退出一切上下文</text>
+</svg>
