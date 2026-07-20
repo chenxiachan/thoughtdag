@@ -9,7 +9,7 @@ import { generateId, isImeComposing , activeSummary, activeTopic, awaitingInput 
 import { processFile } from '../lib/attachments';
 import { copyText } from '../lib/export';
 import { isRunLocked } from '../lib/paradigm';
-import { useUiStore } from '../lib/ui-store';
+import { useUiStore, toast } from '../lib/ui-store';
 import SearchToggles from './ui/SearchToggles';
 import { Markdown, HighlightedMarkdown } from './Markdown';
 import FanOutModal from './FanOutModal';
@@ -177,6 +177,8 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   const handleDoubleClickQuestion = (e: React.MouseEvent) => {
     e.stopPropagation(); // inline edit, not the panel
     if (isViewerMode) return;
+    // Editing mid-generation is ambiguous by design: stop first, then edit.
+    if (data.isLoading) { toast('info', t('question.lockedWhileGenerating')); return; }
     setEditValue(data.question);
     setEditing(id, true);
   };
@@ -490,6 +492,13 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
                 rows={2}
                 autoFocus
               />
+              {/* What Enter will do is invisible without being told — the
+                  hint switches as soon as the draft actually differs. */}
+              {!isHuman && !isAwaitingAsk && (
+                <div className="text-2xs text-ink-faint mt-1 px-1">
+                  {editValue.trim() !== data.question ? t('question.editHintChanged') : t('question.editHintUnchanged')}
+                </div>
+              )}
               {isHuman && (
                 <div className="flex justify-end mt-1.5">
                   <button

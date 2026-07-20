@@ -3,6 +3,7 @@ import { useStore } from '../../store';
 import { isImeComposing } from '../../utils';
 import { useT } from '../../i18n';
 import { isViewerMode } from '../../lib/viewer';
+import { toast } from '../../lib/ui-store';
 
 export default function QuestionSection({
   nodeId,
@@ -34,6 +35,11 @@ export default function QuestionSection({
   const handleDoubleClickQuestion = () => {
     setEditValue(question);
     if (isViewerMode) return;
+    // Editing mid-generation is ambiguous by design: stop first, then edit.
+    if (useStore.getState().nodes.find((n) => n.id === nodeId)?.data.isLoading) {
+      toast('info', t('question.lockedWhileGenerating'));
+      return;
+    }
     setEditing(nodeId, true);
   };
 
@@ -59,16 +65,23 @@ export default function QuestionSection({
         </div>
       )}
       {(isEditing || awaiting) && !isViewerMode ? (
-        <textarea
-          value={editValue}
-          onChange={(e) => setEditValue(e.target.value)}
-          onKeyDown={handleEditKeyDown}
-          onBlur={awaiting || isHuman ? undefined : handleEditSubmit}
-          placeholder={placeholder}
-          className="w-full bg-wash border border-accent rounded-xl p-3 text-sm text-ink resize-none focus:outline-none focus:ring-2 focus:ring-accent/20"
-          rows={3}
-          autoFocus
-        />
+        <>
+          <textarea
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            onKeyDown={handleEditKeyDown}
+            onBlur={awaiting || isHuman ? undefined : handleEditSubmit}
+            placeholder={placeholder}
+            className="w-full bg-wash border border-accent rounded-xl p-3 text-sm text-ink resize-none focus:outline-none focus:ring-2 focus:ring-accent/20"
+            rows={3}
+            autoFocus
+          />
+          {!awaiting && !isHuman && (
+            <div className="text-2xs text-ink-faint mt-1 px-1">
+              {editValue.trim() !== question ? t('question.editHintChanged') : t('question.editHintUnchanged')}
+            </div>
+          )}
+        </>
       ) : (
         <div
           onDoubleClick={handleDoubleClickQuestion}
