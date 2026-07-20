@@ -39,6 +39,18 @@ export const createHighlightSlice: StateCreator<StoreState, [], [], HighlightSli
     }));
   },
 
+  // Material nodes (file / note / link) have no responses[] to index into —
+  // their one summary lives at slot 0, unconditionally.
+  setMaterialSummary: (nodeId: string, summary: string, topic?: string) => {
+    set((state) => ({
+      nodes: state.nodes.map((n) =>
+        n.id === nodeId
+          ? { ...n, data: { ...n.data, summaries: [summary], summaryTypes: ['insight'], summaryTopics: [topic] } }
+          : n,
+      ),
+    }));
+  },
+
   setSummary: (nodeId: string, summary: string, forResponse: string, type?: string, topic?: string) => {
     set((state) => ({
       nodes: state.nodes.map((n) => {

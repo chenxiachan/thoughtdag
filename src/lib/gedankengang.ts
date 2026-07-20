@@ -35,7 +35,14 @@ export async function generateGedankengang(nodes: ThoughtNode[], edges: ThoughtE
 
   const root = nodes.find((n) => (n.data as ThoughtData).isRoot);
   const entries = collectTimeline(nodes.filter((n) => !(n.data as ThoughtData).archived), 0);
-  const lines = entries
+  // On very large maps, feed the narrator the turns, not the full log: keep
+  // every badged line plus the first/last stretches, collapse the rest.
+  const MAX_LINES = 60;
+  const source = entries.length > MAX_LINES
+    ? entries.filter((e, i) => e.badged || i < 10 || i >= entries.length - 10)
+    : entries;
+  const omitted = entries.length - source.length;
+  const lines = source
     .map((e) => {
       const n = nodes.find((x) => x.id === e.id);
       if (!n) return null;
@@ -46,6 +53,7 @@ export async function generateGedankengang(nodes: ThoughtNode[], edges: ThoughtE
       return `- ${type && TAG[type] ? `${TAG[type]}: ` : ''}${e.topic ? `[${e.topic}] ` : ''}${s}`;
     })
     .filter((l): l is string => !!l);
+  if (omitted > 0) lines.push(`(${omitted} plain steps omitted from this list)`);
   void edges; // topology folds into creation order for now — wiring detail
 
   const raw = await llmCall([

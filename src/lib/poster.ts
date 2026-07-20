@@ -49,6 +49,27 @@ export type PosterInput = {
   lang: 'zh' | 'en';
 };
 
+/** Chronicle thinning: a poster tells the story of the TURNS, not the full
+    log. Small maps print whole; past the cap, badged turns plus the first
+    and last steps survive, and every run of skipped waypoints collapses to
+    its count (an ellipsis row — the chronicle's 中略). */
+export const POSTER_ENTRY_CAP = 22;
+export function thinEntries<T extends { badged: boolean }>(entries: T[]): (T | number)[] {
+  if (entries.length <= POSTER_ENTRY_CAP) return entries;
+  const out: (T | number)[] = [];
+  let skipped = 0;
+  entries.forEach((e, i) => {
+    if (e.badged || i === 0 || i === entries.length - 1) {
+      if (skipped > 0) { out.push(skipped); skipped = 0; }
+      out.push(e);
+    } else {
+      skipped++;
+    }
+  });
+  if (skipped > 0) out.push(skipped);
+  return out;
+}
+
 export async function drawGedankengangPoster({ title, journey, entries, lang }: PosterInput): Promise<Blob> {
   // ── measure pass: compute the height before allocating the canvas ──
   const probe = document.createElement('canvas').getContext('2d')!;
@@ -61,21 +82,29 @@ export async function drawGedankengangPoster({ title, journey, entries, lang }: 
 
   const dayOf = (iso?: string) => (iso ? iso.slice(0, 10) : '');
   probe.font = `28px ${SERIF}`;
-  type Row = { kind: 'day'; label: string } | { kind: 'entry'; e: PosterInput['entries'][number]; lines: string[] };
+  type Row =
+    | { kind: 'day'; label: string }
+    | { kind: 'entry'; e: PosterInput['entries'][number]; lines: string[] }
+    | { kind: 'skip'; n: number };
+  const kept = thinEntries(entries);
   const rows: Row[] = [];
   let prevDay = '§';
-  for (const e of entries) {
-    const day = dayOf(e.createdAt);
+  for (const item of kept) {
+    if (typeof item === 'number') {
+      rows.push({ kind: 'skip', n: item });
+      continue;
+    }
+    const day = dayOf(item.createdAt);
     if (day !== prevDay) {
       rows.push({ kind: 'day', label: day || (lang === 'zh' ? '无时间' : 'Undated') });
       prevDay = day;
     }
-    rows.push({ kind: 'entry', e, lines: wrapText(probe, e.label || '…', textW - 96).slice(0, 2) });
+    rows.push({ kind: 'entry', e: item, lines: wrapText(probe, item.label || '…', textW - 96).slice(0, 2) });
   }
 
   const headerH = 150 + titleLines.length * 64 + 30;
   const journeyH = journeyLines.length > 0 ? journeyLines.length * 44 + 70 : 0;
-  const rowsH = rows.reduce((h, r) => h + (r.kind === 'day' ? 78 : Math.max(76, 30 + r.lines.length * 38)), 0);
+  const rowsH = rows.reduce((h, r) => h + (r.kind === 'day' ? 78 : r.kind === 'skip' ? 56 : Math.max(76, 30 + r.lines.length * 38)), 0);
   const footerH = 190;
   // Content-driven height: the chronicle ends and the chop follows — no
   // dead paper between them. The floor only guards absurdly short maps.
@@ -141,6 +170,15 @@ export async function drawGedankengangPoster({ title, journey, entries, lang }: 
       ctx.font = `600 22px ${MONO}`;
       ctx.fillText(r.label, PAD + 70, y);
       y += 28;
+      continue;
+    }
+    if (r.kind === 'skip') {
+      const cy = y + 28;
+      ctx.fillStyle = '#a89a78';
+      ctx.beginPath(); ctx.arc(spineX, cy - 8, 3, 0, Math.PI * 2); ctx.fill();
+      ctx.font = `italic 24px ${SERIF}`;
+      ctx.fillText(lang === 'zh' ? `⋯ 中略 ${r.n} 步` : `⋯ ${r.n} steps pass`, PAD + 70, cy);
+      y += 56;
       continue;
     }
     const rowH = Math.max(76, 30 + r.lines.length * 38);

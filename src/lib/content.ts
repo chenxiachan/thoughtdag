@@ -74,6 +74,25 @@ export function clipboardTextToMarkdown(text: string): string {
 }
 
 /** Add files to a content node; a filled material slot advances a waiting run. */
+/** One judge call turns a material's extracted text into the micro
+    topic + one-line takeaway the map surfaces show — so a dropped PDF reads
+    as "review methodology guide", not "smith2024.pdf". Fire-and-forget;
+    short materials skip the call (their name is label enough). */
+export function generateMaterialSummary(nodeId: string, name: string, text: string): void {
+  if (text.length < 400) return;
+  const node = useStore.getState().nodes.find((n) => n.id === nodeId);
+  if (!node || !isContentKind(node.data.stepKind)) return;
+  llmCall([
+    { role: 'user', content: `A source material on a thinking map:\n\n[${name}]\n${text.slice(0, 6000)}\n\nCompress it for a map plaque. Output exactly ONE line in the format: topic | takeaway\n\ntopic: the subject as a bare noun phrase. Hard limit: 6 characters for CJK languages, 14 characters otherwise.\n\ntakeaway: what this material contains or claims, one plain clause. Hard limit: 18 characters for CJK languages, 40 characters otherwise.\n\nBoth in the material's own language. Never use dash characters (—, –, -); use commas or colons instead. Output only that one line.` },
+  ]).then((raw) => {
+    const line = raw.trim().split('\n')[0].trim();
+    const m = line.match(/^([^|｜]+?)\s*[|｜]\s*(.+)$/s);
+    const topic = m ? m[1].trim() : undefined;
+    const claim = m ? m[2].trim() : line;
+    if (claim) useStore.getState().setMaterialSummary(nodeId, claim, topic);
+  }).catch(() => {});
+}
+
 export async function ingestFiles(nodeId: string, files: FileList | File[]): Promise<void> {
   for (const file of Array.from(files)) {
     await processFile(file, {
@@ -88,6 +107,10 @@ export async function ingestFiles(nodeId: string, files: FileList | File[]): Pro
         useStore.getState().setAttachmentData(nodeId, attId, patch);
         // PDF text arrives late — re-check readiness after extraction
         triggerParadigmCascade(useStore.getState, nodeId);
+        if (patch.extractedText) {
+          const att = useStore.getState().nodes.find((n) => n.id === nodeId)?.data.attachments?.find((a) => a.id === attId);
+          generateMaterialSummary(nodeId, att?.name ?? '', patch.extractedText);
+        }
       },
     });
   }
@@ -187,6 +210,7 @@ export async function extractImage(nodeId: string, attId: string): Promise<void>
         model.id,
       );
       useStore.getState().setAttachmentData(nodeId, attId, { isExtracting: false, extractedText: text.trim(), extractedBy: model.id });
+      generateMaterialSummary(nodeId, att.name, text.trim());
       if (failures.length > 0) {
         toast('info', `${t('content.extractFellBack')} ${model.name} — ${failures.join('; ')}`);
       }

@@ -104,7 +104,8 @@ export interface HighlightSlice {
   addHighlight: (nodeId: string, highlight: Highlight) => void;
   removeHighlight: (nodeId: string, highlightId: string) => void;
   setHighlightMode: (nodeId: string, mode: 'off' | 'tag' | 'filter') => void;
-  setSummary: (nodeId: string, summary: string, forResponse: string, type?: string) => void;
+  setSummary: (nodeId: string, summary: string, forResponse: string, type?: string, topic?: string) => void;
+  setMaterialSummary: (nodeId: string, summary: string, topic?: string) => void;
 }
 
 export interface EvaluatorSlice {

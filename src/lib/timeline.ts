@@ -40,6 +40,15 @@ const last = (arr?: (string | undefined)[]) => {
   return undefined;
 };
 
+/** Material nodes have no question — their name IS the label: the file's
+    own name, the link's title, the note's first line. */
+function materialName(d: ThoughtData): string | undefined {
+  if (d.stepKind === 'file') return d.attachments?.[0]?.name;
+  if (d.stepKind === 'link') return d.linkTitle || d.linkUrl;
+  if (d.stepKind === 'note') return d.question?.split('\n')[0].replace(/^#+\s*/, '') || undefined;
+  return undefined;
+}
+
 export function collectTimeline(nodes: ThoughtNode[], now: number): TimelineEntry[] {
   return nodes
     .filter((n) => (n.data as ThoughtData).stepKind !== 'frame')
@@ -58,7 +67,7 @@ export function collectTimeline(nodes: ThoughtNode[], now: number): TimelineEntr
       return {
         entry: {
           id: n.id,
-          label: (summary || d.question || '').slice(0, 60),
+          label: (summary || materialName(d) || d.question || '').slice(0, 60),
           topic,
           badged: !!type && type !== 'insight',
           type: type ?? undefined,
