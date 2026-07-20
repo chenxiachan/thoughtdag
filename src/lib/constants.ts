@@ -19,7 +19,9 @@ export const NODE_CSS_WIDTH = 520;
 // no more — a denser canvas keeps more of the graph in one glance.
 export const LAYOUT_COL_WIDTH = 540;
 export const LAYOUT_H_GAP = 48;
-export const LAYOUT_V_GAP = 64;
+// 72 is lifted from a real working canvas — the density its author settled
+// into by hand, adopted as the default.
+export const LAYOUT_V_GAP = 72;
 
 // Collapsed node card height, used by layout estimation and collapse shifting.
 export const COLLAPSED_NODE_HEIGHT = 80;
