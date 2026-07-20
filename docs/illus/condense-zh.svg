@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 280" font-family="-apple-system, 'PingFang SC', 'Noto Sans SC', sans-serif">
+  <rect width="440" height="280" rx="14" fill="#f6f8fa" stroke="#d8dde3"/>
+  <!-- three small cards with highlights -->
+  <g>
+    <rect x="36" y="30" width="112" height="44" rx="8" fill="#fff" stroke="#d8dde3" stroke-width="1.5"/>
+    <rect x="46" y="40" width="80" height="10" rx="3" fill="#fde9b8"/>
+    <rect x="46" y="56" width="60" height="7" rx="3" fill="#eceaf2"/>
+  </g>
+  <g>
+    <rect x="164" y="30" width="112" height="44" rx="8" fill="#fff" stroke="#d8dde3" stroke-width="1.5"/>
+    <rect x="174" y="40" width="52" height="7" rx="3" fill="#eceaf2"/>
+    <rect x="174" y="53" width="88" height="10" rx="3" fill="#fde9b8"/>
+  </g>
+  <g>
+    <rect x="292" y="30" width="112" height="44" rx="8" fill="#fff" stroke="#d8dde3" stroke-width="1.5"/>
+    <rect x="302" y="40" width="72" height="10" rx="3" fill="#fde9b8"/>
+    <rect x="302" y="56" width="84" height="7" rx="3" fill="#eceaf2"/>
+  </g>
+  <!-- converging wires -->
+  <path d="M 92 74 C 92 100, 180 100, 200 118" stroke="#6B5CE7" stroke-width="2" fill="none"/>
+  <path d="M 220 74 L 220 118" stroke="#6B5CE7" stroke-width="2"/>
+  <path d="M 348 74 C 348 100, 260 100, 240 118" stroke="#6B5CE7" stroke-width="2" fill="none"/>
+  <!-- condensed card -->
+  <rect x="128" y="118" width="184" height="58" rx="9" fill="#fff" stroke="#b0a7f0" stroke-width="1.8"/>
+  <text x="144" y="140" font-size="13" font-weight="600" fill="#24292f">综合：一条更高的结论</text>
+  <text x="144" y="160" font-size="12" fill="#57606a">结论 · 证据 · 未解问题</text>
+  <!-- mini timeline below -->
+  <line x1="70" y1="222" x2="370" y2="222" stroke="#c9c3da" stroke-width="1.5"/>
+  <circle cx="100" cy="222" r="5" fill="#b8b3c7"/>
+  <rect x="150" y="214" width="16" height="16" rx="5" fill="#d4574e"/>
+  <circle cx="220" cy="222" r="5" fill="#b8b3c7"/>
+  <rect x="268" y="214" width="16" height="16" rx="5" fill="#5f51cf"/>
+  <rect x="330" y="214" width="16" height="16" rx="5" fill="#25a06b"/>
+  <text x="220" y="256" font-size="11.5" fill="#8b949e" text-anchor="middle">时间轴回看：思路从哪出发，在哪转弯</text>
+  <text x="158" y="226" font-size="10.5" fill="#fff" text-anchor="middle">✕</text>
+  <text x="276" y="226" font-size="10.5" fill="#fff" text-anchor="middle">⚖</text>
+  <text x="338" y="226" font-size="10.5" fill="#fff" text-anchor="middle">✦</text>
+</svg>

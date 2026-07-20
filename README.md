@@ -11,7 +11,7 @@
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Status](https://img.shields.io/badge/status-active_development-6B5CE7)
 
-**[▶ Try it live](https://app.thoughtdag.workers.dev)** — no install, no signup; the example canvas needs no key
+**[▶ Try it live](https://app.thoughtdag.workers.dev)**: no install, no signup; the example canvas needs no key
 
 [中文](./README_ZH.md) · [Quick start](#quick-start) · [More capabilities](#more-capabilities) · [Models](#supported-models) · [Cost & privacy](#cost--privacy)
 
@@ -58,9 +58,9 @@ Merging branches is drawing a wire; pruning memory is deleting one; archived nod
 <td width="45%"><img src="docs/illus/map-en.svg" alt="Illustration: three takeaway plaques with ruled-out, decided and pivoted badges, linked by dashed lines"/></td>
 <td width="55%">
 
-### 🗺️ Zoom out — thinking becomes a map
+### 🗺️ Zoom out: thinking becomes a map
 
-Three semantic-zoom tiers: full cards, takeaway plaques, an icon skeleton. Every step wears a cognitive badge — ✕ ruled out · ⚖ decided · ↩ pivoted · ? open. Seals keep a fixed screen size, so the far view stays dense. **The detours you took are part of the map.**
+Three semantic-zoom tiers: full cards, takeaway plaques, an icon skeleton. Every step wears a cognitive badge: ✕ ruled out · ⚖ decided · ↩ pivoted · ? open. Seals keep a fixed screen size, so the far view stays dense. **The detours you took are part of the map.**
 
 </td>
 </tr>
@@ -72,7 +72,7 @@ Three semantic-zoom tiers: full cards, takeaway plaques, an icon skeleton. Every
 
 ### ✨ The passages you marked, woven into cited prose
 
-The model does not pick your highlights: they are the passages you selected and judged worth keeping. One overview lists every mark — by time or by node, each pinpointing its source; check any subset and weave it into one passage where every sentence traces back.
+The model does not pick your highlights: they are the passages you selected and judged worth keeping. One overview lists every mark, by time or by node, each pinpointing its source; check any subset and weave it into one passage where every sentence traces back.
 
 </td>
 <td width="45%"><img src="docs/illus/weave-en.svg" alt="Illustration: a highlighted sentence in a card woven into a cited passage below, with reference numbers"/></td>
@@ -81,12 +81,12 @@ The model does not pick your highlights: they are the passages you selected and 
 
 <table>
 <tr>
-<td width="45%"><img src="docs/illus/replay-en.svg" alt="Illustration: an upstream node just edited, the downstream answer wearing an amber stale mark, a replay chip showing the token price, and a dimmed archived card"/></td>
+<td width="45%"><img src="docs/illus/condense-en.svg" alt="Illustration: three small highlighted cards converge through wires into one synthesis card, above a small timeline with cognitive badges"/></td>
 <td width="55%">
 
-### 🧭 Every generation is yours to fire
+### 🔄 Thinking condenses in your hands
 
-Edit anything upstream and the answers it invalidates light up; what replays, in what order, at what token cost — priced first, run on your command. Archived nodes exit every future context. **Every wire and every generation is a human decision.**
+Your highlights weave into cited summaries at any moment; box-select a few nodes and merge them into one higher conclusion. The graph keeps folding inward instead of sprawling. The timeline and the journey paragraph let you look back at any point: where this line of thought started, and where it turned. **The human refines in the loop; the model answers on the wires.**
 
 </td>
 </tr>
@@ -109,7 +109,7 @@ The first launch opens a seeded example canvas: four chapters around one everyda
 
 | Capability | What it does |
 |------------|--------------|
-| 📤 Read-only share | One link carries the whole graph — no account, no server storage |
+| 📤 Read-only share | One link carries the whole graph: no account, no server storage |
 | 🧭 Staleness & replay | Upstream edits mark the answers they invalidate; replay in dependency order, token estimate first |
 | 🧪 Paradigms | Human-machine workflows saved as files; change the input, replay the experiment |
 | 🔌 Any model | Per-node pins that follow the line; image requests reroute to vision models automatically |
@@ -124,7 +124,7 @@ Zhipu · Qwen · OpenAI · Anthropic · Google · DeepSeek · Kimi · OpenRouter
 ## Cost & privacy
 
 - **The free model tier covers every feature**; a local Ollama runs fully offline
-- **On the hosted demo, model traffic runs browser-direct** — keys never touch the server
+- **On the hosted demo, model traffic runs browser-direct**: keys never touch the server
 - **PDFs never leave your machine**; only extracted text travels when you ask
 - **The backup format stays backward compatible**; Markdown export is the permanent escape hatch
 
