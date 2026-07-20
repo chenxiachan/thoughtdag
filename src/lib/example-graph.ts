@@ -437,5 +437,15 @@ export function buildExampleGraph(lang: Lang): { nodes: ThoughtNode[]; edges: Th
     E('brief', 'brief-digest'),
   ];
 
+  // Seed a believable three-day history so the timeline rail and its date
+  // ticks work on first contact: creation times march forward in canvas
+  // order, with two overnight jumps splitting the story across days.
+  const stepMin = [0, 45, 30, 70, 40, 55, 900, 35, 50, 45, 60, 40, 980, 30, 55, 40, 65, 45, 50, 35];
+  let t = Date.now() - 3 * 24 * 3600 * 1000;
+  nodes.forEach((n, i) => {
+    t += (stepMin[i % stepMin.length] || 45) * 60 * 1000;
+    n.data.createdAt = new Date(t).toISOString();
+  });
+
   return { nodes, edges };
 }
