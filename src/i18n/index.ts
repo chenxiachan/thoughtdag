@@ -48,3 +48,11 @@ export function t(key: MessageKey): string {
 export function fmt(template: string, params: Record<string, string | number>): string {
   return template.replace(/\{(\w+)\}/g, (_, k) => String(params[k] ?? ''));
 }
+
+/** Date/time locale that FOLLOWS THE UI LANGUAGE, not the OS locale — an
+    English interface shows English-formatted dates even on a zh system.
+    Reactive; components re-render on language switch. */
+export function useDateLocale(): string {
+  const lang = useI18n((s) => s.lang);
+  return lang === 'zh' ? 'zh-CN' : 'en-US';
+}

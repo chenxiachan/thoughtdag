@@ -8,7 +8,7 @@ import { processFile } from './attachments';
 import { fetchUrlSnapshot, llmCall } from './api';
 import { getModelsOnce } from './use-models';
 import { toast, useUiStore } from './ui-store';
-import { t, fmt } from '../i18n';
+import { t, fmt, useI18n } from '../i18n';
 
 // Content nodes: canvas material (note / file / link). Shared creation and
 // ingestion used by the palette, canvas paste, and canvas drop.
@@ -82,8 +82,12 @@ export function generateMaterialSummary(nodeId: string, name: string, text: stri
   if (text.length < 400) return;
   const node = useStore.getState().nodes.find((n) => n.id === nodeId);
   if (!node || !isContentKind(node.data.stepKind)) return;
+  // Labels follow the INTERFACE language (the digest precedent): an English
+  // paper on a Chinese map gets a Chinese plaque — the map speaks to its
+  // reader, the material keeps its own language inside.
+  const labelLang = useI18n.getState().lang === 'zh' ? 'Chinese' : 'English';
   llmCall([
-    { role: 'user', content: `A source material on a thinking map:\n\n[${name}]\n${text.slice(0, 6000)}\n\nCompress it for a map plaque. Output exactly ONE line in the format: topic | takeaway\n\ntopic: the subject as a bare noun phrase. Hard limit: 6 characters for CJK languages, 14 characters otherwise.\n\ntakeaway: what this material contains or claims, one plain clause. Hard limit: 18 characters for CJK languages, 40 characters otherwise.\n\nBoth in the material's own language. Never use dash characters (—, –, -); use commas or colons instead. Output only that one line.` },
+    { role: 'user', content: `A source material on a thinking map:\n\n[${name}]\n${text.slice(0, 6000)}\n\nCompress it for a map plaque. Output exactly ONE line in the format: topic | takeaway\n\ntopic: the subject as a bare noun phrase. Hard limit: 6 characters for CJK languages, 14 characters otherwise.\n\ntakeaway: what this material contains or claims, one plain clause. Hard limit: 18 characters for CJK languages, 40 characters otherwise.\n\nBoth in ${labelLang} (the reader's interface language), regardless of the material's language. Never use dash characters (—, –, -); use commas or colons instead. Output only that one line.` },
   ]).then((raw) => {
     const line = raw.trim().split('\n')[0].trim();
     const m = line.match(/^([^|｜]+?)\s*[|｜]\s*(.+)$/s);

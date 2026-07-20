@@ -4,7 +4,7 @@ import { useReactFlow, useStore as useRfStore } from '@xyflow/react';
 import { useStore } from '../../store';
 import { useUiStore } from '../../lib/ui-store';
 import { useZoomTier } from '../../lib/use-map-mode';
-import { useT } from '../../i18n';
+import { useDateLocale, useT } from '../../i18n';
 import { collectTimeline } from '../../lib/timeline';
 
 // The map's second axis. Space answers "where is it in the graph"; this rail
@@ -34,6 +34,7 @@ export function TimelineBar() {
   const setOverviewOpen = useUiStore((s) => s.setTimelineOverviewOpen);
   const rf = useReactFlow();
   const t = useT();
+  const dateLocale = useDateLocale();
   const [hover, setHover] = useState<{ id: string; idx: number; y: number } | null>(null);
   // Clock for the "recently edited" glow — a state tick keeps the memo pure
   // and lets stale glows actually fade out during long sessions.
@@ -63,7 +64,7 @@ export function TimelineBar() {
 
   const dayOf = (iso?: string) => (iso ? iso.slice(0, 10) : '');
   const fmtDay = (iso: string) => iso.slice(5).replace('-', '/');
-  const fmtTime = (iso?: string) => (iso ? new Date(iso).toLocaleString() : '');
+  const fmtTime = (iso?: string) => (iso ? new Date(iso).toLocaleString(dateLocale) : '');
   const hovered = hover ? entries.find((e) => e.id === hover.id) : null;
 
   return (

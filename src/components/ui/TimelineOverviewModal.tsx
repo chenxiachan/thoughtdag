@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { History, ImageDown, Sparkles, X } from 'lucide-react';
 import { useStore } from '../../store';
 import { useUiStore } from '../../lib/ui-store';
-import { useI18n, useT, fmt } from '../../i18n';
+import { useDateLocale, useI18n, useT, fmt } from '../../i18n';
 import { collectTimeline } from '../../lib/timeline';
 import { generateGedankengang, getCached, graphFingerprint, type Gedankengang } from '../../lib/gedankengang';
 import { exportGedankengangPoster } from '../../lib/poster';
@@ -19,6 +19,7 @@ export default function TimelineOverviewModal({ onLocate }: { onLocate: (nodeId:
   const setOpen = useUiStore((s) => s.setTimelineOverviewOpen);
   const nodes = useStore((s) => s.nodes);
   const t = useT();
+  const dateLocale = useDateLocale();
   // The modal never renders the recent-edit glow, so the clock is moot: 0.
   const entries = useMemo(() => collectTimeline(nodes, 0), [nodes]);
   // The journey paragraph: session-cached by graph fingerprint, so reopening
@@ -54,7 +55,7 @@ export default function TimelineOverviewModal({ onLocate }: { onLocate: (nodeId:
   const close = () => setOpen(false);
   const dayOf = (iso?: string) => (iso ? iso.slice(0, 10) : '');
   const fmtClock = (iso?: string) =>
-    iso ? new Date(iso).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) : '—';
+    iso ? new Date(iso).toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' }) : '—';
 
   return createPortal((
     <div className="fixed inset-0 z-[60] bg-ink/30 backdrop-blur-sm flex items-center justify-center p-6" onClick={close}>
@@ -100,7 +101,7 @@ export default function TimelineOverviewModal({ onLocate }: { onLocate: (nodeId:
               <p className="text-sm text-ink leading-relaxed">{shown.text}</p>
               <div className="flex items-center gap-2 mt-1.5">
                 <span className="text-2xs text-ink-faint">
-                  {stale ? t('tlov.gedankenStale') : new Date(shown.at).toLocaleString()}
+                  {stale ? t('tlov.gedankenStale') : new Date(shown.at).toLocaleString(dateLocale)}
                 </span>
                 {stale && (
                   <button onClick={writeJourney} className="text-2xs text-accent hover:underline">
@@ -137,7 +138,7 @@ export default function TimelineOverviewModal({ onLocate }: { onLocate: (nodeId:
                       {e.label || '…'}
                     </p>
                     {e.modifiedAt && e.modifiedAt !== e.createdAt && (
-                      <p className="text-2xs text-ink-faint">{t('timeline.modified')} {new Date(e.modifiedAt).toLocaleString()}</p>
+                      <p className="text-2xs text-ink-faint">{t('timeline.modified')} {new Date(e.modifiedAt).toLocaleString(dateLocale)}</p>
                     )}
                   </div>
                   <button

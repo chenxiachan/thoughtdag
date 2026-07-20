@@ -18,7 +18,7 @@ function relativeTime(ts: number): string {
   if (h < 24) return fmt(ti('switcher.hourAgo'), { n: h });
   const d = Math.floor(h / 24);
   if (d < 30) return fmt(ti('switcher.dayAgo'), { n: d });
-  return new Date(ts).toLocaleDateString();
+  return new Date(ts).toLocaleDateString(useI18n.getState().lang === 'zh' ? 'zh-CN' : 'en-US');
 }
 
 export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void }) {
