@@ -29,12 +29,12 @@ One principle behind every gesture: **the human stays in the loop, the model sta
 
 <table>
 <tr>
-<td width="45%"><img src="docs/illus/reading-en.svg" alt="Illustration: a passage selected on the original page, a purple ask bubble beside it, the paragraph tagged p.3"/></td>
+<td width="45%"><img src="docs/illus/prune-en.svg" alt="Illustration: the research chain wired to a summary node, with the edge to a dinner node cut into a red dashed line"/></td>
 <td width="55%">
 
-### 📖 Read a paper into a map
+### ✂️ Delete one edge, get a different answer
 
-Read the original pages; select a passage and ask. The answer streams in beside the document, and the question lands on the canvas wired to the material, page number included; asked passages keep a mark, and the node's p.N chip jumps straight back to that page. **By the time you finish the paper, the map is already drawn.**
+The model sees only what wires in. Delete the noise edge, ask again, and the same prompt returns a clean answer. **Reproduce it in chapter ③ of the example canvas.**
 
 </td>
 </tr>
@@ -44,12 +44,38 @@ Read the original pages; select a passage and ask. The answer streams in beside 
 <tr>
 <td width="55%">
 
-### 🧠 Delete one edge, get a different answer
+### 📖 Read a paper into a map
 
-Merging branches is drawing a wire; pruning memory is deleting one; archived nodes exit every future context. The claim is testable: keep the prompt identical, delete the noise edge, and the same question returns a clean answer. **Reproduce it yourself in chapter ③ of the example canvas.**
+Select a passage, ask right there. The answer lands on the canvas with its page number, and the p.N chip jumps back to the page. **Finish the paper, and the map is drawn.**
 
 </td>
-<td width="45%"><img src="docs/illus/prune-en.svg" alt="Illustration: the research chain wired to a summary node, with the edge to a dinner node cut into a red dashed line"/></td>
+<td width="45%"><img src="docs/illus/reading-en.svg" alt="Illustration: a passage selected on the original page, a purple ask bubble beside it, the paragraph tagged p.3"/></td>
+</tr>
+</table>
+
+<table>
+<tr>
+<td width="45%"><img src="docs/illus/condense-en.svg" alt="Illustration: three small highlighted cards converge through wires into one synthesis card, above a small timeline with cognitive badges"/></td>
+<td width="55%">
+
+### 💎 Thinking condenses in your hands
+
+Merge nodes into one higher conclusion; weave highlights into a summary. The graph folds inward instead of sprawling. **The human refines in the loop.**
+
+</td>
+</tr>
+</table>
+
+<table>
+<tr>
+<td width="55%">
+
+### 🖍️ The passages you marked, woven into cited prose
+
+Highlights are your judgment, not the model's. Check any subset and weave one passage where every sentence traces back.
+
+</td>
+<td width="45%"><img src="docs/illus/weave-en.svg" alt="Illustration: a highlighted sentence in a card woven into a cited passage below, with reference numbers"/></td>
 </tr>
 </table>
 
@@ -60,33 +86,7 @@ Merging branches is drawing a wire; pruning memory is deleting one; archived nod
 
 ### 🗺️ Zoom out: thinking becomes a map
 
-Three semantic-zoom tiers: full cards, takeaway plaques, an icon skeleton. Every step wears a cognitive badge: ✕ ruled out · ⚖ decided · ↩ pivoted · ? open. Seals keep a fixed screen size, so the far view stays dense. **The detours you took are part of the map.**
-
-</td>
-</tr>
-</table>
-
-<table>
-<tr>
-<td width="55%">
-
-### ✨ The passages you marked, woven into cited prose
-
-The model does not pick your highlights: they are the passages you selected and judged worth keeping. One overview lists every mark, by time or by node, each pinpointing its source; check any subset and weave it into one passage where every sentence traces back.
-
-</td>
-<td width="45%"><img src="docs/illus/weave-en.svg" alt="Illustration: a highlighted sentence in a card woven into a cited passage below, with reference numbers"/></td>
-</tr>
-</table>
-
-<table>
-<tr>
-<td width="45%"><img src="docs/illus/condense-en.svg" alt="Illustration: three small highlighted cards converge through wires into one synthesis card, above a small timeline with cognitive badges"/></td>
-<td width="55%">
-
-### 🔄 Thinking condenses in your hands
-
-Your highlights weave into cited summaries at any moment; box-select a few nodes and merge them into one higher conclusion. The graph keeps folding inward instead of sprawling. The timeline and the journey paragraph let you look back at any point: where this line of thought started, and where it turned. **The human refines in the loop; the model answers on the wires.**
+Full cards, takeaway plaques, an icon skeleton: three semantic tiers, every step badged ✕ ⚖ ↩ ?. **The detours are part of the map.**
 
 </td>
 </tr>
