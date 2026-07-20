@@ -31,25 +31,22 @@ export interface ProviderPreset {
 }
 
 export const PROVIDER_PRESETS: ProviderPreset[] = [
-  // GLM leads: a free-tier model and the fewest integration quirks make it
-  // the smoothest first key. International endpoint first for the demo.
-  { id: 'zai', name: 'Z.ai GLM', region: 'en', baseURL: 'https://api.z.ai/api/paas/v4', keyUrl: 'https://z.ai', recommend: ['glm-4.5-flash', 'glm-5'] },
-  { id: 'zhipu', name: '智谱 GLM', region: 'zh', baseURL: 'https://open.bigmodel.cn/api/paas/v4', keyUrl: 'https://open.bigmodel.cn', recommend: ['glm-4.5-flash', 'glm-4v-flash', 'glm-5'] },
-  // Google AI Studio keys are free without a card, and the Gemini API's
-  // OpenAI-compatible endpoint allows browser CORS — for many users abroad
-  // this is the lowest-friction key there is (a Google account suffices).
-  // Recommend only the models whose FREE-tier rate limits are livable:
-  // flash-lite has the highest free RPM, flash next. Pro's free quota is a
-  // handful of requests per minute — with the takeaway judge doubling our
-  // calls, it 429s almost immediately, so it stays off this list.
-  { id: 'google', name: 'Google AI Studio', baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai', keyUrl: 'https://aistudio.google.com/apikey', recommend: ['gemini-2.5-flash', 'gemini-2.5-flash-lite'] },
+  // OpenRouter leads: one key reaches 300+ models, free-tier ones included
+  // — the widest first door. GLM next: a generous free tier with the fewest
+  // integration quirks (international endpoint shown on the en UI).
   {
     id: 'openrouter', name: 'OpenRouter', baseURL: 'https://openrouter.ai/api/v1',
     keyUrl: 'https://openrouter.ai/keys',
     recommend: ['openrouter/auto', 'anthropic/claude-sonnet-5', 'openai/gpt-5.5', 'google/gemini-3.1-pro-preview', 'deepseek/deepseek-v4-pro', 'z-ai/glm-5', 'qwen/qwen3.7-max', 'moonshotai/kimi-k2.6'],
   },
+  { id: 'zai', name: 'Z.ai GLM', region: 'en', baseURL: 'https://api.z.ai/api/paas/v4', keyUrl: 'https://z.ai', recommend: ['glm-4.5-flash', 'glm-5'] },
+  { id: 'zhipu', name: '智谱 GLM', region: 'zh', baseURL: 'https://open.bigmodel.cn/api/paas/v4', keyUrl: 'https://open.bigmodel.cn', recommend: ['glm-4.5-flash', 'glm-4v-flash', 'glm-5'] },
   { id: 'deepseek', name: 'DeepSeek', baseURL: 'https://api.deepseek.com/v1', keyUrl: 'https://platform.deepseek.com/api_keys' },
   { id: 'openai', name: 'OpenAI', baseURL: 'https://api.openai.com/v1', keyUrl: 'https://platform.openai.com/api-keys' },
+  // Google AI Studio: keys are free without a card, but the free tier
+  // meters requests per minute tightly (and the takeaway judge doubles our
+  // calls) — kept as an option near the back, not a headline path.
+  { id: 'google', name: 'Google AI Studio', baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai', keyUrl: 'https://aistudio.google.com/apikey', recommend: ['gemini-2.5-flash', 'gemini-2.5-flash-lite'] },
   { id: 'moonshot-intl', name: 'Kimi', region: 'en', baseURL: 'https://api.moonshot.ai/v1', keyUrl: 'https://platform.moonshot.ai/console/api-keys' },
   { id: 'moonshot', name: 'Kimi', region: 'zh', baseURL: 'https://api.moonshot.cn/v1', keyUrl: 'https://platform.moonshot.cn/console/api-keys' },
   { id: 'ollama', name: 'Ollama', baseURL: 'http://localhost:11434/v1', noKey: true },
