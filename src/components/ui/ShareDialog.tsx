@@ -14,7 +14,13 @@ import { exportGedankengangPoster } from '../../lib/poster';
 // the picture does the talking and the link does the pointing. Platform
 // names are functional identifiers (each button opens that platform).
 
-const REPO_URL = 'https://github.com/chenxiachan/thoughtdag';
+// The link follows the UI language: a zh share lands the reader on the
+// Chinese README, an en share on the repo front page. GitHub's social
+// preview image covers both, so the unfurl card stays identical.
+const REPO_URL = {
+  en: 'https://github.com/chenxiachan/thoughtdag',
+  zh: 'https://github.com/chenxiachan/thoughtdag/blob/main/README_ZH.md',
+};
 
 export default function ShareDialog() {
   const url = useUiStore((s) => s.shareDialogUrl);
@@ -43,9 +49,10 @@ export default function ShareDialog() {
   };
 
   const socialText = lang === 'zh' ? 'ThoughtDAG — 思考值得一张地图' : 'ThoughtDAG — your thinking deserves a map';
+  const repo = REPO_URL[lang];
   const targets = [
-    { name: 'X', href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(socialText)}&url=${encodeURIComponent(REPO_URL)}` },
-    { name: 'LinkedIn', href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(REPO_URL)}` },
+    { name: 'X', href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(socialText)}&url=${encodeURIComponent(repo)}` },
+    { name: 'LinkedIn', href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(repo)}` },
   ];
 
   return createPortal((
