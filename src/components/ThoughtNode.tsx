@@ -61,6 +61,13 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   const isWaitingUpstream = data.stepKind === 'prompt' && !data.response && !data.isLoading && !data.generationFailed;
   const isParadigmNode = isHuman || data.stepKind === 'prompt';
   const isAwaitingAsk = awaiting === 'ask';
+  // isEditing is node-level state shared with the focus panel. When the
+  // panel is open on THIS node, the panel owns the editor: rendering a
+  // second textarea here made the two fight over focus, and the loser's
+  // blur-submit closed both within one frame (the "double-click does
+  // nothing" bug). Pending asks / human turns keep their card box — the
+  // panel renders those read-only.
+  const panelOwnsEditor = useUiStore((s) => s.panelOpen) && selectedNodeId === id && !isParadigmNode;
   // While any paradigm step is incomplete the run is in progress: structure
   // is fixed (no follow-ups, no deletion) until the performance finishes.
   const runLocked = useStore((s) => isParadigmNode && isRunLocked(s.nodes));
@@ -477,7 +484,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
             </div>
           )}
           {/* Question */}
-          {data.isEditing || isAwaitingHuman || isAwaitingAsk ? (
+          {(data.isEditing && !panelOwnsEditor) || isAwaitingHuman || isAwaitingAsk ? (
             <div>
               <textarea
                 value={editValue}
