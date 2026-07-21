@@ -130,26 +130,12 @@ npm run dev       # → localhost:5173
 - **PDF 不离机**，只有提取文本随提问发出
 - **备份格式向后兼容**；Markdown 导出是永久逃生门
 
-## 引用
-
-如果 ThoughtDAG 在你的研究中发挥了作用，请引用（GitHub 的 "Cite this repository" 按钮使用仓库内的 `CITATION.cff`）：
-
-```bibtex
-@software{thoughtdag,
-  author = {Chen, Xia},
-  title  = {ThoughtDAG: an instrument for legible human-AI collaboration},
-  url    = {https://github.com/chenxiachan/thoughtdag},
-  year   = {2026},
-  license = {MIT}
-}
-```
-
 ---
 
 <div align="center">
 
 *图无环，环是人。*
 
-[MIT](./LICENSE) © 2026 Xia Chen · [Roadmap](docs/features_ZH.md#roadmap) · [反馈](https://github.com/chenxiachan/thoughtdag/issues)
+[MIT](./LICENSE) © 2026 Xia Chen · [Roadmap](docs/features_ZH.md#roadmap) · [反馈](https://github.com/chenxiachan/thoughtdag/issues) · [引用](https://github.com/chenxiachan/thoughtdag#cite-this-repository)
 
 </div>

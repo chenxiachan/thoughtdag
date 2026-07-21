@@ -130,26 +130,12 @@ Zhipu · Qwen · OpenAI · Anthropic · Google · DeepSeek · Kimi · OpenRouter
 - **PDFs never leave your machine**; only extracted text travels when you ask
 - **The backup format stays backward compatible**; Markdown export is the permanent escape hatch
 
-## How to cite
-
-If ThoughtDAG plays a role in your research, please cite it (GitHub's "Cite this repository" button uses the bundled `CITATION.cff`):
-
-```bibtex
-@software{thoughtdag,
-  author = {Chen, Xia},
-  title  = {ThoughtDAG: an instrument for legible human-AI collaboration},
-  url    = {https://github.com/chenxiachan/thoughtdag},
-  year   = {2026},
-  license = {MIT}
-}
-```
-
 ---
 
 <div align="center">
 
 *The graph is acyclic. You are the loop.*
 
-[MIT](./LICENSE) © 2026 Xia Chen · [Roadmap](docs/features.md#roadmap) · [Feedback](https://github.com/chenxiachan/thoughtdag/issues)
+[MIT](./LICENSE) © 2026 Xia Chen · [Roadmap](docs/features.md#roadmap) · [Feedback](https://github.com/chenxiachan/thoughtdag/issues) · [Cite](https://github.com/chenxiachan/thoughtdag#cite-this-repository)
 
 </div>
