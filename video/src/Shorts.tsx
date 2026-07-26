@@ -195,7 +195,7 @@ const EndBeat: React.FC<{ lang: Lang }> = ({ lang }) => {
 
 // Soundtrack: drop a track as video/public/bgm.mp3 (YouTube Audio Library
 // is safe and free for YouTube use), then flip this to true and re-render.
-const WITH_BGM = false;
+const WITH_BGM = true;
 
 export const Shorts: React.FC<{ lang: Lang }> = ({ lang }) => {
   const t = TYPE[lang];
