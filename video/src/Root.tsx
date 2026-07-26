@@ -1,7 +1,7 @@
 import React from 'react';
 import { Composition } from 'remotion';
 import { Hero, HERO_DURATION } from './Hero';
-import { ShortsEn, SHORTS_DURATION, SHORTS_SIZE } from './ShortsEn';
+import { Shorts, SHORTS_DURATION, SHORTS_SIZE } from './Shorts';
 
 export const Root: React.FC = () => (
   <>
@@ -25,11 +25,21 @@ export const Root: React.FC = () => (
     />
     <Composition
       id="ShortsEn"
-      component={ShortsEn}
+      component={Shorts}
       durationInFrames={SHORTS_DURATION}
       fps={SHORTS_SIZE.fps}
       width={SHORTS_SIZE.width}
       height={SHORTS_SIZE.height}
+      defaultProps={{ lang: 'en' as const }}
+    />
+    <Composition
+      id="ShortsZh"
+      component={Shorts}
+      durationInFrames={SHORTS_DURATION}
+      fps={SHORTS_SIZE.fps}
+      width={SHORTS_SIZE.width}
+      height={SHORTS_SIZE.height}
+      defaultProps={{ lang: 'zh' as const }}
     />
   </>
 );
