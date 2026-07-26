@@ -47,7 +47,7 @@ const STR: Record<Lang, {
     slogan: 'Wires are the context.',
   },
   zh: {
-    hook: ['你和 AI 的对话', '是好想法的坟场'],
+    hook: ['和 AI 上下文的', '无限编辑画布'],
     prune: { lines: ['删一条线', '换一个答案'], sub: '连线即上下文' },
     read: { lines: ['指着原文', '就地提问'], sub: '答案带着页码落进画布' },
     map: { lines: ['缩小画布', '思考自成地图'], sub: '每一步都有徽章：排除、决策、转向' },
@@ -211,7 +211,7 @@ export const Shorts: React.FC<{ lang: Lang }> = ({ lang }) => {
             <Stage beat={Math.min(i, 4)}>
               {b.key === 'hook' && (
                 <BeatWrap frames={75}>
-                  <Title top={lang === 'zh' ? 700 : 640} lines={s.hook} {...titleProps} size={t.hook} />
+                  <Title top={640} lines={s.hook} {...titleProps} size={t.hook} />
                 </BeatWrap>
               )}
               {b.key === 'prune' && (
