@@ -14,11 +14,20 @@ import { storedProviders, type RuntimeProvider } from './runtime-providers';
 
 const isWorkerBackend = API_BASE === '';
 
-/** The provider to talk to directly for this model, or null → use the proxy. */
-export function directOpenRouterProvider(modelId?: string): RuntimeProvider | null {
+// Endpoints verified to allow browser CORS: OpenRouter (documented) and
+// Moonshot (preflight tested against .cn with the app origin). Others keep
+// the proxy until tested — a CORS-blocked endpoint would fail 100% direct.
+const DIRECT_CORS_OK = /openrouter\.ai|api\.moonshot\.(cn|ai)/i;
+const isOpenRouterURL = (baseURL: string) => /openrouter\.ai/i.test(baseURL);
+
+/** The provider to talk to directly for this model, or null → use the proxy.
+    Tool-needing requests (web/scholar/MCP) stay on the proxy except for
+    OpenRouter, whose `:online` variant searches gateway-side. */
+export function directProvider(modelId?: string, needsTools?: boolean): RuntimeProvider | null {
   if (!isWorkerBackend || !modelId) return null;
   for (const p of storedProviders()) {
-    if (!/openrouter\.ai/i.test(p.baseURL)) continue;
+    if (!DIRECT_CORS_OK.test(p.baseURL)) continue;
+    if (needsTools && !isOpenRouterURL(p.baseURL)) continue;
     if (!p.apiKey) continue;
     if (p.models.some((m) => m.id === modelId)) return p;
   }
@@ -102,11 +111,11 @@ async function streamOnePass(
       model,
       stream: true,
       messages: body,
-      reasoning: { enabled: true },
       stream_options: { include_usage: true },
-      // Detailed accounting (incl. cached_tokens) — chained follow-ups share
-      // their upstream prefix, so provider prompt caches cut real cost.
-      usage: { include: true },
+      // OpenRouter-only extensions; stricter endpoints reject unknown keys.
+      // usage: detailed accounting (incl. cached_tokens) — chained follow-ups
+      // share their upstream prefix, so provider prompt caches cut real cost.
+      ...(isOpenRouterURL(provider.baseURL) ? { reasoning: { enabled: true }, usage: { include: true } } : {}),
     }),
     signal,
   });
@@ -173,7 +182,8 @@ export async function directLlmStream(
   webSearch?: boolean,
 ): Promise<string> {
   const body = toOpenAiMessages(contextMessages, images);
-  const useOnline = webSearch !== false;
+  // `:online` is an OpenRouter model-id suffix; other gateways 404 on it.
+  const useOnline = isOpenRouterURL(provider.baseURL) && webSearch !== false;
   const citations = new Map<string, Reference>();
   let full = '';
   let reasoningFull = '';

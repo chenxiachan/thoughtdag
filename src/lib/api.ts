@@ -1,7 +1,7 @@
 import { API_BASE } from './constants';
 import { useUiStore } from './ui-store';
 import { storedProviders } from './runtime-providers';
-import { directOpenRouterProvider, directLlmStream, directLlmCall } from './direct-llm';
+import { directProvider, directLlmStream, directLlmCall } from './direct-llm';
 import { errorText } from './error-text';
 
 const API_URL = `${API_BASE}/api/claude`;
@@ -89,7 +89,7 @@ function wrapError(err: unknown): Error {
 // Non-streaming call (used for background summaries)
 export async function llmCall(contextMessages: ContextMessage[], images?: ImageAttachment[], modelOverride?: string): Promise<string> {
   const modelId = modelOverride || useUiStore.getState().selectedModel || undefined;
-  const direct = directOpenRouterProvider(modelId);
+  const direct = directProvider(modelId);
   if (direct && modelId) return directLlmCall(direct, modelId, contextMessages, images);
   try {
     const res = await fetch(API_URL, {
@@ -146,7 +146,7 @@ export async function llmCallStream(
   // browser — the proxy's CPU allowance can't survive big contexts + heavy
   // thinking models, and the key staying local is a feature in itself.
   const modelId = modelOverride || useUiStore.getState().selectedModel || undefined;
-  const direct = directOpenRouterProvider(modelId);
+  const direct = directProvider(modelId, !!(toolPrefs?.web || toolPrefs?.scholar || toolPrefs?.mcp));
   if (direct && modelId) {
     return directLlmStream(direct, modelId, contextMessages, onChunk, signal, images, callbacks, toolPrefs?.web);
   }
