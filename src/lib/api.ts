@@ -2,6 +2,7 @@ import { API_BASE } from './constants';
 import { useUiStore } from './ui-store';
 import { storedProviders } from './runtime-providers';
 import { directOpenRouterProvider, directLlmStream, directLlmCall } from './direct-llm';
+import { errorText } from './error-text';
 
 const API_URL = `${API_BASE}/api/claude`;
 // Providers only travel when configured; undefined keeps .env-only setups
@@ -40,7 +41,7 @@ export async function extractPdf(base64: string): Promise<PdfExtractResult> {
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
-    throw new Error(err.error || `HTTP ${res.status}`);
+    throw new Error(errorText(err, `HTTP ${res.status}`));
   }
   return res.json();
 }
@@ -65,7 +66,7 @@ export async function fetchUrlSnapshot(url: string): Promise<LinkSnapshot> {
           ? 'Proxy has no /api/fetch-url — restart it (npm run server)'
           : `HTTP ${res.status}`,
       }));
-      throw new Error(err.error || `HTTP ${res.status}`);
+      throw new Error(errorText(err, `HTTP ${res.status}`));
     }
     return res.json();
   } catch (err: unknown) {
@@ -106,7 +107,7 @@ export async function llmCall(contextMessages: ContextMessage[], images?: ImageA
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({ error: 'Unknown error' }));
-      throw new Error(err.error || `HTTP ${res.status}`);
+      throw new Error(errorText(err, `HTTP ${res.status}`));
     }
 
     const data = await res.json();
@@ -170,7 +171,7 @@ export async function llmCallStream(
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({ error: 'Unknown error' }));
-      throw new Error(err.error || `HTTP ${res.status}`);
+      throw new Error(errorText(err, `HTTP ${res.status}`));
     }
 
     const reader = res.body!.getReader();
@@ -194,7 +195,7 @@ export async function llmCallStream(
         if (data === '[DONE]') continue;
         try {
           const parsed = JSON.parse(data);
-          if (parsed.error) throw new Error(parsed.error);
+          if (parsed.error) throw new Error(errorText(parsed.error, 'Upstream stream error'));
           if (parsed.text) {
             full += parsed.text;
             onChunk(parsed.text, full);

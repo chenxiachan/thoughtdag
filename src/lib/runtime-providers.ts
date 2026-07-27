@@ -1,4 +1,5 @@
 import { API_BASE } from './constants';
+import { errorText } from './error-text';
 import type { ModelData } from './use-models';
 
 // Browser-configured model providers: the .env-free path in. Anything that
@@ -8,7 +9,7 @@ import type { ModelData } from './use-models';
 // /models route, so new releases never require a code change here.
 // Keys live in localStorage and the proxy's memory only, never on disk.
 
-export interface RuntimeModel { id: string; vision?: boolean; created?: number }
+export interface RuntimeModel { id: string; vision?: boolean; created?: number; contextLength?: number }
 export interface RuntimeProvider {
   preset: string; // preset id or 'custom'
   name: string;   // display name (also the provider tag on models)
@@ -93,7 +94,7 @@ export async function pushProviders(providers: RuntimeProvider[]): Promise<Model
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
-    throw new Error(err.error || `HTTP ${res.status}`);
+    throw new Error(errorText(err, `HTTP ${res.status}`));
   }
   const d = await res.json();
   return { models: d.models ?? [], default: d.default ?? null, capabilities: d.capabilities };
@@ -108,9 +109,19 @@ export async function probeModels(baseURL: string, apiKey: string): Promise<Runt
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
-    throw new Error(err.error || `HTTP ${res.status}`);
+    throw new Error(errorText(err, `HTTP ${res.status}`));
   }
   return ((await res.json()).models ?? []) as RuntimeModel[];
+}
+
+/** The probed context window of a browser-configured model, if known.
+    Server-env models aren't stored here and return undefined (no check). */
+export function contextLengthFor(modelId: string): number | undefined {
+  for (const p of storedProviders()) {
+    const m = p.models.find((x) => x.id === modelId);
+    if (m?.contextLength) return m.contextLength;
+  }
+  return undefined;
 }
 
 /** Re-probe every stored provider: picked models kept, metadata updated,
@@ -127,7 +138,10 @@ export async function refreshStoredProviders(): Promise<ModelData | null> {
       const small = fresh.length <= 40;
       const models = fresh
         .filter((m) => had.has(m.id) || rec.has(m.id) || small)
-        .map((m) => ({ id: m.id, ...(m.vision !== undefined ? { vision: m.vision } : had.get(m.id)?.vision ? { vision: true } : {}) }));
+        .map((m) => {
+          const cl = m.contextLength ?? had.get(m.id)?.contextLength;
+          return { id: m.id, ...(m.vision !== undefined ? { vision: m.vision } : had.get(m.id)?.vision ? { vision: true } : {}), ...(cl ? { contextLength: cl } : {}) };
+        });
       next.push(models.length > 0 ? { ...p, models } : p);
     } catch { next.push(p); } // unreachable endpoint: keep the stored entry
   }
