@@ -475,6 +475,7 @@ export const zh: Record<keyof typeof en, string> = {
   'takeaway.pivot': '转向',
   'takeaway.open': '待解',
   'node.generatedByTitle': '生成这个版本的模型。生成时记录，之后切换全局模型也不会混淆答案的出处。',
+  'node.exploredHere': '有分支从这段文字出发探索。点击跳转到该分支',
   'node.summaryLabel': '摘要',
   'node.summaryTitle': '这是自动摘要，只给人看，不进上下文。双击卡片在面板中读全文。',
   'node.staleBadge': '上游已变',

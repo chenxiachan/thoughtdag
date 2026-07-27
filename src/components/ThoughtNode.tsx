@@ -1,5 +1,5 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
-import { Handle, Position, useUpdateNodeInternals, type NodeProps } from '@xyflow/react';
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import { Handle, Position, useReactFlow, useUpdateNodeInternals, type NodeProps } from '@xyflow/react';
 import { AlertTriangle, Archive, BookOpen, ChevronDown, ChevronLeft, ChevronRight, Copy, Eye, GitBranch, Globe, Hourglass, Paperclip, RefreshCw, Send, Split, Square, Star, Trash2, UserRound, X } from 'lucide-react';
 import 'katex/dist/katex.min.css';
 import type { ThoughtNode as ThoughtNodeType } from '../types';
@@ -9,6 +9,7 @@ import { generateId, isImeComposing , activeSummary, activeTopic, awaitingInput 
 import { processFile } from '../lib/attachments';
 import { copyText } from '../lib/export';
 import { isRunLocked } from '../lib/paradigm';
+import { collectExploreMarksKey, type ExploreMark } from '../lib/explore-marks';
 import { useUiStore, toast } from '../lib/ui-store';
 import SearchToggles from './ui/SearchToggles';
 import { Markdown, HighlightedMarkdown } from './Markdown';
@@ -47,6 +48,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   const nodeRef = useRef<HTMLDivElement>(null);
   const questionTaRef = useRef<HTMLTextAreaElement>(null);
   const addQuestion = useStore((s) => s.addQuestion);
+  const rf = useReactFlow();
   const zoomTier = useZoomTier();
   const mapMode = zoomTier !== 'work';
 
@@ -235,6 +237,26 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   const hasMultipleVersions = data.responses.length > 1;
 
   const highlightedTexts = new Set(data.highlights.map((h) => h.text));
+  // Passages child branches explore from, marked in this answer (derived
+  // from the children — nothing stored here). Click jumps to the branch.
+  const exploreMarksKey = useStore((s) => collectExploreMarksKey(id, s.nodes, s.edges));
+  const exploreMarks = useMemo(() => JSON.parse(exploreMarksKey) as ExploreMark[], [exploreMarksKey]);
+  const exploreSpecs = exploreMarks.map((m) => ({
+    text: m.text,
+    nodeId: m.nodeId,
+    title: `${t('node.exploredHere')} · ${m.question.slice(0, 80)}`,
+  }));
+  const handleResponseClick = (e: React.MouseEvent) => {
+    const m = (e.target as HTMLElement).closest?.('mark[data-explore-target]');
+    if (!m) return;
+    if (window.getSelection()?.toString()) return; // a drag-select, not a click
+    e.stopPropagation();
+    const childId = m.getAttribute('data-explore-target');
+    const child = childId ? rf.getNode(childId) : undefined;
+    if (!child || !childId) return;
+    setSelectedNodeId(childId);
+    rf.setCenter(child.position.x + 260, child.position.y + 110, { zoom: rf.getZoom(), duration: 300 });
+  };
   // Map layer: the display summary for the ACTIVE version. Long answers wear
   // it instead of raw text; the full answer lives one double-click away.
   const versionSummary = activeSummary(data);
@@ -606,10 +628,11 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
             <div
               ref={responseRef}
               onDoubleClick={handleDoubleClickResponse}
+              onClick={handleResponseClick}
               className="markdown-body text-sm text-ink leading-relaxed max-h-[400px] overflow-y-auto cursor-text nopan nodrag nowheel px-3 py-2.5 bg-surface rounded-xl"
             >
-              {highlightedTexts.size > 0 ? (
-                <HighlightedMarkdown content={data.response} highlights={highlightedTexts} />
+              {highlightedTexts.size > 0 || exploreSpecs.length > 0 ? (
+                <HighlightedMarkdown content={data.response} highlights={highlightedTexts} exploreMarks={exploreSpecs} />
               ) : (
                 <Markdown>{data.response}</Markdown>
               )}

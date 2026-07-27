@@ -476,6 +476,7 @@ export const en = {
   'takeaway.pivot': 'Pivot',
   'takeaway.open': 'Open question',
   'node.generatedByTitle': 'The model that generated this version. Recorded at generation time, so changing the global model never obscures where an answer came from.',
+  'node.exploredHere': 'A branch explores this passage. Click to jump to it',
   'node.summaryLabel': 'Summary',
   'node.summaryTitle': 'An automatic summary of this answer, for the map only. It never enters context. Double-click the card to read the full answer in the panel.',
   'node.staleBadge': 'Upstream changed',

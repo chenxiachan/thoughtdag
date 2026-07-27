@@ -233,6 +233,20 @@ textarea:focus-visible {
   line-height: 1.7;
 }
 
+/* Explore marks: the passages child branches were born from. A warm dotted
+   underline (structural trace), never a fill — fills belong to the user's
+   own highlights. Clickable where the host delegates to the child node. */
+.markdown-body mark.explore-mark {
+  background: transparent;
+  color: inherit;
+  padding: 0;
+  border-bottom: 2px dotted color-mix(in srgb, var(--color-warm) 65%, transparent);
+  cursor: pointer;
+}
+.markdown-body mark.explore-mark:hover {
+  background: color-mix(in srgb, var(--color-warm) 12%, transparent);
+}
+
 .markdown-body h1, .markdown-body h2, .markdown-body h3,
 .markdown-body h4, .markdown-body h5, .markdown-body h6 {
   color: var(--color-ink);

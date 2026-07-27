@@ -141,6 +141,7 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
           hasMultipleVersions={hasMultipleVersions}
           highlightedTexts={highlightedTexts}
           onExploreSelection={setBranchContext}
+          onFocusNode={onFocusNode}
         />
 
         <AttachmentsSection

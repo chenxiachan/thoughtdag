@@ -77,7 +77,7 @@ const MARK_OPEN = '<mark class="bg-amber-100 text-amber-800 px-0.5 rounded">';
 // parse, and a tag swallowing a table's "|" breaks the row into mismatched
 // cells. Wrap each line's CONTENT separately — list/quote/heading prefixes
 // and cell pipes stay OUTSIDE the tag; table delimiter rows pass untouched.
-function wrapLine(line: string): string {
+function wrapLine(line: string, open: string): string {
   const parsed = line.match(/^(\s*(?:(?:\d{1,3}[.)]|[-*+>]|#{1,6})\s+)*)(.*)$/);
   const prefix = parsed?.[1] ?? '';
   const rest = parsed?.[2] ?? line;
@@ -87,28 +87,60 @@ function wrapLine(line: string): string {
     return prefix + rest
       .split('|')
       .map((cell) => cell.trim()
-        ? cell.replace(/^(\s*)([\s\S]*?)(\s*)$/, (_, a, c, b) => `${a}${MARK_OPEN}${c}</mark>${b}`)
+        ? cell.replace(/^(\s*)([\s\S]*?)(\s*)$/, (_, a, c, b) => `${a}${open}${c}</mark>${b}`)
         : cell)
       .join('|');
   }
-  return `${prefix}${MARK_OPEN}${rest}</mark>`;
+  return `${prefix}${open}${rest}</mark>`;
 }
 
-function wrapMatch(m: string): string {
-  if (!m.includes('\n') && !m.includes('|')) return `${MARK_OPEN}${m}</mark>`;
-  return m.split('\n').map(wrapLine).join('\n');
+function wrapMatch(m: string, open: string): string {
+  if (!m.includes('\n') && !m.includes('|')) return `${open}${m}</mark>`;
+  return m.split('\n').map((l) => wrapLine(l, open)).join('\n');
 }
 
-// Markdown with user highlights wrapped in <mark> before rendering.
-export function HighlightedMarkdown({ content, highlights }: { content: string; highlights: Set<string> }) {
-  // Fuzzy-locate each highlight in the markdown source (selections come from
-  // the RENDERED text and cross bold/list/line-break syntax); wrap the
-  // matched source verbatim so its markdown keeps rendering inside <mark>.
+const escapeAttr = (s: string) =>
+  s.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+/** A passage a child branch explores from: rendered as a warm dotted
+    underline (structural trace), never a fill (fills belong to the user's
+    own highlights). data-explore-target lets hosts delegate clicks. */
+export interface ExploreMarkSpec { text: string; nodeId: string; title: string }
+
+// Markdown with user highlights (and explore traces) wrapped in <mark>
+// before rendering.
+export function HighlightedMarkdown({ content, highlights, exploreMarks }: { content: string; highlights: Set<string>; exploreMarks?: ExploreMarkSpec[] }) {
+  // Fuzzy-locate every span in the CLEAN markdown source first, then splice
+  // tags in back-to-front. A second replace pass over already-tagged text
+  // would let the fuzzy noise classes swallow pieces of the inserted tags
+  // (`>` is legal markdown noise, so a match can start ON a tag's closing
+  // bracket) and emit broken HTML — locating on the pristine source makes
+  // that impossible. Selections come from the RENDERED text and cross
+  // bold/list/line-break syntax; wrapping the matched source verbatim keeps
+  // its markdown rendering inside <mark>.
+  const spans: { start: number; end: number; open: string; prio: number }[] = [];
+  const collect = (text: string, open: string, prio: number) => {
+    const re = fuzzyHighlightRegex(text);
+    if (!re) return;
+    for (const m of content.matchAll(re)) {
+      if (m[0]) spans.push({ start: m.index!, end: m.index! + m[0].length, open, prio });
+    }
+  };
+  for (const h of highlights) collect(h, MARK_OPEN, 0);
+  for (const em of exploreMarks ?? []) {
+    collect(em.text, `<mark class="explore-mark" data-explore-target="${escapeAttr(em.nodeId)}" title="${escapeAttr(em.title)}">`, 1);
+  }
+  // Overlaps: the user's own highlight outranks the structural trace.
+  spans.sort((a, b) => a.prio - b.prio || a.start - b.start);
+  const kept: typeof spans = [];
+  for (const s of spans) {
+    if (kept.some((k) => s.start < k.end && k.start < s.end)) continue;
+    kept.push(s);
+  }
+  kept.sort((a, b) => b.start - a.start); // splice back-to-front so offsets hold
   let processed = content;
-  for (const h of highlights) {
-    const re = fuzzyHighlightRegex(h);
-    if (!re) continue;
-    processed = processed.replace(re, wrapMatch);
+  for (const s of kept) {
+    processed = processed.slice(0, s.start) + wrapMatch(processed.slice(s.start, s.end), s.open) + processed.slice(s.end);
   }
   return <Markdown>{processed}</Markdown>;
 }

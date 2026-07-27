@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from 'react';
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { AlertTriangle, ChevronLeft, ChevronRight, Copy, GitBranch, Maximize2, RefreshCw, Star, Trash2 } from 'lucide-react';
 import { useStore } from '../../store';
 import { useUiStore } from '../../lib/ui-store';
@@ -7,6 +7,7 @@ import { copyText } from '../../lib/export';
 import { Markdown, HighlightedMarkdown } from '../Markdown';
 import { useT } from '../../i18n';
 import { isViewerMode } from '../../lib/viewer';
+import { collectExploreMarksKey, type ExploreMark } from '../../lib/explore-marks';
 import ReasoningDisclosure from '../ui/ReasoningDisclosure';
 import type { ThoughtData } from '../../types';
 
@@ -16,12 +17,14 @@ export default function ResponseSection({
   hasMultipleVersions,
   highlightedTexts,
   onExploreSelection,
+  onFocusNode,
 }: {
   nodeId: string;
   data: ThoughtData;
   hasMultipleVersions: boolean;
   highlightedTexts: Set<string>;
   onExploreSelection: (text: string) => void;
+  onFocusNode?: (id: string) => void;
 }) {
   const editResponse = useStore((s) => s.editResponse);
   const editQuestion = useStore((s) => s.editQuestion);
@@ -30,7 +33,29 @@ export default function ResponseSection({
   const rerunNode = useStore((s) => s.rerunNode);
   const deleteVersion = useStore((s) => s.deleteVersion);
   const addHighlight = useStore((s) => s.addHighlight);
+  const setSelectedNodeId = useStore((s) => s.setSelectedNodeId);
+  // Passages child branches explore from (derived from the children).
+  // Clicking a mark walks the panel to that branch and centers it. The
+  // selector returns the serialized form: a fresh array from a selector
+  // re-renders forever (Object.is snapshot comparison).
+  const exploreMarksKey = useStore((s) => collectExploreMarksKey(nodeId, s.nodes, s.edges));
+  const exploreMarks = useMemo(() => JSON.parse(exploreMarksKey) as ExploreMark[], [exploreMarksKey]);
   const t = useT();
+  const exploreSpecs = exploreMarks.map((m) => ({
+    text: m.text,
+    nodeId: m.nodeId,
+    title: `${t('node.exploredHere')} · ${m.question.slice(0, 80)}`,
+  }));
+  const handleExploreMarkClick = (e: React.MouseEvent) => {
+    const m = (e.target as HTMLElement).closest?.('mark[data-explore-target]');
+    if (!m) return;
+    if (window.getSelection()?.toString()) return; // a drag-select, not a click
+    e.stopPropagation();
+    const childId = m.getAttribute('data-explore-target');
+    if (!childId) return;
+    setSelectedNodeId(childId);
+    onFocusNode?.(childId);
+  };
 
   const [editResponseValue, setEditResponseValue] = useState('');
   const [selectedText, setSelectedText] = useState('');
@@ -172,9 +197,9 @@ export default function ResponseSection({
           {data.reasonings?.[data.responseIndex] && (
             <ReasoningDisclosure text={data.reasonings[data.responseIndex]!} />
           )}
-          <div className="markdown-body text-sm text-ink leading-relaxed cursor-text py-1">
-            {highlightedTexts.size > 0 ? (
-              <HighlightedMarkdown content={data.response} highlights={highlightedTexts} />
+          <div className="markdown-body text-sm text-ink leading-relaxed cursor-text py-1" onClick={handleExploreMarkClick}>
+            {highlightedTexts.size > 0 || exploreSpecs.length > 0 ? (
+              <HighlightedMarkdown content={data.response} highlights={highlightedTexts} exploreMarks={exploreSpecs} />
             ) : (
               <Markdown>{data.response}</Markdown>
             )}
