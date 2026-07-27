@@ -28,11 +28,10 @@ export default function ShareDialog() {
   const lang = useI18n((s) => s.lang);
   const [copied, setCopied] = useState(false);
   const [exporting, setExporting] = useState(false);
-  const close = () => useUiStore.getState().setShareDialogUrl(null);
+  const close = () => { setCopied(false); useUiStore.getState().setShareDialogUrl(null); };
 
   useEffect(() => {
     if (!url) return;
-    setCopied(false);
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Escape') { e.stopPropagation(); close(); }
     };

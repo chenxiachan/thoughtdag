@@ -247,4 +247,5 @@ export const Shorts: React.FC<{ lang: Lang }> = ({ lang }) => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components -- composition metadata for Root, no fast refresh here
 export const SHORTS_SIZE = { width: W, height: H, fps: FPS };
