@@ -123,7 +123,11 @@ export default function ApiKeyModal() {
   const doAdd = async () => {
     const baseURL = preset.id === 'custom' ? customURL.trim() : preset.baseURL;
     const name = preset.id === 'custom' ? (customName.trim() || t('provider.customName')) : preset.name;
-    const models: RuntimeModel[] = [...picked.entries()].map(([id, vision]) => ({ id, ...(vision ? { vision } : {}) }));
+    const probedMeta = new Map((probed ?? []).map((m) => [m.id, m]));
+    const models: RuntimeModel[] = [...picked.entries()].map(([id, vision]) => {
+      const cl = probedMeta.get(id)?.contextLength;
+      return { id, ...(vision ? { vision } : {}), ...(cl ? { contextLength: cl } : {}) };
+    });
     if (!baseURL || models.length === 0) return;
     const next = [...providers.filter((p) => p.baseURL !== baseURL), {
       preset: preset.id, name, baseURL, apiKey: key.trim(), models,

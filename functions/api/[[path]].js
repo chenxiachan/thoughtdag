@@ -429,6 +429,7 @@ async function handleProbeModels(body) {
       id: (m.id ?? m.name)?.replace?.(/^models\//, ''),
       ...(typeof m.created === 'number' ? { created: m.created } : {}),
       ...(m.architecture?.input_modalities ? { vision: m.architecture.input_modalities.includes('image') } : {}),
+      ...(typeof m.context_length === 'number' ? { contextLength: m.context_length } : {}),
     })).filter((m) => m.id);
     return json({ models });
   } catch (err) {

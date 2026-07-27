@@ -469,6 +469,7 @@ export const en = {
   'question.editHintUnchanged': 'Enter closes · Shift+Enter new line · Esc closes',
   'toast.noModelYet': 'No model connected yet. Pick a provider and paste a key, then hit Retry on the node.',
   'toast.rateLimited': 'The model rate-limited this request (free tiers meter requests per minute). Wait half a minute and hit Retry.',
+  'toast.contextOverWindow': 'Context is ~{est} tokens, over the {limit}-token window of {model}. Pick a larger-window model, or prune wires and attachments.',
   'takeaway.insight': 'Insight',
   'takeaway.ruleout': 'Ruled out',
   'takeaway.decision': 'Decision',

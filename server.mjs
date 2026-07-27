@@ -648,6 +648,9 @@ app.post('/api/probe-models', async (req, res) => {
       ...(typeof m.created === 'number' ? { created: m.created } : {}),
       // OpenRouter ships modality metadata; elsewhere vision stays unknown
       ...(m.architecture?.input_modalities ? { vision: m.architecture.input_modalities.includes('image') } : {}),
+      // OpenRouter/Moonshot/others publish the window; used for the
+      // client-side context budget check before a doomed request is sent
+      ...(typeof m.context_length === 'number' ? { contextLength: m.context_length } : {}),
     })).filter((m) => m.id);
     res.json({ models });
   } catch (err) {

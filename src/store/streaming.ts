@@ -6,6 +6,7 @@ import { llmCall, llmCallStream, type ContextMessage, type ImageAttachment } fro
 import { countTokens, activeSummary } from '../utils';
 import { toast, useUiStore } from '../lib/ui-store';
 import { getModelsOnce, reconcileModelId } from '../lib/use-models';
+import { contextLengthFor } from '../lib/runtime-providers';
 import { memoryContextBlock, judgeMemory } from '../lib/memory';
 import { t, fmt } from '../i18n';
 import { isViewerMode } from '../lib/viewer';
@@ -196,6 +197,19 @@ export async function runNodeGeneration(
   }
 
   try {
+    // Context budget: browser-configured models carry their probed window.
+    // When the wired context alone clearly exceeds it, fail fast with the
+    // reason (and no spend) instead of a guaranteed upstream 400. countTokens
+    // errs high on CJK, and an input hugging the window leaves no room for
+    // the answer anyway — so a plain >= is the honest cutoff.
+    const effectiveModel = pinnedModel ?? useUiStore.getState().selectedModel ?? serverDefaultModel;
+    const windowLimit = effectiveModel ? contextLengthFor(effectiveModel) : undefined;
+    if (windowLimit) {
+      const est = countTokens(messages.map((m) => m.content).join('\n'));
+      if (est >= windowLimit) {
+        throw new Error(fmt(t('toast.contextOverWindow'), { est: est.toLocaleString(), model: effectiveModel!, limit: windowLimit.toLocaleString() }));
+      }
+    }
     const response = await llmCallStream(messages, (_chunk, fullSoFar) => {
       if (!isCurrent()) return;
       set((state) => ({

@@ -468,6 +468,7 @@ export const zh: Record<keyof typeof en, string> = {
   'question.editHintUnchanged': '回车关闭 · Shift+回车换行 · Esc 关闭',
   'toast.noModelYet': '还没有连接模型。选一家服务商填 key，然后回到节点点重试。',
   'toast.rateLimited': '模型限流了这次请求（免费档按分钟限速）。等半分钟，回到节点点重试。',
+  'toast.contextOverWindow': '上下文约 {est} tokens，超出 {model} 的窗口（{limit}）。换个窗口更大的模型，或修剪连线和附件。',
   'takeaway.insight': '洞见',
   'takeaway.ruleout': '排除',
   'takeaway.decision': '决策',
