@@ -162,9 +162,14 @@ export async function runNodeGeneration(
     set((state) => ({
       nodes: state.nodes.map((n) => {
         if (n.id !== nodeId) return n;
-        // keep (response, generatedBy, reasoning, generatedAt, editedAt) tuples aligned through the empty-filter
-        const kept = versionMode === 'append'
-          ? n.data.responses.map((r, i) => ({ r, by: n.data.generatedBy?.[i], rs: n.data.reasonings?.[i], at: n.data.generatedAts?.[i], ed: n.data.editedAts?.[i] })).filter(({ r }) => r)
+        // keep (response, generatedBy, reasoning, generatedAt, editedAt) tuples aligned through the empty-filter.
+        // A FAILED replace also keeps them: the failure placeholder must not
+        // wipe real earlier versions (the failure banner offers switching
+        // back). Stale placeholders from earlier failed rounds are dropped
+        // so repeated retries don't stack failure entries.
+        const failText = new Set([t('node.failedPlaceholder'), t('node.emptyResponse')]);
+        const kept = versionMode === 'append' || failed
+          ? n.data.responses.map((r, i) => ({ r, by: n.data.generatedBy?.[i], rs: n.data.reasonings?.[i], at: n.data.generatedAts?.[i], ed: n.data.editedAts?.[i] })).filter(({ r }) => r && !(failed && failText.has(r)))
           : [];
         const now = new Date().toISOString();
         const responses = [...kept.map(({ r }) => r), response];
