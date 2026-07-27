@@ -203,6 +203,9 @@ export default function FollowUpInput({
           placeholder={t('common.followUp')}
           className="flex-1 bg-transparent text-sm text-ink placeholder-ink-faint focus:outline-none resize-none leading-relaxed max-h-[160px] overflow-y-auto"
           onPaste={(e) => {
+            // TEXT WINS: Office copies carry text plus a bitmap of the
+            // selection — only image-only clipboards become attachments.
+            if (e.clipboardData?.getData('text/plain').trim()) return;
             const files = Array.from(e.clipboardData?.files ?? []);
             if (files.length > 0) { e.preventDefault(); void addFiles(files); }
           }}

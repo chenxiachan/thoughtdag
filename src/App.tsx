@@ -955,6 +955,7 @@ function Canvas() {
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}
                 onPaste={(e) => {
+                  if (e.clipboardData.getData('text/plain').trim()) return; // TEXT WINS, same rule as canvas paste
                   const files = Array.from(e.clipboardData.items).filter(i => i.kind === 'file').map(i => i.getAsFile()!).filter(Boolean);
                   if (files.length) handleFileUpload(files);
                 }}
