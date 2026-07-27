@@ -146,7 +146,7 @@ export async function llmCallStream(
   // browser — the proxy's CPU allowance can't survive big contexts + heavy
   // thinking models, and the key staying local is a feature in itself.
   const modelId = modelOverride || useUiStore.getState().selectedModel || undefined;
-  const direct = directProvider(modelId, !!(toolPrefs?.web || toolPrefs?.scholar || toolPrefs?.mcp));
+  const direct = directProvider(modelId, !!(toolPrefs?.scholar || toolPrefs?.mcp));
   if (direct && modelId) {
     return directLlmStream(direct, modelId, contextMessages, onChunk, signal, images, callbacks, toolPrefs?.web);
   }

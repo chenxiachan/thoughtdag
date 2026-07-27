@@ -21,17 +21,29 @@ const DIRECT_CORS_OK = /openrouter\.ai|api\.moonshot\.(cn|ai)/i;
 const isOpenRouterURL = (baseURL: string) => /openrouter\.ai/i.test(baseURL);
 
 /** The provider to talk to directly for this model, or null → use the proxy.
-    Tool-needing requests (web/scholar/MCP) stay on the proxy except for
-    OpenRouter, whose `:online` variant searches gateway-side. */
-export function directProvider(modelId?: string, needsTools?: boolean): RuntimeProvider | null {
+    Scholar/MCP requests need the proxy's tool loop, except on OpenRouter
+    (whose requests always ran direct, tools ignored as before). Web search
+    does NOT force the proxy: OpenRouter searches via `:online`, and other
+    direct gateways simply have no search — their toggles hide in the UI.
+    A thinking model on the proxy dies of the CPU allowance mid-thought,
+    which is strictly worse than answering without search. */
+export function directProvider(modelId?: string, needsProxyTools?: boolean): RuntimeProvider | null {
   if (!isWorkerBackend || !modelId) return null;
   for (const p of storedProviders()) {
     if (!DIRECT_CORS_OK.test(p.baseURL)) continue;
-    if (needsTools && !isOpenRouterURL(p.baseURL)) continue;
+    if (needsProxyTools && !isOpenRouterURL(p.baseURL)) continue;
     if (!p.apiKey) continue;
     if (p.models.some((m) => m.id === modelId)) return p;
   }
   return null;
+}
+
+/** True when this model's requests bypass the proxy on a gateway that cannot
+    search (any direct lane except OpenRouter's `:online`). Search toggles
+    hide for such models — search that cannot run must not be offerable. */
+export function directWithoutSearch(modelId?: string): boolean {
+  const p = directProvider(modelId);
+  return !!p && !isOpenRouterURL(p.baseURL);
 }
 
 // Keep in sync with baseDirective() in server.mjs / functions/api/[[path]].js
