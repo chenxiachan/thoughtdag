@@ -44,7 +44,7 @@ export default function HighlightsSection({
 
   return (
     <div className="panel-card px-4 py-3">
-      <details className="group" open={highlights.length > 0}>
+      <details className="group">
         <summary className="text-2xs font-semibold text-amber-600 cursor-pointer hover:text-amber-500 transition-colors flex items-center gap-1.5 select-none">
           <ChevronRight size={12} strokeWidth={1.75} className="transition-transform group-open:rotate-90" />
           {t('highlight.title')}

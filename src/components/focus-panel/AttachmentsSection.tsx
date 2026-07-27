@@ -62,7 +62,7 @@ export default function AttachmentsSection({
 
   return (
     <div className="panel-card px-4 py-3">
-      <details className="group" open={hasContent}>
+      <details className="group">
         <summary className="text-2xs font-semibold text-warm cursor-pointer hover:text-warm/80 transition-colors flex items-center gap-1.5 select-none">
           <ChevronRight size={12} strokeWidth={1.75} className="transition-transform group-open:rotate-90" />
           {t('attach.title')}
