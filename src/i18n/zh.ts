@@ -108,6 +108,7 @@ export const zh: Record<keyof typeof en, string> = {
   'provider.displayName': '显示名称',
   'provider.keyHint': '在这里创建：',
   'provider.localHint': '本地运行的模型不需要 key。启动 Ollama 后点下面的按钮，会自动列出已安装的模型。',
+  'provider.chatgptBridgeHint': '用 ChatGPT 订阅额度：终端里运行 npx openai-oauth 并登录，本地桥会起在 127.0.0.1:10531。此通道只在本地运行 ThoughtDAG 时可用（npm run server），线上版无法连到你的本机。',
   'provider.probe': '获取模型列表',
   'provider.probing': '正在询问接口…',
   'provider.probeEmpty': '接口没有返回任何模型。确认服务已启动、key 正确。',

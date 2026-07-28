@@ -27,6 +27,8 @@ export interface ProviderPreset {
   keyUrl?: string;
   /** No key input (local runtimes). */
   noKey?: boolean;
+  /** i18n key for a preset-specific setup hint (defaults to provider.localHint). */
+  hintKey?: string;
   /** Preselect these when the probed list contains them. */
   recommend?: string[];
 }
@@ -51,6 +53,10 @@ export const PROVIDER_PRESETS: ProviderPreset[] = [
   { id: 'moonshot-intl', name: 'Kimi', region: 'en', baseURL: 'https://api.moonshot.ai/v1', keyUrl: 'https://platform.moonshot.ai/console/api-keys' },
   { id: 'moonshot', name: 'Kimi', region: 'zh', baseURL: 'https://api.moonshot.cn/v1', keyUrl: 'https://platform.moonshot.cn/console/api-keys' },
   { id: 'ollama', name: 'Ollama', baseURL: 'http://localhost:11434/v1', noKey: true },
+  // ChatGPT plan via the openai-oauth local bridge (no CORS on the bridge,
+  // so requests must ride the local Node proxy — hosted deployments cannot
+  // reach a user's 127.0.0.1 anyway; the hint spells this out).
+  { id: 'chatgpt-bridge', name: 'ChatGPT Bridge', baseURL: 'http://127.0.0.1:10531/v1', noKey: true, hintKey: 'provider.chatgptBridgeHint' },
   { id: 'custom', name: '', baseURL: '' },
 ];
 

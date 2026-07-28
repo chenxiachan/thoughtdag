@@ -212,7 +212,7 @@ export default function ApiKeyModal() {
                     className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${preset.id === p.id ? 'border-accent bg-accent/10 text-accent font-medium' : 'border-line text-ink-muted hover:bg-wash'}`}
                     data-preset={p.id}
                   >
-                    {p.id === 'custom' ? t('provider.customName') : p.id === 'ollama' ? `${p.name} · ${t('provider.local')}` : p.name}
+                    {p.id === 'custom' ? t('provider.customName') : p.noKey ? `${p.name} · ${t('provider.local')}` : p.name}
                   </button>
                 ))}
               </div>
@@ -245,7 +245,7 @@ export default function ApiKeyModal() {
                 )}
               </div>
             )}
-            {preset.noKey && <p className="text-2xs text-ink-faint leading-relaxed">{t('provider.localHint')}</p>}
+            {preset.noKey && <p className="text-2xs text-ink-faint leading-relaxed">{t((preset.hintKey ?? 'provider.localHint') as Parameters<typeof t>[0])}</p>}
 
             {!probed && (
               <button onClick={() => void doProbe()} disabled={busy || (preset.id === 'custom' ? !customURL.trim() : !preset.noKey && !key.trim())}
