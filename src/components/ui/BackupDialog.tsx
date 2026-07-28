@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { createPortal } from 'react-dom';
 import { FolderSync, X } from 'lucide-react';
 import { useUiStore, toast } from '../../lib/ui-store';
-import { backupSupported, enableAutoBackup, disableAutoBackup, backupAllProjects } from '../../lib/local-backup';
+import { backupSupported, enableAutoBackup, disableAutoBackup, backupActiveProject } from '../../lib/local-backup';
 import { useT, fmt } from '../../i18n';
 
 // Auto-backup control center: status (folder, last write), backup-now for
@@ -44,7 +44,7 @@ export default function BackupDialog() {
             </div>
             <div className="flex flex-wrap gap-2">
               <button
-                onClick={() => { setBusy(true); void backupAllProjects().then((n) => toast('success', fmt(t('backup.wroteAll'), { n: String(n) }))).finally(() => setBusy(false)); }}
+                onClick={() => { setBusy(true); void backupActiveProject().then((name) => { if (name) toast('success', fmt(t('backup.wroteActive'), { name })); }).finally(() => setBusy(false)); }}
                 disabled={busy}
                 className="text-xs bg-accent hover:bg-accent-strong text-white px-4 py-2 rounded-lg transition-colors disabled:opacity-40"
                 data-backup-now

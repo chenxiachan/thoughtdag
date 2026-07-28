@@ -1,6 +1,6 @@
 import { get as idbGet, set as idbSet, del as idbDel } from 'idb-keyval';
 import { useStore, stripTransient } from '../store';
-import { useProjects, projectStorageKey } from '../store/projects';
+import { useProjects } from '../store/projects';
 import { toast, useUiStore } from './ui-store';
 import { t } from '../i18n';
 import { EXPORT_FORMAT_VERSION, activeProjectName } from './export';
@@ -27,10 +27,15 @@ let handle: DirHandle | null = null;
 let timer: ReturnType<typeof setTimeout> | null = null;
 let dirty = false;
 
-async function writeActiveProject(): Promise<void> {
-  if (!handle) return;
+/** Write the ACTIVE canvas as one real file. Both paths go through here —
+    the debounced auto-backup and the dialog's "back up now" button back up
+    the current canvas only; other canvases get their file whenever they
+    are the active one. Returns the canvas name written, null if nothing
+    was (no folder yet / empty canvas). */
+export async function backupActiveProject(): Promise<string | null> {
+  if (!handle) return null;
   const { nodes, edges, events } = useStore.getState();
-  if (nodes.length === 0) return;
+  if (nodes.length === 0) return null;
   const { projects, activeId } = useProjects.getState();
   const name = activeProjectName().replace(/[\\/:*?"<>|]/g, '_') || 'canvas';
   const payload = JSON.stringify({
@@ -48,40 +53,7 @@ async function writeActiveProject(): Promise<void> {
   await w.close();
   localStorage.setItem('thoughtdag.lastBackupAt', String(Date.now()));
   useUiStore.getState().setLastAutoBackupAt(Date.now());
-}
-
-/** Manual "backup now": every project, not just the active one. */
-export async function backupAllProjects(): Promise<number> {
-  if (!handle) return 0;
-  const { projects, activeId } = useProjects.getState();
-  let written = 0;
-  for (const proj of projects) {
-    let nodes; let edges; let events;
-    if (proj.id === activeId) {
-      ({ nodes, edges, events } = useStore.getState());
-    } else {
-      const raw = await idbGet(projectStorageKey(proj.id)).catch(() => null);
-      const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
-      nodes = parsed?.state?.nodes ?? [];
-      edges = parsed?.state?.edges ?? [];
-      events = parsed?.state?.events ?? [];
-    }
-    if (!nodes || nodes.length === 0) continue;
-    const fname = `${proj.name.replace(/[\\/:*?"<>|]/g, '_') || 'canvas'}.thoughtdag.json`;
-    const payload = JSON.stringify({
-      version: EXPORT_FORMAT_VERSION, name: proj.name,
-      exportedAt: new Date().toISOString(), instantiatedFrom: proj.instantiatedFrom,
-      nodes: stripTransient(nodes), edges, events,
-    });
-    const file = await handle.getFileHandle(fname, { create: true });
-    const w2 = await file.createWritable();
-    await w2.write(payload);
-    await w2.close();
-    written++;
-  }
-  localStorage.setItem('thoughtdag.lastBackupAt', String(Date.now()));
-  useUiStore.getState().setLastAutoBackupAt(Date.now());
-  return written;
+  return activeProjectName();
 }
 
 function schedule(): void {
@@ -90,7 +62,7 @@ function schedule(): void {
   timer = setTimeout(() => {
     if (!dirty) return;
     dirty = false;
-    void writeActiveProject().catch((err) => {
+    void backupActiveProject().catch((err) => {
       console.warn('[thoughtdag] auto-backup write failed:', err);
     });
   }, DEBOUNCE_MS);
@@ -116,7 +88,7 @@ export async function enableAutoBackup(): Promise<boolean> {
     await idbSet(HANDLE_KEY, dir);
     useUiStore.getState().setAutoBackupDir(dir.name);
     ensureWatch();
-    await writeActiveProject();
+    await backupActiveProject();
     toast('success', t('backup.enabled'));
     return true;
   } catch {
