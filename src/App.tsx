@@ -47,6 +47,7 @@ import { exportActiveParadigm, exportActiveProjectJson, exportEventLogCsv } from
 import { countTokens } from './utils';
 import { buildExampleGraph } from './lib/example-graph';
 import { COLORS, FRAME_COLORS, PANEL_INSET } from './lib/constants';
+import { panelShift } from './lib/panel-shift';
 import { confirmDialog, toast, useUiStore } from './lib/ui-store';
 import ConfirmDialog from './components/ui/ConfirmDialog';
 import Toaster from './components/ui/Toaster';
@@ -128,6 +129,20 @@ function Canvas() {
     sum + (n.data.attachments?.length ?? 0) + (['note', 'link'].includes(n.data.stepKind ?? '') ? 1 : 0), 0));
   const rfInstance = useRef<ReactFlowInstance<ThoughtNodeType, ThoughtEdge> | null>(null);
   const prevNodeCount = useRef(nodes.length);
+  // Every "center on node" goes through here: when the focus panel is open
+  // the visual center sits half the panel further left, so the target shifts
+  // right by panelShift/2 in world units — otherwise the node parks under
+  // the panel.
+  const centerNode = useCallback((n: { id: string; position: { x: number; y: number } }, opts: { zoom?: number; duration?: number; offX?: number } = {}) => {
+    const rf = rfInstance.current;
+    if (!rf) return;
+    const zoom = opts.zoom ?? rf.getZoom();
+    rf.setCenter(
+      n.position.x + (opts.offX ?? 260) + panelShift(n.id) / (2 * zoom),
+      n.position.y + 110,
+      { zoom, duration: opts.duration ?? 350 },
+    );
+  }, []);
   const lang = useI18n((s) => s.lang);
   const isParadigm = useProjects((s) => s.projects.find((p) => p.id === s.activeId)?.kind === 'paradigm');
 
@@ -343,17 +358,11 @@ function Canvas() {
     if (nodes.length > prevNodeCount.current && rfInstance.current) {
       const newest = nodes[nodes.length - 1];
       if (newest) {
-        setTimeout(() => {
-          rfInstance.current?.setCenter(
-            newest.position.x + 220,
-            newest.position.y + 110,
-            { zoom: 1, duration: 400 }
-          );
-        }, 100);
+        setTimeout(() => centerNode(newest, { zoom: 1, duration: 400, offX: 220 }), 100);
       }
     }
     prevNodeCount.current = nodes.length;
-  }, [nodes]);
+  }, [nodes, centerNode]);
 
   // Apply React Flow changes against the LIVE store state, never the render
   // closure: a click that both mutates a node (e.g. submitting a human turn)
@@ -578,7 +587,7 @@ function Canvas() {
               e.preventDefault();
               setSelectedNodeId(nextId);
               const target2 = ns.find((n) => n.id === nextId);
-              if (target2) rfInstance.current?.setCenter(target2.position.x + 260, target2.position.y + 110, { zoom: 1, duration: 300 });
+              if (target2) centerNode(target2, { zoom: 1, duration: 300 });
             }
             return;
           }
@@ -618,7 +627,7 @@ function Canvas() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [undo, redo, selectedNodeId, selectedNodeIds, setSelectedNodeId, setSelectedNodeIds, batchDelete, edges, deleteEdges, isParadigm]);
+  }, [undo, redo, selectedNodeId, selectedNodeIds, setSelectedNodeId, setSelectedNodeIds, batchDelete, edges, deleteEdges, isParadigm, centerNode]);
 
   const handleSubmit = () => {
     if (!inputValue.trim()) return;
@@ -1301,7 +1310,7 @@ function Canvas() {
             const n = useStore.getState().nodes.find((x) => x.id === id);
             if (n) {
               setSelectedNodeId(id);
-              rfInstance.current?.setCenter(n.position.x + 260, n.position.y + 110, { zoom: 1, duration: 350 });
+              centerNode(n, { zoom: 1 });
             }
           }} />
         )}
@@ -1462,7 +1471,7 @@ function Canvas() {
           const n = useStore.getState().nodes.find((x) => x.id === id);
           if (n) {
             setSelectedNodeId(id);
-            rfInstance.current?.setCenter(n.position.x + 260, n.position.y + 110, { zoom: 1, duration: 350 });
+            centerNode(n, { zoom: 1 });
           }
           setSearchOpen(false);
         }}
@@ -1476,21 +1485,21 @@ function Canvas() {
         const n = useStore.getState().nodes.find((x) => x.id === nid);
         if (n) {
           setSelectedNodeId(nid);
-          rfInstance.current?.setCenter(n.position.x + 260, n.position.y + 110, { zoom: 1, duration: 350 });
+          centerNode(n, { zoom: 1 });
         }
       }} />
       <TimelineOverviewModal onLocate={(nid) => {
         const n = useStore.getState().nodes.find((x) => x.id === nid);
         if (n) {
           setSelectedNodeId(nid);
-          rfInstance.current?.setCenter(n.position.x + 260, n.position.y + 110, { zoom: 1, duration: 350 });
+          centerNode(n, { zoom: 1 });
         }
       }} />
       <HighlightsOverviewModal onLocate={(nid) => {
         const n = useStore.getState().nodes.find((x) => x.id === nid);
         if (n) {
           setSelectedNodeId(nid);
-          rfInstance.current?.setCenter(n.position.x + 260, n.position.y + 110, { zoom: 1, duration: 350 });
+          centerNode(n, { zoom: 1 });
         }
       }} />
       {edgeMenu && (
@@ -1513,15 +1522,7 @@ function Canvas() {
           or content nodes, which are edited in place on the canvas */}
       {panelOpen && <FocusPanel onFocusNode={(id) => {
         const node = nodes.find(n => n.id === id);
-        if (node && rfInstance.current) {
-          // Center the node in the strip of canvas the panel leaves visible
-          const zoom = rfInstance.current.getZoom();
-          rfInstance.current.setCenter(
-            node.position.x + 240 + useUiStore.getState().panelWidth / (2 * zoom),
-            node.position.y + 100,
-            { duration: 300, zoom },
-          );
-        }
+        if (node) centerNode(node, { duration: 300 });
       }} />}
 
       {/* Material reading overlay: select a passage, ask, the node lands on
@@ -1530,7 +1531,7 @@ function Canvas() {
         const n = useStore.getState().nodes.find((x) => x.id === id);
         if (n) {
           setSelectedNodeId(id);
-          rfInstance.current?.setCenter(n.position.x + 260, n.position.y + 110, { zoom: 1, duration: 350 });
+          centerNode(n, { zoom: 1 });
         }
       }} />
     </div>

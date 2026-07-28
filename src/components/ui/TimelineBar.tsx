@@ -6,8 +6,7 @@ import { useUiStore } from '../../lib/ui-store';
 import { useZoomTier } from '../../lib/use-map-mode';
 import { useDateLocale, useT } from '../../i18n';
 import { collectTimeline } from '../../lib/timeline';
-import { PANEL_INSET } from '../../lib/constants';
-import type { ThoughtData } from '../../types';
+import { panelShift } from '../../lib/panel-shift';
 
 // The map's second axis. Space answers "where is it in the graph"; this rail
 // answers "when did I think it". Not a floating panel — a bare ruler drawn
@@ -17,17 +16,6 @@ import type { ThoughtData } from '../../types';
 // zoom controls below via bottom-anchoring. Ticks in the current viewport
 // run at full strength; the rest fade back. Appears only at map / glyph
 // tiers: zoomed in you are working, zoomed out you are searching.
-
-/** Screen pixels the focus panel will occupy on the right once this node is
-    selected — 0 when the panel mode is off or the node is canvas material
-    (content nodes never open the panel). */
-function panelShift(nodeId: string): number {
-  const ui = useUiStore.getState();
-  if (!ui.panelOpen) return 0;
-  const kind = (useStore.getState().nodes.find((n) => n.id === nodeId)?.data as ThoughtData | undefined)?.stepKind;
-  if (kind === 'note' || kind === 'file' || kind === 'link' || kind === 'frame') return 0;
-  return ui.panelWidth + PANEL_INSET + 12;
-}
 
 /** Landmarks (badged turns) rest longer than plain waypoints — the rail
     thins the same way the map does. */
