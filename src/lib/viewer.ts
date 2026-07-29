@@ -50,6 +50,7 @@ export async function buildViewerLink(nodes: ThoughtNode[], edges: ThoughtEdge[]
         attachments: (n.data.attachments ?? []).map((a) => ({
           ...a,
           content: a.type.startsWith('image/') ? '' : a.type === 'application/pdf' ? '' : a.content,
+          contentInVault: undefined,
           pageImages: undefined,
           isExtracting: false,
         })),

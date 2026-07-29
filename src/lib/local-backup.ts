@@ -5,6 +5,7 @@ import { toast, useUiStore } from './ui-store';
 import { t } from '../i18n';
 import { EXPORT_FORMAT_VERSION, activeProjectName } from './export';
 import { isViewerMode } from './viewer';
+import { inlineVaultedContent } from './attachment-vault';
 
 // Automatic local backup via the File System Access API (Chromium): the user
 // grants a FOLDER once; afterwards every canvas change is debounced and the
@@ -34,8 +35,9 @@ let dirty = false;
     was (no folder yet / empty canvas). */
 export async function backupActiveProject(): Promise<string | null> {
   if (!handle) return null;
-  const { nodes, edges, events } = useStore.getState();
-  if (nodes.length === 0) return null;
+  const { nodes: rawNodes, edges, events } = useStore.getState();
+  if (rawNodes.length === 0) return null;
+  const nodes = await inlineVaultedContent(rawNodes);
   const { projects, activeId } = useProjects.getState();
   const name = activeProjectName().replace(/[\\/:*?"<>|]/g, '_') || 'canvas';
   const payload = JSON.stringify({

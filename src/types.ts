@@ -6,7 +6,10 @@ export interface Attachment {
   type: string; // MIME type
   size: number;
   addedAt?: string; // ISO timestamp: when this material entered the canvas (thinking-timeline raw data)
-  content: string; // base64 for images/PDF, raw text for text files
+  content: string; // base64 for images, raw text for text files; '' for vaulted PDFs
+  /** Bulky payload lives in the attachment vault (IndexedDB), not here —
+      read through loadAttachmentContent(). Exports inline it back. */
+  contentInVault?: boolean;
   thumbnailUrl?: string; // data URL for image preview
   extractedText?: string; // companion text (PDF extraction / image auto-understanding)
   extractedBy?: string; // which model produced extractedText (extraction provenance)

@@ -10,6 +10,7 @@ import { Markdown, HighlightedMarkdown } from './Markdown';
 import { generateId, isImeComposing } from '../utils';
 import { useT, fmt } from '../i18n';
 import { isViewerMode } from '../lib/viewer';
+import { loadAttachmentContent } from '../lib/attachment-vault';
 
 // MaterialReader: the reading overlay — a VIEW onto a material node, never a
 // container. Select a passage (in the original PDF's text layer, or in the
@@ -123,7 +124,9 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
     (async () => {
       try {
         const m = await loadPdfjs();
-        const d = await m.getDocument({ data: base64ToBytes(pdfAtt.content) }).promise;
+        const raw = await loadAttachmentContent(pdfAtt);
+        if (!raw) { if (!dead) setPdfError('missing'); return; }
+        const d = await m.getDocument({ data: base64ToBytes(raw) }).promise;
         if (dead) { void d.destroy(); return; }
         docRef.current = d;
         let chars = 0;

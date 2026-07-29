@@ -7,6 +7,7 @@ import { isParadigmFile } from './paradigm';
 import { getContextPath } from './graph';
 import { countTokens } from '../utils';
 import { toast } from './ui-store';
+import { inlineVaultedContent, internNodes } from './attachment-vault';
 import { t, fmt } from '../i18n';
 import type { ThoughtNode, ThoughtEdge } from '../types';
 import type { ProjectMeta } from '../store/projects';
@@ -38,9 +39,11 @@ export function activeProjectName(): string {
 }
 
 // ─── Whole-canvas JSON backup ───────────────────────────────────
-export function exportActiveProjectJson(): void {
+export async function exportActiveProjectJson(): Promise<void> {
   localStorage.setItem('thoughtdag.lastBackupAt', String(Date.now()));
-  const { nodes, edges, events } = useStore.getState();
+  const { nodes: rawNodes, edges, events } = useStore.getState();
+  // A backup file must be self-contained: pull vaulted payloads back inline
+  const nodes = await inlineVaultedContent(rawNodes);
   const { projects, activeId } = useProjects.getState();
   const name = activeProjectName();
   const payload = JSON.stringify({
@@ -83,7 +86,7 @@ export async function parseImportFile(file: File): Promise<
   }
   if (isParadigmFile(parsed)) {
     const id = crypto.randomUUID();
-    const reconciled = await reconcileImportedModels(parsed.nodes);
+    const reconciled = await internNodes(await reconcileImportedModels(parsed.nodes));
     await idbSet(projectStorageKey(id), JSON.stringify({ state: { nodes: reconciled, edges: parsed.edges }, version: PERSIST_VERSION }));
     await adoptImportedProject(id, parsed.name || 'Paradigm', 'paradigm');
     toast('success', fmt(t('toast.imported'), { name: parsed.name, n: parsed.nodes.length }));
@@ -181,7 +184,7 @@ export async function importProjectFromFile(file: File, pre?: unknown): Promise<
     return false;
   }
   const id = crypto.randomUUID();
-  const reconciled = await reconcileImportedModels(parsed.nodes);
+  const reconciled = await internNodes(await reconcileImportedModels(parsed.nodes));
   // Write in the zustand-persist envelope format so rehydration accepts it.
   await idbSet(projectStorageKey(id), JSON.stringify({
     state: { nodes: stripTransient(reconciled), edges: parsed.edges, ...(Array.isArray(parsed.events) ? { events: parsed.events } : {}) },

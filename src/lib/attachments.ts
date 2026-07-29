@@ -2,6 +2,7 @@ import type { Attachment } from '../types';
 import { generateId } from '../utils';
 import { extractPdf } from './api';
 import { PDF_VISION_PAGE_THRESHOLD } from './constants';
+import { internAttachment } from './attachment-vault';
 
 export const TEXT_EXTENSIONS = /\.(md|txt|js|ts|tsx|jsx|py|json|csv|yaml|yml|toml|sh|bash|zsh|c|cpp|h|hpp|java|rs|go|rb|swift|kt|css|html|xml|sql|r|m|lua)$/i;
 
@@ -86,7 +87,11 @@ export async function processFile(file: File, cb: ProcessFileCallbacks): Promise
     return;
   }
 
-  cb.add({ ...att, isExtracting: true });
+  // The original PDF bytes go straight to the vault — the store only ever
+  // sees the lightened attachment. Extraction below keeps using the local
+  // `att.content` closure value.
+  const light = await internAttachment(att);
+  cb.add({ ...light, isExtracting: true });
   try {
     const data = await extractPdf(att.content);
     const numPages = data.numPages || 0;

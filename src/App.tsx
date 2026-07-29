@@ -48,6 +48,7 @@ import { countTokens } from './utils';
 import { buildExampleGraph } from './lib/example-graph';
 import { COLORS, FRAME_COLORS, PANEL_INSET } from './lib/constants';
 import { panelShift } from './lib/panel-shift';
+import { migrateActiveCanvasToVault, gcVaultAtBoot } from './lib/attachment-vault-boot';
 import { confirmDialog, toast, useUiStore } from './lib/ui-store';
 import ConfirmDialog from './components/ui/ConfirmDialog';
 import Toaster from './components/ui/Toaster';
@@ -91,6 +92,27 @@ const edgeTypes = { smoothstep: ThoughtEdgeView };
 export default function App() {
   const [hydrated, setHydrated] = useState(isViewerMode || useStore.persist.hasHydrated());
   useEffect(() => useStore.persist.onFinishHydration(() => setHydrated(true)), []);
+  // Attachment vault: whenever the graph changes (hydration, project
+  // switch, seed load, import), lighten any PDF still carrying its bytes
+  // inline. The check is one cheap some() pass and the migration itself is
+  // idempotent, so a debounced subscription beats racing load timings.
+  useEffect(() => {
+    if (!hydrated || isViewerMode) return;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const kick = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => void migrateActiveCanvasToVault(), 800);
+    };
+    const unsub = useStore.subscribe((s, prev) => { if (s.nodes !== prev.nodes) kick(); });
+    kick();
+    return () => { unsub(); clearTimeout(timer); };
+  }, [hydrated]);
+  // Sweep orphaned vault payloads once per boot, off the critical path.
+  useEffect(() => {
+    if (isViewerMode) return;
+    const timer = setTimeout(() => void gcVaultAtBoot(), 6000);
+    return () => clearTimeout(timer);
+  }, []);
   return (
     <>
       {hydrated && <Canvas />}
