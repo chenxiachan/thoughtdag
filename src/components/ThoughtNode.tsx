@@ -244,6 +244,20 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
     if (e.key === 'Escape') setEditing(id, false);
   };
 
+  // Click-away must NEVER fire a generation: mid-edit trips to copy text
+  // elsewhere used to submit the half-written question. Unchanged drafts
+  // close silently (the editor was opened to read); changed drafts stay
+  // open and wait for an explicit Enter.
+  const handleEditBlur = () => {
+    if (editValue.trim() === data.question) setEditing(id, false);
+  };
+
+  const autoGrowTa = (el: HTMLTextAreaElement | null) => {
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${Math.min(400, el.scrollHeight)}px`;
+  };
+
   const handleResponseEditKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') setEditingResponse(id, false);
   };
@@ -554,8 +568,9 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
                 value={editValue}
                 onChange={(e) => setEditValue(e.target.value)}
                 onKeyDown={handleEditKeyDown}
-                onBlur={isHuman || isAwaitingAsk ? undefined : handleEditSubmit} // pending asks keep their draft on click-away
-                ref={questionTaRef}
+                onBlur={isHuman || isAwaitingAsk ? undefined : handleEditBlur} // click-away keeps the draft, never generates
+                onInput={(e) => autoGrowTa(e.currentTarget)}
+                ref={(el) => { questionTaRef.current = el; autoGrowTa(el); }}
                 placeholder={data.instruction || (isAwaitingAsk ? t('node.askPlaceholder') : undefined)}
                 className={`w-full bg-wash border rounded-xl p-3 text-sm text-ink resize-none focus:outline-none focus:ring-2 ${
                   isHuman ? 'border-warm focus:ring-warm/20' : 'border-accent focus:ring-accent/20'

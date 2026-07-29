@@ -56,6 +56,18 @@ export default function QuestionSection({
     if (e.key === 'Escape') setEditing(nodeId, false);
   };
 
+  // Same contract as the card editor: click-away keeps a changed draft
+  // open and never generates; only an unchanged visit closes.
+  const handleEditBlur = () => {
+    if (editValue.trim() === question) setEditing(nodeId, false);
+  };
+
+  const autoGrowTa = (el: HTMLTextAreaElement | null) => {
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = `${Math.min(480, el.scrollHeight)}px`;
+  };
+
   return (
     <div className="panel-card px-4 py-3">
       <label className="text-2xs font-semibold text-accent mb-1 block">{t('panel.question')}</label>
@@ -70,7 +82,9 @@ export default function QuestionSection({
             value={editValue}
             onChange={(e) => setEditValue(e.target.value)}
             onKeyDown={handleEditKeyDown}
-            onBlur={awaiting || isHuman ? undefined : handleEditSubmit}
+            onBlur={awaiting || isHuman ? undefined : handleEditBlur}
+            onInput={(e) => autoGrowTa(e.currentTarget)}
+            ref={autoGrowTa}
             placeholder={placeholder}
             className="w-full bg-wash border border-accent rounded-xl p-3 text-sm text-ink resize-none focus:outline-none focus:ring-2 focus:ring-accent/20"
             rows={3}

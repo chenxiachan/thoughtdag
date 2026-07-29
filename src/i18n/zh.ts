@@ -473,7 +473,7 @@ export const zh: Record<keyof typeof en, string> = {
   'share.socialLane': '发到社媒',
   'share.socialNote': '信息流会截断长链接。配图用导出的海报；这两个按钮携带仓库链接，域名变化也不失效。海报与链接跟随当前界面语言，切到 EN 即产出英文版本。',
   'question.lockedWhileGenerating': '回答生成中，先停止再编辑问题。',
-  'question.editHintChanged': '回车重新生成回答 · Shift+回车换行 · Esc 放弃修改',
+  'question.editHintChanged': '回车 ⏎ 提交并重新生成；点击别处只保留草稿，不会提交',
   'question.editHintUnchanged': '回车关闭 · Shift+回车换行 · Esc 关闭',
   'toast.noModelYet': '还没有连接模型。选一家服务商填 key，然后回到节点点重试。',
   'toast.rateLimited': '模型限流了这次请求（免费档按分钟限速）。等半分钟，回到节点点重试。',

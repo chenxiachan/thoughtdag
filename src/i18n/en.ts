@@ -474,7 +474,7 @@ export const en = {
   'share.socialLane': 'Post to a feed',
   'share.socialNote': 'Feeds truncate long links. Post the poster as the picture; these buttons carry the repository link. Everything here follows the interface language — switch to 中 for the Chinese set.',
   'question.lockedWhileGenerating': 'The answer is still generating — stop it first to edit the question.',
-  'question.editHintChanged': 'Enter regenerates the answer · Shift+Enter new line · Esc discards',
+  'question.editHintChanged': 'Enter ⏎ submits and regenerates; clicking away keeps the draft, nothing is sent',
   'question.editHintUnchanged': 'Enter closes · Shift+Enter new line · Esc closes',
   'toast.noModelYet': 'No model connected yet. Pick a provider and paste a key, then hit Retry on the node.',
   'toast.rateLimited': 'The model rate-limited this request (free tiers meter requests per minute). Wait half a minute and hit Retry.',
