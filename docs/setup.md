@@ -36,6 +36,22 @@ Built on the Vercel AI SDK. Any provider below activates when its key lands in `
 
 > **Web search availability**: OpenRouter interfaces have it built in (the gateway's `:online` variant). Any other interface gets it when a GLM interface (Zhipu or Z.ai, a free key works) is also connected — that key powers the search engine for every model. Scholarly search (arXiv + Semantic Scholar) needs nothing.
 
+## Subscriptions
+
+Metered API keys are not the only way in. Three subscription plans connect too, and the in-app presets carry the right endpoints:
+
+**ChatGPT plan (Plus/Pro)** connects through a community local bridge, so it works when ThoughtDAG runs locally:
+
+1. Run `npx openai-oauth@latest` in a terminal and sign in with your ChatGPT account once; the bridge listens at `127.0.0.1:10531`.
+2. Run ThoughtDAG locally (`npm run server` + `npm run dev`).
+3. In the app: model picker → add endpoint → **ChatGPT plan · local** → fetch models → save. Usage draws from your plan, with no metered bill. The hosted demo cannot reach your machine, so this path is local-only.
+
+**GLM Coding plan**: the subscription issues a real API key against a dedicated endpoint (`/api/coding/paas/v4`, not the metered `/api/paas/v4`). Pick the **GLM Coding plan** preset, paste the key from your plan console, done. Works on the hosted app too.
+
+**Kimi Code plan**: same shape. Create a key in the Kimi Code console (up to 5), pick the **Kimi Code plan** preset, paste, done. `k3-256k` is the quota-friendly pick. Works on the hosted app too.
+
+> Claude and Gemini subscriptions are absent deliberately: both providers prohibit third-party use of subscription credentials (enforced in 2026, with real account suspensions). Their metered API keys work normally via the regular presets.
+
 ## Cost & privacy (in detail)
 
 - **Free to run.** The Zhipu free tier (GLM-4.5-Flash text + GLM-4V-Flash vision) covers every feature; agentic web search costs ~¥0.01/query. International users get the same free flash models through the in-app Z.ai GLM preset (z.ai). Or point it at any provider you already pay for, or a local Ollama model, fully offline.

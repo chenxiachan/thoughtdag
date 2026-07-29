@@ -44,14 +44,6 @@ export const PROVIDER_PRESETS: ProviderPreset[] = [
   },
   { id: 'zai', name: 'Z.ai GLM', region: 'en', baseURL: 'https://api.z.ai/api/paas/v4', keyUrl: 'https://z.ai', recommend: ['glm-4.5-flash', 'glm-5'] },
   { id: 'zhipu', name: '智谱 GLM', region: 'zh', baseURL: 'https://open.bigmodel.cn/api/paas/v4', keyUrl: 'https://open.bigmodel.cn', recommend: ['glm-4.5-flash', 'glm-4v-flash', 'glm-5'] },
-  { id: 'deepseek', name: 'DeepSeek', baseURL: 'https://api.deepseek.com/v1', keyUrl: 'https://platform.deepseek.com/api_keys' },
-  { id: 'openai', name: 'OpenAI', baseURL: 'https://api.openai.com/v1', keyUrl: 'https://platform.openai.com/api-keys' },
-  // Google AI Studio: keys are free without a card, but the free tier
-  // meters requests per minute tightly (and the takeaway judge doubles our
-  // calls) — kept as an option near the back, not a headline path.
-  { id: 'google', name: 'Google AI Studio', baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai', keyUrl: 'https://aistudio.google.com/apikey', recommend: ['gemini-2.5-flash', 'gemini-2.5-flash-lite'] },
-  { id: 'moonshot-intl', name: 'Kimi', region: 'en', baseURL: 'https://api.moonshot.ai/v1', keyUrl: 'https://platform.moonshot.ai/console/api-keys' },
-  { id: 'moonshot', name: 'Kimi', region: 'zh', baseURL: 'https://api.moonshot.cn/v1', keyUrl: 'https://platform.moonshot.cn/console/api-keys' },
   // GLM Coding Plan: the subscription issues keys against a DEDICATED
   // endpoint (/api/coding/paas/v4) — NOT interchangeable with the metered
   // /api/paas/v4 above. Region twins mirror the zhipu/zai pair.
@@ -63,6 +55,14 @@ export const PROVIDER_PRESETS: ProviderPreset[] = [
   // twin only localizes the display name.
   { id: 'kimi-code', name: 'Kimi Code 订阅', region: 'zh', baseURL: 'https://api.kimi.com/coding/v1', keyUrl: 'https://www.kimi.com/code/console', recommend: ['k3-256k', 'kimi-for-coding'] },
   { id: 'kimi-code-intl', name: 'Kimi Code plan', region: 'en', baseURL: 'https://api.kimi.com/coding/v1', keyUrl: 'https://www.kimi.com/code/console', recommend: ['k3-256k', 'kimi-for-coding'] },
+  { id: 'deepseek', name: 'DeepSeek', baseURL: 'https://api.deepseek.com/v1', keyUrl: 'https://platform.deepseek.com/api_keys' },
+  { id: 'openai', name: 'OpenAI', baseURL: 'https://api.openai.com/v1', keyUrl: 'https://platform.openai.com/api-keys' },
+  // Google AI Studio: keys are free without a card, but the free tier
+  // meters requests per minute tightly (and the takeaway judge doubles our
+  // calls) — kept as an option near the back, not a headline path.
+  { id: 'google', name: 'Google AI Studio', baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai', keyUrl: 'https://aistudio.google.com/apikey', recommend: ['gemini-2.5-flash', 'gemini-2.5-flash-lite'] },
+  { id: 'moonshot-intl', name: 'Kimi', region: 'en', baseURL: 'https://api.moonshot.ai/v1', keyUrl: 'https://platform.moonshot.ai/console/api-keys' },
+  { id: 'moonshot', name: 'Kimi', region: 'zh', baseURL: 'https://api.moonshot.cn/v1', keyUrl: 'https://platform.moonshot.cn/console/api-keys' },
   { id: 'ollama', name: 'Ollama', baseURL: 'http://localhost:11434/v1', noKey: true },
   // ChatGPT plan via the openai-oauth local bridge (no CORS on the bridge,
   // so requests must ride the local Node proxy — hosted deployments cannot

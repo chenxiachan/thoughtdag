@@ -15,7 +15,7 @@
 
 no install, no signup; the example canvas needs no key
 
-[中文](./README_ZH.md) · [Quick start](#quick-start) · [More capabilities](#more-capabilities) · [Models](#supported-models) · [Cost & privacy](#cost--privacy)
+[中文](./README_ZH.md) · [Quick start](#quick-start) · [More capabilities](#more-capabilities) · [Models & subscriptions](#models--subscriptions) · [Cost & privacy](#cost--privacy)
 
 <img src="docs/hero-demo-en.gif" alt="Hero demo, recorded from the live app: selecting a passage in the PDF reader and asking about it; deleting a noise edge and regenerating a clean answer; zooming out through three semantic tiers to the map; opening the backup control center and exporting a real file" width="100%"/>
 
@@ -119,9 +119,11 @@ The first launch opens a seeded example canvas: four chapters around one everyda
 
 Full feature list (60+, grouped by area) → [docs/features.md](docs/features.md)
 
-## Supported models
+## Models & subscriptions
 
 Zhipu · Qwen · OpenAI · Anthropic · Google · DeepSeek · Kimi · OpenRouter · Ollama, or any OpenAI-compatible endpoint. Requests with images reroute to vision models automatically. Environment variables and default models → [docs/setup.md](docs/setup.md)
+
+**Already paying for a subscription? It plugs in.** A ChatGPT plan connects through a one-command local bridge (with ThoughtDAG running locally). GLM Coding and Kimi Code plans issue real API keys: pick the preset, paste the key, done. Setup for all three → [docs/setup.md#subscriptions](docs/setup.md#subscriptions)
 
 ## Cost & privacy
 

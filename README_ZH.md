@@ -15,7 +15,7 @@
 
 无需安装注册，示例画布免 key
 
-[English](./README.md) · [快速开始](#快速开始) · [更多能力](#更多能力) · [支持的模型](#支持的模型) · [成本与隐私](#成本与隐私)
+[English](./README.md) · [快速开始](#快速开始) · [更多能力](#更多能力) · [模型与订阅](#模型与订阅) · [成本与隐私](#成本与隐私)
 
 <img src="docs/hero-demo-zh.gif" alt="真实录屏的 Hero 演示：在 PDF 阅读器圈选段落提问；删掉噪音边重新生成干净答案；三层语义缩放缩到地图形态；打开备份控制中心导出真实文件" width="100%"/>
 
@@ -119,9 +119,11 @@ npm run dev       # → localhost:5173
 
 完整功能清单（60+ 条，按领域分组）→ [docs/features_ZH.md](docs/features_ZH.md)
 
-## 支持的模型
+## 模型与订阅
 
 智谱 · 通义 · OpenAI · Anthropic · Google · DeepSeek · Kimi · OpenRouter · Ollama，或任何兼容 OpenAI 协议的端点。带图请求自动改道视觉模型。环境变量与默认模型 → [docs/setup_ZH.md](docs/setup_ZH.md)
+
+**已经在付订阅费？直接接进来。** ChatGPT 订阅经一条命令的本地桥接入（配合本地运行的 ThoughtDAG）；GLM Coding 与 Kimi Code 订阅本身就发 API key，选预设、填 key 即可。三家的接法 → [docs/setup_ZH.md#订阅接入](docs/setup_ZH.md#订阅接入)
 
 ## 成本与隐私
 

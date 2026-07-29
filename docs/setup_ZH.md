@@ -36,6 +36,22 @@ npm run dev            # → http://localhost:5173
 
 > **联网搜索的可用条件**：OpenRouter 接口自带（网关 `:online`）；其他任何接口，只要同时连接一个智谱 GLM 接口（免费 key 即可），它的 key 就为所有模型驱动搜索引擎。学术检索（arXiv + Semantic Scholar）无需任何条件。
 
+## 订阅接入
+
+按量 API key 不是唯一入口。三家订阅也能接，应用内预设已带好对应端点：
+
+**ChatGPT 订阅（Plus/Pro）**：经社区本地桥接入，本地运行 ThoughtDAG 时可用：
+
+1. 终端运行 `npx openai-oauth@latest`，用 ChatGPT 账号登录一次，桥监听 `127.0.0.1:10531`。
+2. 本地运行 ThoughtDAG（`npm run server` + `npm run dev`）。
+3. 应用内：模型选择器 → 添加接口 → **ChatGPT 订阅 · 本地** → 获取模型列表 → 保存。用量计入订阅额度，不产生按量账单。线上版连不到你的本机，此通道仅限本地。
+
+**GLM Coding 订阅**：订阅本身发 API key，走专用端点（`/api/coding/paas/v4`，与按量的 `/api/paas/v4` 不通用）。选 **GLM Coding 订阅** 预设，填订阅控制台里的 key 即可。线上版同样可用。
+
+**Kimi Code 订阅**：同样形态。在 Kimi Code 控制台创建 key（最多 5 把），选 **Kimi Code 订阅** 预设填入即可。推荐 `k3-256k`，省配额。线上版同样可用。
+
+> 刻意没有 Claude 与 Gemini 订阅：两家都禁止订阅凭证在第三方工具使用（2026 年已实际执法，有封号案例）。它们的按量 API key 走常规预设，不受影响。
+
 ## 成本与隐私（细节版）
 
 - **免费可用。** 智谱免费档（GLM-4.5-Flash 文本 + GLM-4V-Flash 视觉）覆盖全部功能；联网搜索约 ¥0.01/次。也可以接任何你已付费的模型，或本地 Ollama 完全离线。
