@@ -75,7 +75,10 @@ export default function ApiKeyModal() {
   // newly listed models automatically. Huge catalogs (gateways) stay on the
   // picked+recommended whitelist; use Add to browse their new arrivals.
   const refresh = async (p: RuntimeProvider) => {
-    const match = PROVIDER_PRESETS.find((x) => x.baseURL === p.baseURL);
+    // Same-URL region twins exist (ChatGPT bridge, Kimi Code): prefer the
+    // twin matching the UI language so the visible chip row highlights.
+    const match = PROVIDER_PRESETS.find((x) => x.baseURL === p.baseURL && (!x.region || x.region === lang))
+      ?? PROVIDER_PRESETS.find((x) => x.baseURL === p.baseURL);
     setPreset(match ?? PROVIDER_PRESETS.find((x) => x.id === 'custom')!);
     if (!match) { setCustomURL(p.baseURL); setCustomName(p.name); }
     setKey(p.apiKey);

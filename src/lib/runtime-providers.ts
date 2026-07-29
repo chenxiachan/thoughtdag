@@ -52,11 +52,18 @@ export const PROVIDER_PRESETS: ProviderPreset[] = [
   { id: 'google', name: 'Google AI Studio', baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai', keyUrl: 'https://aistudio.google.com/apikey', recommend: ['gemini-2.5-flash', 'gemini-2.5-flash-lite'] },
   { id: 'moonshot-intl', name: 'Kimi', region: 'en', baseURL: 'https://api.moonshot.ai/v1', keyUrl: 'https://platform.moonshot.ai/console/api-keys' },
   { id: 'moonshot', name: 'Kimi', region: 'zh', baseURL: 'https://api.moonshot.cn/v1', keyUrl: 'https://platform.moonshot.cn/console/api-keys' },
+  // Kimi Code membership: the subscription issues real API keys (console,
+  // up to 5) against an OpenAI-compatible endpoint — usage draws from the
+  // plan's weekly quota, not a metered bill. Same URL both regions; the
+  // twin only localizes the display name.
+  { id: 'kimi-code', name: 'Kimi Code 订阅', region: 'zh', baseURL: 'https://api.kimi.com/coding/v1', keyUrl: 'https://www.kimi.com/code/console', recommend: ['k3-256k', 'kimi-for-coding'] },
+  { id: 'kimi-code-intl', name: 'Kimi Code plan', region: 'en', baseURL: 'https://api.kimi.com/coding/v1', keyUrl: 'https://www.kimi.com/code/console', recommend: ['k3-256k', 'kimi-for-coding'] },
   { id: 'ollama', name: 'Ollama', baseURL: 'http://localhost:11434/v1', noKey: true },
   // ChatGPT plan via the openai-oauth local bridge (no CORS on the bridge,
   // so requests must ride the local Node proxy — hosted deployments cannot
   // reach a user's 127.0.0.1 anyway; the hint spells this out).
-  { id: 'chatgpt-bridge', name: 'ChatGPT Bridge', baseURL: 'http://127.0.0.1:10531/v1', noKey: true, hintKey: 'provider.chatgptBridgeHint' },
+  { id: 'chatgpt-bridge', name: 'ChatGPT 订阅', region: 'zh', baseURL: 'http://127.0.0.1:10531/v1', noKey: true, hintKey: 'provider.chatgptBridgeHint' },
+  { id: 'chatgpt-bridge-intl', name: 'ChatGPT plan', region: 'en', baseURL: 'http://127.0.0.1:10531/v1', noKey: true, hintKey: 'provider.chatgptBridgeHint' },
   { id: 'custom', name: '', baseURL: '' },
 ];
 
