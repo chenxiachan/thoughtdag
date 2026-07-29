@@ -52,6 +52,11 @@ export const PROVIDER_PRESETS: ProviderPreset[] = [
   { id: 'google', name: 'Google AI Studio', baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai', keyUrl: 'https://aistudio.google.com/apikey', recommend: ['gemini-2.5-flash', 'gemini-2.5-flash-lite'] },
   { id: 'moonshot-intl', name: 'Kimi', region: 'en', baseURL: 'https://api.moonshot.ai/v1', keyUrl: 'https://platform.moonshot.ai/console/api-keys' },
   { id: 'moonshot', name: 'Kimi', region: 'zh', baseURL: 'https://api.moonshot.cn/v1', keyUrl: 'https://platform.moonshot.cn/console/api-keys' },
+  // GLM Coding Plan: the subscription issues keys against a DEDICATED
+  // endpoint (/api/coding/paas/v4) — NOT interchangeable with the metered
+  // /api/paas/v4 above. Region twins mirror the zhipu/zai pair.
+  { id: 'glm-coding', name: 'GLM Coding 订阅', region: 'zh', baseURL: 'https://open.bigmodel.cn/api/coding/paas/v4', keyUrl: 'https://open.bigmodel.cn/glm-coding', recommend: ['glm-5'] },
+  { id: 'glm-coding-intl', name: 'GLM Coding plan', region: 'en', baseURL: 'https://api.z.ai/api/coding/paas/v4', keyUrl: 'https://z.ai', recommend: ['glm-5'] },
   // Kimi Code membership: the subscription issues real API keys (console,
   // up to 5) against an OpenAI-compatible endpoint — usage draws from the
   // plan's weekly quota, not a metered bill. Same URL both regions; the
