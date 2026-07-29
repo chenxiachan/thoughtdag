@@ -16,7 +16,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import 'highlight.js/styles/github.css';
-import { BookOpen, Brain, CircleHelp, Dna, Download, Drama, Eye, FileText, Frame, GitBranch, Highlighter, KeyRound, LayoutGrid, Loader2, MessageCircleQuestion, MoreHorizontal, Paperclip, Redo2, Scissors, Share2, SquareTerminal, StickyNote, Trash2, Undo2, Workflow, X, ListRestart, FolderSync } from 'lucide-react';
+import { BookOpen, Brain, CircleHelp, Dna, Download, Drama, Eye, FileText, Frame, GitBranch, Highlighter, KeyRound, LayoutGrid, Loader2, MessageCircleQuestion, MoreHorizontal, Paperclip, Redo2, Scissors, Share2, SquareTerminal, StickyNote, Trash2, Undo2, Workflow, X, ListRestart, FolderSync, Minimize2 } from 'lucide-react';
 import './index.css';
 import ThoughtNode from './components/ThoughtNode';
 import ParadigmNode from './components/ParadigmNode';
@@ -59,6 +59,7 @@ import ApiKeyModal from './components/ui/ApiKeyModal';
 import ResponseViewer from './components/ui/ResponseViewer';
 import ShareDialog from './components/ui/ShareDialog';
 import BackupDialog from './components/ui/BackupDialog';
+import CondenseDialog from './components/ui/CondenseDialog';
 import { backupSupported } from './lib/local-backup';
 import LangSwitch from './components/ui/LangSwitch';
 import ModelPicker from './components/ui/ModelPicker';
@@ -124,6 +125,7 @@ export default function App() {
       <ResponseViewer />
       <ShareDialog />
       <BackupDialog />
+      <CondenseDialog />
       <ConfirmDialog />
       <Tutorial />
     </>
@@ -1349,6 +1351,16 @@ function Canvas() {
             title={isParadigm ? t('paradigm.exportParadigm') : t('switcher.exportBackup')}
           >
             <Download size={15} strokeWidth={1.75} />
+          </button>
+        )}
+        {hasNodes && !isParadigm && !isViewerMode && (
+          <button
+            onClick={() => useUiStore.getState().setCondenseDialogOpen(true)}
+            className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors text-ink-muted hover:text-accent"
+            title={t('condense.entryTitle')}
+            data-condense-entry
+          >
+            <Minimize2 size={15} strokeWidth={1.75} />
           </button>
         )}
         {backupSupported && (

@@ -17,12 +17,11 @@ export function isContentKind(kind?: ThoughtData['stepKind']): boolean {
   return kind === 'note' || kind === 'file' || kind === 'link';
 }
 
-export function spawnContentNode(
+export function buildContentNode(
   kind: 'note' | 'file' | 'link',
   position: { x: number; y: number },
   init?: { question?: string; linkUrl?: string },
-): string {
-  const st = useStore.getState();
+): ThoughtNode {
   const id = generateId();
   const question = init?.question ?? '';
   const node: ThoughtNode = {
@@ -46,10 +45,20 @@ export function spawnContentNode(
       roleMode: 'inherit', isRoot: false, isBranch: false,
     },
   };
+  return node;
+}
+
+export function spawnContentNode(
+  kind: 'note' | 'file' | 'link',
+  position: { x: number; y: number },
+  init?: { question?: string; linkUrl?: string },
+): string {
+  const st = useStore.getState();
+  const node = buildContentNode(kind, position, init);
   st.setNodes([...st.nodes, node]);
   st.pushHistory();
-  if (question) triggerParadigmCascade(useStore.getState, id);
-  return id;
+  if (node.data.question) triggerParadigmCascade(useStore.getState, node.id);
+  return node.id;
 }
 
 /**

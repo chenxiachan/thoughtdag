@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { Handle, Position, useReactFlow, useUpdateNodeInternals, type NodeProps } from '@xyflow/react';
-import { AlertTriangle, Archive, BookOpen, ChevronDown, ChevronLeft, ChevronRight, Copy, Eye, GitBranch, Globe, Hourglass, Paperclip, RefreshCw, Send, Split, Square, Star, Trash2, UserRound, X } from 'lucide-react';
+import { AlertTriangle, Archive, BookOpen, ChevronDown, ChevronLeft, ChevronRight, Copy, Eye, GitBranch, Globe, Hourglass, Minimize2, Paperclip, RefreshCw, Send, Split, Square, Star, Trash2, UserRound, X } from 'lucide-react';
 import 'katex/dist/katex.min.css';
 import type { ThoughtNode as ThoughtNodeType } from '../types';
 import { useStore } from '../store';
@@ -246,6 +246,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
     if (e.key === 'Escape') { setBranchFromText(''); }
   };
 
+  const isCondensedForm = data.contextForm === 'summary';
   const isRoot = data.isRoot;
   const isBranch = data.isBranch;
   const hasMultipleVersions = data.responses.length > 1;
@@ -439,6 +440,16 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
             {data.isCollapsed ? <ChevronRight size={18} strokeWidth={1.75} /> : <ChevronDown size={18} strokeWidth={1.75} />}
           </button>
           <span className="text-xs text-ink-faint font-mono">{data.tokenCount} tok</span>
+          {isCondensedForm && (
+            <button
+              onClick={(e) => { e.stopPropagation(); if (!isViewerMode) useStore.getState().setContextForm([id], 'full'); }}
+              title={t('node.condensedFormTitle')}
+              data-condensed-badge
+              className="text-2xs bg-accent/10 text-accent hover:bg-accent/20 px-1.5 py-0.5 rounded-md flex items-center gap-1 font-medium transition-colors"
+            >
+              <Minimize2 size={11} strokeWidth={1.75} /> {t('node.condensedForm')}
+            </button>
+          )}
           {isStale && !data.isLoading && (
             <button
               onClick={(e) => { e.stopPropagation(); if (!isViewerMode) void rerunNode(id, {}); }}
