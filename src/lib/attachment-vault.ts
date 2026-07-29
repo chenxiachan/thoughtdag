@@ -47,8 +47,9 @@ export async function inlineVaultedContent(nodes: ThoughtNode[]): Promise<Though
     for (const a of atts) {
       if (!a.contentInVault) { inlined.push(a); continue; }
       const content = await loadAttachmentContent(a);
-      const { contentInVault: _drop, ...rest } = a;
-      inlined.push({ ...rest, content });
+      const rest = { ...a, content };
+      delete rest.contentInVault;
+      inlined.push(rest);
     }
     out.push({ ...n, data: { ...n.data, attachments: inlined } });
   }

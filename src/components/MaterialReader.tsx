@@ -5,7 +5,7 @@ import type { ThoughtNode } from '../types';
 import { useStore } from '../store';
 import { useUiStore, toast } from '../lib/ui-store';
 import { useModels } from '../lib/use-models';
-import { generateDigest, recognizePdfPages, spawnContentNode } from '../lib/content';
+import { generateDigest, recognizePdfPages, spawnContentNode, extractImage } from '../lib/content';
 import { Markdown, HighlightedMarkdown } from './Markdown';
 import { generateId, isImeComposing } from '../utils';
 import { useT, fmt } from '../i18n';
@@ -254,6 +254,53 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
     toast('success', t('reader.clippedNote'));
     setAsk(null);
     window.getSelection()?.removeAllRanges();
+  };
+
+  // ── area capture → an edge-less image node: the figure becomes its own
+  // material, cropped straight from the rendered page canvas. Provenance
+  // rides anchor.attId, the same as clipped notes; wire it into a question
+  // and the image flows to a vision model.
+  const [clipMode, setClipMode] = useState(false);
+  const handleClipped = (pageNo: number, rect: [number, number, number, number], dataUrl: string) => {
+    const base64 = dataUrl.split(',')[1] ?? '';
+    if (!base64) return;
+    // thumbnail: same pixels, capped width — cards show this, requests use content
+    const st = useStore.getState();
+    const baseNode = st.nodes.find((n) => n.id === node.id);
+    const pos = baseNode
+      ? { x: baseNode.position.x + 460, y: baseNode.position.y + ((st.nodes.filter((n) => n.data.anchor?.attId).length % 5) * 150) }
+      : { x: 120, y: 120 };
+    const freshId = spawnContentNode('file', pos);
+    const attId = generateId();
+    const img = new Image();
+    img.onload = () => {
+      const cap = 320;
+      const scale = Math.min(1, cap / img.width);
+      const tc = document.createElement('canvas');
+      tc.width = Math.max(1, Math.round(img.width * scale));
+      tc.height = Math.max(1, Math.round(img.height * scale));
+      tc.getContext('2d')!.drawImage(img, 0, 0, tc.width, tc.height);
+      const thumb = tc.toDataURL('image/jpeg', 0.8);
+      useStore.getState().addAttachment(freshId, {
+        id: attId,
+        name: `clip-p${pageNo}.png`,
+        type: 'image/png',
+        size: Math.round(base64.length * 0.75),
+        addedAt: new Date().toISOString(),
+        content: base64,
+        thumbnailUrl: thumb,
+      });
+      const anchor = { page: pageNo, rects: [rect], ...(pdfAtt ? { attId: pdfAtt.id } : {}) };
+      useStore.setState((s) => ({
+        nodes: s.nodes.map((n) => (n.id === freshId ? { ...n, data: { ...n.data, anchor } } : n)),
+      }));
+      // auto-read once (when a vision model exists): the companion text makes
+      // the clip legible to text-only models too
+      void extractImage(freshId, attId);
+    };
+    img.src = dataUrl;
+    setClipMode(false);
+    toast('success', t('reader.clippedImage'));
   };
 
   // highlight a rail-answer selection: same data the node card and the
@@ -508,6 +555,17 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
               )}
             </div>
           )}
+          {pdfAtt && view === 'original' && !isViewerMode && (
+            <button
+              onClick={() => setClipMode((v) => !v)}
+              title={t('reader.clipTitle')}
+              data-reader-clip-toggle
+              className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition-colors shrink-0 ${clipMode ? 'border-warm bg-warm/10 text-warm font-medium' : 'border-line text-ink-muted hover:bg-wash'}`}
+            >
+              <Crosshair size={13} strokeWidth={1.75} />
+              {clipMode ? t('reader.clipActive') : t('reader.clip')}
+            </button>
+          )}
           {pdfAtt && !digestText && !digesting && !!pdfAtt.extractedText?.trim() && !isViewerMode && (
             <button
               onClick={() => void startDigest()}
@@ -563,7 +621,7 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
             doc && pdfjs ? (
               <div className="flex flex-col items-center gap-4 py-6 px-4">
                 {Array.from({ length: doc.numPages }, (_, i) => (
-                  <PdfPage key={i + 1} doc={doc} pdfjs={pdfjs} pageNo={i + 1} width={Math.min(860, window.innerWidth * (threadId ? 0.96 : 0.94) - (threadId ? 420 : 0) - 96)} anchors={anchorsByPage.get(i + 1)} activeThreadId={threadId} onAnchorClick={setThreadId} />
+                  <PdfPage key={i + 1} doc={doc} pdfjs={pdfjs} pageNo={i + 1} width={Math.min(860, window.innerWidth * (threadId ? 0.96 : 0.94) - (threadId ? 420 : 0) - 96)} anchors={anchorsByPage.get(i + 1)} activeThreadId={threadId} onAnchorClick={setThreadId} clipMode={clipMode} onClipped={handleClipped} />
                 ))}
               </div>
             ) : (
@@ -827,15 +885,37 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
 
 // One PDF page: canvas render + selectable text layer, lazily rendered as it
 // scrolls into range so long papers stay light.
-function PdfPage({ doc, pdfjs, pageNo, width, anchors, activeThreadId, onAnchorClick }: {
+function PdfPage({ doc, pdfjs, pageNo, width, anchors, activeThreadId, onAnchorClick, clipMode, onClipped }: {
   doc: PDFDocumentProxy; pdfjs: Pdfjs; pageNo: number; width: number;
   anchors?: { id: string; question: string; rects: [number, number, number, number][] }[];
   activeThreadId?: string | null;
   onAnchorClick?: (id: string) => void;
+  clipMode?: boolean;
+  onClipped?: (pageNo: number, rect: [number, number, number, number], dataUrl: string) => void;
 }) {
   const holderRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
+  // clip-mode rubber band, in page-fraction space (same space as anchors)
+  const [band, setBand] = useState<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
+  const frac = (e: React.MouseEvent) => {
+    const pb = holderRef.current!.getBoundingClientRect();
+    return { x: Math.min(1, Math.max(0, (e.clientX - pb.left) / pb.width)), y: Math.min(1, Math.max(0, (e.clientY - pb.top) / pb.height)) };
+  };
+  const finishClip = () => {
+    if (!band || !canvasRef.current || !onClipped) { setBand(null); return; }
+    const x = Math.min(band.x0, band.x1), y = Math.min(band.y0, band.y1);
+    const w = Math.abs(band.x1 - band.x0), h = Math.abs(band.y1 - band.y0);
+    setBand(null);
+    if (w < 0.02 || h < 0.01) return; // a stray click, not a capture
+    const src = canvasRef.current;
+    const sx = Math.floor(x * src.width), sy = Math.floor(y * src.height);
+    const sw = Math.max(1, Math.floor(w * src.width)), sh = Math.max(1, Math.floor(h * src.height));
+    const out = document.createElement('canvas');
+    out.width = sw; out.height = sh;
+    out.getContext('2d')!.drawImage(src, sx, sy, sw, sh, 0, 0, sw, sh);
+    onClipped(pageNo, [x, y, w, h], out.toDataURL('image/png'));
+  };
   const [visible, setVisible] = useState(pageNo <= 2);
   const [height, setHeight] = useState(Math.round(width * 1.4142));
 
@@ -918,6 +998,29 @@ function PdfPage({ doc, pdfjs, pageNo, width, anchors, activeThreadId, onAnchorC
         </div>
       ))}
       <span className="absolute -left-9 top-1 text-2xs text-ink-faint font-mono select-none">p.{pageNo}</span>
+      {clipMode && (
+        <div
+          className="absolute inset-0 cursor-crosshair"
+          style={{ zIndex: 6 }}
+          data-clip-overlay={pageNo}
+          onMouseDown={(e) => { e.preventDefault(); const p = frac(e); setBand({ x0: p.x, y0: p.y, x1: p.x, y1: p.y }); }}
+          onMouseMove={(e) => { if (band) { const p = frac(e); setBand({ ...band, x1: p.x, y1: p.y }); } }}
+          onMouseUp={finishClip}
+          onMouseLeave={() => { if (band) finishClip(); }}
+        >
+          {band && (
+            <div
+              className="absolute border-2 border-warm bg-warm/10 rounded-sm pointer-events-none"
+              style={{
+                left: `${Math.min(band.x0, band.x1) * 100}%`,
+                top: `${Math.min(band.y0, band.y1) * 100}%`,
+                width: `${Math.abs(band.x1 - band.x0) * 100}%`,
+                height: `${Math.abs(band.y1 - band.y0) * 100}%`,
+              }}
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 }
