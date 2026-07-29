@@ -92,7 +92,12 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   // box. And while a paradigm run is in progress the canvas is a DASHBOARD
   // (waiting/running states are what the human watches), not a map. Both
   // keep their working form at every zoom.
-  const zoomedOut = mapMode && !isAwaitingHuman && !isAwaitingAsk && !(isParadigmNode && runLocked);
+  // Visual follows context: a node in takeaway form WEARS its plaque at
+  // every zoom — what you see on the canvas is the line the model gets.
+  // (The first cut kept full cards for condensed nodes; users rightly
+  // could not find the simplification on the map.)
+  const isCondensedForm = data.contextForm === 'summary';
+  const zoomedOut = (mapMode || isCondensedForm) && !isAwaitingHuman && !isAwaitingAsk && !(isParadigmNode && runLocked);
   // Glyph tier: the node collapses to one seal — the thinking's skeleton
   const glyphTier = zoomTier === 'glyph' && zoomedOut;
   // Handles move to hug the seal at glyph tier — tell React Flow to re-measure
@@ -100,6 +105,9 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   useEffect(() => { updateNodeInternals(id); }, [glyphTier, id, updateNodeInternals]);
   // Upstream changed since this answer was written (see recomputeStaleness)
   const isStale = useStore((s) => s.staleIds.includes(id));
+  // Lit while its condense-dialog segment row is hovered — the list points,
+  // the canvas answers.
+  const condenseLit = useUiStore((s) => s.condenseHighlightIds.includes(id));
   // Page-anchored questions wear a p.N chip that reopens the reader right
   // there — the material node this question grew from is the reader target
   const anchorMaterialId = useStore((s) => {
@@ -246,7 +254,6 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
     if (e.key === 'Escape') { setBranchFromText(''); }
   };
 
-  const isCondensedForm = data.contextForm === 'summary';
   const isRoot = data.isRoot;
   const isBranch = data.isBranch;
   const hasMultipleVersions = data.responses.length > 1;
@@ -307,7 +314,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
       ref={nodeRef}
       className={glyphTier
         ? `w-[520px] animate-fade-in transition-all duration-200 ${data.archived ? 'opacity-35 saturate-50 ' : ''}${selectedNodeId === id ? 'glyph-selected ' : ''}`
-        : `thought-node rounded-xl w-[520px] animate-fade-in transition-all duration-200 ${zoomedOut ? 'map-node ' : ''}${data.archived ? 'opacity-35 saturate-50 ' : ''}${isWaitingUpstream ? 'opacity-60 ' : ''}${
+        : `thought-node rounded-xl w-[520px] animate-fade-in transition-all duration-200 ${zoomedOut ? 'map-node ' : ''}${condenseLit ? 'ring-4 ring-accent/60 ' : ''}${data.archived ? 'opacity-35 saturate-50 ' : ''}${isWaitingUpstream ? 'opacity-60 ' : ''}${
         data.isEvaluator ? 'evaluator-node' : isHuman ? 'human-node' : isBranch ? 'orange-node' : isRoot ? 'root-node' : 'branch-node'
       } ${data.isLoading ? 'loading-border' : ''} ${selectedNodeId === id ? 'ring-2 ring-accent !border-accent selected-glow' : ''} ${isDropTarget ? 'ring-2 ring-accent/50 ring-dashed' : ''}`}
       onClick={() => setSelectedNodeId(id)}
@@ -399,7 +406,17 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
         // documents. EXCEPT the root: its opening question IS the map's
         // title — the reader's entry point — so there question leads and
         // the takeaway is the subtitle.
-        <div className="drag-handle cursor-grab active:cursor-grabbing px-6 py-5">
+        <div className="drag-handle cursor-grab active:cursor-grabbing px-6 py-5 relative">
+          {isCondensedForm && (
+            <button
+              onClick={(e) => { e.stopPropagation(); if (!isViewerMode) useStore.getState().setContextForm([id], 'full'); }}
+              title={t('node.condensedFormTitle')}
+              data-condensed-badge
+              className="absolute top-2 right-2 text-2xs bg-accent/10 text-accent hover:bg-accent/25 px-1.5 py-0.5 rounded-md flex items-center gap-1 font-medium transition-colors nodrag"
+            >
+              <Minimize2 size={11} strokeWidth={1.75} /> {t('node.condensedForm')}
+            </button>
+          )}
           {(versionSummary || data.response) ? (
             isRoot ? (
               <>

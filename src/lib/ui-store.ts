@@ -103,6 +103,8 @@ interface UiState {
   setBackupDialogOpen: (v: boolean) => void;
   condenseDialogOpen: boolean;
   setCondenseDialogOpen: (v: boolean) => void;
+  condenseHighlightIds: string[];
+  setCondenseHighlightIds: (ids: string[]) => void;
   /** Share dialog: the freshly built read-only link (null = closed). */
   shareDialogUrl: string | null;
   setShareDialogUrl: (url: string | null) => void;
@@ -207,7 +209,9 @@ export const useUiStore = create<UiState>((set, get) => ({
   setLastAutoBackupAt: (t) => set({ lastAutoBackupAt: t }),
   backupDialogOpen: false,
   condenseDialogOpen: false,
-  setCondenseDialogOpen: (v) => set({ condenseDialogOpen: v }),
+  setCondenseDialogOpen: (v) => set({ condenseDialogOpen: v, ...(v ? {} : { condenseHighlightIds: [] }) }),
+  condenseHighlightIds: [],
+  setCondenseHighlightIds: (ids) => set({ condenseHighlightIds: ids }),
   setBackupDialogOpen: (v) => set({ backupDialogOpen: v }),
   shareDialogUrl: null,
   setShareDialogUrl: (url) => set({ shareDialogUrl: url }),

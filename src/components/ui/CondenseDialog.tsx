@@ -1,184 +1,147 @@
-import { useEffect, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { AlertTriangle, ChevronDown, ChevronRight, Loader2, Minimize2, X } from 'lucide-react';
+import { AlertTriangle, Check, Loader2, Minimize2, X } from 'lucide-react';
 import { useUiStore, toast } from '../../lib/ui-store';
 import { useStore } from '../../store';
 import { useModels } from '../../lib/use-models';
-import { auditForCondense, applyCondense, type CondensePlan } from '../../lib/condense';
+import { findCandidateSegments, distillSegment, applySegment, type CondenseSegment } from '../../lib/condense';
 import { useI18n, useT, fmt } from '../../i18n';
 
-// The condense trust surface. Three rules make it trustworthy:
-// 1. the auditor can only propose the two moves the user already knows
-//    (takeaway form / takeaway form + distilled note), never invent others;
-// 2. nothing is pre-checked — every row is opted INTO, with its reason,
-//    its token saving, and a caution flag when key moves are touched;
-// 3. applying is ONE undo step, and every lowered node wears a visible
-//    badge that restores full form with one click.
+// The condense surface, per-segment edition. Candidates are found LOCALLY
+// (a graph walk over the judge's takeaways) and appear the moment the
+// dialog opens; hovering a row lights its segment up on the canvas behind
+// the dialog. Each segment is its own small decision: one quick distill
+// call, a previewable note, one apply, one undo. No whole-map audit, no
+// opaque wait.
+
+type SegState = { status: 'idle' | 'distilling' | 'ready' | 'applied'; distilled?: string; error?: string; keepNote: boolean };
 
 export default function CondenseDialog() {
   const open = useUiStore((s) => s.condenseDialogOpen);
   const t = useT();
   const lang = useI18n((s) => s.lang);
-  const [phase, setPhase] = useState<'intro' | 'auditing' | 'plan'>('intro');
-  const [plan, setPlan] = useState<CondensePlan | null>(null);
-  const [picked, setPicked] = useState<Set<number>>(new Set());
-  const [expanded, setExpanded] = useState<Set<number>>(new Set());
-  const [error, setError] = useState('');
-  const nodeCount = useStore((s) => s.nodes.filter((n) => n.data.response && !n.data.stepKind).length);
-  // model for THIS audit only — defaults to the global pick, never changes it
+  const nodes = useStore((s) => s.nodes);
+  const edges = useStore((s) => s.edges);
+  const segments = useMemo(() => (open ? findCandidateSegments(nodes, edges) : []), [open, nodes, edges]);
   const globalModel = useUiStore((s) => s.selectedModel);
   const models = useModels()?.models ?? [];
-  const [auditModel, setAuditModel] = useState('');
-  const [elapsed, setElapsed] = useState(0);
-  const runToken = useRef(0);
-  useEffect(() => {
-    if (phase !== 'auditing') return;
-    setElapsed(0);
-    const iv = setInterval(() => setElapsed((s) => s + 1), 1000);
-    return () => clearInterval(iv);
-  }, [phase]);
+  const [model, setModel] = useState('');
+  const [segState, setSegState] = useState<Record<string, SegState>>({});
+  const key = (s: CondenseSegment) => s.nodeIds.join(',');
 
   const close = () => {
     useUiStore.getState().setCondenseDialogOpen(false);
-    setPhase('intro'); setPlan(null); setPicked(new Set()); setExpanded(new Set()); setError('');
+    useUiStore.getState().setCondenseHighlightIds([]);
+    setSegState({});
   };
   if (!open) return null;
 
-  const runAudit = async () => {
-    const token = ++runToken.current;
-    setPhase('auditing');
-    setError('');
+  const patch = (k: string, p: Partial<SegState>) => setSegState((prev) => { const base: SegState = prev[k] ?? { status: 'idle', keepNote: true }; return { ...prev, [k]: { ...base, ...p } }; });
+
+  const distill = async (seg: CondenseSegment) => {
+    const k = key(seg);
+    patch(k, { status: 'distilling', error: undefined });
     try {
-      const p = await auditForCondense(lang, auditModel || globalModel || undefined);
-      if (runToken.current !== token) return; // cancelled — drop the late result
-      setPlan(p);
-      setPhase('plan');
+      const d = await distillSegment(seg, lang, model || globalModel || undefined);
+      patch(k, { status: 'ready', distilled: d });
     } catch (err) {
-      if (runToken.current !== token) return;
-      setError(err instanceof Error ? err.message : String(err));
-      setPhase('intro');
+      patch(k, { status: 'idle', error: err instanceof Error ? err.message : String(err) });
     }
   };
-  const cancelAudit = () => { runToken.current++; setPhase('intro'); };
 
-  const toggle = (i: number) => {
-    setPicked((prev) => { const next = new Set(prev); if (next.has(i)) next.delete(i); else next.add(i); return next; });
-  };
-  const pickedSuggestions = plan ? [...picked].map((i) => plan.suggestions[i]) : [];
-  const pickedSaving = pickedSuggestions.reduce((s, x) => s + x.saving, 0);
-
-  const apply = () => {
-    const { lowered, notes } = applyCondense(pickedSuggestions);
-    toast('success', fmt(t('condense.applied'), { n: String(lowered), notes: String(notes) }));
-    close();
+  const apply = (seg: CondenseSegment) => {
+    const k = key(seg);
+    const st = segState[k];
+    const { lowered } = applySegment(seg, st?.keepNote ? st?.distilled : undefined);
+    patch(k, { status: 'applied' });
+    useUiStore.getState().setCondenseHighlightIds([]);
+    toast('success', fmt(t('condense.segApplied'), { n: String(lowered) }));
   };
 
   return createPortal((
-    <div className="fixed inset-0 z-[80] bg-ink/25 backdrop-blur-[2px] flex items-center justify-center animate-fade-in" onClick={close} data-condense-dialog>
-      <div className="bg-surface rounded-2xl shadow-2xl border border-line w-[min(560px,94vw)] max-h-[84vh] flex flex-col p-5" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-[80] flex items-stretch justify-end animate-fade-in pointer-events-none" data-condense-dialog>
+      <div className="bg-surface h-full shadow-2xl border-l border-line w-[min(480px,94vw)] flex flex-col p-5 pointer-events-auto" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-start justify-between mb-1">
           <div className="text-sm font-semibold text-ink flex items-center gap-2">
             <Minimize2 size={15} strokeWidth={1.75} className="text-accent" /> {t('condense.title')}
           </div>
           <button onClick={close} className="text-ink-faint hover:text-ink rounded-lg w-7 h-7 flex items-center justify-center hover:bg-wash transition-colors"><X size={15} /></button>
         </div>
+        <p className="text-2xs text-ink-faint leading-relaxed mb-2">{t('condense.segIntro')}</p>
+        <div className="flex items-center gap-2 mb-3">
+          <label className="text-2xs text-ink-muted shrink-0">{t('condense.modelLabel')}</label>
+          <select value={model} onChange={(e) => setModel(e.target.value)} data-condense-model
+            className="text-xs bg-wash text-ink rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-accent/40 max-w-[240px] truncate">
+            <option value="">{fmt(t('condense.modelGlobal'), { model: globalModel || 'auto' })}</option>
+            {models.map((m) => <option key={m.id} value={m.id}>{m.id}</option>)}
+          </select>
+        </div>
 
-        {phase === 'intro' && (
-          <>
-            <p className="text-xs text-ink-muted leading-relaxed mb-2">{t('condense.intro')}</p>
-            <p className="text-2xs text-ink-faint leading-relaxed mb-4">{t('condense.introTrust')}</p>
-            {error && <p className="text-2xs text-red-600 mb-2">{error}</p>}
-            <div className="flex items-center gap-2 mb-3">
-              <label className="text-2xs text-ink-muted shrink-0">{t('condense.modelLabel')}</label>
-              <select
-                value={auditModel}
-                onChange={(e) => setAuditModel(e.target.value)}
-                data-condense-model
-                className="text-xs bg-wash text-ink rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-accent/40 max-w-[260px] truncate"
-              >
-                <option value="">{fmt(t('condense.modelGlobal'), { model: globalModel || 'auto' })}</option>
-                {models.map((m) => <option key={m.id} value={m.id}>{m.id}</option>)}
-              </select>
-            </div>
-            <button
-              onClick={() => void runAudit()}
-              disabled={nodeCount < 4}
-              data-condense-run
-              className="self-start text-xs bg-accent text-white px-4 py-2 rounded-lg disabled:opacity-40 transition-colors"
-            >
-              {fmt(t('condense.run'), { n: String(nodeCount) })}
-            </button>
-            {nodeCount < 4 && <p className="text-2xs text-ink-faint mt-2">{t('condense.tooSmall')}</p>}
-          </>
-        )}
+        {segments.length === 0 ? (
+          <p className="text-xs text-ink-muted py-4">{t('condense.segNothing')}</p>
+        ) : (
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-2 pr-1">
+            {segments.map((seg) => {
+              const k = key(seg);
+              const st = segState[k] ?? { status: 'idle', keepNote: true };
+              return (
+                <div
+                  key={k}
+                  data-condense-item
+                  className={`border rounded-xl p-3 transition-colors ${st.status === 'applied' ? 'border-green-300 bg-green-50/40' : 'border-line hover:border-accent/50'}`}
+                  onMouseEnter={() => useUiStore.getState().setCondenseHighlightIds(seg.nodeIds)}
+                  onMouseLeave={() => useUiStore.getState().setCondenseHighlightIds([])}
+                >
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-2xs text-ink-faint font-mono">{fmt(t('condense.segMeta'), { n: String(seg.nodeIds.length), tok: String(seg.saving) })}</span>
+                    {seg.keyMoves > 0 && (
+                      <span className="text-2xs text-amber-600 bg-amber-500/10 px-1.5 py-0.5 rounded-full flex items-center gap-1">
+                        <AlertTriangle size={10} strokeWidth={1.75} /> {fmt(t('condense.segKeyMoves'), { n: String(seg.keyMoves) })}
+                      </span>
+                    )}
+                    {st.status === 'applied' && <span className="text-2xs text-green-700 flex items-center gap-1"><Check size={11} /> {t('condense.segDone')}</span>}
+                  </div>
+                  <p className="text-xs text-ink mt-1 leading-snug line-clamp-2">{seg.headQuestion}</p>
+                  {st.error && <p className="text-2xs text-red-600 mt-1">{st.error}</p>}
 
-        {phase === 'auditing' && (
-          <div className="flex flex-col items-center gap-3 py-8">
-            <div className="flex items-center gap-2 text-sm text-ink-muted">
-              <Loader2 size={16} className="animate-spin text-accent" /> {t('condense.auditing')}
-              <span className="font-mono text-2xs text-ink-faint">{elapsed}s</span>
-            </div>
-            <p className="text-2xs text-ink-faint">{t('condense.auditingHint')}</p>
-            <button onClick={cancelAudit} data-condense-cancel className="text-xs text-ink-muted hover:text-ink px-3 py-1.5 rounded-lg hover:bg-wash transition-colors">
-              {t('common.cancel')}
-            </button>
+                  {st.status === 'idle' && (
+                    <div className="flex items-center gap-2 mt-2">
+                      <button onClick={() => void distill(seg)} data-condense-distill
+                        className="text-2xs bg-accent text-white px-3 py-1.5 rounded-lg transition-colors">
+                        {t('condense.segDistill')}
+                      </button>
+                      <button onClick={() => apply(seg)} data-condense-apply-plain
+                        className="text-2xs text-ink-muted hover:text-ink px-3 py-1.5 rounded-lg hover:bg-wash transition-colors" title={t('condense.segApplyPlainTitle')}>
+                        {t('condense.segApplyPlain')}
+                      </button>
+                    </div>
+                  )}
+                  {st.status === 'distilling' && (
+                    <div className="flex items-center gap-2 text-2xs text-ink-muted mt-2">
+                      <Loader2 size={12} className="animate-spin text-accent" /> {t('condense.segDistilling')}
+                    </div>
+                  )}
+                  {st.status === 'ready' && (
+                    <>
+                      <div className="text-2xs text-ink-muted bg-wash rounded-lg p-2 mt-2 whitespace-pre-wrap leading-relaxed max-h-[180px] overflow-y-auto" data-condense-preview>{st.distilled}</div>
+                      <div className="flex items-center justify-between mt-2">
+                        <label className="text-2xs text-ink-muted flex items-center gap-1.5">
+                          <input type="checkbox" checked={st.keepNote} onChange={(e) => patch(k, { keepNote: e.target.checked })} className="accent-[var(--color-accent)]" />
+                          {t('condense.segKeepNote')}
+                        </label>
+                        <button onClick={() => apply(seg)} data-condense-apply
+                          className="text-2xs bg-accent text-white px-3 py-1.5 rounded-lg transition-colors">
+                          {fmt(t('condense.segApply'), { n: String(seg.nodeIds.length), tok: String(seg.saving) })}
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
-
-        {phase === 'plan' && plan && (
-          <>
-            <p className="text-2xs text-ink-faint mb-3">
-              {fmt(t('condense.planHead'), { audited: String(plan.auditedNodes), n: String(plan.suggestions.length), tok: String(plan.totalSaving) })}
-            </p>
-            {plan.suggestions.length === 0 ? (
-              <p className="text-xs text-ink-muted py-4">{t('condense.nothing')}</p>
-            ) : (
-              <div className="flex-1 min-h-0 overflow-y-auto space-y-2 pr-1">
-                {plan.suggestions.map((s, i) => (
-                  <div key={i} className={`border rounded-xl p-3 transition-colors ${picked.has(i) ? 'border-accent bg-accent/5' : 'border-line'}`} data-condense-item>
-                    <div className="flex items-start gap-2.5">
-                      <input type="checkbox" checked={picked.has(i)} onChange={() => toggle(i)} className="mt-0.5 accent-[var(--color-accent)]" data-condense-check />
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-2xs font-medium text-accent bg-accent/10 px-1.5 py-0.5 rounded-full">
-                            {s.type === 'merge' ? t('condense.typeMerge') : t('condense.typeLower')}
-                          </span>
-                          <span className="text-2xs text-ink-faint font-mono">{fmt(t('condense.itemMeta'), { n: String(s.nodeIds.length), tok: String(s.saving) })}</span>
-                          {s.touchesKeyMoves && (
-                            <span className="text-2xs text-amber-600 bg-amber-500/10 px-1.5 py-0.5 rounded-full flex items-center gap-1">
-                              <AlertTriangle size={10} strokeWidth={1.75} /> {t('condense.keyMoves')}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-xs text-ink mt-1 leading-relaxed">{s.reason}</p>
-                        {s.distilled && (
-                          <button onClick={() => setExpanded((p) => { const n2 = new Set(p); if (n2.has(i)) n2.delete(i); else n2.add(i); return n2; })}
-                            className="text-2xs text-ink-faint hover:text-accent mt-1 flex items-center gap-1">
-                            {expanded.has(i) ? <ChevronDown size={11} /> : <ChevronRight size={11} />} {t('condense.previewDistilled')}
-                          </button>
-                        )}
-                        {s.distilled && expanded.has(i) && (
-                          <div className="text-2xs text-ink-muted bg-wash rounded-lg p-2 mt-1 whitespace-pre-wrap leading-relaxed max-h-[160px] overflow-y-auto">{s.distilled}</div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-            <div className="flex items-center justify-between pt-3 mt-2 border-t border-line">
-              <span className="text-2xs text-ink-faint">{t('condense.reversible')}</span>
-              <button
-                onClick={apply}
-                disabled={picked.size === 0}
-                data-condense-apply
-                className="text-xs bg-accent text-white px-4 py-2 rounded-lg disabled:opacity-40 transition-colors"
-              >
-                {fmt(t('condense.apply'), { n: String(picked.size), tok: String(pickedSaving) })}
-              </button>
-            </div>
-          </>
-        )}
+        <p className="text-2xs text-ink-faint pt-3 mt-2 border-t border-line">{t('condense.reversible')}</p>
       </div>
     </div>
   ), document.body);
