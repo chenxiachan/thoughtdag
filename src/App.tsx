@@ -844,6 +844,10 @@ function Canvas() {
         edgeTypes={edgeTypes}
         deleteKeyCode={null}
         fitView
+        // Cull off-viewport nodes: a content-heavy canvas keeps dozens of
+        // full markdown/KaTeX card DOMs mounted otherwise, and zoom/pan
+        // transforms all of them every frame.
+        onlyRenderVisibleElements
         minZoom={0.1}
         maxZoom={2}
         defaultEdgeOptions={{

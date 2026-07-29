@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { memo, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -62,13 +62,16 @@ function Table(props: React.HTMLAttributes<HTMLTableElement>) {
 const COMPONENTS = { pre: Pre, table: Table };
 
 // Standard markdown rendering (GFM + math + syntax highlighting).
-export function Markdown({ children }: { children: string }) {
+// memo: the unified parse + KaTeX layout is the most expensive render on a
+// card, and cards re-render far more often than their text changes (every
+// streamed chunk anywhere re-renders every card). Same string → skip.
+export const Markdown = memo(function Markdown({ children }: { children: string }) {
   return (
     <ReactMarkdown remarkPlugins={REMARK_PLUGINS} rehypePlugins={REHYPE_PLUGINS} components={COMPONENTS}>
       {normalizeMath(children)}
     </ReactMarkdown>
   );
-}
+});
 
 const MARK_OPEN = '<mark class="bg-amber-100 text-amber-800 px-0.5 rounded">';
 
@@ -108,8 +111,9 @@ const escapeAttr = (s: string) =>
 export interface ExploreMarkSpec { text: string; nodeId: string; title: string }
 
 // Markdown with user highlights (and explore traces) wrapped in <mark>
-// before rendering.
-export function HighlightedMarkdown({ content, highlights, exploreMarks }: { content: string; highlights: Set<string>; exploreMarks?: ExploreMarkSpec[] }) {
+// before rendering. Callers rebuild the Set/array props every render, so
+// memo compares by CONTENT (see areMarkPropsEqual below).
+export const HighlightedMarkdown = memo(function HighlightedMarkdown({ content, highlights, exploreMarks }: { content: string; highlights: Set<string>; exploreMarks?: ExploreMarkSpec[] }) {
   // Fuzzy-locate every span in the CLEAN markdown source first, then splice
   // tags in back-to-front. A second replace pass over already-tagged text
   // would let the fuzzy noise classes swallow pieces of the inserted tags
@@ -143,4 +147,15 @@ export function HighlightedMarkdown({ content, highlights, exploreMarks }: { con
     processed = processed.slice(0, s.start) + wrapMatch(processed.slice(s.start, s.end), s.open) + processed.slice(s.end);
   }
   return <Markdown>{processed}</Markdown>;
+}, areMarkPropsEqual);
+
+type HMProps = { content: string; highlights: Set<string>; exploreMarks?: ExploreMarkSpec[] };
+function areMarkPropsEqual(prev: HMProps, next: HMProps): boolean {
+  if (prev.content !== next.content) return false;
+  if (prev.highlights.size !== next.highlights.size) return false;
+  for (const h of prev.highlights) if (!next.highlights.has(h)) return false;
+  const a = prev.exploreMarks ?? [];
+  const b = next.exploreMarks ?? [];
+  if (a.length !== b.length) return false;
+  return a.every((m, i) => m.text === b[i].text && m.nodeId === b[i].nodeId && m.title === b[i].title);
 }

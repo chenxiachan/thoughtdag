@@ -21,11 +21,25 @@ import { useMentions } from '../lib/mentions';
 import { isViewerMode } from '../lib/viewer';
 
 export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
-  const {
-    deleteNode, toggleCollapse, setEditing, editQuestion, submitHumanTurn, stopGeneration,
-    setEditingResponse, editResponse, addHighlight, navigateVersion, deleteVersion,
-    setSelectedNodeId, selectedNodeId, addAttachment, rerunNode,
-  } = useStore();
+  // Actions are stable references: selecting them one by one (instead of a
+  // bare useStore() destructure) means this card no longer re-renders on
+  // EVERY store change — with N cards mounted that multiplied every
+  // streamed chunk into N markdown re-renders.
+  const deleteNode = useStore((s) => s.deleteNode);
+  const toggleCollapse = useStore((s) => s.toggleCollapse);
+  const setEditing = useStore((s) => s.setEditing);
+  const editQuestion = useStore((s) => s.editQuestion);
+  const submitHumanTurn = useStore((s) => s.submitHumanTurn);
+  const stopGeneration = useStore((s) => s.stopGeneration);
+  const setEditingResponse = useStore((s) => s.setEditingResponse);
+  const editResponse = useStore((s) => s.editResponse);
+  const addHighlight = useStore((s) => s.addHighlight);
+  const navigateVersion = useStore((s) => s.navigateVersion);
+  const deleteVersion = useStore((s) => s.deleteVersion);
+  const setSelectedNodeId = useStore((s) => s.setSelectedNodeId);
+  const selectedNodeId = useStore((s) => s.selectedNodeId);
+  const addAttachment = useStore((s) => s.addAttachment);
+  const rerunNode = useStore((s) => s.rerunNode);
   const t = useT();
   const [isDropTarget, setIsDropTarget] = useState(false);
   const [fanoutOpen, setFanoutOpen] = useState(false);
