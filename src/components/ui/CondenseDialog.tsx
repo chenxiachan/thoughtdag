@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AlertTriangle, ChevronDown, ChevronRight, Loader2, Minimize2, X } from 'lucide-react';
 import { useUiStore, toast } from '../../lib/ui-store';
 import { useStore } from '../../store';
+import { useModels } from '../../lib/use-models';
 import { auditForCondense, applyCondense, type CondensePlan } from '../../lib/condense';
 import { useI18n, useT, fmt } from '../../i18n';
 
@@ -24,6 +25,18 @@ export default function CondenseDialog() {
   const [expanded, setExpanded] = useState<Set<number>>(new Set());
   const [error, setError] = useState('');
   const nodeCount = useStore((s) => s.nodes.filter((n) => n.data.response && !n.data.stepKind).length);
+  // model for THIS audit only — defaults to the global pick, never changes it
+  const globalModel = useUiStore((s) => s.selectedModel);
+  const models = useModels()?.models ?? [];
+  const [auditModel, setAuditModel] = useState('');
+  const [elapsed, setElapsed] = useState(0);
+  const runToken = useRef(0);
+  useEffect(() => {
+    if (phase !== 'auditing') return;
+    setElapsed(0);
+    const iv = setInterval(() => setElapsed((s) => s + 1), 1000);
+    return () => clearInterval(iv);
+  }, [phase]);
 
   const close = () => {
     useUiStore.getState().setCondenseDialogOpen(false);
@@ -32,17 +45,21 @@ export default function CondenseDialog() {
   if (!open) return null;
 
   const runAudit = async () => {
+    const token = ++runToken.current;
     setPhase('auditing');
     setError('');
     try {
-      const p = await auditForCondense(lang);
+      const p = await auditForCondense(lang, auditModel || globalModel || undefined);
+      if (runToken.current !== token) return; // cancelled — drop the late result
       setPlan(p);
       setPhase('plan');
     } catch (err) {
+      if (runToken.current !== token) return;
       setError(err instanceof Error ? err.message : String(err));
       setPhase('intro');
     }
   };
+  const cancelAudit = () => { runToken.current++; setPhase('intro'); };
 
   const toggle = (i: number) => {
     setPicked((prev) => { const next = new Set(prev); if (next.has(i)) next.delete(i); else next.add(i); return next; });
@@ -71,6 +88,18 @@ export default function CondenseDialog() {
             <p className="text-xs text-ink-muted leading-relaxed mb-2">{t('condense.intro')}</p>
             <p className="text-2xs text-ink-faint leading-relaxed mb-4">{t('condense.introTrust')}</p>
             {error && <p className="text-2xs text-red-600 mb-2">{error}</p>}
+            <div className="flex items-center gap-2 mb-3">
+              <label className="text-2xs text-ink-muted shrink-0">{t('condense.modelLabel')}</label>
+              <select
+                value={auditModel}
+                onChange={(e) => setAuditModel(e.target.value)}
+                data-condense-model
+                className="text-xs bg-wash text-ink rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-accent/40 max-w-[260px] truncate"
+              >
+                <option value="">{fmt(t('condense.modelGlobal'), { model: globalModel || 'auto' })}</option>
+                {models.map((m) => <option key={m.id} value={m.id}>{m.id}</option>)}
+              </select>
+            </div>
             <button
               onClick={() => void runAudit()}
               disabled={nodeCount < 4}
@@ -84,8 +113,15 @@ export default function CondenseDialog() {
         )}
 
         {phase === 'auditing' && (
-          <div className="flex items-center gap-2 text-sm text-ink-muted py-8 justify-center">
-            <Loader2 size={16} className="animate-spin text-accent" /> {t('condense.auditing')}
+          <div className="flex flex-col items-center gap-3 py-8">
+            <div className="flex items-center gap-2 text-sm text-ink-muted">
+              <Loader2 size={16} className="animate-spin text-accent" /> {t('condense.auditing')}
+              <span className="font-mono text-2xs text-ink-faint">{elapsed}s</span>
+            </div>
+            <p className="text-2xs text-ink-faint">{t('condense.auditingHint')}</p>
+            <button onClick={cancelAudit} data-condense-cancel className="text-xs text-ink-muted hover:text-ink px-3 py-1.5 rounded-lg hover:bg-wash transition-colors">
+              {t('common.cancel')}
+            </button>
           </div>
         )}
 

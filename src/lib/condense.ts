@@ -95,13 +95,19 @@ If nothing is worth suggesting, output {"suggestions":[]}. No other text.`,
 };
 
 /** Run the audit. One explicit LLM call; caller shows the price tag first. */
-export async function auditForCondense(lang: 'zh' | 'en'): Promise<CondensePlan> {
+export async function auditForCondense(lang: 'zh' | 'en', model?: string): Promise<CondensePlan> {
   const { nodes, edges } = useStore.getState();
   const live = nodes.filter((n) => !(n.data as ThoughtData).archived && (n.data as ThoughtData).contextForm !== 'summary');
   const corpus = auditCorpus(live, edges);
-  const raw = await llmCall([
-    { role: 'system', content: PROMPT[lang] },
-    { role: 'user', content: corpus || '(empty map)' },
+  // Non-streaming call with a hard deadline: a slow reasoning model with no
+  // output looks exactly like a hang — better to fail loudly and let the
+  // user pick a faster model from the dialog's dropdown.
+  const raw = await Promise.race([
+    llmCall([
+      { role: 'system', content: PROMPT[lang] },
+      { role: 'user', content: corpus || '(empty map)' },
+    ], undefined, model),
+    new Promise<never>((_, reject) => setTimeout(() => reject(new Error('audit timeout (180s) — try a faster model')), 180_000)),
   ]);
   const jsonText = raw.slice(raw.indexOf('{'), raw.lastIndexOf('}') + 1);
   let parsed: { suggestions?: { type?: string; nodeIds?: unknown[]; reason?: string; distilled?: string }[] };
