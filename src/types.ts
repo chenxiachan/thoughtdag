@@ -113,7 +113,15 @@ export interface ThoughtData extends Record<string, unknown> {
       plus selection rectangles as fractions of the page box when asked in the
       original PDF view (rects power the in-reader marks; page alone powers
       the canvas p.N chip — text-view selections have no page-box geometry). */
-  anchor?: { page: number; rects?: [number, number, number, number][] };
+  anchor?: {
+    page: number;
+    rects?: [number, number, number, number][];
+    /** The attachment this anchor points into. Lets edge-less clip nodes
+        (notes/images extracted from a document) keep their provenance —
+        the reader shows their marks and the p.N chip finds its way back
+        without wiring the heavy material into their context. */
+    attId?: string;
+  };
   /** Marks a guided-digest node: the attachment id it digests. The reader's
       digest tab is a view of this node; rerun routes through the digest
       prompt (see generateDigest). */

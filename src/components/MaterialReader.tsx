@@ -3,9 +3,9 @@ import { Crosshair, FileText, Highlighter, Link2, Loader2, Pencil, RefreshCw, Sc
 import type { PDFDocumentProxy } from 'pdfjs-dist';
 import type { ThoughtNode } from '../types';
 import { useStore } from '../store';
-import { useUiStore } from '../lib/ui-store';
+import { useUiStore, toast } from '../lib/ui-store';
 import { useModels } from '../lib/use-models';
-import { generateDigest, recognizePdfPages } from '../lib/content';
+import { generateDigest, recognizePdfPages, spawnContentNode } from '../lib/content';
 import { Markdown, HighlightedMarkdown } from './Markdown';
 import { generateId, isImeComposing } from '../utils';
 import { useT, fmt } from '../i18n';
@@ -228,6 +228,34 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
     window.getSelection()?.removeAllRanges();
   };
 
+  // ── selection → an edge-less note node (clip): the passage becomes its
+  // own material on the canvas, provenance rides anchor.attId instead of a
+  // wire — wiring the note to the document would drag the WHOLE document
+  // back into any context the note joins, defeating the point of clipping.
+  const saveSelectionAsNote = () => {
+    if (!ask || ask.targetNodeId) return;
+    const st = useStore.getState();
+    const base = st.nodes.find((n) => n.id === node.id);
+    const pos = base
+      ? { x: base.position.x + 460, y: base.position.y + ((st.nodes.filter((n) => n.data.anchor?.attId).length % 5) * 150) }
+      : { x: 120, y: 120 };
+    const freshId = spawnContentNode('note', pos, { question: ask.text });
+    const srcAttId = pdfAtt?.id ?? attachments?.[0]?.id;
+    if (ask.page != null || srcAttId) {
+      const anchor = {
+        page: ask.page ?? 1,
+        ...(ask.rects?.length ? { rects: ask.rects } : {}),
+        ...(srcAttId ? { attId: srcAttId } : {}),
+      };
+      useStore.setState((s) => ({
+        nodes: s.nodes.map((n) => (n.id === freshId ? { ...n, data: { ...n.data, anchor } } : n)),
+      }));
+    }
+    toast('success', t('reader.clippedNote'));
+    setAsk(null);
+    window.getSelection()?.removeAllRanges();
+  };
+
   // highlight a rail-answer selection: same data the node card and the
   // context tags use — marked here, visible everywhere
   const highlightSelection = () => {
@@ -318,7 +346,15 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
   // material that carries an anchor, grouped by page
   const anchorsByPage = useMemo(() => {
     const map = new Map<number, { id: string; question: string; rects: [number, number, number, number][] }[]>();
-    for (const c of children) {
+    const attIds = new Set((attachments ?? []).map((a) => a.id));
+    // children carry anchors via their edge; edge-less clips (notes/images
+    // extracted from this document) carry them via anchor.attId instead
+    const childIds = new Set(children.map((c) => c.id));
+    const anchored = [
+      ...children,
+      ...nodes.filter((n) => !childIds.has(n.id) && n.data.anchor?.attId && attIds.has(n.data.anchor.attId)),
+    ];
+    for (const c of anchored) {
       const a = c.data.anchor;
       if (!a?.rects?.length) continue;
       const list = map.get(a.page) ?? [];
@@ -326,7 +362,7 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
       map.set(a.page, list);
     }
     return map;
-  }, [children]);
+  }, [children, nodes, attachments]);
 
   // the rail's thread: the asked node plus its linear structural
   // continuations (follow-ups append here; forks belong to the canvas)
@@ -763,6 +799,16 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
                 className="w-8 h-8 rounded-lg bg-wash text-ink-muted hover:text-accent hover:bg-accent/10 flex items-center justify-center transition-colors shrink-0"
               >
                 <Highlighter size={14} strokeWidth={1.75} />
+              </button>
+            )}
+            {!ask.targetNodeId && (
+              <button
+                onClick={saveSelectionAsNote}
+                title={t('reader.saveAsNote')}
+                data-reader-clip-note
+                className="w-8 h-8 rounded-lg bg-wash text-ink-muted hover:text-warm hover:bg-warm/10 flex items-center justify-center transition-colors shrink-0"
+              >
+                <StickyNote size={14} strokeWidth={1.75} />
               </button>
             )}
             <button

@@ -290,6 +290,8 @@ export const zh: Record<keyof typeof en, string> = {
   'reader.pdfFailed': 'PDF 渲染失败：{msg}',
   'reader.loading': '加载 PDF 中…',
   'reader.askPlaceholder': '就选中的这段提问…',
+  'reader.saveAsNote': '存为便签：这段文字成为画布上的独立素材，带页码出处',
+  'reader.clippedNote': '已存为便签，就在材料节点旁边',
   'reader.grown': '已从此材料长出 {n} 个问题',
   'reader.locate': '在画布上定位',
   'reader.recognize': '识别为 Markdown',

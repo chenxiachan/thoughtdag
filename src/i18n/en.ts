@@ -290,6 +290,8 @@ export const en = {
   'reader.pdfFailed': 'Could not render the PDF: {msg}',
   'reader.loading': 'Loading PDF…',
   'reader.askPlaceholder': 'Ask about this passage…',
+  'reader.saveAsNote': 'Save as note: the passage becomes its own material on the canvas, with page provenance',
+  'reader.clippedNote': 'Saved as a note, right beside the material node',
   'reader.grown': '{n} questions grew from this material',
   'reader.locate': 'Show on canvas',
   'reader.recognize': 'Recognize as Markdown',
