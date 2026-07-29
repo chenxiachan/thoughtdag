@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AlertTriangle, Check, Loader2, Minimize2, X } from 'lucide-react';
 import { useUiStore, toast } from '../../lib/ui-store';
@@ -16,7 +16,7 @@ import { useI18n, useT, fmt } from '../../i18n';
 
 type SegState = { status: 'idle' | 'distilling' | 'ready' | 'applied'; distilled?: string; error?: string; keepNote: boolean };
 
-export default function CondenseDialog() {
+export default function CondenseDialog({ onFocusSegment }: { onFocusSegment?: (nodeIds: string[]) => void }) {
   const open = useUiStore((s) => s.condenseDialogOpen);
   const t = useT();
   const lang = useI18n((s) => s.lang);
@@ -28,6 +28,7 @@ export default function CondenseDialog() {
   const [model, setModel] = useState('');
   const [segState, setSegState] = useState<Record<string, SegState>>({});
   const key = (s: CondenseSegment) => s.nodeIds.join(',');
+  const hoverTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const close = () => {
     useUiStore.getState().setCondenseDialogOpen(false);
@@ -89,8 +90,17 @@ export default function CondenseDialog() {
                   key={k}
                   data-condense-item
                   className={`border rounded-xl p-3 transition-colors ${st.status === 'applied' ? 'border-green-300 bg-green-50/40' : 'border-line hover:border-accent/50'}`}
-                  onMouseEnter={() => useUiStore.getState().setCondenseHighlightIds(seg.nodeIds)}
-                  onMouseLeave={() => useUiStore.getState().setCondenseHighlightIds([])}
+                  onMouseEnter={() => {
+                    useUiStore.getState().setCondenseHighlightIds(seg.nodeIds);
+                    // rest on a row for a beat and the canvas travels there —
+                    // a halo outside the viewport helps nobody
+                    clearTimeout(hoverTimer.current);
+                    hoverTimer.current = setTimeout(() => onFocusSegment?.(seg.nodeIds), 450);
+                  }}
+                  onMouseLeave={() => {
+                    clearTimeout(hoverTimer.current);
+                    useUiStore.getState().setCondenseHighlightIds([]);
+                  }}
                 >
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-2xs text-ink-faint font-mono">{fmt(t('condense.segMeta'), { n: String(seg.nodeIds.length), tok: String(seg.saving) })}</span>

@@ -233,6 +233,14 @@ textarea:focus-visible {
   line-height: 1.7;
 }
 
+/* Condense hover link: while a segment row is hovered in the panel, its
+   nodes wear a loud halo — visible on full cards AND folded plaques. */
+.thought-node.condense-lit {
+  box-shadow:
+    0 0 0 5px color-mix(in srgb, var(--color-accent) 60%, transparent),
+    0 0 32px color-mix(in srgb, var(--color-accent) 45%, transparent);
+}
+
 /* Explore marks: the passages child branches were born from. A warm dotted
    underline (structural trace), never a fill — fills belong to the user's
    own highlights. Clickable where the host delegates to the child node. */

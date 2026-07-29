@@ -125,7 +125,6 @@ export default function App() {
       <ResponseViewer />
       <ShareDialog />
       <BackupDialog />
-      <CondenseDialog />
       <ConfirmDialog />
       <Tutorial />
     </>
@@ -1558,6 +1557,16 @@ function Canvas() {
 
       {/* Focus Panel — floating overlay on the right; never for orchestration
           or content nodes, which are edited in place on the canvas */}
+      <CondenseDialog onFocusSegment={(ids) => {
+        const rf = rfInstance.current;
+        const members = nodes.filter((n) => ids.includes(n.id));
+        if (!rf || members.length === 0) return;
+        const xs = members.map((n) => n.position.x), ys = members.map((n) => n.position.y);
+        const x = Math.min(...xs), y = Math.min(...ys);
+        const w = Math.max(...xs) + 520 - x, h = Math.max(...ys) + 240 - y;
+        // widen rightwards: the condense panel covers the right edge
+        rf.fitBounds({ x, y, width: w + 700, height: h }, { duration: 350, padding: 0.15 });
+      }} />
       {panelOpen && <FocusPanel onFocusNode={(id) => {
         const node = nodes.find(n => n.id === id);
         if (node) centerNode(node, { duration: 300 });
