@@ -228,18 +228,52 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
     window.getSelection()?.removeAllRanges();
   };
 
+  // Clips land beside the material, scanning DOWN for the first free slot —
+  // a fixed modulo grid overlaps as soon as clips outnumber its cells.
+  const findClipSpot = (): { x: number; y: number } => {
+    const st = useStore.getState();
+    const base = st.nodes.find((n) => n.id === node.id);
+    if (!base) return { x: 120, y: 120 };
+    const W = 440, H = 280, x = base.position.x + 460;
+    const boxes = st.nodes.map((n) => ({
+      x: n.position.x, y: n.position.y,
+      w: (n.width as number) || 460, h: (n.height as number) || 280,
+    }));
+    let y = base.position.y;
+    for (let i = 0; i < 60; i++) {
+      const free = !boxes.some((b) => x < b.x + b.w && b.x < x + W && y < b.y + b.h && b.y < y + H);
+      if (free) return { x, y };
+      y += 90;
+    }
+    return { x, y };
+  };
+
+  // A short "the selection flies onto the canvas" ghost: makes it legible
+  // that the clip became a node behind the reader. Skipped under
+  // prefers-reduced-motion.
+  const flyToCanvas = (from: { left: number; top: number; width: number; height: number }) => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const ghost = document.createElement('div');
+    ghost.style.cssText = `position:fixed;left:${from.left}px;top:${from.top}px;width:${Math.max(60, from.width)}px;height:${Math.max(28, from.height)}px;border:2px solid var(--color-warm);background:color-mix(in srgb, var(--color-warm) 12%, white);border-radius:10px;z-index:200;pointer-events:none;`;
+    document.body.appendChild(ghost);
+    const dx = window.innerWidth * 0.82 - from.left, dy = window.innerHeight * 0.85 - from.top;
+    ghost.animate(
+      [
+        { transform: 'translate(0,0) scale(1)', opacity: 0.95 },
+        { transform: `translate(${dx}px,${dy}px) scale(0.12)`, opacity: 0 },
+      ],
+      { duration: 460, easing: 'cubic-bezier(.45,0,.65,1)' },
+    ).onfinish = () => ghost.remove();
+  };
+
   // ── selection → an edge-less note node (clip): the passage becomes its
   // own material on the canvas, provenance rides anchor.attId instead of a
   // wire — wiring the note to the document would drag the WHOLE document
   // back into any context the note joins, defeating the point of clipping.
   const saveSelectionAsNote = () => {
     if (!ask || ask.targetNodeId) return;
-    const st = useStore.getState();
-    const base = st.nodes.find((n) => n.id === node.id);
-    const pos = base
-      ? { x: base.position.x + 460, y: base.position.y + ((st.nodes.filter((n) => n.data.anchor?.attId).length % 5) * 150) }
-      : { x: 120, y: 120 };
-    const freshId = spawnContentNode('note', pos, { question: ask.text });
+    flyToCanvas({ left: ask.x - 90, top: ask.y - 40, width: 180, height: 36 });
+    const freshId = spawnContentNode('note', findClipSpot(), { question: ask.text });
     const srcAttId = pdfAtt?.id ?? attachments?.[0]?.id;
     if (ask.page != null || srcAttId) {
       const anchor = {
@@ -261,16 +295,11 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
   // rides anchor.attId, the same as clipped notes; wire it into a question
   // and the image flows to a vision model.
   const [clipMode, setClipMode] = useState(false);
-  const handleClipped = (pageNo: number, rect: [number, number, number, number], dataUrl: string) => {
+  const handleClipped = (pageNo: number, rect: [number, number, number, number], dataUrl: string, screenRect?: { left: number; top: number; width: number; height: number }) => {
     const base64 = dataUrl.split(',')[1] ?? '';
     if (!base64) return;
-    // thumbnail: same pixels, capped width — cards show this, requests use content
-    const st = useStore.getState();
-    const baseNode = st.nodes.find((n) => n.id === node.id);
-    const pos = baseNode
-      ? { x: baseNode.position.x + 460, y: baseNode.position.y + ((st.nodes.filter((n) => n.data.anchor?.attId).length % 5) * 150) }
-      : { x: 120, y: 120 };
-    const freshId = spawnContentNode('file', pos);
+    if (screenRect) flyToCanvas(screenRect);
+    const freshId = spawnContentNode('file', findClipSpot());
     const attId = generateId();
     const img = new Image();
     img.onload = () => {
@@ -295,12 +324,17 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
         nodes: s.nodes.map((n) => (n.id === freshId ? { ...n, data: { ...n.data, anchor } } : n)),
       }));
       // auto-read once (when a vision model exists): the companion text makes
-      // the clip legible to text-only models too
-      void extractImage(freshId, attId);
+      // the clip legible to text-only models too. The toast names the call
+      // BEFORE it happens — no silent API spend from a drag.
+      if (hasVisionModel) {
+        toast('success', t('reader.clippedImageReading'));
+        void extractImage(freshId, attId);
+      } else {
+        toast('success', t('reader.clippedImage'));
+      }
     };
     img.src = dataUrl;
     setClipMode(false);
-    toast('success', t('reader.clippedImage'));
   };
 
   // highlight a rail-answer selection: same data the node card and the
@@ -891,7 +925,7 @@ function PdfPage({ doc, pdfjs, pageNo, width, anchors, activeThreadId, onAnchorC
   activeThreadId?: string | null;
   onAnchorClick?: (id: string) => void;
   clipMode?: boolean;
-  onClipped?: (pageNo: number, rect: [number, number, number, number], dataUrl: string) => void;
+  onClipped?: (pageNo: number, rect: [number, number, number, number], dataUrl: string, screenRect?: { left: number; top: number; width: number; height: number }) => void;
 }) {
   const holderRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -914,7 +948,9 @@ function PdfPage({ doc, pdfjs, pageNo, width, anchors, activeThreadId, onAnchorC
     const out = document.createElement('canvas');
     out.width = sw; out.height = sh;
     out.getContext('2d')!.drawImage(src, sx, sy, sw, sh, 0, 0, sw, sh);
-    onClipped(pageNo, [x, y, w, h], out.toDataURL('image/png'));
+    const pb = holderRef.current!.getBoundingClientRect();
+    const screenRect = { left: pb.left + x * pb.width, top: pb.top + y * pb.height, width: w * pb.width, height: h * pb.height };
+    onClipped(pageNo, [x, y, w, h], out.toDataURL('image/png'), screenRect);
   };
   const [visible, setVisible] = useState(pageNo <= 2);
   const [height, setHeight] = useState(Math.round(width * 1.4142));

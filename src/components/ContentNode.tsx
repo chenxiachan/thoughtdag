@@ -58,6 +58,22 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
 
   const attachments = data.attachments || [];
   const linkLoading = kind === 'link' && !data.question && !data.linkTitle?.startsWith('⚠');
+
+  // Clip provenance: an edge-less clip finds its source through anchor.attId
+  const clipAnchor = data.anchor?.attId ? data.anchor : undefined;
+  const clipSource = useStore((s) => {
+    if (!clipAnchor) return null;
+    const src = s.nodes.find((n) => n.data.attachments?.some((a) => a.id === clipAnchor.attId));
+    if (!src) return null;
+    const att = src.data.attachments!.find((a) => a.id === clipAnchor.attId)!;
+    return `${src.id}\u0000${att.name}`;
+  });
+  const [clipSourceId, clipSourceName] = clipSource ? clipSource.split('\u0000') : [null, null];
+  const openClipSource = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!clipAnchor || !clipSourceId) return;
+    useUiStore.getState().setReaderNodeId(clipSourceId, { page: clipAnchor.page });
+  };
   const linkDomain = (() => { try { return new URL(data.linkUrl ?? '').hostname; } catch { return data.linkUrl ?? ''; } })();
 
   const headerIcon = kind === 'note'
@@ -114,6 +130,16 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
           {kind === 'link'
             ? <span className="text-2xs text-ink-muted truncate">{linkDomain}</span>
             : <span className="text-2xs text-ink-faint font-mono">{kind === 'note' ? `${data.tokenCount} tok` : `${attachments.length}`}</span>}
+          {clipSourceName && (
+            <button
+              onClick={openClipSource}
+              title={t('content.clipSourceTitle')}
+              data-clip-source
+              className="text-2xs font-mono text-warm bg-warm/10 hover:bg-warm/20 px-1.5 py-0.5 rounded-full truncate max-w-[180px] transition-colors shrink"
+            >
+              {clipSourceName} &middot; p.{clipAnchor!.page}
+            </button>
+          )}
           {!isLinked && (
             <span className="text-2xs text-ink-faint bg-wash px-1.5 py-0.5 rounded-full flex items-center gap-1 shrink-0" title={t('content.unlinkedTitle')}>
               <Link2Off size={11} strokeWidth={1.75} /> {t('content.unlinked')}
