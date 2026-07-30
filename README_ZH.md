@@ -11,7 +11,7 @@
 ![License](https://img.shields.io/badge/许可-MIT-green)
 ![Status](https://img.shields.io/badge/状态-活跃开发中-6B5CE7)
 
-### [<ins>▶ 在线试用</ins>](https://app.thoughtdag.workers.dev)
+### [<ins>▶ 在线试用</ins>](https://app.thoughtdag.workers.dev) · [先看看它如何工作](https://app.thoughtdag.workers.dev/story/?lang=zh)
 
 无需安装注册，示例画布免 key
 
