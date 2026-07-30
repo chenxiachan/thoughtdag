@@ -16,9 +16,9 @@ and is never stored (the proxy is a stateless Pages Function).
      then calls the same-origin `/api/*`, served by `functions/api/[[path]].js`.
 3. Deploy. Every push to `main` republishes automatically.
 
-The same build also copies the static bilingual product story to `/story/`.
-English is the default; `/story/?lang=zh` opens the Chinese version. No second
-Pages project or deployment configuration is required.
+The bilingual product story is published separately through GitHub Pages at
+`https://chenxiachan.github.io/thoughtdag/`. Requests to `/story/` are
+permanently redirected there by `worker.js`.
 
 ## What the demo serves
 
@@ -26,8 +26,7 @@ Pages project or deployment configuration is required.
   browser (localStorage); generations are proxied statelessly.
 - Read-only `#view=` share links (no server involvement at all).
 - Scholarly search (arXiv / Semantic Scholar — free public APIs).
-- Bilingual product story with responsive horizontal/vertical films at
-  `/story/`.
+- A permanent `/story/` redirect to the GitHub Pages product story.
 
 Deliberately absent on the demo (local-proxy features): web search
 (operator's search key), MCP, PDF text extraction (attachments still work;

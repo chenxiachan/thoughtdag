@@ -10,15 +10,16 @@ boundary and visual semantics:
 - deleting an edge changes the request, not just the diagram;
 - the story ends on inspectable context rather than autonomous agents.
 
-It is published with the main app at:
+It is published with GitHub Pages at:
 
 ```text
-https://app.thoughtdag.workers.dev/story/
-https://app.thoughtdag.workers.dev/story/?lang=zh
+https://chenxiachan.github.io/thoughtdag/
+https://chenxiachan.github.io/thoughtdag/?lang=zh
 ```
 
-`npm run build` copies the page and its final films into `dist/story/`, so the
-existing Cloudflare deployment publishes the app and product story together.
+The `product-story-pages.yml` workflow publishes this directory as a static
+artifact whenever it changes on `main`. The live app remains on Cloudflare;
+its former `/story/` route permanently redirects here.
 
 Preview from the repository root:
 

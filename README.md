@@ -11,7 +11,7 @@
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Status](https://img.shields.io/badge/status-active_development-6B5CE7)
 
-### [<ins>▶ Try it live</ins>](https://app.thoughtdag.workers.dev) · [See the product story](https://app.thoughtdag.workers.dev/story/)
+### [<ins>▶ Try it live</ins>](https://app.thoughtdag.workers.dev) · [See the product story](https://chenxiachan.github.io/thoughtdag/)
 
 no install, no signup; the example canvas needs no key
 
