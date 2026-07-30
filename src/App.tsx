@@ -365,11 +365,11 @@ function Canvas() {
     setTimeout(() => rfInstance.current?.fitView({ duration: 400, padding: 0.15 }), 150);
   }, []);
 
-  // First run ever: seed the example canvas so newcomers land on a living
-  // graph (incl. the context-pruning ⚖️ demo) instead of a blank page.
+  // First visit lands on the LANDING page — the example canvas is one
+  // labeled click away there, not an ambush.
   useEffect(() => {
-    // First visit lands on the LANDING page — the example canvas is one
-    // labeled click away there, not an ambush. (The flag stays for tests.)
+    // The seeded flag is write-only in app code; it stays as the hook
+    // scripts/smoke.mjs uses to suppress the landing flow in tests.
     if (nodes.length === 0 && !isParadigm && !localStorage.getItem('thoughtdag.seeded')) {
       localStorage.setItem('thoughtdag.seeded', 'yes');
     }

@@ -105,7 +105,7 @@ npm run dev       # → localhost:5173
 # 无 .env 时，在应用内连接任意兼容 OpenAI 协议的接口即可
 ```
 
-首次打开是预置的示例画布：围绕「收藏夹为什么总在吃灰」展开四章，含一份内嵌真 PDF 的阅读闭环。环境变量、免费 key 与配置细节 → [docs/setup_ZH.md](docs/setup_ZH.md)
+首页一键载入预置的示例画布：围绕「收藏夹为什么总在吃灰」展开四章，含一份内嵌真 PDF 的阅读闭环。环境变量、免费 key 与配置细节 → [docs/setup_ZH.md](docs/setup_ZH.md)
 
 ## 更多能力
 

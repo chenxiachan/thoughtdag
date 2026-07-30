@@ -105,7 +105,7 @@ npm run dev       # → localhost:5173
 # No .env? Connect any OpenAI-compatible endpoint inside the app
 ```
 
-The first launch opens a seeded example canvas: four chapters around one everyday question (why saved articles stay unread), including a reading loop with a real embedded PDF. Environment variables, free keys and configuration details → [docs/setup.md](docs/setup.md)
+The landing page offers the seeded example canvas one labeled click away: four chapters around one everyday question (why saved articles stay unread), including a reading loop with a real embedded PDF. Environment variables, free keys and configuration details → [docs/setup.md](docs/setup.md)
 
 ## More capabilities
 
