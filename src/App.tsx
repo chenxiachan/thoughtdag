@@ -316,6 +316,22 @@ function Canvas() {
     setTimeout(() => rfInstance.current?.fitView({ duration: 400, padding: 0.2 }), 120);
   }, [filterDroppedFiles]);
 
+  // Native DnD has NO movement threshold: a real click with 1-2px of hand
+  // jitter fires dragstart and swallows the click — the palette buttons
+  // looked dead. A drag that traveled almost nowhere and dropped on
+  // nothing was a click; honor it on dragend.
+  const paletteDragOrigin = useRef<{ x: number; y: number } | null>(null);
+  const paletteDragStart = (e: React.DragEvent, kind: string) => {
+    paletteDragOrigin.current = { x: e.clientX, y: e.clientY };
+    e.dataTransfer.setData('application/thoughtdag-content', kind);
+    e.dataTransfer.effectAllowed = 'copy';
+  };
+  const paletteDragEnd = (e: React.DragEvent, create: () => void) => {
+    const o = paletteDragOrigin.current;
+    paletteDragOrigin.current = null;
+    if (o && e.dataTransfer.dropEffect === 'none' && Math.hypot(e.clientX - o.x, e.clientY - o.y) < 12) create();
+  };
+
   const flowPosAt = useCallback((screen?: { x: number; y: number } | null) => {
     const at = rfInstance.current?.screenToFlowPosition(screen ?? { x: window.innerWidth / 2, y: window.innerHeight / 2 }) ?? { x: 140, y: 140 };
     return { x: at.x - 200, y: at.y - 60 };
@@ -335,11 +351,21 @@ function Canvas() {
       const dt = e.clipboardData;
       if (!dt) return;
       const pos = flowPosAt(lastMouse.current);
-      // TEXT WINS: Word/Excel copies carry text AND a bitmap rendering of
-      // the selection — the user copied words, not a picture of words.
-      // Only image-only clipboards (screenshots, copied images) become
-      // file nodes. Tab-separated tables turn into markdown tables.
       const text = dt.getData('text/plain').trim();
+      const files = Array.from(dt.files);
+      // FILES WIN when a real document rides along: a Finder/Explorer copy
+      // puts the file's PATH in text/plain and the file itself in files —
+      // the user copied a file, not its path (regression fixed: the plain
+      // text-wins rule ate these). TEXT wins only over image-only files:
+      // Word/Excel selections carry text plus a bitmap rendering of it,
+      // and there the user copied words, not a picture of words.
+      const hasDocFile = files.some((f) => !f.type.startsWith('image/'));
+      if (files.length > 0 && (hasDocFile || !text)) {
+        e.preventDefault();
+        const id = spawnContentNode('file', pos);
+        void ingestFiles(id, files);
+        return;
+      }
       if (text) {
         e.preventDefault();
         if (/^https?:\/\/\S+$/.test(text)) {
@@ -348,20 +374,6 @@ function Canvas() {
         } else {
           spawnContentNode('note', pos, { question: clipboardTextToMarkdown(text) });
         }
-        return;
-      }
-      const files = Array.from(dt.files);
-      if (files.length > 0) {
-        e.preventDefault();
-        const id = spawnContentNode('file', pos);
-        void ingestFiles(id, files);
-        return;
-      }
-      // A file copied in the OS file manager pastes as a REFERENCE the
-      // browser cannot read (empty text, empty files) — point at the door
-      // that works instead of silently doing nothing.
-      if (dt.types.length > 0) {
-        toast('info', t('toast.pasteFileHint'));
       }
     };
     window.addEventListener('mousemove', onMove);
@@ -1223,7 +1235,8 @@ function Canvas() {
           <button
             onClick={() => spawnContentNode('note', flowPosAt(null))}
             draggable
-            onDragStart={(e) => { e.dataTransfer.setData('application/thoughtdag-content', 'note'); e.dataTransfer.effectAllowed = 'copy'; }}
+            onDragStart={(e) => paletteDragStart(e, 'note')}
+            onDragEnd={(e) => paletteDragEnd(e, () => spawnContentNode('note', flowPosAt(null)))}
             title={t('palette.noteTitle')}
             className="w-9 h-9 rounded-lg flex items-center justify-center text-amber-600 hover:bg-amber-500/10 transition-colors cursor-grab"
           >
@@ -1232,7 +1245,8 @@ function Canvas() {
           <button
             onClick={() => spawnContentNode('file', flowPosAt(null))}
             draggable
-            onDragStart={(e) => { e.dataTransfer.setData('application/thoughtdag-content', 'file'); e.dataTransfer.effectAllowed = 'copy'; }}
+            onDragStart={(e) => paletteDragStart(e, 'file')}
+            onDragEnd={(e) => paletteDragEnd(e, () => spawnContentNode('file', flowPosAt(null)))}
             title={t('palette.fileTitle')}
             className="w-9 h-9 rounded-lg flex items-center justify-center text-ink-muted hover:bg-wash transition-colors cursor-grab"
           >
@@ -1241,7 +1255,8 @@ function Canvas() {
           <button
             onClick={() => spawnFrame(flowPosAt(null))}
             draggable
-            onDragStart={(e) => { e.dataTransfer.setData('application/thoughtdag-content', 'frame'); e.dataTransfer.effectAllowed = 'copy'; }}
+            onDragStart={(e) => paletteDragStart(e, 'frame')}
+            onDragEnd={(e) => paletteDragEnd(e, () => spawnFrame(flowPosAt(null)))}
             title={t('palette.frameTitle')}
             className="w-9 h-9 rounded-lg flex items-center justify-center text-ink-muted hover:bg-wash transition-colors cursor-grab"
           >
