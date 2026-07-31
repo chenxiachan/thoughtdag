@@ -166,6 +166,7 @@ function Canvas() {
     );
   }, []);
   const lang = useI18n((s) => s.lang);
+  const advancedMode = useUiStore((s) => s.advancedMode);
   const isParadigm = useProjects((s) => s.projects.find((p) => p.id === s.activeId)?.kind === 'paradigm');
 
   // No configured model: do NOT ambush the first open with the key dialog —
@@ -1113,7 +1114,34 @@ function Canvas() {
               ))}
             </div>
 
-            {/* Paradigm entrance — the testbed door, level with the chat input */}
+            {/* Quick connect: the no-model landing points at the lowest-
+                friction door per language — GLM's free tier for zh, the
+                ChatGPT-plan bridge for en. Gone once any model exists. */}
+            {(!modelData || (modelData.models?.length ?? 0) === 0) && (
+              <div className="mt-3 bg-card/70 backdrop-blur border border-line/70 rounded-xl px-4 py-3 flex items-center gap-3 hover:border-line-strong transition-colors" data-quick-connect>
+                <KeyRound size={16} strokeWidth={1.75} className="text-accent shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-xs font-semibold text-ink mb-0.5">{t('landing.quickTitle')}</h3>
+                  <p className="text-2xs text-ink-faint leading-relaxed">{t('landing.quickDesc')}</p>
+                </div>
+                <button
+                  onClick={() => { useUiStore.getState().setApiKeyPresetHint(lang === 'zh' ? 'zhipu' : 'chatgpt-bridge-intl'); useUiStore.getState().setApiKeyModalOpen(true); }}
+                  className="text-2xs bg-accent/10 text-accent hover:bg-accent/20 font-medium px-3 py-1.5 rounded-lg transition-colors shrink-0"
+                  data-quick-primary
+                >
+                  {t('landing.quickPrimary')}
+                </button>
+                <button
+                  onClick={() => useUiStore.getState().setApiKeyModalOpen(true)}
+                  className="text-2xs text-ink-muted hover:text-ink hover:bg-wash font-medium px-3 py-1.5 rounded-lg transition-colors shrink-0"
+                >
+                  {t('landing.quickOther')}
+                </button>
+              </div>
+            )}
+
+            {/* Paradigm entrance — a lab door, advanced mode only */}
+            {advancedMode && (
             <div className="mt-3 bg-card/70 backdrop-blur border border-line/70 rounded-xl px-4 py-3 flex items-center gap-3 hover:border-line-strong transition-colors">
               <Dna size={16} strokeWidth={1.75} className="text-accent shrink-0" />
               <div className="flex-1 min-w-0">
@@ -1133,6 +1161,7 @@ function Canvas() {
                 + {t('paradigm.newParadigm')}
               </button>
             </div>
+            )}
 
             <div className="text-center mt-5 flex items-center justify-center gap-5">
               <button
@@ -1394,6 +1423,15 @@ function Canvas() {
                   <Share2 size={14} strokeWidth={1.75} className="text-ink-faint shrink-0" /> {t('toolbar.menuShare')}
                 </button>
               )}
+              <button
+                onClick={() => useUiStore.getState().setAdvancedMode(!advancedMode)}
+                className="w-full text-left px-3 py-2 text-xs text-ink hover:bg-wash transition-colors flex items-center gap-2.5"
+                title={t('toolbar.advancedTitle')}
+                data-advanced-toggle
+              >
+                <Dna size={14} strokeWidth={1.75} className="text-ink-faint shrink-0" /> {t('toolbar.advancedToggle')}
+                <span className="ml-auto text-2xs text-ink-faint">{advancedMode ? '✓' : ''}</span>
+              </button>
               <button
                 onClick={() => { setMoreOpen(false); useUiStore.getState().setMemoryManagerOpen(true); }}
                 className="w-full text-left px-3 py-2 text-xs text-ink hover:bg-wash transition-colors flex items-center gap-2.5"

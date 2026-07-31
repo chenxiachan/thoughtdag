@@ -23,6 +23,14 @@ export default function ApiKeyModal() {
   const [providers, setProviders] = useState<RuntimeProvider[]>(() => storedProviders());
   useEffect(() => { if (open) setProviders(storedProviders()); }, [open]);
   const [adding, setAdding] = useState(false);
+  // Landing quick-connect: open straight onto the recommended preset
+  const presetHint = useUiStore((s) => s.apiKeyPresetHint);
+  useEffect(() => {
+    if (!open || !presetHint) return;
+    const p = PROVIDER_PRESETS.find((x) => x.id === presetHint);
+    if (p) { setAdding(true); setPreset(p); setProbed(null); setPicked(new Map()); }
+    useUiStore.getState().setApiKeyPresetHint(null);
+  }, [open, presetHint]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 

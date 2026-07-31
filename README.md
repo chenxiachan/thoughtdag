@@ -11,9 +11,9 @@
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Status](https://img.shields.io/badge/status-active_development-6B5CE7)
 
-### [<ins>▶ Try it live</ins>](https://app.thoughtdag.workers.dev) · [See the product story](https://chenxiachan.github.io/thoughtdag/)
+### [Website](https://chenxiachan.github.io/thoughtdag/) · [Live Demo](https://app.thoughtdag.workers.dev)
 
-no install, no signup; the example canvas needs no key
+no install, no signup
 
 [中文](./README_ZH.md) · [Quick start](#quick-start) · [More capabilities](#more-capabilities) · [Models & subscriptions](#models--subscriptions) · [Cost & privacy](#cost--privacy)
 
@@ -113,7 +113,7 @@ The landing page offers the seeded example canvas one labeled click away: four c
 |------------|--------------|
 | 📤 Read-only share | One link carries the whole graph: no account, no server storage |
 | 🧭 Staleness & replay | Upstream edits mark the answers they invalidate; replay in dependency order, token estimate first |
-| 🧪 Paradigms | Human-machine workflows saved as files; change the input, replay the experiment |
+| ✂️ Clipping | Select a passage or drag a rectangle in the reader; it becomes canvas material with page provenance |
 | 🔌 Any model | Per-node pins that follow the line; image requests reroute to vision models automatically |
 | 🔒 Local-first | Automatic folder backup writes real files; point it at a synced folder for cross-device |
 
