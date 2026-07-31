@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AlertTriangle, Check, Loader2, Minimize2, X } from 'lucide-react';
 import { useUiStore, toast } from '../../lib/ui-store';
@@ -28,7 +28,6 @@ export default function CondenseDialog({ onFocusSegment }: { onFocusSegment?: (n
   const [model, setModel] = useState('');
   const [segState, setSegState] = useState<Record<string, SegState>>({});
   const key = (s: CondenseSegment) => s.nodeIds.join(',');
-  const hoverTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   const close = () => {
     useUiStore.getState().setCondenseDialogOpen(false);
@@ -41,9 +40,10 @@ export default function CondenseDialog({ onFocusSegment }: { onFocusSegment?: (n
 
   const distill = async (seg: CondenseSegment) => {
     const k = key(seg);
-    patch(k, { status: 'distilling', error: undefined });
+    patch(k, { status: 'distilling', error: undefined, distilled: '' });
     try {
-      const d = await distillSegment(seg, lang, model || globalModel || undefined);
+      const d = await distillSegment(seg, lang, model || globalModel || undefined,
+        (soFar) => patch(k, { distilled: soFar }));
       patch(k, { status: 'ready', distilled: d });
     } catch (err) {
       patch(k, { status: 'idle', error: err instanceof Error ? err.message : String(err) });
@@ -90,16 +90,10 @@ export default function CondenseDialog({ onFocusSegment }: { onFocusSegment?: (n
                   key={k}
                   data-condense-item
                   className={`border rounded-xl p-3 transition-colors ${st.status === 'applied' ? 'border-green-300 bg-green-50/40' : 'border-line hover:border-accent/50'}`}
-                  onMouseEnter={() => {
+                  onClick={() => {
+                    // click = point AND travel; buttons inside stop propagation
                     useUiStore.getState().setCondenseHighlightIds(seg.nodeIds);
-                    // rest on a row for a beat and the canvas travels there —
-                    // a halo outside the viewport helps nobody
-                    clearTimeout(hoverTimer.current);
-                    hoverTimer.current = setTimeout(() => onFocusSegment?.(seg.nodeIds), 450);
-                  }}
-                  onMouseLeave={() => {
-                    clearTimeout(hoverTimer.current);
-                    useUiStore.getState().setCondenseHighlightIds([]);
+                    onFocusSegment?.(seg.nodeIds);
                   }}
                 >
                   <div className="flex items-center gap-2 flex-wrap">
@@ -116,20 +110,25 @@ export default function CondenseDialog({ onFocusSegment }: { onFocusSegment?: (n
 
                   {st.status === 'idle' && (
                     <div className="flex items-center gap-2 mt-2">
-                      <button onClick={() => void distill(seg)} data-condense-distill
+                      <button onClick={(e) => { e.stopPropagation(); void distill(seg); }} data-condense-distill
                         className="text-2xs bg-accent text-white px-3 py-1.5 rounded-lg transition-colors">
                         {t('condense.segDistill')}
                       </button>
-                      <button onClick={() => apply(seg)} data-condense-apply-plain
+                      <button onClick={(e) => { e.stopPropagation(); apply(seg); }} data-condense-apply-plain
                         className="text-2xs text-ink-muted hover:text-ink px-3 py-1.5 rounded-lg hover:bg-wash transition-colors" title={t('condense.segApplyPlainTitle')}>
                         {t('condense.segApplyPlain')}
                       </button>
                     </div>
                   )}
                   {st.status === 'distilling' && (
-                    <div className="flex items-center gap-2 text-2xs text-ink-muted mt-2">
-                      <Loader2 size={12} className="animate-spin text-accent" /> {t('condense.segDistilling')}
-                    </div>
+                    <>
+                      <div className="flex items-center gap-2 text-2xs text-ink-muted mt-2">
+                        <Loader2 size={12} className="animate-spin text-accent" /> {t('condense.segDistilling')}
+                      </div>
+                      {st.distilled && (
+                        <div className="text-2xs text-ink-muted bg-wash rounded-lg p-2 mt-2 whitespace-pre-wrap leading-relaxed max-h-[180px] overflow-y-auto" data-condense-streaming>{st.distilled}</div>
+                      )}
+                    </>
                   )}
                   {st.status === 'ready' && (
                     <>
@@ -139,7 +138,7 @@ export default function CondenseDialog({ onFocusSegment }: { onFocusSegment?: (n
                           <input type="checkbox" checked={st.keepNote} onChange={(e) => patch(k, { keepNote: e.target.checked })} className="accent-[var(--color-accent)]" />
                           {t('condense.segKeepNote')}
                         </label>
-                        <button onClick={() => apply(seg)} data-condense-apply
+                        <button onClick={(e) => { e.stopPropagation(); apply(seg); }} data-condense-apply
                           className="text-2xs bg-accent text-white px-3 py-1.5 rounded-lg transition-colors">
                           {fmt(t('condense.segApply'), { n: String(seg.nodeIds.length), tok: String(seg.saving) })}
                         </button>

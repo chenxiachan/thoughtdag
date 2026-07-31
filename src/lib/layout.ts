@@ -10,6 +10,10 @@ import { COLLAPSED_NODE_HEIGHT, LAYOUT_COL_WIDTH, LAYOUT_H_GAP, LAYOUT_V_GAP } f
 // card no longer grows for.
 export function estimateNodeHeight(node: ThoughtNode): number {
   if (node.data.isCollapsed) return COLLAPSED_NODE_HEIGHT;
+  // Takeaway-form nodes render as plaques at EVERY zoom (visual follows
+  // context), so layout may pack them tight — this is what makes a
+  // condensed chain visibly shorter after relayout.
+  if (node.data.contextForm === 'summary') return 170;
   // ~30 CJK chars per line at card width, ~22px per line; capped like the CSS
   const questionH = Math.min(180, 30 + (node.data.question || '').length / 1.4);
   const responseH = Math.min(400, (node.data.response || '').length / 2.6);

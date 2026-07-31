@@ -1,5 +1,6 @@
-import { llmCall } from './api';
+import { llmCallStream } from './api';
 import { buildContentNode } from './content';
+import { autoLayout } from './layout';
 import { useStore } from '../store';
 import { activeSummary, countTokens } from '../utils';
 import type { ThoughtNode, ThoughtEdge, ThoughtData } from '../types';
@@ -95,8 +96,10 @@ const DISTILL_PROMPT = {
 
 const TAG: Record<string, string> = { ruleout: 'RULEOUT', decision: 'DECISION', pivot: 'PIVOT', open: 'OPEN', insight: 'INSIGHT' };
 
-/** One small LLM call for ONE segment: seconds, not minutes. */
-export async function distillSegment(seg: CondenseSegment, lang: 'zh' | 'en', model?: string): Promise<string> {
+/** One small LLM call for ONE segment — STREAMED, so slow models read as
+    progress instead of a hang. The timeout is idle-based: it only fires
+    when no chunk has arrived for a while. */
+export async function distillSegment(seg: CondenseSegment, lang: 'zh' | 'en', model?: string, onChunk?: (soFar: string) => void): Promise<string> {
   const { nodes } = useStore.getState();
   const byId = new Map(nodes.map((n) => [n.id, n]));
   const lines = seg.nodeIds.map((id) => {
@@ -107,14 +110,30 @@ export async function distillSegment(seg: CondenseSegment, lang: 'zh' | 'en', mo
     const s = activeSummary(d) ?? d.response.replace(/\s+/g, ' ').slice(0, 160);
     return `- Q: ${(d.question || '').replace(/\s+/g, ' ').slice(0, 90)}\n  ${ty && TAG[ty] ? `[${TAG[ty]}] ` : ''}${s}`;
   }).filter(Boolean).join('\n');
-  const raw = await Promise.race([
-    llmCall([
-      { role: 'system', content: DISTILL_PROMPT[lang] },
-      { role: 'user', content: lines },
-    ], undefined, model),
-    new Promise<never>((_, reject) => setTimeout(() => reject(new Error('distill timeout (90s) — try a faster model')), 90_000)),
-  ]);
-  return raw.trim().slice(0, 4000);
+  let idleTimer: ReturnType<typeof setTimeout> | undefined;
+  let rejectIdle: ((e: Error) => void) | undefined;
+  const armIdle = () => {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(() => rejectIdle?.(new Error('distill stalled (90s without output) — try a faster model')), 90_000);
+  };
+  const idleGate = new Promise<never>((_, reject) => { rejectIdle = reject; });
+  armIdle();
+  try {
+    const raw = await Promise.race([
+      llmCallStream(
+        [
+          { role: 'system', content: DISTILL_PROMPT[lang] },
+          { role: 'user', content: lines },
+        ],
+        (_chunk, fullSoFar) => { armIdle(); onChunk?.(fullSoFar); },
+        undefined, undefined, undefined, undefined, model,
+      ),
+      idleGate,
+    ]);
+    return raw.trim().slice(0, 4000);
+  } finally {
+    clearTimeout(idleTimer);
+  }
 }
 
 /** Apply one segment in ONE history step: members take takeaway form (visual
@@ -128,11 +147,12 @@ export function applySegment(seg: CondenseSegment, distilled?: string): { lowere
   const note = distilled?.trim() && head
     ? buildContentNode('note', { x: head.position.x - 460, y: head.position.y }, { question: distilled.trim() })
     : null;
-  useStore.setState((state) => ({
-    nodes: [
-      ...state.nodes.map((n) => (ids.has(n.id) ? { ...n, data: { ...n.data, contextForm: 'summary' as const } } : n)),
-      ...(note ? [note] : []),
-    ],
-  }));
+  useStore.setState((state) => {
+    const withForms = state.nodes.map((n) => (ids.has(n.id) ? { ...n, data: { ...n.data, contextForm: 'summary' as const } } : n));
+    const all = note ? [...withForms, note] : withForms;
+    // Relayout with the plaques' REAL (short) heights: the condensed chain
+    // visibly contracts — this is the feedback that something happened.
+    return { nodes: autoLayout(all, state.edges) };
+  });
   return { lowered: ids.size, noteId: note?.id };
 }
