@@ -1,6 +1,7 @@
 import type { StateCreator } from 'zustand';
 import { HISTORY_LIMIT } from '../../lib/constants';
 import type { StoreState, HistorySlice } from '../types';
+import { condenseGuard } from '../../lib/condense-guard';
 
 // Undo snapshots are SHALLOW references, not deep copies. Every store
 // update is immutable (map + spread; React Flow's applyNodeChanges too),
@@ -25,6 +26,7 @@ export const createHistorySlice: StateCreator<StoreState, [], [], HistorySlice> 
   },
 
   undo: () => {
+    if (condenseGuard()) return;
     const { history, historyIndex } = get();
     if (historyIndex <= 0) return;
     const prev = history[historyIndex - 1];
@@ -33,6 +35,7 @@ export const createHistorySlice: StateCreator<StoreState, [], [], HistorySlice> 
   },
 
   redo: () => {
+    if (condenseGuard()) return;
     const { history, historyIndex } = get();
     if (historyIndex >= history.length - 1) return;
     const next = history[historyIndex + 1];

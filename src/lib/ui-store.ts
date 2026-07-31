@@ -105,6 +105,16 @@ interface UiState {
   setCondenseDialogOpen: (v: boolean) => void;
   condenseHighlightIds: string[];
   setCondenseHighlightIds: (ids: string[]) => void;
+  /** The background condense build: survives closing the window. Editing
+      actions hold still while it runs (guards in the store slices). */
+  condenseRun: {
+    status: 'idle' | 'building' | 'done' | 'error';
+    current: number; total: number; streaming: string;
+    error?: string;
+    originalIds: string[];
+    distillIds: string[];
+  };
+  setCondenseRun: (patch: Partial<UiState['condenseRun']>) => void;
   /** Paradigms and other lab features live behind this switch. */
   advancedMode: boolean;
   setAdvancedMode: (v: boolean) => void;
@@ -218,6 +228,8 @@ export const useUiStore = create<UiState>((set, get) => ({
   setCondenseDialogOpen: (v) => set({ condenseDialogOpen: v, ...(v ? {} : { condenseHighlightIds: [] }) }),
   condenseHighlightIds: [],
   setCondenseHighlightIds: (ids) => set({ condenseHighlightIds: ids }),
+  condenseRun: { status: 'idle', current: 0, total: 0, streaming: '', originalIds: [], distillIds: [] },
+  setCondenseRun: (patch) => set((s) => ({ condenseRun: { ...s.condenseRun, ...patch } })),
   advancedMode: localStorage.getItem('thoughtdag.advanced') === '1',
   setAdvancedMode: (v) => { localStorage.setItem('thoughtdag.advanced', v ? '1' : '0'); set({ advancedMode: v }); },
   apiKeyPresetHint: null,

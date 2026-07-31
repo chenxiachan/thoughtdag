@@ -66,7 +66,22 @@ export function findCandidateSegments(nodes: ThoughtNode[], edges: ThoughtEdge[]
     inn.set(e.target, [...(inn.get(e.target) ?? []), e.source]);
   }
   const single = (m: Map<string, string[]>, id: string) => (m.get(id) ?? []).length === 1;
-  const collapsible = (n: ThoughtNode) => isQaTurn(n) && !isLandmark(n) && !(n.data as ThoughtData).archived;
+  // Frontier protection: the last few turns before every leaf are live
+  // working context — condensing them would yank the ground from under an
+  // ongoing conversation. A structural signal, deliberately NOT an LLM
+  // judgment: recency and distance-to-leaf are graph facts.
+  const FRONTIER_DEPTH = 3;
+  const frontier = new Set<string>();
+  for (const n of nodes) {
+    if (!isQaTurn(n) || (out.get(n.id) ?? []).length > 0) continue; // leaves only
+    let cur: string | undefined = n.id;
+    for (let d = 0; d < FRONTIER_DEPTH && cur; d++) {
+      frontier.add(cur);
+      const parents: string[] = inn.get(cur) ?? [];
+      cur = parents.length === 1 ? parents[0] : undefined;
+    }
+  }
+  const collapsible = (n: ThoughtNode) => isQaTurn(n) && !isLandmark(n) && !(n.data as ThoughtData).archived && !frontier.has(n.id);
   const isRunStart = (id: string): boolean => {
     const parents = inn.get(id) ?? [];
     if (parents.length !== 1) return true;
@@ -92,7 +107,13 @@ export function findCandidateSegments(nodes: ThoughtNode[], edges: ThoughtEdge[]
       totalTurns: run.length,
     });
   }
-  segments.sort((a, b) => b.saving - a.saving);
+  // Early runs first: the older a refinement run, the safer and more
+  // valuable its condensation; savings break ties.
+  const headTime = (s: CondenseSegment) => {
+    const n = byId.get(s.nodeIds[0]);
+    return (n?.data as ThoughtData | undefined)?.createdAt ?? '';
+  };
+  segments.sort((a, b) => headTime(a).localeCompare(headTime(b)) || b.saving - a.saving);
   return segments;
 }
 
@@ -263,4 +284,47 @@ export function buildCondensedCopy(segments: CondenseSegment[], distillates: str
     return { nodes: autoLayout(merged, mergedEdges), edges: mergedEdges };
   });
   return { copiedNodes: copies.length, collapsedRuns: segments.length, distillIds };
+}
+
+// ── The background runner: lives at module level so closing the window
+// never cancels a build. Progress flows through uiStore.condenseRun; the
+// editing guard (condenseGuard) holds the graph still while it runs.
+import { useUiStore } from './ui-store';
+import { t as i18nT } from '../i18n';
+import { toast } from './ui-store';
+
+let runCounter = 0;
+
+export function cancelCondenseRun(): void {
+  runCounter++;
+  useUiStore.getState().setCondenseRun({ status: 'idle', current: 0, total: 0, streaming: '' });
+}
+
+export async function startCondenseRun(picked: CondenseSegment[], lang: 'zh' | 'en', model?: string): Promise<void> {
+  if (picked.length === 0) return;
+  const token = ++runCounter;
+  const ui = useUiStore.getState();
+  const originalIds = useStore.getState().nodes.map((n) => n.id);
+  ui.setCondenseRun({ status: 'building', current: 0, total: picked.length, streaming: '', error: undefined, originalIds, distillIds: [] });
+  try {
+    const distillates: string[] = [];
+    let brief = '';
+    for (let i = 0; i < picked.length; i++) {
+      if (runCounter !== token) return;
+      useUiStore.getState().setCondenseRun({ current: i + 1, streaming: '' });
+      const d = await distillSegment(picked[i], lang, model,
+        (soFar) => { if (runCounter === token) useUiStore.getState().setCondenseRun({ streaming: soFar }); },
+        brief || undefined);
+      if (runCounter !== token) return;
+      distillates.push(d);
+      brief = `${brief}\n${d}`.slice(-1500);
+    }
+    const res = buildCondensedCopy(picked, distillates, lang);
+    if (runCounter !== token) return;
+    useUiStore.getState().setCondenseRun({ status: 'done', streaming: '', distillIds: res.distillIds });
+    toast('success', i18nT('condense.copyReady'));
+  } catch (err) {
+    if (runCounter !== token) return;
+    useUiStore.getState().setCondenseRun({ status: 'error', error: err instanceof Error ? err.message : String(err) });
+  }
 }

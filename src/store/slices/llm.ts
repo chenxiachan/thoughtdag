@@ -10,9 +10,11 @@ import { activeAbortControllers, autoRunCounts, runNodeGeneration, triggerParadi
 import { useUiStore, toast } from '../../lib/ui-store';
 import { t, fmt } from '../../i18n';
 import type { StoreState, LlmSlice, AddQuestionOptions } from '../types';
+import { condenseGuard } from '../../lib/condense-guard';
 
 export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, get) => ({
   addQuestion: async (question: string, opts: AddQuestionOptions = {}) => {
+    if (condenseGuard()) return;
     const { parentId, branchContext, branchYRatio, inheritRole, rolePrompt, initialAttachments, excludeAllInheritedAttachments, mentions } = opts;
     const id = generateId();
     get().logEvent('ask', id, { chars: question.length, ...(parentId ? {} : { root: true }), ...(branchContext ? { branch: true } : {}) });
@@ -325,6 +327,7 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
   },
 
   submitHumanTurn: (nodeId: string, question: string) => {
+    if (condenseGuard()) return;
     const q = question.trim();
     if (!q) return;
     get().pushHistory();
@@ -348,6 +351,7 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
   },
 
   editQuestion: async (nodeId: string, question: string) => {
+    if (condenseGuard()) return;
     get().pushHistory();
     get().logEvent('edit-question', nodeId, { chars: question.length });
     // Staleness seed: descendants keep answers written against the OLD

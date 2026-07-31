@@ -9,6 +9,7 @@ import { pruneHighlights } from '../../lib/highlight-match';
 import { toast } from '../../lib/ui-store';
 import { t, fmt } from '../../i18n';
 import type { StoreState, NodeSlice } from '../types';
+import { condenseGuard } from '../../lib/condense-guard';
 
 export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set, get) => ({
   nodes: [],
@@ -22,6 +23,7 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
   setSelectedNodeIds: (ids) => set({ selectedNodeIds: ids, selectedNodeId: ids.length === 1 ? ids[0] : null }),
 
   deleteNode: (nodeId: string) => {
+    if (condenseGuard()) return;
     get().logEvent('delete', nodeId, { n: 1 });
     get().pushHistory();
     const { edges } = get();
@@ -35,6 +37,7 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
   },
 
   deleteEdges: (edgeIds: string[]) => {
+    if (condenseGuard()) return;
     get().logEvent('disconnect', edgeIds[0], { n: edgeIds.length });
     const remove = new Set(edgeIds);
     if (!get().edges.some((e) => remove.has(e.id))) return;
@@ -44,6 +47,7 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
   },
 
   editResponse: (nodeId: string, response: string) => {
+    if (condenseGuard()) return;
     get().logEvent('edit-response', nodeId, { chars: response.length });
     get().pushHistory();
     const tokenCount = countTokens(get().nodes.find((n) => n.id === nodeId)?.data.question + response || response);
@@ -100,6 +104,7 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
   },
 
   setEditing: (nodeId: string, editing: boolean) => {
+    if (editing && condenseGuard()) return;
     set((state) => ({
       nodes: state.nodes.map((n) =>
         n.id === nodeId ? { ...n, data: { ...n.data, isEditing: editing } } : n
@@ -108,6 +113,7 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
   },
 
   setEditingResponse: (nodeId: string, editing: boolean) => {
+    if (editing && condenseGuard()) return;
     set((state) => ({
       nodes: state.nodes.map((n) =>
         n.id === nodeId ? { ...n, data: { ...n.data, isEditingResponse: editing } } : n
@@ -329,6 +335,7 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
   },
 
   relayout: () => {
+    if (condenseGuard()) return;
     get().pushHistory();
     set((state) => ({ nodes: autoLayout(state.nodes, state.edges) }));
     get().pushHistory();
@@ -399,6 +406,7 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
   },
 
   batchDelete: (nodeIds: string[]) => {
+    if (condenseGuard()) return;
     get().logEvent('delete', nodeIds[0], { n: nodeIds.length });
     get().pushHistory();
     const removeSet = new Set(nodeIds);

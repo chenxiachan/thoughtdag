@@ -5,6 +5,7 @@ import { runNodeGeneration, autoRunCounts } from '../streaming';
 import { toast, updateToast, useUiStore } from '../../lib/ui-store';
 import { t, fmt } from '../../i18n';
 import type { StoreState, EvaluatorSlice } from '../types';
+import { condenseGuard } from '../../lib/condense-guard';
 
 // Batch-replay cancellation flag — one replay at a time, module-scoped.
 let replayAborted = false;
@@ -32,6 +33,7 @@ export const createEvaluatorSlice: StateCreator<StoreState, [], [], EvaluatorSli
    * This is the generic engine behind auto-rerun; also useful manually.
    */
   rerunNode: async (nodeId: string, opts?: { auto?: boolean }) => {
+    if (condenseGuard()) return;
     const { nodes, edges } = get();
     const node = nodes.find((n) => n.id === nodeId);
     if (!node || node.data.isLoading) return;

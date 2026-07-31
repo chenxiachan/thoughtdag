@@ -168,6 +168,8 @@ function Canvas() {
   }, []);
   const lang = useI18n((s) => s.lang);
   const advancedMode = useUiStore((s) => s.advancedMode);
+  const condenseRunState = useUiStore((s) => s.condenseRun);
+  const condenseBuilding = condenseRunState.status === 'building';
   const isParadigm = useProjects((s) => s.projects.find((p) => p.id === s.activeId)?.kind === 'paradigm');
 
   // No configured model: do NOT ambush the first open with the key dialog —
@@ -872,7 +874,10 @@ function Canvas() {
         // full markdown/KaTeX card DOMs mounted otherwise, and zoom/pan
         // transforms all of them every frame.
         onlyRenderVisibleElements
-        minZoom={0.1}
+        // 0.04, not 0.1: a canvas with a condensed copy beside the original
+        // doubles in width — the overview must still fit in one screen for
+        // whole-branch selection and cleanup.
+        minZoom={0.04}
         maxZoom={2}
         defaultEdgeOptions={{
           type: 'smoothstep',
@@ -1384,11 +1389,13 @@ function Canvas() {
         {hasNodes && !isParadigm && !isViewerMode && (
           <button
             onClick={() => useUiStore.getState().setCondenseDialogOpen(true)}
-            className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors text-ink-muted hover:text-accent"
-            title={t('condense.entryTitle')}
+            className={`bg-card/90 backdrop-blur border rounded-lg h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors ${condenseBuilding ? 'border-accent/50 text-accent px-2 gap-1.5' : 'border-line w-8 text-ink-muted hover:text-accent'}`}
+            title={condenseBuilding ? fmt(t('condense.entryBuilding'), { i: String(condenseRunState.current), n: String(condenseRunState.total) }) : t('condense.entryTitle')}
             data-condense-entry
           >
-            <Minimize2 size={15} strokeWidth={1.75} />
+            {condenseBuilding
+              ? (<><Loader2 size={14} strokeWidth={1.75} className="animate-spin" /><span className="text-2xs font-mono">{condenseRunState.current}/{condenseRunState.total}</span></>)
+              : <Minimize2 size={15} strokeWidth={1.75} />}
           </button>
         )}
         {backupSupported && (
