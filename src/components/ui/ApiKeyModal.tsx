@@ -8,6 +8,7 @@ import {
   probeModels, pushProviders, saveProviders, storedProviders,
 } from '../../lib/runtime-providers';
 import { useT, fmt, useI18n } from '../../i18n';
+import { API_BASE } from '../../lib/constants';
 
 // The model-interface manager: one door for every way in. Presets carry a
 // baseURL and a key page; the model list is always fetched live from the
@@ -40,6 +41,9 @@ export default function ApiKeyModal() {
   // UI language — the same provider never appears twice in the row.
   const visiblePresets = PROVIDER_PRESETS.filter((p) => !p.region || p.region === lang);
   const [preset, setPreset] = useState<ProviderPreset>(visiblePresets[0]);
+  // The hosted deployment cannot reach a user's 127.0.0.1 (and the bridge
+  // sends no CORS): surface the limit BEFORE the 403, not after.
+  const hostedBridgeBlocked = API_BASE === '' && preset.baseURL.includes('127.0.0.1');
   const [key, setKey] = useState('');
   const [customURL, setCustomURL] = useState('');
   const [customName, setCustomName] = useState('');
@@ -257,9 +261,14 @@ export default function ApiKeyModal() {
               </div>
             )}
             {preset.noKey && <p className="text-2xs text-ink-faint leading-relaxed">{t((preset.hintKey ?? 'provider.localHint') as Parameters<typeof t>[0])}</p>}
+            {hostedBridgeBlocked && (
+              <p className="text-2xs text-amber-700 bg-amber-500/10 rounded-lg px-2.5 py-2 leading-relaxed" data-bridge-hosted-notice>
+                {t('provider.bridgeHostedNotice')}
+              </p>
+            )}
 
             {!probed && (
-              <button onClick={() => void doProbe()} disabled={busy || (preset.id === 'custom' ? !customURL.trim() : !preset.noKey && !key.trim())}
+              <button onClick={() => void doProbe()} disabled={busy || hostedBridgeBlocked || (preset.id === 'custom' ? !customURL.trim() : !preset.noKey && !key.trim())}
                 className="text-xs bg-accent text-white px-4 py-1.5 rounded-lg disabled:opacity-40 flex items-center gap-1.5" data-provider-probe>
                 {busy && <Loader2 size={12} className="animate-spin" />}
                 {busy ? t('provider.probing') : t('provider.probe')}

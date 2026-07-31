@@ -115,6 +115,7 @@ export const en = {
   'provider.keyHint': 'Create one at',
   'provider.localHint': 'Locally running models need no key. Start Ollama, then use the button below to list the installed models.',
   'provider.chatgptBridgeHint': 'Use your ChatGPT plan: run npx openai-oauth in a terminal and sign in; the bridge listens at 127.0.0.1:10531. Works only when ThoughtDAG runs locally (npm run server) — the hosted app cannot reach your machine.',
+  'provider.bridgeHostedNotice': 'The hosted app cannot reach your machine, so this door is unavailable here. Run ThoughtDAG locally to use it; the desktop app (in development) will make it one click. To start right now: OpenRouter or any API key.',
   'provider.probe': 'Fetch model list',
   'provider.probing': 'Asking the endpoint…',
   'provider.probeEmpty': 'The endpoint returned no models. Check that the service is running and the key is right.',
