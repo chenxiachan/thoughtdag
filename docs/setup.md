@@ -4,7 +4,7 @@
 
 ## Quick start (in detail)
 
-The fastest path is the [live demo](https://app.thoughtdag.workers.dev): open, paste a key (or don't, and browse the example canvas), go. Model traffic runs browser-direct to the gateway, so your key never touches the demo's server. To run it yourself:
+The fastest path is the [live demo](https://app.thoughtdag.workers.dev): open, click **Connect OpenRouter** (one authorization mints a key right in your browser, free-tier models included), or paste any provider key — or do neither and browse the example canvas. Model traffic runs browser-direct to the gateway, so your key never touches the demo's server. To run it yourself:
 
 ```bash
 npm install
@@ -38,7 +38,7 @@ Built on the Vercel AI SDK. Any provider below activates when its key lands in `
 
 ## Subscriptions
 
-Metered API keys are not the only way in. Three subscription plans connect too, and the in-app presets carry the right endpoints:
+Metered API keys are not the only way in. Four subscription plans connect too, and the in-app presets carry the right endpoints:
 
 **ChatGPT plan (Plus/Pro)** connects through a community local bridge, so it works when ThoughtDAG runs locally:
 
@@ -46,9 +46,13 @@ Metered API keys are not the only way in. Three subscription plans connect too, 
 2. Run ThoughtDAG locally (`npm run server` + `npm run dev`).
 3. In the app: model picker → add endpoint → **ChatGPT plan · local** → fetch models → save. Usage draws from your plan, with no metered bill. The hosted demo cannot reach your machine, so this path is local-only.
 
+Know the ground: the bridge is a community tool using your own account, and the provider's policy on third-party use can change — there are public reports of accounts suspended for third-party plan access. If that risk reads as too high, the subscription plans below and the one-click OpenRouter sign-in are the sanctioned doors.
+
 **GLM Coding plan**: the subscription issues a real API key against a dedicated endpoint (`/api/coding/paas/v4`, not the metered `/api/paas/v4`). Pick the **GLM Coding plan** preset, paste the key from your plan console, done. Works on the hosted app too.
 
 **Kimi Code plan**: same shape. Create a key in the Kimi Code console (up to 5), pick the **Kimi Code plan** preset, paste, done. `k3-256k` is the quota-friendly pick. Works on the hosted app too.
+
+**MiniMax Coding Plan**: pick the **MiniMax** preset and paste the plan key (coding-plan and metered keys share the endpoint). MiniMax publishes no model-list route, so the preset carries the catalog — the picker lists `MiniMax-M2.7` and friends without a probe. Works on the hosted app too.
 
 > Claude and Gemini subscriptions are absent deliberately: both providers prohibit third-party use of subscription credentials (enforced in 2026, with real account suspensions). Their metered API keys work normally via the regular presets.
 

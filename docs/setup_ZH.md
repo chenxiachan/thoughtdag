@@ -4,7 +4,7 @@
 
 ## 快速开始（细节版）
 
-最快的路径是[在线 Demo](https://app.thoughtdag.workers.dev)：打开、粘贴一个 key（不粘贴也行，可以先逛示例画布）就能用。模型流量从浏览器直连网关，key 不会经过 Demo 的服务器。想自己跑：
+最快的路径是[在线 Demo](https://app.thoughtdag.workers.dev)：打开后可一键授权 OpenRouter（跳转授权一次，key 在你的浏览器里生成，含免费档模型），或粘贴任意服务商的 key；不配置也行，可以先逛示例画布。模型流量从浏览器直连网关，key 不会经过 Demo 的服务器。想自己跑：
 
 ```bash
 npm install
@@ -38,7 +38,7 @@ npm run dev            # → http://localhost:5173
 
 ## 订阅接入
 
-按量 API key 不是唯一入口。三家订阅也能接，应用内预设已带好对应端点：
+按量 API key 不是唯一入口。四家订阅也能接，应用内预设已带好对应端点：
 
 **ChatGPT 订阅（Plus/Pro）**：经社区本地桥接入，本地运行 ThoughtDAG 时可用：
 
@@ -46,9 +46,13 @@ npm run dev            # → http://localhost:5173
 2. 本地运行 ThoughtDAG（`npm run server` + `npm run dev`）。
 3. 应用内：模型选择器 → 添加接口 → **ChatGPT 订阅 · 本地** → 获取模型列表 → 保存。用量计入订阅额度，不产生按量账单。线上版连不到你的本机，此通道仅限本地。
 
+知情提示：这座桥是社区工具，使用的是你自己的账号；服务方对第三方使用的政策可能变化，公开渠道已有因第三方接入订阅被封号的报告。若不想承担该风险，下方的订阅计划与 OpenRouter 一键授权是受官方支持的通道。
+
 **GLM Coding 订阅**：订阅本身发 API key，走专用端点（`/api/coding/paas/v4`，与按量的 `/api/paas/v4` 不通用）。选 **GLM Coding 订阅** 预设，填订阅控制台里的 key 即可。线上版同样可用。
 
 **Kimi Code 订阅**：同样形态。在 Kimi Code 控制台创建 key（最多 5 把），选 **Kimi Code 订阅** 预设填入即可。推荐 `k3-256k`，省配额。线上版同样可用。
+
+**MiniMax Coding Plan**：选 **MiniMax** 预设，填订阅 key（订阅与按量共用端点）。MiniMax 不提供模型列表路由，预设自带目录——选择器直接列出 `MiniMax-M2.7` 等，无需探测。线上版同样可用。
 
 > 刻意没有 Claude 与 Gemini 订阅：两家都禁止订阅凭证在第三方工具使用（2026 年已实际执法，有封号案例）。它们的按量 API key 走常规预设，不受影响。
 

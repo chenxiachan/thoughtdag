@@ -49,6 +49,7 @@ import { buildExampleGraph } from './lib/example-graph';
 import { COLORS, FRAME_COLORS, PANEL_INSET } from './lib/constants';
 import { panelShift } from './lib/panel-shift';
 import { migrateActiveCanvasToVault, gcVaultAtBoot } from './lib/attachment-vault-boot';
+import { consumeOpenRouterCallback, startOpenRouterOAuth } from './lib/openrouter-oauth';
 import { confirmDialog, toast, useUiStore } from './lib/ui-store';
 import ConfirmDialog from './components/ui/ConfirmDialog';
 import Toaster from './components/ui/Toaster';
@@ -120,6 +121,16 @@ export default function App() {
     if (isViewerMode) return;
     const timer = setTimeout(() => void gcVaultAtBoot(), 6000);
     return () => clearTimeout(timer);
+  }, []);
+  // A pending Sign-in-with-OpenRouter callback (?code=) resolves here: the
+  // exchange and provider registration run entirely in the browser.
+  useEffect(() => {
+    if (isViewerMode) return;
+    void consumeOpenRouterCallback().then((r) => {
+      if (!r) return;
+      if (r.status === 'connected') toast('success', fmt(ti('provider.oauthConnected'), { n: r.n }));
+      else toast('error', fmt(ti('provider.oauthFailed'), { error: r.error }));
+    });
   }, []);
   return (
     <>
@@ -1159,7 +1170,8 @@ function Canvas() {
 
             {/* Quick connect: the no-model landing points at the lowest-
                 friction door per language — GLM's free tier for zh, the
-                ChatGPT-plan bridge for en. Gone once any model exists. */}
+                one-click OpenRouter OAuth for en (free-tier models included,
+                key minted in this browser). Gone once any model exists. */}
             {(!modelData || (modelData.models?.length ?? 0) === 0) && (
               <div className="mt-3 bg-card/70 backdrop-blur border border-line/70 rounded-xl px-4 py-3 flex items-center gap-3 hover:border-line-strong transition-colors" data-quick-connect>
                 <KeyRound size={16} strokeWidth={1.75} className="text-accent shrink-0" />
@@ -1168,7 +1180,10 @@ function Canvas() {
                   <p className="text-2xs text-ink-faint leading-relaxed">{t('landing.quickDesc')}</p>
                 </div>
                 <button
-                  onClick={() => { useUiStore.getState().setApiKeyPresetHint(lang === 'zh' ? 'zhipu' : 'chatgpt-bridge-intl'); useUiStore.getState().setApiKeyModalOpen(true); }}
+                  onClick={() => {
+                    if (lang === 'zh') { useUiStore.getState().setApiKeyPresetHint('zhipu'); useUiStore.getState().setApiKeyModalOpen(true); }
+                    else void startOpenRouterOAuth();
+                  }}
                   className="text-2xs bg-accent/10 text-accent hover:bg-accent/20 font-medium px-3 py-1.5 rounded-lg transition-colors shrink-0"
                   data-quick-primary
                 >

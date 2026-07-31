@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Camera, KeyRound, Loader2, Plus, Trash2, X, Pencil } from 'lucide-react';
+import { Camera, ExternalLink, KeyRound, Loader2, Plus, Trash2, X, Pencil } from 'lucide-react';
+import { startOpenRouterOAuth } from '../../lib/openrouter-oauth';
 import { useUiStore, toast } from '../../lib/ui-store';
 import { useModels, setModelsCache } from '../../lib/use-models';
 import {
@@ -105,7 +106,9 @@ export default function ApiKeyModal() {
     setProbed(null);
     try {
       const baseURL = baseURLArg ?? (preset.id === 'custom' ? customURL.trim() : preset.baseURL);
-      const models = await probeModels(baseURL, (keyArg ?? key).trim());
+      // fixed-catalog endpoints (no /models route) list from the preset
+      const fixed = PROVIDER_PRESETS.find((x) => x.baseURL === baseURL)?.fixedModels;
+      const models: RuntimeModel[] = fixed ? fixed.map((id) => ({ id })) : await probeModels(baseURL, (keyArg ?? key).trim());
       if (models.length === 0) throw new Error(t('provider.probeEmpty'));
       const preselect = new Map<string, boolean>();
       if (keepPicked) {
@@ -247,6 +250,15 @@ export default function ApiKeyModal() {
               </div>
             </>)}
 
+            {preset.id === 'openrouter' && !probed && (
+              <div className="border border-accent/30 bg-accent/5 rounded-xl px-3 py-2.5 flex items-center gap-2.5" data-provider-oauth-row>
+                <p className="text-2xs text-ink-muted leading-relaxed flex-1 min-w-0">{t('provider.oauthHint')}</p>
+                <button onClick={() => void startOpenRouterOAuth()} data-provider-oauth
+                  className="text-xs bg-accent text-white px-3 py-1.5 rounded-lg shrink-0 flex items-center gap-1.5">
+                  <ExternalLink size={12} strokeWidth={1.75} /> {t('provider.oauthButton')}
+                </button>
+              </div>
+            )}
             {!preset.noKey && (
               <div>
                 <label className="text-2xs font-medium text-ink-muted block mb-1.5">API key</label>

@@ -115,7 +115,7 @@ export const zh: Record<keyof typeof en, string> = {
   'provider.keyHint': '在这里创建：',
   'provider.localHint': '本地运行的模型不需要 key。启动 Ollama 后点下面的按钮，会自动列出已安装的模型。',
   'provider.chatgptBridgeHint': '用 ChatGPT 订阅额度：终端里运行 npx openai-oauth 并登录，本地桥会起在 127.0.0.1:10531。此通道只在本地运行 ThoughtDAG 时可用（npm run server），线上版无法连到你的本机。',
-  'provider.bridgeHostedNotice': '线上版连不到你的本机，此通道在这里不可用。本地运行 ThoughtDAG 后即可使用；桌面版（开发中）将一键接入。现在想直接开始：OpenRouter 或任意 API key。',
+  'provider.bridgeHostedNotice': '线上版连不到你的本机，此通道在这里不可用。本地运行 ThoughtDAG 后即可使用；桌面版（开发中）将一键接入。现在想直接开始：OpenRouter 一键授权，或任意 API key。',
   'provider.probe': '获取模型列表',
   'provider.probing': '正在询问接口…',
   'provider.probeEmpty': '接口没有返回任何模型。确认服务已启动、key 正确。',
@@ -126,6 +126,10 @@ export const zh: Record<keyof typeof en, string> = {
   'provider.visionToggle': '这个模型能看图？点击切换',
   'provider.save': '保存',
   'provider.added': '已添加 {name}：{n} 个模型',
+  'provider.oauthButton': '一键授权',
+  'provider.oauthHint': '跳转到 OpenRouter 授权一次，密钥在你的浏览器里生成并保存，无需手动粘贴；免费档模型开箱可用。',
+  'provider.oauthConnected': '已连接 OpenRouter，{n} 个模型就绪。',
+  'provider.oauthFailed': 'OpenRouter 授权未完成：{error}。可重试，或改用手动粘贴 key。',
   'provider.privacy': 'key 只存在你的浏览器（localStorage）和本机代理的内存里，不写入任何文件，不上传到别处。删除接口即彻底移除。',
 
   // API key dialog (the .env-free path in)

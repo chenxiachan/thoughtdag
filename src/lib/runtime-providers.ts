@@ -31,6 +31,9 @@ export interface ProviderPreset {
   hintKey?: string;
   /** Preselect these when the probed list contains them. */
   recommend?: string[];
+  /** Endpoint publishes no /models route: the preset carries its catalog
+      and probing is skipped (MiniMax is the known case). */
+  fixedModels?: string[];
 }
 
 export const PROVIDER_PRESETS: ProviderPreset[] = [
@@ -55,6 +58,11 @@ export const PROVIDER_PRESETS: ProviderPreset[] = [
   // twin only localizes the display name.
   { id: 'kimi-code', name: 'Kimi Code 订阅', region: 'zh', baseURL: 'https://api.kimi.com/coding/v1', keyUrl: 'https://www.kimi.com/code/console', recommend: ['k3-256k', 'kimi-for-coding'] },
   { id: 'kimi-code-intl', name: 'Kimi Code plan', region: 'en', baseURL: 'https://api.kimi.com/coding/v1', keyUrl: 'https://www.kimi.com/code/console', recommend: ['k3-256k', 'kimi-for-coding'] },
+  // MiniMax: OpenAI-compatible but publishes no /models route — the preset
+  // carries the catalog. Coding-plan keys and metered keys use the same
+  // endpoint. Region twins mirror the intl/cn host split.
+  { id: 'minimax-intl', name: 'MiniMax', region: 'en', baseURL: 'https://api.minimax.io/v1', keyUrl: 'https://platform.minimax.io', fixedModels: ['MiniMax-M3', 'MiniMax-M2.7', 'MiniMax-M2.7-highspeed', 'MiniMax-M2.5'], recommend: ['MiniMax-M2.7'] },
+  { id: 'minimax', name: 'MiniMax', region: 'zh', baseURL: 'https://api.minimaxi.com/v1', keyUrl: 'https://platform.minimaxi.com', fixedModels: ['MiniMax-M3', 'MiniMax-M2.7', 'MiniMax-M2.7-highspeed', 'MiniMax-M2.5'], recommend: ['MiniMax-M2.7'] },
   { id: 'deepseek', name: 'DeepSeek', baseURL: 'https://api.deepseek.com/v1', keyUrl: 'https://platform.deepseek.com/api_keys' },
   { id: 'openai', name: 'OpenAI', baseURL: 'https://api.openai.com/v1', keyUrl: 'https://platform.openai.com/api-keys' },
   // Google AI Studio: keys are free without a card, but the free tier
@@ -149,6 +157,8 @@ export async function refreshStoredProviders(): Promise<ModelData | null> {
   if (stored.length === 0) return null;
   const next: RuntimeProvider[] = [];
   for (const p of stored) {
+    // fixed-catalog endpoints have nothing to probe: keep the entry as-is
+    if (PROVIDER_PRESETS.find((x) => x.baseURL === p.baseURL)?.fixedModels) { next.push(p); continue; }
     try {
       const fresh = await probeModels(p.baseURL, p.apiKey);
       const had = new Map(p.models.map((m) => [m.id, m]));
