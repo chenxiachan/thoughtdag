@@ -91,7 +91,7 @@ Mind maps are drawn; this map grows. Chat leaves no map at all.
 - **Keyboard shortcuts**: Space collapse, R regenerate, arrow keys walk the DAG, Esc steps out (legend in the tutorial)
 - **Bilingual UI**: auto-detects browser language, one-click EN/中 switch
 - **Built-in tutorial**: a ten-step illustrated hero page, from asking to paradigms
-- **Example canvas on first run**: four framed chapters around one everyday question: conversation grammar, materials & references, the ⚖️ context-pruning pair, and a reading loop with a real embedded PDF (anchored question, digest node); every node carries a typed takeaway so zooming out lands on a working map; reload anytime from the landing screen
+- **Example canvas, one labeled click away on the landing page**: four framed chapters around one everyday question: conversation grammar, materials & references, the ⚖️ context-pruning pair, and a reading loop with a real embedded PDF (anchored question, digest node); every node carries a typed takeaway so zooming out lands on a working map; reload anytime from the landing screen
 
 ## Roadmap
 
