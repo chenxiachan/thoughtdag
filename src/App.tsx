@@ -110,6 +110,13 @@ export default function App() {
   }, [hydrated]);
   // Sweep orphaned vault payloads once per boot, off the critical path.
   useEffect(() => {
+    // A condense build cannot survive a page load — its runner lives in
+    // module memory. A leftover 'building' here is a stale lock: clear it.
+    if (useUiStore.getState().condenseRun.status === 'building') {
+      useUiStore.getState().setCondenseRun({ status: 'idle', current: 0, total: 0, streaming: '' });
+    }
+  }, []);
+  useEffect(() => {
     if (isViewerMode) return;
     const timer = setTimeout(() => void gcVaultAtBoot(), 6000);
     return () => clearTimeout(timer);
@@ -348,6 +355,13 @@ function Canvas() {
         e.preventDefault();
         const id = spawnContentNode('file', pos);
         void ingestFiles(id, files);
+        return;
+      }
+      // A file copied in the OS file manager pastes as a REFERENCE the
+      // browser cannot read (empty text, empty files) — point at the door
+      // that works instead of silently doing nothing.
+      if (dt.types.length > 0) {
+        toast('info', t('toast.pasteFileHint'));
       }
     };
     window.addEventListener('mousemove', onMove);

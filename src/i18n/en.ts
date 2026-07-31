@@ -448,6 +448,7 @@ export const en = {
   'confirm.deleteCanvas': 'Delete "{name}" and all its nodes? This cannot be undone.',
 
   // Toasts
+  'toast.pasteFileHint': 'Files copied in the file manager cannot be read by the browser. Drag the file onto the canvas instead.',
   'toast.copied': 'Copied to clipboard',
   'toast.exported': 'Exported "{name}"',
   'toast.imported': 'Imported "{name}" ({n} nodes)',

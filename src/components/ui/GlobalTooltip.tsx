@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 // Global fast tooltips: the browser's native title delay (~1s) is fixed and
@@ -89,11 +89,26 @@ export default function GlobalTooltip() {
   }, []);
 
   if (!tip) return null;
+  return <TipBox tip={tip} />;
+}
+
+// Measured clamping: centering on the anchor alone lets long tips bleed
+// off-screen for edge buttons (left palette, right rail). Render, measure,
+// shove the box fully back inside — before paint, so nothing flashes.
+function TipBox({ tip }: { tip: Tip }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [x, setX] = useState(tip.x);
+  useLayoutEffect(() => {
+    const w = ref.current?.offsetWidth ?? 0;
+    const half = w / 2;
+    setX(Math.max(12 + half, Math.min(tip.x, window.innerWidth - 12 - half)));
+  }, [tip]);
   return createPortal(
     <div
+      ref={ref}
       className="tdag-tooltip"
       style={{
-        left: tip.x,
+        left: x,
         top: tip.above ? tip.top - 8 : tip.bottom + 8,
         transform: `translate(-50%, ${tip.above ? '-100%' : '0'})`,
       }}

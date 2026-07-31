@@ -447,6 +447,7 @@ export const zh: Record<keyof typeof en, string> = {
   'confirm.deleteCanvas': '删除「{name}」及其全部节点？此操作无法撤销。',
 
   // Toasts
+  'toast.pasteFileHint': '从文件管理器复制的文件，浏览器读不到内容。把文件直接拖进画布即可。',
   'toast.copied': '已复制到剪贴板',
   'toast.exported': '已导出「{name}」',
   'toast.imported': '已导入「{name}」（{n} 个节点）',
