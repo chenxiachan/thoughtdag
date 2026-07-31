@@ -5,7 +5,7 @@ import { useI18n } from '../i18n';
 import { parseImportFile } from '../lib/export';
 import ImportChatModal from './ImportChatModal';
 import type { ImportableConversation } from '../lib/import-chat';
-import { confirmDialog, toast } from '../lib/ui-store';
+import { confirmDialog, toast, useUiStore } from '../lib/ui-store';
 import { isImeComposing } from '../utils';
 import { useT, t as ti, fmt } from '../i18n';
 
@@ -33,6 +33,7 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const importFileRef = useRef<HTMLInputElement>(null);
+  const advancedMode = useUiStore((s) => s.advancedMode);
   const rootRef = useRef<HTMLDivElement>(null);
 
   const active = projects.find((p) => p.id === activeId);
@@ -140,6 +141,7 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
             >
               <Plus size={15} strokeWidth={1.75} /> {t('switcher.newCanvas')}
             </button>
+            {advancedMode && (<>
             <button
               onClick={() => { setOpen(false); void createProject(ti('paradigm.badge'), 'paradigm').then(onSwitched); }}
               className="w-full text-left px-3 py-2 text-sm text-ink-muted hover:bg-wash transition-colors flex items-center gap-2"
@@ -152,6 +154,7 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
             >
               └ {t('paradigm.exampleRuleOut')}
             </button>
+            </>)}
             <button
               onClick={() => importFileRef.current?.click()}
               className="w-full text-left px-3 py-2 text-sm text-ink-muted hover:bg-wash transition-colors flex items-center gap-2"

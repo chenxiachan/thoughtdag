@@ -1,0 +1,2064 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ThoughtDAG — Make LLM context visible and editable</title>
+    <meta
+      name="description"
+      content="ThoughtDAG is an open-source, local-first canvas where graph edges define the context sent to an LLM. Branch, prune, merge, and inspect what the model sees."
+    />
+    <meta name="robots" content="index,follow,max-image-preview:large" />
+    <meta name="theme-color" content="#f8f6fb" />
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+    <link rel="canonical" href="https://chenxiachan.github.io/thoughtdag/" />
+    <link
+      rel="alternate"
+      hreflang="en"
+      href="https://chenxiachan.github.io/thoughtdag/"
+    />
+    <link
+      rel="alternate"
+      hreflang="zh-CN"
+      href="https://chenxiachan.github.io/thoughtdag/?lang=zh"
+    />
+    <link
+      rel="alternate"
+      hreflang="x-default"
+      href="https://chenxiachan.github.io/thoughtdag/"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="ThoughtDAG — Make LLM context visible and editable" />
+    <meta
+      property="og:description"
+      content="A local-first, open-source canvas where the graph determines what the model sees."
+    />
+    <meta property="og:url" content="https://chenxiachan.github.io/thoughtdag/" />
+    <meta
+      property="og:image"
+      content="https://chenxiachan.github.io/thoughtdag/assets/thoughtdag-story-poster-en-horizontal.jpg"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:image"
+      content="https://chenxiachan.github.io/thoughtdag/assets/thoughtdag-story-poster-en-horizontal.jpg"
+    />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "ThoughtDAG",
+        "applicationCategory": "DeveloperApplication",
+        "operatingSystem": "Web",
+        "description": "An open-source, local-first canvas where graph edges define the context sent to an LLM.",
+        "license": "https://opensource.org/licenses/MIT",
+        "codeRepository": "https://github.com/chenxiachan/thoughtdag",
+        "url": "https://chenxiachan.github.io/thoughtdag/"
+      }
+    </script>
+    <style>
+      :root {
+        --paper: #f8f6fb;
+        --card: #ffffff;
+        --ink: #211f29;
+        --muted: #6d6878;
+        --line: #ded9e8;
+        --purple: #6b5ce7;
+        --purple-soft: #eeeafd;
+        --orange: #e8890c;
+        --orange-soft: #fff1dd;
+        --green: #25a06b;
+        --green-soft: #e4f5ed;
+        --shadow: 0 18px 50px rgba(55, 45, 100, 0.12);
+        --ease: cubic-bezier(0.22, 0.8, 0.24, 1);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background: var(--paper);
+        font-family:
+          Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "PingFang SC",
+          "Noto Sans SC", "Segoe UI", sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .nav {
+        position: fixed;
+        inset: 0 0 auto;
+        z-index: 100;
+        height: 62px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 28px;
+        border-bottom: 1px solid rgba(222, 217, 232, 0.72);
+        background: rgba(248, 246, 251, 0.82);
+        backdrop-filter: blur(18px);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 15px;
+        font-weight: 760;
+      }
+
+      .brand img {
+        width: 28px;
+        height: 28px;
+      }
+
+      .nav-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .nav-link {
+        padding: 9px 13px;
+        border-radius: 10px;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .nav-link:hover {
+        color: var(--ink);
+        background: rgba(107, 92, 231, 0.08);
+      }
+
+      .nav-link.primary {
+        color: white;
+        background: var(--ink);
+      }
+
+      .language-toggle {
+        min-width: 48px;
+        border: 1px solid var(--line);
+        background: rgba(255, 255, 255, 0.76);
+        cursor: pointer;
+      }
+
+      .hero {
+        min-height: 100svh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 120px 24px 66px;
+        overflow: hidden;
+        background:
+          radial-gradient(circle at 50% 19%, rgba(107, 92, 231, 0.16), transparent 31%),
+          radial-gradient(circle, rgba(82, 73, 118, 0.11) 0.8px, transparent 0.9px);
+        background-size: 100% 100%, 22px 22px;
+      }
+
+      .hero-copy {
+        width: min(1050px, 100%);
+        text-align: center;
+      }
+
+      .kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 11px;
+        border: 1px solid #d4ccfb;
+        border-radius: 999px;
+        color: #5f51cf;
+        background: rgba(238, 234, 253, 0.8);
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .kicker::before {
+        content: "";
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--purple);
+        box-shadow: 0 0 0 5px rgba(107, 92, 231, 0.12);
+      }
+
+      h1 {
+        max-width: 12em;
+        margin: 34px auto 0;
+        font-size: clamp(52px, 7.6vw, 106px);
+        line-height: 1.01;
+        letter-spacing: -0.064em;
+        font-weight: 820;
+      }
+
+      h1 span {
+        color: var(--purple);
+      }
+
+      html[lang="zh-CN"] h1 {
+        max-width: 13.5em;
+        font-size: clamp(50px, 5.4vw, 80px);
+        letter-spacing: -0.05em;
+      }
+
+      .mobile-break {
+        display: none;
+      }
+
+      .hero-lede {
+        max-width: 720px;
+        margin: 30px auto 0;
+        color: var(--muted);
+        font-size: clamp(17px, 1.8vw, 23px);
+        line-height: 1.65;
+      }
+
+      .hero-actions {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 32px;
+      }
+
+      .capability-note {
+        max-width: 720px;
+        margin: 18px auto 0;
+        color: #817b8d;
+        font-size: 12px;
+        line-height: 1.6;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 46px;
+        padding: 0 18px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.82);
+        font-size: 14px;
+        font-weight: 700;
+        box-shadow: 0 6px 20px rgba(55, 45, 100, 0.07);
+      }
+
+      .button.primary {
+        color: white;
+        border-color: var(--purple);
+        background: var(--purple);
+      }
+
+      .film-shell {
+        width: min(1080px, calc(100vw - 48px));
+        margin-top: 58px;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        background: white;
+        box-shadow: 0 34px 90px rgba(55, 45, 100, 0.18);
+      }
+
+      .film-bar {
+        height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 16px;
+        color: #8b86a0;
+        background: #f0edf7;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+      }
+
+      .dots {
+        display: flex;
+        gap: 6px;
+      }
+
+      .dots i {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: #cfc9df;
+      }
+
+      .film-shell video {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        display: block;
+        object-fit: contain;
+        background: #17151f;
+      }
+
+      .case-copy {
+        padding: 110px 24px 96px;
+        background: #fff;
+      }
+
+      .case-copy-inner {
+        width: min(1100px, 100%);
+        margin: 0 auto;
+      }
+
+      .case-copy h2 {
+        max-width: 13em;
+        margin: 0;
+        font-size: clamp(42px, 6vw, 78px);
+        line-height: 1.04;
+        letter-spacing: -0.055em;
+      }
+
+      .case-copy h2 span {
+        color: var(--purple);
+      }
+
+      .case-copy-lede {
+        max-width: 760px;
+        margin: 28px 0 0;
+        color: var(--muted);
+        font-size: 19px;
+        line-height: 1.75;
+      }
+
+      .case-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 52px;
+      }
+
+      .case-card {
+        min-height: 210px;
+        padding: 24px;
+        border: 1px solid var(--line);
+        border-radius: 18px;
+        background: var(--paper);
+      }
+
+      .case-card strong {
+        display: block;
+        font-size: 21px;
+        line-height: 1.2;
+        letter-spacing: -0.025em;
+      }
+
+      .case-card p {
+        margin: 14px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.65;
+      }
+
+      .story {
+        position: relative;
+        height: 900vh;
+        background: var(--paper);
+      }
+
+      .stage {
+        position: sticky;
+        top: 0;
+        height: 100svh;
+        overflow: hidden;
+        background: #f8f6fb;
+      }
+
+      .world {
+        position: absolute;
+        width: 5200px;
+        height: 2700px;
+        transform-origin: 0 0;
+        will-change: transform;
+      }
+
+      .world::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background-color: #f8f6fb;
+        background-image: radial-gradient(
+          circle,
+          rgba(82, 73, 118, 0.18) 0.9px,
+          transparent 1px
+        );
+        background-size: 22px 22px;
+      }
+
+      .frame {
+        position: absolute;
+        border: 1.5px dashed rgba(107, 92, 231, 0.25);
+        border-radius: 24px;
+        background: rgba(255, 255, 255, 0.13);
+      }
+
+      .frame-label {
+        position: absolute;
+        top: -27px;
+        left: 4px;
+        color: #938da2;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .node {
+        position: absolute;
+        z-index: 3;
+        overflow: hidden;
+        border: 2px solid #d8d3e3;
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.96);
+        box-shadow: var(--shadow);
+        opacity: 0;
+        transform: translateY(22px) scale(0.97);
+        transition: box-shadow 260ms ease;
+      }
+
+      .node.purple {
+        border-color: #9185ec;
+      }
+
+      .node.orange {
+        border-color: #edb25d;
+      }
+
+      .node.green {
+        border-color: #73c8a2;
+      }
+
+      .source-document .node-body {
+        padding: 20px;
+      }
+
+      .source-document h3 {
+        font-family: Georgia, "Times New Roman", serif;
+      }
+
+      .source-lines {
+        display: grid;
+        gap: 9px;
+        margin-top: 18px;
+      }
+
+      .source-lines i {
+        display: block;
+        height: 8px;
+        border-radius: 999px;
+        background: #e7e3eb;
+      }
+
+      .source-lines i:nth-child(2) {
+        width: 88%;
+      }
+
+      .source-lines i:nth-child(3) {
+        width: 72%;
+      }
+
+      .source-selection {
+        margin-top: 18px;
+        padding: 12px 13px;
+        border: 2px solid #73c8a2;
+        border-radius: 10px;
+        color: #27694e;
+        background: var(--green-soft);
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: 14px;
+        line-height: 1.45;
+      }
+
+      .extract-ghost {
+        position: absolute;
+        z-index: 8;
+        width: 250px;
+        height: 72px;
+        border: 3px solid #73c8a2;
+        border-radius: 11px;
+        background: rgba(229, 245, 237, 0.96);
+        box-shadow: 0 20px 50px rgba(37, 160, 107, 0.2);
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .node-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 17px;
+        border-bottom: 1px solid #e9e6ef;
+        color: #8a8497;
+        font-size: 11px;
+        font-weight: 780;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .node-body {
+        padding: 18px;
+      }
+
+      .node h3 {
+        margin: 0;
+        font-size: 21px;
+        line-height: 1.28;
+        letter-spacing: -0.025em;
+      }
+
+      .node p {
+        margin: 12px 0 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin: 5px 5px 0 0;
+        padding: 7px 10px;
+        border-radius: 999px;
+        color: #5f51cf;
+        background: var(--purple-soft);
+        font-size: 11px;
+        font-weight: 760;
+      }
+
+      .chip.orange {
+        color: #a75e00;
+        background: var(--orange-soft);
+      }
+
+      .chip.green {
+        color: #15784f;
+        background: var(--green-soft);
+      }
+
+      .chat-row {
+        margin: 9px 0;
+        padding: 11px 13px;
+        border-radius: 12px;
+        color: #4c4756;
+        background: #f3f1f6;
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .chat-row.user {
+        margin-left: 38px;
+        color: #5147af;
+        background: var(--purple-soft);
+      }
+
+      .edges {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        overflow: visible;
+        pointer-events: none;
+      }
+
+      .edge {
+        fill: none;
+        stroke: var(--purple);
+        stroke-width: 6;
+        stroke-linecap: round;
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+        opacity: 0;
+      }
+
+      .edge.orange {
+        stroke: var(--orange);
+        stroke-width: 4;
+        stroke-dasharray: 0.05 0.04;
+      }
+
+      .edge.green {
+        stroke: var(--green);
+      }
+
+      .world-label {
+        position: absolute;
+        z-index: 1;
+        color: rgba(84, 74, 120, 0.08);
+        font-size: 60px;
+        font-weight: 850;
+        letter-spacing: -0.05em;
+        white-space: nowrap;
+      }
+
+      .caption {
+        position: absolute;
+        left: 7vw;
+        bottom: 8vh;
+        z-index: 30;
+        width: min(600px, calc(100vw - 48px));
+        opacity: 0;
+        transform: translateY(18px);
+        pointer-events: none;
+      }
+
+      .caption.right {
+        right: 7vw;
+        left: auto;
+        width: min(520px, calc(100vw - 48px));
+      }
+
+      .caption.center {
+        top: 14vh;
+        right: auto;
+        bottom: auto;
+        left: 50%;
+        width: min(760px, calc(100vw - 48px));
+        text-align: center;
+        transform: translate(-50%, 18px);
+      }
+
+      .caption-panel {
+        display: inline-block;
+        padding: 22px 24px 24px;
+        border: 1px solid rgba(215, 210, 226, 0.86);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.91);
+        box-shadow: 0 22px 70px rgba(55, 45, 100, 0.12);
+        backdrop-filter: blur(18px);
+      }
+
+      .caption.center .caption-panel {
+        width: 100%;
+      }
+
+      .caption small {
+        color: var(--purple);
+        font-size: 10px;
+        font-weight: 820;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .caption h2 {
+        margin: 10px 0 0;
+        font-size: clamp(32px, 4.6vw, 62px);
+        line-height: 1.03;
+        letter-spacing: -0.052em;
+      }
+
+      .caption h2 span {
+        color: var(--purple);
+      }
+
+      html[lang="zh-CN"] .caption h2 {
+        font-size: clamp(32px, 3.7vw, 50px);
+        letter-spacing: -0.04em;
+      }
+
+      .caption p {
+        max-width: 590px;
+        margin: 14px 0 0;
+        color: var(--muted);
+        font-size: 16px;
+        line-height: 1.65;
+      }
+
+      .caption.center p {
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .progress {
+        position: absolute;
+        top: 61px;
+        left: 0;
+        z-index: 40;
+        width: 100%;
+        height: 3px;
+        background: var(--purple);
+        transform: scaleX(0);
+        transform-origin: left center;
+      }
+
+      .rail {
+        position: absolute;
+        top: 50%;
+        right: 20px;
+        z-index: 40;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        transform: translateY(-50%);
+      }
+
+      .rail button {
+        width: 7px;
+        height: 23px;
+        padding: 0;
+        border: 0;
+        border-radius: 99px;
+        background: rgba(33, 31, 41, 0.16);
+        cursor: pointer;
+        transition: 180ms ease;
+      }
+
+      .rail button.active {
+        height: 38px;
+        background: var(--purple);
+      }
+
+      .chapter-name {
+        position: absolute;
+        right: 22px;
+        bottom: 18px;
+        z-index: 40;
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 700;
+        text-align: right;
+      }
+
+      .chapter-name strong {
+        display: block;
+        margin-bottom: 3px;
+        color: var(--ink);
+        font-size: 13px;
+      }
+
+      .finale {
+        min-height: 86svh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 80px 24px;
+        color: white;
+        background:
+          radial-gradient(circle at 50% 17%, rgba(107, 92, 231, 0.38), transparent 34%),
+          #17151f;
+        text-align: center;
+      }
+
+      .finale img {
+        width: 110px;
+        height: 110px;
+      }
+
+      .finale h2 {
+        max-width: 12em;
+        margin: 34px auto 0;
+        font-size: clamp(44px, 6.4vw, 86px);
+        line-height: 1.03;
+        letter-spacing: -0.055em;
+      }
+
+      .finale h2 span {
+        color: #b9afff;
+      }
+
+      .finale p {
+        margin: 24px auto 0;
+        color: #bcb6c8;
+        font-size: 18px;
+      }
+
+      .finale .button {
+        margin-top: 32px;
+        color: #17151f;
+        border-color: white;
+        background: white;
+      }
+
+      @media (max-width: 760px) {
+        .nav {
+          padding: 0 15px;
+        }
+
+        .nav-link:not(.primary) {
+          display: none;
+        }
+
+        .language-toggle {
+          display: inline-flex !important;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .hero {
+          padding-top: 108px;
+        }
+
+        h1 {
+          font-size: clamp(48px, 15vw, 74px);
+        }
+
+        html[lang="zh-CN"] h1 {
+          font-size: clamp(40px, 10.8vw, 48px);
+          line-height: 1.05;
+        }
+
+        .mobile-break {
+          display: block;
+        }
+
+        .hero-actions {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .film-shell {
+          width: min(430px, calc(100vw - 24px));
+          border-radius: 16px;
+        }
+
+        .film-shell video {
+          aspect-ratio: 9 / 16;
+          max-height: 76svh;
+        }
+
+        .film-bar {
+          padding: 0 12px;
+        }
+
+        .film-bar > span:nth-child(2) {
+          max-width: 58%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .case-copy {
+          padding: 82px 20px 72px;
+        }
+
+        .case-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .caption,
+        .caption.right,
+        .caption.center {
+          top: auto;
+          right: 16px;
+          bottom: 7vh;
+          left: 16px;
+          width: auto;
+          text-align: left;
+          transform: translateY(18px);
+        }
+
+        .caption.center {
+          top: 15vh;
+          bottom: auto;
+        }
+
+        .caption.center p {
+          margin-left: 0;
+        }
+
+        .caption-panel {
+          padding: 18px 19px 20px;
+        }
+
+        .caption h2 {
+          font-size: 35px;
+        }
+
+        .caption p {
+          font-size: 14px;
+        }
+
+        .rail {
+          right: 10px;
+        }
+
+        .chapter-name {
+          display: none;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="nav" aria-label="Primary navigation">
+      <a class="brand" href="#top">
+        <img src="assets/favicon.svg" alt="" />
+        <span>ThoughtDAG</span>
+      </a>
+      <div class="nav-actions">
+        <a class="nav-link" href="#story" data-en="How it works" data-zh="工作原理"
+          >How it works</a
+        >
+        <a
+          class="nav-link"
+          href="https://github.com/chenxiachan/thoughtdag"
+          target="_blank"
+          rel="noreferrer"
+          >GitHub</a
+        >
+        <button
+          class="nav-link language-toggle"
+          id="language-toggle"
+          type="button"
+          aria-label="Switch language"
+        >
+          中文
+        </button>
+        <a
+          class="nav-link primary"
+          href="https://app.thoughtdag.workers.dev"
+          data-en="Open Demo ↗"
+          data-zh="立即体验 ↗"
+          >Open Demo ↗</a
+        >
+      </div>
+    </nav>
+
+    <header class="hero" id="top">
+      <div class="hero-copy">
+        <div
+          class="kicker"
+          data-en="Editable LLM context"
+          data-zh="看得见，也改得动的 LLM 上下文"
+        >
+          Editable LLM context
+        </div>
+        <h1
+          data-en-html="Don’t just read chat history. <span>Edit what the model actually sees.</span>"
+          data-zh-html="聊天越长，<br class='mobile-break' />越看不清上下文。<br /><span>模型看见什么，<br class='mobile-break' />由你来决定。</span>"
+        >
+          Don’t just read chat history. <span>Edit what the model actually sees.</span>
+        </h1>
+        <p
+          class="hero-lede"
+          data-en="ThoughtDAG turns every question-and-answer exchange into a node, and every connection into context. Remove one edge, ask the same question again, and that branch is gone from the request."
+          data-zh="ThoughtDAG 把每轮问答摊开成一个个节点，让连线直接决定上下文。剪掉一条线，用同一个问题重新生成，那条分支就不会再发给模型。"
+        >
+          ThoughtDAG turns every question-and-answer exchange into a node, and every
+          connection into context. Remove one edge, ask the same question again, and that
+          branch is gone from the request.
+        </p>
+        <div class="hero-actions">
+          <a
+            class="button primary"
+            href="https://app.thoughtdag.workers.dev"
+            data-en="Open the live demo ↗"
+            data-zh="立即体验 ↗"
+            >Open the live demo ↗</a
+          >
+          <a
+            class="button"
+            href="#story"
+            data-en="Explore the interactive story ↓"
+            data-zh="看看它如何工作 ↓"
+            >Explore the interactive story ↓</a
+          >
+        </div>
+        <p
+          class="capability-note"
+          data-en="The hosted demo presents the interaction model. The local setup adds the full PDF workflow—including clipping passages and figures into source-linked nodes—plus web search and MCP."
+          data-zh="在线 Demo 可体验核心交互；本地部署则支持完整的 PDF 工作流——把段落与图像摘成可追溯节点——并提供网页搜索与 MCP。"
+        >
+          The hosted demo presents the interaction model. The local setup adds the full
+          PDF workflow—including clipping passages and figures into source-linked
+          nodes—plus web search and MCP.
+        </p>
+      </div>
+
+      <div class="film-shell">
+        <div class="film-bar">
+          <span class="dots"><i></i><i></i><i></i></span>
+          <span data-en="THOUGHTDAG PRODUCT STORY" data-zh="THOUGHTDAG 产品故事"
+            >THOUGHTDAG PRODUCT STORY</span
+          >
+          <span id="film-duration">0:32</span>
+        </div>
+        <video
+          controls
+          playsinline
+          preload="none"
+          poster="assets/thoughtdag-story-poster-en-horizontal.jpg"
+          aria-label="ThoughtDAG product story"
+        >
+          <source
+            id="story-video-source"
+            src="assets/thoughtdag-story-en-horizontal.mp4"
+            type="video/mp4"
+          />
+        </video>
+      </div>
+    </header>
+
+    <section class="case-copy" aria-labelledby="case-heading">
+      <div class="case-copy-inner">
+        <h2
+          id="case-heading"
+          data-en-html="The graph is not a picture of context. <span>The graph is the context.</span>"
+          data-zh-html="这不是一张上下文示意图。<span>图本身，就是上下文。</span>"
+        >
+          The graph is not a picture of context.
+          <span>The graph is the context.</span>
+        </h2>
+        <p
+          class="case-copy-lede"
+          data-en="ThoughtDAG walks the incoming edges of a node, orders the relevant ancestors, and builds the message sequence sent to the selected model. The structure stays visible, editable, and inspectable."
+          data-zh="ThoughtDAG 会沿着连入节点的边，找到并排列相关的上游内容，再把它们组成发送给模型的消息。模型会看到什么，始终一目了然，也随时可以调整。"
+        >
+          ThoughtDAG walks the incoming edges of a node, orders the relevant ancestors,
+          and builds the message sequence sent to the selected model. The structure stays
+          visible, editable, and inspectable.
+        </p>
+        <div class="case-grid">
+          <article class="case-card">
+            <strong data-en="Branch" data-zh="展开分支">Branch</strong>
+            <p
+              data-en="Explore another interpretation without overwriting the path that led you here."
+              data-zh="换个方向继续想，又不必改写原来的思路。"
+            >
+              Explore another interpretation without overwriting the path that led you
+              here.
+            </p>
+          </article>
+          <article class="case-card">
+            <strong data-en="Prune" data-zh="排除旁枝">Prune</strong>
+            <p
+              data-en="Keep a useful detour on the canvas while excluding it from the next request."
+              data-zh="岔路可以继续留在画布上，但不必再进入下一次对话的上下文。"
+            >
+              Keep a useful detour on the canvas while excluding it from the next request.
+            </p>
+          </article>
+          <article class="case-card">
+            <strong data-en="Merge" data-zh="合并思路">Merge</strong>
+            <p
+              data-en="Bring selected evidence and reasoning paths back together in one answer."
+              data-zh="把选中的证据和推理路径，汇成一个新的回答。"
+            >
+              Bring selected evidence and reasoning paths back together in one answer.
+            </p>
+          </article>
+          <article class="case-card">
+            <strong data-en="Inspect" data-zh="生成前预览">Inspect</strong>
+            <p
+              data-en="Preview what the model will receive before generation. No hidden memory selection."
+              data-zh="回答生成前，先确认模型将看到哪些内容。上下文不再藏在系统里。"
+            >
+              Preview what the model will receive before generation. No hidden memory
+              selection.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="story" id="story" aria-label="ThoughtDAG interactive story">
+      <div class="stage" id="stage">
+        <div class="world" id="world">
+          <div
+            class="world-label"
+            style="left: 420px; top: 1600px"
+            data-en="CHAT HIDES CONTEXT."
+            data-zh="聊天记录里，看不见上下文。"
+          >
+            CHAT HIDES CONTEXT.
+          </div>
+          <div
+            class="world-label"
+            style="left: 2850px; top: 2420px"
+            data-en="THE GRAPH IS THE CONTEXT."
+            data-zh="图就是上下文。"
+          >
+            THE GRAPH IS THE CONTEXT.
+          </div>
+
+          <div class="frame" style="left: 260px; top: 360px; width: 1080px; height: 940px">
+            <span
+              class="frame-label"
+              data-en="Linear conversation"
+              data-zh="线性聊天"
+              >Linear conversation</span
+            >
+          </div>
+          <div class="frame" style="left: 1480px; top: 300px; width: 1850px; height: 1460px">
+            <span
+              class="frame-label"
+              data-en="Editable context graph"
+              data-zh="可编辑的上下文图"
+              >Editable context graph</span
+            >
+          </div>
+          <div class="frame" style="left: 3350px; top: 720px; width: 1650px; height: 1400px">
+            <span
+              class="frame-label"
+              data-en="Same prompt · different context"
+              data-zh="同一个问题 · 不同的上下文"
+              >Same prompt · different context</span
+            >
+          </div>
+
+          <svg class="edges" width="5200" height="2700" aria-hidden="true">
+            <defs>
+              <marker
+                id="arrow-purple"
+                viewBox="0 0 10 10"
+                refX="9"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto-start-reverse"
+              >
+                <path d="M0 0 L10 5 L0 10 z" fill="#6b5ce7"></path>
+              </marker>
+              <marker
+                id="arrow-green"
+                viewBox="0 0 10 10"
+                refX="9"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto-start-reverse"
+              >
+                <path d="M0 0 L10 5 L0 10 z" fill="#25a06b"></path>
+              </marker>
+              <marker
+                id="arrow-orange"
+                viewBox="0 0 10 10"
+                refX="9"
+                refY="5"
+                markerWidth="8"
+                markerHeight="8"
+                orient="auto-start-reverse"
+              >
+                <path d="M0 0 L10 5 L0 10 z" fill="#e8890c"></path>
+              </marker>
+            </defs>
+            <path
+              class="edge orange"
+              data-start="0.25"
+              data-from="source-pdf"
+              data-to="research-question"
+              data-from-anchor="right"
+              data-to-anchor="left"
+              pathLength="1"
+              marker-end="url(#arrow-orange)"
+            ></path>
+            <path
+              class="edge"
+              data-start="0.31"
+              data-from="evidence-a"
+              data-to="polluted-summary"
+              data-from-anchor="bottom"
+              data-to-anchor="left"
+              pathLength="1"
+              marker-end="url(#arrow-purple)"
+            ></path>
+            <path
+              class="edge"
+              data-start="0.33"
+              data-from="research-question"
+              data-to="polluted-summary"
+              data-from-anchor="bottom"
+              data-to-anchor="top"
+              pathLength="1"
+              marker-end="url(#arrow-purple)"
+            ></path>
+            <path
+              class="edge orange"
+              data-start="0.30"
+              data-end="0.60"
+              data-from="dinner-detour"
+              data-to="polluted-summary"
+              data-from-anchor="bottom"
+              data-to-anchor="top"
+              pathLength="1"
+              marker-end="url(#arrow-orange)"
+            ></path>
+            <path
+              class="edge green"
+              data-start="0.64"
+              data-from="context-diff"
+              data-to="same-prompt"
+              data-from-anchor="right"
+              data-to-anchor="left"
+              pathLength="1"
+              marker-end="url(#arrow-green)"
+            ></path>
+            <path
+              class="edge green"
+              data-start="0.73"
+              data-from="same-prompt"
+              data-to="clean-answer"
+              data-from-anchor="bottom"
+              data-to-anchor="top"
+              pathLength="1"
+              marker-end="url(#arrow-green)"
+            ></path>
+          </svg>
+
+          <div id="extract-ghost" class="extract-ghost" aria-hidden="true"></div>
+
+          <article
+            class="node"
+            data-start="0.00"
+            style="left: 460px; top: 520px; width: 560px; height: 600px"
+          >
+            <div class="node-head">
+              <span data-en="AI conversation" data-zh="AI 对话">AI conversation</span>
+              <span data-en="87 messages" data-zh="87 条消息">87 messages</span>
+            </div>
+            <div class="node-body">
+              <div
+                class="chat-row user"
+                data-en="Compare three research paths."
+                data-zh="帮我比较三种研究路线。"
+              >
+                Compare three research paths.
+              </div>
+              <div
+                class="chat-row"
+                data-en="Start with the first. Its advantage is…"
+                data-zh="先从第一条开始，它的优点是……"
+              >
+                Start with the first. Its advantage is…
+              </div>
+              <div
+                class="chat-row user"
+                data-en="What if the core hypothesis fails?"
+                data-zh="如果核心假设不成立呢？"
+              >
+                What if the core hypothesis fails?
+              </div>
+              <div
+                class="chat-row"
+                data-en="Consider another explanation…"
+                data-zh="可以考虑另一种解释……"
+              >
+                Consider another explanation…
+              </div>
+              <div
+                class="chat-row user"
+                data-en="Also, what should I eat tonight?"
+                data-zh="顺便问，晚饭吃什么？"
+              >
+                Also, what should I eat tonight?
+              </div>
+              <div
+                class="chat-row"
+                data-en="There is a new restaurant nearby."
+                data-zh="附近有一家新开的餐厅。"
+              >
+                There is a new restaurant nearby.
+              </div>
+              <p
+                data-en="The history is here. Which parts enter the next request?"
+                data-zh="聊天都在这里，可下一次到底会带上哪些内容？"
+              >
+                The history is here. Which parts enter the next request?
+              </p>
+            </div>
+          </article>
+
+          <article
+            id="source-pdf"
+            class="node source-document"
+            data-start="0.15"
+            data-end="0.39"
+            style="left: 1480px; top: 390px; width: 360px; height: 430px"
+          >
+            <div class="node-head">
+              <span>research-paper.pdf</span><span>p.7</span>
+            </div>
+            <div class="node-body">
+              <h3 data-en="Results" data-zh="实验结果">Results</h3>
+              <div class="source-lines" aria-hidden="true">
+                <i></i><i></i><i></i>
+              </div>
+              <div
+                class="source-selection"
+                data-en="The effect appears only in the experimental condition."
+                data-zh="这个效应只在实验条件下出现。"
+              >
+                The effect appears only in the experimental condition.
+              </div>
+              <span
+                class="chip green"
+                data-en="Selected from the page"
+                data-zh="从原文中选中"
+                >Selected from the page</span
+              >
+            </div>
+          </article>
+
+          <article
+            id="evidence-a"
+            class="node green"
+            data-start="0.23"
+            style="left: 1950px; top: 470px; width: 420px; height: 220px"
+          >
+            <div class="node-head">
+              <span data-en="Clipped passage" data-zh="摘出的段落">Clipped passage</span
+              ><span>research-paper.pdf · p.7</span>
+            </div>
+            <div class="node-body">
+              <h3
+                data-en="The effect appears only in the experimental condition"
+                data-zh="这个效应只在实验条件下出现"
+              >
+                The effect appears only in the experimental condition
+              </h3>
+              <span class="chip green" data-en="Source linked · not wired yet" data-zh="保留出处 · 尚未连入"
+                >Source linked · not wired yet</span
+              >
+            </div>
+          </article>
+
+          <article
+            id="research-question"
+            class="node orange"
+            data-start="0.26"
+            style="left: 1950px; top: 900px; width: 420px; height: 210px"
+          >
+            <div class="node-head">
+              <span data-en="Asked from source" data-zh="从原文追问">Asked from source</span
+              ><span>research-paper.pdf · p.7</span>
+            </div>
+            <div class="node-body">
+              <h3
+                data-en="What does this evidence actually mean?"
+                data-zh="这段证据究竟意味着什么？"
+              >
+                What does this evidence actually mean?
+              </h3>
+              <span class="chip orange" data-en="The source is in context" data-zh="原文已进入上下文"
+                >The source is in context</span
+              >
+            </div>
+          </article>
+
+          <article
+            id="dinner-detour"
+            class="node orange"
+            data-start="0.24"
+            data-end="0.61"
+            style="left: 2420px; top: 500px; width: 400px; height: 230px"
+          >
+            <div class="node-head">
+              <span data-en="Unrelated branch" data-zh="无关分支">Unrelated branch</span
+              ><span data-en="detour" data-zh="岔路">detour</span>
+            </div>
+            <div class="node-body">
+              <h3 data-en="What should I eat tonight?" data-zh="今晚吃什么？">
+                What should I eat tonight?
+              </h3>
+              <p
+                data-en="This history should not enter the research summary."
+                data-zh="这段对话不该进入研究总结。"
+              >
+                This history should not enter the research summary.
+              </p>
+              <span
+                class="chip orange"
+                data-en="Still connected"
+                data-zh="仍在上下文中"
+                >Still connected</span
+              >
+            </div>
+          </article>
+
+          <article
+            id="polluted-summary"
+            class="node orange"
+            data-start="0.30"
+            data-end="0.61"
+            style="left: 1990px; top: 1450px; width: 500px; height: 270px"
+          >
+            <div class="node-head">
+              <span data-en="Polluted summary" data-zh="混入闲聊的总结">Polluted summary</span>
+              <span data-en="3 sources" data-zh="3 个来源">3 sources</span>
+            </div>
+            <div class="node-body">
+              <h3
+                data-en="Research summary… also, consider hot pot for dinner."
+                data-zh="研究总结……另外，晚饭可以吃火锅。"
+              >
+                Research summary… also, consider hot pot for dinner.
+              </h3>
+              <p
+                data-en="The prompt stayed the same. Polluted context changed the answer."
+                data-zh="问题没变，混进来的上下文却改变了答案。"
+              >
+                The prompt stayed the same. Polluted context changed the answer.
+              </p>
+              <span
+                class="chip orange"
+                data-en="Includes unrelated branch"
+                data-zh="混入无关分支"
+                >Includes unrelated branch</span
+              >
+            </div>
+          </article>
+
+          <article
+            class="node purple"
+            data-start="0.39"
+            style="left: 2700px; top: 960px; width: 470px; height: 360px"
+          >
+            <div class="node-head">
+              <span data-en="Will send" data-zh="将发送给模型">Will send</span
+              ><span>1,284 tokens</span>
+            </div>
+            <div class="node-body">
+              <h3
+                data-en="Preview what the model will receive"
+                data-zh="生成前，先看看模型会读到什么"
+              >
+                Preview what the model will receive
+              </h3>
+              <p data-en="Incoming ancestors:" data-zh="这次会带上：">
+                Incoming ancestors:
+              </p>
+              <span class="chip" data-en="Research question" data-zh="研究问题"
+                >Research question</span
+              >
+              <span class="chip" data-en="Evidence A" data-zh="证据 A">Evidence A</span>
+              <span class="chip orange" data-en="Dinner detour" data-zh="晚饭话题"
+                >Dinner detour</span
+              >
+              <p
+                style="color: #9b5d0a"
+                data-en="After deleting the orange edge: −47 tokens"
+                data-zh="删掉橙色连线后：减少 47 tokens"
+              >
+                After deleting the orange edge: −47 tokens
+              </p>
+            </div>
+          </article>
+
+          <article
+            id="context-diff"
+            class="node green"
+            data-start="0.61"
+            style="left: 2860px; top: 1430px; width: 430px; height: 220px"
+          >
+            <div class="node-head">
+              <span data-en="Context diff" data-zh="上下文变化">Context diff</span
+              ><span>−47 tok</span>
+            </div>
+            <div class="node-body">
+              <h3
+                data-en="The dinner detour left context"
+                data-zh="晚饭话题已移出上下文"
+              >
+                The dinner detour left context
+              </h3>
+              <span
+                class="chip green"
+                data-en="Same prompt · regenerate"
+                data-zh="同一个问题 · 再生成一次"
+                >Same prompt · regenerate</span
+              >
+            </div>
+          </article>
+
+          <article
+            id="same-prompt"
+            class="node purple"
+            data-start="0.67"
+            style="left: 3450px; top: 1180px; width: 520px; height: 260px"
+          >
+            <div class="node-head">
+              <span data-en="Same prompt" data-zh="同一个问题">Same prompt</span
+              ><span data-en="ask again" data-zh="再问一次">ask again</span>
+            </div>
+            <div class="node-body">
+              <h3 data-en="Give me a bullet-point summary" data-zh="请用要点总结">
+                Give me a bullet-point summary
+              </h3>
+              <p
+                data-en="The words are identical. Only one edge changed."
+                data-zh="问题一字未改，只有一条连线变了。"
+              >
+                The words are identical. Only one edge changed.
+              </p>
+              <span
+                class="chip"
+                data-en="Reproducible context"
+                data-zh="上下文可复现"
+                >Reproducible context</span
+              >
+            </div>
+          </article>
+
+          <article
+            id="clean-answer"
+            class="node green"
+            data-start="0.75"
+            style="left: 3570px; top: 1580px; width: 640px; height: 300px"
+          >
+            <div class="node-head">
+              <span data-en="Clean answer" data-zh="更新后的回答">Clean answer</span>
+              <span data-en="2 sources" data-zh="2 个来源">2 sources</span>
+            </div>
+            <div class="node-body">
+              <h3
+                data-en="One: record the database version. Two: use independent reviewers. Three: resolve conflicts with a third reviewer."
+                data-zh="要点一：记录数据库版本。要点二：双人独立筛选。要点三：冲突由第三人仲裁。"
+              >
+                One: record the database version. Two: use independent reviewers. Three:
+                resolve conflicts with a third reviewer.
+              </h3>
+              <p
+                data-en="The unrelated dinner suggestion is gone."
+                data-zh="回答里不再出现无关的晚饭建议。"
+              >
+                The unrelated dinner suggestion is gone.
+              </p>
+              <span
+                class="chip green"
+                data-en="Answer updated in place"
+                data-zh="答案已更新"
+                >Answer updated in place</span
+              >
+            </div>
+          </article>
+
+          <article
+            class="node purple"
+            data-start="0.84"
+            style="left: 4420px; top: 1030px; width: 520px; height: 360px"
+          >
+            <div class="node-head">
+              <span data-en="One rule" data-zh="一条规则">One rule</span
+              ><span>ThoughtDAG</span>
+            </div>
+            <div class="node-body">
+              <h3
+                style="font-size: 34px"
+                data-en="Wires are context."
+                data-zh="连线即上下文"
+              >
+                Wires are context.
+              </h3>
+              <p
+                data-en="No hidden memory selector. What the model sees, why, and what was removed stay visible in the graph."
+                data-zh="不必把上下文筛选交给藏在系统里的黑盒。模型看到了什么、为什么会看到、哪些内容被删掉，图上都清清楚楚。"
+              >
+                No hidden memory selector. What the model sees, why, and what was removed
+                stay visible in the graph.
+              </p>
+              <span class="chip" data-en="Visible" data-zh="可见">Visible</span>
+              <span class="chip" data-en="Editable" data-zh="可编辑">Editable</span>
+              <span class="chip" data-en="Inspectable" data-zh="可追溯">Inspectable</span>
+            </div>
+          </article>
+        </div>
+
+        <div class="progress" id="progress"></div>
+
+        <section class="caption" data-range="0.00 0.18">
+          <div class="caption-panel">
+            <small data-en="01 · The problem" data-zh="01 · 困境"
+              >01 · The problem</small
+            >
+            <h2
+              data-en-html="Chat history is long. <span>Context is still invisible.</span>"
+              data-zh-html="聊天越聊越长，<span>上下文反而越来越模糊。</span>"
+            >
+              Chat history is long. <span>Context is still invisible.</span>
+            </h2>
+            <p
+              data-en="The interface shows what was said, not which history enters the next request."
+              data-zh="界面记下了说过的话，却没告诉你：下一次，究竟哪些内容会发给模型。"
+            >
+              The interface shows what was said, not which history enters the next request.
+            </p>
+          </div>
+        </section>
+
+        <section class="caption right" data-range="0.17 0.39">
+          <div class="caption-panel">
+            <small data-en="02 · Externalize" data-zh="02 · 展开"
+              >02 · Externalize</small
+            >
+            <h2
+              data-en-html="Ask from the source. <span>Clip what matters.</span>"
+              data-zh-html="从原文直接追问，<br /><span>也把重要的摘到画布。</span>"
+            >
+              Ask from the source. <span>Clip what matters.</span>
+            </h2>
+            <p
+              data-en="Ask from a selected passage, or turn a passage or figure into its own source-linked node. Provenance stays attached; context remains yours to wire."
+              data-zh="选中原文就能直接追问，也能把文字或图像摘成带出处的独立节点。出处会保留，是否进入上下文仍由你连线决定。"
+            >
+              Ask from a selected passage, or turn a passage or figure into its own
+              source-linked node. Provenance stays attached; context remains yours to wire.
+            </p>
+          </div>
+        </section>
+
+        <section class="caption" data-range="0.38 0.62">
+          <div class="caption-panel">
+            <small data-en="03 · Inspect" data-zh="03 · 检查">03 · Inspect</small>
+            <h2
+              data-en-html="Before sending, <span>inspect what the model will read.</span>"
+              data-zh-html="生成之前，<span>先看清模型的上下文。</span>"
+            >
+              Before sending, <span>inspect what the model will read.</span>
+            </h2>
+            <p
+              data-en="Preview source nodes, order, and token count. Context is no longer a hidden decision."
+              data-zh="来源、顺序和 token 用量一目了然。上下文不再由系统悄悄决定。"
+            >
+              Preview source nodes, order, and token count. Context is no longer a hidden
+              decision.
+            </p>
+          </div>
+        </section>
+
+        <section class="caption right" data-range="0.61 0.82">
+          <div class="caption-panel">
+            <small data-en="04 · Edit" data-zh="04 · 编辑">04 · Edit</small>
+            <h2
+              data-en-html="Delete one edge. <span>Ask the same question again.</span>"
+              data-zh-html="剪掉一条线。<br /><span>同一个问题，<br />再问一次。</span>"
+            >
+              Delete one edge. <span>Ask the same question again.</span>
+            </h2>
+            <p
+              data-en="The removed branch really leaves the request. The answer changes with the context."
+              data-zh="这条分支会真正退出上下文；问题没变，答案会随着上下文改变。"
+            >
+              The removed branch really leaves the request. The answer changes with the
+              context.
+            </p>
+          </div>
+        </section>
+
+        <section class="caption center" data-range="0.81 1.00">
+          <div class="caption-panel">
+            <small data-en="05 · The protocol" data-zh="05 · 上下文协议"
+              >05 · The protocol</small
+            >
+            <h2
+              data-en-html="Most canvases organize information. <span>ThoughtDAG edits context.</span>"
+              data-zh-html="很多画布只是在整理信息。<span>ThoughtDAG 让你直接编辑模型的上下文。</span>"
+            >
+              Most canvases organize information. <span>ThoughtDAG edits context.</span>
+            </h2>
+            <p
+              data-en="You decide what enters and leaves. The graph is the context protocol before generation."
+              data-zh="什么进入，什么退出，由你决定。图不是回答生成后的装饰，而是生成前的上下文协议。"
+            >
+              You decide what enters and leaves. The graph is the context protocol before
+              generation.
+            </p>
+          </div>
+        </section>
+
+        <div class="rail" id="rail" aria-label="Story chapters"></div>
+        <div class="chapter-name">
+          <strong id="chapter-count">1 / 5</strong>
+          <span id="chapter-label">Invisible context</span>
+        </div>
+      </div>
+    </section>
+
+    <footer class="finale">
+      <div>
+        <img src="assets/favicon.svg" alt="" />
+        <h2
+          data-en-html="Make model context <span>visibly editable.</span>"
+          data-zh-html="让模型的上下文，<span>看得见，也改得动。</span>"
+        >
+          Make model context <span>visibly editable.</span>
+        </h2>
+        <p
+          data-en="Open source · MIT · local-first · Ollama and OpenAI-compatible endpoints"
+          data-zh="开源 · MIT 许可 · 本地优先 · 支持 Ollama 及 OpenAI-compatible 接口"
+        >
+          Open source · MIT · local-first · Ollama and OpenAI-compatible endpoints
+        </p>
+        <a
+          class="button"
+          href="https://github.com/chenxiachan/thoughtdag"
+          target="_blank"
+          rel="noreferrer"
+          data-en="View ThoughtDAG on GitHub ↗"
+          data-zh="在 GitHub 上查看 ThoughtDAG ↗"
+          >View ThoughtDAG on GitHub ↗</a
+        >
+      </div>
+    </footer>
+
+    <script>
+      (() => {
+        const story = document.getElementById("story");
+        const stage = document.getElementById("stage");
+        const world = document.getElementById("world");
+        const progressEl = document.getElementById("progress");
+        const captions = [...document.querySelectorAll(".caption")];
+        const nodes = [...document.querySelectorAll(".node")];
+        const edges = [...document.querySelectorAll(".edge")];
+        const extractGhost = document.getElementById("extract-ghost");
+        const rail = document.getElementById("rail");
+        const countEl = document.getElementById("chapter-count");
+        const labelEl = document.getElementById("chapter-label");
+        const languageToggle = document.getElementById("language-toggle");
+        const storyVideo = document.querySelector(".film-shell video");
+        const storyVideoSource = document.getElementById("story-video-source");
+        const filmDuration = document.getElementById("film-duration");
+        const mobileVideoQuery = matchMedia("(max-width: 760px)");
+        const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+        let currentLanguage =
+          new URLSearchParams(location.search).get("lang") === "zh" ? "zh" : "en";
+
+        const chapters = [
+          {
+            start: 0.0,
+            at: 0.07,
+            count: "1 / 5",
+            labelEn: "Invisible context",
+            labelZh: "看不见的上下文",
+          },
+          {
+            start: 0.17,
+            at: 0.25,
+            count: "2 / 5",
+            labelEn: "Sources become context",
+            labelZh: "从材料摘到上下文",
+          },
+          {
+            start: 0.38,
+            at: 0.48,
+            count: "3 / 5",
+            labelEn: "Inspect before sending",
+            labelZh: "发送前检查",
+          },
+          {
+            start: 0.61,
+            at: 0.7,
+            count: "4 / 5",
+            labelEn: "Delete one edge",
+            labelZh: "剪掉一条连线",
+          },
+          {
+            start: 0.81,
+            at: 0.91,
+            count: "5 / 5",
+            labelEn: "The graph is the protocol",
+            labelZh: "图就是上下文协议",
+          },
+        ];
+
+        const chapterLabel = (chapter) =>
+          currentLanguage === "zh" ? chapter.labelZh : chapter.labelEn;
+
+        const updateStoryVideo = () => {
+          const orientation = mobileVideoQuery.matches ? "vertical" : "horizontal";
+          const nextVideo = `assets/thoughtdag-story-${currentLanguage}-${orientation}.mp4`;
+          const nextPoster = `assets/thoughtdag-story-poster-${currentLanguage}-${orientation}.jpg`;
+
+          storyVideo.poster = nextPoster;
+          storyVideo.setAttribute(
+            "aria-label",
+            currentLanguage === "zh" ? "ThoughtDAG 产品故事" : "ThoughtDAG product story",
+          );
+          filmDuration.textContent = orientation === "vertical" ? "0:23" : "0:32";
+
+          if (storyVideoSource.getAttribute("src") !== nextVideo) {
+            storyVideoSource.setAttribute("src", nextVideo);
+            storyVideo.load();
+          }
+        };
+
+        const applyLanguage = (language, updateUrl = false) => {
+          currentLanguage = language;
+          document.documentElement.lang = language === "zh" ? "zh-CN" : "en";
+          document.title =
+            language === "zh"
+              ? "ThoughtDAG — 连线即上下文"
+              : "ThoughtDAG — Make LLM context visible and editable";
+          story.setAttribute(
+            "aria-label",
+            language === "zh" ? "ThoughtDAG 交互故事" : "ThoughtDAG interactive story",
+          );
+
+          document.querySelectorAll("[data-en][data-zh]").forEach((element) => {
+            element.textContent = element.dataset[language];
+          });
+          document
+            .querySelectorAll("[data-en-html][data-zh-html]")
+            .forEach((element) => {
+              element.innerHTML =
+                language === "zh" ? element.dataset.zhHtml : element.dataset.enHtml;
+            });
+
+          languageToggle.textContent = language === "en" ? "中文" : "EN";
+          languageToggle.setAttribute(
+            "aria-label",
+            language === "en" ? "切换到中文" : "Switch to English",
+          );
+          rail.setAttribute("aria-label", language === "en" ? "Story chapters" : "故事章节");
+
+          updateStoryVideo();
+
+          [...rail.children].forEach((button, index) => {
+            button.setAttribute("aria-label", chapterLabel(chapters[index]));
+          });
+          labelEl.textContent = chapterLabel(chapters[Math.max(activeChapter, 0)]);
+
+          if (updateUrl) {
+            const url = new URL(location.href);
+            if (language === "zh") {
+              url.searchParams.set("lang", "zh");
+            } else {
+              url.searchParams.delete("lang");
+            }
+            history.replaceState(null, "", url);
+          }
+        };
+
+        const camera = [
+          [0.0, 430, 820, 0.92],
+          [0.12, 460, 820, 0.96],
+          [0.2, 1770, 770, 0.88],
+          [0.34, 2400, 930, 0.75],
+          [0.46, 2880, 1150, 0.88],
+          [0.58, 2840, 1430, 0.96],
+          [0.69, 3850, 1300, 0.84],
+          [0.8, 3850, 1720, 0.78],
+          [0.89, 4800, 850, 0.84],
+          [0.96, 2600, 1320, 0.27],
+          [1.0, 2600, 1320, 0.27],
+        ];
+
+        const clamp = (value) => Math.max(0, Math.min(1, value));
+        const smooth = (value) => {
+          const t = clamp(value);
+          return t * t * (3 - 2 * t);
+        };
+
+        const interpolateCamera = (progress) => {
+          for (let i = 0; i < camera.length - 1; i += 1) {
+            const a = camera[i];
+            const b = camera[i + 1];
+            if (progress >= a[0] && progress <= b[0]) {
+              const t = smooth((progress - a[0]) / (b[0] - a[0]));
+              return {
+                x: a[1] + (b[1] - a[1]) * t,
+                y: a[2] + (b[2] - a[2]) * t,
+                z: a[3] + (b[3] - a[3]) * t,
+              };
+            }
+          }
+          const last = camera.at(-1);
+          return { x: last[1], y: last[2], z: last[3] };
+        };
+
+        let storyTop = 0;
+        let storyDistance = 1;
+        let visualProgress = 0;
+        let raf = 0;
+        let activeChapter = -1;
+
+        const measure = () => {
+          storyTop = story.offsetTop;
+          storyDistance = Math.max(1, story.offsetHeight - innerHeight);
+        };
+
+        const anchorPoint = (node, anchor) => {
+          const left = node.offsetLeft;
+          const top = node.offsetTop;
+          const width = node.offsetWidth;
+          const height = node.offsetHeight;
+
+          if (anchor === "top") return { x: left + width / 2, y: top };
+          if (anchor === "right") return { x: left + width, y: top + height / 2 };
+          if (anchor === "left") return { x: left, y: top + height / 2 };
+          return { x: left + width / 2, y: top + height };
+        };
+
+        const edgeCurve = (from, to, fromAnchor, toAnchor) => {
+          const vectors = {
+            top: { x: 0, y: -1 },
+            right: { x: 1, y: 0 },
+            bottom: { x: 0, y: 1 },
+            left: { x: -1, y: 0 },
+          };
+          const fromVector = vectors[fromAnchor] || vectors.bottom;
+          const toVector = vectors[toAnchor] || vectors.top;
+          const distance = Math.hypot(to.x - from.x, to.y - from.y);
+          const bend = Math.max(90, distance * 0.42);
+          return `M${from.x} ${from.y} C${from.x + fromVector.x * bend} ${from.y + fromVector.y * bend} ${to.x + toVector.x * bend} ${to.y + toVector.y * bend} ${to.x} ${to.y}`;
+        };
+
+        const layoutEdges = () => {
+          edges.forEach((edge) => {
+            const fromNode = document.getElementById(edge.dataset.from);
+            const toNode = document.getElementById(edge.dataset.to);
+            if (!fromNode || !toNode) return;
+
+            const fromAnchor = edge.dataset.fromAnchor || "bottom";
+            const toAnchor = edge.dataset.toAnchor || "top";
+            edge.setAttribute(
+              "d",
+              edgeCurve(
+                anchorPoint(fromNode, fromAnchor),
+                anchorPoint(toNode, toAnchor),
+                fromAnchor,
+                toAnchor,
+              ),
+            );
+          });
+        };
+
+        const rawProgress = () => clamp((scrollY - storyTop) / storyDistance);
+
+        const render = () => {
+          const targetProgress = rawProgress();
+          visualProgress += (targetProgress - visualProgress) * (reduced ? 1 : 0.16);
+          if (Math.abs(targetProgress - visualProgress) < 0.0001) {
+            visualProgress = targetProgress;
+          }
+          const p = visualProgress;
+          const cam = interpolateCamera(p);
+          if (innerWidth < 760) {
+            const editFocus =
+              smooth((p - 0.61) / 0.04) * (1 - smooth((p - 0.79) / 0.04));
+            cam.x -= 420 * editFocus;
+          }
+          const responsiveScale = innerWidth < 760 ? 0.66 : innerWidth < 1100 ? 0.82 : 1;
+          const z = cam.z * responsiveScale;
+          world.style.transform = `translate(${innerWidth / 2}px, ${innerHeight / 2}px) scale(${z}) translate(${-cam.x}px, ${-cam.y}px)`;
+          progressEl.style.transform = `scaleX(${p})`;
+
+          nodes.forEach((node) => {
+            const start = Number(node.dataset.start || 0);
+            const end = Number(node.dataset.end || 1.05);
+            const enter = smooth((p - start + 0.035) / 0.035);
+            const exit = 1 - smooth((p - end + 0.02) / 0.04);
+            const opacity = Math.min(enter, exit);
+            node.style.opacity = opacity;
+            node.style.transform = `translateY(${(1 - enter) * 22}px) scale(${0.97 + enter * 0.03})`;
+          });
+
+          edges.forEach((edge) => {
+            const start = Number(edge.dataset.start || 0);
+            const end = Number(edge.dataset.end || 1.05);
+            const enter = smooth((p - start + 0.01) / 0.045);
+            const exit = 1 - smooth((p - end + 0.015) / 0.035);
+            const reveal = Math.min(enter, exit);
+            edge.style.opacity = reveal * 0.9;
+            if (!edge.classList.contains("orange")) {
+              edge.style.strokeDashoffset = 1 - reveal;
+            }
+          });
+
+          const extractT = smooth((p - 0.17) / 0.065);
+          const extractFade =
+            smooth((p - 0.17) / 0.018) * (1 - smooth((p - 0.228) / 0.02));
+          extractGhost.style.left = `${1585 + (1985 - 1585) * extractT}px`;
+          extractGhost.style.top = `${650 + (525 - 650) * extractT}px`;
+          extractGhost.style.opacity = extractFade;
+          extractGhost.style.transform = `scale(${1 - extractT * 0.42})`;
+
+          captions.forEach((caption) => {
+            const [start, end] = caption.dataset.range.split(" ").map(Number);
+            const enter = smooth((p - start + 0.035) / 0.035);
+            const exit = 1 - smooth((p - end + 0.03) / 0.035);
+            const opacity = Math.min(enter, exit);
+            caption.style.opacity = opacity;
+            if (caption.classList.contains("center") && innerWidth >= 760) {
+              caption.style.transform = `translate(-50%, ${(1 - enter) * 18}px)`;
+            } else {
+              caption.style.transform = `translateY(${(1 - enter) * 18}px)`;
+            }
+          });
+
+          let nearest = 0;
+          chapters.forEach((chapter, index) => {
+            if (p >= chapter.start) nearest = index;
+          });
+          if (nearest !== activeChapter) {
+            activeChapter = nearest;
+            [...rail.children].forEach((button, index) =>
+              button.classList.toggle("active", index === nearest),
+            );
+            countEl.textContent = chapters[nearest].count;
+            labelEl.textContent = chapterLabel(chapters[nearest]);
+          }
+
+          const moving = Math.abs(targetProgress - visualProgress) > 0.0002;
+          raf = moving ? requestAnimationFrame(render) : 0;
+        };
+
+        const requestRender = () => {
+          if (!raf) raf = requestAnimationFrame(render);
+        };
+
+        chapters.forEach((chapter) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.setAttribute("aria-label", chapterLabel(chapter));
+          button.addEventListener("click", () => {
+            scrollTo({
+              top: storyTop + chapter.at * storyDistance,
+              behavior: reduced ? "auto" : "smooth",
+            });
+          });
+          rail.appendChild(button);
+        });
+
+        languageToggle.addEventListener("click", () => {
+          applyLanguage(currentLanguage === "en" ? "zh" : "en", true);
+          requestRender();
+        });
+
+        addEventListener("scroll", requestRender, { passive: true });
+        addEventListener("resize", () => {
+          measure();
+          layoutEdges();
+          requestRender();
+        });
+        mobileVideoQuery.addEventListener("change", updateStoryVideo);
+        addEventListener("load", () => {
+          measure();
+          layoutEdges();
+          requestRender();
+        });
+        applyLanguage(currentLanguage);
+        measure();
+        layoutEdges();
+        requestRender();
+      })();
+    </script>
+  </body>
+</html>

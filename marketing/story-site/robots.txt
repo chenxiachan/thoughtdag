@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://chenxiachan.github.io/thoughtdag/sitemap.xml

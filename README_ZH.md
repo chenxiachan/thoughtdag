@@ -11,9 +11,9 @@
 ![License](https://img.shields.io/badge/许可-MIT-green)
 ![Status](https://img.shields.io/badge/状态-活跃开发中-6B5CE7)
 
-### [<ins>▶ 在线试用</ins>](https://app.thoughtdag.workers.dev)
+### [官网](https://chenxiachan.github.io/thoughtdag/?lang=zh) · [在线 Demo](https://app.thoughtdag.workers.dev)
 
-无需安装注册，示例画布免 key
+无需安装注册
 
 [English](./README.md) · [快速开始](#快速开始) · [更多能力](#更多能力) · [模型与订阅](#模型与订阅) · [成本与隐私](#成本与隐私)
 
@@ -105,7 +105,7 @@ npm run dev       # → localhost:5173
 # 无 .env 时，在应用内连接任意兼容 OpenAI 协议的接口即可
 ```
 
-首次打开是预置的示例画布：围绕「收藏夹为什么总在吃灰」展开四章，含一份内嵌真 PDF 的阅读闭环。环境变量、免费 key 与配置细节 → [docs/setup_ZH.md](docs/setup_ZH.md)
+首页一键载入预置的示例画布：围绕「收藏夹为什么总在吃灰」展开四章，含一份内嵌真 PDF 的阅读闭环。环境变量、免费 key 与配置细节 → [docs/setup_ZH.md](docs/setup_ZH.md)
 
 ## 更多能力
 
@@ -113,7 +113,7 @@ npm run dev       # → localhost:5173
 |------|------|
 | 📤 只读分享 | 一条链接携带整张图，无账号、不经服务器存储 |
 | 🧭 陈旧重放 | 上游一改，受影响回答亮标记；按依赖序批量重放，先报 token 价 |
-| 🧪 范式 | 人机工作流存成文件；改输入重放整个实验 |
+| ✂️ 摘取 | 阅读器里圈选文字、框选图表，摘成带页码出处的画布素材 |
 | 🔌 模型自由 | 节点级钉选、沿线继承；带图请求自动改道视觉模型 |
 | 🔒 本地优先 | 自动文件夹备份写成真实文件，指向同步盘即跨设备 |
 

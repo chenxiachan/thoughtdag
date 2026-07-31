@@ -105,6 +105,12 @@ interface UiState {
   setCondenseDialogOpen: (v: boolean) => void;
   condenseHighlightIds: string[];
   setCondenseHighlightIds: (ids: string[]) => void;
+  /** Paradigms and other lab features live behind this switch. */
+  advancedMode: boolean;
+  setAdvancedMode: (v: boolean) => void;
+  /** Preset the ApiKeyModal should open onto (landing quick-connect). */
+  apiKeyPresetHint: string | null;
+  setApiKeyPresetHint: (id: string | null) => void;
   /** Share dialog: the freshly built read-only link (null = closed). */
   shareDialogUrl: string | null;
   setShareDialogUrl: (url: string | null) => void;
@@ -212,6 +218,10 @@ export const useUiStore = create<UiState>((set, get) => ({
   setCondenseDialogOpen: (v) => set({ condenseDialogOpen: v, ...(v ? {} : { condenseHighlightIds: [] }) }),
   condenseHighlightIds: [],
   setCondenseHighlightIds: (ids) => set({ condenseHighlightIds: ids }),
+  advancedMode: localStorage.getItem('thoughtdag.advanced') === '1',
+  setAdvancedMode: (v) => { localStorage.setItem('thoughtdag.advanced', v ? '1' : '0'); set({ advancedMode: v }); },
+  apiKeyPresetHint: null,
+  setApiKeyPresetHint: (id) => set({ apiKeyPresetHint: id }),
   setBackupDialogOpen: (v) => set({ backupDialogOpen: v }),
   shareDialogUrl: null,
   setShareDialogUrl: (url) => set({ shareDialogUrl: url }),

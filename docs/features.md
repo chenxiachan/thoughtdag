@@ -58,7 +58,7 @@ Mind maps are drawn; this map grows. Chat leaves no map at all.
 
 - **Streaming responses**: SSE token-by-token rendering with blinking cursor, in node and panel; Stop keeps partial content; failed generations show Retry (errors go to toasts, never into answers)
 - **Reviewer preset**: critic role on a sliding red edge; re-critiques each new step automatically, history versioned; reviewers are ordinary nodes (question them, branch from them)
-- **Paradigm mode**: human/prompt steps + material slots; instantiate → cascade → unlock; edit the input + replay = re-run the experiment; bounded reviewer rounds declared in the file
+- **Paradigm mode** (advanced — enable in the ⋯ menu): human/prompt steps + material slots; instantiate → cascade → unlock; edit the input + replay = re-run the experiment; bounded reviewer rounds declared in the file
 - **Ambient memory**: a background judge classifies durable facts (preference / identity / project) with admission rules in code, visible toast + undo on every write; project entries decay out of context after 45 days; one global switch (default on), manager with category badges, paste-import and JSON export; machine steps and digests stay memory-free
 - **Edit everything**: double-click to edit questions or responses; text selection toolbar (Branch / Highlight)
 
