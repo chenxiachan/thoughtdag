@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Archive, Check, Copy, Loader2, Minimize2, X } from 'lucide-react';
 import { useUiStore, toast } from '../../lib/ui-store';
@@ -20,11 +20,27 @@ export default function CondenseDialog({ onFocusSegment }: { onFocusSegment?: (n
   const lang = useI18n((s) => s.lang);
   const nodes = useStore((s) => s.nodes);
   const edges = useStore((s) => s.edges);
-  const segments = useMemo(() => (open && run.status === 'idle' ? findCandidateSegments(nodes, edges) : []), [open, run.status, nodes, edges]);
+  const [refreshTick, setRefreshTick] = useState(0);
+  const segments = useMemo(() => (open && run.status === 'idle' ? findCandidateSegments(nodes, edges) : []), [open, run.status, nodes, edges, refreshTick]);
   const globalModel = useUiStore((s) => s.selectedModel);
   const models = useModels()?.models ?? [];
   const [model, setModel] = useState('');
   const [unchecked, setUnchecked] = useState<Set<string>>(new Set());
+  // draggable: grab the title row, put the window anywhere
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+  const winRef = useRef<HTMLDivElement>(null);
+  const startDrag = (e: React.MouseEvent) => {
+    const r = winRef.current?.getBoundingClientRect();
+    if (!r) return;
+    const dx = e.clientX - r.left, dy = e.clientY - r.top;
+    const onMove = (ev: MouseEvent) => setPos({
+      x: Math.min(window.innerWidth - 120, Math.max(0, ev.clientX - dx)),
+      y: Math.min(window.innerHeight - 80, Math.max(0, ev.clientY - dy)),
+    });
+    const onUp = () => { window.removeEventListener('mousemove', onMove); window.removeEventListener('mouseup', onUp); };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  };
   const key = (s: CondenseSegment) => s.nodeIds.join(',');
   const picked = segments.filter((s) => !unchecked.has(key(s)));
   const pickedSaving = picked.reduce((sum, s) => sum + s.saving, 0);
@@ -56,11 +72,13 @@ export default function CondenseDialog({ onFocusSegment }: { onFocusSegment?: (n
 
   return createPortal((
     <div
-      className="fixed left-20 top-16 z-[70] bg-surface border border-line rounded-2xl shadow-2xl w-[400px] max-h-[72vh] flex flex-col p-4 animate-fade-in"
+      ref={winRef}
+      className="fixed z-[70] bg-surface border border-line rounded-2xl shadow-2xl w-[400px] max-h-[72vh] flex flex-col p-4 animate-fade-in"
+      style={pos ? { left: pos.x, top: pos.y } : { left: 80, bottom: 16 }}
       data-condense-dialog
       onClick={(e) => e.stopPropagation()}
     >
-      <div className="flex items-start justify-between mb-1">
+      <div className="flex items-start justify-between mb-1 cursor-grab active:cursor-grabbing select-none" onMouseDown={startDrag}>
         <div className="text-sm font-semibold text-ink flex items-center gap-2">
           <Minimize2 size={15} strokeWidth={1.75} className="text-accent" /> {t('condense.title')}
         </div>
@@ -70,7 +88,20 @@ export default function CondenseDialog({ onFocusSegment }: { onFocusSegment?: (n
 
       {run.status === 'idle' && (
         <>
-          <p className="text-2xs text-ink-faint leading-relaxed mb-2">{t('condense.copyIntro')}</p>
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <p className="text-2xs text-ink-faint leading-snug" title={t('condense.copyIntroFull')}>{t('condense.copyIntroShort')}</p>
+            <button
+              onClick={() => setRefreshTick((v) => v + 1)}
+              title={t('condense.rescanTitle')}
+              data-condense-rescan
+              className="text-2xs text-ink-muted hover:text-accent px-2 py-1 rounded-lg hover:bg-wash transition-colors shrink-0"
+            >
+              ⟳ {t('condense.rescan')}
+            </button>
+          </div>
+          <p className="text-2xs text-ink-faint mb-2" data-condense-scanline>
+            {fmt(t('condense.scanLine'), { turns: String(nodes.filter((n) => n.data.response && !n.data.stepKind).length), n: String(segments.length) })}
+          </p>
           <div className="flex items-center gap-2 mb-3">
             <label className="text-2xs text-ink-muted shrink-0">{t('condense.modelLabel')}</label>
             <select value={model} onChange={(e) => setModel(e.target.value)} data-condense-model
