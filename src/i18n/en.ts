@@ -297,6 +297,8 @@ export const en = {
   'reader.pdfFailed': 'Could not render the PDF: {msg}',
   'reader.loading': 'Loading PDF…',
   'reader.askPlaceholder': 'Ask about this passage…',
+  'reader.highlightText': 'Highlight this passage (shown in the text view)',
+  'reader.textHighlighted': 'Highlighted. Visible in the text view.',
   'reader.saveAsNote': 'Clip to canvas: the passage becomes its own material node, with page provenance',
   'reader.clip': 'Clip area',
   'reader.clipActive': 'Drag to clip…',

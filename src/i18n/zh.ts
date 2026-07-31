@@ -297,6 +297,8 @@ export const zh: Record<keyof typeof en, string> = {
   'reader.pdfFailed': 'PDF 渲染失败：{msg}',
   'reader.loading': '加载 PDF 中…',
   'reader.askPlaceholder': '就选中的这段提问…',
+  'reader.highlightText': '高光这段原文（在文本视图中显示）',
+  'reader.textHighlighted': '已高光。文本视图中可见。',
   'reader.saveAsNote': '摘到画布：这段文字成为独立素材节点，带页码出处',
   'reader.clip': '摘取图像',
   'reader.clipActive': '拖框摘取中…',

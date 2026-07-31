@@ -415,7 +415,15 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
         // documents. EXCEPT the root: its opening question IS the map's
         // title — the reader's entry point — so there question leads and
         // the takeaway is the subtitle.
-        <div className="drag-handle cursor-grab active:cursor-grabbing px-6 py-5 relative">
+        <div
+          className="drag-handle cursor-grab active:cursor-grabbing px-6 py-5 relative"
+          onDoubleClick={(e) => {
+            e.stopPropagation();
+            // a plaque is a map label: double-click dives to working scale
+            const n = rf.getNode(id);
+            if (n) rf.setCenter(n.position.x + 260, n.position.y + 120, { zoom: 1, duration: 300 });
+          }}
+        >
           {(versionSummary || data.response) ? (
             isRoot ? (
               <>

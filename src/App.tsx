@@ -316,6 +316,33 @@ function Canvas() {
     setTimeout(() => rfInstance.current?.fitView({ duration: 400, padding: 0.2 }), 120);
   }, [filterDroppedFiles]);
 
+  // Palette click-or-drag via pointer events (native DnD's click race lost
+  // us real clicks): press = arm; move past 6px = drag with a ghost badge;
+  // release = create at the drop point, or at screen center for a click.
+  const paletteDrag = useCallback((e: React.PointerEvent, create: (screen: { x: number; y: number } | null) => void) => {
+    const startX = e.clientX, startY = e.clientY;
+    const source = e.currentTarget as HTMLElement;
+    let ghost: HTMLElement | null = null;
+    const move = (ev: PointerEvent) => {
+      if (!ghost && Math.hypot(ev.clientX - startX, ev.clientY - startY) > 6) {
+        ghost = document.createElement('div');
+        ghost.innerHTML = source.innerHTML;
+        ghost.style.cssText = 'position:fixed;z-index:300;pointer-events:none;width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:var(--color-card);border:1px solid var(--color-accent);border-radius:10px;box-shadow:0 4px 14px rgba(0,0,0,.18);opacity:.92;';
+        document.body.appendChild(ghost);
+      }
+      if (ghost) { ghost.style.left = `${ev.clientX - 18}px`; ghost.style.top = `${ev.clientY - 18}px`; }
+    };
+    const up = (ev: PointerEvent) => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+      const dragged = !!ghost;
+      ghost?.remove();
+      create(dragged ? { x: ev.clientX, y: ev.clientY } : null);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  }, []);
+
   const flowPosAt = useCallback((screen?: { x: number; y: number } | null) => {
     const at = rfInstance.current?.screenToFlowPosition(screen ?? { x: window.innerWidth / 2, y: window.innerHeight / 2 }) ?? { x: 140, y: 140 };
     return { x: at.x - 200, y: at.y - 60 };
@@ -1217,21 +1244,21 @@ function Canvas() {
             </button>
           )}
           <button
-            onClick={() => spawnContentNode('note', flowPosAt(null))}
+            onPointerDown={(e) => paletteDrag(e, (screen) => spawnContentNode('note', flowPosAt(screen)))}
             title={t('palette.noteTitle')}
             className="w-9 h-9 rounded-lg flex items-center justify-center text-amber-600 hover:bg-amber-500/10 transition-colors"
           >
             <StickyNote size={17} strokeWidth={1.75} />
           </button>
           <button
-            onClick={() => spawnContentNode('file', flowPosAt(null))}
+            onPointerDown={(e) => paletteDrag(e, (screen) => spawnContentNode('file', flowPosAt(screen)))}
             title={t('palette.fileTitle')}
             className="w-9 h-9 rounded-lg flex items-center justify-center text-ink-muted hover:bg-wash transition-colors"
           >
             <Paperclip size={17} strokeWidth={1.75} />
           </button>
           <button
-            onClick={() => spawnFrame(flowPosAt(null))}
+            onPointerDown={(e) => paletteDrag(e, (screen) => spawnFrame(flowPosAt(screen)))}
             title={t('palette.frameTitle')}
             className="w-9 h-9 rounded-lg flex items-center justify-center text-ink-muted hover:bg-wash transition-colors"
           >

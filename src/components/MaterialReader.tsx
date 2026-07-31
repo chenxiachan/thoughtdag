@@ -92,6 +92,11 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
     return data.question;
   }, [pdfAtt, kind, attachments, data.question]);
   const sections = useMemo(() => splitByPageMarks(textBody), [textBody]);
+  // Highlights on the MATERIAL's own text (markdown files, notes, extracted
+  // PDF copy) — same data shape as answer highlights, stored on the
+  // material node, rendered in the text view. A pure reading layer today:
+  // material content enters context whole, not filtered.
+  const materialHighlights = useMemo(() => new Set((data.highlights ?? []).map((h) => h.text)), [data.highlights]);
 
   // ── PDF document + text-layer probe ──
   const [view, setView] = useState<'original' | 'text' | 'digest'>(pdfAtt?.pageImages?.length ? 'original' : 'text');
@@ -718,7 +723,9 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
                       <div className="text-2xs text-ink-faint font-mono text-center select-none pt-4 pb-1">— p.{s.page} —</div>
                     )}
                     <div className="markdown-body text-sm text-ink leading-relaxed">
-                      <Markdown>{s.md}</Markdown>
+                      {materialHighlights.size > 0
+                        ? <HighlightedMarkdown content={s.md} highlights={materialHighlights} />
+                        : <Markdown>{s.md}</Markdown>}
                     </div>
                   </div>
                 ))
@@ -889,6 +896,21 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
                 onClick={highlightSelection}
                 title={t('common.highlight')}
                 className="w-8 h-8 rounded-lg bg-wash text-ink-muted hover:text-accent hover:bg-accent/10 flex items-center justify-center transition-colors shrink-0"
+              >
+                <Highlighter size={14} strokeWidth={1.75} />
+              </button>
+            )}
+            {!ask.targetNodeId && (
+              <button
+                onClick={() => {
+                  useStore.getState().addHighlight(node.id, { id: generateId(), text: ask.text });
+                  toast('success', t('reader.textHighlighted'));
+                  setAsk(null);
+                  window.getSelection()?.removeAllRanges();
+                }}
+                title={t('reader.highlightText')}
+                data-reader-highlight
+                className="w-8 h-8 rounded-lg bg-wash text-ink-muted hover:text-amber-600 hover:bg-amber-500/10 flex items-center justify-center transition-colors shrink-0"
               >
                 <Highlighter size={14} strokeWidth={1.75} />
               </button>

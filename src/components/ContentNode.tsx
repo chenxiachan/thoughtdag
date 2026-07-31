@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Handle, NodeResizeControl, Position, useUpdateNodeInternals, type NodeProps } from '@xyflow/react';
+import { Handle, NodeResizeControl, Position, useReactFlow, useUpdateNodeInternals, type NodeProps } from '@xyflow/react';
 import { BookOpen, ExternalLink, FileText, Link2, Link2Off, Loader2, MoveDiagonal2, Paperclip, RefreshCw, StickyNote, Trash2, X } from 'lucide-react';
 import type { ThoughtNode as ThoughtNodeType } from '../types';
 import { useStore } from '../store';
@@ -31,6 +31,8 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
   // Wiring material happens mostly from the overview — grow the handle there
   const zoomTier = useZoomTier();
   const zoomedOut = zoomTier !== 'work';
+  const rf = useReactFlow();
+  const nodePos = useStore((s) => { const n = s.nodes.find((x) => x.id === id); return n ? n.position : null; });
   const glyphTier = zoomTier === 'glyph';
   const updateNodeInternals = useUpdateNodeInternals();
   useEffect(() => { updateNodeInternals(id); }, [glyphTier, id, updateNodeInternals]);
@@ -89,6 +91,12 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
     return (
       <div className={`drag-handle cursor-grab active:cursor-grabbing w-full h-full min-w-[340px] flex items-center justify-center ${selectedNodeId === id ? 'glyph-selected' : ''}`}
         onClick={() => setSelectedNodeId(id)} data-glyph-node
+        onDoubleClick={(e) => {
+          e.stopPropagation();
+          // documents open where they are read; notes zoom to working scale
+          if (kind === 'file' || kind === 'link') useUiStore.getState().setReaderNodeId(id);
+          else rf.setCenter((nodePos?.x ?? 0) + 200, (nodePos?.y ?? 0) + 120, { zoom: 1, duration: 300 });
+        }}
         title={`${t(kind === 'file' ? 'glyph.file' : kind === 'link' ? 'glyph.link' : 'glyph.note')}\n${kind === 'file' ? (attachments[0]?.name ?? '') : kind === 'link' ? (data.linkTitle || data.linkUrl || '') : data.question.replace(/\s+/g, ' ').slice(0, 120)}`}>
         <span className={`w-28 h-28 rounded-[2rem] flex items-center justify-center border-4 border-card shadow-lg text-white ${
           kind === 'note' ? 'bg-amber-400' : kind === 'link' ? 'bg-cyan-600' : 'bg-slate-500'
