@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Check, ChevronDown, Cpu, KeyRound, RefreshCw } from 'lucide-react';
-import { useUiStore } from '../../lib/ui-store';
+import { toast, useUiStore } from '../../lib/ui-store';
 import { useModels, setModelsCache } from '../../lib/use-models';
-import { refreshStoredProviders } from '../../lib/runtime-providers';
+import { refreshStoredProviders, pushProviders, storedProviders } from '../../lib/runtime-providers';
 import { fmt } from '../../i18n';
 import { useT } from '../../i18n';
 
@@ -148,6 +148,18 @@ function GlobalCapabilities() {
   const setVisionModelPref = useUiStore((s) => s.setVisionModelPref);
   const searchEnginePref = useUiStore((s) => s.searchEnginePref);
   const setSearchEnginePref = useUiStore((s) => s.setSearchEnginePref);
+  const anysearchKey = useUiStore((s) => s.anysearchKey);
+  const [anysearchDraft, setAnysearchDraft] = useState(anysearchKey);
+  const saveAnysearchKey = async () => {
+    const k = anysearchDraft.trim();
+    if (k === anysearchKey) return;
+    useUiStore.getState().setAnysearchKey(k);
+    toast('success', t(k ? 'caps.anysearchSaved' : 'caps.anysearchCleared'));
+    // capability refresh so the hosted worker re-reports the engine
+    if (storedProviders().length > 0) {
+      try { setModelsCache(await pushProviders(storedProviders())); } catch { /* best-effort */ }
+    }
+  };
   const memoryEnabled = useUiStore((s) => s.memoryEnabled);
   const setMemoryEnabled = useUiStore((s) => s.setMemoryEnabled);
   const memoryCount = useUiStore((s) => s.memories.length);
@@ -159,6 +171,25 @@ function GlobalCapabilities() {
   const hasVision = visionModels.length > 0;
   const dot = (on: boolean) => (
     <span className={`w-1.5 h-1.5 rounded-full shrink-0 mt-1.5 ${on ? 'bg-emerald-500' : 'bg-line-strong'}`} />
+  );
+  const anysearchKeyRow = (hintKey: 'caps.anysearchHintQuota' | 'caps.anysearchHintEnable') => (
+    <div className="mt-1">
+      <input
+        type="password"
+        value={anysearchDraft}
+        onChange={(e) => setAnysearchDraft(e.target.value)}
+        onBlur={() => void saveAnysearchKey()}
+        onKeyDown={(e) => { if (e.key === 'Enter') (e.target as HTMLInputElement).blur(); }}
+        onClick={(e) => e.stopPropagation()}
+        placeholder={t('caps.anysearchKeyPlaceholder')}
+        data-anysearch-key
+        className="w-full text-2xs text-ink-muted bg-wash border border-line rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-accent/40 placeholder-ink-faint font-mono"
+      />
+      <p className="text-2xs text-ink-faint leading-relaxed mt-0.5">
+        {t(hintKey)}{' '}
+        <a href="https://www.anysearch.com" target="_blank" rel="noreferrer" className="text-accent hover:underline" onClick={(e) => e.stopPropagation()}>anysearch.com</a>
+      </p>
+    </div>
   );
   return (
     <div className="border-t border-line mt-1.5 pt-1 pb-1">
@@ -178,10 +209,13 @@ function GlobalCapabilities() {
               <option value="server">{fmt(t('caps.engineServer'), { engine: caps.searchEngine })}</option>
               <option value="search_std">{t('caps.engineStd')}</option>
               <option value="search_pro">{t('caps.enginePro')}</option>
+              {(caps.anysearch || anysearchKey) && <option value="anysearch">{t('caps.engineAnysearch')}</option>}
             </select>
           ) : (
             <p className="text-2xs text-ink-faint leading-relaxed mt-0.5">{t('caps.webSearchOff')}</p>
           )}
+          {caps?.webSearch && searchEnginePref === 'anysearch' && anysearchKeyRow('caps.anysearchHintQuota')}
+          {!caps?.webSearch && anysearchKeyRow('caps.anysearchHintEnable')}
         </div>
       </div>
       <div className="px-3 py-1 flex items-start gap-2">

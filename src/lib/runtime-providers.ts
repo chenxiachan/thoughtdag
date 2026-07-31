@@ -113,10 +113,14 @@ export function saveProviders(providers: RuntimeProvider[]): void {
 
 /** Register the full provider set on the proxy; returns the refreshed model list. */
 export async function pushProviders(providers: RuntimeProvider[]): Promise<ModelData> {
+  // read the AnySearch key straight from storage (no ui-store import — this
+  // module sits below the store): the hosted worker lights the engine up
+  // in its capability report when a key rides along.
+  const anysearchKey = localStorage.getItem('thoughtdag.anysearchKey') || undefined;
   const res = await fetch(`${API_BASE}/api/runtime-providers`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ providers }),
+    body: JSON.stringify({ providers, ...(anysearchKey ? { anysearchKey } : {}) }),
   });
   if (!res.ok) {
     const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));

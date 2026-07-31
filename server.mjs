@@ -257,6 +257,37 @@ const isBlockedUrl = (url) => {
   catch { return false; }
 };
 
+// AnySearch: a keyless aggregator engine (api.anysearch.com). Anonymous
+// calls are metered per client IP — running on the user's own machine,
+// that means per-user quota with zero config. An optional key (env or
+// per-request) lifts the quota. No CORS on their end, so this only ever
+// runs server-side; the hosted worker mirrors it but requires a key
+// (proxying anonymous traffic would pool every user onto one egress IP).
+const ANYSEARCH_KEY = process.env.ANYSEARCH_API_KEY || '';
+async function anySearchWeb(query, count = 5, key = ANYSEARCH_KEY) {
+  const r = await fetch('https://api.anysearch.com/v1/search', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...(key ? { Authorization: `Bearer ${key}` } : {}) },
+    body: JSON.stringify({ query, max_results: Math.min(count * 2, 10) }),
+    signal: AbortSignal.timeout(30000),
+  });
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok || data.code !== 0) {
+    const code = data?.data?.error_code || data?.error_code || '';
+    if (String(code).includes('quota')) throw new Error('search quota for today is used up — resets tomorrow, or set ANYSEARCH_API_KEY in .env');
+    throw new Error(data?.message || `anysearch HTTP ${r.status}`);
+  }
+  return (data.data?.results || [])
+    .filter((x) => !isBlockedUrl(x.url))
+    .slice(0, count)
+    .map((x) => ({
+      title: x.title || x.url,
+      url: x.url,
+      content: (x.snippet || x.content || '').slice(0, 600),
+      date: x.date || undefined,
+    }));
+}
+
 // A GLM interface configured in the BROWSER can power search too (same key
 // shape as the .env one; the international z.ai endpoint is symmetric).
 const GLM_SEARCH_BASES = ['open.bigmodel.cn', 'api.z.ai'];
@@ -389,7 +420,7 @@ function makeTools(sources, onSearch, prefs = {}) {
   };
   const tools = {};
 
-  if (prefs.web !== false && (ZHIPU_KEY || prefs.glm)) {
+  if (prefs.web !== false) {
     tools.web_search = tool({
       description:
         'ONLY for current events, time-sensitive facts, or specific verifiable claims you cannot answer confidently from your own knowledge. ' +
@@ -400,7 +431,16 @@ function makeTools(sources, onSearch, prefs = {}) {
       }),
       execute: async ({ query }) => {
         onSearch?.('web_search', query);
-        try { return pushNumbered(await zhipuWebSearch(query, 5, prefs.searchEngine || SEARCH_ENGINE, ZHIPU_KEY ? null : prefs.glm)); }
+        // engine dispatch: an explicit 'anysearch' pref wins; otherwise GLM
+        // when a key exists (env or browser-configured), AnySearch as the
+        // keyless default for everyone else.
+        const engine = prefs.searchEngine || SEARCH_ENGINE;
+        const useAnysearch = engine === 'anysearch' || (!ZHIPU_KEY && !prefs.glm);
+        try {
+          return pushNumbered(useAnysearch
+            ? await anySearchWeb(query, 5, prefs.anysearchKey || ANYSEARCH_KEY)
+            : await zhipuWebSearch(query, 5, engine, ZHIPU_KEY ? null : prefs.glm));
+        }
         catch (e) { return `Search failed (${e.message}) — try a different tool or answer from your knowledge.`; }
       },
     });
@@ -604,8 +644,11 @@ function modelsPayload() {
     default: DEFAULT_MODEL ?? null,
     // capability report: what the door sign may show, what stays hidden
     capabilities: {
-      webSearch: !!ZHIPU_KEY,
-      searchEngine: process.env.ZHIPU_SEARCH_ENGINE || 'search_std',
+      // AnySearch's anonymous tier makes web search keyless on local runs;
+      // a GLM key stays the default engine when present.
+      webSearch: true,
+      searchEngine: ZHIPU_KEY ? (process.env.ZHIPU_SEARCH_ENGINE || 'search_std') : 'anysearch',
+      anysearch: true,
       scholarSearch: true,
       vision: models.some((m) => m.vision),
     },
@@ -781,7 +824,7 @@ app.post('/api/claude', async (req, res) => {
 // SSE streaming endpoint. The model decides on its own which tools to use
 // and when; `webSearch: false` / `scholarSearch: false` hide tool groups.
 app.post('/api/stream', async (req, res) => {
-  const { messages, model: modelId, images, webSearch, scholarSearch, mcpTools, searchEngine, providers } = req.body;
+  const { messages, model: modelId, images, webSearch, scholarSearch, mcpTools, searchEngine, providers, anysearchKey } = req.body;
   const entry = resolveModel(modelId || DEFAULT_MODEL, images && images.length > 0, providers);
   if (!entry) { res.status(503).json({ error: 'No model configured. Add an API key first.' }); return; }
 
@@ -798,6 +841,12 @@ app.post('/api/stream', async (req, res) => {
   let emittedChars = 0;
   let charsAtLastSearch = 0;
 
+  // No local search key but an OpenRouter model: the gateway's :online
+  // variant searches instead — and the web TOOL stands down (never both,
+  // that would run two searches for one question). An explicit 'anysearch'
+  // engine pref keeps the tool loop instead.
+  const gatewayOnline = !ZHIPU_KEY && webSearch !== false && !!entry.online && searchEngine !== 'anysearch';
+
   const tools = makeTools(
     sources,
     (name, query) => {
@@ -805,7 +854,7 @@ app.post('/api/stream', async (req, res) => {
       // Progress ping so the UI can show what's being searched
       res.write(`data: ${JSON.stringify({ tool: { name, query } })}\n\n`);
     },
-    { web: webSearch !== false, scholar: scholarSearch !== false, mcp: mcpTools !== false, searchEngine, glm: findGlmSearch(providers) }
+    { web: webSearch !== false && !gatewayOnline, scholar: scholarSearch !== false, mcp: mcpTools !== false, searchEngine, glm: findGlmSearch(providers), anysearchKey }
   );
 
   const prompt = toSdkPrompt(messages, images);
@@ -825,9 +874,6 @@ app.post('/api/stream', async (req, res) => {
   }
 
   try {
-    // No local search key but an OpenRouter model: the gateway's :online
-    // variant searches instead (same key, zero extra config)
-    const gatewayOnline = !ZHIPU_KEY && webSearch !== false && entry.online;
     const result = streamText({
       maxOutputTokens: MAX_OUTPUT_TOKENS,
       model: gatewayOnline ? entry.online() : entry.model(),

@@ -75,6 +75,10 @@ interface UiState {
   /** Web search engine: 'server' = follow the proxy's .env default. */
   searchEnginePref: string;
   setSearchEnginePref: (id: string) => void;
+  /** Optional AnySearch key: lifts the anonymous per-IP quota locally and
+      is REQUIRED for the engine on the hosted app. Stateless like model keys. */
+  anysearchKey: string;
+  setAnysearchKey: (key: string) => void;
   /** Ambient long-term memory: ON by default, one switch, visible writes. */
   memoryEnabled: boolean;
   setMemoryEnabled: (on: boolean) => void;
@@ -189,6 +193,12 @@ export const useUiStore = create<UiState>((set, get) => ({
   setSearchEnginePref: (id) => {
     localStorage.setItem('thoughtdag.searchEngine', id);
     set({ searchEnginePref: id });
+  },
+  anysearchKey: localStorage.getItem('thoughtdag.anysearchKey') || '',
+  setAnysearchKey: (key) => {
+    if (key) localStorage.setItem('thoughtdag.anysearchKey', key);
+    else localStorage.removeItem('thoughtdag.anysearchKey');
+    set({ anysearchKey: key });
   },
   memoryEnabled: localStorage.getItem('thoughtdag.memoryEnabled') !== 'off',
   setMemoryEnabled: (on) => {

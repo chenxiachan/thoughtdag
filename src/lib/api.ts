@@ -163,6 +163,7 @@ export async function llmCallStream(
         ...(useUiStore.getState().searchEnginePref !== 'server'
           ? { searchEngine: useUiStore.getState().searchEnginePref }
           : {}),
+        ...(useUiStore.getState().anysearchKey ? { anysearchKey: useUiStore.getState().anysearchKey } : {}),
         model: modelOverride || useUiStore.getState().selectedModel || undefined,
         providers: statelessProviders(),
       }),

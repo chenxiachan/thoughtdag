@@ -132,6 +132,30 @@ async function glmWebSearch(glm, query, count = 5) {
     .map((x) => ({ title: x.title, url: x.link, content: (x.content || '').slice(0, 600), media: x.media, date: x.publish_date }));
 }
 
+// ── AnySearch (mirror of server.mjs, but key REQUIRED here) ─────────
+// Anonymous AnySearch is per-client-IP; proxied through the worker every
+// user would share one egress IP, so the hosted app only offers this
+// engine when the user brings their own (free-signup) key — stateless,
+// arriving with the request and forgotten with it.
+async function anySearchWeb(key, query, count = 5) {
+  const r = await fetch('https://api.anysearch.com/v1/search', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
+    body: JSON.stringify({ query, max_results: Math.min(count * 2, 10) }),
+    signal: AbortSignal.timeout(30000),
+  });
+  const data = await r.json().catch(() => ({}));
+  if (!r.ok || data.code !== 0) {
+    const code = data?.data?.error_code || data?.error_code || '';
+    if (String(code).includes('quota')) throw new Error('search quota used up for today');
+    throw new Error(data?.message || `anysearch HTTP ${r.status}`);
+  }
+  return (data.data?.results || [])
+    .filter((x) => !isBlockedUrl(x.url))
+    .slice(0, count)
+    .map((x) => ({ title: x.title || x.url, url: x.url, content: (x.snippet || x.content || '').slice(0, 600), date: x.date || undefined }));
+}
+
 // ── scholarly search (free public APIs — mirror of server.mjs) ──
 async function arxivSearch(query, maxResults = 5) {
   const url = `https://export.arxiv.org/api/query?search_query=all:${encodeURIComponent(query)}&max_results=${maxResults}&sortBy=relevance`;
@@ -178,7 +202,7 @@ function makeTools(sources, onSearch, prefs = {}) {
       .join('\n\n');
   };
   const tools = {};
-  if (prefs.web && prefs.glm) {
+  if (prefs.web && (prefs.glm || prefs.anysearchKey)) {
     tools.web_search = tool({
       description:
         'ONLY for current events, time-sensitive facts, or specific verifiable claims you cannot answer confidently from your own knowledge. ' +
@@ -189,7 +213,12 @@ function makeTools(sources, onSearch, prefs = {}) {
       }),
       execute: async ({ query }) => {
         onSearch?.('web_search', query);
-        try { return pushNumbered(await glmWebSearch(prefs.glm, query)); }
+        const useAnysearch = prefs.anysearchKey && (prefs.searchEngine === 'anysearch' || !prefs.glm);
+        try {
+          return pushNumbered(useAnysearch
+            ? await anySearchWeb(prefs.anysearchKey, query)
+            : await glmWebSearch(prefs.glm, query));
+        }
         catch (e) { return `Search failed (${e.message}) — try a different tool or answer from your knowledge.`; }
       },
     });
@@ -225,7 +254,7 @@ const json = (obj, status = 200) =>
   new Response(JSON.stringify(obj), { status, headers: { 'Content-Type': 'application/json' } });
 
 async function handleStream(body) {
-  const { messages, model: modelId, images, webSearch, scholarSearch, providers } = body;
+  const { messages, model: modelId, images, webSearch, scholarSearch, searchEngine, anysearchKey, providers } = body;
   const entry = resolveModel(modelId, images && images.length > 0, providers);
   if (!entry) return json({ error: 'No model configured. Add an API key first.' }, 503);
 
@@ -264,7 +293,7 @@ async function handleStream(body) {
         charsAtLastSearch = emittedChars;
         flushBuf();
         write({ tool: { name, query } });
-      }, { scholar: scholarSearch !== false, web: webSearch !== false, glm });
+      }, { scholar: scholarSearch !== false, web: webSearch !== false, glm, searchEngine, anysearchKey: useOnline ? null : anysearchKey });
       const prompt = toSdkPrompt(messages, images);
       if (tools) {
         const directive = [
@@ -437,7 +466,7 @@ async function handleProbeModels(body) {
   }
 }
 
-function modelsPayloadFor(providers) {
+function modelsPayloadFor(providers, anysearchKey) {
   const overlay = providerEntries(providers);
   const models = Object.entries(overlay).map(([id, m]) => ({ id, name: m.name, provider: m.provider, vision: m.vision }));
   return {
@@ -447,8 +476,11 @@ function modelsPayloadFor(providers) {
       // Web search exists when EITHER an OpenRouter interface (gateway
       // :online) or a GLM interface (its key doubles as the search engine
       // for every other model) is connected.
-      webSearch: Object.values(overlay).some((m) => m.online) || !!findGlmSearch(providers),
-      searchEngine: Object.values(overlay).some((m) => m.online) ? 'openrouter-online' : 'glm-tools',
+      webSearch: Object.values(overlay).some((m) => m.online) || !!findGlmSearch(providers) || !!anysearchKey,
+      searchEngine: Object.values(overlay).some((m) => m.online) ? 'openrouter-online'
+        : findGlmSearch(providers) ? 'glm-tools'
+        : anysearchKey ? 'anysearch' : 'glm-tools',
+      anysearch: !!anysearchKey,
       scholarSearch: true,
       vision: models.some((m) => m.vision),
     },
@@ -507,7 +539,7 @@ export async function onRequest({ request, params }) {
     case '/stream': return handleStream(body);
     case '/claude': return handleClaude(body);
     case '/probe-models': return handleProbeModels(body);
-    case '/runtime-providers': return json(modelsPayloadFor(body?.providers));
+    case '/runtime-providers': return json(modelsPayloadFor(body?.providers, body?.anysearchKey));
     case '/runtime-key': return json(modelsPayloadFor(body?.key ? [{
       name: 'OpenRouter', baseURL: 'https://openrouter.ai/api/v1', apiKey: body.key,
       models: (Array.isArray(body.models) && body.models.length > 0 ? body.models : ['openrouter/auto']).map((id) => (typeof id === 'string' ? { id } : id)),

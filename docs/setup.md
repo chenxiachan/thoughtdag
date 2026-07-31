@@ -14,7 +14,7 @@ npm run dev            # → http://localhost:5173
 
 No config needed to start: if `.env` has no key, the app asks you to connect a model interface. Pick a provider and paste a key, hook up a locally running model (Ollama and friends), or point it at any custom OpenAI-compatible endpoint; the model list is fetched live from the endpoint, and keys stay in localStorage and the proxy's memory, never on disk. Or copy `.env.example` to `.env` and fill in any provider key; `ZHIPU_API_KEY` is free (open.bigmodel.cn). Outside China, pick the **Z.ai GLM** preset inside the app: the international twin of Zhipu, with the same free flash models and no CN phone number required (z.ai). OpenRouter also works as a one-key gateway with free-tier models. Note: consumer subscriptions (ChatGPT Plus, Claude Pro, Gemini Advanced) do not include API access; every provider sells API keys separately.
 
-The landing page seeds the example canvas in one labeled click: four chapters around one everyday question (why saved articles stay unread), from the conversation grammar to a real embedded PDF with its reading loop. Zoom out and you get the map view shown in the README. The fastest way in: drop a PDF on the landing page and start reading. The Zhipu key also powers web search (engine tiers switchable in the model menu); scholarly search (arXiv + Semantic Scholar) is free and needs no key at all.
+The landing page seeds the example canvas in one labeled click: four chapters around one everyday question (why saved articles stay unread), from the conversation grammar to a real embedded PDF with its reading loop. Zoom out and you get the map view shown in the README. The fastest way in: drop a PDF on the landing page and start reading. Web search works keyless on local runs (the AnySearch anonymous tier, metered per your own IP); a Zhipu key upgrades the engine, and tiers switch in the model menu. Scholarly search (arXiv + Semantic Scholar) is free and needs no key at all.
 
 ## Supported models
 
@@ -34,7 +34,7 @@ Built on the Vercel AI SDK. Any provider below activates when its key lands in `
 | **OpenRouter** | openrouter/auto | `OPENROUTER_API_KEY` | gateway to 300+ models; list any `vendor/model` slugs in `OPENROUTER_MODELS` |
 | **Ollama** | (yours) | `OLLAMA_MODELS=qwen3:8b,…` | fully local & offline |
 
-> **Web search availability**: OpenRouter interfaces have it built in (the gateway's `:online` variant). Any other interface gets it when a GLM interface (Zhipu or Z.ai, a free key works) is also connected — that key powers the search engine for every model. Scholarly search (arXiv + Semantic Scholar) needs nothing.
+> **Web search availability**: OpenRouter interfaces have it built in (the gateway's `:online` variant). Local runs always have it — the AnySearch anonymous tier searches keyless (per-IP daily quota; `ANYSEARCH_API_KEY` lifts it), and a GLM interface (Zhipu or Z.ai, a free key works) becomes the engine when connected. On the hosted app, non-`:online` models search through a connected GLM interface, or an AnySearch key added in the model menu (free signup). Scholarly search (arXiv + Semantic Scholar) needs nothing.
 
 ## Subscriptions
 

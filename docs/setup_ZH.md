@@ -14,7 +14,7 @@ npm run dev            # → http://localhost:5173
 
 不用配置也能开始：`.env` 里没有 key 时，应用会请你连接一个模型接口。选一家服务商填 key、接入本地运行的模型（Ollama 等），或者填任何兼容 OpenAI 协议的自定义端点；模型列表从接口现场拉取，key 只存 localStorage 和代理内存，不落盘。也可以把 `.env.example` 复制成 `.env` 填任意服务商的 key，`ZHIPU_API_KEY` 免费（open.bigmodel.cn）。
 
-示例画布在首页一键载入：围绕一个日常问题（收藏夹为什么总在吃灰）展开四章，从对话语法到一份内嵌真 PDF 的阅读闭环。缩小画布，就是 README 里的地图形态。最快的入口：把一篇 PDF 拖到首页，从阅读开始。智谱 key 同时驱动联网搜索（引擎档位在模型菜单里可切换）；学术检索（arXiv + Semantic Scholar）免费、不需要任何 key。
+示例画布在首页一键载入：围绕一个日常问题（收藏夹为什么总在吃灰）展开四章，从对话语法到一份内嵌真 PDF 的阅读闭环。缩小画布，就是 README 里的地图形态。最快的入口：把一篇 PDF 拖到首页，从阅读开始。本地运行时联网搜索免 key 即可用（AnySearch 匿名档，按你自己的 IP 计每日额度）；配智谱 key 可升级引擎，档位在模型菜单里切换。学术检索（arXiv + Semantic Scholar）免费、不需要任何 key。
 
 ## 支持的模型
 
@@ -34,7 +34,7 @@ npm run dev            # → http://localhost:5173
 | **OpenRouter** | openrouter/auto | `OPENROUTER_API_KEY` | 一把 key 通 300+ 模型，`OPENROUTER_MODELS` 填任意 `vendor/model` |
 | **Ollama** | （你本地的）| `OLLAMA_MODELS=qwen3:8b,…` | 完全本地离线 |
 
-> **联网搜索的可用条件**：OpenRouter 接口自带（网关 `:online`）；其他任何接口，只要同时连接一个智谱 GLM 接口（免费 key 即可），它的 key 就为所有模型驱动搜索引擎。学术检索（arXiv + Semantic Scholar）无需任何条件。
+> **联网搜索的可用条件**：OpenRouter 接口自带（网关 `:online`）。本地运行始终可用：AnySearch 匿名档免 key 搜索（按 IP 计每日额度，`ANYSEARCH_API_KEY` 可提升），连接智谱 GLM 接口（免费 key 即可）则由它驱动引擎。线上版的非 `:online` 模型，通过已连接的 GLM 接口搜索，或在模型菜单填入 AnySearch key（免费注册）。学术检索（arXiv + Semantic Scholar）无需任何条件。
 
 ## 订阅接入
 

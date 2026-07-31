@@ -12,6 +12,8 @@ export interface ModelInfo {
 export interface Capabilities {
   webSearch: boolean;
   searchEngine: string;
+  /** AnySearch engine reachable (always true locally; hosted = key present). */
+  anysearch?: boolean;
   scholarSearch: boolean;
   vision: boolean;
 }
