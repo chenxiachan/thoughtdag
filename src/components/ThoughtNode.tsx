@@ -92,12 +92,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   // box. And while a paradigm run is in progress the canvas is a DASHBOARD
   // (waiting/running states are what the human watches), not a map. Both
   // keep their working form at every zoom.
-  // Visual follows context: a node in takeaway form WEARS its plaque at
-  // every zoom — what you see on the canvas is the line the model gets.
-  // (The first cut kept full cards for condensed nodes; users rightly
-  // could not find the simplification on the map.)
-  const isCondensedForm = data.contextForm === 'summary';
-  const zoomedOut = (mapMode || isCondensedForm) && !isAwaitingHuman && !isAwaitingAsk && !(isParadigmNode && runLocked);
+  const zoomedOut = mapMode && !isAwaitingHuman && !isAwaitingAsk && !(isParadigmNode && runLocked);
   // Glyph tier: the node collapses to one seal — the thinking's skeleton
   const glyphTier = zoomTier === 'glyph' && zoomedOut;
   // Handles move to hug the seal at glyph tier — tell React Flow to re-measure
@@ -421,16 +416,6 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
         // title — the reader's entry point — so there question leads and
         // the takeaway is the subtitle.
         <div className="drag-handle cursor-grab active:cursor-grabbing px-6 py-5 relative">
-          {isCondensedForm && (
-            <button
-              onClick={(e) => { e.stopPropagation(); if (!isViewerMode) useStore.getState().setContextForm([id], 'full'); }}
-              title={t('node.condensedFormTitle')}
-              data-condensed-badge
-              className="absolute top-2 right-2 text-2xs bg-accent/10 text-accent hover:bg-accent/25 px-1.5 py-0.5 rounded-md flex items-center gap-1 font-medium transition-colors nodrag"
-            >
-              <Minimize2 size={11} strokeWidth={1.75} /> {t('node.condensedForm')}
-            </button>
-          )}
           {(versionSummary || data.response) ? (
             isRoot ? (
               <>
@@ -471,14 +456,24 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
             {data.isCollapsed ? <ChevronRight size={18} strokeWidth={1.75} /> : <ChevronDown size={18} strokeWidth={1.75} />}
           </button>
           <span className="text-xs text-ink-faint font-mono">{data.tokenCount} tok</span>
-          {isCondensedForm && (
+          {data.condensedFrom && data.condensedFrom.length > 0 && (
             <button
-              onClick={(e) => { e.stopPropagation(); if (!isViewerMode) useStore.getState().setContextForm([id], 'full'); }}
-              title={t('node.condensedFormTitle')}
-              data-condensed-badge
+              onClick={(e) => {
+                e.stopPropagation();
+                // provenance travels by chip, context by wires: highlight the
+                // original run and glide the viewport onto it
+                const src = useStore.getState().nodes.filter((n) => data.condensedFrom!.includes(n.id));
+                if (src.length === 0) return;
+                useUiStore.getState().setCondenseHighlightIds(data.condensedFrom!);
+                const xs = src.map((n) => n.position.x), ys = src.map((n) => n.position.y);
+                rf.fitBounds({ x: Math.min(...xs), y: Math.min(...ys), width: Math.max(...xs) + 520 - Math.min(...xs), height: Math.max(...ys) + 240 - Math.min(...ys) }, { duration: 350, padding: 0.2 });
+                window.setTimeout(() => useUiStore.getState().setCondenseHighlightIds([]), 2600);
+              }}
+              title={t('node.condensedFromTitle')}
+              data-condensed-from
               className="text-2xs bg-accent/10 text-accent hover:bg-accent/20 px-1.5 py-0.5 rounded-md flex items-center gap-1 font-medium transition-colors"
             >
-              <Minimize2 size={11} strokeWidth={1.75} /> {t('node.condensedForm')}
+              <Minimize2 size={11} strokeWidth={1.75} /> {fmt(t('node.condensedFrom'), { n: String(data.condensedFrom.length) })}
             </button>
           )}
           {isStale && !data.isLoading && (

@@ -1,29 +1,36 @@
 import { llmCallStream } from './api';
-import { buildContentNode } from './content';
-import { autoLayout } from './layout';
 import { useStore } from '../store';
-import { activeSummary, countTokens } from '../utils';
-import type { ThoughtNode, ThoughtEdge, ThoughtData } from '../types';
+import { autoLayout } from './layout';
+import { activeSummary, countTokens, generateId } from '../utils';
+import type { ThoughtNode, ThoughtEdge, ThoughtData, Highlight } from '../types';
 
-// Condense, rebuilt on two lessons from real use:
-// 1. SEGMENT FINDING IS NOT AN LLM JOB. Consecutive single-in/single-out
-//    runs with low decision density are a graph walk over data the judge
-//    already produced — instant, free, and highlightable on the canvas.
-// 2. DISTILLING IS A SMALL, LOCAL LLM JOB. One segment's takeaways are a
-//    dozen lines; the call returns in seconds and the user confirms each
-//    segment separately. The one-shot whole-map audit (slow, opaque,
-//    timeout-prone) is gone.
-// Applying still only uses the two known moves: takeaway form (now ALSO
-// the node's visual form — what you see is what the model gets) plus an
-// optional distilled note. Wiring untouched, one undo per segment.
+// Condense v4: the COPY-TREE model.
+//
+// Condensing never touches the original tree. It produces a condensed copy
+// beside it: every node is duplicated, except that each chosen run of
+// refinement turns collapses into ONE distill node (question = the run's
+// span, response = distilled decisions + verbatim highlights). Wires are
+// rebuilt so the copy is a complete, self-sufficient tree — ask from any
+// of its nodes and the walk stays inside the copy. Compare the two trees
+// side by side; archive the original when satisfied. Spatial versioning,
+// no special node states, no second context mechanism: the One Rule reads
+// the copy exactly like any other graph.
+//
+// Fidelity rules:
+//  1. decision/pivot turns never collapse — they break a run in two;
+//  2. highlights ride into the distill node VERBATIM (people's judgment
+//     is not compressible);
+//  3. fork nodes never enter a run (single-in/single-out by definition),
+//     so branch context survives untouched.
+//
+// Distilling runs top-down, one small streamed call per run, each carrying
+// a brief of what earlier runs established — the copy reads as one
+// coherent document, and progress is visible run by run.
 
 export interface CondenseSegment {
-  /** Q/A nodes in chain order (only those still in full form). */
   nodeIds: string[];
   headQuestion: string;
   saving: number;
-  /** decision/pivot badges inside the segment — shown as a caution. */
-  keyMoves: number;
   totalTurns: number;
 }
 
@@ -32,10 +39,13 @@ const isQaTurn = (n: ThoughtNode): boolean => {
   return !!d.response && !d.stepKind && !d.isLoading;
 };
 
-function moveType(n: ThoughtNode): string | undefined {
+const moveType = (n: ThoughtNode): string | undefined => {
   const d = n.data as ThoughtData;
   return d.summaryTypes?.[d.responseIndex] ?? undefined;
-}
+};
+
+/** Fidelity rule 1: these turns are landmarks — they never collapse. */
+const isLandmark = (n: ThoughtNode): boolean => ['decision', 'pivot'].includes(moveType(n) ?? '');
 
 function turnSaving(n: ThoughtNode): number {
   const d = n.data as ThoughtData;
@@ -44,9 +54,8 @@ function turnSaving(n: ThoughtNode): number {
   return Math.max(0, full - condensed);
 }
 
-/** Local segment discovery: maximal single-in/single-out runs of Q/A turns,
-    ≥3 turns still in full form. No model call — candidates appear the
-    moment the dialog opens, and hovering one highlights it on the canvas. */
+/** Local discovery: maximal single-in/single-out runs of NON-landmark Q/A
+    turns, ≥3 long. Instant — no model call. */
 export function findCandidateSegments(nodes: ThoughtNode[], edges: ThoughtEdge[]): CondenseSegment[] {
   const byId = new Map(nodes.map((n) => [n.id, n]));
   const structural = edges.filter((e) => !e.data?.isCrossLink);
@@ -57,31 +66,29 @@ export function findCandidateSegments(nodes: ThoughtNode[], edges: ThoughtEdge[]
     inn.set(e.target, [...(inn.get(e.target) ?? []), e.source]);
   }
   const single = (m: Map<string, string[]>, id: string) => (m.get(id) ?? []).length === 1;
+  const collapsible = (n: ThoughtNode) => isQaTurn(n) && !isLandmark(n) && !(n.data as ThoughtData).archived;
   const isRunStart = (id: string): boolean => {
     const parents = inn.get(id) ?? [];
     if (parents.length !== 1) return true;
     const p = byId.get(parents[0]);
-    return !p || !isQaTurn(p) || !single(out, parents[0]);
+    return !p || !collapsible(p) || !single(out, parents[0]);
   };
   const segments: CondenseSegment[] = [];
   for (const n of nodes) {
-    if (!isQaTurn(n) || !isRunStart(n.id)) continue;
+    if (!collapsible(n) || !isRunStart(n.id)) continue;
     const run: ThoughtNode[] = [n];
     let cur = n.id;
     while (single(out, cur)) {
       const next = byId.get(out.get(cur)![0]);
-      if (!next || !isQaTurn(next) || (inn.get(next.id) ?? []).length !== 1) break;
+      if (!next || !collapsible(next) || (inn.get(next.id) ?? []).length !== 1) break;
       run.push(next);
       cur = next.id;
     }
-    // condensable members: still in full form; keep the segment when 3+ remain
-    const members = run.filter((x) => (x.data as ThoughtData).contextForm !== 'summary' && !(x.data as ThoughtData).archived);
-    if (members.length < 3) continue;
+    if (run.length < 3) continue;
     segments.push({
-      nodeIds: members.map((x) => x.id),
+      nodeIds: run.map((x) => x.id),
       headQuestion: (run[0].data as ThoughtData).question.replace(/\s+/g, ' ').slice(0, 80),
-      saving: members.reduce((s, x) => s + turnSaving(x), 0),
-      keyMoves: members.filter((x) => ['decision', 'pivot'].includes(moveType(x) ?? '')).length,
+      saving: run.reduce((s, x) => s + turnSaving(x), 0),
       totalTurns: run.length,
     });
   }
@@ -90,16 +97,22 @@ export function findCandidateSegments(nodes: ThoughtNode[], edges: ThoughtEdge[]
 }
 
 const DISTILL_PROMPT = {
-  zh: `下面是一段连续对话的轮次列表（问题 + 收获句 + 认知动作标签）。写一份「蒸馏便签」：用 markdown 要点列出这段过程确立的、至今仍然有效的决策、结论与约束。不是流水账摘要；被后续轮次推翻的内容不要列。只输出便签正文，不要标题、不要其他说明。`,
-  en: `Below is a consecutive run of conversation turns (question + takeaway + cognitive-move tag). Write a "distilled note": markdown bullets of the decisions, conclusions and constraints established along the way that are STILL in force. Not a play-by-play summary; drop anything overturned by later turns. Output only the note body — no title, no commentary.`,
+  zh: `下面是一段连续对话的轮次列表（问题 + 收获句 + 认知动作标签），之前可能附有「前情提要」。写一份「蒸馏稿」：用 markdown 要点列出这段过程确立的、至今仍然有效的决策、结论与约束。不是流水账；被后续轮次推翻的内容不要列；前情提要里已确立的内容不要重复。只输出蒸馏稿正文。`,
+  en: `Below is a consecutive run of conversation turns (question + takeaway + cognitive-move tag), possibly preceded by a brief of earlier runs. Write a "distillate": markdown bullets of the decisions, conclusions and constraints established in THIS run that are still in force. No play-by-play; drop anything overturned later; do not repeat what the brief already established. Output only the distillate body.`,
 };
 
 const TAG: Record<string, string> = { ruleout: 'RULEOUT', decision: 'DECISION', pivot: 'PIVOT', open: 'OPEN', insight: 'INSIGHT' };
 
-/** One small LLM call for ONE segment — STREAMED, so slow models read as
-    progress instead of a hang. The timeout is idle-based: it only fires
-    when no chunk has arrived for a while. */
-export async function distillSegment(seg: CondenseSegment, lang: 'zh' | 'en', model?: string, onChunk?: (soFar: string) => void): Promise<string> {
+/** One streamed call for one run. `prior` = what earlier runs established
+    (keeps the copy-tree coherent, avoids repetition). Idle-based timeout;
+    reasoning output counts as liveness. */
+export async function distillSegment(
+  seg: CondenseSegment,
+  lang: 'zh' | 'en',
+  model?: string,
+  onChunk?: (soFar: string) => void,
+  prior?: string,
+): Promise<string> {
   const { nodes } = useStore.getState();
   const byId = new Map(nodes.map((n) => [n.id, n]));
   const lines = seg.nodeIds.map((id) => {
@@ -110,11 +123,15 @@ export async function distillSegment(seg: CondenseSegment, lang: 'zh' | 'en', mo
     const s = activeSummary(d) ?? d.response.replace(/\s+/g, ' ').slice(0, 160);
     return `- Q: ${(d.question || '').replace(/\s+/g, ' ').slice(0, 90)}\n  ${ty && TAG[ty] ? `[${TAG[ty]}] ` : ''}${s}`;
   }).filter(Boolean).join('\n');
+  const user = prior
+    ? `[${lang === 'zh' ? '前情提要' : 'Brief of earlier runs'}]\n${prior}\n\n[${lang === 'zh' ? '本段轮次' : 'This run'}]\n${lines}`
+    : lines;
+
   let idleTimer: ReturnType<typeof setTimeout> | undefined;
   let rejectIdle: ((e: Error) => void) | undefined;
   const armIdle = () => {
     clearTimeout(idleTimer);
-    idleTimer = setTimeout(() => rejectIdle?.(new Error('distill stalled (90s without output) — try a faster model')), 90_000);
+    idleTimer = setTimeout(() => rejectIdle?.(new Error(lang === 'zh' ? '蒸馏停滞（3 分钟无输出），换个更快的模型试试' : 'distill stalled (3 min without output) — try a faster model')), 180_000);
   };
   const idleGate = new Promise<never>((_, reject) => { rejectIdle = reject; });
   armIdle();
@@ -123,36 +140,127 @@ export async function distillSegment(seg: CondenseSegment, lang: 'zh' | 'en', mo
       llmCallStream(
         [
           { role: 'system', content: DISTILL_PROMPT[lang] },
-          { role: 'user', content: lines },
+          { role: 'user', content: user },
         ],
         (_chunk, fullSoFar) => { armIdle(); onChunk?.(fullSoFar); },
-        undefined, undefined, undefined, undefined, model,
+        undefined, undefined,
+        // reasoning chunks count as liveness — thinking models are silent
+        // on content for a long first stretch
+        { onReasoning: () => armIdle() },
+        undefined, model,
       ),
       idleGate,
     ]);
-    return raw.trim().slice(0, 4000);
+    return raw.trim().slice(0, 6000);
   } finally {
     clearTimeout(idleTimer);
   }
 }
 
-/** Apply one segment in ONE history step: members take takeaway form (visual
-    AND context — the plaque you see is the line the model gets); the
-    distilled note, when kept, lands beside the segment head. */
-export function applySegment(seg: CondenseSegment, distilled?: string): { lowered: number; noteId?: string } {
+/** Fidelity rule 2: the run's highlights, verbatim. */
+function collectHighlights(seg: CondenseSegment, byId: Map<string, ThoughtNode>): Highlight[] {
+  const out: Highlight[] = [];
+  for (const id of seg.nodeIds) {
+    const n = byId.get(id);
+    for (const h of (n?.data as ThoughtData | undefined)?.highlights ?? []) out.push(h);
+  }
+  return out;
+}
+
+export interface CondenseCopyResult {
+  copiedNodes: number;
+  collapsedRuns: number;
+  distillIds: string[];
+}
+
+/** Build the condensed copy-tree: duplicate every node, collapse the chosen
+    segments into distill nodes, rewire, lay out beside the original. One
+    history step. `distillates` aligns with `segments`. */
+export function buildCondensedCopy(segments: CondenseSegment[], distillates: string[], lang: 'zh' | 'en'): CondenseCopyResult {
   const st = useStore.getState();
-  st.pushHistory();
-  const ids = new Set(seg.nodeIds);
-  const head = st.nodes.find((n) => n.id === seg.nodeIds[0]);
-  const note = distilled?.trim() && head
-    ? buildContentNode('note', { x: head.position.x - 460, y: head.position.y }, { question: distilled.trim() })
-    : null;
-  useStore.setState((state) => {
-    const withForms = state.nodes.map((n) => (ids.has(n.id) ? { ...n, data: { ...n.data, contextForm: 'summary' as const } } : n));
-    const all = note ? [...withForms, note] : withForms;
-    // Relayout with the plaques' REAL (short) heights: the condensed chain
-    // visibly contracts — this is the feedback that something happened.
-    return { nodes: autoLayout(all, state.edges) };
+  const { nodes, edges } = st;
+  const byId = new Map(nodes.map((n) => [n.id, n]));
+
+  const segOf = new Map<string, number>();
+  segments.forEach((s, i) => s.nodeIds.forEach((id) => segOf.set(id, i)));
+
+  // The copy sits to the RIGHT of the original's bounding box.
+  const xs = nodes.map((n) => n.position.x);
+  const offsetX = (Math.max(...xs) - Math.min(...xs)) + 1400;
+
+  const idMap = new Map<string, string>();
+  const copies: ThoughtNode[] = [];
+  const distillIds: string[] = [];
+
+  // 1. distill nodes: one per segment, anchored at the segment head's spot
+  segments.forEach((seg, i) => {
+    const head = byId.get(seg.nodeIds[0])!;
+    const tail = byId.get(seg.nodeIds[seg.nodeIds.length - 1])!;
+    const highlights = collectHighlights(seg, byId);
+    const fidelity = highlights.length
+      ? `\n\n---\n${lang === 'zh' ? '**高光（原文保真）**' : '**Highlights (verbatim)**'}\n${highlights.map((h) => `> ${h.text}`).join('\n')}`
+      : '';
+    const id = generateId();
+    distillIds.push(id);
+    const question = `${lang === 'zh' ? '凝练' : 'Condensed'}: ${(head.data as ThoughtData).question.replace(/\s+/g, ' ').slice(0, 60)} → ${(tail.data as ThoughtData).question.replace(/\s+/g, ' ').slice(0, 60)}`;
+    const response = `${distillates[i] || ''}${fidelity}`;
+    copies.push({
+      id,
+      type: 'thought',
+      position: { x: head.position.x + offsetX, y: head.position.y },
+      dragHandle: '.drag-handle',
+      data: {
+        question,
+        response,
+        responses: [response],
+        responseIndex: 0,
+        condensedFrom: seg.nodeIds,
+        createdAt: new Date().toISOString(),
+        isCollapsed: false, isEditing: false, isEditingResponse: false, isLoading: false,
+        tokenCount: countTokens(`${question}\n${response}`),
+        highlights: [], highlightMode: 'tag',
+        attachments: [], excludedAttachmentIds: [], includedAttachmentIds: [],
+        roleMode: 'inherit', isRoot: false, isBranch: false,
+      } as ThoughtData,
+    } as ThoughtNode);
+    seg.nodeIds.forEach((oid) => idMap.set(oid, id));
   });
-  return { lowered: ids.size, noteId: note?.id };
+
+  // 2. plain copies for every node outside the segments
+  for (const n of nodes) {
+    if (segOf.has(n.id)) continue;
+    const id = generateId();
+    idMap.set(n.id, id);
+    const d = n.data as ThoughtData;
+    copies.push({
+      ...n,
+      id,
+      position: { x: n.position.x + offsetX, y: n.position.y },
+      selected: false,
+      data: { ...d, isEditing: false, isEditingResponse: false, isLoading: false },
+    } as ThoughtNode);
+  }
+
+  // 3. rewire: every original edge maps through idMap; edges interior to a
+  // segment vanish (both ends map to the same distill node)
+  const newEdges: ThoughtEdge[] = [];
+  const seen = new Set<string>();
+  for (const e of edges) {
+    const s = idMap.get(e.source), t2 = idMap.get(e.target);
+    if (!s || !t2 || s === t2) continue;
+    const key = `${s}→${t2}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    newEdges.push({ ...e, id: `e-${generateId()}`, source: s, target: t2, selected: false });
+  }
+
+  st.pushHistory();
+  useStore.setState((state) => {
+    const merged = [...state.nodes, ...copies];
+    const mergedEdges = [...state.edges, ...newEdges];
+    // one layout pass fixes the copy's post-collapse geometry; autoLayout
+    // is deterministic for the untouched original, so both stay tidy
+    return { nodes: autoLayout(merged, mergedEdges), edges: mergedEdges };
+  });
+  return { copiedNodes: copies.length, collapsedRuns: segments.length, distillIds };
 }

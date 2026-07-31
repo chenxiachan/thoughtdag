@@ -126,12 +126,10 @@ export interface ThoughtData extends Record<string, unknown> {
       digest tab is a view of this node; rerun routes through the digest
       prompt (see generateDigest). */
   digestOf?: string;
-  /** How this node enters DOWNSTREAM context (a node property, deliberately
-      not an edge property: no propagation rules, no diamond conflicts, the
-      marker on the card is exactly what flows). 'summary' = the typed
-      takeaway line instead of the full Q/A — one of the explicit budget
-      dials alongside archive and highlight-filter. Absent = full. */
-  contextForm?: 'full' | 'summary';
+  /** Distill node in a condensed copy-tree: the original-tree node ids this
+      node collapsed. Powers the provenance chip (click = highlight the
+      source run); context flows through normal wires only. */
+  condensedFrom?: string[];
   /** Reasoning/thinking stream of the CURRENT generation (live buffer). */
   reasoning?: string;
   /** Per-version reasoning, aligned with `responses` by index. Display

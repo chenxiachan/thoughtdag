@@ -1597,7 +1597,9 @@ function Canvas() {
           or content nodes, which are edited in place on the canvas */}
       <CondenseDialog onFocusSegment={(ids) => {
         const rf = rfInstance.current;
-        const members = nodes.filter((n) => ids.includes(n.id));
+        // read fresh state: the condensed copy may have been created AFTER
+        // this closure captured the render's nodes array
+        const members = useStore.getState().nodes.filter((n) => ids.includes(n.id));
         if (!rf || members.length === 0) return;
         const xs = members.map((n) => n.position.x), ys = members.map((n) => n.position.y);
         const x = Math.min(...xs), y = Math.min(...ys);

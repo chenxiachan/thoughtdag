@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Archive, ArchiveRestore, BookOpen, Copy, Files, GitFork, Maximize2, RefreshCw, Trash2, Minimize2 } from 'lucide-react';
+import { Archive, ArchiveRestore, BookOpen, Copy, Files, GitFork, Maximize2, RefreshCw, Trash2 } from 'lucide-react';
 import { useStore } from '../store';
 import { useUiStore, confirmDialog, toast } from '../lib/ui-store';
 import { useT, fmt, t as ti } from '../i18n';
@@ -78,10 +78,6 @@ export default function NodeContextMenu({ x, y, nodeId, onClose }: {
       )}
       <button className={item} onClick={run(() => useStore.getState().duplicateNode(nodeId))}>
         <Files size={14} strokeWidth={1.75} className={icon} /> {t('ctx.duplicate')}
-      </button>
-      <button className={item} onClick={run(() => useStore.getState().setContextForm([nodeId], node.data.contextForm === 'summary' ? 'full' : 'summary'))} data-ctx-form>
-        <Minimize2 size={14} strokeWidth={1.75} className={icon} />
-        {node.data.contextForm === 'summary' ? t('ctx.formFull') : t('ctx.formSummary')}
       </button>
       <button className={item} onClick={run(() => useStore.getState().setArchived([nodeId], !node.data.archived))}>
         {node.data.archived

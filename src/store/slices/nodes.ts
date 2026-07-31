@@ -334,18 +334,6 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
     get().pushHistory();
   },
 
-  setContextForm: (nodeIds: string[], form: 'full' | 'summary') => {
-    const ids = new Set(nodeIds);
-    get().pushHistory();
-    set((state) => ({
-      nodes: state.nodes.map((n) =>
-        ids.has(n.id)
-          ? { ...n, data: { ...n.data, contextForm: form === 'full' ? undefined : form } }
-          : n
-      ),
-    }));
-  },
-
   setArchived: (nodeIds: string[], archived: boolean) => {
     const ids = new Set(nodeIds);
     get().pushHistory();

@@ -2,7 +2,7 @@ import type { ThoughtNode } from '../types';
 import type { ThoughtEdge } from '../types';
 import { partitionContext, type ContextReference } from '../lib/graph';
 import { attachmentFingerprint } from '../lib/attachments';
-import { countTokens, activeSummary } from '../utils';
+import { countTokens } from '../utils';
 import { fuzzyHighlightRegex } from '../lib/highlight-match';
 import type { ContextMessage, ImageAttachment } from '../lib/api';
 
@@ -29,23 +29,6 @@ function nodeTitle(node: ThoughtNode): string {
 }
 
 /** A node's response as context text, respecting its highlight mode. */
-/** Cognitive-move labels ride into the condensed line so the model knows a
-    rejected path from a decision — the process survives the compression. */
-const FORM_TYPE_LABEL: Record<string, string> = {
-  ruleout: '[ruled out]', decision: '[decided]', pivot: '[pivoted]', open: '[open question]',
-};
-
-/** A turn in 'summary' form: question headline + typed takeaway. Falls back
-    to a hard truncation when the judge has not written a takeaway yet. */
-function condensedTurn(node: ThoughtNode): string {
-  const q = (node.data.question || '').replace(/\s+/g, ' ').slice(0, 80);
-  const summary = activeSummary(node.data);
-  const typeKey = node.data.summaryTypes?.[node.data.responseIndex] ?? '';
-  const label = typeKey && FORM_TYPE_LABEL[typeKey] ? `${FORM_TYPE_LABEL[typeKey]} ` : '';
-  const body = summary || `${node.data.response.replace(/\s+/g, ' ').slice(0, 200)}…`;
-  return `[condensed turn | Q: ${q}]\n${label}${body}`;
-}
-
 function renderResponse(node: ThoughtNode): string {
   const mode = node.data.highlightMode || 'off';
   const highlights = node.data.highlights || [];
@@ -274,19 +257,12 @@ export function buildContext(
   // ── L2: the conversation — structural chain, current node last.
   // Collapse is PURELY visual: the solid chain always flows full text
   // (One Rule without asterisks). Budget control lives in the explicit
-  // dials — archive, highlight filter, reference depth, contextForm.
+  // dials — archive, highlight filter, reference depth.
   for (const node of mainline) {
     // Archived = pruned-but-kept: contributes NOTHING to context (the walk
     // itself already passed through it, so descendants keep their ancestry)
     if (node.data.archived) continue;
     pushAttachments(node);
-    // contextForm 'summary': the whole turn enters as its typed takeaway —
-    // the same line the map plaque shows, so what you see condensed is
-    // what the model gets. Never applies to the node being asked FROM.
-    if (node.id !== nodeId && node.data.contextForm === 'summary' && node.data.response) {
-      messages.push({ role: 'assistant', content: condensedTurn(node) });
-      continue;
-    }
     if (node.data.question) {
       messages.push({ role: 'user', content: node.data.question });
     }
