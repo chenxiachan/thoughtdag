@@ -144,12 +144,27 @@ export async function probeModels(baseURL: string, apiKey: string): Promise<Runt
   return ((await res.json()).models ?? []) as RuntimeModel[];
 }
 
+/** A window the model's own id promises (k3-256k, moonshot-v1-128k…).
+    Tiny matches don't count — version fragments never name real windows. */
+export function idWindowHint(modelId: string): number | undefined {
+  const m = /(\d+)([km])\b/i.exec(modelId.split('/').pop() ?? '');
+  if (!m) return undefined;
+  const n = Number(m[1]) * (m[2].toLowerCase() === 'm' ? 1024 * 1024 : 1024);
+  return n >= 8192 ? n : undefined;
+}
+
 /** The probed context window of a browser-configured model, if known.
-    Server-env models aren't stored here and return undefined (no check). */
+    Server-env models aren't stored here and return undefined (no check).
+    Endpoints sometimes under-report their metadata (seen on plan-gated
+    coding endpoints): a window the id itself names is the vendor's own
+    promise and wins upward, never downward. */
 export function contextLengthFor(modelId: string): number | undefined {
   for (const p of storedProviders()) {
     const m = p.models.find((x) => x.id === modelId);
-    if (m?.contextLength) return m.contextLength;
+    if (m?.contextLength) {
+      const hint = idWindowHint(modelId);
+      return hint && hint > m.contextLength ? hint : m.contextLength;
+    }
   }
   return undefined;
 }

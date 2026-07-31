@@ -315,6 +315,11 @@ export default function ApiKeyModal() {
                           setPicked(next);
                         }} />
                       <span className="font-mono flex-1 truncate">{m.id}</span>
+                      {m.contextLength ? (
+                        <span className="text-2xs text-ink-faint font-mono shrink-0" title={m.contextLength.toLocaleString()} data-model-window>
+                          {m.contextLength >= 1024 * 1024 ? `${Math.round(m.contextLength / (1024 * 1024))}M` : `${Math.round(m.contextLength / 1024)}k`}
+                        </span>
+                      ) : null}
                       {m.vision != null ? (
                         m.vision && <span title={t('provider.visionYes')}>📷</span>
                       ) : picked.has(m.id) && (

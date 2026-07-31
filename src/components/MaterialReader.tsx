@@ -80,6 +80,10 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
     ? 'file' : data.stepKind === 'link' ? 'link' : 'note';
   const attachments = useMemo(() => data.attachments ?? [], [data.attachments]);
   const pdfAtt = attachments.find((a) => a.type === 'application/pdf');
+  // Image material reads as material too: the original view shows the
+  // image itself (canvas cards only show it small), the text view its
+  // vision companion. Image payloads are never vaulted — content is here.
+  const imageAtts = useMemo(() => attachments.filter((a) => a.type.startsWith('image/')), [attachments]);
   const close = () => useUiStore.getState().setReaderNodeId(null);
 
   // ── the readable copy for the text view ──
@@ -87,7 +91,12 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
     if (pdfAtt) return pdfAtt.extractedText ?? '';
     if (kind === 'file') {
       const textAtts = attachments.filter((a) => !a.type.startsWith('image/') && a.type !== 'application/pdf');
-      return textAtts.map((a) => (textAtts.length > 1 ? `### ${a.name}\n\n${a.content}` : a.content)).join('\n\n');
+      const parts = textAtts.map((a) => (textAtts.length > 1 ? `### ${a.name}\n\n${a.content}` : a.content));
+      // an image's readable copy is its extraction companion
+      for (const a of attachments) {
+        if (a.type.startsWith('image/') && a.extractedText?.trim()) parts.push(attachments.length > 1 ? `### ${a.name}\n\n${a.extractedText}` : a.extractedText);
+      }
+      return parts.join('\n\n');
     }
     return data.question;
   }, [pdfAtt, kind, attachments, data.question]);
@@ -99,7 +108,7 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
   const materialHighlights = useMemo(() => new Set((data.highlights ?? []).map((h) => h.text)), [data.highlights]);
 
   // ── PDF document + text-layer probe ──
-  const [view, setView] = useState<'original' | 'text' | 'digest'>(pdfAtt?.pageImages?.length ? 'original' : 'text');
+  const [view, setView] = useState<'original' | 'text' | 'digest'>(pdfAtt?.pageImages?.length || imageAtts.length ? 'original' : 'text');
   const [digestBusy, setDigestBusy] = useState(false);
   const startDigest = async () => {
     if (!pdfAtt || digestBusy) return;
@@ -570,7 +579,7 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
           <span className="text-sm font-semibold text-ink truncate">{title || noteTitle || fileFallbackTitle}</span>
           {numPages != null && <span className="text-2xs text-ink-faint font-mono shrink-0">{numPages}p</span>}
           <div className="flex-1" />
-          {pdfAtt && !pdfError && (
+          {((pdfAtt && !pdfError) || imageAtts.length > 0) && (
             <div className="flex items-center rounded-lg border border-line overflow-hidden shrink-0 text-xs">
               <button
                 onClick={() => setView('original')}
@@ -670,6 +679,21 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
                   : <><Loader2 size={16} strokeWidth={1.75} className="animate-spin text-accent" /> {t('reader.loading')}</>}
               </div>
             )
+          )}
+
+          {view === 'original' && !pdfAtt && imageAtts.length > 0 && (
+            <div className="flex flex-col items-center gap-6 py-6 px-6">
+              {imageAtts.map((att) => (
+                <figure key={att.id} className="w-full max-w-[860px]" data-reader-image>
+                  <img
+                    src={`data:${att.type};base64,${att.content}`}
+                    alt={att.name}
+                    className="w-full rounded-xl border border-line bg-white shadow-sm"
+                  />
+                  <figcaption className="mt-2 text-2xs text-ink-faint font-mono truncate">{att.name}</figcaption>
+                </figure>
+              ))}
+            </div>
           )}
 
           {view === 'digest' && pdfAtt && (
