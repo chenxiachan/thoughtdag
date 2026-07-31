@@ -316,22 +316,6 @@ function Canvas() {
     setTimeout(() => rfInstance.current?.fitView({ duration: 400, padding: 0.2 }), 120);
   }, [filterDroppedFiles]);
 
-  // Native DnD has NO movement threshold: a real click with 1-2px of hand
-  // jitter fires dragstart and swallows the click — the palette buttons
-  // looked dead. A drag that traveled almost nowhere and dropped on
-  // nothing was a click; honor it on dragend.
-  const paletteDragOrigin = useRef<{ x: number; y: number } | null>(null);
-  const paletteDragStart = (e: React.DragEvent, kind: string) => {
-    paletteDragOrigin.current = { x: e.clientX, y: e.clientY };
-    e.dataTransfer.setData('application/thoughtdag-content', kind);
-    e.dataTransfer.effectAllowed = 'copy';
-  };
-  const paletteDragEnd = (e: React.DragEvent, create: () => void) => {
-    const o = paletteDragOrigin.current;
-    paletteDragOrigin.current = null;
-    if (o && e.dataTransfer.dropEffect === 'none' && Math.hypot(e.clientX - o.x, e.clientY - o.y) < 12) create();
-  };
-
   const flowPosAt = useCallback((screen?: { x: number; y: number } | null) => {
     const at = rfInstance.current?.screenToFlowPosition(screen ?? { x: window.innerWidth / 2, y: window.innerHeight / 2 }) ?? { x: 140, y: 140 };
     return { x: at.x - 200, y: at.y - 60 };
@@ -1234,31 +1218,22 @@ function Canvas() {
           )}
           <button
             onClick={() => spawnContentNode('note', flowPosAt(null))}
-            draggable
-            onDragStart={(e) => paletteDragStart(e, 'note')}
-            onDragEnd={(e) => paletteDragEnd(e, () => spawnContentNode('note', flowPosAt(null)))}
             title={t('palette.noteTitle')}
-            className="w-9 h-9 rounded-lg flex items-center justify-center text-amber-600 hover:bg-amber-500/10 transition-colors cursor-grab"
+            className="w-9 h-9 rounded-lg flex items-center justify-center text-amber-600 hover:bg-amber-500/10 transition-colors"
           >
             <StickyNote size={17} strokeWidth={1.75} />
           </button>
           <button
             onClick={() => spawnContentNode('file', flowPosAt(null))}
-            draggable
-            onDragStart={(e) => paletteDragStart(e, 'file')}
-            onDragEnd={(e) => paletteDragEnd(e, () => spawnContentNode('file', flowPosAt(null)))}
             title={t('palette.fileTitle')}
-            className="w-9 h-9 rounded-lg flex items-center justify-center text-ink-muted hover:bg-wash transition-colors cursor-grab"
+            className="w-9 h-9 rounded-lg flex items-center justify-center text-ink-muted hover:bg-wash transition-colors"
           >
             <Paperclip size={17} strokeWidth={1.75} />
           </button>
           <button
             onClick={() => spawnFrame(flowPosAt(null))}
-            draggable
-            onDragStart={(e) => paletteDragStart(e, 'frame')}
-            onDragEnd={(e) => paletteDragEnd(e, () => spawnFrame(flowPosAt(null)))}
             title={t('palette.frameTitle')}
-            className="w-9 h-9 rounded-lg flex items-center justify-center text-ink-muted hover:bg-wash transition-colors cursor-grab"
+            className="w-9 h-9 rounded-lg flex items-center justify-center text-ink-muted hover:bg-wash transition-colors"
           >
             <Frame size={17} strokeWidth={1.75} />
           </button>
