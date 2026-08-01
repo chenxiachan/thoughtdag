@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Crosshair, FileText, Highlighter, Link2, Loader2, Pencil, RefreshCw, ScanText, Send, Sparkles, StickyNote, X } from 'lucide-react';
+import { Crosshair, FileText, Highlighter, Link2, Loader2, Pencil, RefreshCw, ScanText, Send, Sparkles, StickyNote, X, ZoomIn, ZoomOut } from 'lucide-react';
 import type { PDFDocumentProxy } from 'pdfjs-dist';
-import type { ThoughtNode } from '../types';
+import type { Attachment, ThoughtNode } from '../types';
 import { useStore } from '../store';
 import { useUiStore, toast } from '../lib/ui-store';
 import { useModels } from '../lib/use-models';
@@ -109,6 +109,8 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
 
   // ── PDF document + text-layer probe ──
   const [view, setView] = useState<'original' | 'text' | 'digest'>(pdfAtt?.pageImages?.length || imageAtts.length ? 'original' : 'text');
+  // image view zoom: 1 = fit the column; beyond it the row scrolls sideways
+  const [imgZoom, setImgZoom] = useState(1);
   const [digestBusy, setDigestBusy] = useState(false);
   const startDigest = async () => {
     if (!pdfAtt || digestBusy) return;
@@ -340,6 +342,47 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
       // auto-read once (when a vision model exists): the companion text makes
       // the clip legible to text-only models too. The toast names the call
       // BEFORE it happens — no silent API spend from a drag.
+      if (hasVisionModel) {
+        toast('success', t('reader.clippedImageReading'));
+        void extractImage(freshId, attId);
+      } else {
+        toast('success', t('reader.clippedImage'));
+      }
+    };
+    img.src = dataUrl;
+    setClipMode(false);
+  };
+
+  // area capture on an IMAGE material: crop from the original resolution,
+  // same provenance grammar (anchor.attId), page is meaningless here.
+  const handleImageClipped = (srcAtt: Attachment, rect: [number, number, number, number], dataUrl: string, screenRect?: { left: number; top: number; width: number; height: number }) => {
+    const base64 = dataUrl.split(',')[1] ?? '';
+    if (!base64) return;
+    if (screenRect) flyToCanvas(screenRect);
+    const freshId = spawnContentNode('file', findClipSpot());
+    const attId = generateId();
+    const img = new Image();
+    img.onload = () => {
+      const cap = 320;
+      const scale = Math.min(1, cap / img.width);
+      const tc = document.createElement('canvas');
+      tc.width = Math.max(1, Math.round(img.width * scale));
+      tc.height = Math.max(1, Math.round(img.height * scale));
+      tc.getContext('2d')!.drawImage(img, 0, 0, tc.width, tc.height);
+      const thumb = tc.toDataURL('image/jpeg', 0.8);
+      useStore.getState().addAttachment(freshId, {
+        id: attId,
+        name: `clip-${srcAtt.name.replace(/\.\w+$/, '')}.png`,
+        type: 'image/png',
+        size: Math.round(base64.length * 0.75),
+        addedAt: new Date().toISOString(),
+        content: base64,
+        thumbnailUrl: thumb,
+      });
+      const anchor = { page: 1, rects: [rect], attId: srcAtt.id };
+      useStore.setState((st) => ({
+        nodes: st.nodes.map((n) => (n.id === freshId ? { ...n, data: { ...n.data, anchor } } : n)),
+      }));
       if (hasVisionModel) {
         toast('success', t('reader.clippedImageReading'));
         void extractImage(freshId, attId);
@@ -603,7 +646,7 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
               )}
             </div>
           )}
-          {pdfAtt && view === 'original' && !isViewerMode && (
+          {(pdfAtt || imageAtts.length > 0) && view === 'original' && !isViewerMode && (
             <button
               onClick={() => setClipMode((v) => !v)}
               title={t('reader.clipTitle')}
@@ -612,6 +655,20 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
             >
               <Crosshair size={13} strokeWidth={1.75} />
               {clipMode ? t('reader.clipActive') : t('reader.clip')}
+            </button>
+          )}
+          {!pdfAtt && imageAtts.length > 0 && !isViewerMode && (
+            <button
+              onClick={() => { if (hasVisionModel) imageAtts.forEach((a) => void extractImage(node.id, a.id)); }}
+              disabled={!hasVisionModel || imageAtts.some((a) => a.isExtracting)}
+              title={hasVisionModel ? t('reader.imageRecognizeTitle') : t('content.noVisionModel')}
+              data-image-recognize
+              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border border-line text-ink-muted hover:bg-wash transition-colors shrink-0 disabled:opacity-40"
+            >
+              {imageAtts.some((a) => a.isExtracting)
+                ? <Loader2 size={13} strokeWidth={1.75} className="animate-spin" />
+                : <ScanText size={13} strokeWidth={1.75} />}
+              {t(imageAtts.every((a) => a.extractedText?.trim()) ? 'reader.imageReRecognize' : 'reader.imageRecognize')}
             </button>
           )}
           {pdfAtt && !digestText && !digesting && !!pdfAtt.extractedText?.trim() && !isViewerMode && (
@@ -682,17 +739,24 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
           )}
 
           {view === 'original' && !pdfAtt && imageAtts.length > 0 && (
-            <div className="flex flex-col items-center gap-6 py-6 px-6">
-              {imageAtts.map((att) => (
-                <figure key={att.id} className="w-full max-w-[860px]" data-reader-image>
-                  <img
-                    src={`data:${att.type};base64,${att.content}`}
-                    alt={att.name}
-                    className="w-full rounded-xl border border-line bg-white shadow-sm"
-                  />
-                  <figcaption className="mt-2 text-2xs text-ink-faint font-mono truncate">{att.name}</figcaption>
-                </figure>
-              ))}
+            <div className="relative">
+              <div className="sticky top-3 z-10 flex justify-end pr-4 h-0">
+                <div className="flex items-center gap-0.5 bg-card/90 backdrop-blur border border-line rounded-lg shadow-sm px-1 py-0.5" data-image-zoom>
+                  <button onClick={() => setImgZoom((z) => Math.max(0.5, +(z - 0.25).toFixed(2)))} title={t('reader.imageZoomOut')} data-zoom-out
+                    className="w-6 h-6 rounded hover:bg-wash flex items-center justify-center text-ink-muted"><ZoomOut size={13} strokeWidth={1.75} /></button>
+                  <button onClick={() => setImgZoom(1)} title={t('reader.imageZoomFit')} data-zoom-fit
+                    className="px-1.5 h-6 rounded hover:bg-wash font-mono text-2xs text-ink-muted">{Math.round(imgZoom * 100)}%</button>
+                  <button onClick={() => setImgZoom((z) => Math.min(3, +(z + 0.25).toFixed(2)))} title={t('reader.imageZoomIn')} data-zoom-in
+                    className="w-6 h-6 rounded hover:bg-wash flex items-center justify-center text-ink-muted"><ZoomIn size={13} strokeWidth={1.75} /></button>
+                </div>
+              </div>
+              <div className="overflow-x-auto">
+                <div className="flex flex-col items-center gap-6 py-6 px-6">
+                  {imageAtts.map((att) => (
+                    <ImageFigure key={att.id} att={att} zoom={imgZoom} clipMode={clipMode} onClipped={handleImageClipped} />
+                  ))}
+                </div>
+              </div>
             </div>
           )}
 
@@ -960,6 +1024,76 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
         </div>
       )}
     </div>
+  );
+}
+
+// One image material: the picture at column width × zoom, with the same
+// rubber-band capture as PDF pages — cropped from the ORIGINAL resolution,
+// so a clip of a zoomed-out image loses nothing.
+function ImageFigure({ att, zoom, clipMode, onClipped }: {
+  att: Attachment; zoom: number; clipMode: boolean;
+  onClipped: (att: Attachment, rect: [number, number, number, number], dataUrl: string, screenRect?: { left: number; top: number; width: number; height: number }) => void;
+}) {
+  const holderRef = useRef<HTMLDivElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
+  const [band, setBand] = useState<{ x0: number; y0: number; x1: number; y1: number } | null>(null);
+  const frac = (e: React.MouseEvent) => {
+    const pb = holderRef.current!.getBoundingClientRect();
+    return { x: Math.min(1, Math.max(0, (e.clientX - pb.left) / pb.width)), y: Math.min(1, Math.max(0, (e.clientY - pb.top) / pb.height)) };
+  };
+  const finishClip = () => {
+    if (!band) return;
+    const x = Math.min(band.x0, band.x1), y = Math.min(band.y0, band.y1);
+    const w = Math.abs(band.x1 - band.x0), h = Math.abs(band.y1 - band.y0);
+    setBand(null);
+    if (w < 0.02 || h < 0.01) return;
+    const img = imgRef.current;
+    if (!img?.naturalWidth) return;
+    const sx = Math.floor(x * img.naturalWidth), sy = Math.floor(y * img.naturalHeight);
+    const sw = Math.max(1, Math.floor(w * img.naturalWidth)), sh = Math.max(1, Math.floor(h * img.naturalHeight));
+    const out = document.createElement('canvas');
+    out.width = sw; out.height = sh;
+    out.getContext('2d')!.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
+    const pb = holderRef.current!.getBoundingClientRect();
+    const screenRect = { left: pb.left + x * pb.width, top: pb.top + y * pb.height, width: w * pb.width, height: h * pb.height };
+    onClipped(att, [x, y, w, h], out.toDataURL('image/png'), screenRect);
+  };
+  return (
+    <figure className="shrink-0" data-reader-image style={{ width: `${Math.round(820 * zoom)}px`, maxWidth: zoom <= 1 ? '100%' : undefined }}>
+      <div ref={holderRef} className="relative">
+        <img
+          ref={imgRef}
+          src={`data:${att.type};base64,${att.content}`}
+          alt={att.name}
+          draggable={false}
+          className="w-full rounded-xl border border-line bg-white shadow-sm select-none"
+        />
+        {clipMode && (
+          <div
+            className="absolute inset-0 cursor-crosshair"
+            style={{ zIndex: 6 }}
+            data-clip-overlay={att.id}
+            onMouseDown={(e) => { e.preventDefault(); const p = frac(e); setBand({ x0: p.x, y0: p.y, x1: p.x, y1: p.y }); }}
+            onMouseMove={(e) => { if (band) { const p = frac(e); setBand({ ...band, x1: p.x, y1: p.y }); } }}
+            onMouseUp={finishClip}
+            onMouseLeave={() => { if (band) finishClip(); }}
+          >
+            {band && (
+              <div
+                className="absolute border-2 border-warm bg-warm/10 rounded-sm pointer-events-none"
+                style={{
+                  left: `${Math.min(band.x0, band.x1) * 100}%`,
+                  top: `${Math.min(band.y0, band.y1) * 100}%`,
+                  width: `${Math.abs(band.x1 - band.x0) * 100}%`,
+                  height: `${Math.abs(band.y1 - band.y0) * 100}%`,
+                }}
+              />
+            )}
+          </div>
+        )}
+      </div>
+      <figcaption className="mt-2 text-2xs text-ink-faint font-mono truncate">{att.name}</figcaption>
+    </figure>
   );
 }
 
