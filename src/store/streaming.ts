@@ -151,10 +151,14 @@ export async function runNodeGeneration(
     }
   }
 
+  // Vision reroute / image fallback report who actually answered — that is
+  // what generatedBy must record (execution and provenance never diverge).
+  let actualModel: string | undefined;
+
   const writeFinal = (response: string, failed = false) => {
     if (!isCurrent()) return; // superseded: a newer generation owns this node
     const tokenCount = countTokens(question + response);
-    const modelUsed = pinnedModel ?? useUiStore.getState().selectedModel ?? serverDefaultModel ?? undefined;
+    const modelUsed = actualModel ?? pinnedModel ?? useUiStore.getState().selectedModel ?? serverDefaultModel ?? undefined;
     get().logEvent('generate', nodeId, { chars: response.length, ...(modelUsed ? { model: modelUsed } : {}), ...(failed ? { failed: true } : {}) });
     // Provenance: fingerprint what this answer depended on, AT completion —
     // the staleness pass compares this against the live upstream fingerprint.
@@ -236,6 +240,8 @@ export async function runNodeGeneration(
         }));
       },
       onSources: (sources) => { references = sources; },
+      onRerouted: (_from, to) => { actualModel = to; },
+      onImageFallback: (model) => { actualModel = model; },
       onReasoning: (_chunk, fullSoFar) => {
         if (!isCurrent()) return;
         set((state) => ({

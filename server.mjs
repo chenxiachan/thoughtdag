@@ -184,16 +184,20 @@ function resolveModel(modelId, hasImages, reqProviders) {
   // per-request overlay from browser-supplied providers; .env wins on collision
   const reg = reqProviders?.length ? { ...providerEntries(reqProviders), ...modelRegistry } : modelRegistry;
   const fallbackId = modelRegistry[DEFAULT_MODEL] ? DEFAULT_MODEL : Object.keys(reg)[0];
-  const entry = reg[modelId] || reg[fallbackId];
+  const pickedId = reg[modelId] ? modelId : fallbackId;
+  const entry = reg[pickedId];
   if (!entry) return null; // empty registry: no .env key and no request providers
+  // Vision reroute is never silent: the caller gets who actually answers
+  // (reroutedFrom), streams it to the client, and can fall back to the
+  // original model with companion text if the vision stand-in blows up.
   if (hasImages && !entry.vision) {
     if (entry.visionFallback && reg[entry.visionFallback]) {
-      return reg[entry.visionFallback];
+      return { entry: reg[entry.visionFallback], id: entry.visionFallback, reroutedFrom: pickedId };
     }
-    const anyVision = Object.values(reg).find((m) => m.vision);
-    if (anyVision) return anyVision;
+    const found = Object.entries(reg).find(([, m]) => m.vision);
+    if (found) return { entry: found[1], id: found[0], reroutedFrom: pickedId };
   }
-  return entry;
+  return { entry, id: pickedId };
 }
 
 // Convert our wire format ({role, content}[] + images[]) to AI SDK inputs.
@@ -802,8 +806,9 @@ app.post('/api/runtime-key', async (req, res) => {
 // Non-streaming endpoint (background summaries)
 app.post('/api/claude', async (req, res) => {
   const { messages, model: modelId, images, providers } = req.body;
-  const entry = resolveModel(modelId || DEFAULT_MODEL, images && images.length > 0, providers);
-  if (!entry) { res.status(503).json({ error: 'No model configured. Add an API key first.' }); return; }
+  const resolved = resolveModel(modelId || DEFAULT_MODEL, images && images.length > 0, providers);
+  if (!resolved) { res.status(503).json({ error: 'No model configured. Add an API key first.' }); return; }
+  const { entry, id: actualModelId } = resolved;
 
   try {
     const prompt = toSdkPrompt(messages, images);
@@ -814,10 +819,10 @@ app.post('/api/claude', async (req, res) => {
       messages: prompt.messages,
       providerOptions: entry.providerOptions,
     });
-    res.json({ text, usage });
+    res.json({ text, usage, model: actualModelId });
   } catch (err) {
     console.error('Generate error:', err);
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ error: `[${actualModelId}] ${err.message}` });
   }
 });
 
@@ -825,14 +830,18 @@ app.post('/api/claude', async (req, res) => {
 // and when; `webSearch: false` / `scholarSearch: false` hide tool groups.
 app.post('/api/stream', async (req, res) => {
   const { messages, model: modelId, images, webSearch, scholarSearch, mcpTools, searchEngine, providers, anysearchKey } = req.body;
-  const entry = resolveModel(modelId || DEFAULT_MODEL, images && images.length > 0, providers);
-  if (!entry) { res.status(503).json({ error: 'No model configured. Add an API key first.' }); return; }
+  const resolved = resolveModel(modelId || DEFAULT_MODEL, images && images.length > 0, providers);
+  if (!resolved) { res.status(503).json({ error: 'No model configured. Add an API key first.' }); return; }
+  const { entry, id: actualModelId, reroutedFrom } = resolved;
 
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
     Connection: 'keep-alive',
   });
+
+  // a stand-in never works in silence
+  if (reroutedFrom) res.write(`data: ${JSON.stringify({ rerouted: { from: reroutedFrom, to: actualModelId } })}\n\n`);
 
   const sources = [];
   // Tracks how much prose has streamed out since the LAST tool call — the
@@ -988,7 +997,7 @@ app.post('/api/stream', async (req, res) => {
 
     if (emittedChars === 0) {
       const fr = await result.finishReason.catch(() => 'unknown');
-      res.write(`data: ${JSON.stringify({ error: `Model produced no text (finish: ${fr}, model: ${modelId}${gatewayOnline ? ' via :online' : ''})` })}\n\n`);
+      res.write(`data: ${JSON.stringify({ error: `Model produced no text (finish: ${fr}, model: ${actualModelId}${gatewayOnline ? ' via :online' : ''})` })}\n\n`);
     }
     if (sources.length > 0) {
       res.write(`data: ${JSON.stringify({ sources })}\n\n`);
@@ -1003,9 +1012,43 @@ app.post('/api/stream', async (req, res) => {
     res.end();
   } catch (err) {
     console.error('Stream error:', err);
+    // The vision stand-in failed (its window is usually far smaller than
+    // the chosen model's): retry ONCE with the original model, images
+    // replaced by their companion text — which is already in the context.
+    if (reroutedFrom) {
+      try {
+        const original = resolveModel(reroutedFrom, false, providers);
+        if (original) {
+          res.write(`data: ${JSON.stringify({ imageFallback: { model: reroutedFrom } })}\n\n`);
+          const plainPrompt = toSdkPrompt(messages);
+          const rescue = streamText({
+            maxOutputTokens: MAX_OUTPUT_TOKENS,
+            model: original.entry.model(),
+            system: plainPrompt.system,
+            messages: plainPrompt.messages,
+            providerOptions: original.entry.providerOptions,
+          });
+          for await (const part of rescue.fullStream) {
+            if (part.type === 'text-delta') res.write(`data: ${JSON.stringify({ text: part.text })}\n\n`);
+            else if (part.type === 'reasoning-delta' && part.text) res.write(`data: ${JSON.stringify({ reasoning: part.text })}\n\n`);
+            else if (part.type === 'error') throw part.error instanceof Error ? part.error : new Error(String(part.errorText ?? part.error));
+          }
+          const usage = await rescue.totalUsage.catch(() => null);
+          if (usage) res.write(`data: ${JSON.stringify({ usage })}\n\n`);
+          res.write('data: [DONE]\n\n');
+          res.end();
+          return;
+        }
+      } catch (rescueErr) {
+        console.error('Image-fallback rescue failed:', rescueErr);
+        err = rescueErr;
+      }
+    }
     let message = err.message || 'LLM request failed';
-    if (/context.{0,20}(length|window)|maximum.{0,20}tokens|too (long|many tokens)|input.{0,10}too large/i.test(message)) {
-      message = `Context exceeds the model's window. Prune upstream: collapse nodes to summaries, archive dead ends, or switch a reference edge back to quote depth. (${message})`;
+    if (/context.{0,20}(length|window)|maximum.{0,20}tokens|too (long|many tokens)|input.{0,10}too large|max_new_tokens|input validation error/i.test(message)) {
+      message = `Context exceeds the window of the model that actually ran (${actualModelId}). Prune upstream: collapse nodes to summaries, archive dead ends, or switch a reference edge back to quote depth. (${message})`;
+    } else {
+      message = `[${actualModelId}] ${message}`;
     }
     res.write(`data: ${JSON.stringify({ error: message })}\n\n`);
     res.write('data: [DONE]\n\n');

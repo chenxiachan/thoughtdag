@@ -54,13 +54,15 @@ function providerEntries(providers) {
 
 function resolveModel(modelId, hasImages, providers) {
   const reg = providerEntries(providers);
-  const entry = reg[modelId] || reg[Object.keys(reg)[0]];
+  const pickedId = reg[modelId] ? modelId : Object.keys(reg)[0];
+  const entry = reg[pickedId];
   if (!entry) return null;
+  // vision reroute carries its provenance (mirror of server.mjs)
   if (hasImages && !entry.vision) {
-    const anyVision = Object.values(reg).find((m) => m.vision);
-    if (anyVision) return anyVision;
+    const found = Object.entries(reg).find(([, m]) => m.vision);
+    if (found) return { entry: found[1], id: found[0], reroutedFrom: pickedId };
   }
-  return entry;
+  return { entry, id: pickedId };
 }
 
 // ── prompt assembly (mirror of server.mjs) ──
@@ -255,8 +257,9 @@ const json = (obj, status = 200) =>
 
 async function handleStream(body) {
   const { messages, model: modelId, images, webSearch, scholarSearch, searchEngine, anysearchKey, providers } = body;
-  const entry = resolveModel(modelId, images && images.length > 0, providers);
-  if (!entry) return json({ error: 'No model configured. Add an API key first.' }, 503);
+  const resolved = resolveModel(modelId, images && images.length > 0, providers);
+  if (!resolved) return json({ error: 'No model configured. Add an API key first.' }, 503);
+  const { entry, id: actualModelId, reroutedFrom } = resolved;
 
   const enc = new TextEncoder();
   const stream = new ReadableStream({
@@ -284,6 +287,7 @@ async function handleStream(body) {
       const sources = [];
       let emittedChars = 0;
       let charsAtLastSearch = 0;
+      if (reroutedFrom) write({ rerouted: { from: reroutedFrom, to: actualModelId } });
       const useOnline = webSearch !== false && !!entry.online;
       // OpenRouter models search through the gateway's :online variant; for
       // every other model a connected GLM key powers the web_search tool.
@@ -401,7 +405,7 @@ async function handleStream(body) {
           // Still nothing after the fallback: surface WHY (finish reason is
           // the diagnosis: 'length' = token budget, 'content-filter', ...)
           const fr = await result.finishReason.catch(() => 'unknown');
-          write({ error: `Model produced no text (finish: ${fr}, model: ${modelId}${useOnline ? ' via :online' : ''})` });
+          write({ error: `Model produced no text (finish: ${fr}, model: ${actualModelId}${useOnline ? ' via :online' : ''})` });
         }
         if (sources.length > 0) write({ sources });
         const usage = await result.totalUsage;
@@ -409,9 +413,42 @@ async function handleStream(body) {
         controller.enqueue(enc.encode('data: [DONE]\n\n'));
       } catch (err) {
         flushBuf(); // deliver whatever was buffered before the failure
-        let message = err?.message || 'LLM request failed';
-        if (/context.{0,20}(length|window)|maximum.{0,20}tokens|too (long|many tokens)|input.{0,10}too large/i.test(message)) {
-          message = `Context exceeds the model's window. Prune upstream: collapse nodes to summaries, archive dead ends, or switch a reference edge back to quote depth. (${message})`;
+        let failure = err;
+        if (reroutedFrom) {
+          // the vision stand-in failed (usually a far smaller window):
+          // one rescue pass with the original model, companion text only
+          try {
+            const original = resolveModel(reroutedFrom, false, providers);
+            if (original) {
+              write({ imageFallback: { model: reroutedFrom } });
+              const plainPrompt = toSdkPrompt(messages);
+              const rescue = streamText({
+                model: original.entry.model(),
+                system: plainPrompt.system,
+                messages: plainPrompt.messages,
+                providerOptions: original.entry.providerOptions,
+              });
+              for await (const part of rescue.fullStream) {
+                if (part.type === 'text-delta') push('text', part.text);
+                else if (part.type === 'reasoning-delta' && part.text) push('reasoning', part.text);
+                else if (part.type === 'error') throw part.error instanceof Error ? part.error : new Error(String(part.errorText ?? part.error));
+              }
+              flushBuf();
+              const usage = await rescue.totalUsage.catch(() => null);
+              if (usage) write({ usage });
+              controller.enqueue(enc.encode('data: [DONE]\n\n'));
+              controller.close();
+              return;
+            }
+          } catch (rescueErr) {
+            failure = rescueErr;
+          }
+        }
+        let message = failure?.message || 'LLM request failed';
+        if (/context.{0,20}(length|window)|maximum.{0,20}tokens|too (long|many tokens)|input.{0,10}too large|max_new_tokens|input validation error/i.test(message)) {
+          message = `Context exceeds the window of the model that actually ran (${actualModelId}). Prune upstream: collapse nodes to summaries, archive dead ends, or switch a reference edge back to quote depth. (${message})`;
+        } else {
+          message = `[${actualModelId}] ${message}`;
         }
         write({ error: message });
         controller.enqueue(enc.encode('data: [DONE]\n\n'));
@@ -426,8 +463,9 @@ async function handleStream(body) {
 
 async function handleClaude(body) {
   const { messages, model: modelId, images, providers } = body;
-  const entry = resolveModel(modelId, images && images.length > 0, providers);
-  if (!entry) return json({ error: 'No model configured. Add an API key first.' }, 503);
+  const resolved = resolveModel(modelId, images && images.length > 0, providers);
+  if (!resolved) return json({ error: 'No model configured. Add an API key first.' }, 503);
+  const { entry, id: actualModelId } = resolved;
   try {
     const prompt = toSdkPrompt(messages, images);
     const result = await generateText({
@@ -438,7 +476,7 @@ async function handleClaude(body) {
     });
     return json({ text: result.text });
   } catch (err) {
-    return json({ error: err?.message || 'LLM request failed' }, 502);
+    return json({ error: `[${actualModelId}] ${err?.message || 'LLM request failed'}` }, 502);
   }
 }
 

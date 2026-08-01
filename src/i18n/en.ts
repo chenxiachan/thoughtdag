@@ -499,6 +499,8 @@ export const en = {
   'toast.noModelYet': 'No model connected yet. Pick a provider and paste a key, then hit Retry on the node.',
   'toast.rateLimited': 'The model rate-limited this request (free tiers meter requests per minute). Wait half a minute and hit Retry.',
   'toast.contextOverWindow': 'Context is ~{est} tokens, over the {limit}-token window of {model}. Pick a larger-window model, or prune wires and attachments.',
+  'toast.visionRerouted': '"{from}" cannot see images — "{to}" is answering this one.',
+  'toast.imagesAsText': 'The vision stand-in could not take this context (its window is usually far smaller); "{model}" is answering from the images\' companion text instead.',
   'takeaway.insight': 'Insight',
   'takeaway.ruleout': 'Ruled out',
   'takeaway.decision': 'Decision',

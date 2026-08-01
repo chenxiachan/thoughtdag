@@ -1,5 +1,6 @@
 import { API_BASE } from './constants';
-import { useUiStore } from './ui-store';
+import { toast, useUiStore } from './ui-store';
+import { t, fmt } from '../i18n';
 import { storedProviders } from './runtime-providers';
 import { directProvider, directLlmStream, directLlmCall } from './direct-llm';
 import { errorText } from './error-text';
@@ -124,6 +125,11 @@ export interface StreamCallbacks {
   onSources?: (sources: import('../types').Reference[]) => void;
   /** Reasoning/thinking tokens (models that emit them; never enters context). */
   onReasoning?: (chunk: string, fullSoFar: string) => void;
+  /** The chosen model cannot see images: a vision model answers instead. */
+  onRerouted?: (from: string, to: string) => void;
+  /** The vision stand-in failed; the original model answers from the
+      images' companion text. */
+  onImageFallback?: (model: string) => void;
 }
 
 export interface ToolPrefs {
@@ -210,6 +216,15 @@ export async function llmCallStream(
           }
           if (Array.isArray(parsed.sources)) {
             callbacks?.onSources?.(parsed.sources);
+          }
+          // model substitution is never silent: say who answers, and why
+          if (parsed.rerouted?.to) {
+            toast('info', fmt(t('toast.visionRerouted'), { from: parsed.rerouted.from, to: parsed.rerouted.to }), 7000);
+            callbacks?.onRerouted?.(parsed.rerouted.from, parsed.rerouted.to);
+          }
+          if (parsed.imageFallback?.model) {
+            toast('info', fmt(t('toast.imagesAsText'), { model: parsed.imageFallback.model }), 9000);
+            callbacks?.onImageFallback?.(parsed.imageFallback.model);
           }
         } catch (e) {
           if (e instanceof Error && e.message !== data) throw e;
