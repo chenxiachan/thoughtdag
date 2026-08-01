@@ -740,14 +740,16 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
 
           {view === 'original' && !pdfAtt && imageAtts.length > 0 && (
             <div className="relative">
-              <div className="sticky top-3 z-10 flex justify-end pr-4 h-0">
-                <div className="flex items-center gap-0.5 bg-card/90 backdrop-blur border border-line rounded-lg shadow-sm px-1 py-0.5" data-image-zoom>
+              {/* h-0 keeps the bar out of the layout flow; items-start stops
+                  flex from stretching the pill into that zero height */}
+              <div className="sticky top-3 z-10 flex items-start justify-end pr-4 h-0">
+                <div className="flex items-center gap-1 bg-card/95 backdrop-blur border border-line rounded-xl shadow-md px-1.5 py-1" data-image-zoom>
                   <button onClick={() => setImgZoom((z) => Math.max(0.5, +(z - 0.25).toFixed(2)))} title={t('reader.imageZoomOut')} data-zoom-out
-                    className="w-6 h-6 rounded hover:bg-wash flex items-center justify-center text-ink-muted"><ZoomOut size={13} strokeWidth={1.75} /></button>
+                    className="w-7 h-7 rounded-lg hover:bg-wash flex items-center justify-center text-ink-muted hover:text-ink transition-colors"><ZoomOut size={14} strokeWidth={1.75} /></button>
                   <button onClick={() => setImgZoom(1)} title={t('reader.imageZoomFit')} data-zoom-fit
-                    className="px-1.5 h-6 rounded hover:bg-wash font-mono text-2xs text-ink-muted">{Math.round(imgZoom * 100)}%</button>
+                    className="px-2 h-7 rounded-lg hover:bg-wash font-mono text-xs text-ink-muted hover:text-ink transition-colors min-w-[52px]">{Math.round(imgZoom * 100)}%</button>
                   <button onClick={() => setImgZoom((z) => Math.min(3, +(z + 0.25).toFixed(2)))} title={t('reader.imageZoomIn')} data-zoom-in
-                    className="w-6 h-6 rounded hover:bg-wash flex items-center justify-center text-ink-muted"><ZoomIn size={13} strokeWidth={1.75} /></button>
+                    className="w-7 h-7 rounded-lg hover:bg-wash flex items-center justify-center text-ink-muted hover:text-ink transition-colors"><ZoomIn size={14} strokeWidth={1.75} /></button>
                 </div>
               </div>
               <div className="overflow-x-auto">
