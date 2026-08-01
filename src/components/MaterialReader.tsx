@@ -775,9 +775,15 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
                 className={`overflow-x-auto ${clipMode ? '' : 'cursor-grab active:cursor-grabbing'}`}
                 data-image-pan
               >
-                <div className="flex flex-col items-center gap-6 py-6 px-6">
+                {/* w-max + mx-auto instead of items-center: a centered flex
+                    child that overflows spills PAST scrollLeft 0 — its left
+                    half becomes unreachable. Auto margins center when there
+                    is room and pin to 0 when there is not. */}
+                <div className="flex flex-col gap-6 py-6 px-6 w-max min-w-full">
                   {imageAtts.map((att) => (
-                    <ImageFigure key={att.id} att={att} zoom={imgZoom} clipMode={clipMode} onClipped={handleImageClipped} />
+                    <div key={att.id} className="mx-auto">
+                      <ImageFigure att={att} zoom={imgZoom} clipMode={clipMode} onClipped={handleImageClipped} />
+                    </div>
                   ))}
                 </div>
               </div>
