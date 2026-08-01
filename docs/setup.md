@@ -18,7 +18,7 @@ The landing page seeds the example canvas in one labeled click: four chapters ar
 
 ## Supported models
 
-Built on the Vercel AI SDK. Any provider below activates when its key lands in `.env`; or skip `.env` entirely and connect any OpenAI-compatible interface in the app (a local Ollama included). A toolbar picker switches models at any time, and text-only models reroute automatically when images appear. Default model IDs can be overridden per provider (e.g. `OPENAI_MODELS=gpt-5.2`).
+Built on the Vercel AI SDK. Any provider below activates when its key lands in `.env`; or skip `.env` entirely and connect any OpenAI-compatible interface in the app (a local Ollama included). A toolbar picker switches models at any time. Text-only models keep the wheel when images appear: an already-read image participates through its companion text; only unread images hand the request to a vision model (announced, never silent). Default model IDs can be overridden per provider (e.g. `OPENAI_MODELS=gpt-5.2`).
 
 > Image understanding needs a vision key. Pasted images are auto-read once, by the strongest vision model you have configured, into editable companion text. The free `glm-4v-flash` works; flagship models read scientific figures noticeably better.
 
@@ -29,7 +29,7 @@ Built on the Vercel AI SDK. Any provider below activates when its key lands in `
 | **OpenAI** | gpt-5.1 · gpt-5-mini | `OPENAI_API_KEY` | override via `OPENAI_MODELS` |
 | **Anthropic** | claude-sonnet-5 · claude-haiku-4-5 | `ANTHROPIC_API_KEY` | override via `ANTHROPIC_MODELS` |
 | **Google** | gemini-2.5-pro · gemini-2.5-flash | `GOOGLE_API_KEY` | override via `GOOGLE_MODELS` |
-| **DeepSeek** | deepseek-v4-flash · deepseek-v4-pro | `DEEPSEEK_API_KEY` | text-only (auto vision reroute) |
+| **DeepSeek** | deepseek-v4-flash · deepseek-v4-pro | `DEEPSEEK_API_KEY` | text-only (reads images via companion text) |
 | **Kimi** (Moonshot) | kimi-k2-turbo-preview · kimi-latest | `MOONSHOT_API_KEY` | CN-direct; intl via `MOONSHOT_BASE_URL` |
 | **OpenRouter** | openrouter/auto | `OPENROUTER_API_KEY` | gateway to 300+ models; list any `vendor/model` slugs in `OPENROUTER_MODELS` |
 | **Ollama** | (yours) | `OLLAMA_MODELS=qwen3:8b,…` | fully local & offline |

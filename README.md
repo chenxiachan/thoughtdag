@@ -114,14 +114,14 @@ The landing page offers the seeded example canvas one labeled click away: four c
 | 📤 Read-only share | One link carries the whole graph: no account, no server storage |
 | 🧭 Staleness & replay | Upstream edits mark the answers they invalidate; replay in dependency order, token estimate first |
 | ✂️ Clipping | Select a passage or drag a rectangle in the reader; it becomes canvas material with page provenance |
-| 🔌 Any model | Per-node pins that follow the line; image requests reroute to vision models automatically |
+| 🔌 Any model | Per-node pins that follow the line; text-only models read images through their companion text |
 | 🔒 Local-first | Automatic folder backup writes real files; point it at a synced folder for cross-device |
 
 Full feature list (60+, grouped by area) → [docs/features.md](docs/features.md)
 
 ## Models & subscriptions
 
-Zhipu · Qwen · OpenAI · Anthropic · Google · DeepSeek · Kimi · OpenRouter · Ollama, or any OpenAI-compatible endpoint. Requests with images reroute to vision models automatically. Environment variables and default models → [docs/setup.md](docs/setup.md)
+Zhipu · Qwen · OpenAI · Anthropic · Google · DeepSeek · Kimi · OpenRouter · Ollama, or any OpenAI-compatible endpoint. Text-only models read already-indexed images through their companion text; unread images go to a vision model, announced. Environment variables and default models → [docs/setup.md](docs/setup.md)
 
 **Already paying for a subscription? It plugs in.** A ChatGPT plan connects through a one-command local bridge (with ThoughtDAG running locally). GLM Coding and Kimi Code plans issue real API keys: pick the preset, paste the key, done. Setup for all three → [docs/setup.md#subscriptions](docs/setup.md#subscriptions)
 

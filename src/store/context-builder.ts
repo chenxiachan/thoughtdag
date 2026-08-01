@@ -210,7 +210,7 @@ export function buildContext(
           messages.push({ role: 'user', content: `[Image: ${att.name}]\n${att.extractedText}` });
         }
         if (att.renderMode !== 'text-only') {
-          images.push({ data: att.content, mimeType: att.type });
+          images.push({ data: att.content, mimeType: att.type, ...(att.extractedText?.trim() ? { hasCompanion: true } : {}) });
         }
       } else if (att.type === 'application/pdf') {
         // PDF: the extracted text IS the model channel. Page images never

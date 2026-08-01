@@ -18,7 +18,7 @@ npm run dev            # → http://localhost:5173
 
 ## 支持的模型
 
-基于 Vercel AI SDK。下表任何一家，把 key 填进 `.env` 即自动激活；也可以完全跳过 `.env`，在应用里连接任何兼容 OpenAI 协议的接口（含本地 Ollama）。工具栏随时换模型，纯文本模型遇到图片自动改道视觉模型。各家默认模型 id 可用环境变量覆盖（如 `OPENAI_MODELS=gpt-5.2`）。
+基于 Vercel AI SDK。下表任何一家，把 key 填进 `.env` 即自动激活；也可以完全跳过 `.env`，在应用里连接任何兼容 OpenAI 协议的接口（含本地 Ollama）。工具栏随时换模型。纯文本模型遇到图片不轻易换人：已识读的图以伴随文本参与；只有未识读的图才交给视觉模型代答（有提示，绝不静默）。各家默认模型 id 可用环境变量覆盖（如 `OPENAI_MODELS=gpt-5.2`）。
 
 > 图片理解需要一把视觉模型的 key。粘贴的图片会被你配置的最强视觉模型自动识读一次，结果是可编辑的伴随文本。免费的 `glm-4v-flash` 可用；旗舰视觉模型读科研图明显更好。
 
@@ -29,7 +29,7 @@ npm run dev            # → http://localhost:5173
 | **OpenAI** | gpt-5.1 · gpt-5-mini | `OPENAI_API_KEY` | 可用 `OPENAI_MODELS` 覆盖 |
 | **Anthropic** | claude-sonnet-5 · claude-haiku-4-5 | `ANTHROPIC_API_KEY` | 可用 `ANTHROPIC_MODELS` 覆盖 |
 | **Google** | gemini-2.5-pro · gemini-2.5-flash | `GOOGLE_API_KEY` | 可用 `GOOGLE_MODELS` 覆盖 |
-| **DeepSeek** | deepseek-v4-flash · deepseek-v4-pro | `DEEPSEEK_API_KEY` | 纯文本（有图自动改道视觉模型）|
+| **DeepSeek** | deepseek-v4-flash · deepseek-v4-pro | `DEEPSEEK_API_KEY` | 纯文本（经伴随文本读图）|
 | **Kimi**（月之暗面）| kimi-k2-turbo-preview · kimi-latest | `MOONSHOT_API_KEY` | 国内直连；国际版设 `MOONSHOT_BASE_URL` |
 | **OpenRouter** | openrouter/auto | `OPENROUTER_API_KEY` | 一把 key 通 300+ 模型，`OPENROUTER_MODELS` 填任意 `vendor/model` |
 | **Ollama** | （你本地的）| `OLLAMA_MODELS=qwen3:8b,…` | 完全本地离线 |

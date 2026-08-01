@@ -1,5 +1,6 @@
 import { API_BASE } from './constants';
 import { toast, useUiStore } from './ui-store';
+import { getModelsOnce } from './use-models';
 import { t, fmt } from '../i18n';
 import { storedProviders } from './runtime-providers';
 import { directProvider, directLlmStream, directLlmCall } from './direct-llm';
@@ -24,6 +25,8 @@ export interface ContextMessage {
 export interface ImageAttachment {
   data: string; // base64
   mimeType: string;
+  /** The image's companion text (its index) is already in the messages. */
+  hasCompanion?: boolean;
 }
 
 export interface PdfExtractResult {
@@ -87,9 +90,25 @@ function wrapError(err: unknown): Error {
   );
 }
 
+
+// The user's model choice outranks the vision stand-in: when the chosen
+// model cannot see images but every image already has its companion text
+// in the messages, drop the pixels and keep the model. The reroute (with
+// its announcement + rescue) remains the fallback for UNindexed images.
+async function imagesForModel(modelId: string | undefined, images?: ImageAttachment[]): Promise<ImageAttachment[] | undefined> {
+  if (!images?.length) return images;
+  const data = await getModelsOnce();
+  // no explicit choice = the catalog default answers (mirror of the proxy)
+  const effective = modelId ?? data?.default ?? undefined;
+  const info = effective ? data?.models.find((m) => m.id === effective) : undefined;
+  if (info && !info.vision && images.every((i) => i.hasCompanion)) return undefined;
+  return images;
+}
+
 // Non-streaming call (used for background summaries)
 export async function llmCall(contextMessages: ContextMessage[], images?: ImageAttachment[], modelOverride?: string): Promise<string> {
   const modelId = modelOverride || useUiStore.getState().selectedModel || undefined;
+  images = await imagesForModel(modelId, images);
   const direct = directProvider(modelId);
   if (direct && modelId) return directLlmCall(direct, modelId, contextMessages, images);
   try {
@@ -152,6 +171,7 @@ export async function llmCallStream(
   // browser — the proxy's CPU allowance can't survive big contexts + heavy
   // thinking models, and the key staying local is a feature in itself.
   const modelId = modelOverride || useUiStore.getState().selectedModel || undefined;
+  images = await imagesForModel(modelId, images);
   const direct = directProvider(modelId, !!(toolPrefs?.scholar || toolPrefs?.mcp));
   if (direct && modelId) {
     return directLlmStream(direct, modelId, contextMessages, onChunk, signal, images, callbacks, toolPrefs?.web);

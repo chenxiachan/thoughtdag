@@ -114,14 +114,14 @@ npm run dev       # → localhost:5173
 | 📤 只读分享 | 一条链接携带整张图，无账号、不经服务器存储 |
 | 🧭 陈旧重放 | 上游一改，受影响回答亮标记；按依赖序批量重放，先报 token 价 |
 | ✂️ 摘取 | 阅读器里圈选文字、框选图表，摘成带页码出处的画布素材 |
-| 🔌 模型自由 | 节点级钉选、沿线继承；带图请求自动改道视觉模型 |
+| 🔌 模型自由 | 节点级钉选、沿线继承；纯文本模型经伴随文本读图 |
 | 🔒 本地优先 | 自动文件夹备份写成真实文件，指向同步盘即跨设备 |
 
 完整功能清单（60+ 条，按领域分组）→ [docs/features_ZH.md](docs/features_ZH.md)
 
 ## 模型与订阅
 
-智谱 · 通义 · OpenAI · Anthropic · Google · DeepSeek · Kimi · OpenRouter · Ollama，或任何兼容 OpenAI 协议的端点。带图请求自动改道视觉模型。环境变量与默认模型 → [docs/setup_ZH.md](docs/setup_ZH.md)
+智谱 · 通义 · OpenAI · Anthropic · Google · DeepSeek · Kimi · OpenRouter · Ollama，或任何兼容 OpenAI 协议的端点。纯文本模型经伴随文本读图，未识读的图才由视觉模型代答（有提示）。环境变量与默认模型 → [docs/setup_ZH.md](docs/setup_ZH.md)
 
 **已经在付订阅费？直接接进来。** ChatGPT 订阅经一条命令的本地桥接入（配合本地运行的 ThoughtDAG）；GLM Coding 与 Kimi Code 订阅本身就发 API key，选预设、填 key 即可。三家的接法 → [docs/setup_ZH.md#订阅接入](docs/setup_ZH.md#订阅接入)
 
