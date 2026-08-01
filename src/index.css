@@ -81,6 +81,13 @@ code, pre {
   border: 1px solid var(--color-line) !important;
   border-radius: 12px !important;
   box-shadow: 0 1px 3px rgba(0,0,0,0.08) !important;
+  /* hover = intent to read: the svg scales up losslessly from its corner */
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  transform-origin: bottom right;
+}
+.react-flow__minimap:hover {
+  transform: scale(1.85);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.16) !important;
 }
 
 /* Scrollbar */

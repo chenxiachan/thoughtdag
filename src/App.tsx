@@ -953,11 +953,19 @@ function Canvas() {
         <MiniMap
           nodeColor={(node) => {
             const data = node.data as Record<string, unknown>;
-            return data.isRoot ? COLORS.accent : data.isBranch ? COLORS.warm : COLORS.line;
+            // information density over decoration: type is color, archived
+            // fades to paper, ordinary turns stay a readable mid-gray
+            if (data.archived) return '#EFEDE9';
+            const sk = data.stepKind as string | undefined;
+            if (sk === 'note') return '#D97706';
+            if (sk === 'file' || sk === 'link') return '#64748B';
+            if (Array.isArray(data.condensedFrom) && data.condensedFrom.length) return '#8B7CF0';
+            return data.isRoot ? COLORS.accent : data.isBranch ? COLORS.warm : '#B9B3AB';
           }}
           maskColor="rgba(250,249,247,0.7)"
-          style={{ background: COLORS.card, border: `1px solid ${COLORS.line}`, borderRadius: '10px', width: 160, height: 110 }}
+          style={{ background: COLORS.card, width: 200, height: 140 }}
           pannable
+          zoomable
           position="bottom-right"
         />
       </ReactFlow>

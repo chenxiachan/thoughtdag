@@ -111,6 +111,23 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
   const [view, setView] = useState<'original' | 'text' | 'digest'>(pdfAtt?.pageImages?.length || imageAtts.length ? 'original' : 'text');
   // image view zoom: 1 = fit the column; beyond it the row scrolls sideways
   const [imgZoom, setImgZoom] = useState(1);
+  // zoomed past the column, the mouse drags the picture around: horizontal
+  // pan on the image row, vertical on the reader body — one grab, both axes
+  const imgPanRef = useRef<HTMLDivElement>(null);
+  const startImagePan = (e: React.MouseEvent) => {
+    if (clipMode || e.button !== 0) return;
+    const scroller = imgPanRef.current, body = bodyRef.current;
+    if (!scroller || !body) return;
+    e.preventDefault();
+    const sx = e.clientX, sy = e.clientY, sl = scroller.scrollLeft, st = body.scrollTop;
+    const move = (ev: MouseEvent) => {
+      scroller.scrollLeft = sl - (ev.clientX - sx);
+      body.scrollTop = st - (ev.clientY - sy);
+    };
+    const up = () => { window.removeEventListener('mousemove', move); window.removeEventListener('mouseup', up); };
+    window.addEventListener('mousemove', move);
+    window.addEventListener('mouseup', up);
+  };
   const [digestBusy, setDigestBusy] = useState(false);
   const startDigest = async () => {
     if (!pdfAtt || digestBusy) return;
@@ -752,7 +769,12 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
                     className="w-7 h-7 rounded-lg hover:bg-wash flex items-center justify-center text-ink-muted hover:text-ink transition-colors"><ZoomIn size={14} strokeWidth={1.75} /></button>
                 </div>
               </div>
-              <div className="overflow-x-auto">
+              <div
+                ref={imgPanRef}
+                onMouseDown={startImagePan}
+                className={`overflow-x-auto ${clipMode ? '' : 'cursor-grab active:cursor-grabbing'}`}
+                data-image-pan
+              >
                 <div className="flex flex-col items-center gap-6 py-6 px-6">
                   {imageAtts.map((att) => (
                     <ImageFigure key={att.id} att={att} zoom={imgZoom} clipMode={clipMode} onClipped={handleImageClipped} />
