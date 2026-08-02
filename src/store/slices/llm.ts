@@ -364,7 +364,16 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
     }
     set((state) => ({
       nodes: state.nodes.map((n) =>
-        n.id === nodeId ? { ...n, data: { ...n.data, question, askedAt: new Date().toISOString(), isEditing: false, isLoading: true } } : n
+        n.id === nodeId ? { ...n, data: {
+          ...n.data,
+          // Turn versions: the wording is changing — pin the OLD wording to
+          // every existing version first (absent array = they all shared it),
+          // so the (question, answer) pairs stay truthful after the edit.
+          ...(prevQuestion && prevQuestion !== question && n.data.responses.length > 0
+            ? { questions: n.data.responses.map((_, i) => n.data.questions?.[i] ?? prevQuestion) }
+            : {}),
+          question, askedAt: new Date().toISOString(), isEditing: false, isLoading: true,
+        } } : n
       ),
     }));
     // Rebuild context with this node's own Q&A blanked out
@@ -377,7 +386,10 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
     contextMessages.push({ role: 'user', content: question });
     set((state) => ({ nodes: state.nodes.map((n) => n.id === nodeId ? { ...n, data: { ...n.data, appliedRole } } : n) }));
 
-    await runNodeGeneration(set, get, nodeId, { question, messages: contextMessages, images: editCtx.images });
+    // Append, never replace: the old (question, answer) pairs stay switchable
+    // — an edited question must not orphan or erase the versions written
+    // against the old wording.
+    await runNodeGeneration(set, get, nodeId, { question, messages: contextMessages, images: editCtx.images, versionMode: 'append' });
   },
 
   regenerate: async (nodeId: string) => {

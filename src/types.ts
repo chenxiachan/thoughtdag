@@ -39,6 +39,11 @@ export interface ThoughtData extends Record<string, unknown> {
   question: string;
   response: string;
   responses: string[];
+  /** Question wording per version, parallel to `responses` — a version is a
+      (question, answer) PAIR, so an edited question never orphans the
+      answers written against the old wording. Absent = every version shares
+      the current `question` (pre-migration canvases, never-edited nodes). */
+  questions?: string[];
   responseIndex: number;
   isCollapsed: boolean;
   isEditing: boolean;

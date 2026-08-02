@@ -298,8 +298,9 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
         if (newIndex >= responses.length) newIndex = 0;
         return {
           ...n,
-          // navigating away from a failed placeholder reclaims the older answer
-          data: { ...n.data, responseIndex: newIndex, response: responses[newIndex], generationFailed: undefined, highlights: pruneHighlights(n.data.highlights, responses[newIndex]) },
+          // navigating away from a failed placeholder reclaims the older answer;
+          // the question mirrors its version's wording (a version is a PAIR)
+          data: { ...n.data, responseIndex: newIndex, response: responses[newIndex], question: n.data.questions?.[newIndex] ?? n.data.question, generationFailed: undefined, highlights: pruneHighlights(n.data.highlights, responses[newIndex]) },
         };
       }),
     }));
@@ -320,6 +321,8 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
             responses: newResponses,
             responseIndex: newIndex,
             response: newResponses[newIndex],
+            questions: n.data.questions?.filter((_, i) => i !== versionIndex),
+            question: n.data.questions?.filter((_, i) => i !== versionIndex)[newIndex] ?? n.data.question,
             summaries: n.data.summaries?.filter((_, i) => i !== versionIndex),
             generatedBy: n.data.generatedBy?.filter((_, i) => i !== versionIndex),
             summaryTypes: n.data.summaryTypes?.filter((_, i) => i !== versionIndex),
