@@ -172,7 +172,7 @@ export async function llmCallStream(
   // thinking models, and the key staying local is a feature in itself.
   const modelId = modelOverride || useUiStore.getState().selectedModel || undefined;
   images = await imagesForModel(modelId, images);
-  const direct = directProvider(modelId, !!(toolPrefs?.scholar || toolPrefs?.mcp));
+  const direct = directProvider(modelId);
   if (direct && modelId) {
     return directLlmStream(direct, modelId, contextMessages, onChunk, signal, images, callbacks, toolPrefs?.web);
   }

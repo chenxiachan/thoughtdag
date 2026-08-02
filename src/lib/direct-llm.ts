@@ -14,24 +14,24 @@ import { storedProviders, type RuntimeProvider } from './runtime-providers';
 
 const isWorkerBackend = API_BASE === '';
 
-// Endpoints verified to allow browser CORS: OpenRouter (documented) and
-// Moonshot (preflight tested against .cn with the app origin). Others keep
+// Endpoints verified to allow browser CORS: OpenRouter (documented),
+// Moonshot (preflight tested against .cn with the app origin), and DeepSeek
+// (preflight tested 2026-08-02 incl. the x-title header — their thinking
+// models are exactly the ones the worker CPU allowance kills). Others keep
 // the proxy until tested — a CORS-blocked endpoint would fail 100% direct.
-const DIRECT_CORS_OK = /openrouter\.ai|api\.moonshot\.(cn|ai)/i;
+const DIRECT_CORS_OK = /openrouter\.ai|api\.moonshot\.(cn|ai)|api\.deepseek\.com/i;
 const isOpenRouterURL = (baseURL: string) => /openrouter\.ai/i.test(baseURL);
 
 /** The provider to talk to directly for this model, or null → use the proxy.
-    Scholar/MCP requests need the proxy's tool loop, except on OpenRouter
-    (whose requests always ran direct, tools ignored as before). Web search
-    does NOT force the proxy: OpenRouter searches via `:online`, and other
-    direct gateways simply have no search — their toggles hide in the UI.
-    A thinking model on the proxy dies of the CPU allowance mid-thought,
-    which is strictly worse than answering without search. */
-export function directProvider(modelId?: string, needsProxyTools?: boolean): RuntimeProvider | null {
+    Tool wishes (search/scholar/MCP) never force a CORS-capable model back
+    onto the proxy: a thinking model there dies of the CPU allowance
+    mid-thought, which is strictly worse than answering without tools.
+    OpenRouter still searches via `:online`; other direct gateways simply
+    have no tools — their toggles hide in the UI (directWithoutSearch). */
+export function directProvider(modelId?: string): RuntimeProvider | null {
   if (!isWorkerBackend || !modelId) return null;
   for (const p of storedProviders()) {
     if (!DIRECT_CORS_OK.test(p.baseURL)) continue;
-    if (needsProxyTools && !isOpenRouterURL(p.baseURL)) continue;
     if (!p.apiKey) continue;
     if (p.models.some((m) => m.id === modelId)) return p;
   }
