@@ -1,0 +1,81 @@
+{
+  "id": "thoughtdag-story-music-brief",
+  "version": 1,
+  "generator": {
+    "primary": "ACE-Step 1.5",
+    "mode": "instrumental",
+    "workflow": "先生成四个90秒主题候选，选定动机后，用 Repaint 精修拥挤、剪枝和结尾三个区段；再为竖版重新编排60秒结构。",
+    "localTarget": "Apple M4 Pro, 48 GB unified memory, Metal"
+  },
+  "creativeDirection": {
+    "name": "思路生长",
+    "description": "音乐像一棵思路从一个音开始生长。它经历分叉、汇合、短暂拥挤和剪枝，最后回到同一个主题，但和声比开头更完整。",
+    "bpm": 72,
+    "key": "D minor, ending with a restrained F major color",
+    "meter": "4/4",
+    "instruments": [
+      "felt piano",
+      "muted analog pulse",
+      "soft granular texture",
+      "restrained warm strings",
+      "very subtle sub bass"
+    ],
+    "avoid": [
+      "corporate inspirational music",
+      "advertising uplift",
+      "epic trailer sound",
+      "EDM drop",
+      "lo-fi hip-hop beat",
+      "ukulele",
+      "handclaps",
+      "vocals",
+      "busy drums",
+      "sentimental piano ballad"
+    ]
+  },
+  "horizontalScoreMap": [
+    {
+      "start": 0,
+      "end": 24,
+      "stage": "种子与分叉",
+      "instruction": "一个不完整的毡音钢琴动机从留白中出现；分叉时由左右两个质感不同的音色回答，不加鼓。"
+    },
+    {
+      "start": 24,
+      "end": 34,
+      "stage": "线性聊天的拥挤",
+      "instruction": "把已有音符轻微错位叠加，形成认知拥挤，但不要变成悬疑或故障音乐。"
+    },
+    {
+      "start": 34,
+      "end": 58,
+      "stage": "展开、材料汇入、重新汇合",
+      "instruction": "拥挤声部退开，模拟脉冲建立秩序；PDF 出现时加入纸张质感；汇合时让两个分叉声部第一次形成和声。"
+    },
+    {
+      "start": 58,
+      "end": 75,
+      "stage": "产品与机制",
+      "instruction": "主题清楚起来，但保持纪录片感。节奏只承担方向感，不制造发布会式高潮。"
+    },
+    {
+      "start": 75,
+      "end": 84,
+      "stage": "剪枝",
+      "instruction": "在连线删除点抽掉音乐约0.5秒；之后只恢复最初的钢琴动机和低频底色。该区段优先使用 Repaint 精修。"
+    },
+    {
+      "start": 84,
+      "end": 90,
+      "stage": "收束",
+      "instruction": "最初动机以更温暖、但不过度圆满的和声结束；最后一个尾音保留开放感。"
+    }
+  ],
+  "aceStepPrompt": "Minimal cinematic electronic underscore for an intimate first-person founder documentary about an idea growing into a map. Begin with a sparse, unresolved felt-piano motif in a quiet late-night room. Let the motif branch into two restrained timbres, then briefly overlap and feel cognitively crowded. Around the middle, clear the texture and introduce a muted analog pulse, soft granular detail, subtle paper-like texture, and very restrained warm strings as separate ideas converge. Near the final quarter, leave a short breath of near-silence before returning to the original motif with warmer harmony. Human, thoughtful, curious, slightly imperfect, spacious mix, designed to sit under Chinese narration. Instrumental, 72 BPM, 90 seconds, 4/4, D minor with a restrained warm ending. No vocals, no corporate inspirational music, no advertising uplift, no epic trailer, no EDM drop, no lo-fi beat, no ukulele, no handclaps, no busy drums, no sentimental piano ballad.",
+  "mixNotes": [
+    "旁白期间音乐只承担情绪和方向，不能与中文辅音竞争。",
+    "关键停顿、PDF 翻页、连线吸附和剪枝断开使用独立音效，不依赖生成音乐偶然命中。",
+    "竖版保留同一个钢琴动机，但重新安排转折点，不直接把90秒轨道加速或从中间截断。",
+    "最终候选需要保留生成参数、seed、模型版本和许可证快照，便于公开发布时追溯。"
+  ]
+}

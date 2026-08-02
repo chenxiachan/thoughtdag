@@ -1,7 +1,7 @@
-// Hero video · Scene 1 — "圈选原文，直接提问" / "Select the source, ask right there"
+// Hero video · Scene 1 — "直接追问，或摘到画布" / "Ask or clip"
 // Records the real app: load the example canvas → open the embedded PDF in
-// the MaterialReader → drag-select the anchored sentence → the ask bar pops →
-// type a question → the answer streams into the rail (store-paced, honest UI).
+// the MaterialReader → ask directly from a selected passage → select it again
+// and clip it → reveal both the wired Q&A and edge-less provenance-bearing note.
 // Usage: node record-hero-scene1.mjs [zh|en]   (default zh)
 // Output: video/public/scene1-<lang>.mp4 (1600×900, H.264, ≥6.5s effective).
 import { chromium } from '/Users/chatchan/Library/CloudStorage/Dropbox/Academic/1_Postdoc/ResearchIdeas/thoughtdag-main/node_modules/playwright-core/index.mjs';
@@ -19,27 +19,23 @@ mkdirSync(`${ROOT}/video/public`, { recursive: true });
 
 const COPY = {
   zh: {
-    question: '这段回路机制的证据是什么？',
-    answer:
-      '持续注意依赖工作记忆与外部线索的耦合回路。文中的双任务实验显示，移除外部线索后维持时间下降约 40%，说明回路的一半在环境里。',
     exampleBtn: '载入示例画布', // i18n zh.ts landing.loadExample
     exampleBtnFallback: '示例',
     fallbackFileText:
       '# 持续注意的回路机制\n\n持续注意的维持依赖工作记忆与外部线索的耦合回路：内部表征提供目标，环境线索按节拍把注意拉回目标。\n\n双任务实验显示，移除外部线索后，注意维持时间显著下降，说明回路的一半在环境里。',
+    question: '这段证据意味着什么？',
+    answer: '它说明结果依赖具体条件，而不是一个普遍效应。',
   },
   en: {
-    question: "What's the evidence for this loop mechanism?",
-    answer:
-      'Sustained attention rides a coupled loop of working memory and external cues. The dual-task experiments in the brief show retention dropping about 40% once external cues are removed — half the loop lives in the environment.',
     exampleBtn: 'Load example canvas', // i18n en.ts landing.loadExample
     exampleBtnFallback: 'example',
     fallbackFileText:
       '# The loop mechanism of sustained attention\n\nSustained attention rides a coupled loop of working memory and external cues: internal representations hold the goal, and environmental cues pull attention back to it on a beat.\n\nDual-task experiments show that removing external cues sharply shortens sustained attention — half the loop lives in the environment.',
+    question: 'What does this evidence mean?',
+    answer: 'The result depends on a specific condition, not a universal effect.',
   },
 }[LANG];
 
-const QUESTION = COPY.question;
-const ANSWER = COPY.answer;
 // sentence needles, in preference order (primary = the example brief's anchor
 // line — English in the source PDF, so shared by both language takes)
 const NEEDLES = ['The act of saving', '耦合回路', 'cost asymmetry'];
@@ -82,7 +78,10 @@ await page.route('**/api/**', async (route) => {
 await page.goto('http://localhost:5173');
 // the reader modal should own the viewport — subject BIG (user feedback)
 await page.addStyleTag({
-  content: '[data-material-reader] > div { width: 97vw !important; height: 96vh !important; max-width: none !important; }',
+  content: `
+    [data-material-reader] > div { width: 97vw !important; height: 96vh !important; max-width: none !important; }
+    [data-reader-askbar] { left: 50% !important; top: auto !important; bottom: 38px !important; transform: translateX(-50%) !important; }
+  `,
 });
 
 // ── landing → example canvas ──
@@ -135,6 +134,7 @@ await page.evaluate((id) => window.__ui.getState().setReaderNodeId(id), fileNode
 const surface = await Promise.race([
   page.waitForSelector('.tdag-textlayer span', { timeout: 12000 }).then(() => 'pdf').catch(() => null),
   page.waitForSelector('[data-material-reader] [data-page]', { timeout: 12000 }).then(() => 'any').catch(() => null),
+  page.waitForSelector('[data-material-reader] .markdown-body', { timeout: 12000 }).then(() => 'text').catch(() => null),
 ]);
 if (!surface) throw new Error('reader surface never appeared');
 await page.waitForTimeout(1500); // let the PDF paint fully
@@ -230,39 +230,93 @@ if (target.kind === 'span') {
   }, [target.needle]);
 }
 await page.waitForSelector('[data-reader-askbar] textarea', { timeout: 5000 });
-await page.waitForTimeout(800); // the ask bar sits under the selection
+await page.waitForTimeout(120);
 
-// ── type the question (keep the selection highlight visible: focus, no click) ──
-const bar = await page.locator('[data-reader-askbar]').boundingBox();
-if (bar) await glide(bar.x + bar.width * 0.4, bar.y + bar.height * 0.5, 8);
-await page.evaluate(() => document.querySelector('[data-reader-askbar] textarea')?.focus());
-await page.keyboard.type(QUESTION, { delay: 30 });
-await page.waitForTimeout(500);
-await page.keyboard.press('Enter');
-await page.waitForTimeout(800); // the node lands, the rail opens on the thread
-
-// ── the answer streams in (store-paced; the pending /api/stream keeps isLoading honest) ──
-const askId = await page.evaluate(() =>
-  window.__store.getState().selectedNodeId ?? window.__store.getState().nodes.at(-1)?.id);
-if (!askId) throw new Error('fresh ask node not found');
-const STEPS = 12;
-for (let i = 1; i <= STEPS; i++) {
-  const partial = ANSWER.slice(0, Math.ceil((ANSWER.length * i) / STEPS));
-  await page.evaluate(([id, text]) => {
-    window.__store.setState((s) => ({
-      nodes: s.nodes.map((n) => (n.id === id ? { ...n, data: { ...n.data, response: text, isLoading: true } } : n)),
-    }));
-  }, [askId, partial]);
-  await page.waitForTimeout(120);
-}
-await page.evaluate(([id, full]) => {
+// ── ask directly from the selected passage: this creates a real context edge ──
+const askbar = page.locator('[data-reader-askbar]');
+await askbar.locator('textarea').fill(COPY.question);
+await page.waitForTimeout(120);
+await askbar.locator('button').last().click();
+await page.waitForTimeout(180);
+const questionId = await page.evaluate(() => window.__store.getState().selectedNodeId);
+if (!questionId) throw new Error('direct question did not land on the canvas');
+await page.evaluate(([id, answer]) => {
   window.__store.setState((s) => ({
-    nodes: s.nodes.map((n) => (n.id === id
-      ? { ...n, data: { ...n.data, response: full, responses: [full], responseIndex: 0, isLoading: false } }
-      : n)),
+    nodes: s.nodes.map((n) => n.id === id
+      ? {
+          ...n,
+          data: {
+            ...n.data,
+            response: answer,
+            responses: [answer],
+            responseIndex: 0,
+            isLoading: false,
+            tokenCount: 18,
+          },
+        }
+      : n),
   }));
-}, [askId, ANSWER]);
-await page.waitForTimeout(1200); // settle on the finished answer
+}, [questionId, COPY.answer]);
+
+// Re-select the same source passage to show the second action: clip to canvas.
+await page.evaluate(([needle]) => {
+  const reader = document.querySelector('[data-material-reader]');
+  const walker = document.createTreeWalker(reader, NodeFilter.SHOW_TEXT);
+  let node;
+  while ((node = walker.nextNode())) {
+    const i = node.textContent?.indexOf(needle) ?? -1;
+    if (i >= 0 && node.parentElement?.offsetParent) {
+      const r = document.createRange();
+      r.setStart(node, i);
+      r.setEnd(node, Math.min(node.textContent.length, i + needle.length + 28));
+      const sel = getSelection();
+      sel.removeAllRanges();
+      sel.addRange(r);
+      node.parentElement.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+      return;
+    }
+  }
+}, [target.needle]);
+await page.waitForSelector('[data-reader-clip-note]', { state: 'visible', timeout: 5000 });
+await page.waitForTimeout(100);
+
+// ── clip the selected passage into an edge-less, page-linked note ────────
+const clipButton = page.locator('[data-reader-clip-note]');
+await clipButton.waitFor({ state: 'visible' });
+const clipBox = await clipButton.boundingBox();
+if (clipBox) await glide(clipBox.x + clipBox.width / 2, clipBox.y + clipBox.height / 2, 5, 20);
+await clipButton.click();
+await page.waitForTimeout(280); // selection flies toward the canvas
+
+const clipId = await page.evaluate(() => {
+  const nodes = window.__store.getState().nodes;
+  return nodes.findLast((n) => n.data.stepKind === 'note' && n.data.anchor?.attId)?.id ?? null;
+});
+if (!clipId) throw new Error('clipped note did not land on the canvas');
+
+// Close the reader and frame the source, wired Q&A, and edge-less clip.
+await page.evaluate(([sourceId, askedId, clippedId]) => {
+  window.__store.setState((s) => ({
+    nodes: s.nodes
+      .filter((n) => n.id === sourceId || n.id === askedId || n.id === clippedId)
+      .map((n) => {
+        if (n.id === sourceId) return { ...n, position: { x: 0, y: 260 }, data: { ...n.data, isCollapsed: false } };
+        if (n.id === askedId) return { ...n, position: { x: 590, y: 0 } };
+        return { ...n, position: { x: 590, y: 390 } };
+      }),
+    edges: s.edges.filter((e) => e.source === sourceId && e.target === askedId),
+    selectedNodeId: null,
+    selectedNodeIds: [],
+  }));
+}, [fileNodeId, questionId, clipId]);
+await page.evaluate(() => window.__ui.getState().setReaderNodeId(null));
+await page.waitForTimeout(120);
+await page.evaluate(() => {
+  const rf = window.__rf;
+  rf.fitView({ padding: 0.2, duration: 650, maxZoom: 0.95 });
+});
+await page.waitForSelector('[data-clip-source]', { state: 'visible', timeout: 5000 });
+await page.waitForTimeout(2100);
 
 const tEnd = Date.now();
 const video = page.video();

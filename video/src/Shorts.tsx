@@ -41,7 +41,7 @@ const STR: Record<Lang, {
   en: {
     hook: ['My best ideas', 'kept drowning in', 'long AI chats.'],
     prune: { lines: ['Delete one edge.', 'Different answer.'], sub: 'Wires are the context.' },
-    read: { lines: ['Ask the paper', 'right there.'], sub: 'Answers land with their page number.' },
+    read: { lines: ['Ask from the source.', 'Clip what matters.'], sub: 'Both return to the graph, source-linked.' },
     map: { lines: ['Zoom out.', 'Thinking becomes', 'a map.'], sub: 'Every step badged: ruled out, decided, pivoted.' },
     take: { lines: ['Local-first.', 'Take it anywhere.'], sub: 'Your canvas, your files, your models.' },
     slogan: 'Wires are the context.',
@@ -49,7 +49,7 @@ const STR: Record<Lang, {
   zh: {
     hook: ['和 AI 上下文的', '无限编辑画布'],
     prune: { lines: ['删一条线', '换一个答案'], sub: '连线即上下文' },
-    read: { lines: ['指着原文', '就地提问'], sub: '答案带着页码落进画布' },
+    read: { lines: ['直接追问', '或摘到画布'], sub: '都带着出处，回到你的思考' },
     map: { lines: ['缩小画布', '思考自成地图'], sub: '每一步都有徽章：排除、决策、转向' },
     take: { lines: ['数据在本地', '随时带走'], sub: '你的画布、你的文件、你的模型' },
     slogan: '连线即上下文',
@@ -223,7 +223,7 @@ export const Shorts: React.FC<{ lang: Lang }> = ({ lang }) => {
               {b.key === 'read' && (
                 <BeatWrap frames={135}>
                   <Title lines={s.read.lines} sub={s.read.sub} {...titleProps} />
-                  <Footage src={scene(1)} startFrom={82} />
+                  <Footage src={scene(1)} startFrom={18} />
                 </BeatWrap>
               )}
               {b.key === 'map' && (

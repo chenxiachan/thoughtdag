@@ -1,0 +1,1275 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ThoughtDAG · UI 设计方向</title>
+  <meta name="description" content="基于 ThoughtDAG 现有交互框架的 A/D 两套视觉皮肤原型。" />
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f2eb;
+      --surface: rgba(255,255,255,.9);
+      --surface-solid: #fff;
+      --ink: #20201e;
+      --muted: #77736d;
+      --faint: #aaa49b;
+      --line: rgba(51,48,43,.13);
+      --grid: rgba(73,67,60,.07);
+      --accent: #6252df;
+      --accent-2: #e1843d;
+      --accent-soft: #ece9ff;
+      --success: #2f8b68;
+      --danger: #d85c54;
+      --panel-w: 430px;
+      --radius: 18px;
+      --node-shadow: 0 8px 28px rgba(48,43,37,.08), 0 2px 6px rgba(48,43,37,.05);
+      --panel-shadow: 0 26px 80px rgba(42,38,33,.14), 0 4px 16px rgba(42,38,33,.08);
+      --ui-font: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+      --display-font: var(--ui-font);
+      --mono-font: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--ui-font);
+      transition: background .35s ease, color .35s ease;
+    }
+    button, textarea { font: inherit; }
+    button { color: inherit; }
+
+    .prototype {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      grid-template-rows: 68px minmax(0, 1fr);
+    }
+
+    .concept-nav {
+      position: relative;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding: 10px 18px;
+      border-bottom: 1px solid var(--line);
+      background: color-mix(in srgb, var(--surface-solid) 88%, transparent);
+      backdrop-filter: blur(24px);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 190px;
+    }
+    .brand img { width: 38px; height: 38px; border-radius: 11px; }
+    .brand-name { font-weight: 760; letter-spacing: -.025em; }
+    .brand-sub { margin-top: 1px; color: var(--muted); font-size: 11px; }
+    .concept-tabs {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(150px, 1fr));
+      gap: 7px;
+      width: min(410px, 42vw);
+    }
+    .concept-tab {
+      height: 45px;
+      padding: 0 12px;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      border: 1px solid transparent;
+      border-radius: 13px;
+      background: transparent;
+      cursor: pointer;
+      text-align: left;
+      transition: .2s ease;
+    }
+    .concept-tab:hover { background: var(--surface); }
+    .concept-tab[aria-selected="true"] {
+      border-color: color-mix(in srgb, var(--accent) 30%, var(--line));
+      background: var(--surface-solid);
+      box-shadow: 0 3px 12px rgba(30,28,25,.06);
+    }
+    .tab-index {
+      width: 24px;
+      height: 24px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      border-radius: 8px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .tab-name { display: block; font-size: 12px; font-weight: 680; white-space: nowrap; }
+    .tab-note { display: block; margin-top: 2px; color: var(--muted); font-size: 10px; white-space: nowrap; }
+    .nav-hint { margin-left: auto; text-align: right; color: var(--muted); font-size: 11px; line-height: 1.45; }
+
+    .stage {
+      position: relative;
+      min-height: 0;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 17% 14%, color-mix(in srgb, var(--accent) 8%, transparent), transparent 27%),
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+        var(--bg);
+      background-size: auto, 28px 28px, 28px 28px, auto;
+    }
+
+    .workspace {
+      position: absolute;
+      inset: 14px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: color-mix(in srgb, var(--surface-solid) 72%, transparent);
+      box-shadow: 0 16px 48px rgba(42,38,33,.08);
+    }
+    .workspace-header {
+      position: absolute;
+      inset: 14px var(--panel-w) auto 14px;
+      height: 40px;
+      z-index: 25;
+      display: flex;
+      align-items: center;
+      pointer-events: none;
+    }
+    .project-title { height: 40px; padding: 0 13px; display: flex; align-items: center; gap: 9px; border: 1px solid var(--line); border-radius: 12px; background: color-mix(in srgb, var(--surface-solid) 92%, transparent); box-shadow: 0 4px 16px rgba(30,28,25,.07); backdrop-filter: blur(16px); pointer-events: auto; font-size: 13px; font-weight: 720; }
+    .project-mark { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 5px var(--accent-soft); }
+    .project-meta { display: none; }
+    .workspace-tools { margin-left: auto; display: flex; align-items: center; gap: 6px; pointer-events: auto; }
+    .tool-btn, .context-chip, .panel-btn {
+      border: 1px solid var(--line);
+      background: var(--surface-solid);
+      border-radius: 11px;
+      cursor: pointer;
+      transition: .18s ease;
+    }
+    .tool-btn:hover, .panel-btn:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--line)); transform: translateY(-1px); }
+    .tool-btn { height: 36px; padding: 0 12px; color: var(--muted); font-size: 12px; }
+    .tool-btn.icon { width: 34px; padding: 0; font-size: 15px; }
+    .context-chip {
+      height: 36px;
+      padding: 0 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-color: color-mix(in srgb, var(--accent) 28%, var(--line));
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 720;
+    }
+    .context-chip .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--success); box-shadow: 0 0 0 4px color-mix(in srgb, var(--success) 14%, transparent); }
+
+    .canvas {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      transition: inset .3s ease;
+    }
+    .graph-world {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1450px;
+      height: 900px;
+      transform-origin: 0 0;
+      will-change: transform;
+    }
+    #edgeCanvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+    .canvas-kicker {
+      position: absolute;
+      left: 24px;
+      top: 70px;
+      z-index: 3;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+    .canvas-kicker strong { color: var(--ink); }
+    .zoom-tools {
+      position: absolute;
+      z-index: 4;
+      left: 18px;
+      bottom: 18px;
+      display: flex;
+      border: 1px solid var(--line);
+      border-radius: 11px;
+      overflow: hidden;
+      background: var(--surface-solid);
+      box-shadow: 0 4px 18px rgba(30,28,25,.06);
+    }
+    .zoom-tools button { width: 38px; height: 36px; border: 0; border-right: 1px solid var(--line); background: transparent; cursor: pointer; color: var(--muted); font-size: 16px; }
+    .zoom-tools button:last-child { border-right: 0; }
+    .zoom-tools button:hover { background: var(--accent-soft); color: var(--accent); }
+    .zoom-tools button:disabled { cursor: default; opacity: .35; background: transparent; color: var(--muted); }
+    .timeline-rail {
+      position: absolute;
+      z-index: 6;
+      left: 23px;
+      bottom: 74px;
+      display: grid;
+      gap: 7px;
+      padding: 8px 6px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--surface-solid) 84%, transparent);
+      box-shadow: 0 4px 16px rgba(30,28,25,.06);
+      backdrop-filter: blur(12px);
+    }
+    .timeline-rail span { width: 18px; height: 3px; border-radius: 99px; background: var(--faint); opacity: .65; }
+    .timeline-rail span.active { background: var(--accent); opacity: 1; }
+    .timeline-rail span.warm { background: var(--accent-2); opacity: 1; }
+    .timeline-rail span.green { background: var(--success); opacity: 1; }
+    .mini-map {
+      position: absolute;
+      z-index: 7;
+      right: calc(var(--panel-w) + 16px);
+      bottom: 16px;
+      width: 164px;
+      height: 112px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: color-mix(in srgb, var(--surface-solid) 84%, transparent);
+      box-shadow: 0 8px 28px rgba(35,31,27,.09);
+      backdrop-filter: blur(14px);
+    }
+    .mini-map span { position: absolute; border-radius: 3px; background: var(--faint); opacity: .72; }
+    .mini-map i { position: absolute; left: 28%; top: 20%; width: 45%; height: 48%; border: 2px solid var(--accent); border-radius: 5px; opacity: .5; }
+    .zoom-status {
+      position: absolute;
+      z-index: 4;
+      right: calc(var(--panel-w) + 18px);
+      top: 68px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--surface-solid) 90%, transparent);
+      color: var(--muted);
+      box-shadow: 0 4px 16px rgba(30,28,25,.05);
+      backdrop-filter: blur(12px);
+      font-size: 11px;
+    }
+    .zoom-status strong { color: var(--accent); font-family: var(--mono-font); font-size: 10px; }
+
+    .node {
+      position: absolute;
+      z-index: 5;
+      width: 340px;
+      min-height: 150px;
+      padding: 18px 20px 17px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface-solid);
+      box-shadow: var(--node-shadow);
+      cursor: pointer;
+      transform: translate(-50%, -50%);
+      transition:
+        width .3s ease,
+        height .3s ease,
+        min-height .3s ease,
+        padding .3s ease,
+        border-radius .3s ease,
+        opacity .22s ease,
+        transform .22s ease,
+        box-shadow .22s ease,
+        border-color .22s ease,
+        background .3s ease;
+    }
+    .frame-region {
+      position: absolute;
+      z-index: 1;
+      border: 2px dashed color-mix(in srgb, var(--accent) 20%, var(--line));
+      border-radius: 18px;
+      background: color-mix(in srgb, var(--accent-soft) 30%, transparent);
+      pointer-events: none;
+    }
+    .frame-region.warm { border-color: color-mix(in srgb, var(--accent-2) 28%, var(--line)); background: color-mix(in srgb, var(--accent-2) 7%, transparent); }
+    .frame-region.green { border-color: color-mix(in srgb, var(--success) 25%, var(--line)); background: color-mix(in srgb, var(--success) 7%, transparent); }
+    .frame-region span { position: absolute; left: 18px; top: 14px; color: var(--muted); font-size: 18px; font-weight: 700; }
+    .node:hover { transform: translate(-50%, -50%) translateY(-3px); }
+    .node.selected {
+      border-color: color-mix(in srgb, var(--accent) 72%, white);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 14%, transparent), var(--node-shadow);
+    }
+    .node.off-path { opacity: .34; filter: saturate(.55); }
+    .node.noise { border-style: dashed; }
+    .node.noise.removed { opacity: .28; filter: grayscale(.8); }
+    .node.material { width: 320px; background: color-mix(in srgb, var(--surface-solid) 89%, var(--accent-soft)); }
+    .node.clip { display: none; width: 300px; background: color-mix(in srgb, var(--surface-solid) 82%, #dff3ea); }
+    .node.clip.visible { display: block; animation: node-arrive .45s cubic-bezier(.2,.9,.3,1.15); }
+    @keyframes node-arrive { from { opacity: 0; transform: translate(-50%,-50%) scale(.72); } }
+    .node-top { display: flex; align-items: center; gap: 7px; margin-bottom: 9px; }
+    .node-type {
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 10px;
+      font-weight: 760;
+      letter-spacing: .04em;
+    }
+    .node-type.warm { background: color-mix(in srgb, var(--accent-2) 14%, transparent); color: var(--accent-2); }
+    .node-type.green { background: color-mix(in srgb, var(--success) 14%, transparent); color: var(--success); }
+    .node-tokens { margin-left: auto; color: var(--faint); font-family: var(--mono-font); font-size: 10px; }
+    .node-title { font-size: 14px; font-weight: 720; line-height: 1.4; letter-spacing: -.012em; }
+    .node-takeaway { margin-top: 7px; color: var(--muted); font-size: 12px; line-height: 1.45; }
+    .node-port {
+      position: absolute;
+      left: 50%;
+      width: 10px;
+      height: 10px;
+      border: 2px solid var(--surface-solid);
+      border-radius: 50%;
+      background: var(--accent);
+      transform: translateX(-50%);
+    }
+    .node-port.in { top: -6px; }
+    .node-port.out { bottom: -6px; }
+    .node-source {
+      margin-top: 9px;
+      padding-top: 8px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+    .node.map-only { display: block; }
+
+    .work-panel {
+      position: absolute;
+      z-index: 15;
+      top: 12px;
+      right: 12px;
+      bottom: 12px;
+      width: calc(var(--panel-w) - 12px);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--bg);
+      box-shadow: 0 24px 70px rgba(48,43,37,.12), 0 4px 14px rgba(48,43,37,.06);
+      transition: width .3s ease, background .3s ease;
+    }
+    .work-panel.closed { display: none; }
+    body.panel-closed .workspace-header { right: 14px; }
+    body.panel-closed .zoom-status { right: 18px; }
+    body.panel-closed .mini-map { right: 16px; }
+    .panel-head { min-height: 46px; padding: 6px 10px 6px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--line); background: color-mix(in srgb, var(--surface-solid) 76%, transparent); }
+    .panel-eyebrow { display: flex; align-items: center; gap: 7px; color: var(--accent); font-size: 11px; font-weight: 780; text-transform: uppercase; letter-spacing: .08em; }
+    .panel-eyebrow::before { content: ""; width: 16px; height: 2px; border-radius: 2px; background: var(--accent); }
+    .panel-title { margin: 9px 0 0; font-family: var(--display-font); font-size: 20px; line-height: 1.35; letter-spacing: -.025em; }
+    .panel-meta { flex: 1; display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 11px; }
+    .panel-head-actions { display: flex; gap: 3px; }
+    .panel-head-actions button { width: 30px; height: 30px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); cursor: pointer; font-size: 14px; }
+    .panel-head-actions button:hover { background: var(--line); color: var(--ink); }
+    .meta-sep { width: 3px; height: 3px; border-radius: 50%; background: var(--faint); }
+    .panel-scroll { flex: 1; min-height: 0; overflow: auto; padding: 13px; }
+    .panel-section { margin-bottom: 10px; padding: 14px 15px; border: 1px solid var(--line); border-radius: 15px; background: var(--surface-solid); }
+    .question-card { padding-top: 13px; padding-bottom: 15px; }
+    .section-label { margin-bottom: 9px; color: var(--success); font-size: 11px; font-weight: 780; letter-spacing: .04em; }
+    .answer-copy { color: var(--ink); font-size: 14px; line-height: 1.68; }
+    .answer-copy p { margin: 0 0 9px; }
+    .answer-copy p:last-child { margin-bottom: 0; }
+    .answer-copy strong { font-weight: 760; }
+    .context-row { display: flex; align-items: center; gap: 9px; }
+    .context-bar { flex: 1; height: 7px; border-radius: 99px; background: var(--line); overflow: hidden; }
+    .context-fill { width: 72%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 55%, var(--accent-2))); transition: width .3s ease; }
+    .context-number { color: var(--muted); font-family: var(--mono-font); font-size: 11px; }
+    .panel-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 11px; }
+    .panel-btn { min-height: 38px; padding: 8px 10px; color: var(--muted); font-size: 12px; }
+    .panel-btn.primary { border-color: var(--accent); background: var(--accent); color: white; }
+    .panel-btn.danger { color: var(--danger); }
+    .composer { padding: 12px 13px 14px; border-top: 1px solid var(--line); background: color-mix(in srgb, var(--surface-solid) 76%, transparent); }
+    .composer-box { display: grid; grid-template-columns: 1fr 38px; gap: 8px; padding: 8px; border: 1px solid color-mix(in srgb, var(--accent) 33%, var(--line)); border-radius: 14px; background: var(--surface-solid); }
+    .composer textarea { min-height: 38px; max-height: 82px; padding: 6px 7px; resize: none; border: 0; outline: 0; background: transparent; color: var(--ink); font-size: 14px; line-height: 1.45; }
+    .send-btn { width: 38px; height: 38px; align-self: end; border: 0; border-radius: 11px; background: var(--accent); color: white; cursor: pointer; font-size: 15px; }
+    .composer-caption { margin-top: 7px; display: flex; justify-content: space-between; color: var(--muted); font-size: 11px; }
+
+    .palette {
+      position: absolute;
+      z-index: 18;
+      left: 14px;
+      top: 34%;
+      display: grid;
+      gap: 5px;
+      padding: 6px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface-solid);
+      box-shadow: 0 8px 24px rgba(35,31,27,.08);
+      transform: translateY(-50%);
+    }
+    .palette button { width: 34px; height: 34px; border: 0; border-radius: 9px; background: transparent; cursor: pointer; color: var(--muted); }
+    .palette button:hover { background: var(--accent-soft); color: var(--accent); }
+
+    .context-popover {
+      position: absolute;
+      z-index: 50;
+      top: 56px;
+      right: 18px;
+      width: 330px;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--surface-solid);
+      box-shadow: var(--panel-shadow);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-6px) scale(.98);
+      transition: .18s ease;
+    }
+    .context-popover.open { opacity: 1; pointer-events: auto; transform: none; }
+    .popover-title { display: flex; justify-content: space-between; font-size: 12px; font-weight: 760; }
+    .popover-list { display: grid; gap: 6px; margin-top: 11px; }
+    .popover-item { display: grid; grid-template-columns: 26px 1fr auto; align-items: center; gap: 7px; padding: 9px; border-radius: 10px; background: var(--bg); font-size: 11px; }
+    .popover-role { color: var(--accent); font-family: var(--mono-font); font-size: 9px; }
+    .popover-tok { color: var(--faint); font-family: var(--mono-font); font-size: 9px; }
+
+    .reader {
+      position: absolute;
+      z-index: 80;
+      inset: 28px;
+      display: none;
+      grid-template-rows: 54px minmax(0, 1fr);
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--surface-solid);
+      box-shadow: 0 40px 120px rgba(24,21,18,.28);
+    }
+    .reader.open { display: grid; animation: reader-in .3s cubic-bezier(.2,.8,.3,1); }
+    @keyframes reader-in { from { opacity: 0; transform: translateY(14px) scale(.985); } }
+    .reader::before { content: ""; position: fixed; inset: 68px 0 0; z-index: -1; background: rgba(24,22,20,.28); backdrop-filter: blur(5px); }
+    .reader-head { display: flex; align-items: center; gap: 12px; padding: 0 16px; border-bottom: 1px solid var(--line); }
+    .reader-file { font-size: 12px; font-weight: 720; }
+    .reader-tabs { margin-left: auto; display: flex; gap: 5px; }
+    .reader-tabs button, .reader-close { height: 34px; padding: 0 12px; border: 1px solid var(--line); border-radius: 10px; background: transparent; cursor: pointer; font-size: 12px; }
+    .reader-tabs button.active { background: var(--accent-soft); color: var(--accent); border-color: color-mix(in srgb, var(--accent) 26%, var(--line)); }
+    .reader-close { width: 32px; padding: 0; color: var(--muted); }
+    .reader-body { min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 390px; }
+    .document-view { min-width: 0; padding: 28px; overflow: auto; background: color-mix(in srgb, var(--bg) 88%, white); }
+    .paper { width: min(680px, 92%); min-height: 690px; margin: 0 auto; padding: 58px 64px; background: white; border: 1px solid rgba(42,38,33,.1); box-shadow: 0 16px 55px rgba(37,32,27,.1); }
+    .paper-kicker { color: var(--accent); font-family: var(--mono-font); font-size: 9px; letter-spacing: .12em; }
+    .paper h2 { margin: 12px 0 7px; font-family: Georgia, "Songti SC", serif; font-size: 27px; line-height: 1.2; }
+    .paper-byline { color: #99938b; font-size: 10px; }
+    .paper p { margin: 19px 0; color: #504c47; font-family: Georgia, "Songti SC", serif; font-size: 13px; line-height: 1.85; }
+    .paper .selected-passage { padding: 3px 2px; background: linear-gradient(transparent 20%, color-mix(in srgb, var(--accent-2) 30%, white) 20%, color-mix(in srgb, var(--accent-2) 30%, white) 90%, transparent 90%); }
+    .figure-box { position: relative; height: 180px; margin-top: 24px; border-radius: 14px; overflow: hidden; background: linear-gradient(135deg, #efeefe, #faf6ef); border: 1px solid #e7e1d8; }
+    .figure-node { position: absolute; width: 86px; padding: 9px; border-radius: 10px; background: white; box-shadow: 0 5px 16px rgba(42,38,33,.09); font-size: 9px; }
+    .figure-node.one { left: 56px; top: 34px; }
+    .figure-node.two { left: 224px; top: 92px; }
+    .figure-node.three { right: 52px; top: 38px; }
+    .figure-line { position: absolute; height: 2px; transform-origin: left center; background: var(--accent); opacity: .55; }
+    .figure-line.a { left: 133px; top: 78px; width: 118px; transform: rotate(19deg); }
+    .figure-line.b { left: 301px; top: 116px; width: 128px; transform: rotate(-24deg); }
+    .extract-action { position: sticky; bottom: 16px; width: max-content; margin: 18px auto 0; padding: 10px 15px; border: 1px solid color-mix(in srgb, var(--accent-2) 50%, var(--line)); border-radius: 999px; background: var(--surface-solid); color: var(--accent-2); box-shadow: 0 8px 24px rgba(47,41,35,.12); cursor: pointer; font-size: 12px; font-weight: 720; }
+    .reader-thread { min-width: 0; display: flex; flex-direction: column; border-left: 1px solid var(--line); background: var(--surface-solid); }
+    .thread-head { padding: 15px 16px; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+    .thread-answer { flex: 1; overflow: auto; padding: 18px; font-size: 14px; line-height: 1.7; }
+    .thread-question { margin-bottom: 13px; color: var(--ink); font-weight: 760; font-size: 14px; line-height: 1.45; }
+    .thread-answer p { margin: 0 0 11px; }
+    .thread-composer { padding: 12px; border-top: 1px solid var(--line); }
+    .thread-composer .composer-box { grid-template-columns: 1fr 36px; }
+
+    .concept-card { display: none; }
+    .concept-kicker { color: var(--accent); font-size: 9px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+    .concept-title { margin-top: 4px; font-family: var(--display-font); font-size: 17px; font-weight: 760; letter-spacing: -.02em; }
+    .concept-desc { margin-top: 5px; color: var(--muted); font-size: 11px; line-height: 1.5; }
+
+    .toast {
+      position: absolute;
+      z-index: 120;
+      left: 50%;
+      bottom: 28px;
+      padding: 10px 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--surface-solid);
+      box-shadow: 0 14px 40px rgba(32,28,25,.16);
+      font-size: 11px;
+      opacity: 0;
+      transform: translate(-50%, 10px);
+      transition: .2s ease;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+    /* ───────── A · Research instrument ───────── */
+    body[data-theme="a"] {
+      --bg: #f6f3ed;
+      --surface-solid: #fffefa;
+      --ink: #25231f;
+      --muted: #746f66;
+      --line: rgba(67,61,52,.14);
+      --grid: rgba(70,62,50,.055);
+      --accent: #6252df;
+      --accent-2: #d77b35;
+      --accent-soft: #ece9fd;
+      --radius: 15px;
+    }
+    body[data-theme="a"] .work-panel {
+      background: color-mix(in srgb, var(--bg) 84%, white);
+    }
+    body[data-theme="a"] .panel-head,
+    body[data-theme="a"] .composer { background: color-mix(in srgb, var(--surface-solid) 88%, transparent); }
+
+    /* Semantic zoom: cards become map labels, then fixed-size landmarks. */
+    .canvas[data-zoom-tier="map"] .node {
+      width: 350px;
+      min-height: 150px;
+      padding: 22px 26px;
+      border-width: 3px;
+      border-color: color-mix(in srgb, var(--accent) 32%, var(--line));
+      border-radius: 26px;
+      box-shadow: 0 6px 20px rgba(42,38,33,.07);
+    }
+    .canvas[data-zoom-tier="map"] .node.material,
+    .canvas[data-zoom-tier="map"] .node.clip { width: 340px; }
+    .canvas[data-zoom-tier="map"] .node-top { margin-bottom: 10px; }
+    .canvas[data-zoom-tier="map"] .node-tokens,
+    .canvas[data-zoom-tier="map"] .node-source,
+    .canvas[data-zoom-tier="map"] .node-port { display: none; }
+    .canvas[data-zoom-tier="map"] .node-title { overflow: hidden; color: var(--muted); font-size: 18px; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }
+    .canvas[data-zoom-tier="map"] .node-takeaway { display: -webkit-box; margin-top: 8px; overflow: hidden; color: var(--ink); font-size: 23px; font-weight: 720; line-height: 1.2; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+    .canvas[data-zoom-tier="map"] .node.off-path { opacity: .7; filter: saturate(.8); }
+    .canvas[data-zoom-tier="glyph"] .node {
+      width: 112px;
+      height: 112px;
+      min-height: 112px;
+      padding: 0;
+      border: 8px solid var(--surface-solid);
+      border-radius: 30px;
+      background: var(--accent);
+      box-shadow: 0 5px 18px rgba(42,38,33,.16);
+    }
+    .canvas[data-zoom-tier="glyph"] .node.material,
+    .canvas[data-zoom-tier="glyph"] .node.map-warm { background: var(--accent-2); }
+    .canvas[data-zoom-tier="glyph"] .node.map-green,
+    .canvas[data-zoom-tier="glyph"] .node.clip { background: var(--success); }
+    .canvas[data-zoom-tier="glyph"] .node > * { display: none; }
+    .canvas[data-zoom-tier="glyph"] .node::after {
+      content: attr(data-short);
+      position: absolute;
+      left: 50%;
+      top: calc(100% + 7px);
+      width: max-content;
+      max-width: 110px;
+      padding: 4px 7px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: color-mix(in srgb, var(--surface-solid) 92%, transparent);
+      color: var(--ink);
+      font-size: 11px;
+      font-weight: 680;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(-50%) translateY(-2px) scale(calc(1 / var(--world-zoom, .32)));
+      transform-origin: top center;
+      transition: .15s ease;
+      white-space: nowrap;
+    }
+    .canvas[data-zoom-tier="glyph"] .node:hover::after,
+    .canvas[data-zoom-tier="glyph"] .node.selected::after { opacity: 1; transform: translateX(-50%) scale(calc(1 / var(--world-zoom, .32))); }
+    .canvas[data-zoom-tier="glyph"] .node.off-path { opacity: .72; filter: saturate(.8); }
+
+
+    /* ───────── B · Context console ───────── */
+    body[data-theme="b"] {
+      color-scheme: dark;
+      --bg: #0b0e13;
+      --surface: rgba(19,23,31,.9);
+      --surface-solid: #151a23;
+      --ink: #eef1f6;
+      --muted: #9ca7b7;
+      --faint: #687386;
+      --line: rgba(173,190,214,.16);
+      --grid: rgba(120,171,255,.065);
+      --accent: #7aa8ff;
+      --accent-2: #ffab66;
+      --accent-soft: #202e48;
+      --success: #56d5a6;
+      --danger: #ff7770;
+      --panel-w: 455px;
+      --radius: 7px;
+      --node-shadow: 0 12px 30px rgba(0,0,0,.28);
+      --panel-shadow: 0 30px 90px rgba(0,0,0,.42);
+      --display-font: var(--mono-font);
+    }
+    body[data-theme="b"] .workspace { border-radius: 8px; box-shadow: 0 0 0 1px rgba(122,168,255,.08), 0 22px 60px rgba(0,0,0,.35); }
+    body[data-theme="b"] .workspace-header { height: 54px; font-family: var(--mono-font); }
+    body[data-theme="b"] .canvas { inset: 54px var(--panel-w) 0 0; }
+    body[data-theme="b"] .work-panel { top: 54px; }
+    body[data-theme="b"] .node { border-left: 3px solid var(--accent); }
+    body[data-theme="b"] .node.material { border-left-color: var(--accent-2); }
+    body[data-theme="b"] .node-title, body[data-theme="b"] .node-takeaway { font-family: var(--mono-font); }
+    body[data-theme="b"] .panel-section { border-radius: 6px; }
+    body[data-theme="b"] .panel-head { background: #10151d; }
+    body[data-theme="b"] .panel-title { font-size: 17px; }
+    body[data-theme="b"] .context-chip { border-radius: 5px; background: #0e1828; }
+    body[data-theme="b"] .concept-card { border-radius: 6px; }
+    body[data-theme="b"] .paper { background: #f3f0e9; color: #171717; }
+    body[data-theme="b"] .paper p { color: #4b4945; }
+
+    /* ───────── C · Editorial notebook ───────── */
+    body[data-theme="c"] {
+      --bg: #eee8dc;
+      --surface-solid: #fffaf0;
+      --ink: #2c2923;
+      --muted: #766e61;
+      --line: rgba(68,58,45,.17);
+      --grid: rgba(81,67,49,.05);
+      --accent: #225e55;
+      --accent-2: #c65f3e;
+      --accent-soft: #dfece7;
+      --success: #225e55;
+      --panel-w: 420px;
+      --radius: 2px;
+      --display-font: Georgia, "Songti SC", "STSong", serif;
+      --node-shadow: 6px 7px 0 rgba(64,53,39,.10);
+    }
+    body[data-theme="c"] .workspace { border-radius: 3px; background: #f4efe4; }
+    body[data-theme="c"] .workspace-header { background: #ebe3d5; border-bottom: 2px solid var(--ink); }
+    body[data-theme="c"] .project-title { font-family: var(--display-font); font-size: 15px; }
+    body[data-theme="c"] .node { border: 1px solid rgba(64,53,39,.24); }
+    body[data-theme="c"] .node::after { content: ""; position: absolute; inset: 7px -7px -7px 7px; z-index: -1; background: color-mix(in srgb, var(--accent-soft) 65%, transparent); }
+    body[data-theme="c"] .node.selected { box-shadow: 8px 9px 0 color-mix(in srgb, var(--accent) 26%, transparent); }
+    body[data-theme="c"] .node-title { font-family: var(--display-font); font-size: 14px; }
+    body[data-theme="c"] .work-panel { padding: 12px; border-left: 2px solid var(--ink); background: #e9e0d1; }
+    body[data-theme="c"] .panel-head, body[data-theme="c"] .composer { border: 1px solid var(--line); background: #fffaf0; }
+    body[data-theme="c"] .panel-scroll { padding-left: 0; padding-right: 0; }
+    body[data-theme="c"] .panel-section { border-radius: 0; box-shadow: 5px 6px 0 rgba(64,53,39,.08); }
+    body[data-theme="c"] .tool-btn, body[data-theme="c"] .context-chip { border-radius: 2px; }
+    body[data-theme="c"] .concept-card { border-radius: 0; border-left: 4px solid var(--accent); }
+
+    /* ───────── D · Spatial glass ───────── */
+    body[data-theme="d"] {
+      --bg: #eff0f8;
+      --surface: rgba(255,255,255,.68);
+      --surface-solid: rgba(255,255,255,.88);
+      --ink: #1e2030;
+      --muted: #72758a;
+      --line: rgba(70,72,112,.14);
+      --grid: rgba(93,82,210,.045);
+      --accent: #6857e8;
+      --accent-2: #fb7b62;
+      --accent-soft: #eae8ff;
+      --success: #2ea77e;
+      --panel-w: 440px;
+      --radius: 24px;
+      --node-shadow: 0 22px 60px rgba(73,67,144,.14), inset 0 1px 0 rgba(255,255,255,.85);
+    }
+    body[data-theme="d"] .stage { background: radial-gradient(circle at 15% 10%, #dcd8ff, transparent 30%), radial-gradient(circle at 68% 76%, #ffdcd4, transparent 28%), #eef0f7; }
+    body[data-theme="d"] .workspace { border-radius: 32px; background: rgba(255,255,255,.35); backdrop-filter: blur(22px); }
+    body[data-theme="d"] .workspace-header { margin: 0; width: auto; height: 40px; }
+    body[data-theme="d"] .project-title,
+    body[data-theme="d"] .tool-btn,
+    body[data-theme="d"] .context-chip { border-color: rgba(255,255,255,.72); background: rgba(255,255,255,.72); box-shadow: 0 10px 30px rgba(69,65,122,.09); backdrop-filter: blur(20px); }
+    body[data-theme="d"] .canvas { inset: 0; }
+    body[data-theme="d"] .work-panel { top: 12px; right: 12px; bottom: 12px; width: calc(var(--panel-w) - 12px); border: 1px solid rgba(255,255,255,.75); border-radius: 26px; overflow: hidden; background: rgba(249,249,255,.72); backdrop-filter: blur(24px); box-shadow: 0 28px 80px rgba(64,60,123,.16); }
+    body[data-theme="d"] .node { backdrop-filter: blur(18px); }
+    body[data-theme="d"] .node.selected { transform: translate(-50%,-50%) scale(1.025); }
+    body[data-theme="d"] .panel-section { background: rgba(255,255,255,.68); }
+    body[data-theme="d"] .concept-card { border-radius: 22px; }
+
+    @media (max-width: 1080px) {
+      .concept-nav { gap: 9px; }
+      .brand { min-width: 145px; }
+      .brand-sub, .tab-note, .nav-hint { display: none; }
+      .concept-tabs { width: auto; flex: 1; grid-template-columns: repeat(2, 1fr); }
+      .concept-tab { justify-content: center; padding: 0 8px; }
+      :root { --panel-w: 390px; }
+      .node { width: 205px; }
+      .reader-body { grid-template-columns: minmax(0,1fr) 340px; }
+      .paper { padding: 42px; }
+    }
+    @media (max-width: 800px) {
+      html, body { overflow: auto; }
+      .prototype { min-width: 760px; min-height: 720px; }
+    }
+  </style>
+</head>
+<body data-theme="a">
+  <div class="prototype">
+    <nav class="concept-nav" aria-label="选择设计方向">
+      <div class="brand">
+        <img src="../../public/logo-social.svg" alt="ThoughtDAG" />
+        <div><div class="brand-name">ThoughtDAG</div><div class="brand-sub">同一产品骨架 · 两套皮肤</div></div>
+      </div>
+      <div class="concept-tabs" role="tablist">
+        <button class="concept-tab" role="tab" aria-selected="true" data-theme-target="a"><span class="tab-index">A</span><span><span class="tab-name">研究仪器</span><span class="tab-note">Calm & credible</span></span></button>
+        <button class="concept-tab" role="tab" aria-selected="false" data-theme-target="d"><span class="tab-index">D</span><span><span class="tab-name">空间工作台</span><span class="tab-note">Light & expressive</span></span></button>
+      </div>
+      <div class="nav-hint">框架、节点与世界坐标完全一致<br/>只比较视觉皮肤和局部反馈</div>
+    </nav>
+
+    <main class="stage">
+      <section class="workspace" aria-label="ThoughtDAG 工作区原型">
+        <header class="workspace-header">
+          <div class="project-title"><span class="project-mark"></span><span>上下文控制研究</span><span aria-hidden="true">⌄</span></div>
+          <div class="project-meta">自动保存 · 刚刚</div>
+          <div class="workspace-tools">
+            <button class="tool-btn">GLM-4.5 Flash</button>
+            <button class="context-chip" id="contextChip"><span class="live-dot"></span><span id="contextChipText">将发送 · 5 节点 · 1,488 tok</span></button>
+            <button class="tool-btn icon" aria-label="中文界面">中</button>
+            <button class="tool-btn icon" aria-label="图结构诊断">⌁</button>
+            <button class="tool-btn icon" aria-label="导出备份">⇩</button>
+            <button class="tool-btn icon" aria-label="撤销">↶</button>
+            <button class="tool-btn icon" aria-label="更多">•••</button>
+          </div>
+        </header>
+
+        <div class="canvas" id="canvas" data-zoom-tier="work">
+          <canvas id="edgeCanvas"></canvas>
+          <div class="canvas-kicker"><strong>思考地图</strong><span id="zoomHint">在画布上滚动鼠标滚轮，查看语义缩放</span></div>
+          <div class="zoom-status"><span id="zoomTierLabel">工作视图</span><strong id="zoomPercent">100%</strong></div>
+
+          <div class="graph-world" id="graphWorld">
+          <div class="frame-region" style="left:3%;top:7%;width:31%;height:78%"><span>① 材料与问题</span></div>
+          <div class="frame-region warm" style="left:36%;top:7%;width:28%;height:88%"><span>② 分支与验证</span></div>
+          <div class="frame-region" style="left:66%;top:7%;width:18%;height:62%"><span>③ 综合上下文</span></div>
+          <div class="frame-region green" style="left:86%;top:7%;width:13%;height:82%"><span>④ 写作与下一步</span></div>
+
+          <article class="node material map-warm" data-node="source" data-short="原始材料" style="left:13%;top:42%">
+            <span class="node-port out"></span>
+            <div class="node-top"><span class="node-type warm">材料</span><span class="node-tokens">PDF · p.12</span></div>
+            <div class="node-title">长上下文中的位置偏差</div>
+            <div class="node-takeaway">模型并不会均匀利用整段历史</div>
+            <div class="node-source">▣ 论文原文 · 已识读</div>
+          </article>
+
+          <article class="node" data-node="root" data-short="根问题" style="left:42%;top:20%">
+            <span class="node-port in"></span><span class="node-port out"></span>
+            <div class="node-top"><span class="node-type">问题</span><span class="node-tokens">426 tok</span></div>
+            <div class="node-title">为什么对话越长，越难看清模型用了什么？</div>
+            <div class="node-takeaway">记录增长，但上下文选择仍不可见</div>
+          </article>
+
+          <article class="node map-green" data-node="evidence" data-short="证据分支" style="left:43%;top:50%">
+            <span class="node-port in"></span><span class="node-port out"></span>
+            <div class="node-top"><span class="node-type green">证据</span><span class="node-tokens">318 tok</span></div>
+            <div class="node-title">三个可以验证的原因</div>
+            <div class="node-takeaway">位置、压缩与提示竞争共同造成失焦</div>
+          </article>
+
+          <article class="node noise map-warm" data-node="noise" data-short="偏离岔路" style="left:92%;top:80%">
+            <span class="node-port out"></span>
+            <div class="node-top"><span class="node-type warm">岔路</span><span class="node-tokens">302 tok</span></div>
+            <div class="node-title">顺便聊到今晚吃什么</div>
+            <div class="node-takeaway">可以留下，但不必进入这次总结</div>
+          </article>
+
+          <article class="node selected" data-node="synthesis" data-short="当前综合" style="left:72%;top:40%">
+            <span class="node-port in"></span><span class="node-port out"></span>
+            <div class="node-top"><span class="node-type">综合</span><span class="node-tokens">1,488 tok</span></div>
+            <div class="node-title">哪些信息真正决定了下一次回答？</div>
+            <div class="node-takeaway">结构清楚之后，答案才可以被复现</div>
+          </article>
+
+          <article class="node clip map-green" data-node="clip" data-short="摘取证据" style="left:14%;top:88%">
+            <span class="node-port out"></span>
+            <div class="node-top"><span class="node-type green">摘取</span><span class="node-tokens">p.12</span></div>
+            <div class="node-title">位置偏差示意图</div>
+            <div class="node-takeaway">来自原文的独立证据节点</div>
+          </article>
+
+          <article class="node map-only map-warm" data-node="related" data-short="相关工作" style="left:12%;top:15%">
+            <div class="node-top"><span class="node-type warm">材料</span></div>
+            <div class="node-title">相关工作与已有界面</div>
+          </article>
+          <article class="node map-only" data-node="note" data-short="研究笔记" style="left:15%;top:72%">
+            <div class="node-top"><span class="node-type">笔记</span></div>
+            <div class="node-title">上下文选择需要界面</div>
+          </article>
+          <article class="node map-only map-green" data-node="method" data-short="验证方案" style="left:43%;top:78%">
+            <div class="node-top"><span class="node-type green">方法</span></div>
+            <div class="node-title">比较不同上下文路径</div>
+          </article>
+          <article class="node map-only map-warm" data-node="counter" data-short="反例" style="left:60%;top:68%">
+            <div class="node-top"><span class="node-type warm">反例</span></div>
+            <div class="node-title">自动记忆何时更好？</div>
+          </article>
+          <article class="node map-only map-green" data-node="experiment" data-short="小模型测试" style="left:60%;top:91%">
+            <div class="node-top"><span class="node-type green">实验</span></div>
+            <div class="node-title">短窗口模型对照</div>
+          </article>
+          <article class="node map-only" data-node="writing" data-short="论证结构" style="left:91%;top:17%">
+            <div class="node-top"><span class="node-type">写作</span></div>
+            <div class="node-title">从问题到证据再到主张</div>
+          </article>
+          <article class="node map-only" data-node="next" data-short="下一步" style="left:91%;top:48%">
+            <div class="node-top"><span class="node-type">下一步</span></div>
+            <div class="node-title">把结论变成研究计划</div>
+          </article>
+          </div>
+
+          <div class="palette" aria-label="添加内容">
+            <button title="添加问题">?</button><button title="添加便签">▤</button><button title="添加材料">⌁</button><button title="添加分区">#</button>
+          </div>
+          <div class="zoom-tools"><button id="zoomIn" aria-label="放大" title="放大">＋</button><button id="zoomOut" aria-label="缩小" title="缩小">−</button><button id="fitMap" aria-label="查看节点地图" title="查看节点地图">⌗</button></div>
+
+          <div class="timeline-rail" aria-label="思考时间轴">
+            <span class="active"></span><span></span><span class="warm"></span><span></span><span class="green"></span><span></span><span></span>
+          </div>
+          <div class="mini-map" aria-label="Mini Map">
+            <span style="left:9%;top:18%;width:26%;height:58%"></span>
+            <span style="left:40%;top:28%;width:17%;height:45%"></span>
+            <span style="left:61%;top:20%;width:13%;height:54%"></span>
+            <span style="left:78%;top:14%;width:17%;height:60%"></span>
+            <i></i>
+          </div>
+
+          <aside class="concept-card">
+            <div class="concept-kicker" id="conceptKicker">A · Research instrument</div>
+            <div class="concept-title" id="conceptTitle">安静、可信，像一件长期使用的研究仪器</div>
+            <div class="concept-desc" id="conceptDesc">弱化“AI 产品感”，用克制的层级承载复杂思考。适合长期研究、论文阅读与严肃工作。</div>
+          </aside>
+        </div>
+
+        <aside class="work-panel" id="workPanel" data-focus-panel>
+          <div class="panel-head">
+            <div class="panel-meta"><span id="panelRole">研究助手</span><span class="meta-sep"></span><span id="panelTokens">1,488 tokens</span><span class="meta-sep"></span><span>上下文可检查</span></div>
+            <div class="panel-head-actions"><button aria-label="节点操作">•••</button><button id="closePanel" aria-label="关闭面板">×</button></div>
+          </div>
+          <div class="panel-scroll">
+            <section class="panel-section question-card">
+              <div class="panel-eyebrow" id="panelEyebrow">当前工作节点</div>
+              <h2 class="panel-title" id="panelTitle">哪些信息真正决定了下一次回答？</h2>
+            </section>
+            <section class="panel-section">
+              <div class="section-label">回答</div>
+              <div class="answer-copy" id="panelAnswer">
+                <p>下一次回答由连进当前节点的内容决定。<strong>材料提供证据，问题保留方向，连线决定取舍。</strong>移出的岔路仍然保留，但不会再参与生成。</p>
+              </div>
+            </section>
+            <section class="panel-section">
+              <div class="section-label">将发送</div>
+              <div class="context-row"><div class="context-bar"><div class="context-fill" id="contextFill"></div></div><span class="context-number" id="contextNumber">5 / 7</span></div>
+              <div class="panel-actions">
+                <button class="panel-btn primary" id="inspectContext">检查上下文</button>
+                <button class="panel-btn" id="openReader">查看原文</button>
+                <button class="panel-btn danger" id="toggleNoise">移出“晚饭”岔路</button>
+                <button class="panel-btn">重新生成</button>
+              </div>
+            </section>
+          </div>
+          <div class="composer">
+            <div class="composer-box"><textarea aria-label="继续追问" placeholder="从这个节点继续追问…"></textarea><button class="send-btn" aria-label="发送">↗</button></div>
+            <div class="composer-caption"><span>只发送连进这个节点的内容</span><span id="composerCount">~1,488 tok</span></div>
+          </div>
+        </aside>
+
+        <div class="context-popover" id="contextPopover" role="dialog" aria-label="将发送的上下文">
+          <div class="popover-title"><span>模型将看到</span><span id="popoverTotal">1,488 tok</span></div>
+          <div class="popover-list">
+            <div class="popover-item"><span class="popover-role">PDF</span><span>位置偏差原文 · p.12</span><span class="popover-tok">442</span></div>
+            <div class="popover-item"><span class="popover-role">Q/A</span><span>长对话为什么让上下文失焦</span><span class="popover-tok">426</span></div>
+            <div class="popover-item"><span class="popover-role">Q/A</span><span>三个可以验证的原因</span><span class="popover-tok">318</span></div>
+            <div class="popover-item" id="noiseContextItem"><span class="popover-role">REF</span><span>晚饭岔路</span><span class="popover-tok">302</span></div>
+          </div>
+        </div>
+
+        <section class="reader" id="reader" aria-label="材料阅读器">
+          <header class="reader-head">
+            <div class="reader-file">context-position-bias.pdf · p.12</div>
+            <div class="reader-tabs"><button class="active">原文</button><button>AI 识读</button><button>导读</button></div>
+            <button class="reader-close" id="closeReader" aria-label="关闭阅读器">×</button>
+          </header>
+          <div class="reader-body">
+            <div class="document-view">
+              <article class="paper">
+                <div class="paper-kicker">SECTION 3 · LONG CONTEXT</div>
+                <h2>Position bias in long-context reasoning</h2>
+                <div class="paper-byline">Experimental notes · page 12</div>
+                <p>Models do not use every part of a long context equally. Evidence placed near the beginning or the end is often recovered more reliably than information buried in the middle.</p>
+                <p><span class="selected-passage">The practical problem is therefore not only how much context fits, but which parts are made explicit at the moment of generation.</span></p>
+                <div class="figure-box" aria-label="文章中的上下文示意图">
+                  <div class="figure-line a"></div><div class="figure-line b"></div>
+                  <div class="figure-node one">Source evidence<br/>p.12</div>
+                  <div class="figure-node two">Selected context</div>
+                  <div class="figure-node three">Next answer</div>
+                </div>
+              </article>
+              <button class="extract-action" id="extractAction">✦ 把选中的图摘到画布</button>
+            </div>
+            <aside class="reader-thread">
+              <div class="thread-head">从原文长出的对话 · 1 条</div>
+              <div class="thread-answer">
+                <div class="thread-question">这张图说明了什么？</div>
+                <p>它把“模型可能看到的全部内容”与“本轮明确进入请求的内容”区分开来。</p>
+                <p>对 ThoughtDAG 来说，图像不是附件装饰；它可以成为带来源的独立证据，再由你决定是否接入下一次上下文。</p>
+              </div>
+              <div class="thread-composer"><div class="composer-box"><textarea aria-label="继续材料问题" placeholder="继续追问这条证据…"></textarea><button class="send-btn" aria-label="发送">↗</button></div></div>
+            </aside>
+          </div>
+        </section>
+
+        <div class="toast" id="toast">已摘到画布 · 来源保留为 p.12</div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const concepts = {
+      a: {
+        kicker: 'A · Research instrument',
+        title: '安静、可信，像一件长期使用的研究仪器',
+        desc: '弱化“AI 产品感”，用克制的层级承载复杂思考。适合长期研究、论文阅读与严肃工作。'
+      },
+      b: {
+        kicker: 'B · Context console',
+        title: '把上下文当成可以检查的运行状态',
+        desc: '技术感更强，token、来源和上下文路径成为视觉主角。适合强调可审计性与模型控制。'
+      },
+      c: {
+        kicker: 'C · Editorial notebook',
+        title: '让研究过程像一本不断生长的个人手册',
+        desc: '纸张、宋体与非对称排版让它更有人味，弱化工具感，强调阅读、摘录和个人思考。'
+      },
+      d: {
+        kicker: 'D · Spatial workbench',
+        title: '轻盈、直觉，突出空间操作带来的愉悦感',
+        desc: '玻璃层次、柔和色彩与更明显的空间深度，适合传播和第一眼吸引，但需要控制装饰性。'
+      }
+    };
+
+    const nodeData = {
+      source: {
+        eyebrow: '材料节点', title: '长上下文中的位置偏差', role: '来源 · p.12', tokens: '442 tokens',
+        answer: '<p>这是一篇进入画布的原始材料。它可以被阅读、识读和摘取，但只有当它连进一个问题时，才会成为那次请求的上下文。</p><p><strong>来源始终保留，是否进入上下文则由连线决定。</strong></p>'
+      },
+      root: {
+        eyebrow: '根问题', title: '为什么对话越长，越难看清模型用了什么？', role: '研究助手', tokens: '426 tokens',
+        answer: '<p>线性聊天把所有历史压在同一条时间线上，却没有把“本轮实际发送了什么”变成可见对象。</p><p>问题并不只是内容太多，而是<strong>上下文选择没有界面</strong>。</p>'
+      },
+      evidence: {
+        eyebrow: '证据分支', title: '三个可以验证的原因', role: '研究助手', tokens: '318 tokens',
+        answer: '<p>可以从三个方向验证：位置偏差、长上下文中的信息竞争，以及系统对历史消息的压缩策略。</p><p>这些原因不应被藏在长回答里，而应该成为画布上可以继续连接的结论。</p>'
+      },
+      noise: {
+        eyebrow: '偏离分支', title: '顺便聊到今晚吃什么', role: '临时岔路', tokens: '302 tokens',
+        answer: '<p>它并不是错误，也不需要删除。真正重要的操作是：<strong>让它留在思考地图上，但不再进入当前问题的上下文。</strong></p>'
+      },
+      synthesis: {
+        eyebrow: '当前工作节点', title: '哪些信息真正决定了下一次回答？', role: '研究助手', tokens: '1,488 tokens',
+        answer: '<p>下一次回答由连进当前节点的内容决定。<strong>材料提供证据，问题保留方向，连线决定取舍。</strong>移出的岔路仍然保留，但不会再参与生成。</p>'
+      },
+      clip: {
+        eyebrow: '摘取证据', title: '位置偏差示意图', role: '来源 · p.12', tokens: '96 tokens',
+        answer: '<p>这是从原文中摘出的局部图像。它保留了页码与来源，同时成为可以独立连接、提问和复用的证据节点。</p>'
+      },
+      related: {
+        eyebrow: '相关材料', title: '相关工作与已有界面', role: '阅读笔记', tokens: '216 tokens',
+        answer: '<p>这里收集了与长上下文、空间对话和可解释记忆相关的界面案例。缩远后，它们只保留为地图上的材料入口。</p>'
+      },
+      note: {
+        eyebrow: '研究笔记', title: '上下文选择需要界面', role: '个人笔记', tokens: '88 tokens',
+        answer: '<p>关键不是让系统自动替我整理一切，而是让上下文选择成为我可以看见、修改和复核的操作。</p>'
+      },
+      method: {
+        eyebrow: '验证方案', title: '比较不同上下文路径', role: '方法草图', tokens: '264 tokens',
+        answer: '<p>保持问题相同，只改变进入节点的上游路径，比较回答是否出现可解释、可复现的变化。</p>'
+      },
+      counter: {
+        eyebrow: '反例分支', title: '自动记忆何时更好？', role: '批判性检查', tokens: '198 tokens',
+        answer: '<p>手动控制不是所有任务的答案。这个分支专门记录自动检索或自动记忆更有优势的情形。</p>'
+      },
+      experiment: {
+        eyebrow: '实验节点', title: '短窗口模型对照', role: '实验记录', tokens: '356 tokens',
+        answer: '<p>在上下文窗口更小的模型上，对比显式删减与完整历史输入，观察有效信息利用率。</p>'
+      },
+      writing: {
+        eyebrow: '写作结构', title: '从问题到证据再到主张', role: '论证提纲', tokens: '312 tokens',
+        answer: '<p>把问题、证据、反例和综合结果组织成一条可追踪的论证路径，而不是复制整段聊天记录。</p>'
+      },
+      next: {
+        eyebrow: '下一步', title: '把结论变成研究计划', role: '行动节点', tokens: '144 tokens',
+        answer: '<p>从当前综合节点继续，生成实验、写作与验证三个方向；它们共享主干，但保留各自的上下文。</p>'
+      }
+    };
+
+    const edges = [
+      { from: 'source', to: 'root', kind: 'material' },
+      { from: 'root', to: 'evidence', kind: 'structural' },
+      { from: 'evidence', to: 'synthesis', kind: 'structural' },
+      { from: 'source', to: 'synthesis', kind: 'reference' },
+      { from: 'noise', to: 'synthesis', kind: 'noise' },
+      { from: 'clip', to: 'synthesis', kind: 'clip' },
+      { from: 'related', to: 'root', kind: 'ambient', mapOnly: true },
+      { from: 'source', to: 'note', kind: 'ambient', mapOnly: true },
+      { from: 'evidence', to: 'method', kind: 'ambient', mapOnly: true },
+      { from: 'method', to: 'experiment', kind: 'ambient', mapOnly: true },
+      { from: 'evidence', to: 'counter', kind: 'ambient', mapOnly: true },
+      { from: 'synthesis', to: 'writing', kind: 'ambient', mapOnly: true },
+      { from: 'synthesis', to: 'next', kind: 'ambient', mapOnly: true }
+    ];
+
+    const canvas = document.getElementById('canvas');
+    const edgeCanvas = document.getElementById('edgeCanvas');
+    const graphWorld = document.getElementById('graphWorld');
+    const ctx = edgeCanvas.getContext('2d');
+    const tabs = [...document.querySelectorAll('.concept-tab')];
+    const nodes = [...document.querySelectorAll('.node')];
+    const contextChip = document.getElementById('contextChip');
+    const contextPopover = document.getElementById('contextPopover');
+    const reader = document.getElementById('reader');
+    const workPanel = document.getElementById('workPanel');
+    let selectedId = 'synthesis';
+    let noiseIncluded = true;
+    let clipVisible = false;
+    const zoomTiers = [
+      { key: 'work', label: '工作视图', hint: '完整卡片：阅读、编辑和继续追问' },
+      { key: 'map', label: '节点地图', hint: '同一世界坐标，只折叠为结论标签' },
+      { key: 'glyph', label: '结构骨架', hint: '同一世界坐标，只保留节点地标' }
+    ];
+    let currentTier = zoomTiers[1];
+    let zoomValue = .52;
+    let panX = 24;
+    let panY = 78;
+
+    function css(name) { return getComputedStyle(document.body).getPropertyValue(name).trim(); }
+    function nodeRect(id) {
+      const el = document.querySelector(`[data-node="${id}"]`);
+      const cr = canvas.getBoundingClientRect();
+      const r = el.getBoundingClientRect();
+      return {
+        left: r.left - cr.left,
+        right: r.right - cr.left,
+        top: r.top - cr.top,
+        bottom: r.bottom - cr.top,
+        cx: r.left - cr.left + r.width / 2,
+        cy: r.top - cr.top + r.height / 2,
+      };
+    }
+    function anchor(rect, side) {
+      if (side === 'top') return { x: rect.cx, y: rect.top };
+      if (side === 'bottom') return { x: rect.cx, y: rect.bottom };
+      if (side === 'left') return { x: rect.left, y: rect.cy };
+      return { x: rect.right, y: rect.cy };
+    }
+    function edgeGeometry(from, to) {
+      const a = nodeRect(from);
+      const b = nodeRect(to);
+      const dx = b.cx - a.cx;
+      const dy = b.cy - a.cy;
+      let sourceSide;
+      let targetSide;
+      if (Math.abs(dx) > Math.abs(dy) * 1.15) {
+        sourceSide = dx >= 0 ? 'right' : 'left';
+        targetSide = dx >= 0 ? 'left' : 'right';
+      } else {
+        sourceSide = dy >= 0 ? 'bottom' : 'top';
+        targetSide = dy >= 0 ? 'top' : 'bottom';
+      }
+      const vectors = {
+        top: { x: 0, y: -1 }, bottom: { x: 0, y: 1 },
+        left: { x: -1, y: 0 }, right: { x: 1, y: 0 },
+      };
+      return { p1: anchor(a, sourceSide), p2: anchor(b, targetSide), v1: vectors[sourceSide], v2: vectors[targetSide] };
+    }
+    function ancestorsOf(id) {
+      const found = new Set([id]);
+      let changed = true;
+      while (changed) {
+        changed = false;
+        edges.forEach(e => {
+          if (e.mapOnly) return;
+          const active = e.kind !== 'noise' || noiseIncluded;
+          if (active && found.has(e.to) && !found.has(e.from) && (e.kind !== 'clip' || clipVisible)) { found.add(e.from); changed = true; }
+        });
+      }
+      return found;
+    }
+    function drawEdges() {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      edgeCanvas.width = rect.width * dpr;
+      edgeCanvas.height = rect.height * dpr;
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+      ctx.clearRect(0,0,rect.width,rect.height);
+      const activePath = ancestorsOf(selectedId);
+      edges.forEach(edge => {
+        if (edge.kind === 'clip' && !clipVisible) return;
+        const { p1, p2, v1, v2 } = edgeGeometry(edge.from, edge.to);
+        const relevant = activePath.has(edge.from) && activePath.has(edge.to) && (edge.kind !== 'noise' || noiseIncluded);
+        const removed = edge.kind === 'noise' && !noiseIncluded;
+        const accent = css('--accent');
+        const warm = css('--accent-2');
+        ctx.save();
+        ctx.beginPath();
+        const distance = Math.hypot(p2.x - p1.x, p2.y - p1.y);
+        const handle = Math.max(34, Math.min(150, distance * .42));
+        const c1 = { x: p1.x + v1.x * handle, y: p1.y + v1.y * handle };
+        const c2 = { x: p2.x + v2.x * handle, y: p2.y + v2.y * handle };
+        ctx.moveTo(p1.x,p1.y);
+        ctx.bezierCurveTo(c1.x,c1.y,c2.x,c2.y,p2.x,p2.y);
+        ctx.strokeStyle = edge.kind === 'noise' ? warm : edge.kind === 'clip' ? css('--success') : accent;
+        ctx.lineWidth = relevant ? 2.6 : 1.4;
+        ctx.globalAlpha = removed ? .16 : relevant ? .88 : currentTier.key === 'work' ? .2 : .42;
+        if (edge.kind === 'reference' || edge.kind === 'noise') ctx.setLineDash([6,7]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        const angle = Math.atan2(p2.y - c2.y, p2.x - c2.x);
+        ctx.translate(p2.x, p2.y);
+        ctx.rotate(angle);
+        ctx.beginPath();
+        ctx.moveTo(0,0);
+        ctx.lineTo(-9,-5.5);
+        ctx.lineTo(-9,5.5);
+        ctx.closePath();
+        ctx.fillStyle = ctx.strokeStyle;
+        ctx.fill();
+        ctx.restore();
+      });
+    }
+
+    function updatePanel(id) {
+      selectedId = id;
+      const data = nodeData[id];
+      document.getElementById('panelEyebrow').textContent = data.eyebrow;
+      document.getElementById('panelTitle').textContent = data.title;
+      document.getElementById('panelRole').textContent = data.role;
+      document.getElementById('panelTokens').textContent = data.tokens;
+      document.getElementById('panelAnswer').innerHTML = data.answer;
+      const path = ancestorsOf(id);
+      nodes.forEach(n => {
+        n.classList.toggle('selected', n.dataset.node === id);
+        n.classList.toggle('off-path', !path.has(n.dataset.node) && n.dataset.node !== id);
+      });
+      drawEdges();
+    }
+
+    function tierForZoom(zoom) {
+      if (zoom >= .9) return zoomTiers[0];
+      if (zoom >= .4) return zoomTiers[1];
+      return zoomTiers[2];
+    }
+
+    function applyViewport() {
+      currentTier = tierForZoom(zoomValue);
+      canvas.dataset.zoomTier = currentTier.key;
+      canvas.style.setProperty('--world-zoom', String(zoomValue));
+      graphWorld.style.transform = `translate(${panX}px, ${panY}px) scale(${zoomValue})`;
+      document.getElementById('zoomTierLabel').textContent = currentTier.label;
+      document.getElementById('zoomPercent').textContent = `${Math.round(zoomValue * 100)}%`;
+      document.getElementById('zoomHint').textContent = currentTier.hint;
+      document.getElementById('zoomIn').disabled = zoomValue >= 1.6;
+      document.getElementById('zoomOut').disabled = zoomValue <= .22;
+      updatePanel(selectedId);
+      animateEdges(180);
+    }
+
+    function zoomAround(nextZoom, pointX = canvas.clientWidth / 2, pointY = canvas.clientHeight / 2) {
+      const clamped = Math.max(.22, Math.min(1.6, nextZoom));
+      const worldX = (pointX - panX) / zoomValue;
+      const worldY = (pointY - panY) / zoomValue;
+      panX = pointX - worldX * clamped;
+      panY = pointY - worldY * clamped;
+      zoomValue = clamped;
+      applyViewport();
+    }
+
+    function fitMap() {
+      zoomValue = .52;
+      const panelSpace = workPanel.classList.contains('closed') ? 0 : parseFloat(css('--panel-w'));
+      const visibleWidth = canvas.clientWidth - panelSpace;
+      panX = Math.max(18, (visibleWidth - 1450 * zoomValue) / 2);
+      panY = Math.max(58, (canvas.clientHeight - 900 * zoomValue) / 2);
+      applyViewport();
+    }
+
+    function animateEdges(duration = 480) {
+      const startedAt = performance.now();
+      function frame(now) {
+        drawEdges();
+        if (now - startedAt < duration) requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    }
+
+    function updateContextState() {
+      const count = noiseIncluded ? 5 : 4;
+      const tok = noiseIncluded ? '1,488' : '1,186';
+      document.getElementById('contextChipText').textContent = `将发送 · ${count} 节点 · ${tok} tok`;
+      document.getElementById('panelTokens').textContent = `${tok} tokens`;
+      document.getElementById('composerCount').textContent = `~${tok} tok`;
+      document.getElementById('popoverTotal').textContent = `${tok} tok`;
+      document.getElementById('contextNumber').textContent = `${count} / 7`;
+      document.getElementById('contextFill').style.width = noiseIncluded ? '72%' : '58%';
+      document.getElementById('noiseContextItem').style.display = noiseIncluded ? 'grid' : 'none';
+      document.getElementById('toggleNoise').textContent = noiseIncluded ? '移出“晚饭”岔路' : '重新接入“晚饭”岔路';
+      document.querySelector('[data-node="noise"]').classList.toggle('removed', !noiseIncluded);
+      updatePanel(selectedId);
+    }
+
+    tabs.forEach(tab => tab.addEventListener('click', () => {
+      const theme = tab.dataset.themeTarget;
+      document.body.dataset.theme = theme;
+      tabs.forEach(t => t.setAttribute('aria-selected', String(t === tab)));
+      document.getElementById('conceptKicker').textContent = concepts[theme].kicker;
+      document.getElementById('conceptTitle').textContent = concepts[theme].title;
+      document.getElementById('conceptDesc').textContent = concepts[theme].desc;
+      requestAnimationFrame(drawEdges);
+    }));
+    nodes.forEach(node => node.addEventListener('click', () => updatePanel(node.dataset.node)));
+    nodes.forEach(node => node.addEventListener('dblclick', () => {
+      if (node.dataset.node === 'source') return;
+      workPanel.classList.remove('closed');
+      document.body.classList.remove('panel-closed');
+      updatePanel(node.dataset.node);
+      if (currentTier.key === 'map') fitMap();
+      else animateEdges(220);
+    }));
+    document.getElementById('closePanel').addEventListener('click', () => {
+      workPanel.classList.add('closed');
+      document.body.classList.add('panel-closed');
+      if (currentTier.key === 'map') fitMap();
+      else animateEdges(220);
+    });
+    contextChip.addEventListener('click', () => contextPopover.classList.toggle('open'));
+    document.getElementById('inspectContext').addEventListener('click', () => contextPopover.classList.toggle('open'));
+    document.getElementById('toggleNoise').addEventListener('click', () => { noiseIncluded = !noiseIncluded; updateContextState(); });
+    document.getElementById('zoomIn').addEventListener('click', () => zoomAround(zoomValue * 1.25));
+    document.getElementById('zoomOut').addEventListener('click', () => zoomAround(zoomValue / 1.25));
+    document.getElementById('fitMap').addEventListener('click', fitMap);
+    canvas.addEventListener('wheel', (event) => {
+      event.preventDefault();
+      const rect = canvas.getBoundingClientRect();
+      const pointX = event.clientX - rect.left;
+      const pointY = event.clientY - rect.top;
+      const factor = Math.exp(-event.deltaY * .0015);
+      zoomAround(zoomValue * factor, pointX, pointY);
+    }, { passive: false });
+    document.getElementById('openReader').addEventListener('click', () => reader.classList.add('open'));
+    document.querySelector('[data-node="source"]').addEventListener('dblclick', () => reader.classList.add('open'));
+    document.getElementById('closeReader').addEventListener('click', () => reader.classList.remove('open'));
+    document.getElementById('extractAction').addEventListener('click', () => {
+      clipVisible = true;
+      document.querySelector('[data-node="clip"]').classList.add('visible');
+      document.querySelector('.concept-card').style.display = 'none';
+      document.getElementById('toast').classList.add('show');
+      setTimeout(() => document.getElementById('toast').classList.remove('show'), 2200);
+      setTimeout(() => updatePanel(selectedId), 40);
+    });
+    document.querySelectorAll('.reader-tabs button').forEach(button => button.addEventListener('click', () => {
+      document.querySelectorAll('.reader-tabs button').forEach(b => b.classList.remove('active'));
+      button.classList.add('active');
+    }));
+    window.addEventListener('resize', () => { applyViewport(); drawEdges(); });
+    window.addEventListener('load', () => { updatePanel('synthesis'); fitMap(); drawEdges(); });
+  </script>
+</body>
+</html>

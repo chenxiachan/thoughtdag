@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
+  <title id="title">ThoughtDAG social logo</title>
+  <desc id="desc">A purple vertical context chain with an editable center node and a dashed orange branch.</desc>
+  <defs>
+    <radialGradient id="background" cx="45%" cy="38%" r="78%">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="0.58" stop-color="#FAF9F7"/>
+      <stop offset="1" stop-color="#EEEAFB"/>
+    </radialGradient>
+    <linearGradient id="purple" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8175F0"/>
+      <stop offset="1" stop-color="#5847D7"/>
+    </linearGradient>
+    <linearGradient id="orange" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F2A45F"/>
+      <stop offset="1" stop-color="#D8742D"/>
+    </linearGradient>
+    <filter id="nodeShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#41378D" flood-opacity="0.18"/>
+    </filter>
+    <filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="22" stdDeviation="34" flood-color="#6B5CE7" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+  <rect width="1024" height="1024" rx="224" fill="url(#background)"/>
+  <rect x="18" y="18" width="988" height="988" rx="208" fill="none" stroke="#FFFFFF" stroke-width="4" opacity="0.9"/>
+
+  <g filter="url(#softShadow)">
+    <circle cx="430" cy="510" r="292" fill="#6B5CE7" opacity="0.035"/>
+    <circle cx="430" cy="510" r="224" fill="#6B5CE7" opacity="0.025"/>
+  </g>
+
+  <g fill="none" stroke-linecap="round">
+    <path d="M430 242 L430 426" stroke="#6B5CE7" stroke-width="42"/>
+    <path d="M430 594 L430 778" stroke="#6B5CE7" stroke-width="42" opacity="0.62"/>
+    <path d="M493 543 C572 561 631 635 738 649"
+          stroke="url(#orange)"
+          stroke-width="36"
+          stroke-dasharray="42 34"/>
+  </g>
+
+  <g filter="url(#nodeShadow)">
+    <circle cx="430" cy="190" r="76" fill="url(#purple)"/>
+    <circle cx="430" cy="510" r="92" fill="#FAF9F7" stroke="url(#purple)" stroke-width="42"/>
+    <circle cx="430" cy="834" r="76" fill="url(#purple)" opacity="0.62"/>
+    <circle cx="802" cy="657" r="76" fill="url(#orange)"/>
+  </g>
+
+  <circle cx="403" cy="164" r="20" fill="#FFFFFF" opacity="0.35"/>
+  <circle cx="777" cy="631" r="20" fill="#FFFFFF" opacity="0.32"/>
+</svg>

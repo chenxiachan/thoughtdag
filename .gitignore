@@ -32,3 +32,9 @@ video/out/
 LAUNCH.md
 launch-assets/
 video/public/bgm.mp3
+
+# local-only heavy media (marketing masters & audio stems)
+video/archive/
+video/public/audio/
+marketing/media-kit/
+marketing/xhs/

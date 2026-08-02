@@ -1,0 +1,165 @@
+{
+  "id": "thoughtdag-visible-context-2026-07",
+  "name": "Visible context, editable memory",
+  "objective": "Earn high-confidence GitHub stars and find users who will test explicit context control.",
+  "positioning": "ThoughtDAG is a human-controlled research workbench where edges determine the model's actual context.",
+  "links": {
+    "repository": "https://github.com/chenxiachan/thoughtdag",
+    "demo": "https://app.thoughtdag.workers.dev",
+    "demoTrackedTemplate": "https://app.thoughtdag.workers.dev/?utm_source={source}&utm_medium=organic_social&utm_campaign=visible_context_2026_07&utm_content={content}"
+  },
+  "guardrails": [
+    "Do not describe ThoughtDAG as an autonomous agent or workflow runner.",
+    "Do not cite the total GitHub star count as evidence of user adoption.",
+    "Do not auto-publish to Reddit, Hacker News, or community forums.",
+    "Do not reuse identical copy across communities.",
+    "Keep hosted-demo capabilities distinct from the full local setup.",
+    "Every Postiz action creates a draft; a human must approve publishing."
+  ],
+  "secondWaveGate": {
+    "rule": "Meet at least two signals before using the stronger personal accounts.",
+    "signals": [
+      {
+        "metric": "substantive_comments",
+        "threshold": 2,
+        "description": "Comments that discuss a use case, architecture choice, or test result."
+      },
+      {
+        "metric": "high_confidence_external_stars",
+        "threshold": 3,
+        "description": "Time-separated stars outside the purchased burst; exclude the owner's star."
+      },
+      {
+        "metric": "new_unique_cloners",
+        "threshold": 2,
+        "description": "New unique cloners after the campaign baseline."
+      }
+    ]
+  },
+  "posts": [
+    {
+      "id": "reddit-llmdevs-manual-vs-auto",
+      "stage": "proof",
+      "channel": "reddit",
+      "community": "LLMDevs",
+      "delivery": "manual",
+      "format": "single",
+      "status": "ready",
+      "title": "I made LLM context a user-editable DAG instead of an automatic memory layer",
+      "content": [
+        "Most LLM memory systems automatically decide what to retrieve and inject.",
+        "I am experimenting with the opposite approach: make the context graph visible, and let the user edit it directly.",
+        "In ThoughtDAG, every question-and-answer exchange is a node. An incoming edge means that node is included in the next model request. Delete the edge, regenerate the same prompt, and that branch disappears from the actual context—not just from the visualization.",
+        "One piece of feedback I received was to add a small router model that suggests which edges are relevant. I can see the usability benefit, but I do not want context selection to become another hidden autonomous layer.",
+        "The compromise I am considering is:\n\n- the model suggests relevant edges;\n- suggestions remain visible;\n- the user confirms or edits them;\n- the final prompt can still be inspected.",
+        "Would that preserve the value of explicit context control, or would you prefer fully automatic memory/RAG?",
+        "MIT-licensed repo:\nhttps://github.com/chenxiachan/thoughtdag",
+        "Live example, no signup or key required:\nhttps://app.thoughtdag.workers.dev/?utm_source=reddit&utm_medium=organic_social&utm_campaign=visible_context_2026_07&utm_content=llmdevs_manual_vs_auto"
+      ],
+      "media": [
+        "docs/prune-en.gif"
+      ],
+      "hypothesis": "LLM application developers will engage more with the manual-versus-automatic design tension than with a generic launch announcement.",
+      "primaryMetrics": [
+        "substantive_comments",
+        "high_confidence_external_stars",
+        "new_unique_cloners"
+      ]
+    },
+    {
+      "id": "x-delete-one-wire",
+      "stage": "second_wave",
+      "channel": "x",
+      "delivery": "postiz-draft",
+      "format": "thread",
+      "status": "gated",
+      "content": [
+        "I deleted one wire and the LLM changed its answer—without changing the prompt.\n\nIn ThoughtDAG, the wires are the prompt.",
+        "Every node is one question/answer exchange.\n\nWhen you ask from a node, ThoughtDAG walks only its upstream edges and turns those ancestors into the model input.\n\nDelete an edge, and that branch is no longer remembered.",
+        "This is deliberately not an autonomous agent that silently manages memory.\n\nThe graph stays visible. The user decides what is included, merged, or pruned.",
+        "Open source, MIT licensed:\nhttps://github.com/chenxiachan/thoughtdag\n\nTry the example canvas:\nhttps://app.thoughtdag.workers.dev/?utm_source=x&utm_medium=organic_social&utm_campaign=visible_context_2026_07&utm_content=delete_one_wire"
+      ],
+      "media": [
+        "docs/prune-en.gif"
+      ],
+      "hypothesis": "A causal visual demonstration will outperform a feature-list launch post on an owned technical account.",
+      "primaryMetrics": [
+        "profile_clicks",
+        "repository_visits",
+        "high_confidence_external_stars"
+      ]
+    },
+    {
+      "id": "bluesky-context-is-not-hidden",
+      "stage": "second_wave",
+      "channel": "bluesky",
+      "delivery": "postiz-draft",
+      "format": "thread",
+      "status": "gated",
+      "content": [
+        "Most LLM tools hide memory selection behind retrieval or an agent.\n\nI built the opposite: a graph where context stays visible and editable.",
+        "Each edge carries real prompt context. Delete one wire, regenerate the same question, and the removed branch disappears from what the model sees.",
+        "ThoughtDAG is open source and human-controlled—not a workflow runner.\n\nRepo: https://github.com/chenxiachan/thoughtdag\nDemo: https://app.thoughtdag.workers.dev/?utm_source=bluesky&utm_medium=organic_social&utm_campaign=visible_context_2026_07&utm_content=context_not_hidden"
+      ],
+      "media": [
+        "public/covers/cover-wires-context.png"
+      ],
+      "hypothesis": "The open-web and research-tool audience will respond to inspectable context and human control.",
+      "primaryMetrics": [
+        "reposts",
+        "repository_visits",
+        "high_confidence_external_stars"
+      ]
+    },
+    {
+      "id": "linkedin-trust-mechanism",
+      "stage": "second_wave",
+      "channel": "linkedin",
+      "delivery": "postiz-draft",
+      "format": "single",
+      "status": "gated",
+      "content": [
+        "What if an LLM's memory were something you could inspect and edit—not something an agent silently managed?",
+        "That is the interaction model I am testing with ThoughtDAG.",
+        "Every question-and-answer exchange becomes a node. The incoming edges are not decorative: they determine which upstream exchanges are included in the model's next request.",
+        "Delete one edge and regenerate the same prompt, and the deleted branch disappears from the actual context.",
+        "The interesting design tension is not graph versus chat. It is manual control versus automatic memory selection.",
+        "A model could suggest which context is relevant. But if it injects that context invisibly, the trust problem returns. My current direction is therefore model-suggested, human-approved context: assistance without surrendering inspectability.",
+        "ThoughtDAG is MIT licensed and available as an early open prototype.\n\nRepository: https://github.com/chenxiachan/thoughtdag\nLive example: https://app.thoughtdag.workers.dev/?utm_source=linkedin&utm_medium=organic_social&utm_campaign=visible_context_2026_07&utm_content=trust_mechanism",
+        "For people building long-running LLM interfaces: would you rather edit context manually, approve model suggestions, or delegate memory selection completely?"
+      ],
+      "media": [
+        "public/covers/cover-cut-edge.png"
+      ],
+      "hypothesis": "The stronger personal account should amplify a design insight and external feedback, not repeat the launch announcement.",
+      "primaryMetrics": [
+        "substantive_comments",
+        "repository_visits",
+        "high_confidence_external_stars"
+      ]
+    },
+    {
+      "id": "dev-case-delete-edge",
+      "stage": "follow_up",
+      "channel": "devto",
+      "delivery": "manual",
+      "format": "single",
+      "status": "backlog",
+      "title": "Delete one edge, ask the same question: testing editable LLM context",
+      "content": [
+        "A technical case post focused only on the before/after prompt construction, the resulting answer difference, and the manual-versus-router design question.",
+        "Do not publish until the current DEV article has accumulated its first feedback cycle and the placeholder GIF has been replaced."
+      ],
+      "media": [
+        "docs/prune-en.gif",
+        "public/covers/cover-cut-edge.png"
+      ],
+      "hypothesis": "A reproducible case will create more trust than another product overview.",
+      "primaryMetrics": [
+        "article_views",
+        "repository_visits",
+        "new_unique_cloners"
+      ]
+    }
+  ]
+}

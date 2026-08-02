@@ -4,7 +4,18 @@
   "scripts": {
     "studio": "remotion studio src/index.ts",
     "render": "remotion render src/index.ts Hero out/hero.mp4",
-    "render:gif": "remotion render src/index.ts Hero out/hero.gif --codec=gif --every-nth-frame=2"
+    "render:gif": "remotion render src/index.ts Hero out/hero.gif --codec=gif --every-nth-frame=2",
+    "render:product-film-zh": "remotion render src/index.ts ProductFilmZh out/product-film-zh.mp4",
+    "render:story-vertical-zh": "remotion render src/index.ts StoryVerticalZh out/story-vertical-zh-preview.mp4",
+    "render:scroll-animatic-zh": "remotion render src/index.ts ScrollAnimaticZh out/scroll-animatic-zh.mp4",
+    "render:scroll-animatic-en": "remotion render src/index.ts ScrollAnimaticEn out/scroll-animatic-en.mp4",
+    "render:scroll-animatic-en-wide": "remotion render src/index.ts ScrollAnimaticEnWide out/scroll-animatic-en-wide.mp4",
+    "render:scroll-animatic-zh-wide": "remotion render src/index.ts ScrollAnimaticZhWide out/scroll-animatic-zh-wide.mp4",
+    "render:brand-zh-wide": "remotion render src/index.ts ScrollAnimaticBrandZhWide out/scroll-animatic-brand-zh-wide.mp4",
+    "render:brand-en-wide": "remotion render src/index.ts ScrollAnimaticBrandEnWide out/scroll-animatic-brand-en-wide.mp4",
+    "music:scroll-animatic-en-wide": "node scripts/generate-en-wide-clap-story.mjs",
+    "audio:scroll-animatic-zh": "node scripts/generate-scroll-soundtrack.mjs",
+    "music:scroll-animatic-zh": "node scripts/generate-scroll-music-candidates.mjs"
   },
   "dependencies": {
     "@remotion/cli": "^4.0.493",

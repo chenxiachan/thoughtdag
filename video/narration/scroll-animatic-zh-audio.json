@@ -1,0 +1,107 @@
+{
+  "id": "scroll-animatic-zh-audio",
+  "version": 1,
+  "durationSeconds": 31.8,
+  "voiceDirection": {
+    "person": "first",
+    "delivery": "自然、克制、像创作者在讲自己为什么做这个产品；不是功能播报，也不刻意煽情",
+    "preferredVoice": "MiniMax natural Mandarin female or creator voice clone",
+    "finalLogoSilence": true
+  },
+  "narration": [
+    {
+      "id": "01-doubt",
+      "start": 2.3,
+      "end": 5.25,
+      "text": "我和 AI 聊得越久，越觉得有件事不对。"
+    },
+    {
+      "id": "02-branch",
+      "start": 5.8,
+      "end": 8.55,
+      "text": "对话一直往下，思路却早就岔开了。"
+    },
+    {
+      "id": "03-grow",
+      "start": 9.15,
+      "end": 11.55,
+      "text": "一个问题，会长出不同方向。"
+    },
+    {
+      "id": "04-idea",
+      "start": 11.7,
+      "end": 15.35,
+      "text": "所以我想，和 AI 的对话，也应该像思维导图一样展开。"
+    },
+    {
+      "id": "05-assets",
+      "start": 15.35,
+      "end": 19.55,
+      "text": "PDF、图片都可以放进来，从不同区域，继续问下去。"
+    },
+    {
+      "id": "06-prune",
+      "start": 20.05,
+      "end": 22.9,
+      "text": "走偏的路不用删，只要不带进下一步。"
+    },
+    {
+      "id": "07-distill",
+      "start": 23.15,
+      "end": 28.45,
+      "text": "最后，让真正有关的内容重新汇合，提纯成下一个更好的问题。"
+    }
+  ],
+  "soundMap": [
+    {
+      "time": 1.8,
+      "event": "shock-entry",
+      "sound": "sub impact with a short glassy bloom"
+    },
+    {
+      "time": 5.3,
+      "event": "first-whip",
+      "sound": "short air pull"
+    },
+    {
+      "time": 8.5,
+      "event": "branch",
+      "sound": "two soft tonal clicks moving left and right"
+    },
+    {
+      "time": 11.8,
+      "event": "mind-map-reveal",
+      "sound": "pulse becomes clearly audible"
+    },
+    {
+      "time": 13.8,
+      "event": "assets-enter",
+      "sound": "paper texture and two magnetic UI snaps"
+    },
+    {
+      "time": 17.25,
+      "event": "regional-questions",
+      "sound": "two rising node blooms"
+    },
+    {
+      "time": 20.05,
+      "event": "prune",
+      "sound": "music briefly ducks, followed by one dry cut"
+    },
+    {
+      "time": 22.8,
+      "event": "merge",
+      "sound": "pulse doubles and two tones resolve into one chord"
+    },
+    {
+      "time": 26.3,
+      "event": "climax-pullback",
+      "sound": "fastest whoosh, full pulse and warm harmonic lift"
+    },
+    {
+      "time": 28.9,
+      "event": "logo-outro",
+      "sound": "percussion stops; one open warm chord remains"
+    }
+  ]
+}
