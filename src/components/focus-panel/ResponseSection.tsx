@@ -164,7 +164,7 @@ export default function ResponseSection({
           <div className="py-1">
             <div className="text-2xs text-ink-faint mb-1">💭 {t('node.reasoningLive')}</div>
             <div ref={streamRef} className="text-xs text-ink-faint italic leading-relaxed whitespace-pre-wrap break-words max-h-[300px] overflow-y-auto">
-              {data.reasoning}
+              {data.reasoning.length > 4000 ? '…' + data.reasoning.slice(-4000) : data.reasoning}
             </div>
           </div>
         ) : (

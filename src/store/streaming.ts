@@ -222,13 +222,40 @@ export async function runNodeGeneration(
         throw new Error(fmt(t('toast.contextOverWindow'), { est: est.toLocaleString(), model: effectiveModel!, limit: windowLimit.toLocaleString() }));
       }
     }
-    const response = await llmCallStream(messages, (_chunk, fullSoFar) => {
-      if (!isCurrent()) return;
+    // Stream frames arrive at 100+/s on the direct lane (DeepSeek flash
+    // thinking most of all). Committing every frame re-renders the whole
+    // canvas and locks the tab; buffer the latest text and commit at most
+    // every ~100ms (leading + trailing), with a final flush after the await.
+    let streamLatest: { response?: string; reasoning?: string } | null = null;
+    let streamTimer: number | null = null;
+    const commitStream = () => {
+      if (!streamLatest || !isCurrent()) { streamLatest = null; return; }
+      const patch = streamLatest;
+      streamLatest = null;
       set((state) => ({
         nodes: state.nodes.map((n) =>
-          n.id === nodeId ? { ...n, data: { ...n.data, response: fullSoFar, restreaming: undefined } } : n
+          n.id === nodeId
+            ? { ...n, data: { ...n.data,
+                ...(patch.response !== undefined ? { response: patch.response, restreaming: undefined } : {}),
+                ...(patch.reasoning !== undefined ? { reasoning: patch.reasoning } : {}) } }
+            : n
         ),
       }));
+    };
+    const pushStream = (patch: { response?: string; reasoning?: string }) => {
+      streamLatest = { ...(streamLatest ?? {}), ...patch };
+      if (streamTimer == null) {
+        commitStream();
+        streamTimer = window.setTimeout(() => { streamTimer = null; commitStream(); }, 100);
+      }
+    };
+    const flushStream = () => {
+      if (streamTimer != null) { clearTimeout(streamTimer); streamTimer = null; }
+      commitStream();
+    };
+
+    const response = await llmCallStream(messages, (_chunk, fullSoFar) => {
+      pushStream({ response: fullSoFar });
     }, abortController.signal, images, {
       onToolCall: (name, query) => {
         if (!isCurrent()) return;
@@ -246,12 +273,7 @@ export async function runNodeGeneration(
       onRerouted: (_from, to) => { actualModel = to; },
       onImageFallback: (model) => { actualModel = model; },
       onReasoning: (_chunk, fullSoFar) => {
-        if (!isCurrent()) return;
-        set((state) => ({
-          nodes: state.nodes.map((n) =>
-            n.id === nodeId ? { ...n, data: { ...n.data, reasoning: fullSoFar } } : n
-          ),
-        }));
+        pushStream({ reasoning: fullSoFar });
       },
     }, (() => {
       // Search permissions live on the node (snapshotted at ask time);
@@ -263,6 +285,7 @@ export async function runNodeGeneration(
         mcp: useUiStore.getState().mcpEnabled,
       };
     })(), pinnedModel);
+    flushStream();
     if (!isCurrent()) return; // superseded while finishing: drop everything
     activeAbortControllers.delete(nodeId);
     if (!response.trim()) {
