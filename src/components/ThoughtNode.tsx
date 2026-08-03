@@ -821,7 +821,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
 
           {/* Inline continue input — hidden while a paradigm run is in
               progress (the structure IS the paradigm); returns on unlock */}
-          {!data.isLoading && !data.isEditingResponse && !isAwaitingAsk && !(isParadigmNode && runLocked) && !isViewerMode && (
+          {!data.isLoading && !data.isEditingResponse && !isAwaitingAsk && !(isParadigmNode && runLocked) && !isViewerMode && selectedNodeId !== id && (
             <div className="mt-3 pt-3 border-t border-line relative">
               <MentionSurface m={mention} text={inputValue} setText={setInputValue} />
               <div className="flex items-end gap-2 bg-wash rounded-xl px-4 py-2.5 transition-shadow focus-within:ring-1 focus-within:ring-accent/40">

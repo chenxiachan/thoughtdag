@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Archive, Check, Copy, Loader2, Minimize2, X } from 'lucide-react';
 import { useUiStore, toast } from '../../lib/ui-store';
@@ -50,6 +50,14 @@ export default function CondenseDialog({ onFocusSegment }: { onFocusSegment?: (n
     useUiStore.getState().setCondenseDialogOpen(false);
     useUiStore.getState().setCondenseHighlightIds([]);
   };
+  // Esc closes the top layer, here too — a floating window that ignores
+  // Esc reads as stuck
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') close(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open]);
   if (!open) return null;
 
   const build = () => {

@@ -153,6 +153,13 @@ const GIF_STEPS: Record<number, string> = { 4: 'prune', 5: 'map', 6: 'reading', 
 export default function Tutorial() {
   const open = useUiStore((s) => s.tutorialOpen);
   const setOpen = useUiStore((s) => s.setTutorialOpen);
+  // Esc closes the top layer, the tutorial included
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setOpen(false); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [open, setOpen]);
   const t = useT();
   const lang = useI18n((st) => st.lang);
   const [page, setPage] = useState(0);

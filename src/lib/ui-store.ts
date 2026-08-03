@@ -155,7 +155,10 @@ export const useUiStore = create<UiState>((set, get) => ({
     get().confirmRequest?.resolve(ok);
     set({ confirmRequest: null });
   },
-  setTutorialOpen: (open) => set({ tutorialOpen: open }),
+  setTutorialOpen: (open) => {
+    if (!open) localStorage.setItem('thoughtdag.tutorialDone', '1');
+    set({ tutorialOpen: open });
+  },
   setWebSearchEnabled: (enabled) => {
     localStorage.setItem(WEB_SEARCH_KEY, enabled ? 'on' : 'off');
     set({ webSearchEnabled: enabled });

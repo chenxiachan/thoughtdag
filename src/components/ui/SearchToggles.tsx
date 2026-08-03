@@ -24,7 +24,9 @@ export default function SearchToggles({ size = 16 }: { size?: number }) {
 
   const cls = (on: boolean) =>
     `transition-colors shrink-0 rounded-full w-8 h-8 flex items-center justify-center ${
-      on ? 'text-accent bg-accent/10 hover:bg-accent/20' : 'text-ink-faint hover:text-ink-muted hover:bg-line'
+      on
+        ? 'text-accent bg-accent/15 ring-1 ring-accent/40 hover:bg-accent/25'
+        : 'text-ink-muted opacity-50 hover:opacity-90 hover:bg-line'
     }`;
 
   return (

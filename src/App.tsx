@@ -220,8 +220,24 @@ function Canvas() {
     st.setNodes([...st.nodes, ...exNodes.filter((n) => !st.nodes.some((x) => x.id === n.id))]);
     st.setEdges([...st.edges, ...exEdges.filter((e) => !st.edges.some((x) => x.id === e.id))]);
     st.pushHistory();
-    setTimeout(() => rfInstance.current?.fitView({ duration: 500, padding: 0.1 }), 100);
-  }, [lang]);
+    setTimeout(() => {
+      const inst = rfInstance.current;
+      if (!inst) return;
+      inst.fitView({ duration: 500, padding: 0.1 });
+      // A laptop-sized window fits the whole example only at glyph zoom,
+      // where every teaching card is unreadable. After the overview beat,
+      // land on the oldest node (the welcome card) at takeaway zoom.
+      setTimeout(() => {
+        if (inst.getViewport().zoom < 0.34) {
+          const first = [...useStore.getState().nodes]
+            .sort((x, y) => (x.data.createdAt ?? '').localeCompare(y.data.createdAt ?? ''))[0];
+          if (first) inst.setCenter(first.position.x + 300, first.position.y + 240, { zoom: 0.6, duration: 550 });
+        }
+      }, 680);
+    }, 100);
+    // the example canvas is the classroom: first visit opens the lesson
+    if (!localStorage.getItem('thoughtdag.tutorialDone')) setTutorialOpen(true);
+  }, [lang, setTutorialOpen]);
 
   // ── Orchestration (paradigm) mode helpers ──
   const addStep = useCallback((kind: 'human' | 'prompt') => {
@@ -950,7 +966,7 @@ function Canvas() {
         <ZoomTierTag />
         <TimelineBar />
         <Controls position="bottom-left" />
-        <MiniMap
+        {nodes.length > 0 && <MiniMap
           nodeColor={(node) => {
             const data = node.data as Record<string, unknown>;
             // information density over decoration: type is color, archived
@@ -967,7 +983,7 @@ function Canvas() {
           pannable
           zoomable
           position="bottom-right"
-        />
+        />}
       </ReactFlow>
 
       {/* Initial input */}
@@ -1044,6 +1060,7 @@ function Canvas() {
               </svg>
               <h1 className="text-4xl font-semibold tracking-tight text-ink mb-2.5">ThoughtDAG</h1>
               <p className="text-sm text-ink-muted">{t('landing.tagline')}</p>
+              <p className="text-xs text-ink-muted mt-1.5 font-medium">{t('landing.mechanism')}</p>
             </div>
             <div
               className="bg-card border border-line rounded-xl px-5 py-4 shadow-lg transition-all focus-within:border-accent/50 focus-within:shadow-xl"
@@ -1566,6 +1583,15 @@ function Canvas() {
                   title={t('toolbar.exportEventsTitle')}
                 >
                   <FileText size={14} strokeWidth={1.75} className="text-ink-faint shrink-0" /> {t('toolbar.exportEvents')}
+                </button>
+              )}
+              {hasNodes && !isParadigm && !isViewerMode && (
+                <button
+                  onClick={() => { setMoreOpen(false); useUiStore.getState().setCondenseDialogOpen(true); }}
+                  className="w-full text-left px-3 py-2 text-xs text-ink hover:bg-wash transition-colors flex items-center gap-2.5"
+                  title={t('condense.entryTitle')}
+                >
+                  <Minimize2 size={14} strokeWidth={1.75} className="text-ink-faint shrink-0" /> {t('condense.title')}…
                 </button>
               )}
               <button

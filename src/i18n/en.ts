@@ -3,6 +3,7 @@
 export const en = {
   // Landing
   'landing.tagline': 'Your thinking deserves a map. One rule: a wire is context',
+  'landing.mechanism': 'Delete one edge. Get a different answer.',
   'landing.placeholder': 'What would you like to explore?',
   'landing.rolePlaceholder': 'e.g. You are a physicist. Explain using first principles.',
   'roles.manage': 'Manage',

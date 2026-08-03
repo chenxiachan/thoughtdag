@@ -3,6 +3,7 @@ import type { en } from './en';
 export const zh: Record<keyof typeof en, string> = {
   // Landing
   'landing.tagline': '思考值得一张地图。唯一法则：连线即上下文',
+  'landing.mechanism': '删一条线，换一个答案。',
   'landing.placeholder': '你想探索什么？',
   'landing.rolePlaceholder': '例如：你是一位物理学家，请用第一性原理解释。',
   'roles.manage': '管理',
