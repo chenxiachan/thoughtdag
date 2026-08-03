@@ -33,6 +33,14 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
   const zoomedOut = zoomTier !== 'work';
   const rf = useReactFlow();
   const nodePos = useStore((s) => { const n = s.nodes.find((x) => x.id === id); return n ? n.position : null; });
+  // Does this material actually reach any context? 'none' and 'quote' are
+  // the two silent traps a card must confess to (One Rule's honest face).
+  const wireState = useStore((s) => {
+    const outs = s.edges.filter((e) => e.source === id);
+    if (outs.length === 0) return 'none:0';
+    const full = outs.filter((e) => !e.data?.isCrossLink).length;
+    return full > 0 ? `full:${full}` : 'quote:0';
+  });
   const glyphTier = zoomTier === 'glyph';
   const updateNodeInternals = useUpdateNodeInternals();
   useEffect(() => { updateNodeInternals(id); }, [glyphTier, id, updateNodeInternals]);
@@ -361,6 +369,17 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
               className="hidden"
               onChange={(e) => { if (e.target.files) void ingestFiles(id, e.target.files); e.target.value = ''; }}
             />
+          </div>
+        )}
+        {(
+          <div className="px-1 pt-2" data-wire-status>
+            {wireState === 'none:0' ? (
+              <p className="text-2xs text-amber-700 leading-snug">{t('content.wireNone')}</p>
+            ) : wireState === 'quote:0' ? (
+              <p className="text-2xs text-amber-700 leading-snug">{t('content.wireQuoteOnly')}</p>
+            ) : (
+              <p className="text-2xs text-ink-faint leading-snug">{fmt(t('content.wireFull'), { n: wireState.split(':')[1] })}</p>
+            )}
           </div>
         )}
       </div>

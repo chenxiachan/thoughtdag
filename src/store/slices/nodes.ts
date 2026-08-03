@@ -160,6 +160,39 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
     // (context walks are visited-guarded, and auto-chains are budgeted).
     const exists = edges.some((e) => e.source === sourceId && e.target === targetId);
     if (exists) return;
+    // MATERIAL sources wire SOLID by default. A dashed reference carries a
+    // node's Q/A transcript — a material has none, so a dashed wire from a
+    // material is a nearly-empty gesture that LOOKS like "file connected"
+    // (the exact misreading a real canvas produced). Solid is the only
+    // honest default; the toast offers the way back down.
+    const srcNode = nodes.find((x) => x.id === sourceId);
+    if (srcNode && ['note', 'file', 'link'].includes(srcNode.data.stepKind ?? '')) {
+      get().pushHistory();
+      const matEdge: ThoughtEdge = {
+        id: `edge-${sourceId}-${targetId}`,
+        source: sourceId, sourceHandle: 'continue',
+        target: targetId, targetHandle: 'top',
+        type: 'smoothstep',
+        style: { stroke: COLORS.accent, strokeDasharray: '8 4', strokeWidth: 2 },
+        animated: true,
+        data: { isCrossLink: true, createdAt: new Date().toISOString() },
+      };
+      set((state) => ({ edges: [...state.edges, matEdge] }));
+      get().logEvent('connect', matEdge.id);
+      // structural conversion reuses the cycle guard, styling, layout and
+      // staleness reaction in one place; on refusal the edge stays dashed.
+      get().setEdgeStructural(matEdge.id, true);
+      const converted = get().edges.find((e) => e.id === matEdge.id);
+      if (converted && !converted.data?.isCrossLink) {
+        const ctx = buildContext(sourceId, get().nodes, get().edges);
+        const tok = ctx.messages.reduce((s2, m) => s2 + countTokens(m.content), 0);
+        toast('success', fmt(t('edge.materialWiredFull'), { n: tok.toLocaleString() }), 8000, {
+          label: t('edge.materialMakeQuote'),
+          run: () => get().setEdgeStructural(matEdge.id, false),
+        });
+      }
+      return;
+    }
     get().pushHistory();
     // Anchor by geometry: a reference into a node right below reads as part
     // of the vertical grammar (bottom→top); anything else routes via the
