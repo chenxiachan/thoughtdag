@@ -265,7 +265,8 @@ export default function Tutorial() {
           <span>Space {t('shortcut.collapse')}</span>
           <span>R {t('shortcut.regenerate')}</span>
           <span>{'\u2191\u2193\u2190\u2192'} {t('shortcut.navigate')}</span>
-          <span>{'\u2318'}Z {t('shortcut.undo')}</span>
+          <span>{'\u2318'}Z/{'\u21E7'}{'\u2318'}Z {t('shortcut.undo')}</span>
+          <span>Del {t('shortcut.delete')}</span>
           <span>Esc {t('shortcut.escape')}</span>
         </div>
       </div>

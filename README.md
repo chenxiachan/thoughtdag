@@ -107,6 +107,10 @@ npm run dev       # → localhost:5173
 
 The landing page offers the seeded example canvas one labeled click away: four chapters around one everyday question (why saved articles stay unread), including a reading loop with a real embedded PDF. Environment variables, free keys and configuration details → [docs/setup.md](docs/setup.md)
 
+### Desktop app (beta)
+
+The same app in its own window, bundled local server included — download from [Releases](https://github.com/chenxiachan/thoughtdag/releases): macOS (`.dmg`, Apple Silicon & Intel), Windows (`.exe`), Linux (`.AppImage`). One canvas file world, no Node, no terminal. Beta builds are not yet code-signed: on macOS right-click → Open on first launch; on Windows choose "More info → Run anyway".
+
 ## More capabilities
 
 | Capability | What it does |
