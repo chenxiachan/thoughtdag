@@ -122,6 +122,17 @@ export default function App() {
     const timer = setTimeout(() => void gcVaultAtBoot(), 6000);
     return () => clearTimeout(timer);
   }, []);
+  // True first launch (no tutorial ever closed, an empty canvas, not a
+  // shared-link viewer): open the lesson unprompted. The example-canvas
+  // button keeps its own trigger for people who skip straight there.
+  useEffect(() => {
+    if (!hydrated || isViewerMode) return;
+    if (localStorage.getItem('thoughtdag.tutorialDone')) return;
+    if (useStore.getState().nodes.length > 0) return;
+    const timer = setTimeout(() => useUiStore.getState().setTutorialOpen(true), 900);
+    return () => clearTimeout(timer);
+  }, [hydrated]);
+
   // A pending Sign-in-with-OpenRouter callback (?code=) resolves here: the
   // exchange and provider registration run entirely in the browser.
   useEffect(() => {
