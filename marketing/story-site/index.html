@@ -973,14 +973,14 @@
         </div>
         <h1
           data-en-html="Don’t just read chat history. <span>Edit what the model actually sees.</span>"
-          data-zh-html="聊天越长，<br class='mobile-break' />越看不清上下文。<br /><span>模型看见什么，<br class='mobile-break' />由你来决定。</span>"
+          data-zh-html="思考值得一张地图<br /><span>连线即上下文</span>"
         >
           Don’t just read chat history. <span>Edit what the model actually sees.</span>
         </h1>
         <p
           class="hero-lede"
           data-en="ThoughtDAG turns every question-and-answer exchange into a node, and every connection into context. Remove one edge, ask the same question again, and that branch is gone from the request."
-          data-zh="ThoughtDAG 把每轮问答摊开成一个个节点，让连线直接决定上下文。剪掉一条线，用同一个问题重新生成，那条分支就不会再发给模型。"
+          data-zh="对话在这里长成一张图：节点是问答，连线决定模型读到什么。想验证一个念头，删一条线重新生成，答案立刻告诉你差别。"
         >
           ThoughtDAG turns every question-and-answer exchange into a node, and every
           connection into context. Remove one edge, ask the same question again, and that
@@ -1104,6 +1104,37 @@
           </article>
         </div>
       </div>
+    </section>
+
+    <section class="dl-section" id="download" aria-label="Download">
+      <h2 data-en="Take it to the desktop" data-zh="把它装进桌面">Take it to the desktop</h2>
+      <p class="dl-sub" data-en="The same app in its own window, local engine bundled. No Node, no terminal." data-zh="同一个应用装进独立窗口，内置本地引擎。不需要 Node，不需要终端。">The same app in its own window, local engine bundled. No Node, no terminal.</p>
+      <span class="dl-version" id="dl-version">v0.3.0-beta.1</span>
+      <div class="dl-grid" id="dl-grid">
+        <div class="dl-card" data-os="mac" data-badge="Recommended for you">
+          <div class="dl-os">macOS <small>Apple Silicon</small></div>
+          <a class="dl-btn" id="dl-mac-arm" href="https://github.com/chenxiachan/thoughtdag/releases/download/v0.3.0-beta.1/ThoughtDAG-0.3.0-beta.1-arm64.dmg" data-en="Download .dmg" data-zh="下载 .dmg">Download .dmg</a>
+          <div class="dl-size" id="dl-size-mac">≈126MB</div>
+          <a class="dl-btn secondary" id="dl-mac-x64" href="https://github.com/chenxiachan/thoughtdag/releases/download/v0.3.0-beta.1/ThoughtDAG-0.3.0-beta.1.dmg" data-en="Intel Macs" data-zh="Intel 芯片版">Intel Macs</a>
+        </div>
+        <div class="dl-card" data-os="win" data-badge="Recommended for you">
+          <div class="dl-os">Windows <small>x64</small></div>
+          <a class="dl-btn" id="dl-win" href="https://github.com/chenxiachan/thoughtdag/releases/download/v0.3.0-beta.1/ThoughtDAG.Setup.0.3.0-beta.1.exe" data-en="Download installer" data-zh="下载安装程序">Download installer</a>
+          <div class="dl-size" id="dl-size-win">≈106MB</div>
+        </div>
+        <div class="dl-card" data-os="linux" data-badge="Recommended for you">
+          <div class="dl-os">Linux <small>x64</small></div>
+          <a class="dl-btn" id="dl-linux" href="https://github.com/chenxiachan/thoughtdag/releases/download/v0.3.0-beta.1/ThoughtDAG-0.3.0-beta.1.AppImage" data-en="Download .AppImage" data-zh="下载 .AppImage">Download .AppImage</a>
+          <div class="dl-size" id="dl-size-linux">≈133MB</div>
+        </div>
+      </div>
+      <div class="dl-notes">
+        <b data-en="Beta notes" data-zh="Beta 说明">Beta notes</b><br />
+        <span data-en='Beta builds are not yet code-signed. macOS first launch: right-click the app, choose Open. Windows SmartScreen: choose "More info", then "Run anyway". The stable release will ship signed.' data-zh="当前为测试版，安装包尚未签名。macOS 首次打开：右键点击应用，选「打开」。Windows 弹出提示时：点「更多信息」，再点「仍要运行」。正式版将带签名发布。">Beta builds are not yet code-signed. macOS first launch: right-click the app, choose Open. Windows SmartScreen: choose "More info", then "Run anyway". The stable release will ship signed.</span>
+      </div>
+      <p class="dl-foot">
+        <span data-en="All versions and history live on " data-zh="全部版本与历史在 ">All versions and history live on </span><a href="https://github.com/chenxiachan/thoughtdag/releases">GitHub Releases</a><span data-en=". The desktop and web apps are the same app; your canvases stay on your device either way." data-zh="。桌面版与在线版功能一致，画布数据都只存在你的设备上。">. The desktop and web apps are the same app; your canvases stay on your device either way.</span>
+      </p>
     </section>
 
     <section class="story" id="story" aria-label="ThoughtDAG interactive story">
@@ -1716,37 +1747,6 @@
           <span id="chapter-label">Invisible context</span>
         </div>
       </div>
-    </section>
-
-    <section class="dl-section" id="download" aria-label="Download">
-      <h2 data-en="Take it to the desktop" data-zh="把它装进桌面">Take it to the desktop</h2>
-      <p class="dl-sub" data-en="The same app in its own window, local engine bundled. No Node, no terminal." data-zh="同一个应用装进独立窗口，内置本地引擎。不需要 Node，不需要终端。">The same app in its own window, local engine bundled. No Node, no terminal.</p>
-      <span class="dl-version" id="dl-version">v0.3.0-beta.1</span>
-      <div class="dl-grid" id="dl-grid">
-        <div class="dl-card" data-os="mac" data-badge="Recommended for you">
-          <div class="dl-os">macOS <small>Apple Silicon</small></div>
-          <a class="dl-btn" id="dl-mac-arm" href="https://github.com/chenxiachan/thoughtdag/releases/download/v0.3.0-beta.1/ThoughtDAG-0.3.0-beta.1-arm64.dmg" data-en="Download .dmg" data-zh="下载 .dmg">Download .dmg</a>
-          <div class="dl-size" id="dl-size-mac">≈126MB</div>
-          <a class="dl-btn secondary" id="dl-mac-x64" href="https://github.com/chenxiachan/thoughtdag/releases/download/v0.3.0-beta.1/ThoughtDAG-0.3.0-beta.1.dmg" data-en="Intel Macs" data-zh="Intel 芯片版">Intel Macs</a>
-        </div>
-        <div class="dl-card" data-os="win" data-badge="Recommended for you">
-          <div class="dl-os">Windows <small>x64</small></div>
-          <a class="dl-btn" id="dl-win" href="https://github.com/chenxiachan/thoughtdag/releases/download/v0.3.0-beta.1/ThoughtDAG.Setup.0.3.0-beta.1.exe" data-en="Download installer" data-zh="下载安装程序">Download installer</a>
-          <div class="dl-size" id="dl-size-win">≈106MB</div>
-        </div>
-        <div class="dl-card" data-os="linux" data-badge="Recommended for you">
-          <div class="dl-os">Linux <small>x64</small></div>
-          <a class="dl-btn" id="dl-linux" href="https://github.com/chenxiachan/thoughtdag/releases/download/v0.3.0-beta.1/ThoughtDAG-0.3.0-beta.1.AppImage" data-en="Download .AppImage" data-zh="下载 .AppImage">Download .AppImage</a>
-          <div class="dl-size" id="dl-size-linux">≈133MB</div>
-        </div>
-      </div>
-      <div class="dl-notes">
-        <b data-en="Beta notes" data-zh="Beta 说明">Beta notes</b><br />
-        <span data-en='Beta builds are not yet code-signed. macOS first launch: right-click the app, choose Open. Windows SmartScreen: choose "More info", then "Run anyway". The stable release will ship signed.' data-zh="当前为测试版，安装包尚未签名。macOS 首次打开：右键点击应用，选「打开」。Windows 弹出提示时：点「更多信息」，再点「仍要运行」。正式版将带签名发布。">Beta builds are not yet code-signed. macOS first launch: right-click the app, choose Open. Windows SmartScreen: choose "More info", then "Run anyway". The stable release will ship signed.</span>
-      </div>
-      <p class="dl-foot">
-        <span data-en="All versions and history live on " data-zh="全部版本与历史在 ">All versions and history live on </span><a href="https://github.com/chenxiachan/thoughtdag/releases">GitHub Releases</a><span data-en=". The desktop and web apps are the same app; your canvases stay on your device either way." data-zh="。桌面版与在线版功能一致，画布数据都只存在你的设备上。">. The desktop and web apps are the same app; your canvases stay on your device either way.</span>
-      </p>
     </section>
 
     <footer class="finale">
