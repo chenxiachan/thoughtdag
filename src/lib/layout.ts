@@ -10,12 +10,16 @@ import { COLLAPSED_NODE_HEIGHT, LAYOUT_COL_WIDTH, LAYOUT_H_GAP, LAYOUT_V_GAP } f
 // card no longer grows for.
 export function estimateNodeHeight(node: ThoughtNode): number {
   if (node.data.isCollapsed) return COLLAPSED_NODE_HEIGHT;
-  // ~30 CJK chars per line at card width, ~22px per line; capped like the CSS
-  const questionH = Math.min(180, 30 + (node.data.question || '').length / 1.4);
-  const responseH = Math.min(400, (node.data.response || '').length / 2.6);
-  // header + paddings + follow-up input + summary chrome
-  const estimated = 190 + questionH + responseH;
-  return Math.max(260, Math.min(820, estimated));
+  // Calibrated against measured DOM heights (2026-08): CJK markdown renders
+  // ~1px per char at card width before the 400px CSS cap, chrome (header +
+  // takeaway line + follow-up input + paddings) runs ~215px, and each
+  // highlight row adds its own line. Under-estimating here is what made
+  // map-mode relayout overlap once zoomed back in.
+  const questionH = Math.min(180, 40 + (node.data.question || '').length / 1.2);
+  const responseH = Math.min(400, (node.data.response || '').length / 1.05);
+  const highlightsH = (node.data.highlights?.length ?? 0) * 26;
+  const estimated = 215 + questionH + responseH + highlightsH;
+  return Math.max(260, Math.min(900, estimated));
 }
 
 // Height used for layout: the larger of the measured DOM height (React

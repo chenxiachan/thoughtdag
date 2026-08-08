@@ -103,9 +103,13 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
         onPointerMove={onResizePointerMove}
         onPointerUp={onResizePointerUp}
         onDoubleClick={onResizeDoubleClick}
-        className={`absolute left-0 top-0 h-full w-[5px] -ml-[2px] z-20 cursor-col-resize hover:bg-accent/30 transition-colors ${resizing ? 'bg-accent/40' : ''}`}
+        className={`absolute left-0 top-0 h-full w-[8px] -ml-[3px] z-20 cursor-col-resize hover:bg-accent/20 transition-colors flex items-center justify-center ${resizing ? 'bg-accent/30' : ''}`}
         title={t('panel.resizeTitle')}
-      />
+        data-panel-resize
+      >
+        {/* a visible grip: the handle exists whether or not you hover it */}
+        <div className={`w-[3px] h-9 rounded-full transition-colors ${resizing ? 'bg-accent' : 'bg-line-strong'}`} />
+      </div>
       {/* Header: summary kicker (role · tokens · materials) + action strip */}
       <div className="flex items-start gap-2 pl-4 pr-3 py-1.5 border-b border-line/70 shrink-0">
         <RoleLine nodeId={selectedNodeId!} data={data} inheritedRole={inheritedRole} />

@@ -636,7 +636,7 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
         {/* header */}
         <div className="flex items-center gap-3 px-5 py-3 border-b border-line bg-card shrink-0">
           {headerIcon}
-          <span className="text-sm font-semibold text-ink truncate">{title || noteTitle || fileFallbackTitle}</span>
+          <span className="text-sm font-semibold text-ink truncate min-w-0" title={title || noteTitle || fileFallbackTitle}>{title || noteTitle || fileFallbackTitle}</span>
           {numPages != null && <span className="text-2xs text-ink-faint font-mono shrink-0">{numPages}p</span>}
           <div className="flex-1" />
           {((pdfAtt && !pdfError) || imageAtts.length > 0) && (
@@ -946,7 +946,7 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
             <Send size={14} strokeWidth={1.75} />
           </button>
           {grownChildren.length > 0 && (
-            <div className="flex items-center gap-2 overflow-x-auto max-w-[45%] shrink-0">
+            <div className="flex flex-wrap items-center content-start gap-1.5 max-w-[45%] shrink-0 max-h-[3.75rem] overflow-y-auto" data-grown-chips>
               <span className="text-2xs text-ink-faint shrink-0">{fmt(t('reader.grown'), { n: grownChildren.length })}</span>
               {grownChildren.map((c) => (
                 <span
