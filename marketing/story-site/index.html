@@ -905,6 +905,26 @@
           transition-duration: 0.01ms !important;
         }
       }
+
+      /* Download section */
+      .dl-section { max-width: 980px; margin: 0 auto; padding: 72px 24px 84px; }
+      .dl-section h2 { font-size: 30px; margin: 0 0 6px; letter-spacing: -0.4px; }
+      .dl-sub { color: var(--muted); font-size: 15px; margin: 0 0 10px; }
+      .dl-version { display: inline-block; font-size: 13px; color: var(--purple); background: var(--purple-soft); border-radius: 999px; padding: 3px 12px; margin: 6px 0 26px; font-variant-numeric: tabular-nums; }
+      .dl-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; }
+      .dl-card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 22px 20px; display: flex; flex-direction: column; gap: 10px; position: relative; }
+      .dl-card.recommended { border-color: var(--purple); box-shadow: var(--shadow); }
+      .dl-card.recommended::before { content: attr(data-badge); position: absolute; top: -11px; left: 16px; background: var(--purple); color: #fff; font-size: 11.5px; border-radius: 999px; padding: 3px 10px; }
+      .dl-os { font-weight: 700; font-size: 17px; }
+      .dl-os small { font-weight: 400; color: var(--muted); font-size: 12.5px; margin-left: 6px; }
+      .dl-btn { display: block; text-align: center; background: var(--ink); color: #fff; border-radius: 10px; padding: 11px 14px; font-size: 14.5px; font-weight: 600; text-decoration: none; transition: background 0.15s ease; }
+      .dl-btn:hover { background: var(--purple); }
+      .dl-btn.secondary { background: transparent; color: var(--ink); border: 1px solid var(--line); font-weight: 500; }
+      .dl-btn.secondary:hover { border-color: var(--purple); color: var(--purple); }
+      .dl-size { font-size: 12px; color: var(--muted); text-align: center; }
+      .dl-notes { margin-top: 30px; background: var(--orange-soft); border: 1px solid #f3ddb8; border-radius: 14px; padding: 16px 20px; font-size: 14px; line-height: 1.75; }
+      .dl-foot { margin-top: 22px; font-size: 14px; color: var(--muted); line-height: 1.8; }
+      .dl-foot a { color: var(--purple); }
     </style>
   </head>
   <body>
@@ -983,7 +1003,7 @@
           >
           <a
             class="button"
-            href="./download.html"
+            href="#download"
             data-en="Desktop app (beta) ↓"
             data-zh="桌面版下载（beta）↓"
             >Desktop app (beta) ↓</a
@@ -1698,6 +1718,37 @@
       </div>
     </section>
 
+    <section class="dl-section" id="download" aria-label="Download">
+      <h2 data-en="Take it to the desktop" data-zh="把它装进桌面">Take it to the desktop</h2>
+      <p class="dl-sub" data-en="The same app in its own window, local engine bundled. No Node, no terminal." data-zh="同一个应用装进独立窗口，内置本地引擎。不需要 Node，不需要终端。">The same app in its own window, local engine bundled. No Node, no terminal.</p>
+      <span class="dl-version" id="dl-version">v0.3.0-beta.1</span>
+      <div class="dl-grid" id="dl-grid">
+        <div class="dl-card" data-os="mac" data-badge="Recommended for you">
+          <div class="dl-os">macOS <small>Apple Silicon</small></div>
+          <a class="dl-btn" id="dl-mac-arm" href="https://github.com/chenxiachan/thoughtdag/releases/download/v0.3.0-beta.1/ThoughtDAG-0.3.0-beta.1-arm64.dmg" data-en="Download .dmg" data-zh="下载 .dmg">Download .dmg</a>
+          <div class="dl-size" id="dl-size-mac">≈126MB</div>
+          <a class="dl-btn secondary" id="dl-mac-x64" href="https://github.com/chenxiachan/thoughtdag/releases/download/v0.3.0-beta.1/ThoughtDAG-0.3.0-beta.1.dmg" data-en="Intel Macs" data-zh="Intel 芯片版">Intel Macs</a>
+        </div>
+        <div class="dl-card" data-os="win" data-badge="Recommended for you">
+          <div class="dl-os">Windows <small>x64</small></div>
+          <a class="dl-btn" id="dl-win" href="https://github.com/chenxiachan/thoughtdag/releases/download/v0.3.0-beta.1/ThoughtDAG.Setup.0.3.0-beta.1.exe" data-en="Download installer" data-zh="下载安装程序">Download installer</a>
+          <div class="dl-size" id="dl-size-win">≈106MB</div>
+        </div>
+        <div class="dl-card" data-os="linux" data-badge="Recommended for you">
+          <div class="dl-os">Linux <small>x64</small></div>
+          <a class="dl-btn" id="dl-linux" href="https://github.com/chenxiachan/thoughtdag/releases/download/v0.3.0-beta.1/ThoughtDAG-0.3.0-beta.1.AppImage" data-en="Download .AppImage" data-zh="下载 .AppImage">Download .AppImage</a>
+          <div class="dl-size" id="dl-size-linux">≈133MB</div>
+        </div>
+      </div>
+      <div class="dl-notes">
+        <b data-en="Beta notes" data-zh="Beta 说明">Beta notes</b><br />
+        <span data-en='Beta builds are not yet code-signed. macOS first launch: right-click the app, choose Open. Windows SmartScreen: choose "More info", then "Run anyway". The stable release will ship signed.' data-zh="当前为测试版，安装包尚未签名。macOS 首次打开：右键点击应用，选「打开」。Windows 弹出提示时：点「更多信息」，再点「仍要运行」。正式版将带签名发布。">Beta builds are not yet code-signed. macOS first launch: right-click the app, choose Open. Windows SmartScreen: choose "More info", then "Run anyway". The stable release will ship signed.</span>
+      </div>
+      <p class="dl-foot">
+        <span data-en="All versions and history live on " data-zh="全部版本与历史在 ">All versions and history live on </span><a href="https://github.com/chenxiachan/thoughtdag/releases">GitHub Releases</a><span data-en=". The desktop and web apps are the same app; your canvases stay on your device either way." data-zh="。桌面版与在线版功能一致，画布数据都只存在你的设备上。">. The desktop and web apps are the same app; your canvases stay on your device either way.</span>
+      </p>
+    </section>
+
     <footer class="finale">
       <div>
         <img src="assets/favicon.svg" alt="" />
@@ -2065,6 +2116,45 @@
         measure();
         layoutEdges();
         requestRender();
+      })();
+    </script>
+    <script>
+      // Download section: highlight the visitor's platform, keep links fresh.
+      (function () {
+        var ua = navigator.userAgent;
+        var os = /Mac/i.test(ua) ? "mac" : /Win/i.test(ua) ? "win" : /Linux|X11/i.test(ua) ? "linux" : null;
+        if (os) {
+          var card = document.querySelector('.dl-card[data-os="' + os + '"]');
+          if (card) { card.classList.add("recommended"); card.parentNode.prepend(card); }
+        }
+        // the badge is CSS-content: keep it bilingual by watching the html lang
+        var setBadges = function () {
+          var zh = document.documentElement.lang.indexOf("zh") === 0;
+          document.querySelectorAll(".dl-card").forEach(function (c) {
+            c.setAttribute("data-badge", zh ? "为你推荐" : "Recommended for you");
+          });
+        };
+        setBadges();
+        new MutationObserver(setBadges).observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
+
+        fetch("https://api.github.com/repos/chenxiachan/thoughtdag/releases?per_page=1")
+          .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
+          .then(function (rel) {
+            var release = rel && rel[0];
+            if (!release || !release.assets) return;
+            document.getElementById("dl-version").textContent = release.tag_name;
+            var mb = function (a) { return "≈" + Math.round(a.size / 1048576) + "MB"; };
+            var set = function (id, a) { var el = document.getElementById(id); if (el) el.href = a.browser_download_url; };
+            var size = function (id, v) { var el = document.getElementById(id); if (el) el.textContent = v; };
+            release.assets.forEach(function (a) {
+              var n = a.name;
+              if (/arm64\.dmg$/.test(n)) { set("dl-mac-arm", a); size("dl-size-mac", mb(a)); }
+              else if (/^((?!arm64).)*\.dmg$/.test(n)) { set("dl-mac-x64", a); }
+              else if (/\.exe$/.test(n)) { set("dl-win", a); size("dl-size-win", mb(a)); }
+              else if (/\.AppImage$/.test(n)) { set("dl-linux", a); size("dl-size-linux", mb(a)); }
+            });
+          })
+          .catch(function () { /* fallback links stay */ });
       })();
     </script>
   </body>
