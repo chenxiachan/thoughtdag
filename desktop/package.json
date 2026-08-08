@@ -24,7 +24,8 @@
     },
     "files": [
       "main.js",
-      "package.json"
+      "package.json",
+      "splash.html"
     ],
     "extraResources": [
       {

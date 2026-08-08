@@ -51,10 +51,11 @@ async function boot() {
     width: 1500,
     height: 950,
     title: 'ThoughtDAG',
-    show: false,
     backgroundColor: '#FAF9F7',
   });
-  win.once('ready-to-show', () => win.show());
+  // splash first: the window exists from the first moment, breathing,
+  // while the bundled server warms up behind it
+  win.loadFile(path.join(__dirname, 'splash.html'));
   // external links belong to the system browser, not this window
   win.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);
