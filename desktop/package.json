@@ -5,9 +5,57 @@
   "description": "Desktop shell for ThoughtDAG — same app, same server, one window",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "payload": "node scripts/prepare-payload.mjs",
+    "dist:mac": "npm run payload && electron-builder --mac dmg zip --arm64",
+    "dist:win": "npm run payload && electron-builder --win nsis --x64",
+    "dist:linux": "npm run payload && electron-builder --linux AppImage --x64"
   },
   "devDependencies": {
-    "electron": "^43.3.0"
+    "electron": "^43.3.0",
+    "electron-builder": "^26.15.3"
+  },
+  "build": {
+    "appId": "io.github.chenxiachan.thoughtdag",
+    "productName": "ThoughtDAG",
+    "icon": "build/icon.png",
+    "directories": {
+      "output": "out"
+    },
+    "files": [
+      "main.js",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "payload",
+        "to": "payload"
+      }
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "arm64"
+          ]
+        }
+      ]
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage",
+      "category": "Office"
+    },
+    "npmRebuild": false
   }
 }

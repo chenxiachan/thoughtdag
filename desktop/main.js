@@ -6,7 +6,12 @@ const { app, BrowserWindow, shell, utilityProcess } = require('electron');
 const path = require('path');
 const net = require('net');
 
-const ROOT = path.join(__dirname, '..');
+// Development: the repo root (live dist + server.mjs + root node_modules).
+// Packaged: a self-contained payload under Resources — same three files,
+// prepared by scripts/prepare-payload.mjs with production deps only.
+const ROOT = app.isPackaged
+  ? path.join(process.resourcesPath, 'payload')
+  : path.join(__dirname, '..');
 let serverProc = null;
 let win = null;
 
