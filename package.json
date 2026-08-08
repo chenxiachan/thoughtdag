@@ -9,7 +9,8 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "smoke": "node scripts/smoke.mjs",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "desktop": "npm run build && cd desktop && electron ."
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.8",

@@ -1056,6 +1056,20 @@ app.post('/api/stream', async (req, res) => {
   }
 });
 
+// Desktop shell: serve the built app from the SAME origin as the API.
+// The production bundle uses relative /api/* paths (API_BASE=''), so the
+// same dist that runs on the Workers deployment runs here unchanged —
+// one bundle, three hosts (worker, browser+proxy, desktop shell).
+if (process.env.SERVE_DIST) {
+  const distDir = process.env.SERVE_DIST;
+  app.use(express.static(distDir));
+  // SPA fallback (Express 5: middleware, not a '*' route)
+  app.use((req, res, next) => {
+    if (req.method !== 'GET' || req.path.startsWith('/api/')) return next();
+    res.sendFile('index.html', { root: distDir });
+  });
+}
+
 app.listen(PORT, () => {
   console.log(`ThoughtDAG proxy (Vercel AI SDK) running on http://localhost:${PORT}`);
   console.log(`Models: ${Object.keys(modelRegistry).join(', ')}`);
