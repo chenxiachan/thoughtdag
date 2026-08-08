@@ -11,7 +11,7 @@
 ![License](https://img.shields.io/badge/许可-MIT-green)
 ![Status](https://img.shields.io/badge/状态-活跃开发中-6B5CE7)
 
-### [官网](https://chenxiachan.github.io/thoughtdag/?lang=zh) · [在线 Demo](https://app.thoughtdag.workers.dev)
+### [官网](https://chenxiachan.github.io/thoughtdag/?lang=zh) · [在线 Demo](https://app.thoughtdag.workers.dev) · [下载桌面版](https://chenxiachan.github.io/thoughtdag/?lang=zh#download)
 
 无需安装注册
 
@@ -109,7 +109,7 @@ npm run dev       # → localhost:5173
 
 ### 桌面版（beta）
 
-同一个应用装进独立窗口，内置本地引擎——从 [Releases](https://github.com/chenxiachan/thoughtdag/releases) 下载：macOS（`.dmg`，Apple Silicon 与 Intel）、Windows（`.exe`）、Linux（`.AppImage`）。不需要 Node，不需要终端。Beta 版尚未签名：macOS 首次打开用右键 → 打开；Windows 在提示中选「更多信息 → 仍要运行」。
+同一个应用装进独立窗口，内置本地引擎。首选从[下载页](https://chenxiachan.github.io/thoughtdag/#download)获取，页面会自动识别你的平台并直接给出安装包（macOS Apple Silicon 与 Intel、Windows、Linux）。全部版本在 [Releases](https://github.com/chenxiachan/thoughtdag/releases)。不需要 Node，不需要终端，发布新版后应用内会直接提示更新。Beta 版尚未签名：macOS 首次打开用右键 → 打开；Windows 在提示中选「更多信息 → 仍要运行」。
 
 ## 更多能力
 

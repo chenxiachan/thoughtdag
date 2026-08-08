@@ -11,7 +11,7 @@
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Status](https://img.shields.io/badge/status-active_development-6B5CE7)
 
-### [Website](https://chenxiachan.github.io/thoughtdag/) · [Live Demo](https://app.thoughtdag.workers.dev)
+### [Website](https://chenxiachan.github.io/thoughtdag/) · [Live Demo](https://app.thoughtdag.workers.dev) · [Download](https://chenxiachan.github.io/thoughtdag/#download)
 
 no install, no signup
 
@@ -109,7 +109,7 @@ The landing page offers the seeded example canvas one labeled click away: four c
 
 ### Desktop app (beta)
 
-The same app in its own window, bundled local server included — download from [Releases](https://github.com/chenxiachan/thoughtdag/releases): macOS (`.dmg`, Apple Silicon & Intel), Windows (`.exe`), Linux (`.AppImage`). One canvas file world, no Node, no terminal. Beta builds are not yet code-signed: on macOS right-click → Open on first launch; on Windows choose "More info → Run anyway".
+The same app in its own window, with the local server bundled. Grab it from the [download page](https://chenxiachan.github.io/thoughtdag/#download): it detects your platform and hands you the file (macOS Apple Silicon & Intel, Windows, Linux). Every version lives on [Releases](https://github.com/chenxiachan/thoughtdag/releases). No Node, no terminal, and the app tells you in place when a new version ships. Beta builds are not yet code-signed: on macOS right-click → Open on first launch; on Windows choose "More info → Run anyway".
 
 ## More capabilities
 
