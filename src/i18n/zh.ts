@@ -251,6 +251,8 @@ export const zh: Record<keyof typeof en, string> = {
   'ctx.duplicate': '复制副本',
   'ctx.unarchive': '取消归档',
   'update.available': '新版本已上线，刷新即可使用',
+  'update.desktopAvailable': '桌面版新版本 {v} 已发布。',
+  'update.desktopDownload': '去下载',
   'update.refresh': '刷新',
   'toolbar.exportEvents': '导出事件日志 (.csv)',
   'toolbar.exportEventsTitle': '画布操作的时间戳记录（提问、生成、高光、归档等），可进 R/Python 分析',

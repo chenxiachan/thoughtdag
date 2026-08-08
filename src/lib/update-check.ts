@@ -1,5 +1,5 @@
 import { toast } from './ui-store';
-import { t } from '../i18n';
+import { t, fmt } from '../i18n';
 
 // New-version nudge for a long-lived SPA tab: deploys land on push, but an
 // open tab keeps running the bundle it loaded — bug reports of "still
@@ -11,6 +11,35 @@ import { t } from '../i18n';
 
 const CHECK_INTERVAL_MS = 15 * 60_000;
 let notified = false;
+
+// ── Desktop build channel ──
+// The shell hands its version over in the URL (?dv=). The web bundle can't
+// self-update a desktop install, so the nudge points at the download page
+// (the shell's window-open handler routes it to the system browser).
+// Anonymous GitHub API is rate-limited per IP: throttle to one look per
+// half hour, sticky toast once per session.
+const desktopVersion = new URLSearchParams(window.location.search).get('dv');
+const DESKTOP_THROTTLE_MS = 30 * 60_000;
+let notifiedDesktop = false;
+let lastDesktopCheck = 0;
+
+async function checkDesktop(): Promise<void> {
+  if (!desktopVersion || notifiedDesktop) return;
+  if (Date.now() - lastDesktopCheck < DESKTOP_THROTTLE_MS) return;
+  lastDesktopCheck = Date.now();
+  try {
+    const res = await fetch('https://api.github.com/repos/chenxiachan/thoughtdag/releases?per_page=1');
+    if (!res.ok) return;
+    const releases = await res.json() as { tag_name?: string }[];
+    const latest = releases?.[0]?.tag_name?.replace(/^v/, '');
+    if (!latest || latest === desktopVersion) return;
+    notifiedDesktop = true;
+    toast('info', fmt(t('update.desktopAvailable'), { v: latest }), 0, {
+      label: t('update.desktopDownload'),
+      run: () => window.open('https://chenxiachan.github.io/thoughtdag/#download', '_blank'),
+    });
+  } catch { /* offline or rate-limited: try again later */ }
+}
 
 function currentBundle(): string | null {
   // This module is code-split, so its own import.meta.url is NOT the entry
@@ -50,7 +79,9 @@ async function check(): Promise<void> {
 export function bootUpdateCheck(): void {
   if (import.meta.env.DEV) return;
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') void check();
+    if (document.visibilityState === 'visible') { void check(); void checkDesktop(); }
   });
-  setInterval(() => void check(), CHECK_INTERVAL_MS);
+  setInterval(() => { void check(); void checkDesktop(); }, CHECK_INTERVAL_MS);
+  // desktop: one early look shortly after boot
+  if (desktopVersion) setTimeout(() => void checkDesktop(), 5000);
 }

@@ -67,7 +67,8 @@ async function boot() {
     win.loadURL(`data:text/html,<pre>ThoughtDAG server failed to start on port ${port}.\nCheck the terminal output.</pre>`);
     return;
   }
-  win.loadURL(`http://127.0.0.1:${port}`);
+  // ?dv= lets the web layer run the desktop update nudge (see update-check.ts)
+  win.loadURL(`http://127.0.0.1:${port}/?dv=${encodeURIComponent(app.getVersion())}`);
 }
 
 const lock = app.requestSingleInstanceLock();
