@@ -78,7 +78,18 @@ if (!lock) {
   app.on('second-instance', () => {
     if (win) { if (win.isMinimized()) win.restore(); win.focus(); }
   });
-  app.whenReady().then(boot);
+  app.whenReady().then(() => {
+    void boot();
+    // Signed builds self-update through GitHub releases (latest*.yml).
+    // Unsigned/dev builds fail this check quietly — the in-app version
+    // nudge (update-check.ts) still covers them.
+    if (app.isPackaged) {
+      try {
+        const { autoUpdater } = require('electron-updater');
+        autoUpdater.checkForUpdatesAndNotify().catch(() => {});
+      } catch { /* updater unavailable: nudge remains */ }
+    }
+  });
   app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) boot(); });
   app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
   app.on('will-quit', () => { serverProc?.kill(); });

@@ -7,9 +7,9 @@
   "scripts": {
     "start": "electron .",
     "payload": "node scripts/prepare-payload.mjs",
-    "dist:mac": "npm run payload && electron-builder --mac dmg zip --arm64 --x64",
-    "dist:win": "npm run payload && electron-builder --win nsis --x64",
-    "dist:linux": "npm run payload && electron-builder --linux AppImage --x64"
+    "dist:mac": "npm run payload && electron-builder --mac dmg zip --arm64 --x64 --publish never",
+    "dist:win": "npm run payload && electron-builder --win nsis --x64 --publish never",
+    "dist:linux": "npm run payload && electron-builder --linux AppImage --x64 --publish never"
   },
   "devDependencies": {
     "electron": "^43.3.0",
@@ -48,7 +48,12 @@
             "arm64"
           ]
         }
-      ]
+      ],
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "notarize": true
     },
     "win": {
       "target": "nsis"
@@ -57,6 +62,14 @@
       "target": "AppImage",
       "category": "Office"
     },
-    "npmRebuild": false
+    "npmRebuild": false,
+    "publish": {
+      "provider": "github",
+      "owner": "chenxiachan",
+      "repo": "thoughtdag"
+    }
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.9"
   }
 }
