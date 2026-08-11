@@ -36,8 +36,8 @@ jobs:
         env:
           # macOS signing + notarization: absent secrets = unsigned build
           # (electron-builder skips signing when CSC_LINK is empty)
-          CSC_LINK: ${{ secrets.MAC_CERT_P12_BASE64 }}
-          CSC_KEY_PASSWORD: ${{ secrets.MAC_CERT_PASSWORD }}
+          CSC_LINK: ${{ runner.os == 'macOS' && secrets.MAC_CERT_P12_BASE64 || '' }}
+          CSC_KEY_PASSWORD: ${{ runner.os == 'macOS' && secrets.MAC_CERT_PASSWORD || '' }}
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
@@ -58,7 +58,7 @@ jobs:
             desktop/out/*.zip
             desktop/out/*.exe
             desktop/out/*.AppImage
-            desktop/out/*.yml
+            desktop/out/latest*.yml
             desktop/out/*.blockmap
           prerelease: ${{ contains(github.ref_name, 'beta') }}
         env:

@@ -109,7 +109,7 @@ npm run dev       # → localhost:5173
 
 ### 桌面版（beta）
 
-同一个应用装进独立窗口，内置本地引擎。首选从[下载页](https://chenxiachan.github.io/thoughtdag/#download)获取，页面会自动识别你的平台并直接给出安装包（macOS Apple Silicon 与 Intel、Windows、Linux）。全部版本在 [Releases](https://github.com/chenxiachan/thoughtdag/releases)。不需要 Node，不需要终端，发布新版后应用内会直接提示更新。Beta 版尚未签名：macOS 首次打开用右键 → 打开；Windows 在提示中选「更多信息 → 仍要运行」。
+同一个应用装进独立窗口，内置本地引擎。首选从[下载页](https://chenxiachan.github.io/thoughtdag/#download)获取，页面会自动识别你的平台并直接给出安装包（macOS Apple Silicon 与 Intel、Windows、Linux）。全部版本在 [Releases](https://github.com/chenxiachan/thoughtdag/releases)。不需要 Node，不需要终端，发布新版后应用内会直接提示更新。macOS 版已由 Apple 签名与公证，双击即开。Windows 版暂未签名，在提示中选「更多信息 → 仍要运行」。
 
 ## 更多能力
 
