@@ -13,7 +13,7 @@
 
 ### [官网](https://chenxiachan.github.io/thoughtdag/?lang=zh) · [在线 Demo](https://app.thoughtdag.workers.dev) · [下载桌面版](https://chenxiachan.github.io/thoughtdag/?lang=zh#download)
 
-无需安装注册
+无需注册，网页版打开即用
 
 [English](./README.md) · [快速开始](#快速开始) · [更多能力](#更多能力) · [模型与订阅](#模型与订阅) · [成本与隐私](#成本与隐私)
 

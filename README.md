@@ -13,7 +13,7 @@
 
 ### [Website](https://chenxiachan.github.io/thoughtdag/) · [Live Demo](https://app.thoughtdag.workers.dev) · [Download](https://chenxiachan.github.io/thoughtdag/#download)
 
-no install, no signup
+no signup; the web demo needs no install
 
 [中文](./README_ZH.md) · [Quick start](#quick-start) · [More capabilities](#more-capabilities) · [Models & subscriptions](#models--subscriptions) · [Cost & privacy](#cost--privacy)
 
