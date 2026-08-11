@@ -107,7 +107,7 @@ npm run dev       # → localhost:5173
 
 The landing page offers the seeded example canvas one labeled click away: four chapters around one everyday question (why saved articles stay unread), including a reading loop with a real embedded PDF. Environment variables, free keys and configuration details → [docs/setup.md](docs/setup.md)
 
-### Desktop app (beta)
+### Desktop app
 
 The same app in its own window, with the local server bundled. Grab it from the [download page](https://chenxiachan.github.io/thoughtdag/#download): it detects your platform and hands you the file (macOS Apple Silicon & Intel, Windows, Linux). Every version lives on [Releases](https://github.com/chenxiachan/thoughtdag/releases). No Node, no terminal, and the app tells you in place when a new version ships. The macOS builds are signed and notarized by Apple: double-click and go. Windows builds are not signed yet; choose "More info → Run anyway" on the SmartScreen prompt.
 

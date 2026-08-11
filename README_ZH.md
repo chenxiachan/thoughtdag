@@ -107,7 +107,7 @@ npm run dev       # → localhost:5173
 
 首页一键载入预置的示例画布：围绕「收藏夹为什么总在吃灰」展开四章，含一份内嵌真 PDF 的阅读闭环。环境变量、免费 key 与配置细节 → [docs/setup_ZH.md](docs/setup_ZH.md)
 
-### 桌面版（beta）
+### 桌面版
 
 同一个应用装进独立窗口，内置本地引擎。首选从[下载页](https://chenxiachan.github.io/thoughtdag/#download)获取，页面会自动识别你的平台并直接给出安装包（macOS Apple Silicon 与 Intel、Windows、Linux）。全部版本在 [Releases](https://github.com/chenxiachan/thoughtdag/releases)。不需要 Node，不需要终端，发布新版后应用内会直接提示更新。macOS 版已由 Apple 签名与公证，双击即开。Windows 版暂未签名，在提示中选「更多信息 → 仍要运行」。
 
