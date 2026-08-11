@@ -11,11 +11,9 @@
 ![License](https://img.shields.io/badge/许可-MIT-green)
 ![Status](https://img.shields.io/badge/状态-活跃开发中-6B5CE7)
 
-### [官网](https://chenxiachan.github.io/thoughtdag/?lang=zh) · [在线 Demo](https://app.thoughtdag.workers.dev) · [下载桌面版](https://chenxiachan.github.io/thoughtdag/?lang=zh#download)
+### [官网](https://chenxiachan.github.io/thoughtdag/?lang=zh) · [在线 Demo](https://app.thoughtdag.workers.dev) · [下载桌面版 ↓](https://chenxiachan.github.io/thoughtdag/?lang=zh#download)
 
-无需注册，网页版打开即用
-
-[English](./README.md) · [快速开始](#快速开始) · [更多能力](#更多能力) · [模型与订阅](#模型与订阅) · [成本与隐私](#成本与隐私)
+[English](./README.md) · [快速开始](#快速开始) · [桌面版](#桌面版) · [更多能力](#更多能力) · [模型与订阅](#模型与订阅) · [成本与隐私](#成本与隐私)
 
 <img src="docs/hero-demo-zh.gif" alt="真实录屏的 Hero 演示：在 PDF 阅读器圈选段落提问；删掉噪音边重新生成干净答案；三层语义缩放缩到地图形态；打开备份控制中心导出真实文件" width="100%"/>
 
@@ -107,7 +105,7 @@ npm run dev       # → localhost:5173
 
 首页一键载入预置的示例画布：围绕「收藏夹为什么总在吃灰」展开四章，含一份内嵌真 PDF 的阅读闭环。环境变量、免费 key 与配置细节 → [docs/setup_ZH.md](docs/setup_ZH.md)
 
-### 桌面版
+## 桌面版
 
 同一个应用装进独立窗口，内置本地引擎。首选从[下载页](https://chenxiachan.github.io/thoughtdag/#download)获取，页面会自动识别你的平台并直接给出安装包（macOS Apple Silicon 与 Intel、Windows、Linux）。全部版本在 [Releases](https://github.com/chenxiachan/thoughtdag/releases)。不需要 Node，不需要终端，发布新版后应用内会直接提示更新。macOS 版已由 Apple 签名与公证，双击即开。Windows 版暂未签名，在提示中选「更多信息 → 仍要运行」。
 
