@@ -105,12 +105,27 @@ async function imagesForModel(modelId: string | undefined, images?: ImageAttachm
   return images;
 }
 
+// Direct connections bypass the proxy's vision reroute entirely: a text-only
+// model reached browser-direct would receive raw image_url blocks and answer
+// with a deserializer error in provider dialect. Refuse BEFORE the wire, in
+// user language — the proxy path keeps its reroute + rescue instead.
+async function guardDirectVision(modelId: string | undefined, images?: ImageAttachment[]): Promise<void> {
+  if (!images?.length) return;
+  const data = await getModelsOnce();
+  const effective = modelId ?? data?.default ?? undefined;
+  const info = effective ? data?.models.find((m) => m.id === effective) : undefined;
+  if (info && !info.vision) throw new Error(t('error.textOnlyModelImages'));
+}
+
 // Non-streaming call (used for background summaries)
 export async function llmCall(contextMessages: ContextMessage[], images?: ImageAttachment[], modelOverride?: string): Promise<string> {
   const modelId = modelOverride || useUiStore.getState().selectedModel || undefined;
   images = await imagesForModel(modelId, images);
   const direct = directProvider(modelId);
-  if (direct && modelId) return directLlmCall(direct, modelId, contextMessages, images);
+  if (direct && modelId) {
+    await guardDirectVision(modelId, images);
+    return directLlmCall(direct, modelId, contextMessages, images);
+  }
   try {
     const res = await fetch(API_URL, {
       method: 'POST',
@@ -174,6 +189,7 @@ export async function llmCallStream(
   images = await imagesForModel(modelId, images);
   const direct = directProvider(modelId);
   if (direct && modelId) {
+    await guardDirectVision(modelId, images);
     return directLlmStream(direct, modelId, contextMessages, onChunk, signal, images, callbacks, toolPrefs?.web);
   }
   try {

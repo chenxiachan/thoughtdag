@@ -16,7 +16,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import 'highlight.js/styles/github.css';
-import { BookOpen, Brain, CircleHelp, Download, Drama, Eye, FileText, Frame, GitBranch, Highlighter, KeyRound, LayoutGrid, Loader2, MessageCircleQuestion, MoreHorizontal, Paperclip, Redo2, Scissors, Share2, SquareTerminal, StickyNote, Trash2, Undo2, Workflow, X, ListRestart, FolderSync, Minimize2 } from 'lucide-react';
+import { BookOpen, Brain, CircleHelp, Download, Drama, Eye, FileText, Frame, GitBranch, Highlighter, KeyRound, LayoutGrid, Loader2, MessageCircleQuestion, MoreHorizontal, Paperclip, Redo2, Scissors, Share2, SquareTerminal, Stethoscope, StickyNote, Trash2, Undo2, Workflow, X, ListRestart, FolderSync, Minimize2 } from 'lucide-react';
 import './index.css';
 import ThoughtNode from './components/ThoughtNode';
 import ParadigmNode from './components/ParadigmNode';
@@ -792,6 +792,7 @@ function Canvas() {
   // so the top-right row stays short in both languages and with the panel
   // dragged wide.
   const [moreOpen, setMoreOpen] = useState(false);
+  const [diagPing, setDiagPing] = useState(0);
   const moreRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!moreOpen) return;
@@ -1397,7 +1398,7 @@ function Canvas() {
             className="bg-amber-500/10 backdrop-blur border border-amber-500/40 rounded-lg h-8 px-3 flex items-center gap-1.5 shadow-sm hover:bg-amber-500/20 transition-colors text-amber-600 text-xs font-medium"
             title={t('replay.chipTitle')}
           >
-            <ListRestart size={14} strokeWidth={1.75} /> {fmt(t('replay.chip'), { n: staleCount })}
+            <ListRestart size={14} strokeWidth={1.75} /> {staleCount}
           </button>
         )}
         {hasNodes && frames.length > 0 && (
@@ -1435,7 +1436,7 @@ function Canvas() {
         )}
         <LangSwitch />
         {hasNodes && !isParadigm && (
-          <DiagnosticsPanel onLocate={(id) => {
+          <DiagnosticsPanel showTrigger={false} openPing={diagPing} onLocate={(id) => {
             const n = useStore.getState().nodes.find((x) => x.id === id);
             if (n) {
               setSelectedNodeId(id);
@@ -1443,27 +1444,16 @@ function Canvas() {
             }
           }} />
         )}
-        {/* Saving stays standing — deliberate export matters too much to
-            hide behind a menu. */}
-        {hasNodes && (
-          <button
-            onClick={() => (isParadigm ? exportActiveParadigm() : exportActiveProjectJson())}
-            className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors text-ink-faint hover:text-accent"
-            title={isParadigm ? t('paradigm.exportParadigm') : t('switcher.exportBackup')}
-          >
-            <Download size={15} strokeWidth={1.75} />
-          </button>
-        )}
-        {hasNodes && !isParadigm && !isViewerMode && (
+        {/* Condense while RUNNING is a status badge (click reopens progress);
+            the launch entry lives in the ⋯ menu with the other tools. */}
+        {condenseBuilding && !isViewerMode && (
           <button
             onClick={() => useUiStore.getState().setCondenseDialogOpen(true)}
-            className={`bg-card/90 backdrop-blur border rounded-lg h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors ${condenseBuilding ? 'border-accent/50 text-accent px-2 gap-1.5' : 'border-line w-8 text-ink-muted hover:text-accent'}`}
-            title={condenseBuilding ? fmt(t('condense.entryBuilding'), { i: String(condenseRunState.current), n: String(condenseRunState.total) }) : t('condense.entryTitle')}
+            className="bg-card/90 backdrop-blur border border-accent/50 rounded-lg h-8 px-2 flex items-center justify-center gap-1.5 shadow-sm hover:bg-wash transition-colors text-accent"
+            title={fmt(t('condense.entryBuilding'), { i: String(condenseRunState.current), n: String(condenseRunState.total) })}
             data-condense-entry
           >
-            {condenseBuilding
-              ? (<><Loader2 size={14} strokeWidth={1.75} className="animate-spin" /><span className="text-2xs font-mono">{condenseRunState.current}/{condenseRunState.total}</span></>)
-              : <Minimize2 size={15} strokeWidth={1.75} />}
+            <Loader2 size={14} strokeWidth={1.75} className="animate-spin" /><span className="text-2xs font-mono">{condenseRunState.current}/{condenseRunState.total}</span>
           </button>
         )}
         {backupSupported && (
@@ -1491,31 +1481,6 @@ function Canvas() {
           </button>
           {moreOpen && (
             <div className="absolute right-0 top-full mt-1.5 bg-card border border-line rounded-xl shadow-lg py-1 w-[220px] z-30 animate-fade-in">
-              {hasNodes && !isParadigm && (
-                <button
-                  onClick={() => {
-                    setMoreOpen(false);
-                    void (async () => {
-                      const { nodes: ns, edges: es } = useStore.getState();
-                      const url = await buildViewerLink(ns, es);
-                      await navigator.clipboard.writeText(url).catch(() => {});
-                      useUiStore.getState().setShareDialogUrl(url);
-                    })();
-                  }}
-                  className="w-full text-left px-3 py-2 text-xs text-ink hover:bg-wash transition-colors flex items-center gap-2.5"
-                  data-share-link
-                  title={t('viewer.shareTitle')}
-                >
-                  <Share2 size={14} strokeWidth={1.75} className="text-ink-faint shrink-0" /> {t('toolbar.menuShare')}
-                </button>
-              )}
-              <button
-                onClick={() => { setMoreOpen(false); useUiStore.getState().setMemoryManagerOpen(true); }}
-                className="w-full text-left px-3 py-2 text-xs text-ink hover:bg-wash transition-colors flex items-center gap-2.5"
-                title={t('memory.entryTitle')}
-              >
-                <Brain size={14} strokeWidth={1.75} className="text-ink-faint shrink-0" /> {t('memory.managerTitle')}
-              </button>
               {hasNodes && (
                 <button
                   onClick={() => { setMoreOpen(false); setAnnotationsHidden(!annotationsHidden); }}
@@ -1564,15 +1529,7 @@ function Canvas() {
                   <Paperclip size={14} strokeWidth={1.75} className="text-ink-faint shrink-0" /> {fmt(t('matov.entry'), { n: materialCount })}
                 </button>
               )}
-              {hasEvents && (
-                <button
-                  onClick={() => { setMoreOpen(false); exportEventLogCsv(); }}
-                  className="w-full text-left px-3 py-2 text-xs text-ink hover:bg-wash transition-colors flex items-center gap-2.5"
-                  title={t('toolbar.exportEventsTitle')}
-                >
-                  <FileText size={14} strokeWidth={1.75} className="text-ink-faint shrink-0" /> {t('toolbar.exportEvents')}
-                </button>
-              )}
+              {hasNodes && <div className="border-t border-line/60 my-1" />}
               {hasNodes && !isParadigm && !isViewerMode && (
                 <button
                   onClick={() => { setMoreOpen(false); useUiStore.getState().setCondenseDialogOpen(true); }}
@@ -1582,6 +1539,60 @@ function Canvas() {
                   <Minimize2 size={14} strokeWidth={1.75} className="text-ink-faint shrink-0" /> {t('condense.title')}…
                 </button>
               )}
+              {hasNodes && !isParadigm && (
+                <button
+                  onClick={() => { setMoreOpen(false); setDiagPing((v) => v + 1); }}
+                  className="w-full text-left px-3 py-2 text-xs text-ink hover:bg-wash transition-colors flex items-center gap-2.5"
+                  title={t('toolbar.diagnose')}
+                  data-menu-diagnose
+                >
+                  <Stethoscope size={14} strokeWidth={1.75} className="text-ink-faint shrink-0" /> {t('toolbar.menuDiagnose')}
+                </button>
+              )}
+              {hasNodes && !isParadigm && (
+                <button
+                  onClick={() => {
+                    setMoreOpen(false);
+                    void (async () => {
+                      const { nodes: ns, edges: es } = useStore.getState();
+                      const url = await buildViewerLink(ns, es);
+                      await navigator.clipboard.writeText(url).catch(() => {});
+                      useUiStore.getState().setShareDialogUrl(url);
+                    })();
+                  }}
+                  className="w-full text-left px-3 py-2 text-xs text-ink hover:bg-wash transition-colors flex items-center gap-2.5"
+                  data-share-link
+                  title={t('viewer.shareTitle')}
+                >
+                  <Share2 size={14} strokeWidth={1.75} className="text-ink-faint shrink-0" /> {t('toolbar.menuShare')}
+                </button>
+              )}
+              {hasNodes && (
+                <button
+                  onClick={() => { setMoreOpen(false); if (isParadigm) exportActiveParadigm(); else exportActiveProjectJson(); }}
+                  className="w-full text-left px-3 py-2 text-xs text-ink hover:bg-wash transition-colors flex items-center gap-2.5"
+                  data-menu-export
+                >
+                  <Download size={14} strokeWidth={1.75} className="text-ink-faint shrink-0" /> {isParadigm ? t('paradigm.exportParadigm') : t('switcher.exportBackup')}
+                </button>
+              )}
+              {hasEvents && (
+                <button
+                  onClick={() => { setMoreOpen(false); exportEventLogCsv(); }}
+                  className="w-full text-left px-3 py-2 text-xs text-ink hover:bg-wash transition-colors flex items-center gap-2.5"
+                  title={t('toolbar.exportEventsTitle')}
+                >
+                  <FileText size={14} strokeWidth={1.75} className="text-ink-faint shrink-0" /> {t('toolbar.exportEvents')}
+                </button>
+              )}
+              {hasNodes && <div className="border-t border-line/60 my-1" />}
+              <button
+                onClick={() => { setMoreOpen(false); useUiStore.getState().setMemoryManagerOpen(true); }}
+                className="w-full text-left px-3 py-2 text-xs text-ink hover:bg-wash transition-colors flex items-center gap-2.5"
+                title={t('memory.entryTitle')}
+              >
+                <Brain size={14} strokeWidth={1.75} className="text-ink-faint shrink-0" /> {t('memory.managerTitle')}
+              </button>
               <button
                 onClick={() => { setMoreOpen(false); setTutorialOpen(true); }}
                 className="w-full text-left px-3 py-2 text-xs text-ink hover:bg-wash transition-colors flex items-center gap-2.5"

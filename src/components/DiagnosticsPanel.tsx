@@ -21,12 +21,21 @@ const KIND_KEY: Record<Finding['kind'], string> = {
   'load-bearing': 'diag.loadBearing',
 };
 
-export default function DiagnosticsPanel({ onLocate }: { onLocate: (id: string) => void }) {
+export default function DiagnosticsPanel({ onLocate, openPing = 0, showTrigger = true }: {
+  onLocate: (id: string) => void;
+  /** Bump to run diagnostics and open the panel from outside (menu entry). */
+  openPing?: number;
+  /** false = panel only; the trigger lives elsewhere (the ⋯ menu). */
+  showTrigger?: boolean;
+}) {
   const deleteEdges = useStore((s) => s.deleteEdges);
   const t = useT();
   const [open, setOpen] = useState(false);
   const [findings, setFindings] = useState<Finding[]>([]);
   const ref = useRef<HTMLDivElement>(null);
+
+  // external open signal (adjust-during-render, same pattern as ModelPicker)
+  const [pingSeen, setPingSeen] = useState(openPing);
 
   useEffect(() => {
     if (!open) return;
@@ -42,6 +51,10 @@ export default function DiagnosticsPanel({ onLocate }: { onLocate: (id: string) 
     setFindings(runDiagnostics(nodes, edges));
     setOpen(true);
   };
+  if (openPing !== pingSeen) {
+    setPingSeen(openPing);
+    run();
+  }
 
   const fix = (f: Finding) => {
     deleteEdges(f.edgeIds);
@@ -83,15 +96,17 @@ export default function DiagnosticsPanel({ onLocate }: { onLocate: (id: string) 
 
   return (
     <div ref={ref} className="relative">
-      <button
-        onClick={() => (open ? setOpen(false) : run())}
-        className={`bg-card/90 backdrop-blur border rounded-lg w-8 h-8 flex items-center justify-center shadow-sm transition-colors ${
-          open ? 'border-accent/40 text-accent' : 'border-line text-ink-faint hover:bg-wash'
-        }`}
-        title={t('toolbar.diagnose')}
-      >
-        <Stethoscope size={15} strokeWidth={1.75} />
-      </button>
+      {showTrigger && (
+        <button
+          onClick={() => (open ? setOpen(false) : run())}
+          className={`bg-card/90 backdrop-blur border rounded-lg w-8 h-8 flex items-center justify-center shadow-sm transition-colors ${
+            open ? 'border-accent/40 text-accent' : 'border-line text-ink-faint hover:bg-wash'
+          }`}
+          title={t('toolbar.diagnose')}
+        >
+          <Stethoscope size={15} strokeWidth={1.75} />
+        </button>
+      )}
       {open && (
         <div className="absolute right-0 top-full mt-1.5 bg-card border border-line rounded-xl shadow-lg py-1 w-[340px] max-h-[420px] overflow-y-auto z-30 animate-fade-in">
           <div className="px-3 py-1.5 text-2xs font-semibold text-ink-muted border-b border-line">
