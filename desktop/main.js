@@ -86,6 +86,7 @@ let skippedVersion = null;
 let downloading = false;
 let downloadedInfo = null; // set once an update finished downloading
 let manualCheck = false;   // the current check came from the menu
+let lastPercent = 0;       // download progress, for the Dock bar and answers
 
 function askToRestart(info) {
   void dialog.showMessageBox(win, {
@@ -120,7 +121,16 @@ function setupAutoUpdate() {
     }).then(({ response }) => {
       if (response === 0) {
         downloading = true;
-        updater.downloadUpdate().catch(() => { downloading = false; });
+        updater.downloadUpdate().catch(() => {
+          downloading = false;
+          if (win && !win.isDestroyed()) win.setProgressBar(-1);
+          void dialog.showMessageBox(win, {
+            type: 'warning',
+            message: zh ? '更新下载失败' : 'Update download failed',
+            detail: zh ? '请检查网络连接后重试（菜单 → 检查更新）。' : 'Check your connection and try again (menu → Check for updates).',
+            buttons: [zh ? '好' : 'OK'],
+          });
+        });
       } else {
         skippedVersion = info.version;
       }
@@ -135,9 +145,17 @@ function setupAutoUpdate() {
       buttons: [zh ? '好' : 'OK'],
     });
   });
+  // Download progress lives on the Dock icon (system-level, zero UI):
+  // a 140MB first-time update on a slow line is minutes of otherwise
+  // invisible work — the one moment users concluded "nothing happened".
+  updater.on('download-progress', (p) => {
+    lastPercent = p.percent;
+    if (win && !win.isDestroyed()) win.setProgressBar(p.percent / 100);
+  });
   updater.on('update-downloaded', (info) => {
     downloading = false;
     downloadedInfo = info;
+    if (win && !win.isDestroyed()) win.setProgressBar(-1);
     askToRestart(info);
   });
   const check = () => updater.checkForUpdates().catch(() => {
@@ -158,7 +176,18 @@ function setupAutoUpdate() {
   // by hand IS the user changing their mind.
   ipcMain.handle('update:check', () => {
     if (downloadedInfo) { askToRestart(downloadedInfo); return; }
-    if (downloading) return; // quiet: the ready dialog arrives on its own
+    if (downloading) {
+      // asking during a download deserves an answer, not silence
+      void dialog.showMessageBox(win, {
+        type: 'info',
+        message: zh
+          ? `更新正在后台下载（${Math.round(lastPercent)}%）`
+          : `Update downloading in the background (${Math.round(lastPercent)}%)`,
+        detail: zh ? '完成后会询问是否重启。' : 'It will ask to restart when ready.',
+        buttons: [zh ? '好' : 'OK'],
+      });
+      return;
+    }
     skippedVersion = null;
     manualCheck = true;
     check();

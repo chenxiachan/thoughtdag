@@ -152,6 +152,10 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
                 data-check-updates
               >
                 <RefreshCw size={15} strokeWidth={1.75} /> {t('update.checkMenu')}
+                {/* the one place that answers "which version am I on" at a glance */}
+                <span className="ml-auto text-2xs text-ink-faint">
+                  v{new URLSearchParams(window.location.search).get('dv')}
+                </span>
               </button>
             )}
             <input
