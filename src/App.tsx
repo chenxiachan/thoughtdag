@@ -16,7 +16,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import 'highlight.js/styles/github.css';
-import { BookOpen, Brain, CircleHelp, Dna, Download, Drama, Eye, FileText, Frame, GitBranch, Highlighter, KeyRound, LayoutGrid, Loader2, MessageCircleQuestion, MoreHorizontal, Paperclip, Redo2, Scissors, Share2, SquareTerminal, StickyNote, Trash2, Undo2, Workflow, X, ListRestart, FolderSync, Minimize2 } from 'lucide-react';
+import { BookOpen, Brain, CircleHelp, Download, Drama, Eye, FileText, Frame, GitBranch, Highlighter, KeyRound, LayoutGrid, Loader2, MessageCircleQuestion, MoreHorizontal, Paperclip, Redo2, Scissors, Share2, SquareTerminal, StickyNote, Trash2, Undo2, Workflow, X, ListRestart, FolderSync, Minimize2 } from 'lucide-react';
 import './index.css';
 import ThoughtNode from './components/ThoughtNode';
 import ParadigmNode from './components/ParadigmNode';
@@ -33,7 +33,7 @@ import DiagnosticsPanel from './components/DiagnosticsPanel';
 import MaterialReader from './components/MaterialReader';
 import ProjectSwitcher from './components/ProjectSwitcher';
 import { useStore } from './store';
-import { useProjects, adoptImportedProject, createProject, createBuiltinParadigm, markInstantiatedFrom } from './store/projects';
+import { useProjects, adoptImportedProject, markInstantiatedFrom } from './store/projects';
 import { projectStorageKey } from './store/projects';
 import { set as idbSet } from 'idb-keyval';
 import { instantiateParadigm } from './lib/paradigm';
@@ -196,7 +196,6 @@ function Canvas() {
     );
   }, []);
   const lang = useI18n((s) => s.lang);
-  const advancedMode = useUiStore((s) => s.advancedMode);
   const condenseRunState = useUiStore((s) => s.condenseRun);
   const condenseBuilding = condenseRunState.status === 'building';
   const isParadigm = useProjects((s) => s.projects.find((p) => p.id === s.activeId)?.kind === 'paradigm');
@@ -1234,29 +1233,6 @@ function Canvas() {
               </div>
             )}
 
-            {/* Paradigm entrance — a lab door, advanced mode only */}
-            {advancedMode && (
-            <div className="mt-3 bg-card/70 backdrop-blur border border-line/70 rounded-xl px-4 py-3 flex items-center gap-3 hover:border-line-strong transition-colors">
-              <Dna size={16} strokeWidth={1.75} className="text-accent shrink-0" />
-              <div className="flex-1 min-w-0">
-                <h3 className="text-xs font-semibold text-ink mb-0.5">{t('landing.paradigmTitle')}</h3>
-                <p className="text-2xs text-ink-faint leading-relaxed">{t('landing.paradigmDesc')}</p>
-              </div>
-              <button
-                onClick={() => void createBuiltinParadigm(lang).then(afterProjectSwitch)}
-                className="text-2xs bg-accent/10 text-accent hover:bg-accent/20 font-medium px-3 py-1.5 rounded-lg transition-colors shrink-0"
-              >
-                {t('paradigm.exampleRuleOut')}
-              </button>
-              <button
-                onClick={() => void createProject(ti('paradigm.badge'), 'paradigm').then(afterProjectSwitch)}
-                className="text-2xs text-ink-muted hover:text-ink hover:bg-wash font-medium px-3 py-1.5 rounded-lg transition-colors shrink-0"
-              >
-                + {t('paradigm.newParadigm')}
-              </button>
-            </div>
-            )}
-
             <div className="text-center mt-5 flex items-center justify-center gap-5">
               <button
                 onClick={loadExample}
@@ -1379,7 +1355,9 @@ function Canvas() {
           </>
         )}
         {!isParadigm && <ModelPicker />}
-        {(!hasNodes || modelData?.models.length === 0) && (
+        {/* Landing convenience only: inside the canvas the picker's own
+            empty state (Connect a model) is the door — no twin key icon */}
+        {!hasNodes && (
           <button
             onClick={() => useUiStore.getState().setApiKeyModalOpen(true)}
             className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors text-ink-faint hover:text-accent"
@@ -1523,15 +1501,6 @@ function Canvas() {
                   <Share2 size={14} strokeWidth={1.75} className="text-ink-faint shrink-0" /> {t('toolbar.menuShare')}
                 </button>
               )}
-              <button
-                onClick={() => useUiStore.getState().setAdvancedMode(!advancedMode)}
-                className="w-full text-left px-3 py-2 text-xs text-ink hover:bg-wash transition-colors flex items-center gap-2.5"
-                title={t('toolbar.advancedTitle')}
-                data-advanced-toggle
-              >
-                <Dna size={14} strokeWidth={1.75} className="text-ink-faint shrink-0" /> {t('toolbar.advancedToggle')}
-                <span className="ml-auto text-2xs text-ink-faint">{advancedMode ? '✓' : ''}</span>
-              </button>
               <button
                 onClick={() => { setMoreOpen(false); useUiStore.getState().setMemoryManagerOpen(true); }}
                 className="w-full text-left px-3 py-2 text-xs text-ink hover:bg-wash transition-colors flex items-center gap-2.5"

@@ -165,6 +165,7 @@ export const zh: Record<keyof typeof en, string> = {
   'palette.frameTitle': '分区框：给一片画布起名（永不进入上下文，纯空间导航）',
   'frame.titlePlaceholder': '分区标题…',
   'model.none': '未配置模型',
+  'model.connectCta': '连接模型',
   'model.refreshList': '刷新模型列表：重新向已配置的服务商获取',
   'provider.sortTime': '排序：最新',
   'provider.sortName': '排序：名字',

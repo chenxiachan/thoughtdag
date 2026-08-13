@@ -165,6 +165,7 @@ export const en = {
   'palette.frameTitle': 'Frame: name a region of the canvas (never enters context; pure wayfinding)',
   'frame.titlePlaceholder': 'Frame title…',
   'model.none': 'No model yet',
+  'model.connectCta': 'Connect a model',
   'model.refreshList': 'Refresh the model list: re-fetch from your configured providers',
   'provider.sortTime': 'Sort: newest',
   'provider.sortName': 'Sort: name',

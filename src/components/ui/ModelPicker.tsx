@@ -43,6 +43,10 @@ export default function ModelPicker({ value, onChange, compact }: PickerProps) {
   // install is exactly when the hints matter.
   if (models.length < 2 && (nodeMode || !data)) return null;
 
+  // Empty install: the picker IS the call to action. A grey "no model"
+  // label reads as a dead control; a keyed accent button reads as the door.
+  const noModels = !nodeMode && models.length === 0;
+
   const globalId = selectedModel && models.some((m) => m.id === selectedModel) ? selectedModel : data?.default;
   const activeId = nodeMode ? (value ?? null) : globalId;
   const active = activeId ? models.find((m) => m.id === activeId) : null;
@@ -61,15 +65,24 @@ export default function ModelPicker({ value, onChange, compact }: PickerProps) {
   return (
     <div ref={rootRef} className="relative">
       <button
-        onClick={(e) => { e.stopPropagation(); setOpen((v) => !v); }}
+        onClick={(e) => {
+          e.stopPropagation();
+          if (noModels) useUiStore.getState().setApiKeyModalOpen(true);
+          else setOpen((v) => !v);
+        }}
         className={compact
           ? `text-xs px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5 max-w-[200px] ${value ? 'bg-accent/10 text-accent' : 'bg-wash hover:bg-line text-ink-muted'}`
-          : 'bg-card/90 backdrop-blur border border-line rounded-lg h-8 px-2.5 flex items-center gap-1.5 shadow-sm hover:bg-wash transition-colors text-ink-muted max-w-[190px]'}
-        title={t('toolbar.model')}
+          : noModels
+            ? 'bg-accent/10 backdrop-blur border border-accent/40 rounded-lg h-8 px-2.5 flex items-center gap-1.5 shadow-sm hover:bg-accent/20 transition-colors text-accent max-w-[190px]'
+            : 'bg-card/90 backdrop-blur border border-line rounded-lg h-8 px-2.5 flex items-center gap-1.5 shadow-sm hover:bg-wash transition-colors text-ink-muted max-w-[190px]'}
+        title={noModels ? t('apikey.entryTitle') : t('toolbar.model')}
+        data-apikey-entry={noModels || undefined}
       >
-        <Cpu size={14} strokeWidth={1.75} className={`shrink-0 ${compact && !value ? '' : 'text-accent'}`} />
-        <span className="text-xs truncate">{label}</span>
-        <ChevronDown size={12} strokeWidth={1.75} className="shrink-0" />
+        {noModels
+          ? <KeyRound size={14} strokeWidth={1.75} className="shrink-0" />
+          : <Cpu size={14} strokeWidth={1.75} className={`shrink-0 ${compact && !value ? '' : 'text-accent'}`} />}
+        <span className="text-xs truncate font-medium">{noModels ? t('model.connectCta') : label}</span>
+        {!noModels && <ChevronDown size={12} strokeWidth={1.75} className="shrink-0" />}
       </button>
 
       {open && (
