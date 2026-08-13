@@ -698,7 +698,7 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
               {t('reader.digest')}
             </button>
           )}
-          {pdfAtt && view === 'text' && hasVisionModel && !isViewerMode && (
+          {pdfAtt && view === 'text' && !isViewerMode && (
             recog === 'running' ? (
               <span className="flex items-center gap-2 text-xs text-accent shrink-0">
                 <Loader2 size={13} strokeWidth={1.75} className="animate-spin" />
@@ -711,8 +711,8 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
               <button
                 onClick={() => (recog === 'confirm' ? void startRecognize() : setRecog('confirm'))}
                 onBlur={() => setRecog((r) => (r === 'confirm' ? 'idle' : r))}
-                disabled={!pdfAtt.pageImages?.length}
-                title={pdfAtt.pageImages?.length ? t('reader.recognizeTitle') : t('reader.noImages')}
+                disabled={!pdfAtt.pageImages?.length || !hasVisionModel}
+                title={!hasVisionModel ? t('content.noVisionModel') : pdfAtt.pageImages?.length ? t('reader.recognizeTitle') : t('reader.noImages')}
                 className={`flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg border transition-colors shrink-0 disabled:opacity-40 disabled:cursor-not-allowed ${
                   recog === 'confirm' ? 'border-amber-400 bg-amber-50 text-amber-700' : 'border-line text-ink-muted hover:bg-wash'
                 }`}

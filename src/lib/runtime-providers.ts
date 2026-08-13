@@ -130,6 +130,14 @@ export async function pushProviders(providers: RuntimeProvider[]): Promise<Model
   return { models: d.models ?? [], default: d.default ?? null, capabilities: d.capabilities };
 }
 
+// Vision families recognizable from the id alone. Only OpenRouter's /models
+// route ships modality metadata; every other provider answers with bare ids,
+// which used to bury real vision models (a directly-connected glm-4v-flash
+// carried no badge and the Recognize button never appeared). The hint only
+// ever ADDS vision — metadata, when present, always wins, and unknown stays
+// unknown rather than false.
+const VISION_ID_HINT = /gemini|gpt-4o|gpt-4\.1|gpt-5|claude|glm-4v|qwen[\w.-]*-vl|qvq|llava|pixtral|minicpm-v|internvl|kimi-latest|-vision|vision-/i;
+
 /** Ask an endpoint what models it serves (the /models protocol standard). */
 export async function probeModels(baseURL: string, apiKey: string): Promise<RuntimeModel[]> {
   const res = await fetch(`${API_BASE}/api/probe-models`, {
@@ -141,7 +149,11 @@ export async function probeModels(baseURL: string, apiKey: string): Promise<Runt
     const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
     throw new Error(errorText(err, `HTTP ${res.status}`));
   }
-  return ((await res.json()).models ?? []) as RuntimeModel[];
+  const models = ((await res.json()).models ?? []) as RuntimeModel[];
+  for (const m of models) {
+    if (m.vision === undefined && VISION_ID_HINT.test(m.id)) m.vision = true;
+  }
+  return models;
 }
 
 /** A window the model's own id promises (k3-256k, moonshot-v1-128k…).
