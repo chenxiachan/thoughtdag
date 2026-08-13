@@ -50,6 +50,7 @@ import { COLORS, FRAME_COLORS, PANEL_INSET } from './lib/constants';
 import { panelShift } from './lib/panel-shift';
 import { migrateActiveCanvasToVault, gcVaultAtBoot } from './lib/attachment-vault-boot';
 import { consumeOpenRouterCallback, startOpenRouterOAuth } from './lib/openrouter-oauth';
+import { bootDesktopUpdateUI } from './lib/desktop-update-ui';
 import { confirmDialog, toast, useUiStore } from './lib/ui-store';
 import ConfirmDialog from './components/ui/ConfirmDialog';
 import Toaster from './components/ui/Toaster';
@@ -132,6 +133,9 @@ export default function App() {
     const timer = setTimeout(() => useUiStore.getState().setTutorialOpen(true), 900);
     return () => clearTimeout(timer);
   }, [hydrated]);
+
+  // Desktop shell: update prompts render as in-app toasts (no-op on web)
+  useEffect(() => { bootDesktopUpdateUI(); }, []);
 
   // A pending Sign-in-with-OpenRouter callback (?code=) resolves here: the
   // exchange and provider registration run entirely in the browser.

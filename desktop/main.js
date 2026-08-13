@@ -2,7 +2,7 @@
 // the bundled server.mjs runs as a child, serves the built dist on a
 // local port, and this window points at it. No second stack: everything
 // the web app is, the desktop app is.
-const { app, BrowserWindow, shell, utilityProcess, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, shell, utilityProcess, ipcMain } = require('electron');
 const path = require('path');
 const net = require('net');
 
@@ -75,32 +75,21 @@ async function boot() {
 
 // Signed builds self-update through GitHub releases (latest*.yml), and every
 // step past LOOKING belongs to the user: the app only checks quietly. Finding
-// a version raises a dialog; nothing downloads until the user says download;
-// nothing installs until the user says restart (or quits after opting in).
-// "Later" stays quiet for the rest of the session and asks once next launch —
-// unless the user checks BY HAND (menu → Check for updates), which always
-// answers out loud: found, already latest, or offline.
-const zh = app.getLocale().startsWith('zh');
-let updater = null;      // electron-updater instance once set up
-let skippedVersion = null;
+// a version raises an in-app toast (the PAGE renders all update prompts via
+// the preload bridge — same look and language as the rest of the UI); nothing
+// downloads until the user clicks download; nothing installs until the user
+// clicks restart (or quits after opting in). Checking BY HAND always answers
+// out loud: found, already latest, or could not check.
+let updater = null;        // electron-updater instance once set up
+let announced = null;      // version already toasted this session (auto checks)
 let downloading = false;
 let downloadedInfo = null; // set once an update finished downloading
 let manualCheck = false;   // the current check came from the menu
 let lastPercent = 0;       // download progress, for the Dock bar and answers
 
-function askToRestart(info) {
-  void dialog.showMessageBox(win, {
-    type: 'info',
-    message: zh ? `ThoughtDAG ${info.version} 已就绪` : `ThoughtDAG ${info.version} is ready`,
-    detail: zh
-      ? '现在重启完成更新，或在你退出应用时自动完成。'
-      : 'Restart now to finish the update, or it completes when you quit.',
-    buttons: [zh ? '立即重启更新' : 'Restart and update', zh ? '退出时完成' : 'Finish on quit'],
-    defaultId: 0,
-    cancelId: 1,
-  }).then(({ response }) => {
-    if (response === 0) updater.quitAndInstall();
-  });
+// every update prompt is one event to the page; the page toasts it
+function sendUpdate(payload) {
+  if (win && !win.isDestroyed()) win.webContents.send('update:event', payload);
 }
 
 function setupAutoUpdate() {
@@ -108,42 +97,14 @@ function setupAutoUpdate() {
   updater.autoDownload = false; // the user starts the download, never the app
   updater.on('update-available', (info) => {
     const manual = manualCheck; manualCheck = false;
-    if (downloading || (!manual && info.version === skippedVersion)) return;
-    void dialog.showMessageBox(win, {
-      type: 'info',
-      message: zh ? `发现新版本 ${info.version}` : `Version ${info.version} is available`,
-      detail: zh
-        ? '要现在下载吗？下载在后台进行，完成后会再询问是否重启。'
-        : 'Download it now? It downloads in the background and asks again before restarting.',
-      buttons: [zh ? '下载更新' : 'Download update', zh ? '稍后' : 'Later'],
-      defaultId: 0,
-      cancelId: 1,
-    }).then(({ response }) => {
-      if (response === 0) {
-        downloading = true;
-        updater.downloadUpdate().catch(() => {
-          downloading = false;
-          if (win && !win.isDestroyed()) win.setProgressBar(-1);
-          void dialog.showMessageBox(win, {
-            type: 'warning',
-            message: zh ? '更新下载失败' : 'Update download failed',
-            detail: zh ? '请检查网络连接后重试（菜单 → 检查更新）。' : 'Check your connection and try again (menu → Check for updates).',
-            buttons: [zh ? '好' : 'OK'],
-          });
-        });
-      } else {
-        skippedVersion = info.version;
-      }
-    });
+    if (downloading || downloadedInfo) return;
+    if (!manual && info.version === announced) return; // once per session, unless asked
+    announced = info.version;
+    sendUpdate({ kind: 'available', version: info.version });
   });
   updater.on('update-not-available', () => {
     const manual = manualCheck; manualCheck = false;
-    if (!manual) return;
-    void dialog.showMessageBox(win, {
-      type: 'info',
-      message: zh ? `当前已是最新版本（${app.getVersion()}）` : `You're on the latest version (${app.getVersion()})`,
-      buttons: [zh ? '好' : 'OK'],
-    });
+    if (manual) sendUpdate({ kind: 'latest', version: app.getVersion() });
   });
   // Download progress lives on the Dock icon (system-level, zero UI):
   // a 140MB first-time update on a slow line is minutes of otherwise
@@ -156,41 +117,38 @@ function setupAutoUpdate() {
     downloading = false;
     downloadedInfo = info;
     if (win && !win.isDestroyed()) win.setProgressBar(-1);
-    askToRestart(info);
+    sendUpdate({ kind: 'ready', version: info.version });
   });
-  const check = () => updater.checkForUpdates().catch(() => {
-    const manual = manualCheck; manualCheck = false;
-    if (!manual) return;
-    void dialog.showMessageBox(win, {
-      type: 'warning',
-      message: zh ? '无法检查更新' : 'Could not check for updates',
-      detail: zh ? '请检查网络连接后重试。' : 'Check your connection and try again.',
-      buttons: [zh ? '好' : 'OK'],
+  const check = (manual) => {
+    manualCheck = manual;
+    updater.checkForUpdates().catch(() => {
+      const m = manualCheck; manualCheck = false;
+      if (m) sendUpdate({ kind: 'check-failed' });
     });
-  });
-  check();
-  setInterval(check, 4 * 60 * 60 * 1000);
+  };
+  check(false);
+  setInterval(() => check(false), 4 * 60 * 60 * 1000);
 
   // Menu → Check for updates. A downloaded update short-circuits straight
-  // to the restart dialog; a skipped version gets a second chance — asking
-  // by hand IS the user changing their mind.
+  // to the restart toast; asking during a download answers with progress;
+  // asking by hand re-offers a version dismissed earlier.
   ipcMain.handle('update:check', () => {
-    if (downloadedInfo) { askToRestart(downloadedInfo); return; }
-    if (downloading) {
-      // asking during a download deserves an answer, not silence
-      void dialog.showMessageBox(win, {
-        type: 'info',
-        message: zh
-          ? `更新正在后台下载（${Math.round(lastPercent)}%）`
-          : `Update downloading in the background (${Math.round(lastPercent)}%)`,
-        detail: zh ? '完成后会询问是否重启。' : 'It will ask to restart when ready.',
-        buttons: [zh ? '好' : 'OK'],
-      });
-      return;
-    }
-    skippedVersion = null;
-    manualCheck = true;
-    check();
+    if (downloadedInfo) { sendUpdate({ kind: 'ready', version: downloadedInfo.version }); return; }
+    if (downloading) { sendUpdate({ kind: 'downloading', percent: Math.round(lastPercent) }); return; }
+    check(true);
+  });
+  ipcMain.handle('update:download', () => {
+    if (downloading || downloadedInfo || !announced) return;
+    downloading = true;
+    sendUpdate({ kind: 'downloading', percent: 0 });
+    updater.downloadUpdate().catch(() => {
+      downloading = false;
+      if (win && !win.isDestroyed()) win.setProgressBar(-1);
+      sendUpdate({ kind: 'download-failed' });
+    });
+  });
+  ipcMain.handle('update:install', () => {
+    if (downloadedInfo) updater.quitAndInstall();
   });
 }
 
@@ -207,9 +165,7 @@ if (!lock) {
       setupAutoUpdate();
     } else {
       // dev shell: the menu entry exists (preload is loaded), so answer honestly
-      ipcMain.handle('update:check', () => {
-        void dialog.showMessageBox(win, { message: 'Dev build — no update channel.', buttons: ['OK'] });
-      });
+      ipcMain.handle('update:check', () => { sendUpdate({ kind: 'dev' }); });
     }
   });
   app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) boot(); });

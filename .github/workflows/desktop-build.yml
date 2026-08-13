@@ -1,5 +1,10 @@
 # Desktop packages for the three platforms. Triggered by version tags (and
-# by hand). Unsigned builds — signing lands with the Apple Developer setup.
+# by hand). The release lifecycle is draft-first: a draft is created before
+# the builds, every platform uploads into it, and a final job publishes it
+# only when ALL of them succeeded. Installed apps checking for updates
+# during the build window therefore keep seeing the previous complete
+# release instead of a half-uploaded new one (the "could not check for
+# updates" 404s of the per-job-publish era).
 name: desktop
 on:
   push:
@@ -10,7 +15,21 @@ permissions:
   contents: write
 
 jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create draft release
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          gh release view "$TAG" -R "$REPO" >/dev/null 2>&1 || \
+            gh release create "$TAG" -R "$REPO" --draft --title "$TAG" --notes "Build in progress."
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
+
   build:
+    needs: prepare
     strategy:
       fail-fast: false
       matrix:
@@ -50,16 +69,32 @@ jobs:
             desktop/out/*.exe
             desktop/out/*.AppImage
           if-no-files-found: error
-      - uses: softprops/action-gh-release@v2
+      - name: Upload into draft release
         if: startsWith(github.ref, 'refs/tags/')
-        with:
-          files: |
-            desktop/out/*.dmg
-            desktop/out/*.zip
-            desktop/out/*.exe
-            desktop/out/*.AppImage
-            desktop/out/latest*.yml
-            desktop/out/*.blockmap
-          prerelease: ${{ contains(github.ref_name, 'beta') }}
+        shell: bash
+        run: |
+          shopt -s nullglob
+          files=(desktop/out/*.dmg desktop/out/*.zip desktop/out/*.exe \
+                 desktop/out/*.AppImage desktop/out/latest*.yml desktop/out/*.blockmap)
+          gh release upload "$TAG" "${files[@]}" -R "$REPO" --clobber
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
+
+  publish:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish release (all platforms complete)
+        run: |
+          if [[ "$TAG" == *beta* ]]; then
+            gh release edit "$TAG" -R "$REPO" --draft=false --prerelease
+          else
+            gh release edit "$TAG" -R "$REPO" --draft=false --latest
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}

@@ -4,7 +4,10 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('desktop', {
-  // Manual "check for updates": the main process runs the check and owns
-  // every dialog that follows (found / latest / offline).
+  // Update flow: the shell checks/downloads/installs, the PAGE renders every
+  // prompt as in-app toasts (same look and language as the rest of the UI).
   checkForUpdates: () => ipcRenderer.invoke('update:check'),
+  downloadUpdate: () => ipcRenderer.invoke('update:download'),
+  installUpdate: () => ipcRenderer.invoke('update:install'),
+  onUpdateEvent: (cb) => { ipcRenderer.on('update:event', (_e, data) => cb(data)); },
 });
