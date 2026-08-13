@@ -252,6 +252,7 @@ export const en = {
   'ctx.duplicate': 'Duplicate',
   'ctx.unarchive': 'Unarchive',
   'update.available': 'A new version is live — refresh to get it',
+  'update.checkMenu': 'Check for updates',
   'update.desktopAvailable': 'Desktop version {v} is out.',
   'update.desktopDownload': 'Get it',
   'update.refresh': 'Refresh',

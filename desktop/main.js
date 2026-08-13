@@ -2,7 +2,7 @@
 // the bundled server.mjs runs as a child, serves the built dist on a
 // local port, and this window points at it. No second stack: everything
 // the web app is, the desktop app is.
-const { app, BrowserWindow, shell, utilityProcess } = require('electron');
+const { app, BrowserWindow, shell, utilityProcess, ipcMain, dialog } = require('electron');
 const path = require('path');
 const net = require('net');
 
@@ -52,6 +52,7 @@ async function boot() {
     height: 950,
     title: 'ThoughtDAG',
     backgroundColor: '#FAF9F7',
+    webPreferences: { preload: path.join(__dirname, 'preload.js') },
   });
   // splash first: the window exists from the first moment, breathing,
   // while the bundled server warms up behind it
@@ -76,17 +77,37 @@ async function boot() {
 // step past LOOKING belongs to the user: the app only checks quietly. Finding
 // a version raises a dialog; nothing downloads until the user says download;
 // nothing installs until the user says restart (or quits after opting in).
-// "Later" stays quiet for the rest of the session and asks once next launch.
+// "Later" stays quiet for the rest of the session and asks once next launch —
+// unless the user checks BY HAND (menu → Check for updates), which always
+// answers out loud: found, already latest, or offline.
+const zh = app.getLocale().startsWith('zh');
+let updater = null;      // electron-updater instance once set up
+let skippedVersion = null;
+let downloading = false;
+let downloadedInfo = null; // set once an update finished downloading
+let manualCheck = false;   // the current check came from the menu
+
+function askToRestart(info) {
+  void dialog.showMessageBox(win, {
+    type: 'info',
+    message: zh ? `ThoughtDAG ${info.version} 已就绪` : `ThoughtDAG ${info.version} is ready`,
+    detail: zh
+      ? '现在重启完成更新，或在你退出应用时自动完成。'
+      : 'Restart now to finish the update, or it completes when you quit.',
+    buttons: [zh ? '立即重启更新' : 'Restart and update', zh ? '退出时完成' : 'Finish on quit'],
+    defaultId: 0,
+    cancelId: 1,
+  }).then(({ response }) => {
+    if (response === 0) updater.quitAndInstall();
+  });
+}
+
 function setupAutoUpdate() {
-  let autoUpdater;
-  try { ({ autoUpdater } = require('electron-updater')); } catch { return; }
-  const { dialog } = require('electron');
-  const zh = app.getLocale().startsWith('zh');
-  autoUpdater.autoDownload = false; // the user starts the download, never the app
-  let skippedVersion = null;
-  let downloading = false;
-  autoUpdater.on('update-available', (info) => {
-    if (downloading || info.version === skippedVersion) return;
+  try { ({ autoUpdater: updater } = require('electron-updater')); } catch { return; }
+  updater.autoDownload = false; // the user starts the download, never the app
+  updater.on('update-available', (info) => {
+    const manual = manualCheck; manualCheck = false;
+    if (downloading || (!manual && info.version === skippedVersion)) return;
     void dialog.showMessageBox(win, {
       type: 'info',
       message: zh ? `发现新版本 ${info.version}` : `Version ${info.version} is available`,
@@ -99,29 +120,49 @@ function setupAutoUpdate() {
     }).then(({ response }) => {
       if (response === 0) {
         downloading = true;
-        autoUpdater.downloadUpdate().catch(() => { downloading = false; });
+        updater.downloadUpdate().catch(() => { downloading = false; });
       } else {
         skippedVersion = info.version;
       }
     });
   });
-  autoUpdater.on('update-downloaded', (info) => {
+  updater.on('update-not-available', () => {
+    const manual = manualCheck; manualCheck = false;
+    if (!manual) return;
     void dialog.showMessageBox(win, {
       type: 'info',
-      message: zh ? `ThoughtDAG ${info.version} 已就绪` : `ThoughtDAG ${info.version} is ready`,
-      detail: zh
-        ? '现在重启完成更新，或在你退出应用时自动完成。'
-        : 'Restart now to finish the update, or it completes when you quit.',
-      buttons: [zh ? '立即重启更新' : 'Restart and update', zh ? '退出时完成' : 'Finish on quit'],
-      defaultId: 0,
-      cancelId: 1,
-    }).then(({ response }) => {
-      if (response === 0) autoUpdater.quitAndInstall();
+      message: zh ? `当前已是最新版本（${app.getVersion()}）` : `You're on the latest version (${app.getVersion()})`,
+      buttons: [zh ? '好' : 'OK'],
     });
   });
-  const check = () => autoUpdater.checkForUpdates().catch(() => {});
+  updater.on('update-downloaded', (info) => {
+    downloading = false;
+    downloadedInfo = info;
+    askToRestart(info);
+  });
+  const check = () => updater.checkForUpdates().catch(() => {
+    const manual = manualCheck; manualCheck = false;
+    if (!manual) return;
+    void dialog.showMessageBox(win, {
+      type: 'warning',
+      message: zh ? '无法检查更新' : 'Could not check for updates',
+      detail: zh ? '请检查网络连接后重试。' : 'Check your connection and try again.',
+      buttons: [zh ? '好' : 'OK'],
+    });
+  });
   check();
   setInterval(check, 4 * 60 * 60 * 1000);
+
+  // Menu → Check for updates. A downloaded update short-circuits straight
+  // to the restart dialog; a skipped version gets a second chance — asking
+  // by hand IS the user changing their mind.
+  ipcMain.handle('update:check', () => {
+    if (downloadedInfo) { askToRestart(downloadedInfo); return; }
+    if (downloading) return; // quiet: the ready dialog arrives on its own
+    skippedVersion = null;
+    manualCheck = true;
+    check();
+  });
 }
 
 const lock = app.requestSingleInstanceLock();
@@ -133,7 +174,14 @@ if (!lock) {
   });
   app.whenReady().then(() => {
     void boot();
-    if (app.isPackaged) setupAutoUpdate();
+    if (app.isPackaged) {
+      setupAutoUpdate();
+    } else {
+      // dev shell: the menu entry exists (preload is loaded), so answer honestly
+      ipcMain.handle('update:check', () => {
+        void dialog.showMessageBox(win, { message: 'Dev build — no update channel.', buttons: ['OK'] });
+      });
+    }
   });
   app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) boot(); });
   app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });

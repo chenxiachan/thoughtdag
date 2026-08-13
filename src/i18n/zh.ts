@@ -252,6 +252,7 @@ export const zh: Record<keyof typeof en, string> = {
   'ctx.duplicate': '复制副本',
   'ctx.unarchive': '取消归档',
   'update.available': '新版本已上线，刷新即可使用',
+  'update.checkMenu': '检查更新',
   'update.desktopAvailable': '桌面版新版本 {v} 已发布。',
   'update.desktopDownload': '去下载',
   'update.refresh': '刷新',

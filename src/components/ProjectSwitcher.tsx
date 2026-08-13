@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { ChevronDown, Dna, FolderOpen, Loader2, Pencil, Plus, Trash2, Upload } from 'lucide-react';
+import { ChevronDown, Dna, FolderOpen, Loader2, Pencil, Plus, RefreshCw, Trash2, Upload } from 'lucide-react';
 import { useProjects, switchProject, createProject, renameProject, deleteProject } from '../store/projects';
 import { useI18n } from '../i18n';
 import { parseImportFile } from '../lib/export';
@@ -145,6 +145,15 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
             >
               <Upload size={15} strokeWidth={1.75} /> {t('switcher.importBackup')}
             </button>
+            {window.desktop && (
+              <button
+                onClick={() => { setOpen(false); void window.desktop!.checkForUpdates(); }}
+                className="w-full text-left px-3 py-2 text-sm text-ink-muted hover:bg-wash transition-colors flex items-center gap-2"
+                data-check-updates
+              >
+                <RefreshCw size={15} strokeWidth={1.75} /> {t('update.checkMenu')}
+              </button>
+            )}
             <input
               ref={importFileRef}
               type="file"

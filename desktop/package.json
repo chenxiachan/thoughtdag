@@ -1,7 +1,7 @@
 {
   "name": "thoughtdag-desktop",
   "private": true,
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Desktop shell for ThoughtDAG — same app, same server, one window",
   "main": "main.js",
   "scripts": {
@@ -24,6 +24,7 @@
     },
     "files": [
       "main.js",
+      "preload.js",
       "package.json",
       "splash.html"
     ],
