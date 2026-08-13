@@ -3,7 +3,7 @@ import {
   probeModels, pushProviders, saveProviders, storedProviders,
 } from './runtime-providers';
 import { setModelsCache } from './use-models';
-import { toast } from './ui-store';
+import { toast, useUiStore } from './ui-store';
 import { t, fmt } from '../i18n';
 import { API_BASE } from './constants';
 
@@ -52,8 +52,15 @@ export async function startOpenRouterOAuth(): Promise<void> {
       return;
     }
     const r = await exchangeAndConnect(code, verifier);
-    if (r.status === 'connected') toast('success', fmt(t('provider.oauthConnected'), { n: r.n }));
-    else toast('error', fmt(t('provider.oauthFailed'), { error: r.error }));
+    if (r.status === 'connected') {
+      toast('success', fmt(t('provider.oauthConnected'), { n: r.n }));
+      // the return signal: the setup modal closes, the model picker opens
+      // on the fresh list — the screen answers "it worked" by itself
+      useUiStore.getState().setApiKeyModalOpen(false);
+      useUiStore.getState().pingModelPicker();
+    } else {
+      toast('error', fmt(t('provider.oauthFailed'), { error: r.error }));
+    }
     return;
   }
 

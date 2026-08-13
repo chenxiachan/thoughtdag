@@ -95,6 +95,10 @@ interface UiState {
   /** Browser-side API key dialog (the .env-free path in). */
   apiKeyModalOpen: boolean;
   setApiKeyModalOpen: (open: boolean) => void;
+  /** Monotonic signal: each bump asks the global model picker to drop open
+      (the "look, your models are here" moment after a connect succeeds). */
+  modelPickerPing: number;
+  pingModelPicker: () => void;
   /** Node whose answer is open in the large reading overlay. */
   responseViewerNodeId: string | null;
   setResponseViewerNodeId: (id: string | null) => void;
@@ -230,6 +234,8 @@ export const useUiStore = create<UiState>((set, get) => ({
   setMemoryManagerOpen: (open) => set({ memoryManagerOpen: open }),
   apiKeyModalOpen: false,
   setApiKeyModalOpen: (open) => set({ apiKeyModalOpen: open }),
+  modelPickerPing: 0,
+  pingModelPicker: () => set((s) => ({ modelPickerPing: s.modelPickerPing + 1 })),
   responseViewerNodeId: null,
   setResponseViewerNodeId: (id) => set({ responseViewerNodeId: id }),
   autoBackupDir: null,

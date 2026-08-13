@@ -43,8 +43,11 @@ export default function ApiKeyModal() {
   const visiblePresets = PROVIDER_PRESETS.filter((p) => !p.region || p.region === lang);
   const [preset, setPreset] = useState<ProviderPreset>(visiblePresets[0]);
   // The hosted deployment cannot reach a user's 127.0.0.1 (and the bridge
-  // sends no CORS): surface the limit BEFORE the 403, not after.
-  const hostedBridgeBlocked = API_BASE === '' && preset.baseURL.includes('127.0.0.1');
+  // sends no CORS): surface the limit BEFORE the 403, not after. Same-origin
+  // alone is NOT "hosted" — the desktop shell serves same-origin from a
+  // loopback address, and its bundled server reaches the bridge just fine.
+  const isLoopback = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
+  const hostedBridgeBlocked = API_BASE === '' && !isLoopback && preset.baseURL.includes('127.0.0.1');
   const [key, setKey] = useState('');
   const [customURL, setCustomURL] = useState('');
   const [customName, setCustomName] = useState('');

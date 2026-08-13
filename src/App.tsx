@@ -143,8 +143,12 @@ export default function App() {
     if (isViewerMode) return;
     void consumeOpenRouterCallback().then((r) => {
       if (!r) return;
-      if (r.status === 'connected') toast('success', fmt(ti('provider.oauthConnected'), { n: r.n }));
-      else toast('error', fmt(ti('provider.oauthFailed'), { error: r.error }));
+      if (r.status === 'connected') {
+        toast('success', fmt(ti('provider.oauthConnected'), { n: r.n }));
+        useUiStore.getState().pingModelPicker();
+      } else {
+        toast('error', fmt(ti('provider.oauthFailed'), { error: r.error }));
+      }
     });
   }, []);
   return (

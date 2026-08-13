@@ -37,6 +37,16 @@ export default function ModelPicker({ value, onChange, compact }: PickerProps) {
     return () => window.removeEventListener('mousedown', onDown);
   }, [open]);
 
+  // A successful connect pings the GLOBAL picker open: the user lands on
+  // their fresh model list instead of wondering whether anything happened.
+  // (adjust-during-render, same pattern as FocusPanel's node switch)
+  const ping = useUiStore((s) => s.modelPickerPing);
+  const [pingSeen, setPingSeen] = useState(ping);
+  if (ping !== pingSeen) {
+    setPingSeen(ping);
+    if (!nodeMode) setOpen(true);
+  }
+
   const models = data?.models ?? [];
   // Node mode: with one model there is nothing to pin. The GLOBAL picker
   // stays even then — it also carries the capability report, and a sparse
