@@ -256,6 +256,7 @@ export const zh: Record<keyof typeof en, string> = {
   'update.available': '新版本已上线，刷新即可使用',
   'update.checkMenu': '检查更新',
   'toolbar.menuDiagnose': '诊断画布',
+  'toolbar.searchUnavailableLane': '当前模型经浏览器直连（保护它的思考流），此通道不支持搜索工具。OpenRouter 通道的模型或桌面版可用搜索。',
   'update.found': '发现新版本 {v}',
   'update.downloadAction': '下载更新',
   'update.downloading': '正在后台下载更新（{p}%），完成后会提示',

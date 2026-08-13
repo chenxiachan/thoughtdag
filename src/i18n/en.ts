@@ -256,6 +256,7 @@ export const en = {
   'update.available': 'A new version is live — refresh to get it',
   'update.checkMenu': 'Check for updates',
   'toolbar.menuDiagnose': 'Diagnose canvas',
+  'toolbar.searchUnavailableLane': 'This model connects browser-direct (protecting its thinking stream), and that lane has no search tools. Models on the OpenRouter lane, or the desktop app, can search.',
   'update.found': 'Version {v} is available',
   'update.downloadAction': 'Download update',
   'update.downloading': 'Update downloading in the background ({p}%); it will announce itself when ready',

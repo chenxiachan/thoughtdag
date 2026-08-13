@@ -12,7 +12,13 @@ import { storedProviders, type RuntimeProvider } from './runtime-providers';
 // Local dev keeps the Node proxy: no CPU cap there, plus the richer tool
 // loop (web_search / arxiv / scholar / MCP).
 
-const isWorkerBackend = API_BASE === '';
+// Same-origin alone is NOT "the worker": the desktop shell serves same-origin
+// from a loopback address, and its bundled server has no CPU allowance and
+// the full tool loop (search / scholar / MCP / vision reroute) — bypassing it
+// would throw all of that away for nothing. Only the hosted deployment needs
+// the direct lanes.
+const isLoopback = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
+const isWorkerBackend = API_BASE === '' && !isLoopback;
 
 // Endpoints verified to allow browser CORS: OpenRouter (documented),
 // Moonshot (preflight tested against .cn with the app origin), and DeepSeek

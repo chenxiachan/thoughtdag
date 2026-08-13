@@ -16,41 +16,47 @@ export default function SearchToggles({ size = 16 }: { size?: number }) {
   // no key, no button: search that cannot run must not be offerable
   // (the capabilities panel is the one place that says why)
   const webAvailable = useModels()?.capabilities?.webSearch ?? true;
-  // Models on a searchless direct lane (e.g. Moonshot browser-direct) hide
-  // both toggles: offering them would route the request through the proxy,
-  // where thinking streams die of the Workers CPU allowance.
+  // Models on a searchless direct lane (hosted app, e.g. DeepSeek browser-
+  // direct) show DISABLED toggles with the reason — a control that vanishes
+  // reads as a missing feature, a disabled one explains itself. Offering a
+  // live toggle would route the request through the proxy, where thinking
+  // streams die of the Workers CPU allowance.
   const selectedModel = useUiStore((s) => s.selectedModel);
   const noSearchLane = directWithoutSearch(selectedModel ?? undefined);
 
   const cls = (on: boolean) =>
-    `transition-colors shrink-0 rounded-full w-8 h-8 flex items-center justify-center ${
-      on
-        ? 'text-accent bg-accent/15 ring-1 ring-accent/40 hover:bg-accent/25'
-        : 'text-ink-muted opacity-50 hover:opacity-90 hover:bg-line'
-    }`;
+    noSearchLane
+      ? 'transition-colors shrink-0 rounded-full w-8 h-8 flex items-center justify-center text-ink-faint opacity-30 cursor-not-allowed'
+      : `transition-colors shrink-0 rounded-full w-8 h-8 flex items-center justify-center ${
+          on
+            ? 'text-accent bg-accent/15 ring-1 ring-accent/40 hover:bg-accent/25'
+            : 'text-ink-muted opacity-50 hover:opacity-90 hover:bg-line'
+        }`;
 
   return (
     <>
-      {webAvailable && !noSearchLane && (
+      {webAvailable && (
         <button
           type="button"
-          onClick={() => setWeb(!web)}
-          title={web ? t('toolbar.webSearch') : t('toolbar.webSearchOff')}
+          onClick={() => { if (!noSearchLane) setWeb(!web); }}
+          disabled={noSearchLane}
+          title={noSearchLane ? t('toolbar.searchUnavailableLane') : web ? t('toolbar.webSearch') : t('toolbar.webSearchOff')}
           className={cls(web)}
+          data-web-toggle
         >
           <Globe size={size} strokeWidth={1.75} />
         </button>
       )}
-      {!noSearchLane && (
-        <button
-          type="button"
-          onClick={() => setScholar(!scholar)}
-          title={scholar ? t('toolbar.scholarSearch') : t('toolbar.scholarSearchOff')}
-          className={cls(scholar)}
-        >
-          <GraduationCap size={size} strokeWidth={1.75} />
-        </button>
-      )}
+      <button
+        type="button"
+        onClick={() => { if (!noSearchLane) setScholar(!scholar); }}
+        disabled={noSearchLane}
+        title={noSearchLane ? t('toolbar.searchUnavailableLane') : scholar ? t('toolbar.scholarSearch') : t('toolbar.scholarSearchOff')}
+        className={cls(scholar)}
+        data-scholar-toggle
+      >
+        <GraduationCap size={size} strokeWidth={1.75} />
+      </button>
     </>
   );
 }
