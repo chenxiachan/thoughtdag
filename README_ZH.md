@@ -107,7 +107,20 @@ npm run dev       # → localhost:5173
 
 ## 桌面版
 
-同一个应用装进独立窗口，内置本地引擎。首选从[下载页](https://chenxiachan.github.io/thoughtdag/#download)获取，页面会自动识别你的平台并直接给出安装包（macOS Apple Silicon 与 Intel、Windows、Linux）。全部版本在 [Releases](https://github.com/chenxiachan/thoughtdag/releases)。不需要 Node，不需要终端，发布新版后应用内会直接提示更新。macOS 版已由 Apple 签名与公证，双击即开。Windows 版暂未签名，在提示中选「更多信息 → 仍要运行」。
+同一个应用装进独立窗口，内置本地引擎。不需要 Node，不需要终端。最省事的入口是[下载页](https://chenxiachan.github.io/thoughtdag/?lang=zh#download)，页面会自动识别你的平台并直接给出安装包。
+
+直接从 [Releases](https://github.com/chenxiachan/thoughtdag/releases/latest) 下载的话，按系统对照选择：
+
+| 你的系统 | 下载这个文件 |
+|---------|-------------|
+| macOS，Apple Silicon（M1 及之后） | `ThoughtDAG-x.y.z-arm64.dmg` |
+| macOS，Intel 芯片 | `ThoughtDAG-x.y.z.dmg` |
+| Windows | `ThoughtDAG.Setup.x.y.z.exe` |
+| Linux | `ThoughtDAG-x.y.z.AppImage` |
+
+不确定自己的 Mac 是哪种芯片：苹果菜单 → 关于本机。列表里的 `.zip`、`.blockmap` 和 `.yml` 文件是应用内自动更新机制使用的，不需要手动下载。
+
+macOS 版已由 Apple 签名与公证，双击即开。Windows 版暂未签名，在提示中选「更多信息 → 仍要运行」。装好之后应用会自己检查新版本（画布菜单 → 检查更新），检查之后的每一步都等你点击确认。
 
 ## 更多能力
 

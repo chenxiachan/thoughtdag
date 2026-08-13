@@ -107,7 +107,20 @@ The landing page offers the seeded example canvas one labeled click away: four c
 
 ## Desktop app
 
-The same app in its own window, with the local server bundled. Grab it from the [download page](https://chenxiachan.github.io/thoughtdag/#download): it detects your platform and hands you the file (macOS Apple Silicon & Intel, Windows, Linux). Every version lives on [Releases](https://github.com/chenxiachan/thoughtdag/releases). No Node, no terminal, and the app tells you in place when a new version ships. The macOS builds are signed and notarized by Apple: double-click and go. Windows builds are not signed yet; choose "More info → Run anyway" on the SmartScreen prompt.
+The same app in its own window, with the local server bundled. No Node, no terminal. The easiest path is the [download page](https://chenxiachan.github.io/thoughtdag/#download): it detects your platform and hands you the right file.
+
+Downloading from [Releases](https://github.com/chenxiachan/thoughtdag/releases/latest) directly? Pick by system:
+
+| Your system | File to download |
+|-------------|------------------|
+| macOS, Apple Silicon (M1 and later) | `ThoughtDAG-x.y.z-arm64.dmg` |
+| macOS, Intel | `ThoughtDAG-x.y.z.dmg` |
+| Windows | `ThoughtDAG.Setup.x.y.z.exe` |
+| Linux | `ThoughtDAG-x.y.z.AppImage` |
+
+Not sure which Mac you have? Apple menu → About This Mac. The `.zip`, `.blockmap` and `.yml` files serve the in-app updater; you never download them by hand.
+
+The macOS builds are signed and notarized by Apple: double-click and go. Windows builds are not signed yet; choose "More info → Run anyway" on the SmartScreen prompt. After installing, the app checks for new versions itself (canvas menu → Check for updates) and every step past looking waits for your click.
 
 ## More capabilities
 
