@@ -72,24 +72,47 @@ async function boot() {
   win.loadURL(`http://127.0.0.1:${port}/?dv=${encodeURIComponent(app.getVersion())}&su=1`);
 }
 
-// Signed builds self-update through GitHub releases (latest*.yml): check on
-// launch and every few hours, download in the background, then ASK before
-// restarting — the user decided updates stay a click, never a surprise.
-// Declining still applies the update on the next quit (electron-updater's
-// autoInstallOnAppQuit), so "later" costs nothing.
+// Signed builds self-update through GitHub releases (latest*.yml), and every
+// step past LOOKING belongs to the user: the app only checks quietly. Finding
+// a version raises a dialog; nothing downloads until the user says download;
+// nothing installs until the user says restart (or quits after opting in).
+// "Later" stays quiet for the rest of the session and asks once next launch.
 function setupAutoUpdate() {
   let autoUpdater;
   try { ({ autoUpdater } = require('electron-updater')); } catch { return; }
+  const { dialog } = require('electron');
   const zh = app.getLocale().startsWith('zh');
+  autoUpdater.autoDownload = false; // the user starts the download, never the app
+  let skippedVersion = null;
+  let downloading = false;
+  autoUpdater.on('update-available', (info) => {
+    if (downloading || info.version === skippedVersion) return;
+    void dialog.showMessageBox(win, {
+      type: 'info',
+      message: zh ? `发现新版本 ${info.version}` : `Version ${info.version} is available`,
+      detail: zh
+        ? '要现在下载吗？下载在后台进行，完成后会再询问是否重启。'
+        : 'Download it now? It downloads in the background and asks again before restarting.',
+      buttons: [zh ? '下载更新' : 'Download update', zh ? '稍后' : 'Later'],
+      defaultId: 0,
+      cancelId: 1,
+    }).then(({ response }) => {
+      if (response === 0) {
+        downloading = true;
+        autoUpdater.downloadUpdate().catch(() => { downloading = false; });
+      } else {
+        skippedVersion = info.version;
+      }
+    });
+  });
   autoUpdater.on('update-downloaded', (info) => {
-    const { dialog } = require('electron');
     void dialog.showMessageBox(win, {
       type: 'info',
       message: zh ? `ThoughtDAG ${info.version} 已就绪` : `ThoughtDAG ${info.version} is ready`,
       detail: zh
-        ? '新版本已在后台下载完成。现在重启即可更新。'
-        : 'The update finished downloading in the background. Restart now to apply it.',
-      buttons: [zh ? '立即重启更新' : 'Restart and update', zh ? '稍后（退出时自动更新）' : 'Later (applies on quit)'],
+        ? '现在重启完成更新，或在你退出应用时自动完成。'
+        : 'Restart now to finish the update, or it completes when you quit.',
+      buttons: [zh ? '立即重启更新' : 'Restart and update', zh ? '退出时完成' : 'Finish on quit'],
       defaultId: 0,
       cancelId: 1,
     }).then(({ response }) => {
