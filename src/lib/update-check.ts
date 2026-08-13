@@ -16,15 +16,20 @@ let notified = false;
 // The shell hands its version over in the URL (?dv=). The web bundle can't
 // self-update a desktop install, so the nudge points at the download page
 // (the shell's window-open handler routes it to the system browser).
+// Shells that self-update (signed builds, ?su=1) silence this nudge: the
+// main process downloads updates itself and asks to restart in place —
+// pointing those users at a download page would be a step backwards.
 // Anonymous GitHub API is rate-limited per IP: throttle to one look per
 // half hour, sticky toast once per session.
-const desktopVersion = new URLSearchParams(window.location.search).get('dv');
+const bootParams = new URLSearchParams(window.location.search);
+const desktopVersion = bootParams.get('dv');
+const shellSelfUpdates = bootParams.get('su') === '1';
 const DESKTOP_THROTTLE_MS = 30 * 60_000;
 let notifiedDesktop = false;
 let lastDesktopCheck = 0;
 
 async function checkDesktop(): Promise<void> {
-  if (!desktopVersion || notifiedDesktop) return;
+  if (!desktopVersion || shellSelfUpdates || notifiedDesktop) return;
   if (Date.now() - lastDesktopCheck < DESKTOP_THROTTLE_MS) return;
   lastDesktopCheck = Date.now();
   try {

@@ -67,8 +67,38 @@ async function boot() {
     win.loadURL(`data:text/html,<pre>ThoughtDAG server failed to start on port ${port}.\nCheck the terminal output.</pre>`);
     return;
   }
-  // ?dv= lets the web layer run the desktop update nudge (see update-check.ts)
-  win.loadURL(`http://127.0.0.1:${port}/?dv=${encodeURIComponent(app.getVersion())}`);
+  // ?dv= identifies the desktop build to the web layer; &su=1 tells it the
+  // shell self-updates, so the in-page download nudge stays quiet.
+  win.loadURL(`http://127.0.0.1:${port}/?dv=${encodeURIComponent(app.getVersion())}&su=1`);
+}
+
+// Signed builds self-update through GitHub releases (latest*.yml): check on
+// launch and every few hours, download in the background, then ASK before
+// restarting — the user decided updates stay a click, never a surprise.
+// Declining still applies the update on the next quit (electron-updater's
+// autoInstallOnAppQuit), so "later" costs nothing.
+function setupAutoUpdate() {
+  let autoUpdater;
+  try { ({ autoUpdater } = require('electron-updater')); } catch { return; }
+  const zh = app.getLocale().startsWith('zh');
+  autoUpdater.on('update-downloaded', (info) => {
+    const { dialog } = require('electron');
+    void dialog.showMessageBox(win, {
+      type: 'info',
+      message: zh ? `ThoughtDAG ${info.version} 已就绪` : `ThoughtDAG ${info.version} is ready`,
+      detail: zh
+        ? '新版本已在后台下载完成。现在重启即可更新。'
+        : 'The update finished downloading in the background. Restart now to apply it.',
+      buttons: [zh ? '立即重启更新' : 'Restart and update', zh ? '稍后（退出时自动更新）' : 'Later (applies on quit)'],
+      defaultId: 0,
+      cancelId: 1,
+    }).then(({ response }) => {
+      if (response === 0) autoUpdater.quitAndInstall();
+    });
+  });
+  const check = () => autoUpdater.checkForUpdates().catch(() => {});
+  check();
+  setInterval(check, 4 * 60 * 60 * 1000);
 }
 
 const lock = app.requestSingleInstanceLock();
@@ -80,15 +110,7 @@ if (!lock) {
   });
   app.whenReady().then(() => {
     void boot();
-    // Signed builds self-update through GitHub releases (latest*.yml).
-    // Unsigned/dev builds fail this check quietly — the in-app version
-    // nudge (update-check.ts) still covers them.
-    if (app.isPackaged) {
-      try {
-        const { autoUpdater } = require('electron-updater');
-        autoUpdater.checkForUpdatesAndNotify().catch(() => {});
-      } catch { /* updater unavailable: nudge remains */ }
-    }
+    if (app.isPackaged) setupAutoUpdate();
   });
   app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) boot(); });
   app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
