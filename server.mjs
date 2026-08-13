@@ -1056,6 +1056,25 @@ app.post('/api/stream', async (req, res) => {
   }
 });
 
+// ── Sign in with OpenRouter, desktop flow ──
+// The desktop shell sends the consent page to the SYSTEM browser (the user
+// is already signed in there); the callback lands here on the bundled local
+// server, and the app polls the code out. One-time read, loopback only —
+// the PKCE verifier and the minted key never pass through this file.
+let orOauthCode = null;
+app.get('/oauth/openrouter', (req, res) => {
+  orOauthCode = typeof req.query.code === 'string' ? req.query.code : null;
+  res.type('html').send(`<!doctype html><meta charset="utf-8"><title>ThoughtDAG</title>
+<body style="font-family:system-ui;display:grid;place-items:center;height:100vh;margin:0;background:#FAF9F7;color:#1f1d1a">
+<div style="text-align:center;line-height:1.7"><div style="font-size:40px">✓</div>
+<h2 style="margin:8px 0 4px">授权完成 · Authorized</h2>
+<p style="color:#6b6558">回到 ThoughtDAG 应用即可，本页可以关闭。<br/>Return to the ThoughtDAG app; this tab can be closed.</p></div>`);
+});
+app.get('/oauth/openrouter/code', (_req, res) => {
+  res.json({ code: orOauthCode });
+  orOauthCode = null;
+});
+
 // Desktop shell: serve the built app from the SAME origin as the API.
 // The production bundle uses relative /api/* paths (API_BASE=''), so the
 // same dist that runs on the Workers deployment runs here unchanged —

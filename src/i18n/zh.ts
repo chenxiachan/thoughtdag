@@ -131,6 +131,8 @@ export const zh: Record<keyof typeof en, string> = {
   'provider.oauthHint': '跳转到 OpenRouter 授权一次，密钥在你的浏览器里生成并保存，无需手动粘贴；免费档模型开箱可用。',
   'provider.oauthConnected': '已连接 OpenRouter，{n} 个模型就绪。',
   'provider.oauthFailed': 'OpenRouter 授权未完成：{error}。可重试，或改用手动粘贴 key。',
+  'provider.oauthBrowserWait': '已在浏览器打开授权页，完成授权后回到应用即可。',
+  'provider.oauthTimeout': '等待授权超时',
   'provider.privacy': 'key 只存在你的浏览器（localStorage）和本机代理的内存里，不写入任何文件，不上传到别处。删除接口即彻底移除。',
 
   // API key dialog (the .env-free path in)

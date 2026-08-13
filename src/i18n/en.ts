@@ -131,6 +131,8 @@ export const en = {
   'provider.oauthHint': 'Authorize once on OpenRouter; the key is minted and stored in this browser, nothing to paste. Free-tier models work out of the box.',
   'provider.oauthConnected': 'OpenRouter connected. {n} models ready.',
   'provider.oauthFailed': 'OpenRouter sign-in did not finish: {error}. Try again, or paste a key manually.',
+  'provider.oauthBrowserWait': 'Authorization opened in your browser. Finish there and come back to the app.',
+  'provider.oauthTimeout': 'timed out waiting for authorization',
   'provider.privacy': 'Keys live in your browser (localStorage) and this machine\'s proxy memory only. Never written to a file, never sent anywhere else. Removing an interface removes them completely.',
 
   // API key dialog (the .env-free path in)
