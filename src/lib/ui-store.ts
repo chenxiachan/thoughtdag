@@ -99,6 +99,10 @@ interface UiState {
       (the "look, your models are here" moment after a connect succeeds). */
   modelPickerPing: number;
   pingModelPicker: () => void;
+  /** Canvas search filter: the hit set while a search is live (null = no
+      active search). Nodes NOT in the set dim out — the searchlight. */
+  searchHitIds: Set<string> | null;
+  setSearchHitIds: (ids: Set<string> | null) => void;
   /** Node whose answer is open in the large reading overlay. */
   responseViewerNodeId: string | null;
   setResponseViewerNodeId: (id: string | null) => void;
@@ -235,6 +239,8 @@ export const useUiStore = create<UiState>((set, get) => ({
   apiKeyModalOpen: false,
   setApiKeyModalOpen: (open) => set({ apiKeyModalOpen: open }),
   modelPickerPing: 0,
+  searchHitIds: null,
+  setSearchHitIds: (ids) => set({ searchHitIds: ids }),
   pingModelPicker: () => set((s) => ({ modelPickerPing: s.modelPickerPing + 1 })),
   responseViewerNodeId: null,
   setResponseViewerNodeId: (id) => set({ responseViewerNodeId: id }),

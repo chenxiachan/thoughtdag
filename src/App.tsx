@@ -16,7 +16,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import 'highlight.js/styles/github.css';
-import { BookOpen, Brain, CircleHelp, Download, Drama, Eye, FileText, Frame, GitBranch, Highlighter, KeyRound, LayoutGrid, Loader2, MessageCircleQuestion, MoreHorizontal, Paperclip, Redo2, Scissors, Share2, SquareTerminal, Stethoscope, StickyNote, Trash2, Undo2, Workflow, X, ListRestart, FolderSync, Minimize2 } from 'lucide-react';
+import { BookOpen, Brain, CircleHelp, Download, Drama, Eye, FileText, Frame, GitBranch, Highlighter, KeyRound, LayoutGrid, Loader2, MessageCircleQuestion, MoreHorizontal, Paperclip, Redo2, Scissors, Search, Share2, SquareTerminal, Stethoscope, StickyNote, Trash2, Undo2, Workflow, X, ListRestart, FolderSync, Minimize2 } from 'lucide-react';
 import './index.css';
 import ThoughtNode from './components/ThoughtNode';
 import ParadigmNode from './components/ParadigmNode';
@@ -793,6 +793,7 @@ function Canvas() {
   // dragged wide.
   const [moreOpen, setMoreOpen] = useState(false);
   const [diagPing, setDiagPing] = useState(0);
+  const searching = useUiStore((s2) => s2.searchHitIds !== null);
   const moreRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!moreOpen) return;
@@ -806,14 +807,27 @@ function Canvas() {
   // Annotation view mode: hide frames + UNLINKED content nodes (linked
   // material stays — it's part of the reasoning record). A filter over the
   // render, not a layer system: the semantic layering already lives in edges.
+  const searchHitIds = useUiStore((s2) => s2.searchHitIds);
   const displayNodes = useMemo((): typeof nodes => {
-    if (!annotationsHidden) return nodes;
-    return nodes.map((n) => {
-      const k = n.data.stepKind;
-      const unlinkedContent = isContentKind(k) && !edges.some((e) => e.source === n.id || e.target === n.id);
-      return (k === 'frame' || unlinkedContent) ? { ...n, hidden: true } : n;
-    });
-  }, [nodes, edges, annotationsHidden]);
+    let out = nodes;
+    if (annotationsHidden) {
+      out = out.map((n) => {
+        const k = n.data.stepKind;
+        const unlinkedContent = isContentKind(k) && !edges.some((e) => e.source === n.id || e.target === n.id);
+        return (k === 'frame' || unlinkedContent) ? { ...n, hidden: true } : n;
+      });
+    }
+    // The searchlight: hits stay lit, everything else dims (CSS does the
+    // dimming via [data-searching]; frames stay out — they are the ground).
+    if (searchHitIds !== null) {
+      out = out.map((n) => (
+        searchHitIds.has(n.id) || n.data.stepKind === 'frame'
+          ? { ...n, className: 'search-hit' }
+          : n.className === 'search-hit' ? { ...n, className: undefined } : n
+      ));
+    }
+    return out;
+  }, [nodes, edges, annotationsHidden, searchHitIds]);
 
   const highlightedEdges = useMemo((): ThoughtEdge[] => {
     // Visual law: SOLID = structural (conversation, layout, cascade),
@@ -871,7 +885,7 @@ function Canvas() {
   }, [panelOpen, selectedNodeId]);
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative w-full h-full" data-searching={searching || undefined}>
       {/* Canvas — full width always; the focus panel floats on top of it */}
       <div
         className="relative h-full w-full"
@@ -1313,6 +1327,14 @@ function Canvas() {
           <span className="bg-card/90 backdrop-blur border border-line rounded-lg h-8 px-3 flex items-center gap-1.5 shadow-sm text-ink-muted text-xs font-medium" data-viewer-badge>
             <Eye size={14} strokeWidth={1.75} /> {t('viewer.badge')}
           </span>
+          <button
+            onClick={() => setSearchOpen(true)}
+            className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors text-ink-muted hover:text-accent"
+            title={t('search.entryTitle')}
+            data-search-entry
+          >
+            <Search size={15} strokeWidth={1.75} />
+          </button>
           <LangSwitch />
           <button
             onClick={() => exportActiveProjectJson()}
@@ -1433,6 +1455,16 @@ function Canvas() {
               </div>
             )}
           </div>
+        )}
+        {hasNodes && (
+          <button
+            onClick={() => setSearchOpen(true)}
+            className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors text-ink-faint hover:text-accent"
+            title={t('search.entryTitle')}
+            data-search-entry
+          >
+            <Search size={15} strokeWidth={1.75} />
+          </button>
         )}
         <LangSwitch />
         {hasNodes && !isParadigm && (
@@ -1634,7 +1666,7 @@ function Canvas() {
             setSelectedNodeId(id);
             centerNode(n, { zoom: 1 });
           }
-          setSearchOpen(false);
+          // search stays open: the filter is a browsing mode, Esc ends it
         }}
       />
 

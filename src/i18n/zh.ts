@@ -693,6 +693,8 @@ export const zh: Record<keyof typeof en, string> = {
   'model.inherit': '模型：跟随全局',
   'search.placeholder': '搜索节点\u2026（\u2191\u2193 选择，Enter 定位）',
   'search.count': '找到 {n} 个',
+  'search.entryTitle': '画布内搜索（⌘F）：搜问题、回答、便签、高光、材料名',
+  'search.more': '还有 {n} 个结果，继续输入以缩小范围',
   'toast.importNoConversations': '这个文件里没有找到含消息的对话',
   'toast.importedChats': '已导入 {n} 个对话，共 {m} 个节点',
   'import.title': '导入对话',

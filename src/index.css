@@ -484,3 +484,9 @@ body.tdag-connecting, body.tdag-connecting * {
 .tdag-timeline-scroll { scrollbar-width: thin; scrollbar-color: var(--color-line, #e6e4ee) transparent; }
 .tdag-noscrollbar { scrollbar-width: none; }
 .tdag-noscrollbar::-webkit-scrollbar { display: none; }
+
+/* ── Canvas searchlight: while a search is live, hits stay lit and the
+   rest of the map dims — search sharpens the map, never replaces it. ── */
+[data-searching] .react-flow__node { opacity: 0.16; transition: opacity 0.2s ease; }
+[data-searching] .react-flow__node.search-hit { opacity: 1; }
+[data-searching] .react-flow__edges { opacity: 0.18; transition: opacity 0.2s ease; }

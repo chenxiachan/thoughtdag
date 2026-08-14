@@ -694,6 +694,8 @@ export const en = {
   'model.inherit': 'Model: global default',
   'search.placeholder': 'Search nodes\u2026  (\u2191\u2193 navigate, Enter to jump)',
   'search.count': '{n} found',
+  'search.entryTitle': 'Search this canvas (⌘F): questions, answers, notes, highlights, material names',
+  'search.more': '{n} more results; keep typing to narrow down',
   'toast.importNoConversations': 'No conversations with messages found in this file',
   'toast.importedChats': 'Imported {n} conversation(s), {m} nodes total',
   'import.title': 'Import conversations',
