@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { Handle, Position, useReactFlow, useUpdateNodeInternals, type NodeProps } from '@xyflow/react';
-import { AlertTriangle, Archive, BookOpen, ChevronDown, ChevronLeft, ChevronRight, Copy, Eye, GitBranch, Globe, Hourglass, Minimize2, Paperclip, RefreshCw, Send, Split, Square, Star, Trash2, UserRound, X } from 'lucide-react';
+import { AlertTriangle, Archive, BookOpen, ChevronDown, ChevronLeft, ChevronRight, Copy, Eye, GitBranch, Globe, Hourglass, Minimize2, Paperclip, RefreshCw, Send, Split, Square, Star, Trash2, UserRound, X, Pencil } from 'lucide-react';
 import 'katex/dist/katex.min.css';
 import type { ThoughtNode as ThoughtNodeType } from '../types';
 import { useStore } from '../store';
@@ -209,8 +209,10 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
     setEditing(id, true);
   };
 
-  const handleDoubleClickResponse = (e: React.MouseEvent) => {
-    e.stopPropagation(); // inline edit, not the panel
+  // Editing an answer is a BUTTON, not a double-click: double-click is the
+  // system's select-a-word gesture, and hijacking it made selecting text
+  // inside answers a trap. The button lives with regenerate/copy.
+  const startEditResponse = () => {
     if (isViewerMode) return;
     setEditResponseValue(data.response);
     setEditingResponse(id, true);
@@ -687,7 +689,6 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
             )}
             <div
               ref={responseRef}
-              onDoubleClick={handleDoubleClickResponse}
               onClick={handleResponseClick}
               className="markdown-body text-sm text-ink leading-relaxed max-h-[400px] overflow-y-auto cursor-text nopan nodrag nowheel px-3 py-2.5 bg-surface rounded-xl"
             >
@@ -761,6 +762,16 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
               >
                 <Copy size={13} strokeWidth={1.75} />
               </button>
+              {!isViewerMode && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); startEditResponse(); }}
+                  className="rounded-full w-6 h-6 flex items-center justify-center hover:text-accent hover:bg-wash transition-colors"
+                  title={t('actions.editResponse')}
+                  data-edit-response
+                >
+                  <Pencil size={13} strokeWidth={1.75} />
+                </button>
+              )}
               {(data.generatedBy?.[data.responseIndex]) && (
                 <span
                   className="text-2xs text-ink-faint font-mono ml-1 truncate max-w-[150px]"

@@ -410,6 +410,7 @@ export const en = {
   'actions.regenBranch': 'Regenerate as branch',
   'actions.regenBranchTitle': 'Answer the same question on a parallel sibling node (each can grow its own downstream; pair with per-node models for A/B runs)',
   'actions.copyResponse': 'Copy response',
+  'actions.editResponse': 'Edit the answer',
   'common.copyCode': 'Copy code',
   'actions.exportTitle': "Export this node's context chain as a Markdown document",
   'actions.copyMd': 'Copy .md',

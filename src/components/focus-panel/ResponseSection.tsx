@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
-import { AlertTriangle, ChevronLeft, ChevronRight, Copy, GitBranch, Maximize2, RefreshCw, Star, Trash2 } from 'lucide-react';
+import { AlertTriangle, ChevronLeft, ChevronRight, Copy, GitBranch, Maximize2, RefreshCw, Star, Trash2, Pencil } from 'lucide-react';
 import { useStore } from '../../store';
 import { useUiStore } from '../../lib/ui-store';
 import { generateId } from '../../utils';
@@ -107,8 +107,8 @@ export default function ResponseSection({
     return () => document.removeEventListener('mouseup', handleTextSelection);
   }, [handleTextSelection]);
 
-  const handleDoubleClickResponse = () => {
-    if (isViewerMode) return;
+  // Button-triggered (see ThoughtNode): double-click stays a text gesture.
+  const startEditResponse = () => {
     if (isViewerMode) return;
     setEditResponseValue(data.response);
     setEditingResponse(nodeId, true);
@@ -193,7 +193,7 @@ export default function ResponseSection({
           </div>
         </div>
       ) : (
-        <div ref={responseRef} onDoubleClick={handleDoubleClickResponse} className="relative">
+        <div ref={responseRef} className="relative">
           {data.reasonings?.[data.responseIndex] && (
             <ReasoningDisclosure text={data.reasonings[data.responseIndex]!} />
           )}
@@ -255,6 +255,16 @@ export default function ResponseSection({
           >
             <Copy size={14} strokeWidth={1.75} />
           </button>
+          {!isViewerMode && (
+            <button
+              onClick={startEditResponse}
+              className="rounded-full w-7 h-7 flex items-center justify-center hover:text-accent hover:bg-wash transition-colors"
+              title={t('actions.editResponse')}
+              data-edit-response
+            >
+              <Pencil size={14} strokeWidth={1.75} />
+            </button>
+          )}
           {(data.generatedBy?.[data.responseIndex]) && (
             <span
               className="text-2xs text-ink-faint font-mono ml-1 truncate max-w-[170px]"
