@@ -11,7 +11,7 @@
 ![License](https://img.shields.io/badge/许可-MIT-green)
 ![Status](https://img.shields.io/badge/状态-活跃开发中-6B5CE7)
 
-### [官网](https://chenxiachan.github.io/thoughtdag/?lang=zh) · [在线 Demo](https://app.thoughtdag.workers.dev) · [下载桌面版 ↓](https://chenxiachan.github.io/thoughtdag/?lang=zh#download)
+### [下载桌面版 ↓](https://chenxiachan.github.io/thoughtdag/?lang=zh#download) · [官网](https://chenxiachan.github.io/thoughtdag/?lang=zh)
 
 [English](./README.md) · [快速开始](#快速开始) · [桌面版](#桌面版) · [更多能力](#更多能力) · [模型与订阅](#模型与订阅) · [成本与隐私](#成本与隐私)
 
@@ -98,14 +98,16 @@ https://github.com/user-attachments/assets/f0362497-0e80-4caa-8214-cdbac92ab77c
 
 ## 快速开始
 
+首选[桌面版](#桌面版)：下载、打开、开始思考。从源码运行也可以：
+
 ```bash
-# 在线：app.thoughtdag.workers.dev（示例画布免 key）
-# 本地：
 npm install
 npm run server    # LLM 代理 :3001
 npm run dev       # → localhost:5173
 # 无 .env 时，在应用内连接任意兼容 OpenAI 协议的接口即可
 ```
+
+想先花十秒看看再决定装不装？[在线 Demo](https://app.thoughtdag.workers.dev) 在浏览器里直接跑，示例画布免 key。注意它是功能子集：免 key 联网搜索、部分直连工具和订阅桥只在桌面版/本地可用。
 
 首页一键载入预置的示例画布：围绕「收藏夹为什么总在吃灰」展开四章，含一份内嵌真 PDF 的阅读闭环。环境变量、免费 key 与配置细节 → [docs/setup_ZH.md](docs/setup_ZH.md)
 

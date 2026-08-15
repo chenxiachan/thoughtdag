@@ -11,7 +11,7 @@
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Status](https://img.shields.io/badge/status-active_development-6B5CE7)
 
-### [Website](https://chenxiachan.github.io/thoughtdag/) · [Live Demo](https://app.thoughtdag.workers.dev) · [Download ↓](https://chenxiachan.github.io/thoughtdag/#download)
+### [Download ↓](https://chenxiachan.github.io/thoughtdag/#download) · [Website](https://chenxiachan.github.io/thoughtdag/)
 
 [中文](./README_ZH.md) · [Quick start](#quick-start) · [Desktop app](#desktop-app) · [More capabilities](#more-capabilities) · [Models & subscriptions](#models--subscriptions) · [Cost & privacy](#cost--privacy)
 
@@ -98,14 +98,16 @@ Full cards, takeaway plaques, an icon skeleton: three semantic tiers, every step
 
 ## Quick start
 
+The [desktop app](#desktop-app) is the primary way to run ThoughtDAG — download, open, think. Running from source works too:
+
 ```bash
-# Online: app.thoughtdag.workers.dev (example canvas needs no key)
-# Local:
 npm install
 npm run server    # LLM proxy :3001
 npm run dev       # → localhost:5173
 # No .env? Connect any OpenAI-compatible endpoint inside the app
 ```
+
+Want a ten-second look before installing anything? The [hosted demo](https://app.thoughtdag.workers.dev) runs in the browser with the example canvas needing no key — a feature subset: keyless web search, some direct-connection tools and the subscription bridge are desktop/local-only.
 
 The landing page offers the seeded example canvas one labeled click away: four chapters around one everyday question (why saved articles stay unread), including a reading loop with a real embedded PDF. Environment variables, free keys and configuration details → [docs/setup.md](docs/setup.md)
 
