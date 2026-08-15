@@ -51,25 +51,32 @@ Mind maps are drawn; this map grows. Chat leaves no map at all.
 - **Batch replay**: one click re-runs every stale node in dependency order; confirm dialog with a token estimate; stop anytime
 - **Version management**: regenerate in place appends a comparable version (page through, delete, revert; downstream staleness reacts to the active version); "Regenerate as branch" spawns a parallel sibling for A/B runs
 - **Topology check-up**: on-demand diagnostics with deterministic findings (residual edges, shadow references, blind-pool breaches, pool asymmetry) plus observations (long chains, open branches, collider continuations); locate + one-click fix
-- **Cmd+F node search**: filter by question/answer/summary, arrows + Enter to jump-pan the canvas
+- **Canvas search (toolbar icon or Cmd+F)**: exact search across questions, answers, note bodies, highlights, link titles and material names; while you type, matching nodes stay lit and the rest of the map dims (the searchlight); picking a result flies there, opens the panel and scrolls to the exact match
 - **Ancestor edge highlighting**: the selected node's path to root turns gold, others dim
 
 ## Generation & automation
 
 - **Streaming responses**: SSE token-by-token rendering with blinking cursor, in node and panel; Stop keeps partial content; failed generations show Retry (errors go to toasts, never into answers)
 - **Reviewer preset**: critic role on a sliding red edge; re-critiques each new step automatically, history versioned; reviewers are ordinary nodes (question them, branch from them)
-- **Paradigm mode** (advanced — enable in the ⋯ menu): human/prompt steps + material slots; instantiate → cascade → unlock; edit the input + replay = re-run the experiment; bounded reviewer rounds declared in the file
+- **Paradigm mode** (entrances temporarily backstage while the running experience is rebuilt; existing paradigm canvases still open): human/prompt steps + material slots; instantiate → cascade → unlock; edit the input + replay = re-run the experiment; bounded reviewer rounds declared in the file
 - **Ambient memory**: a background judge classifies durable facts (preference / identity / project) with admission rules in code, visible toast + undo on every write; project entries decay out of context after 45 days; one global switch (default on), manager with category badges, paste-import and JSON export; machine steps and digests stay memory-free
-- **Edit everything**: double-click to edit questions or responses; text selection toolbar (Branch / Highlight)
+- **Edit everything**: double-click a question to edit it; answers edit via a pencil button beside regenerate and copy (double-click stays a text-selection gesture); text selection toolbar (Branch / Highlight)
 
 ## Models & search
 
 - **Any model**: nine provider families register from `.env` keys; a toolbar picker switches at any time; text-only models reroute automatically when images appear
-- **Model interface manager**: no `.env` needed; provider presets pin only the endpoint address, and the model list is fetched live from the endpoint's `/models` route (never goes stale); a local Ollama is detected keylessly; a custom-endpoint field catches every other OpenAI-compatible service; keys stay in localStorage + proxy memory, never on disk; the manager auto-opens when no model is configured
+- **Model interface manager**: no `.env` needed; provider presets pin only the endpoint address, and the model list is fetched live from the endpoint's `/models` route (never goes stale); a local Ollama is detected keylessly; a custom-endpoint field catches every other OpenAI-compatible service; keys stay in localStorage + proxy memory, never on disk; with nothing configured the toolbar wears a Connect-a-model button that opens the manager directly
 - **Per-node model override**: any node can pin its own LLM (badge on the card, sibling regenerations inherit it); cheap models for exploration, flagship for the hard steps; every version records which model wrote it
 - **Agentic search**: AI SDK tool loop: web search + arXiv + Semantic Scholar (free APIs), `[n]` citations + persisted references, guaranteed synthesis fallback, per-group toolbar toggles
 - **MCP tool ecosystem**: `mcp.config.json` (stdio + HTTP/SSE transports); tools join the agentic loop with per-call progress; mock server included for testing
 - **Capabilities panel**: search engine choice, scholar status, vision model preference and memory switch in one place, at the model picker's foot
+
+## Desktop app
+
+- **One download, everything bundled**: the same app in its own window with the local engine inside; no Node, no terminal; macOS builds are signed and notarized by Apple
+- **Updates wait for your click**: the app checks quietly, announces a new version as an in-app notice, and downloads and restarts only on your say-so; a Check-for-updates menu entry shows the version you are on and answers out loud (found / latest / could not check); download progress lives on the Dock icon
+- **Every model gets the full toolset**: on desktop the bundled engine serves keyless web search, scholarly search, MCP tools and the vision reroute to every connected model, including browser-direct-only providers on the web
+- **One-click sign-in via your own browser**: OpenRouter authorization opens in the system browser where you are already signed in; the app picks the result up by itself and lands you on the fresh model list
 
 ## Workbench & data
 

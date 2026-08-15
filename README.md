@@ -165,7 +165,7 @@ Zhipu · Qwen · OpenAI · Anthropic · Google · DeepSeek · Kimi · OpenRouter
 ## Cost & privacy
 
 - **The free model tier covers every feature**; a local Ollama runs fully offline
-- **On the hosted demo, model traffic runs browser-direct**: keys never touch the server
+- **In the desktop app everything lives on your machine**: canvases, keys, documents; on the web demo, model traffic runs browser-direct and keys never touch the server
 - **PDFs never leave your machine**; only extracted text travels when you ask
 - **The backup format stays backward compatible**; Markdown export is the permanent escape hatch
 

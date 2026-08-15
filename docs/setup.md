@@ -4,7 +4,7 @@
 
 ## Quick start (in detail)
 
-The fastest path is the [live demo](https://app.thoughtdag.workers.dev): open, click **Connect OpenRouter** (one authorization mints a key right in your browser, free-tier models included), or paste any provider key — or do neither and browse the example canvas. Model traffic runs browser-direct to the gateway, so your key never touches the demo's server. To run it yourself:
+The fastest path is the [desktop app](https://chenxiachan.github.io/thoughtdag/#download): download, open, and click **Connect OpenRouter** (one authorization in your default browser mints a key, free-tier models included), or paste any provider key. Or do neither and browse the example canvas first. For a quick look without installing anything, the [web demo](https://app.thoughtdag.workers.dev) runs a feature subset in the browser; model traffic there runs browser-direct to the gateway, so keys never touch the demo's server. To run from source:
 
 ```bash
 npm install
@@ -40,11 +40,11 @@ Built on the Vercel AI SDK. Any provider below activates when its key lands in `
 
 Metered API keys are not the only way in. Four subscription plans connect too, and the in-app presets carry the right endpoints:
 
-**ChatGPT plan (Plus/Pro)** connects through a community local bridge, so it works when ThoughtDAG runs locally:
+**ChatGPT plan (Plus/Pro)** connects through a community local bridge, and works in the desktop app and local runs (Node.js must be installed for the bridge itself):
 
 1. Run `npx openai-oauth@latest` in a terminal and sign in with your ChatGPT account once; the bridge listens at `127.0.0.1:10531`.
-2. Run ThoughtDAG locally (`npm run server` + `npm run dev`).
-3. In the app: model picker → add endpoint → **ChatGPT plan · local** → fetch models → save. Usage draws from your plan, with no metered bill. The hosted demo cannot reach your machine, so this path is local-only.
+2. Use the desktop app, or run ThoughtDAG locally (`npm run server` + `npm run dev`).
+3. In the app: model picker → add endpoint → **ChatGPT plan · local** → fetch models → save. Usage draws from your plan, with no metered bill. The web demo cannot reach your machine, so this path is desktop/local-only.
 
 Know the ground: the bridge is a community tool using your own account, and the provider's policy on third-party use can change — there are public reports of accounts suspended for third-party plan access. If that risk reads as too high, the subscription plans below and the one-click OpenRouter sign-in are the sanctioned doors.
 

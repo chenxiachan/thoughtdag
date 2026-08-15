@@ -4,7 +4,7 @@
 
 ## 快速开始（细节版）
 
-最快的路径是[在线 Demo](https://app.thoughtdag.workers.dev)：打开后可一键授权 OpenRouter（跳转授权一次，key 在你的浏览器里生成，含免费档模型），或粘贴任意服务商的 key；不配置也行，可以先逛示例画布。模型流量从浏览器直连网关，key 不会经过 Demo 的服务器。想自己跑：
+最快的路径是[桌面版](https://chenxiachan.github.io/thoughtdag/?lang=zh#download)：下载打开后一键授权 OpenRouter（在默认浏览器里授权一次即生成 key，含免费档模型），或粘贴任意服务商的 key；不配置也行，可以先逛示例画布。想装之前先看一眼，可以用[在线 Demo](https://app.thoughtdag.workers.dev)，它是浏览器里的功能子集，模型流量浏览器直连网关，key 不会经过 Demo 的服务器。想从源码跑：
 
 ```bash
 npm install
@@ -40,11 +40,11 @@ npm run dev            # → http://localhost:5173
 
 按量 API key 不是唯一入口。四家订阅也能接，应用内预设已带好对应端点：
 
-**ChatGPT 订阅（Plus/Pro）**：经社区本地桥接入，本地运行 ThoughtDAG 时可用：
+**ChatGPT 订阅（Plus/Pro）**：经社区本地桥接入，桌面版和本地运行都可用（桥本身需要电脑装有 Node.js）：
 
 1. 终端运行 `npx openai-oauth@latest`，用 ChatGPT 账号登录一次，桥监听 `127.0.0.1:10531`。
-2. 本地运行 ThoughtDAG（`npm run server` + `npm run dev`）。
-3. 应用内：模型选择器 → 添加接口 → **ChatGPT 订阅 · 本地** → 获取模型列表 → 保存。用量计入订阅额度，不产生按量账单。线上版连不到你的本机，此通道仅限本地。
+2. 用桌面版，或本地运行 ThoughtDAG（`npm run server` + `npm run dev`）。
+3. 应用内：模型选择器 → 添加接口 → **ChatGPT 订阅 · 本地** → 获取模型列表 → 保存。用量计入订阅额度，不产生按量账单。在线 Demo 连不到你的本机，此通道限桌面版/本地。
 
 知情提示：这座桥是社区工具，使用的是你自己的账号；服务方对第三方使用的政策可能变化，公开渠道已有因第三方接入订阅被封号的报告。若不想承担该风险，下方的订阅计划与 OpenRouter 一键授权是受官方支持的通道。
 
