@@ -64,7 +64,7 @@ export const zh: Record<keyof typeof en, string> = {
   'tutorial.step7.title': '7 · 引用',
   'tutorial.step7.desc': '从节点把手拖线。落到已有节点成紫色虚线引用，只带那份问答，有 token 价签。落到空白处，就地新问。',
   'tutorial.step8.title': '8 · 批量与分区',
-  'tutorial.step8.desc': '圈选多个节点：合并摘要、一起提问、整块复制、归档。用 Frame 框出章节，拖动框，节点一起走。',
+  'tutorial.step8.desc': '按住 Shift 拖拽圈选多个节点：合并摘要、一起提问、整块复制、归档。用 Frame 框出章节，拖动框，节点一起走。',
   'tutorial.step9.title': '9 · 陈旧与重放',
   'tutorial.step9.desc': '上游改了，下游亮琥珀徽章。点徽章原地重答，旧版本保留可对比。工具栏可一键重放全部，先报价再执行。',
   'tutorial.step10.title': '10 · 分享与范式',

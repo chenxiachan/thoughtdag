@@ -64,7 +64,7 @@ export const en = {
   'tutorial.step7.title': '7 · References',
   'tutorial.step7.desc': 'Drag from a node handle. Onto an existing node it makes a dashed reference carrying just that Q&A, with a token price tag. Onto empty canvas, ask right there.',
   'tutorial.step8.title': '8 · Batch & frames',
-  'tutorial.step8.desc': 'Marquee-select nodes to merge into a summary, ask them together, duplicate the block, or archive. Frame a chapter and drag it; its nodes come along.',
+  'tutorial.step8.desc': 'Shift-drag to marquee-select nodes: merge into a summary, ask them together, duplicate the block, or archive. Frame a chapter and drag it; its nodes come along.',
   'tutorial.step9.title': '9 · Staleness & replay',
   'tutorial.step9.desc': 'Upstream changed? Downstream wears an amber badge. Click it to re-answer in place, old versions kept. The toolbar replays everything, priced first.',
   'tutorial.step10.title': '10 · Share & paradigms',

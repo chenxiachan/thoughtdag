@@ -986,10 +986,14 @@ function Canvas() {
         nodeDragThreshold={5}
         connectionRadius={40}
         selectionMode={SelectionMode.Partial}
-        selectionOnDrag={!isViewerMode}
+        // Left-drag on empty canvas PANS (the gesture every canvas app
+        // trains); marquee selection lives on Shift+drag. Locking pan to
+        // middle/right button stranded trackpad users on their first
+        // minute (HN: "I can't pan the canvas").
+        selectionKeyCode="Shift"
         nodesDraggable={!isViewerMode}
         nodesConnectable={!isViewerMode}
-        panOnDrag={isViewerMode ? true : [1, 2]}
+        panOnDrag={true}
         zoomOnDoubleClick={false}
         connectionLineStyle={{ stroke: COLORS.accent, strokeDasharray: '8 4', strokeWidth: 2 }}
         onSelectionChange={onSelectionChange}

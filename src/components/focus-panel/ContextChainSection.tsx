@@ -63,7 +63,9 @@ export default function ContextChainSection({
   const staleIds = useStore((s) => s.staleIds);
   const t = useT();
 
-  const [contextOpen, setContextOpen] = useState(false);
+  // Open by default: visible context IS the product. A collapsed one-liner
+  // read as "the panel hides the history" to first-run users (HN feedback).
+  const [contextOpen, setContextOpen] = useState(true);
   const jump = (id: string) => { setSelectedNodeId(id); onFocusNode?.(id); };
   const staleDot = (id: string) => staleIds.includes(id) && (
     <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" title={t('node.staleBadge')} />
