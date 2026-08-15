@@ -40,7 +40,11 @@ async function boot() {
   const port = await freePort();
   serverProc = utilityProcess.fork(path.join(ROOT, 'server.mjs'), [], {
     cwd: ROOT, // .env resolves from the project root, same as `npm run server`
-    env: { ...process.env, PORT: String(port), SERVE_DIST: path.join(ROOT, 'dist') },
+    // HOST is forced to loopback AFTER the spread: the desktop shell only ever
+    // connects to 127.0.0.1, so the bundled server must never bind anything
+    // else — not even if the user's ambient environment carries HOST=0.0.0.0.
+    // The HOST opt-in escape hatch is for `npm run server` power users only.
+    env: { ...process.env, PORT: String(port), SERVE_DIST: path.join(ROOT, 'dist'), HOST: '127.0.0.1' },
     stdio: 'pipe',
     serviceName: 'thoughtdag-server',
   });
