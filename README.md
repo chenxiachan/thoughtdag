@@ -13,7 +13,7 @@
 
 ### [Download ↓](https://chenxiachan.github.io/thoughtdag/#download) · [Website](https://chenxiachan.github.io/thoughtdag/)
 
-[中文](./README_ZH.md) · [Quick start](#quick-start) · [Desktop app](#desktop-app) · [More capabilities](#more-capabilities) · [Models & subscriptions](#models--subscriptions) · [Cost & privacy](#cost--privacy)
+[中文](./README_ZH.md) · [Quick start](#quick-start) · [Desktop app](#desktop-app) · [How it differs](#how-thoughtdag-differs) · [Models & subscriptions](#models--subscriptions) · [Cost & privacy](#cost--privacy)
 
 <img src="docs/hero-demo-en.gif" alt="Hero demo, recorded from the live app: selecting a passage in the PDF reader and asking about it; deleting a noise edge and regenerating a clean answer; zooming out through three semantic tiers to the map; opening the backup control center and exporting a real file" width="100%"/>
 
@@ -139,6 +139,22 @@ The macOS builds are signed and notarized by Apple: double-click and go. Windows
 | 🔒 Local-first | Automatic folder backup writes real files; point it at a synced folder for cross-device |
 
 Full feature list (60+, grouped by area) → [docs/features.md](docs/features.md)
+
+## How ThoughtDAG differs
+
+Many tools put conversations on a canvas. The difference is what the connections do.
+
+In ThoughtDAG, a wire is not decoration or an execution route. It determines what the model sees next.
+
+| Type | What a wire means | Better for |
+|------|-------------------|------------|
+| Linear chat | Conversation history in time order | Quick, simple questions |
+| Mind maps and whiteboards | Visual relations for human eyes | Free-form organizing and presenting |
+| Branching chat canvases | Parent-child forks of a conversation | Exploring alternative responses |
+| Workflow and agent canvases | Data flow or execution order | Automation and orchestration |
+| ThoughtDAG | The context the model actually receives next | Deliberate forking, merging, pruning and tracing of long-running thinking |
+
+If you already keep a hand-maintained decision tree in a markdown file, ThoughtDAG is that tree made operational: the model reads exactly the branches you wire in.
 
 ## Models & subscriptions
 
