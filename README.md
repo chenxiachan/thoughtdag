@@ -98,7 +98,7 @@ Full cards, takeaway plaques, an icon skeleton: three semantic tiers, every step
 
 ## Quick start
 
-The [desktop app](#desktop-app) is the primary way to run ThoughtDAG — download, open, think. Running from source works too:
+The [desktop app](#desktop-app) is the primary way to run ThoughtDAG: download, open, think. Running from source works too:
 
 ```bash
 npm install
@@ -107,7 +107,7 @@ npm run dev       # → localhost:5173
 # No .env? Connect any OpenAI-compatible endpoint inside the app
 ```
 
-Want a ten-second look before installing anything? The [hosted demo](https://app.thoughtdag.workers.dev) runs in the browser with the example canvas needing no key — a feature subset: keyless web search, some direct-connection tools and the subscription bridge are desktop/local-only.
+Want a ten-second look before installing anything? The [hosted demo](https://app.thoughtdag.workers.dev) runs in the browser, and the example canvas needs no key. It is a feature subset: keyless web search, some direct-connection tools and the subscription bridge are desktop/local-only.
 
 The landing page offers the seeded example canvas one labeled click away: four chapters around one everyday question (why saved articles stay unread), including a reading loop with a real embedded PDF. Environment variables, free keys and configuration details → [docs/setup.md](docs/setup.md)
 
