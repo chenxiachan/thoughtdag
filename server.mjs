@@ -11,7 +11,7 @@ import { createAnthropic } from '@ai-sdk/anthropic';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { createDeepSeek } from '@ai-sdk/deepseek';
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
-import { execSync } from 'child_process';
+import { execSync, execFileSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
@@ -507,13 +507,29 @@ function makeTools(sources, onSearch, prefs = {}) {
 const MAX_OUTPUT_TOKENS = process.env.MAX_OUTPUT_TOKENS ? Number(process.env.MAX_OUTPUT_TOKENS) : undefined;
 
 const app = express();
-app.use(cors());
+// This proxy runs on the user's own machine (desktop shell / `npm run server`)
+// and can spawn processes — so it must NOT be reachable from the network or
+// from arbitrary websites. CORS is restricted to same-origin (desktop shell)
+// and localhost dev ports; the listen() call binds loopback only. The hosted
+// Worker deployment shares none of this file's process-spawning code.
+const ALLOWED_ORIGIN = /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/;
+app.use(cors({
+  origin(origin, cb) {
+    // no Origin header = same-origin / curl / server-to-server: allow
+    if (!origin || ALLOWED_ORIGIN.test(origin)) return cb(null, true);
+    cb(null, false);
+  },
+}));
 app.use(express.json({ limit: '50mb' })); // Support image uploads
 
 // PDF text extraction (pdfjs-dist) + page rendering (pdftoppm/poppler)
 app.post('/api/pdf-extract', async (req, res) => {
   try {
-    const { base64, renderImages = true, dpi = 150 } = req.body;
+    const { base64, renderImages = true } = req.body;
+    // dpi is coerced to a bounded integer BEFORE it can reach a subprocess.
+    // Combined with execFileSync (no shell) below, an injection payload here
+    // is impossible — but validating anyway keeps the value sane.
+    const dpi = Math.min(300, Math.max(72, Math.round(Number(req.body?.dpi)) || 150));
     if (!base64) return res.status(400).json({ error: 'Missing base64 field' });
     const buffer = Buffer.from(base64, 'base64');
     console.log(`PDF extract: ${buffer.length} bytes, header: ${buffer.slice(0, 5).toString()}`);
@@ -548,7 +564,10 @@ app.post('/api/pdf-extract', async (req, res) => {
     if (renderImages && POPPLER_AVAILABLE) {
       try {
         const outPrefix = path.join(tmpDir, 'page');
-        execSync(`pdftoppm -png -r ${dpi} "${pdfPath}" "${outPrefix}"`, { timeout: 60000 });
+        // execFileSync (argv array, no shell): the arguments are passed to
+        // pdftoppm directly, so no value here can ever be interpreted as a
+        // shell command. This is the root fix for the command-injection class.
+        execFileSync('pdftoppm', ['-png', '-r', String(dpi), pdfPath, outPrefix], { timeout: 60000 });
         const files = fs.readdirSync(tmpDir).filter(f => f.startsWith('page-') && f.endsWith('.png')).sort();
         for (const f of files) {
           const imgBuf = fs.readFileSync(path.join(tmpDir, f));
@@ -1089,7 +1108,11 @@ if (process.env.SERVE_DIST) {
   });
 }
 
-app.listen(PORT, () => {
+// Loopback ONLY by default: this process can spawn subprocesses, so it must
+// never be reachable from the network. Opt into LAN exposure explicitly with
+// HOST=0.0.0.0 (understanding the risk) — the default keeps it on 127.0.0.1.
+const HOST = process.env.HOST || '127.0.0.1';
+app.listen(PORT, HOST, () => {
   console.log(`ThoughtDAG proxy (Vercel AI SDK) running on http://localhost:${PORT}`);
   console.log(`Models: ${Object.keys(modelRegistry).join(', ')}`);
   if (!Object.values(modelRegistry).some((m) => m.vision)) {
