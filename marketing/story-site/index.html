@@ -265,6 +265,76 @@
         background: var(--purple);
       }
 
+
+      .story-intro {
+        position: absolute;
+        inset: 0;
+        z-index: 30;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        gap: 18px;
+        pointer-events: none;
+        background: radial-gradient(ellipse at center, rgba(248, 246, 251, 0.97) 42%, rgba(248, 246, 251, 0.8) 72%, rgba(248, 246, 251, 0.25));
+      }
+      .story-intro-name {
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        color: #5f51cf;
+      }
+      .story-intro h1 {
+        font-size: clamp(34px, 6vw, 64px);
+        line-height: 1.16;
+        font-weight: 800;
+        color: #262233;
+        margin: 0;
+        max-width: 900px;
+      }
+      .story-intro h1 span { color: #6b5ce7; }
+      .story-intro-hint {
+        margin-top: 26px;
+        font-size: 14px;
+        color: #6f6a7d;
+        animation: introNudge 2.2s ease-in-out infinite;
+      }
+      .story-intro-hint::after { content: " ↓"; }
+      @keyframes introNudge { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
+      @media (prefers-reduced-motion: reduce) { .story-intro-hint { animation: none; } }
+      .film-section { max-width: 1060px; margin: 0 auto; padding: 26px 24px 10px; }
+
+      /* ── palette enrichment: the app's own semantic colors narrate the acts ──
+         purple = the mainline, green = inspection/material, orange = editing
+         and pruning. Color changes because the STORY changes, never for show. */
+      .caption-panel { border-left: 3px solid var(--purple); }
+      .act-1 small { color: var(--muted); }
+      .act-1 .caption-panel { border-left-color: #b3aec2; }
+      .act-3 small { color: var(--green); }
+      .act-3 .caption-panel { border-left-color: var(--green); }
+      .caption.act-3 h2 span { color: var(--green) !important; }
+      .act-4 small { color: var(--orange); }
+      .act-4 .caption-panel { border-left-color: var(--orange); }
+      .caption.act-4 h2 span { color: var(--orange) !important; }
+
+      /* the video plays in a dark cinema break between paper sections */
+      .film-section {
+        background: var(--ink);
+        max-width: none;
+        margin: 0;
+        padding: 64px 24px 72px;
+      }
+      .film-section .film-shell {
+        max-width: 1012px;
+        margin: 0 auto;
+        border-color: rgba(255, 255, 255, 0.14);
+        box-shadow: 0 30px 90px rgba(0, 0, 0, 0.45);
+      }
+      .film-section .film-bar { color: #a79fbd; }
+      .film-section .dots i:nth-child(1) { background: var(--purple); }
+      .film-section .dots i:nth-child(2) { background: var(--orange); }
+      .film-section .dots i:nth-child(3) { background: var(--green); }
       .film-shell {
         width: min(1080px, calc(100vw - 48px));
         margin-top: 58px;
@@ -934,7 +1004,7 @@
         <span>ThoughtDAG</span>
       </a>
       <div class="nav-actions">
-        <a class="nav-link" href="#story" data-en="How it works" data-zh="工作原理"
+        <a class="nav-link" href="#top" data-en="How it works" data-zh="工作原理"
           >How it works</a
         >
         <a
@@ -962,184 +1032,21 @@
       </div>
     </nav>
 
-    <header class="hero" id="top">
-      <div class="hero-copy">
-        <div
-          class="kicker"
-          data-en="Editable LLM context"
-          data-zh="看得见，也改得动的 LLM 上下文"
-        >
-          Editable LLM context
-        </div>
-        <h1
-          data-en-html="Don’t just read chat history. <span>Edit what the model actually sees.</span>"
-          data-zh-html="思考值得一张地图<br /><span>连线即上下文</span>"
-        >
-          Don’t just read chat history. <span>Edit what the model actually sees.</span>
-        </h1>
-        <p
-          class="hero-lede"
-          data-en="ThoughtDAG turns every question-and-answer exchange into a node, and every connection into context. Remove one edge, ask the same question again, and that branch is gone from the request."
-          data-zh="对话在这里长成一张图：节点是问答，连线决定模型读到什么。想验证一个念头，删一条线重新生成，答案立刻告诉你差别。"
-        >
-          ThoughtDAG turns every question-and-answer exchange into a node, and every
-          connection into context. Remove one edge, ask the same question again, and that
-          branch is gone from the request.
-        </p>
-        <div class="hero-actions">
-          <a
-            class="button primary"
-            href="#download"
-            data-en="Download the desktop app ↓"
-            data-zh="下载桌面版 ↓"
-            >Download the desktop app ↓</a
-          >
-          <a
-            class="button"
-            href="#story"
-            data-en="Explore the interactive story ↓"
-            data-zh="看看它如何工作 ↓"
-            >Explore the interactive story ↓</a
-          >
-          <a
-            class="button"
-            href="https://app.thoughtdag.workers.dev"
-            data-en="Web demo ↗"
-            data-zh="在线试用 ↗"
-            >Web demo ↗</a
-          >
-        </div>
-        <p
-          class="capability-note"
-          data-en="The web demo is a feature subset for a quick look — the example canvas needs no key. The desktop app is the full instrument: keyless web search, every connection tool, and your canvases living on your own machine."
-          data-zh="在线试用是快速一瞥的功能子集，示例画布免 key。完整体验在桌面版：免 key 联网搜索、全部接入工具，画布数据都在你自己的机器上。"
-        >
-          The web demo is a feature subset for a quick look — the example canvas needs
-          no key. The desktop app is the full instrument: keyless web search, every
-          connection tool, and your canvases living on your own machine.
-        </p>
-      </div>
-
-      <div class="film-shell">
-        <div class="film-bar">
-          <span class="dots"><i></i><i></i><i></i></span>
-          <span data-en="THOUGHTDAG PRODUCT STORY" data-zh="THOUGHTDAG 产品故事"
-            >THOUGHTDAG PRODUCT STORY</span
-          >
-          <span id="film-duration">0:32</span>
-        </div>
-        <video
-          controls
-          playsinline
-          preload="none"
-          poster="assets/thoughtdag-story-poster-en-horizontal.jpg"
-          aria-label="ThoughtDAG product story"
-        >
-          <source
-            id="story-video-source"
-            src="assets/thoughtdag-story-en-horizontal.mp4"
-            type="video/mp4"
-          />
-        </video>
-      </div>
-    </header>
-
-    <section class="case-copy" aria-labelledby="case-heading">
-      <div class="case-copy-inner">
-        <h2
-          id="case-heading"
-          data-en-html="The graph is not a picture of context. <span>The graph is the context.</span>"
-          data-zh-html="这不是一张上下文示意图。<span>图本身，就是上下文。</span>"
-        >
-          The graph is not a picture of context.
-          <span>The graph is the context.</span>
-        </h2>
-        <p
-          class="case-copy-lede"
-          data-en="ThoughtDAG walks the incoming edges of a node, orders the relevant ancestors, and builds the message sequence sent to the selected model. The structure stays visible, editable, and inspectable."
-          data-zh="ThoughtDAG 会沿着连入节点的边，找到并排列相关的上游内容，再把它们组成发送给模型的消息。模型会看到什么，始终一目了然，也随时可以调整。"
-        >
-          ThoughtDAG walks the incoming edges of a node, orders the relevant ancestors,
-          and builds the message sequence sent to the selected model. The structure stays
-          visible, editable, and inspectable.
-        </p>
-        <div class="case-grid">
-          <article class="case-card">
-            <strong data-en="Branch" data-zh="展开分支">Branch</strong>
-            <p
-              data-en="Explore another interpretation without overwriting the path that led you here."
-              data-zh="换个方向继续想，又不必改写原来的思路。"
-            >
-              Explore another interpretation without overwriting the path that led you
-              here.
-            </p>
-          </article>
-          <article class="case-card">
-            <strong data-en="Prune" data-zh="排除旁枝">Prune</strong>
-            <p
-              data-en="Keep a useful detour on the canvas while excluding it from the next request."
-              data-zh="岔路可以继续留在画布上，但不必再进入下一次对话的上下文。"
-            >
-              Keep a useful detour on the canvas while excluding it from the next request.
-            </p>
-          </article>
-          <article class="case-card">
-            <strong data-en="Merge" data-zh="合并思路">Merge</strong>
-            <p
-              data-en="Bring selected evidence and reasoning paths back together in one answer."
-              data-zh="把选中的证据和推理路径，汇成一个新的回答。"
-            >
-              Bring selected evidence and reasoning paths back together in one answer.
-            </p>
-          </article>
-          <article class="case-card">
-            <strong data-en="Inspect" data-zh="生成前预览">Inspect</strong>
-            <p
-              data-en="Preview what the model will receive before generation. No hidden memory selection."
-              data-zh="回答生成前，先确认模型将看到哪些内容。上下文不再藏在系统里。"
-            >
-              Preview what the model will receive before generation. No hidden memory
-              selection.
-            </p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="dl-section" id="download" aria-label="Download">
-      <h2 data-en="Take it to the desktop" data-zh="把它装进桌面">Take it to the desktop</h2>
-      <p class="dl-sub" data-en="The same app in its own window, local engine bundled. No Node, no terminal." data-zh="同一个应用装进独立窗口，内置本地引擎。不需要 Node，不需要终端。">The same app in its own window, local engine bundled. No Node, no terminal.</p>
-      <span class="dl-version" id="dl-version">v0.3.15</span>
-      <div class="dl-grid" id="dl-grid">
-        <div class="dl-card" data-os="mac" data-badge="Recommended for you">
-          <div class="dl-os">macOS <small>Apple Silicon</small></div>
-          <a class="dl-btn" id="dl-mac-arm" href="https://github.com/chenxiachan/thoughtdag/releases/download/v0.3.15/ThoughtDAG-0.3.15-arm64.dmg" data-en="Download .dmg" data-zh="下载 .dmg">Download .dmg</a>
-          <div class="dl-size" id="dl-size-mac">≈126MB</div>
-          <a class="dl-btn secondary" id="dl-mac-x64" href="https://github.com/chenxiachan/thoughtdag/releases/download/v0.3.15/ThoughtDAG-0.3.15.dmg" data-en="Intel Macs" data-zh="Intel 芯片版">Intel Macs</a>
-        </div>
-        <div class="dl-card" data-os="win" data-badge="Recommended for you">
-          <div class="dl-os">Windows <small>x64</small></div>
-          <a class="dl-btn" id="dl-win" href="https://github.com/chenxiachan/thoughtdag/releases/download/v0.3.15/ThoughtDAG.Setup.0.3.15.exe" data-en="Download installer" data-zh="下载安装程序">Download installer</a>
-          <div class="dl-size" id="dl-size-win">≈106MB</div>
-        </div>
-        <div class="dl-card" data-os="linux" data-badge="Recommended for you">
-          <div class="dl-os">Linux <small>x64</small></div>
-          <a class="dl-btn" id="dl-linux" href="https://github.com/chenxiachan/thoughtdag/releases/download/v0.3.15/ThoughtDAG-0.3.15.AppImage" data-en="Download .AppImage" data-zh="下载 .AppImage">Download .AppImage</a>
-          <div class="dl-size" id="dl-size-linux">≈133MB</div>
-        </div>
-      </div>
-      <div class="dl-notes">
-        <b data-en="Install notes" data-zh="安装说明">Install notes</b><br />
-        <span data-en='macOS builds are signed and notarized by Apple: double-click and go. Windows builds are not signed yet; on the SmartScreen prompt choose "More info", then "Run anyway".' data-zh="macOS 版已由 Apple 签名与公证，双击即可打开。Windows 版暂未签名，弹出提示时点「更多信息」，再点「仍要运行」。">macOS builds are signed and notarized by Apple: double-click and go. Windows builds are not signed yet; on the SmartScreen prompt choose "More info", then "Run anyway".</span>
-      </div>
-      <p class="dl-foot">
-        <span data-en="All versions and history live on " data-zh="全部版本与历史在 ">All versions and history live on </span><a href="https://github.com/chenxiachan/thoughtdag/releases">GitHub Releases</a><span data-en=". The desktop and web apps are the same app; your canvases stay on your device either way." data-zh="。桌面版与在线版功能一致，画布数据都只存在你的设备上。">. The desktop and web apps are the same app; your canvases stay on your device either way.</span>
-      </p>
-    </section>
+    <div id="top"></div>
 
     <section class="story" id="story" aria-label="ThoughtDAG interactive story">
       <div class="stage" id="stage">
-        <div class="world" id="world">
+        <div class="story-intro" id="story-intro">
+            <p class="story-intro-name">ThoughtDAG</p>
+            <h1
+              data-en-html="Your thinking deserves a map<br /><span>A wire is the context</span>"
+              data-zh-html="思考值得一张地图<br /><span>连线即上下文</span>"
+            >
+              Your thinking deserves a map<br /><span>A wire is the context</span>
+            </h1>
+            <p class="story-intro-hint" data-en="Scroll" data-zh="向下滚动">Scroll</p>
+          </div>
+          <div class="world" id="world">
           <div
             class="world-label"
             style="left: 420px; top: 1600px"
@@ -1641,7 +1548,7 @@
 
         <div class="progress" id="progress"></div>
 
-        <section class="caption" data-range="0.00 0.18">
+        <section class="caption act-1" data-range="0.05 0.18">
           <div class="caption-panel">
             <small data-en="01 · The problem" data-zh="01 · 困境"
               >01 · The problem</small
@@ -1661,7 +1568,7 @@
           </div>
         </section>
 
-        <section class="caption right" data-range="0.17 0.39">
+        <section class="caption right act-2" data-range="0.17 0.39">
           <div class="caption-panel">
             <small data-en="02 · Externalize" data-zh="02 · 展开"
               >02 · Externalize</small
@@ -1682,7 +1589,7 @@
           </div>
         </section>
 
-        <section class="caption" data-range="0.38 0.62">
+        <section class="caption act-3" data-range="0.38 0.62">
           <div class="caption-panel">
             <small data-en="03 · Inspect" data-zh="03 · 检查">03 · Inspect</small>
             <h2
@@ -1701,7 +1608,7 @@
           </div>
         </section>
 
-        <section class="caption right" data-range="0.61 0.82">
+        <section class="caption right act-4" data-range="0.61 0.82">
           <div class="caption-panel">
             <small data-en="04 · Edit" data-zh="04 · 编辑">04 · Edit</small>
             <h2
@@ -1720,7 +1627,7 @@
           </div>
         </section>
 
-        <section class="caption center" data-range="0.81 1.00">
+        <section class="caption center act-5" data-range="0.81 1.00">
           <div class="caption-panel">
             <small data-en="05 · The protocol" data-zh="05 · 上下文协议"
               >05 · The protocol</small
@@ -1747,6 +1654,125 @@
           <span id="chapter-label">Invisible context</span>
         </div>
       </div>
+    </section>
+
+    <section class="case-copy" aria-labelledby="case-heading">
+      <div class="case-copy-inner">
+        <h2
+          id="case-heading"
+          data-en-html="The graph is not a picture of context. <span>The graph is the context.</span>"
+          data-zh-html="这不是一张上下文示意图。<span>图本身，就是上下文。</span>"
+        >
+          The graph is not a picture of context.
+          <span>The graph is the context.</span>
+        </h2>
+        <p
+          class="case-copy-lede"
+          data-en="ThoughtDAG walks the incoming edges of a node, orders the relevant ancestors, and builds the message sequence sent to the selected model. The structure stays visible, editable, and inspectable."
+          data-zh="ThoughtDAG 会沿着连入节点的边，找到并排列相关的上游内容，再把它们组成发送给模型的消息。模型会看到什么，始终一目了然，也随时可以调整。"
+        >
+          ThoughtDAG walks the incoming edges of a node, orders the relevant ancestors,
+          and builds the message sequence sent to the selected model. The structure stays
+          visible, editable, and inspectable.
+        </p>
+        <div class="case-grid">
+          <article class="case-card">
+            <strong data-en="Branch" data-zh="展开分支">Branch</strong>
+            <p
+              data-en="Explore another interpretation without overwriting the path that led you here."
+              data-zh="换个方向继续想，又不必改写原来的思路。"
+            >
+              Explore another interpretation without overwriting the path that led you
+              here.
+            </p>
+          </article>
+          <article class="case-card">
+            <strong data-en="Prune" data-zh="排除旁枝">Prune</strong>
+            <p
+              data-en="Keep a useful detour on the canvas while excluding it from the next request."
+              data-zh="岔路可以继续留在画布上，但不必再进入下一次对话的上下文。"
+            >
+              Keep a useful detour on the canvas while excluding it from the next request.
+            </p>
+          </article>
+          <article class="case-card">
+            <strong data-en="Merge" data-zh="合并思路">Merge</strong>
+            <p
+              data-en="Bring selected evidence and reasoning paths back together in one answer."
+              data-zh="把选中的证据和推理路径，汇成一个新的回答。"
+            >
+              Bring selected evidence and reasoning paths back together in one answer.
+            </p>
+          </article>
+          <article class="case-card">
+            <strong data-en="Inspect" data-zh="生成前预览">Inspect</strong>
+            <p
+              data-en="Preview what the model will receive before generation. No hidden memory selection."
+              data-zh="回答生成前，先确认模型将看到哪些内容。上下文不再藏在系统里。"
+            >
+              Preview what the model will receive before generation. No hidden memory
+              selection.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="film-section" aria-label="Product story video">
+<div class="film-shell">
+        <div class="film-bar">
+          <span class="dots"><i></i><i></i><i></i></span>
+          <span data-en="THOUGHTDAG PRODUCT STORY" data-zh="THOUGHTDAG 产品故事"
+            >THOUGHTDAG PRODUCT STORY</span
+          >
+          <span id="film-duration">0:32</span>
+        </div>
+        <video
+          controls
+          playsinline
+          preload="none"
+          poster="assets/thoughtdag-story-poster-en-horizontal.jpg"
+          aria-label="ThoughtDAG product story"
+        >
+          <source
+            id="story-video-source"
+            src="assets/thoughtdag-story-en-horizontal.mp4"
+            type="video/mp4"
+          />
+        </video>
+      </div>
+    </section>
+
+    <section class="dl-section" id="download" aria-label="Download">
+      <h2 data-en="Take it to the desktop" data-zh="把它装进桌面">Take it to the desktop</h2>
+      <p class="dl-sub" data-en="The same app in its own window, local engine bundled. No Node, no terminal." data-zh="同一个应用装进独立窗口，内置本地引擎。不需要 Node，不需要终端。">The same app in its own window, local engine bundled. No Node, no terminal.</p>
+      <span class="dl-version" id="dl-version">v0.3.15</span>
+      <div class="dl-grid" id="dl-grid">
+        <div class="dl-card" data-os="mac" data-badge="Recommended for you">
+          <div class="dl-os">macOS <small>Apple Silicon</small></div>
+          <a class="dl-btn" id="dl-mac-arm" href="https://github.com/chenxiachan/thoughtdag/releases/download/v0.3.15/ThoughtDAG-0.3.15-arm64.dmg" data-en="Download .dmg" data-zh="下载 .dmg">Download .dmg</a>
+          <div class="dl-size" id="dl-size-mac">≈126MB</div>
+          <a class="dl-btn secondary" id="dl-mac-x64" href="https://github.com/chenxiachan/thoughtdag/releases/download/v0.3.15/ThoughtDAG-0.3.15.dmg" data-en="Intel Macs" data-zh="Intel 芯片版">Intel Macs</a>
+        </div>
+        <div class="dl-card" data-os="win" data-badge="Recommended for you">
+          <div class="dl-os">Windows <small>x64</small></div>
+          <a class="dl-btn" id="dl-win" href="https://github.com/chenxiachan/thoughtdag/releases/download/v0.3.15/ThoughtDAG.Setup.0.3.15.exe" data-en="Download installer" data-zh="下载安装程序">Download installer</a>
+          <div class="dl-size" id="dl-size-win">≈106MB</div>
+        </div>
+        <div class="dl-card" data-os="linux" data-badge="Recommended for you">
+          <div class="dl-os">Linux <small>x64</small></div>
+          <a class="dl-btn" id="dl-linux" href="https://github.com/chenxiachan/thoughtdag/releases/download/v0.3.15/ThoughtDAG-0.3.15.AppImage" data-en="Download .AppImage" data-zh="下载 .AppImage">Download .AppImage</a>
+          <div class="dl-size" id="dl-size-linux">≈133MB</div>
+        </div>
+      </div>
+      <div class="dl-notes">
+        <b data-en="Install notes" data-zh="安装说明">Install notes</b><br />
+        <span data-en='macOS builds are signed and notarized by Apple: double-click and go. Windows builds are not signed yet; on the SmartScreen prompt choose "More info", then "Run anyway".' data-zh="macOS 版已由 Apple 签名与公证，双击即可打开。Windows 版暂未签名，弹出提示时点「更多信息」，再点「仍要运行」。">macOS builds are signed and notarized by Apple: double-click and go. Windows builds are not signed yet; on the SmartScreen prompt choose "More info", then "Run anyway".</span>
+      </div>
+      <p class="dl-foot">
+        <span data-en="All versions and history live on " data-zh="全部版本与历史在 ">All versions and history live on </span><a href="https://github.com/chenxiachan/thoughtdag/releases">GitHub Releases</a><span data-en="." data-zh="。">.</span>
+      </p>
+    
     </section>
 
     <footer class="finale">
@@ -1942,6 +1968,7 @@
         };
 
         let storyTop = 0;
+        const introEl = document.getElementById("story-intro");
         let storyDistance = 1;
         let visualProgress = 0;
         let raf = 0;
@@ -2007,6 +2034,7 @@
             visualProgress = targetProgress;
           }
           const p = visualProgress;
+          if (introEl) introEl.style.opacity = String(Math.max(0, 1 - p * 10));
           const cam = interpolateCamera(p);
           if (innerWidth < 760) {
             const editFocus =
