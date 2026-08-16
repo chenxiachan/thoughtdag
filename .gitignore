@@ -38,3 +38,6 @@ video/archive/
 video/public/audio/
 marketing/media-kit/
 marketing/xhs/
+
+# Context-operations benchmark (internal until reference gate passes)
+benchmark/
