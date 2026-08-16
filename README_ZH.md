@@ -156,6 +156,17 @@ macOS 版已由 Apple 签名与公证，双击即开。Windows 版暂未签名�
 
 如果你已经在用一个 markdown 文件手工维护决策树，ThoughtDAG 就是那棵树的可操作版本：你连进来的分支，就是模型读到的全部。
 
+### 和 coding agent 并肩工作
+
+给画布安一个文件夹，它就是一个自动更新的本地文件：打开**自动文件夹备份**，指到你的项目目录，你每落一个新节点，磁盘上的 `<画布名>.thoughtdag.json` 就跟着更新。而 coding agent 天生会读文件。集成的全部就是这样：
+
+1. 让你的 agent CLI 读这个文件。`question`、`response`、`summaries` 字段承载完整的决策历史，包括哪些路已经被排除、为什么。
+2. 要最干净的交接，用 **Markdown 导出**：任意上下文链或选区变成 agent 原生可读的 `.md`。
+
+在任意 agent 会话里的用法示例：*「读一下 ./notes/research.thoughtdag.json，从里面的结论继续；summaries 字段列了已经排除的路线。」*
+
+没有插件，没有 API，没有服务。同一份文件也是真实的数据安全：把备份指到网盘同步目录，它就是你的跨设备备份。
+
 ## 模型与订阅
 
 智谱 · 通义 · OpenAI · Anthropic · Google · DeepSeek · Kimi · OpenRouter · Ollama，或任何兼容 OpenAI 协议的端点。纯文本模型经伴随文本读图，未识读的图才由视觉模型代答（有提示）。环境变量与默认模型 → [docs/setup_ZH.md](docs/setup_ZH.md)

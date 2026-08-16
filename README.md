@@ -156,6 +156,17 @@ In ThoughtDAG, a wire is not decoration or an execution route. It determines wha
 
 If you already keep a hand-maintained decision tree in a markdown file, ThoughtDAG is that tree made operational: the model reads exactly the branches you wire in.
 
+### Works beside your coding agent
+
+Give the canvas a folder and it becomes a live local file: turn on **automatic folder backup**, point it at your project directory, and every new node you land updates `<canvas-name>.thoughtdag.json` on disk as you work. And coding agents read files. That is the whole integration:
+
+1. Ask your agent CLI to read the file. The `question`, `response` and `summaries` fields carry your full decision history, including which paths were ruled out and why.
+2. For the cleanest handoff, use **Markdown export**: any context chain or selection becomes a plain `.md` the agent reads natively.
+
+Example, inside any agent session: *"Read ./notes/research.thoughtdag.json and continue from the conclusions; the summaries field lists what was already ruled out."*
+
+No plugin, no API, no server. The same file doubles as real data safety: point the backup at a synced folder and it is also your cross-device backup.
+
 ## Models & subscriptions
 
 Zhipu · Qwen · OpenAI · Anthropic · Google · DeepSeek · Kimi · OpenRouter · Ollama, or any OpenAI-compatible endpoint. Text-only models read already-indexed images through their companion text; unread images go to a vision model, announced. Environment variables and default models → [docs/setup.md](docs/setup.md)
