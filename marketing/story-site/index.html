@@ -85,6 +85,7 @@
 
       body {
         margin: 0;
+        overflow-x: hidden;
         color: var(--ink);
         background: var(--paper);
         font-family:
@@ -995,6 +996,206 @@
       .dl-notes { margin-top: 30px; background: var(--orange-soft); border: 1px solid #f3ddb8; border-radius: 14px; padding: 16px 20px; font-size: 14px; line-height: 1.75; }
       .dl-foot { margin-top: 22px; font-size: 14px; color: var(--muted); line-height: 1.8; }
       .dl-foot a { color: var(--purple); }
+
+      /* Research entry: product mechanism first, pilot evidence second. */
+      .research-teaser {
+        position: relative;
+        overflow: hidden;
+        padding: 112px 24px;
+        background:
+          radial-gradient(circle at 84% 20%, rgba(107, 92, 231, 0.13), transparent 30%),
+          var(--paper);
+      }
+      .research-teaser::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background-image: radial-gradient(rgba(84, 75, 116, 0.12) 0.8px, transparent 0.9px);
+        background-size: 22px 22px;
+        mask-image: linear-gradient(90deg, transparent, #000 55%, #000);
+      }
+      .research-teaser-inner {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: minmax(0, 0.86fr) minmax(520px, 1.14fr);
+        gap: clamp(42px, 7vw, 92px);
+        width: min(1180px, 100%);
+        margin: 0 auto;
+        align-items: center;
+      }
+      .research-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        margin: 0 0 22px;
+        color: #5f51cf;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+      .research-eyebrow::before {
+        content: "";
+        width: 28px;
+        height: 1px;
+        background: currentColor;
+      }
+      .research-teaser h2 {
+        max-width: 10em;
+        margin: 0;
+        font-size: clamp(43px, 5.4vw, 72px);
+        line-height: 1.02;
+        letter-spacing: -0.055em;
+      }
+      html[lang="zh-CN"] .research-teaser h2 {
+        max-width: 12em;
+        letter-spacing: -0.045em;
+      }
+      .research-lede {
+        max-width: 610px;
+        margin: 26px 0 0;
+        color: var(--muted);
+        font-size: 18px;
+        line-height: 1.78;
+      }
+      .research-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 18px;
+        margin-top: 32px;
+      }
+      .research-link {
+        color: #5f51cf;
+        font-size: 14px;
+        font-weight: 760;
+      }
+      .research-visual {
+        position: relative;
+        min-height: 490px;
+        border: 1px solid rgba(222, 217, 232, 0.92);
+        border-radius: 28px;
+        background: rgba(255, 255, 255, 0.84);
+        box-shadow: 0 34px 90px rgba(55, 45, 100, 0.14);
+      }
+      .research-visual-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 52px;
+        padding: 0 18px;
+        border-bottom: 1px solid var(--line);
+        color: #817b8d;
+        font-size: 11px;
+        font-weight: 760;
+        letter-spacing: 0.05em;
+      }
+      .mini-graph {
+        position: relative;
+        height: 332px;
+        overflow: hidden;
+      }
+      .mini-graph svg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+      .mini-node {
+        position: absolute;
+        width: 130px;
+        min-height: 64px;
+        display: grid;
+        place-items: center;
+        padding: 11px;
+        border: 1px solid #d9d3e8;
+        border-radius: 14px;
+        background: #fff;
+        color: #383341;
+        text-align: center;
+        font-size: 12px;
+        font-weight: 740;
+        box-shadow: 0 12px 26px rgba(55, 45, 100, 0.09);
+      }
+      .mini-node.source { left: 5%; top: 42px; }
+      .mini-node.question { left: 5%; top: 208px; }
+      .mini-node.branch-a { left: 37%; top: 26px; border-color: #bfb5fa; }
+      .mini-node.branch-b { left: 37%; top: 205px; border-color: #efb55f; }
+      .mini-node.merge { right: 5%; top: 103px; width: 154px; border-color: #a9d9c4; }
+      .mini-node small {
+        display: block;
+        margin-top: 5px;
+        color: #8c8796;
+        font-size: 10px;
+        font-weight: 600;
+      }
+      .prune-note {
+        position: absolute;
+        left: 42%;
+        bottom: 20px;
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        color: #b46e0d;
+        font-size: 11px;
+        font-weight: 750;
+      }
+      .prune-note::before {
+        content: "×";
+        display: grid;
+        place-items: center;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        color: white;
+        background: var(--orange);
+      }
+      .repair-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1px;
+        border-top: 1px solid var(--line);
+        background: var(--line);
+      }
+      .repair-stat {
+        min-width: 0;
+        padding: 18px 13px;
+        background: #fff;
+      }
+      .repair-stat strong {
+        display: block;
+        color: var(--ink);
+        font-size: 20px;
+        letter-spacing: -0.03em;
+      }
+      .repair-stat span {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 10px;
+        line-height: 1.35;
+      }
+
+      @media (max-width: 900px) {
+        .research-teaser-inner { grid-template-columns: 1fr; }
+        .research-teaser-copy { max-width: 700px; }
+        .research-visual { width: min(660px, 100%); }
+      }
+      @media (max-width: 600px) {
+        .research-teaser { padding: 82px 20px; }
+        .research-lede { font-size: 16px; }
+        .research-visual { min-height: 440px; border-radius: 22px; }
+        .mini-graph { height: 302px; }
+        .mini-node { width: 104px; min-height: 58px; padding: 8px; font-size: 11px; }
+        .mini-node.source, .mini-node.question { left: 4%; }
+        .mini-node.branch-a, .mini-node.branch-b { left: 35%; }
+        .mini-node.merge { right: 4%; width: 112px; }
+        .prune-note { left: 36%; }
+        .repair-stat { padding: 15px 9px; }
+        .repair-stat strong { font-size: 17px; }
+      }
     </style>
   </head>
   <body>
@@ -1006,6 +1207,9 @@
       <div class="nav-actions">
         <a class="nav-link" href="#top" data-en="How it works" data-zh="工作原理"
           >How it works</a
+        >
+        <a class="nav-link" href="#research" data-en="Research" data-zh="研究"
+          >Research</a
         >
         <a
           class="nav-link"
@@ -1718,6 +1922,108 @@
       </div>
     </section>
 
+    <section class="research-teaser" id="research" aria-labelledby="research-heading">
+      <div class="research-teaser-inner">
+        <div class="research-teaser-copy">
+          <p
+            class="research-eyebrow"
+            data-en="CONTEXT REPAIR PILOT"
+            data-zh="上下文修复实验"
+          >
+            CONTEXT REPAIR PILOT
+          </p>
+          <h2
+            id="research-heading"
+            data-en="LLM context as an editable graph"
+            data-zh="把 LLM 上下文变成一张可编辑的图"
+          >
+            LLM context as an editable graph
+          </h2>
+          <p
+            class="research-lede"
+            data-en="ThoughtDAG turns context into a graph you can branch, merge, prune, and rebuild, so what the model sees can follow the way your thinking changes. Our first pilot shows how one error can survive downstream."
+            data-zh="ThoughtDAG 让上下文沿着你的思路展开。分叉、合并、删减、重算，不只是整理画布，也是在决定模型下一次真正看到什么。首个实验展示了错误如何沿对话继续传播。"
+          >
+            ThoughtDAG turns context into a graph you can branch, merge, prune, and rebuild,
+            so what the model sees can follow the way your thinking changes. Our first pilot
+            shows how one error can survive downstream.
+          </p>
+          <div class="research-actions">
+            <a
+              class="button primary"
+              id="research-pilot-link"
+              href="stories/context-repair/"
+              data-en="Explore the pilot →"
+              data-zh="查看实验案例 →"
+              >Explore the pilot →</a
+            >
+            <a
+              class="research-link"
+              href="research/context-repair-pilot-v1/"
+              data-en="Methods, data & results"
+              data-zh="方法、数据与完整结果"
+              >Methods, data &amp; results</a
+            >
+          </div>
+        </div>
+
+        <div class="research-visual" aria-label="Editable context graph and pilot results">
+          <div class="research-visual-bar">
+            <span>CONTEXT REPAIR · PILOT V1</span>
+            <span>4 MODELS · 540 RUNS</span>
+          </div>
+          <div class="mini-graph">
+            <svg viewBox="0 0 620 332" preserveAspectRatio="none" aria-hidden="true">
+              <defs>
+                <marker id="research-arrow-purple" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                  <path d="M0,0 L8,4 L0,8 Z" fill="#6b5ce7"></path>
+                </marker>
+                <marker id="research-arrow-green" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+                  <path d="M0,0 L8,4 L0,8 Z" fill="#25a06b"></path>
+                </marker>
+              </defs>
+              <path d="M146 74 C190 74 184 58 235 58" fill="none" stroke="#6b5ce7" stroke-width="2.2" marker-end="url(#research-arrow-purple)"></path>
+              <path d="M146 240 C190 240 184 236 235 236" fill="none" stroke="#e8890c" stroke-width="2.2" stroke-dasharray="7 6"></path>
+              <path d="M146 240 C190 240 182 92 235 69" fill="none" stroke="#6b5ce7" stroke-width="2.2" marker-end="url(#research-arrow-purple)"></path>
+              <path d="M365 58 C420 58 410 132 462 141" fill="none" stroke="#25a06b" stroke-width="2.2" marker-end="url(#research-arrow-green)"></path>
+              <path d="M365 236 C420 236 410 166 462 151" fill="none" stroke="#e8890c" stroke-width="2.2" stroke-dasharray="7 6"></path>
+            </svg>
+            <div class="mini-node source" data-en="Sources" data-zh="资料">Sources</div>
+            <div class="mini-node question" data-en="Question" data-zh="问题">Question</div>
+            <div class="mini-node branch-a">
+              <span data-en="Explore A" data-zh="探索 A">Explore A</span>
+              <small data-en="kept in context" data-zh="保留在上下文中">kept in context</small>
+            </div>
+            <div class="mini-node branch-b">
+              <span data-en="Explore B" data-zh="探索 B">Explore B</span>
+              <small data-en="outdated branch" data-zh="过期分支">outdated branch</small>
+            </div>
+            <div class="mini-node merge">
+              <span data-en="Merge / condense" data-zh="合并 / 凝练">Merge / condense</span>
+              <small data-en="next request" data-zh="下一次请求">next request</small>
+            </div>
+            <span class="prune-note" data-en="exclude outdated branch" data-zh="排除过期分支"
+              >exclude outdated branch</span
+            >
+          </div>
+          <div class="repair-stats">
+            <div class="repair-stat">
+              <strong>68 / 72</strong>
+              <span data-en="delete source only" data-zh="仅删除源头">delete source only</span>
+            </div>
+            <div class="repair-stat">
+              <strong>71 / 72</strong>
+              <span data-en="recompute downstream" data-zh="重算下游节点">recompute downstream</span>
+            </div>
+            <div class="repair-stat">
+              <strong>72 / 72</strong>
+              <span data-en="remove whole subgraph" data-zh="删除整条污染子图">remove whole subgraph</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="film-section" aria-label="Product story video">
 <div class="film-shell">
         <div class="film-bar">
@@ -1910,6 +2216,8 @@
             "aria-label",
             language === "en" ? "切换到中文" : "Switch to English",
           );
+          document.getElementById("research-pilot-link").href =
+            language === "zh" ? "stories/context-repair/?lang=zh" : "stories/context-repair/";
           rail.setAttribute("aria-label", language === "en" ? "Story chapters" : "故事章节");
 
           updateStoryVideo();

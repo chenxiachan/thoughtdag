@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Repairing LLM Context — ThoughtDAG</title>
+    <meta name="description" content="A four-model pilot on context errors that survive downstream, and what it takes to repair them." />
+    <meta name="robots" content="index,follow,max-image-preview:large" />
+    <meta name="theme-color" content="#f8f6fb" />
+    <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg" />
+    <link rel="canonical" href="https://chenxiachan.github.io/thoughtdag/stories/context-repair/" />
+    <link rel="alternate" hreflang="en" href="https://chenxiachan.github.io/thoughtdag/stories/context-repair/" />
+    <link rel="alternate" hreflang="zh-CN" href="https://chenxiachan.github.io/thoughtdag/stories/context-repair/?lang=zh" />
+    <link rel="alternate" hreflang="x-default" href="https://chenxiachan.github.io/thoughtdag/stories/context-repair/" />
+    <link rel="stylesheet" href="../../assets/research-pages.css" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Repairing LLM Context — ThoughtDAG" />
+    <meta property="og:description" content="A four-model pilot on context errors that survive downstream, and what it takes to repair them." />
+    <meta property="og:url" content="https://chenxiachan.github.io/thoughtdag/stories/context-repair/" />
+    <meta property="og:image" content="https://chenxiachan.github.io/thoughtdag/assets/context-repair-flagship.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Repairing LLM Context — ThoughtDAG" />
+    <meta name="twitter:description" content="A four-model pilot on errors that survive downstream." />
+    <meta name="twitter:image" content="https://chenxiachan.github.io/thoughtdag/assets/context-repair-flagship.png" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "Repairing LLM Context",
+        "description": "A four-model pilot on context errors that survive downstream, and what it takes to repair them.",
+        "datePublished": "2026-08-17",
+        "author": { "@type": "Person", "name": "Xia Chen" },
+        "publisher": { "@type": "Organization", "name": "ThoughtDAG" },
+        "mainEntityOfPage": "https://chenxiachan.github.io/thoughtdag/stories/context-repair/",
+        "image": "https://chenxiachan.github.io/thoughtdag/assets/context-repair-flagship.png"
+      }
+    </script>
+  </head>
+  <body>
+    <nav class="site-nav" aria-label="Primary navigation">
+      <a class="brand" id="home-brand-link" href="../../#research">
+        <img src="../../assets/favicon.svg" alt="" />
+        <span>ThoughtDAG</span>
+      </a>
+      <div class="nav-links">
+        <a class="nav-link" id="back-story-link" href="../../#research" data-en="Back to story" data-zh="返回产品故事">Back to story</a>
+        <a class="nav-link" href="../../research/context-repair-pilot-v1/" data-en="Full report" data-zh="完整报告">Full report</a>
+        <button class="nav-link" id="language-toggle" type="button" style="border:1px solid var(--line);background:#fff;cursor:pointer">中文</button>
+        <a class="nav-link primary" href="https://github.com/chenxiachan/thoughtdag" target="_blank" rel="noreferrer">GitHub ↗</a>
+      </div>
+    </nav>
+
+    <header class="case-hero">
+      <div class="case-hero-inner">
+        <span class="eyebrow" data-en="CONTEXT ENGINEERING · PILOT V1" data-zh="上下文工程 · 首轮实验">CONTEXT ENGINEERING · PILOT V1</span>
+        <h1 data-en="Repairing LLM Context" data-zh="修复 LLM 上下文">Repairing LLM Context</h1>
+        <p class="case-hero-lede" data-en="A four-model pilot on errors that survive downstream." data-zh="一个错误被后续对话反复继承后，删掉源头还够不够？我们用四个模型做了首轮实验。">A four-model pilot on errors that survive downstream.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="#case" data-en="See the case →" data-zh="查看案例 →">See the case →</a>
+          <a class="text-link" href="../../research/context-repair-pilot-v1/" data-en="Methods, data & results" data-zh="方法、数据与完整结果">Methods, data &amp; results</a>
+        </div>
+      </div>
+    </header>
+
+    <section class="signal-strip" aria-label="Pilot summary">
+      <div class="signal primary">
+        <small data-en="THE FINDING" data-zh="核心发现">THE FINDING</small>
+        <strong data-en="The source was gone. The error stayed." data-zh="源头删了，错误还在。">The source was gone. The error stayed.</strong>
+        <p data-en="Downstream turns had already absorbed it." data-zh="因为后续节点已经继承了这个错误。">Downstream turns had already absorbed it.</p>
+      </div>
+      <div class="signal">
+        <small data-en="SOURCE ONLY" data-zh="仅删源头">SOURCE ONLY</small>
+        <strong>68 / 72</strong>
+        <p data-en="paired repairs recovered" data-zh="个受污染案例恢复">paired repairs recovered</p>
+      </div>
+      <div class="signal">
+        <small data-en="RECOMPUTE" data-zh="按依赖重算">RECOMPUTE</small>
+        <strong>71 / 72</strong>
+        <p data-en="paired repairs recovered" data-zh="个受污染案例恢复">paired repairs recovered</p>
+      </div>
+      <div class="signal">
+        <small data-en="WHOLE SUBGRAPH" data-zh="删除污染子图">WHOLE SUBGRAPH</small>
+        <strong>72 / 72</strong>
+        <p data-en="paired repairs recovered" data-zh="个受污染案例恢复">paired repairs recovered</p>
+      </div>
+    </section>
+
+    <main>
+      <section class="story-block" id="case">
+        <span class="eyebrow" data-en="ONE CONTROLLED CASE" data-zh="一个可验证的案例">ONE CONTROLLED CASE</span>
+        <h2 data-en-html="One bad value became <em>conversation state.</em>" data-zh-html="一个错误数值，变成了<em>整段对话的状态。</em>">One bad value became <em>conversation state.</em></h2>
+        <p class="lede" data-en="A verified recount changed 30 parts per crate to 24. A later false turn reversed it, and three descendants repeated the stale value. The correct total was 107; the contaminated chain said 131." data-zh="复核把每箱 30 个零件纠正为 24 个。后来一条错误信息又把它改回 30，三个下游节点继续沿用旧数。正确答案是 107，污染后的链条却得到 131。">A verified recount changed 30 parts per crate to 24. A later false turn reversed it, and three descendants repeated the stale value. The correct total was 107; the contaminated chain said 131.</p>
+        <div class="five-steps">
+          <article class="step"><b>1</b><h3 data-en="Verify" data-zh="复核">Verify</h3><p data-en="30 becomes 24." data-zh="30 被纠正为 24。">30 becomes 24.</p></article>
+          <article class="step"><b>2</b><h3 data-en="Pollute" data-zh="污染">Pollute</h3><p data-en="A false turn restores 30." data-zh="错误信息又写回 30。">A false turn restores 30.</p></article>
+          <article class="step"><b>3</b><h3 data-en="Propagate" data-zh="传播">Propagate</h3><p data-en="Later turns derive 120 and 131." data-zh="下游继续得到 120 和 131。">Later turns derive 120 and 131.</p></article>
+          <article class="step"><b>4</b><h3 data-en="Delete" data-zh="删除">Delete</h3><p data-en="The false source is removed." data-zh="删除最初的错误源头。">The false source is removed.</p></article>
+          <article class="step"><b>5</b><h3 data-en="Ask again" data-zh="再次提问">Ask again</h3><p data-en="Some models still answer 131." data-zh="部分模型仍然回答 131。">Some models still answer 131.</p></article>
+        </div>
+        <figure class="case-figure">
+          <img src="../../assets/context-repair-flagship.png" alt="Five graph conditions in the context repair flagship case" />
+          <figcaption data-en="The final question never changes. Only the graph state does." data-zh="最终问题始终不变，变化的只有上下文图。">The final question never changes. Only the graph state does.</figcaption>
+        </figure>
+      </section>
+
+      <section class="dark-block">
+        <div class="dark-inner">
+          <div>
+            <span class="eyebrow" style="color:#a99fff" data-en="WHY THE WIRES MATTER" data-zh="为什么连线重要">WHY THE WIRES MATTER</span>
+            <h2 data-en="Editing context means repairing consequences." data-zh="编辑上下文，也要修复它留下的后果。">Editing context means repairing consequences.</h2>
+            <p data-en="Deleting the bad source changes what should be believed. It does not rewrite text that was already generated from it. An editable graph exposes the source, its descendants, and the order in which they can be rebuilt." data-zh="删掉错误源头，只改变了现在应该相信什么，却不会自动改写已经由它生成的内容。可编辑的图能同时呈现源头、下游节点，以及它们应当按什么顺序重算。">Deleting the bad source changes what should be believed. It does not rewrite text that was already generated from it. An editable graph exposes the source, its descendants, and the order in which they can be rebuilt.</p>
+          </div>
+          <img src="../../assets/context-repair-strategies.png" alt="Recovery rates for three context repair strategies" />
+        </div>
+      </section>
+
+      <section class="story-block narrow">
+        <span class="eyebrow" data-en="A NARROW CLAIM" data-zh="我们只主张这一点">A NARROW CLAIM</span>
+        <h2 data-en-html="Not a model leaderboard. A test of <em>graph intervention.</em>" data-zh-html="这不是模型排行榜，而是一次<em>图式干预实验。</em>">Not a model leaderboard. A test of <em>graph intervention.</em></h2>
+        <p class="lede" data-en="The pilot used synthetic, objectively scored tasks. It does not explain hidden reasoning, and it does not prove that every conversation needs a graph. It shows that propagated context errors require more than source deletion, and that graph operations make the repair testable." data-zh="实验使用可客观判分的合成任务。它不解释模型的隐藏推理，也不声称每段对话都需要一张图。它说明：错误一旦传播，修复就不只是删掉源头；而图操作让这种修复可以被观察、复现和检验。">The pilot used synthetic, objectively scored tasks. It does not explain hidden reasoning, and it does not prove that every conversation needs a graph. It shows that propagated context errors require more than source deletion, and that graph operations make the repair testable.</p>
+      </section>
+
+      <section class="closing">
+        <h2 data-en="See exactly what the model sees. Then change it." data-zh="先看清模型会看到什么，再决定如何修改。">See exactly what the model sees. Then change it.</h2>
+        <p data-en="ThoughtDAG is the open-source reference interface used to inspect and reproduce these graph interventions." data-zh="ThoughtDAG 是这组图式干预的开源参考界面，可用于检查、修改并复现实验中的上下文。">ThoughtDAG is the open-source reference interface used to inspect and reproduce these graph interventions.</p>
+        <div class="hero-actions">
+          <a class="button primary" href="../../research/context-repair-pilot-v1/" data-en="Read the full report →" data-zh="阅读完整报告 →">Read the full report →</a>
+          <a class="text-link" href="https://github.com/chenxiachan/thoughtdag" target="_blank" rel="noreferrer">GitHub ↗</a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="page-footer">ThoughtDAG · Context Repair Pilot v1 · August 2026</footer>
+    <script>
+      (() => {
+        const toggle = document.getElementById("language-toggle");
+        let language = new URLSearchParams(location.search).get("lang") === "zh" ? "zh" : "en";
+        const applyLanguage = (next, updateUrl = false) => {
+          language = next;
+          document.documentElement.lang = next === "zh" ? "zh-CN" : "en";
+          document.title = next === "zh" ? "修复 LLM 上下文 — ThoughtDAG" : "Repairing LLM Context — ThoughtDAG";
+          document.querySelectorAll("[data-en][data-zh]").forEach((el) => { el.textContent = el.dataset[next]; });
+          document.querySelectorAll("[data-en-html][data-zh-html]").forEach((el) => {
+            el.innerHTML = next === "zh" ? el.dataset.zhHtml : el.dataset.enHtml;
+          });
+          toggle.textContent = next === "en" ? "中文" : "EN";
+          const homeHref = next === "zh" ? "../../?lang=zh#research" : "../../#research";
+          document.getElementById("home-brand-link").href = homeHref;
+          document.getElementById("back-story-link").href = homeHref;
+          if (updateUrl) {
+            const url = new URL(location.href);
+            next === "zh" ? url.searchParams.set("lang", "zh") : url.searchParams.delete("lang");
+            history.replaceState(null, "", url);
+          }
+        };
+        toggle.addEventListener("click", () => applyLanguage(language === "en" ? "zh" : "en", true));
+        applyLanguage(language);
+      })();
+    </script>
+  </body>
+</html>
