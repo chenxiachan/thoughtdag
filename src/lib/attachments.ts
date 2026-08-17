@@ -1,4 +1,5 @@
 import type { Attachment } from '../types';
+import type { PDFDocumentProxy } from 'pdfjs-dist';
 import { generateId } from '../utils';
 import { extractPdf } from './api';
 import { PDF_VISION_PAGE_THRESHOLD } from './constants';
@@ -66,6 +67,47 @@ export function readFileToAttachment(file: File): Promise<Attachment | null> {
   });
 }
 
+// Open a base64 PDF with pdfjs in the browser (worker configured by the import).
+async function openPdf(base64: string): Promise<PDFDocumentProxy> {
+  const [m, worker] = await Promise.all([
+    import('pdfjs-dist'),
+    import('pdfjs-dist/build/pdf.worker.min.mjs?url'),
+  ]);
+  m.GlobalWorkerOptions.workerSrc = worker.default;
+  const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+  return m.getDocument({ data: bytes, verbosity: 0 }).promise;
+}
+
+const PAGE_RENDER_DPI = 150; // matches the proxy's pdftoppm default
+
+// Render every page to a base64 PNG in the browser — the local stand-in for
+// the proxy's poppler when it is absent (the desktop app inherits a GUI PATH
+// that hides Homebrew; the public demo has no backend at all). Same shape
+// the proxy returns; the reader and Recognize consume both interchangeably.
+async function renderPdfPages(doc: PDFDocumentProxy): Promise<string[]> {
+  const scale = PAGE_RENDER_DPI / 72; // PDF user units are 72/inch
+  const images: string[] = [];
+  for (let i = 1; i <= doc.numPages; i++) {
+    const canvas = document.createElement('canvas');
+    try {
+      const page = await doc.getPage(i);
+      const viewport = page.getViewport({ scale });
+      canvas.width = Math.ceil(viewport.width);
+      canvas.height = Math.ceil(viewport.height);
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('no 2d context');
+      await page.render({ canvasContext: ctx, viewport }).promise;
+    } catch {
+      // keep page numbering intact for (p.N) anchors and Recognize: a failed
+      // page becomes a blank frame instead of shifting every page after it
+      canvas.width = 8;
+      canvas.height = 8;
+    }
+    images.push(canvas.toDataURL('image/png').split(',')[1]);
+  }
+  return images;
+}
+
 export interface ProcessFileCallbacks {
   /** Called once with the initial attachment (PDFs arrive with isExtracting: true). */
   add: (att: Attachment) => void;
@@ -95,26 +137,31 @@ export async function processFile(file: File, cb: ProcessFileCallbacks): Promise
   try {
     const data = await extractPdf(att.content);
     const numPages = data.numPages || 0;
+    // The proxy answers without images when poppler is missing (minimal
+    // installs; a desktop launch never sees Homebrew's PATH). Pages matter —
+    // Recognize and the digest for scanned PDFs dead-end without them — so
+    // render them right here instead.
+    let images = data.images;
+    if (!images?.length) {
+      try {
+        const doc = await openPdf(att.content);
+        images = await renderPdfPages(doc);
+        void doc.destroy();
+      } catch { images = undefined; }
+    }
     cb.update(att.id, {
       extractedText: data.text,
-      pageImages: data.images,
+      pageImages: images?.length ? images : undefined,
       numPages,
       renderMode: numPages > PDF_VISION_PAGE_THRESHOLD ? 'text-only' : 'full',
       isExtracting: false,
     });
   } catch {
-    // No extraction backend (the public demo has none): extract the text
-    // layer in the browser with pdfjs instead. Summaries, digests and the
-    // text view all work; page images stay absent and the reader falls
-    // back to its text view.
+    // No extraction backend at all (the public demo has none): extract the
+    // text layer and render the pages in the browser instead. Summaries,
+    // digests, the text view and Recognize all keep working.
     try {
-      const [m, worker] = await Promise.all([
-        import('pdfjs-dist'),
-        import('pdfjs-dist/build/pdf.worker.min.mjs?url'),
-      ]);
-      m.GlobalWorkerOptions.workerSrc = worker.default;
-      const bytes = Uint8Array.from(atob(att.content), (c) => c.charCodeAt(0));
-      const doc = await m.getDocument({ data: bytes, verbosity: 0 }).promise;
+      const doc = await openPdf(att.content);
       const pages: string[] = [];
       for (let i = 1; i <= doc.numPages; i++) {
         try {
@@ -123,10 +170,14 @@ export async function processFile(file: File, cb: ProcessFileCallbacks): Promise
           pages.push(content.items.map((it) => ('str' in it ? it.str : '')).join(' '));
         } catch { pages.push(''); }
       }
+      let images: string[] | undefined;
+      try { images = await renderPdfPages(doc); } catch { images = undefined; }
+      void doc.destroy();
       cb.update(att.id, {
         extractedText: pages.join('\n\n').trim(),
+        pageImages: images?.length ? images : undefined,
         numPages: doc.numPages,
-        renderMode: 'text-only',
+        renderMode: doc.numPages > PDF_VISION_PAGE_THRESHOLD ? 'text-only' : 'full',
         isExtracting: false,
       });
     } catch {
