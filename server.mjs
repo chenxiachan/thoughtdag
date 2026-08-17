@@ -10,7 +10,14 @@ import { createOpenAI } from '@ai-sdk/openai';
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { createDeepSeek } from '@ai-sdk/deepseek';
-import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
+import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist/legacy/build/pdf.mjs';
+// Inside Electron's utilityProcess pdfjs does not consider itself in Node
+// (process.versions.electron flips its environment check) and refuses to run
+// without a workerSrc. Point its fake worker at the real worker module so
+// text extraction works in the desktop app — silently broken there before.
+if (process.versions.electron) {
+  GlobalWorkerOptions.workerSrc = import.meta.resolve('pdfjs-dist/legacy/build/pdf.worker.mjs');
+}
 import { execSync, execFileSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';

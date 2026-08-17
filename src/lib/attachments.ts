@@ -136,6 +136,10 @@ export async function processFile(file: File, cb: ProcessFileCallbacks): Promise
   cb.add({ ...light, isExtracting: true });
   try {
     const data = await extractPdf(att.content);
+    // A proxy whose pdfjs is broken answers 200 with an all-empty result
+    // (the desktop app did exactly this for every PDF). Treat it as the
+    // failure it is so the browser fallback below takes over.
+    if (!data.numPages && !data.text?.trim()) throw new Error('empty extraction result');
     const numPages = data.numPages || 0;
     // The proxy answers without images when poppler is missing (minimal
     // installs; a desktop launch never sees Homebrew's PATH). Pages matter —
