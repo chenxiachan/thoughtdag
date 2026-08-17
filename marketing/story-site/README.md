@@ -15,6 +15,8 @@ It is published with GitHub Pages at:
 ```text
 https://chenxiachan.github.io/thoughtdag/
 https://chenxiachan.github.io/thoughtdag/?lang=zh
+https://chenxiachan.github.io/thoughtdag/stories/context-repair/
+https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v1/
 ```
 
 The `product-story-pages.yml` workflow publishes this directory as a static
@@ -48,3 +50,8 @@ poster frame, accessible label, and duration.
 
 Canonical, alternate-language, Open Graph, robots, and sitemap metadata point
 to the shared public deployment.
+
+The homepage introduces the Context Repair Pilot without turning the product
+story into a report. The concise bilingual case study lives under `stories/`,
+while the English technical report and reproducibility links live under
+`research/`.
