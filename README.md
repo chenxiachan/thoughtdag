@@ -138,7 +138,7 @@ Connect a local Ollama or any OpenAI-compatible endpoint. Built-in presets, subs
 
 With gratitude to **@andreilaiter**, ThoughtDAG's first supporter, and to everyone helping this independent open-source project grow.
 
-[Support ThoughtDAG →](https://buymeacoffee.com/chatchan92)
+<a href="https://buymeacoffee.com/chatchan92"><img src="docs/supporters/support-thoughtdag.svg" alt="Support ThoughtDAG" width="252" /></a>
 
 ---
 

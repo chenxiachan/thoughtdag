@@ -138,7 +138,7 @@ ThoughtDAG 也在检验一个具体问题：错误信息进入一段 LLM 对话�
 
 感谢首位支持者 **@andreilaiter**，也感谢每一位帮助这个独立开源项目继续成长的人。
 
-[支持 ThoughtDAG →](https://buymeacoffee.com/chatchan92)
+<a href="https://buymeacoffee.com/chatchan92"><img src="docs/supporters/support-thoughtdag.svg" alt="支持 ThoughtDAG" width="252" /></a>
 
 ---
 
