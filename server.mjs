@@ -881,6 +881,9 @@ app.post('/api/stream', async (req, res) => {
   // that would run two searches for one question). An explicit 'anysearch'
   // engine pref keeps the tool loop instead.
   const gatewayOnline = !ZHIPU_KEY && webSearch !== false && !!entry.online && searchEngine !== 'anysearch';
+  // The gateway searches without tool pings — the UI would show nothing.
+  // One frame up front lets it say "searching the web" and stamp the answer.
+  if (gatewayOnline) res.write(`data: ${JSON.stringify({ gatewaySearch: true })}\n\n`);
 
   const tools = makeTools(
     sources,
@@ -932,22 +935,33 @@ app.post('/api/stream', async (req, res) => {
           : undefined,
     });
 
-    // GLM occasionally leaks raw "<tool_call>...</tool_call>" markup into the
-    // text stream (e.g. when it wants to search but tools are disabled).
-    // Filter it out, holding back a possible partial tag at the chunk tail.
+    // Models occasionally leak raw tool-call markup into the text stream
+    // (e.g. when they want to search but tools are disabled). Two dialects
+    // observed: GLM's "<tool_call>...</tool_call>" and Kimi's
+    // "<|tool_calls_section_begin|>...<|tool_call_end|>" token family.
+    // Filter both, holding back a possible partial tag at the chunk tail.
     let holdback = '';
     const emitFiltered = (chunk) => {
       let buf = holdback + chunk;
       holdback = '';
-      buf = buf.replace(/<tool_call>[\s\S]*?<\/tool_call>\n?/g, '');
-      const open = buf.search(/<tool_call/);
+      buf = buf
+        .replace(/<tool_call>[\s\S]*?<\/tool_call>\n?/g, '')
+        // a section swallows the call blocks that have fully arrived
+        .replace(/<\|tool_calls_section_begin\|>(?:[\s\S]*?<\|tool_call_end\|>)+(?:<\|tool_calls_section_end\|>)?\n?/g, '')
+        // an orphan call block (its section was scrubbed in an earlier chunk)
+        .replace(/<\|tool_call_begin\|>[\s\S]*?<\|tool_call_end\|>\n?/g, '')
+        // stray single tokens — but never the two openers: unfinished
+        // blocks must stay intact in the holdback until their end arrives
+        .replace(/<\|tool_call(?!s_section_begin|_begin)[a-z_]*\|>/g, '');
+      const open = buf.search(/<tool_call|<\|tool_call/);
       if (open !== -1) {
         holdback = buf.slice(open);
         buf = buf.slice(0, open);
       } else {
-        // hold a tail that could be the start of "<tool_call>"
-        for (let k = Math.min(buf.length, 10); k > 0; k--) {
-          if ('<tool_call'.startsWith(buf.slice(-k))) {
+        // hold a tail that could be the start of either dialect's opener
+        for (let k = Math.min(buf.length, 12); k > 0; k--) {
+          const tail = buf.slice(-k);
+          if ('<tool_call'.startsWith(tail) || '<|tool_call'.startsWith(tail)) {
             holdback = buf.slice(-k);
             buf = buf.slice(0, -k);
             break;

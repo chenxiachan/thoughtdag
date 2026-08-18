@@ -155,6 +155,8 @@ export async function llmCall(contextMessages: ContextMessage[], images?: ImageA
 export interface StreamCallbacks {
   /** The model started a tool call (web_search / arxiv_search / semantic_scholar). */
   onToolCall?: (name: string, query: string) => void;
+  /** The gateway's built-in web search is active for this generation. */
+  onGatewaySearch?: () => void;
   /** All sources consulted during generation (sent once, at the end). */
   onSources?: (sources: import('../types').Reference[]) => void;
   /** Reasoning/thinking tokens (models that emit them; never enters context). */
@@ -249,6 +251,9 @@ export async function llmCallStream(
           }
           if (parsed.tool?.query) {
             callbacks?.onToolCall?.(parsed.tool.name, parsed.tool.query);
+          }
+          if (parsed.gatewaySearch) {
+            callbacks?.onGatewaySearch?.();
           }
           if (Array.isArray(parsed.sources)) {
             callbacks?.onSources?.(parsed.sources);

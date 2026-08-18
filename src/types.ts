@@ -105,6 +105,9 @@ export interface ThoughtData extends Record<string, unknown> {
       Recorded at generation time so switching the global model later never
       obscures where an old answer came from. */
   generatedBy?: (string | undefined | null)[];
+  /** Per version: this answer used the model gateway's built-in web search
+      (no tool pings from the proxy, so the stream flags it once instead). */
+  gatewaySearches?: (boolean | undefined)[];
   /** Epistemic move per version: insight (default, unmarked) | ruleout |
       decision | pivot | open. Auto-labeled by the takeaway judge; display
       layer only. */

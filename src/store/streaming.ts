@@ -154,6 +154,7 @@ export async function runNodeGeneration(
   // Vision reroute / image fallback report who actually answered — that is
   // what generatedBy must record (execution and provenance never diverge).
   let actualModel: string | undefined;
+  let gatewaySearched = false;
 
   const writeFinal = (response: string, failed = false) => {
     if (!isCurrent()) return; // superseded: a newer generation owns this node
@@ -173,7 +174,7 @@ export async function runNodeGeneration(
         // so repeated retries don't stack failure entries.
         const failText = new Set([t('node.failedPlaceholder'), t('node.emptyResponse')]);
         const kept = versionMode === 'append' || failed
-          ? n.data.responses.map((r, i) => ({ r, q: n.data.questions?.[i], by: n.data.generatedBy?.[i], rs: n.data.reasonings?.[i], at: n.data.generatedAts?.[i], ed: n.data.editedAts?.[i] })).filter(({ r }) => r && !(failed && failText.has(r)))
+          ? n.data.responses.map((r, i) => ({ r, q: n.data.questions?.[i], by: n.data.generatedBy?.[i], rs: n.data.reasonings?.[i], at: n.data.generatedAts?.[i], ed: n.data.editedAts?.[i], gw: n.data.gatewaySearches?.[i] })).filter(({ r }) => r && !(failed && failText.has(r)))
           : [];
         const now = new Date().toISOString();
         const responses = [...kept.map(({ r }) => r), response];
@@ -181,10 +182,11 @@ export async function runNodeGeneration(
         // already; anything still absent shared the current wording
         const questions = [...kept.map(({ q }) => q ?? n.data.question), n.data.question];
         const generatedBy = [...kept.map(({ by }) => by), modelUsed];
+        const gatewaySearches = [...kept.map(({ gw }) => gw), gatewaySearched || undefined];
         const reasonings = [...kept.map(({ rs }) => rs), n.data.reasoning || undefined];
         const generatedAts = [...kept.map(({ at }) => at), now];
         const editedAts = [...kept.map(({ ed }) => ed), undefined];
-        return { ...n, data: { ...n.data, response, responses, questions, generatedBy, reasonings, generatedAts, editedAts, reasoning: undefined, restreaming: undefined, responseIndex: responses.length - 1, isLoading: false, tokenCount, generationFailed: failed || undefined, references, highlights: pruneHighlights(n.data.highlights, response), lastContextHash: contextHash, lastGeneratedAt: now } };
+        return { ...n, data: { ...n.data, response, responses, questions, generatedBy, gatewaySearches, reasonings, generatedAts, editedAts, reasoning: undefined, restreaming: undefined, responseIndex: responses.length - 1, isLoading: false, tokenCount, generationFailed: failed || undefined, references, highlights: pruneHighlights(n.data.highlights, response), lastContextHash: contextHash, lastGeneratedAt: now } };
       }),
     }));
   };
@@ -265,6 +267,19 @@ export async function runNodeGeneration(
           nodes: state.nodes.map((n) =>
             n.id === nodeId && !n.data.response
               ? { ...n, data: { ...n.data, response: `${icon} ${query}…` } }
+              : n
+          ),
+        }));
+      },
+      onGatewaySearch: () => {
+        if (!isCurrent()) return;
+        gatewaySearched = true;
+        // Same pattern as tool pings: a placeholder line while the answer
+        // has not started streaming — the gateway searches in silence.
+        set((state) => ({
+          nodes: state.nodes.map((n) =>
+            n.id === nodeId && !n.data.response
+              ? { ...n, data: { ...n.data, response: `🌐 ${t('node.gatewaySearching')}` } }
               : n
           ),
         }));

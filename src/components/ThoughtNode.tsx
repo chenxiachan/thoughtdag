@@ -806,6 +806,11 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
                   {data.generatedBy[data.responseIndex]!.split('/').pop()}
                 </span>
               )}
+              {data.gatewaySearches?.[data.responseIndex] && (
+                <span className="text-2xs text-ink-faint ml-1 shrink-0" title={t('node.gatewaySearchedTitle')} data-gateway-searched>
+                  🌐 {t('node.gatewaySearched')}
+                </span>
+              )}
               {hasMultipleVersions && (
                 <div className="flex items-center gap-1 text-xs text-ink-muted ml-1">
                   <button onClick={(e) => { e.stopPropagation(); navigateVersion(id, 'prev'); }} className="hover:text-accent hover:bg-wash rounded-full w-5 h-5 flex items-center justify-center transition-colors"><ChevronLeft size={14} strokeWidth={1.75} /></button>
