@@ -32,16 +32,16 @@ python3 -m http.server 4175
 Then open:
 
 ```text
-http://127.0.0.1:4175/marketing/story-site/
+http://127.0.0.1:4175/website/
 ```
 
 The page selects the final product film by both language and viewport:
 
 ```text
-marketing/story-site/assets/thoughtdag-story-en-horizontal.mp4
-marketing/story-site/assets/thoughtdag-story-zh-horizontal.mp4
-marketing/story-site/assets/thoughtdag-story-en-vertical.mp4
-marketing/story-site/assets/thoughtdag-story-zh-vertical.mp4
+website/assets/thoughtdag-story-en-horizontal.mp4
+website/assets/thoughtdag-story-zh-horizontal.mp4
+website/assets/thoughtdag-story-en-vertical.mp4
+website/assets/thoughtdag-story-zh-vertical.mp4
 ```
 
 Viewports up to 760px use the 9:16 vertical films. Wider viewports use the
