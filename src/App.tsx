@@ -1234,12 +1234,14 @@ function Canvas() {
                 Gone once any model exists. */}
             {(!modelData || (modelData.models?.length ?? 0) === 0) && (
               <div className="mt-3 bg-card/70 backdrop-blur border border-line/70 rounded-xl px-4 py-3 hover:border-line-strong transition-colors" data-quick-connect>
-                <div className="flex items-center gap-3">
-                  <KeyRound size={16} strokeWidth={1.75} className="text-accent shrink-0" />
+                <div className="flex items-start gap-3">
+                  <KeyRound size={16} strokeWidth={1.75} className="text-accent shrink-0 mt-0.5" />
                   <div className="flex-1 min-w-0">
                     <h3 className="text-xs font-semibold text-ink mb-0.5">{t('landing.quickTitle')}</h3>
                     <p className="text-2xs text-ink-faint leading-relaxed">{t('landing.quickDesc')}</p>
                   </div>
+                </div>
+                <div className="mt-2.5 pl-7 flex items-center flex-wrap gap-2">
                   {lang === 'zh' && (
                     <button
                       onClick={() => { useUiStore.getState().setApiKeyPresetHint('zhipu'); useUiStore.getState().setApiKeyModalOpen(true); }}
@@ -1265,7 +1267,7 @@ function Canvas() {
                 </div>
                 <button
                   onClick={() => useUiStore.getState().setApiKeyModalOpen(true)}
-                  className="mt-2 text-2xs text-ink-faint hover:text-accent transition-colors block text-left"
+                  className="mt-2 pl-7 text-2xs text-ink-faint hover:text-accent transition-colors block text-left"
                   data-quick-subs
                 >
                   {t('landing.quickSubs')}

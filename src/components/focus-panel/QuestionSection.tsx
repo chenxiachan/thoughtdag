@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Check, X } from 'lucide-react';
 import { useStore } from '../../store';
 import { isImeComposing } from '../../utils';
 import { useT } from '../../i18n';
@@ -52,8 +53,16 @@ export default function QuestionSection({
   };
 
   const handleEditKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey && !isImeComposing(e)) { e.preventDefault(); handleEditSubmit(); }
-    if (e.key === 'Escape') setEditing(nodeId, false);
+    if (e.key === 'Escape') { setEditing(nodeId, false); return; }
+    if (e.key !== 'Enter' || isImeComposing(e)) return;
+    // Same contract as the card editor: first-input surfaces keep
+    // Enter-to-send; revision confirms explicitly (✓ button, ⌘/Ctrl+Enter
+    // or Shift+Enter) and plain Enter just breaks the line.
+    if (isHuman || awaiting) {
+      if (!e.shiftKey) { e.preventDefault(); handleEditSubmit(); }
+      return;
+    }
+    if (e.metaKey || e.ctrlKey || e.shiftKey) { e.preventDefault(); handleEditSubmit(); }
   };
 
   // Same contract as the card editor: click-away keeps a changed draft
@@ -91,8 +100,24 @@ export default function QuestionSection({
             autoFocus
           />
           {!awaiting && !isHuman && (
-            <div className="text-2xs text-ink-faint mt-1 px-1">
-              {editValue.trim() !== question ? t('question.editHintChanged') : t('question.editHintUnchanged')}
+            <div className="flex items-center justify-end gap-2 mt-1.5">
+              <button
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => setEditing(nodeId, false)}
+                className="text-xs text-ink-muted hover:text-red-500 hover:bg-wash px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1"
+                data-edit-cancel
+              >
+                <X size={12} strokeWidth={2} /> {t('question.editCancel')}
+              </button>
+              <button
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={handleEditSubmit}
+                disabled={!editValue.trim()}
+                className="text-xs bg-accent hover:bg-accent-strong disabled:opacity-30 disabled:cursor-not-allowed text-white px-3.5 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
+                data-edit-submit
+              >
+                <Check size={12} strokeWidth={2.25} /> {t('question.editSubmit')}
+              </button>
             </div>
           )}
         </>

@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import { Handle, Position, useReactFlow, useUpdateNodeInternals, type NodeProps } from '@xyflow/react';
-import { AlertTriangle, Archive, BookOpen, ChevronDown, ChevronLeft, ChevronRight, Copy, Eye, GitBranch, Globe, Hourglass, Minimize2, Paperclip, RefreshCw, Send, Split, Square, Star, Trash2, UserRound, X, Pencil } from 'lucide-react';
+import { AlertTriangle, Archive, BookOpen, Check, ChevronDown, ChevronLeft, ChevronRight, Copy, Eye, GitBranch, Globe, Hourglass, Minimize2, Paperclip, RefreshCw, Send, Split, Square, Star, Trash2, UserRound, X, Pencil } from 'lucide-react';
 import 'katex/dist/katex.min.css';
 import type { ThoughtNode as ThoughtNodeType } from '../types';
 import { useStore } from '../store';
@@ -237,8 +237,17 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   };
 
   const handleEditKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey && !isImeComposing(e)) { e.preventDefault(); handleEditSubmit(); }
-    if (e.key === 'Escape') setEditing(id, false);
+    if (e.key === 'Escape') { setEditing(id, false); return; }
+    if (e.key !== 'Enter' || isImeComposing(e)) return;
+    // First-input surfaces (human turn, empty ask node) keep Enter-to-send.
+    // REVISING an existing question confirms explicitly — a regeneration is
+    // never one accidental keystroke away: Enter breaks the line; submit is
+    // the ✓ button, ⌘/Ctrl+Enter or Shift+Enter.
+    if (isHuman || isAwaitingAsk) {
+      if (!e.shiftKey) { e.preventDefault(); handleEditSubmit(); }
+      return;
+    }
+    if (e.metaKey || e.ctrlKey || e.shiftKey) { e.preventDefault(); handleEditSubmit(); }
   };
 
   // Click-away must NEVER fire a generation: mid-edit trips to copy text
@@ -583,11 +592,28 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
                 rows={2}
                 autoFocus
               />
-              {/* What Enter will do is invisible without being told — the
-                  hint switches as soon as the draft actually differs. */}
+              {/* Revision confirms explicitly: visible exits instead of an
+                  invisible Enter contract. mousedown-preventDefault keeps the
+                  textarea's blur from racing the click. */}
               {!isHuman && !isAwaitingAsk && (
-                <div className="text-2xs text-ink-faint mt-1 px-1">
-                  {editValue.trim() !== data.question ? t('question.editHintChanged') : t('question.editHintUnchanged')}
+                <div className="flex items-center justify-end gap-2 mt-1.5">
+                  <button
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => setEditing(id, false)}
+                    className="text-xs text-ink-muted hover:text-red-500 hover:bg-wash px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1"
+                    data-edit-cancel
+                  >
+                    <X size={12} strokeWidth={2} /> {t('question.editCancel')}
+                  </button>
+                  <button
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={handleEditSubmit}
+                    disabled={!editValue.trim()}
+                    className="text-xs bg-accent hover:bg-accent-strong disabled:opacity-30 disabled:cursor-not-allowed text-white px-3.5 py-1.5 rounded-lg transition-colors flex items-center gap-1.5"
+                    data-edit-submit
+                  >
+                    <Check size={12} strokeWidth={2.25} /> {t('question.editSubmit')}
+                  </button>
                 </div>
               )}
               {isHuman && (
