@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
     paths:
-      - "marketing/story-site/**"
+      - "website/**"
       - ".github/workflows/product-story-pages.yml"
   workflow_dispatch:
 
@@ -33,7 +33,7 @@ jobs:
       - name: Upload product story
         uses: actions/upload-pages-artifact@v3
         with:
-          path: marketing/story-site
+          path: website
 
       - name: Deploy to GitHub Pages
         id: deployment
