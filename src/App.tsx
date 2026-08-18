@@ -49,7 +49,7 @@ import { buildExampleGraph } from './lib/example-graph';
 import { COLORS, FRAME_COLORS, PANEL_INSET } from './lib/constants';
 import { panelShift } from './lib/panel-shift';
 import { migrateActiveCanvasToVault, gcVaultAtBoot } from './lib/attachment-vault-boot';
-import { consumeOpenRouterCallback, startOpenRouterOAuth } from './lib/openrouter-oauth';
+import { consumeOpenRouterCallback, handMintedKeyToModal, startOpenRouterOAuth } from './lib/openrouter-oauth';
 import { bootDesktopUpdateUI } from './lib/desktop-update-ui';
 import { confirmDialog, toast, useUiStore } from './lib/ui-store';
 import ConfirmDialog from './components/ui/ConfirmDialog';
@@ -138,14 +138,15 @@ export default function App() {
   useEffect(() => { bootDesktopUpdateUI(); }, []);
 
   // A pending Sign-in-with-OpenRouter callback (?code=) resolves here: the
-  // exchange and provider registration run entirely in the browser.
+  // exchange runs entirely in the browser, then the ApiKeyModal opens on
+  // the model-picking view for the user to confirm what to enable.
   useEffect(() => {
     if (isViewerMode) return;
     void consumeOpenRouterCallback().then((r) => {
       if (!r) return;
-      if (r.status === 'connected') {
-        toast('success', fmt(ti('provider.oauthConnected'), { n: r.n }));
-        useUiStore.getState().pingModelPicker();
+      if (r.status === 'minted') {
+        toast('success', ti('provider.oauthMinted'));
+        handMintedKeyToModal(r.key);
       } else {
         toast('error', fmt(ti('provider.oauthFailed'), { error: r.error }));
       }
@@ -1226,32 +1227,48 @@ function Canvas() {
               ))}
             </div>
 
-            {/* Quick connect: the no-model landing points at the lowest-
-                friction door per language — GLM's free tier for zh, the
-                one-click OpenRouter OAuth for en (free-tier models included,
-                key minted in this browser). Gone once any model exists. */}
+            {/* Quick connect: the no-model landing offers the two free doors
+                side by side — GLM's free tier (zh only) and the one-click
+                OpenRouter OAuth (free-tier models included, key minted in
+                this browser) — plus one quiet line for subscription owners.
+                Gone once any model exists. */}
             {(!modelData || (modelData.models?.length ?? 0) === 0) && (
-              <div className="mt-3 bg-card/70 backdrop-blur border border-line/70 rounded-xl px-4 py-3 flex items-center gap-3 hover:border-line-strong transition-colors" data-quick-connect>
-                <KeyRound size={16} strokeWidth={1.75} className="text-accent shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-xs font-semibold text-ink mb-0.5">{t('landing.quickTitle')}</h3>
-                  <p className="text-2xs text-ink-faint leading-relaxed">{t('landing.quickDesc')}</p>
+              <div className="mt-3 bg-card/70 backdrop-blur border border-line/70 rounded-xl px-4 py-3 hover:border-line-strong transition-colors" data-quick-connect>
+                <div className="flex items-center gap-3">
+                  <KeyRound size={16} strokeWidth={1.75} className="text-accent shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-xs font-semibold text-ink mb-0.5">{t('landing.quickTitle')}</h3>
+                    <p className="text-2xs text-ink-faint leading-relaxed">{t('landing.quickDesc')}</p>
+                  </div>
+                  {lang === 'zh' && (
+                    <button
+                      onClick={() => { useUiStore.getState().setApiKeyPresetHint('zhipu'); useUiStore.getState().setApiKeyModalOpen(true); }}
+                      className="text-2xs bg-accent/10 text-accent hover:bg-accent/20 font-medium px-3 py-1.5 rounded-lg transition-colors shrink-0"
+                      data-quick-zhipu
+                    >
+                      {t('landing.quickZhipu')}
+                    </button>
+                  )}
+                  <button
+                    onClick={() => void startOpenRouterOAuth()}
+                    className="text-2xs bg-accent/10 text-accent hover:bg-accent/20 font-medium px-3 py-1.5 rounded-lg transition-colors shrink-0"
+                    data-quick-primary
+                  >
+                    {t('landing.quickOpenRouter')}
+                  </button>
+                  <button
+                    onClick={() => useUiStore.getState().setApiKeyModalOpen(true)}
+                    className="text-2xs text-ink-muted hover:text-ink hover:bg-wash font-medium px-3 py-1.5 rounded-lg transition-colors shrink-0"
+                  >
+                    {t('landing.quickOther')}
+                  </button>
                 </div>
                 <button
-                  onClick={() => {
-                    if (lang === 'zh') { useUiStore.getState().setApiKeyPresetHint('zhipu'); useUiStore.getState().setApiKeyModalOpen(true); }
-                    else void startOpenRouterOAuth();
-                  }}
-                  className="text-2xs bg-accent/10 text-accent hover:bg-accent/20 font-medium px-3 py-1.5 rounded-lg transition-colors shrink-0"
-                  data-quick-primary
-                >
-                  {t('landing.quickPrimary')}
-                </button>
-                <button
                   onClick={() => useUiStore.getState().setApiKeyModalOpen(true)}
-                  className="text-2xs text-ink-muted hover:text-ink hover:bg-wash font-medium px-3 py-1.5 rounded-lg transition-colors shrink-0"
+                  className="mt-2 text-2xs text-ink-faint hover:text-accent transition-colors block text-left"
+                  data-quick-subs
                 >
-                  {t('landing.quickOther')}
+                  {t('landing.quickSubs')}
                 </button>
               </div>
             )}

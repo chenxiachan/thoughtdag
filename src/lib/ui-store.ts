@@ -133,6 +133,10 @@ interface UiState {
   /** Preset the ApiKeyModal should open onto (landing quick-connect). */
   apiKeyPresetHint: string | null;
   setApiKeyPresetHint: (id: string | null) => void;
+  /** A freshly OAuth-minted OpenRouter key awaiting the user's model
+      confirmation in the ApiKeyModal (consumed on pickup, never stored). */
+  oauthMintedKey: string | null;
+  setOauthMintedKey: (key: string | null) => void;
   /** Share dialog: the freshly built read-only link (null = closed). */
   shareDialogUrl: string | null;
   setShareDialogUrl: (url: string | null) => void;
@@ -259,6 +263,8 @@ export const useUiStore = create<UiState>((set, get) => ({
   setAdvancedMode: (v) => { localStorage.setItem('thoughtdag.advanced', v ? '1' : '0'); set({ advancedMode: v }); },
   apiKeyPresetHint: null,
   setApiKeyPresetHint: (id) => set({ apiKeyPresetHint: id }),
+  oauthMintedKey: null,
+  setOauthMintedKey: (key) => set({ oauthMintedKey: key }),
   setBackupDialogOpen: (v) => set({ backupDialogOpen: v }),
   shareDialogUrl: null,
   setShareDialogUrl: (url) => set({ shareDialogUrl: url }),

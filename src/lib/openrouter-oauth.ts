@@ -1,8 +1,3 @@
-import {
-  PROVIDER_PRESETS, type RuntimeProvider,
-  probeModels, pushProviders, saveProviders, storedProviders,
-} from './runtime-providers';
-import { setModelsCache } from './use-models';
 import { toast, useUiStore } from './ui-store';
 import { t, fmt } from '../i18n';
 import { API_BASE } from './constants';
@@ -52,12 +47,12 @@ export async function startOpenRouterOAuth(): Promise<void> {
       return;
     }
     const r = await exchangeAndConnect(code, verifier);
-    if (r.status === 'connected') {
-      toast('success', fmt(t('provider.oauthConnected'), { n: r.n }));
-      // the return signal: the setup modal closes, the model picker opens
-      // on the fresh list — the screen answers "it worked" by itself
-      useUiStore.getState().setApiKeyModalOpen(false);
-      useUiStore.getState().pingModelPicker();
+    if (r.status === 'minted') {
+      toast('success', t('provider.oauthMinted'));
+      // the return signal: the modal opens on the model-picking view with
+      // the key filled in and the catalog probed — the USER confirms which
+      // models to enable; nothing is saved silently on their behalf
+      handMintedKeyToModal(r.key);
     } else {
       toast('error', fmt(t('provider.oauthFailed'), { error: r.error }));
     }
@@ -84,9 +79,17 @@ async function pollDesktopCallback(): Promise<string | null> {
 }
 
 export type OAuthResult =
-  | { status: 'connected'; n: number }
+  | { status: 'minted'; key: string }
   | { status: 'failed'; error: string }
   | null;
+
+/** Park the minted key for the ApiKeyModal and open it: the modal's pickup
+    effect selects the OpenRouter preset, fills the key and probes the
+    catalog with the recommended set pre-checked — the user saves. */
+export function handMintedKeyToModal(key: string): void {
+  useUiStore.getState().setOauthMintedKey(key);
+  useUiStore.getState().setApiKeyModalOpen(true);
+}
 
 /** Consume a pending ?code= callback at boot. Returns null when there is none.
     The verifier is cleared and the URL cleaned BEFORE the exchange, so a
@@ -103,7 +106,8 @@ export async function consumeOpenRouterCallback(): Promise<OAuthResult> {
   return exchangeAndConnect(code, verifier);
 }
 
-/** code + verifier → minted key → registered provider. Shared by both flows. */
+/** code + verifier → minted key. The key is handed to the ApiKeyModal for
+    the user's model confirmation — the exchange itself saves nothing. */
 async function exchangeAndConnect(code: string, verifier: string): Promise<Exclude<OAuthResult, null>> {
   try {
     const res = await fetch(EXCHANGE_URL, {
@@ -114,35 +118,8 @@ async function exchangeAndConnect(code: string, verifier: string): Promise<Exclu
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const { key } = await res.json() as { key?: string };
     if (!key) throw new Error('no key in exchange response');
-    const n = await connectOpenRouterKey(key);
-    return { status: 'connected', n };
+    return { status: 'minted', key };
   } catch (err) {
     return { status: 'failed', error: err instanceof Error ? err.message : String(err) };
   }
-}
-
-/** Register a freshly minted key as a provider: probe the catalog, keep the
-    recommended set (newest 8 as fallback), replace any existing OpenRouter
-    entry, push to the proxy. Same end state as the paste flow. */
-async function connectOpenRouterKey(key: string): Promise<number> {
-  const preset = PROVIDER_PRESETS.find((p) => p.id === 'openrouter')!;
-  const catalog = await probeModels(preset.baseURL, key);
-  const rec = new Set(preset.recommend ?? []);
-  let picked = catalog.filter((m) => rec.has(m.id));
-  if (picked.length === 0) {
-    picked = [...catalog].sort((a, b) => (b.created ?? 0) - (a.created ?? 0)).slice(0, 8);
-  }
-  const provider: RuntimeProvider = {
-    preset: preset.id, name: preset.name, baseURL: preset.baseURL, apiKey: key,
-    models: picked.map((m) => ({
-      id: m.id,
-      ...(m.vision ? { vision: true } : {}),
-      ...(m.contextLength ? { contextLength: m.contextLength } : {}),
-    })),
-  };
-  const next = [...storedProviders().filter((p) => p.baseURL !== preset.baseURL), provider];
-  const fresh = await pushProviders(next);
-  saveProviders(next);
-  setModelsCache(fresh);
-  return provider.models.length;
 }

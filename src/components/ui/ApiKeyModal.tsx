@@ -33,6 +33,20 @@ export default function ApiKeyModal() {
     if (p) { setAdding(true); setPreset(p); setProbed(null); setPicked(new Map()); }
     useUiStore.getState().setApiKeyPresetHint(null);
   }, [open, presetHint]);
+  // OAuth pickup: a freshly minted key opens the model-picking view — key
+  // filled, catalog probed, recommended set pre-checked. The USER saves;
+  // nothing is registered on their behalf.
+  const mintedKey = useUiStore((s) => s.oauthMintedKey);
+  useEffect(() => {
+    if (!open || !mintedKey) return;
+    useUiStore.getState().setOauthMintedKey(null);
+    const p = PROVIDER_PRESETS.find((x) => x.id === 'openrouter')!;
+    setAdding(true);
+    setPreset(p);
+    setKey(mintedKey);
+    void doProbe(p.baseURL, mintedKey, undefined, true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, mintedKey]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
@@ -103,7 +117,7 @@ export default function ApiKeyModal() {
   };
 
 
-  const doProbe = async (baseURLArg?: string, keyArg?: string, keepPicked?: RuntimeModel[]) => {
+  const doProbe = async (baseURLArg?: string, keyArg?: string, keepPicked?: RuntimeModel[], preferRecommend?: boolean) => {
     setBusy(true);
     setError('');
     setProbed(null);
@@ -114,6 +128,9 @@ export default function ApiKeyModal() {
       const models: RuntimeModel[] = fixed ? fixed.map((id) => ({ id })) : await probeModels(baseURL, (keyArg ?? key).trim());
       if (models.length === 0) throw new Error(t('provider.probeEmpty'));
       const preselect = new Map<string, boolean>();
+      const recHits = preferRecommend
+        ? models.filter((m) => new Set(preset.recommend ?? []).has(m.id))
+        : [];
       if (keepPicked) {
         // refresh flow: your current picks stay checked; everything the
         // provider newly lists is visible right here, unchecked
@@ -121,6 +138,9 @@ export default function ApiKeyModal() {
         for (const m of keepPicked) if (listed.has(m.id)) {
           preselect.set(m.id, models.find((x) => x.id === m.id)?.vision ?? !!m.vision);
         }
+      } else if (recHits.length > 0) {
+        // OAuth pickup: the preset's recommended set leads, not raw recency
+        recHits.forEach((m) => preselect.set(m.id, !!m.vision));
       } else if (models.some((m) => m.created)) {
         // release times available: preselect the newest 8
         [...models].sort((a, b) => (b.created ?? 0) - (a.created ?? 0)).slice(0, 8)
@@ -142,6 +162,13 @@ export default function ApiKeyModal() {
   };
 
   const doAdd = async () => {
+    // A keyless save on a keyed endpoint would look like success and then
+    // 401 on every call ("Missing Authentication header") — refuse it here.
+    // Custom endpoints stay free-form: local runtimes often have no key.
+    if (preset.id !== 'custom' && !preset.noKey && !key.trim()) {
+      setError(t('provider.keyMissing'));
+      return;
+    }
     const baseURL = preset.id === 'custom' ? customURL.trim() : preset.baseURL;
     const name = preset.id === 'custom' ? (customName.trim() || t('provider.customName')) : preset.name;
     const probedMeta = new Map((probed ?? []).map((m) => [m.id, m]));
@@ -229,7 +256,14 @@ export default function ApiKeyModal() {
                 {visiblePresets.map((p) => (
                   <button
                     key={p.id}
-                    onClick={() => { setPreset(p); setProbed(null); setPicked(new Map()); setError(''); }}
+                    onClick={() => {
+                      // A provider for this endpoint already exists: adding
+                      // again would save a fresh entry over it (and an empty
+                      // key field would wipe the stored key) — edit instead.
+                      const existing = providers.find((x) => x.baseURL === p.baseURL);
+                      if (existing) { void refresh(existing); return; }
+                      setPreset(p); setProbed(null); setPicked(new Map()); setError('');
+                    }}
                     className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${preset.id === p.id ? 'border-accent bg-accent/10 text-accent font-medium' : 'border-line text-ink-muted hover:bg-wash'}`}
                     data-preset={p.id}
                   >
