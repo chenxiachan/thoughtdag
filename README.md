@@ -96,6 +96,19 @@ Full cards, takeaway plaques, an icon skeleton: three semantic tiers, every step
 </tr>
 </table>
 
+## Research · Context Intervention Benchmark
+
+ThoughtDAG is also a testbed for studying how LLMs respond when visible context is polluted, pruned or recomputed.
+
+**Current release — Context Repair Pilot v1**<br>
+`4 models` · `540 conditions` · `Updated August 2026`
+
+Deleting only the source repaired **68/72** derailed model-cases. Removing the contaminated subgraph repaired **72/72**. The residual error remained visible in downstream turns, so this is a result about context intervention—not hidden model memory or a general model ranking.
+
+*Models tested: Nemotron 3.5 Lightning, GLM 4.5 Flash, GPT-OSS 20B and Gemma 4 26B.*
+
+🧪 **[Read the case study](https://chenxiachan.github.io/thoughtdag/stories/context-repair/)** · 📊 **[Full methodology and results](https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v1/)** · 💬 **[Suggest the next model](https://github.com/chenxiachan/thoughtdag/issues/new)**
+
 ## Quick start
 
 The [desktop app](#desktop-app) is the primary way to run ThoughtDAG: download, open, think. Running from source works too:

@@ -96,6 +96,19 @@ https://github.com/user-attachments/assets/f0362497-0e80-4caa-8214-cdbac92ab77c
 </tr>
 </table>
 
+## 研究 · Context Intervention Benchmark
+
+除了作为思考工具，ThoughtDAG 也可以用来研究：当可见上下文被污染、剪枝或重新计算时，不同 LLM 会如何响应。
+
+**当前版本：Context Repair Pilot v1**<br>
+`4 个模型` · `540 个实验条件` · `2026 年 8 月更新`
+
+只删除错误源头，修复了 **68/72** 个被带偏的模型案例；删除污染子图，修复了 **72/72**。错误残留在可见的下游对话中，因此这是关于上下文干预的实验结果，不是对隐藏模型记忆的解释，也不是通用模型排名。
+
+*已测试模型：Nemotron 3.5 Lightning、GLM 4.5 Flash、GPT-OSS 20B 和 Gemma 4 26B。*
+
+🧪 **[阅读案例](https://chenxiachan.github.io/thoughtdag/stories/context-repair/?lang=zh)** · 📊 **[完整方法与结果](https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v1/?lang=zh)** · 💬 **[建议下一个模型](https://github.com/chenxiachan/thoughtdag/issues/new)**
+
 ## 快速开始
 
 首选[桌面版](#桌面版)：下载、打开、开始思考。从源码运行也可以：
