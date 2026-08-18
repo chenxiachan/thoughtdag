@@ -299,6 +299,7 @@ export const en = {
   'content.noVisionModel': 'No vision model available: images can\'t be auto-understood. Connect a vision-capable model (toolbar model menu → provider setup; GLM-4V Flash has a free tier).',
   'error.textOnlyModelImages': 'This model cannot read images. Switch to one with the vision badge, or connect a vision model (GLM-4V Flash has a free tier) and use Recognize in the reader to turn the image into text.',
   'content.extractFailed': 'Image extraction failed (all vision models tried)',
+  'content.officeExportHint': 'this format is not read directly. Export it as PDF in its own app and drop that in — pages, selection and digest all work.',
   'content.extractFellBack': 'Fell back to',
   'content.extractPrompt': 'First classify this image: photo / UI screenshot / diagram or flowchart / scientific figure / text document. Then extract at the finest depth for that type:\n- Scientific figure: chart type, every axis with units, legend, panel structure (what a/b/c each show), main trends and effect directions, notable outliers; do NOT invent precise values you cannot read\n- Diagram/flowchart: list every component and their connections/causal links\n- Document/screenshot: transcribe ALL visible text verbatim, preserving structure (headings, lists, tables)\n- Photo: objects and scene description, plus any visible text transcribed\nOutput the extraction itself only: no preamble, no summary.',
 
@@ -353,6 +354,8 @@ export const en = {
   'reader.threadClose': 'Close the answer rail',
   'reader.askWhole': 'Ask about the whole material…',
   'reader.empty': 'Nothing to read here yet.',
+  'reader.htmlNoText': 'No readable text came out of this HTML file. Its content may be drawn by scripts or laid out purely visually — scripts inside files never run here. The original view still shows the page.',
+  'reader.clipFailed': 'Clip failed: this page could not be turned into an image.',
   'reader.stop': 'Stop',
   'content.digestPrompt': 'Turn this material into ONE short, intuitive guided digest (not a section-by-section summary). Open with a single sentence saying what problem it solves and why it matters. Then use small headings to organize: the core method or argument, the main findings, and limitations plus what they imply. Whenever you draw on a figure, table or specific passage, cite its page inline in exactly this format: (p.3). Formulas as $...$. Length 300-600 words. Write in English. Output only the digest markdown.',
   'content.digestFailed': 'Digest generation failed',

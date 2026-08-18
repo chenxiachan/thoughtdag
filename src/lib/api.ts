@@ -50,7 +50,7 @@ export async function extractPdf(base64: string): Promise<PdfExtractResult> {
   return res.json();
 }
 
-export interface LinkSnapshot { title: string; text: string; fetchedAt: string }
+export interface LinkSnapshot { title: string; text: string; fetchedAt: string; html?: string }
 
 // Server-side URL fetch for link nodes (browsers can't: CORS). Returns a
 // stamped text snapshot — see /api/fetch-url in server.mjs.

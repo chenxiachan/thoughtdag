@@ -11,6 +11,7 @@ import { generateId, isImeComposing } from '../utils';
 import { useT, fmt } from '../i18n';
 import { isViewerMode } from '../lib/viewer';
 import { loadAttachmentContent } from '../lib/attachment-vault';
+import { HtmlMaterialView } from './HtmlMaterialView';
 
 // MaterialReader: the reading overlay — a VIEW onto a material node, never a
 // container. Select a passage (in the original PDF's text layer, or in the
@@ -80,6 +81,20 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
     ? 'file' : data.stepKind === 'link' ? 'link' : 'note';
   const attachments = useMemo(() => data.attachments ?? [], [data.attachments]);
   const pdfAtt = attachments.find((a) => a.type === 'application/pdf');
+  // HTML material: original view renders the sanitized page(s), the text
+  // view its extracted Markdown — the same dual channel PDFs use
+  const htmlAtt = attachments.find((a) => a.type === 'text/html');
+  // Link snapshots carry the same dual channel: the page HTML captured at
+  // fetch time renders as the original view, `question` (the extracted
+  // Markdown) stays the model channel. Reader parity via a pseudo-attachment.
+  const linkHtml = kind === 'link' ? data.linkSnapshotHtml : undefined;
+  const linkPseudoAtt = useMemo<Attachment | null>(() => (linkHtml ? {
+    id: `link-snapshot-${node.id}`,
+    name: data.linkTitle || data.linkUrl || 'snapshot',
+    type: 'text/html',
+    size: linkHtml.length,
+    content: linkHtml,
+  } : null), [linkHtml, node.id, data.linkTitle, data.linkUrl]);
   // Image material reads as material too: the original view shows the
   // image itself (canvas cards only show it small), the text view its
   // vision companion. Image payloads are never vaulted — content is here.
@@ -91,7 +106,11 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
     if (pdfAtt) return pdfAtt.extractedText ?? '';
     if (kind === 'file') {
       const textAtts = attachments.filter((a) => !a.type.startsWith('image/') && a.type !== 'application/pdf');
-      const parts = textAtts.map((a) => (textAtts.length > 1 ? `### ${a.name}\n\n${a.content}` : a.content));
+      // an HTML file's readable copy is its extracted Markdown, never the source
+      const parts = textAtts.map((a) => {
+        const body = a.type === 'text/html' ? (a.extractedText ?? '') : a.content;
+        return textAtts.length > 1 ? `### ${a.name}\n\n${body}` : body;
+      });
       // an image's readable copy is its extraction companion
       for (const a of attachments) {
         if (a.type.startsWith('image/') && a.extractedText?.trim()) parts.push(attachments.length > 1 ? `### ${a.name}\n\n${a.extractedText}` : a.extractedText);
@@ -108,7 +127,7 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
   const materialHighlights = useMemo(() => new Set((data.highlights ?? []).map((h) => h.text)), [data.highlights]);
 
   // ── PDF document + text-layer probe ──
-  const [view, setView] = useState<'original' | 'text' | 'digest'>(pdfAtt?.pageImages?.length || imageAtts.length ? 'original' : 'text');
+  const [view, setView] = useState<'original' | 'text' | 'digest'>(pdfAtt?.pageImages?.length || imageAtts.length || htmlAtt || linkHtml ? 'original' : 'text');
   // image view zoom: 1 = fit the column; beyond it the row scrolls sideways
   const [imgZoom, setImgZoom] = useState(1);
   // zoomed past the column, the mouse drags the picture around: horizontal
@@ -129,14 +148,17 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
     window.addEventListener('mouseup', up);
   };
   const [digestBusy, setDigestBusy] = useState(false);
+  // the digest works off extractedText, so HTML materials digest the same
+  // way PDFs do — docAtt is whichever document this material carries
+  const docAtt = pdfAtt ?? htmlAtt;
   const startDigest = async () => {
-    if (!pdfAtt || digestBusy) return;
+    if (!docAtt || digestBusy) return;
     setDigestBusy(true);
     setView('digest'); // the digest node streams; watch it arrive in place
     if (isViewerMode) return;
-    const ok = await generateDigest(node.id, pdfAtt.id);
+    const ok = await generateDigest(node.id, docAtt.id);
     setDigestBusy(false);
-    if (!ok) setView(pdfAtt ? 'original' : 'text');
+    if (!ok) setView(docAtt ? 'original' : 'text');
   };
   // (p.N) references in the digest jump back into the original pages
   const jumpToPage = (n: number) => {
@@ -352,7 +374,8 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
         content: base64,
         thumbnailUrl: thumb,
       });
-      const anchor = { page: pageNo, rects: [rect], ...(pdfAtt ? { attId: pdfAtt.id } : {}) };
+      // link snapshots aren't attachments — their clips point at the link node
+      const anchor = { page: pageNo, rects: [rect], ...(docAtt ? { attId: docAtt.id } : kind === 'link' ? { attId: node.id } : {}) };
       useStore.setState((s) => ({
         nodes: s.nodes.map((n) => (n.id === freshId ? { ...n, data: { ...n.data, anchor } } : n)),
       }));
@@ -488,12 +511,12 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
   // it downstream to ride the material's compression); the digest tab is
   // that node's reading view. Legacy graphs may still carry a digest on
   // the attachment itself — shown until a node replaces it.
-  const digestNode = pdfAtt ? children.find((c) => c.data.digestOf === pdfAtt.id) : undefined;
-  const digestText = digestNode?.data.response?.trim() || pdfAtt?.digest || '';
+  const digestNode = docAtt ? children.find((c) => c.data.digestOf === docAtt.id) : undefined;
+  const digestText = digestNode?.data.response?.trim() || docAtt?.digest || '';
   const digesting = digestBusy || !!digestNode?.data.isLoading;
   const digestModel = digestNode
     ? digestNode.data.generatedBy?.[digestNode.data.responseIndex]
-    : pdfAtt?.digestBy;
+    : docAtt?.digestBy;
   // the digest node has its own tab; the footer chips list the questions
   const grownChildren = useMemo(() => children.filter((c) => !c.data.digestOf), [children]);
 
@@ -625,7 +648,7 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
       ? <Link2 size={15} strokeWidth={1.75} className="text-accent shrink-0" />
       : <FileText size={15} strokeWidth={1.75} className="text-ink-muted shrink-0" />;
   const fileFallbackTitle = kind === 'file' && !pdfAtt ? (attachments[0]?.name ?? '') : '';
-  const numPages = doc?.numPages ?? pdfAtt?.numPages;
+  const numPages = doc?.numPages ?? pdfAtt?.numPages ?? htmlAtt?.numPages;
 
   const askLeft = ask ? Math.max(180, Math.min(ask.x, window.innerWidth - 200)) : 0;
   const askTop = ask ? Math.min(ask.y + 10, window.innerHeight - 150) : 0;
@@ -639,7 +662,7 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
           <span className="text-sm font-semibold text-ink truncate min-w-0" title={title || noteTitle || fileFallbackTitle}>{title || noteTitle || fileFallbackTitle}</span>
           {numPages != null && <span className="text-2xs text-ink-faint font-mono shrink-0">{numPages}p</span>}
           <div className="flex-1" />
-          {((pdfAtt && !pdfError) || imageAtts.length > 0) && (
+          {((pdfAtt && !pdfError) || imageAtts.length > 0 || htmlAtt || linkHtml) && (
             <div className="flex items-center rounded-lg border border-line overflow-hidden shrink-0 text-xs">
               <button
                 onClick={() => setView('original')}
@@ -663,7 +686,7 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
               )}
             </div>
           )}
-          {(pdfAtt || imageAtts.length > 0) && view === 'original' && !isViewerMode && (
+          {(pdfAtt || imageAtts.length > 0 || htmlAtt || linkHtml) && view === 'original' && !isViewerMode && (
             <button
               onClick={() => setClipMode((v) => !v)}
               title={t('reader.clipTitle')}
@@ -688,7 +711,7 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
               {t(imageAtts.every((a) => a.extractedText?.trim()) ? 'reader.imageReRecognize' : 'reader.imageRecognize')}
             </button>
           )}
-          {pdfAtt && !digestText && !digesting && !!pdfAtt.extractedText?.trim() && !isViewerMode && (
+          {docAtt && !digestText && !digesting && !!docAtt.extractedText?.trim() && !isViewerMode && (
             <button
               onClick={() => void startDigest()}
               title={t('reader.digestTitle')}
@@ -755,7 +778,15 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
             )
           )}
 
-          {view === 'original' && !pdfAtt && imageAtts.length > 0 && (
+          {view === 'original' && !pdfAtt && htmlAtt && (
+            <HtmlMaterialView key={htmlAtt.id} att={htmlAtt} onSelect={(s) => setAsk(s ? { ...s } : null)} clipMode={clipMode} onClipped={handleClipped} />
+          )}
+
+          {view === 'original' && !pdfAtt && !htmlAtt && linkPseudoAtt && (
+            <HtmlMaterialView key={linkPseudoAtt.id} att={linkPseudoAtt} baseUrl={data.linkUrl} onSelect={(s) => setAsk(s ? { ...s } : null)} clipMode={clipMode} onClipped={handleClipped} />
+          )}
+
+          {view === 'original' && !pdfAtt && !htmlAtt && imageAtts.length > 0 && (
             <div className="relative">
               {/* h-0 keeps the bar out of the layout flow; items-start stops
                   flex from stretching the pill into that zero height */}
@@ -790,7 +821,7 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
             </div>
           )}
 
-          {view === 'digest' && pdfAtt && (
+          {view === 'digest' && docAtt && (
             <div className="max-w-[760px] mx-auto px-8 py-8">
               {digestText ? (
                 <div className="markdown-body text-[15px] text-ink leading-relaxed">
@@ -833,7 +864,15 @@ function ReaderOverlay({ node, onLocate }: { node: ThoughtNode; onLocate: (id: s
                   className="w-full h-[70vh] text-xs font-mono text-ink bg-card border border-line rounded-xl px-4 py-3 focus:outline-none focus:ring-1 focus:ring-accent/40 leading-relaxed resize-none"
                 />
               ) : textBody.trim() === '' ? (
-                <p className="text-sm text-ink-faint italic py-10 text-center">{t('reader.empty')}</p>
+                htmlAtt?.isExtracting ? (
+                  <div className="flex items-center justify-center gap-2 py-16 text-sm text-ink-muted">
+                    <Loader2 size={16} strokeWidth={1.75} className="animate-spin text-accent" /> {t('reader.loading')}
+                  </div>
+                ) : (
+                  <p className="text-sm text-ink-faint italic py-10 text-center px-8">
+                    {htmlAtt ? t('reader.htmlNoText') : t('reader.empty')}
+                  </p>
+                )
               ) : (
                 sections.map((s, i) => (
                   <div key={i} data-page={s.page ?? undefined}>

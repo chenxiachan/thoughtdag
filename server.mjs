@@ -645,7 +645,9 @@ app.post('/api/fetch-url', async (req, res) => {
       .trim()
       .slice(0, 15_000);
 
-    res.json({ title, text, fetchedAt: new Date().toISOString() });
+    // html rides along for the client-side extraction pipeline + the
+    // reader's original view; `text` stays as the old-client fallback
+    res.json({ title, text, html, fetchedAt: new Date().toISOString() });
   } catch (err) {
     res.status(400).json({ error: err.message || 'Fetch failed' });
   }

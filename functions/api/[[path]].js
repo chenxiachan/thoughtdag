@@ -556,7 +556,9 @@ async function handleFetchUrl(body) {
       .replace(/\s*\n\s*(\s*\n\s*)+/g, '\n\n')
       .trim()
       .slice(0, 15_000);
-    return json({ title, text, fetchedAt: new Date().toISOString() });
+    // html rides along for the client-side extraction pipeline + the
+    // reader's original view; `text` stays as the old-client fallback
+    return json({ title, text, html, fetchedAt: new Date().toISOString() });
   } catch (err) {
     return json({ error: err.message || 'Fetch failed' }, 400);
   }

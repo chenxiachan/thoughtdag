@@ -368,11 +368,26 @@ export async function fetchLinkIntoNode(nodeId: string, url: string): Promise<vo
   patch({ linkTitle: undefined }); // retry path: back to the loading state
   try {
     const snap = await fetchUrlSnapshot(url);
+    // With the full page in hand, the extraction pipeline replaces the
+    // crude tag strip: main content as Markdown into `question` (the model
+    // channel), the page itself kept for the reader's original view. An
+    // older proxy without `html` keeps the legacy text path untouched.
+    let text = snap.text;
+    let title = snap.title || undefined;
+    if (snap.html) {
+      try {
+        const { extractHtmlMaterial } = await import('./html-material');
+        const r = await extractHtmlMaterial(snap.html, { baseUrl: url });
+        if (r.markdown.trim()) text = r.markdown;
+        if (!title && r.title) title = r.title;
+      } catch { /* the regex text stands */ }
+    }
     patch({
-      question: snap.text,
-      linkTitle: snap.title || undefined,
+      question: text,
+      linkSnapshotHtml: snap.html || undefined,
+      linkTitle: title,
       linkFetchedAt: snap.fetchedAt,
-      tokenCount: countTokens(snap.text),
+      tokenCount: countTokens(text),
     });
     useStore.getState().pushHistory();
     triggerParadigmCascade(useStore.getState, nodeId);

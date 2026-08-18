@@ -299,6 +299,7 @@ export const zh: Record<keyof typeof en, string> = {
   'content.noVisionModel': '没有可用的视觉模型，无法自动理解图片。连接一个带视觉能力的模型即可（工具栏模型菜单 → 配置模型 API；GLM-4V Flash 有免费档）。',
   'error.textOnlyModelImages': '当前模型不支持识图。请换一个带视觉标记的模型，或连接一个视觉模型（GLM-4V Flash 有免费档）后在阅读器里用「识别」把图片转成文字。',
   'content.extractFailed': '图片提取失败（已尝试全部视觉模型）',
+  'content.officeExportHint': '暂不直接读取这种格式。请在原软件中导出为 PDF 后拖入，页面、圈选、导读均可用。',
   'content.extractFellBack': '已降级用',
   'content.extractPrompt': '先判断这张图属于哪一类：照片 / 界面截图 / 示意图或流程图 / 科研图表 / 含文字的文档。然后按该类型做最精细的提取：\n- 科研图表：图表类型、各坐标轴与单位、图例、面板结构（如 a/b/c 各是什么）、主要趋势与效应方向、显著的异常点；不要臆造读不清的具体数值\n- 示意图/流程图：列出全部组件及其连接/因果关系\n- 文档/截图：逐字转录全部可见文字，保持原有结构（标题、列表、表格）\n- 照片：物体与场景描述，并转录任何可见文字\n直接输出提取内容本身，不要开场白和总结。',
 
@@ -353,6 +354,8 @@ export const zh: Record<keyof typeof en, string> = {
   'reader.threadClose': '收起答案栏',
   'reader.askWhole': '就整份材料提问…',
   'reader.empty': '这里还没有可读内容。',
+  'reader.htmlNoText': '这份 HTML 没有抽出可用正文：内容可能由脚本生成，或以纯视觉方式排版（文件内脚本不会在此执行）。原版视图仍可正常查看。',
+  'reader.clipFailed': '摘取失败：这一页无法转为图像。',
   'reader.stop': '停止',
   'content.digestPrompt': '把这份材料整理成一篇简短、直观的中文导读（不是逐段摘要）。开头用一句话说清它解决什么问题、为什么重要；然后用小标题组织：核心方法或论证、主要发现、局限与启发。凡是引用图表或具体段落，必须行内标注页码，格式严格为 (p.3)。公式用 $...$。长度 400～800 字。只输出导读的 Markdown 本身。',
   'content.digestFailed': '导读生成失败',

@@ -4,12 +4,33 @@ import { generateId } from '../utils';
 import { extractPdf } from './api';
 import { PDF_VISION_PAGE_THRESHOLD } from './constants';
 import { internAttachment } from './attachment-vault';
+import { toast } from './ui-store';
+import { t } from '../i18n';
 
-export const TEXT_EXTENSIONS = /\.(md|txt|js|ts|tsx|jsx|py|json|csv|yaml|yml|toml|sh|bash|zsh|c|cpp|h|hpp|java|rs|go|rb|swift|kt|css|html|xml|sql|r|m|lua)$/i;
+// last-resort readable copy when the HTML extraction pipeline itself fails
+function stripHtmlTags(html: string): string {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'")
+    .replace(/[ \t]+/g, ' ')
+    .replace(/\s*\n\s*(\s*\n\s*)+/g, '\n\n')
+    .trim();
+}
+
+export const TEXT_EXTENSIONS = /\.(md|txt|js|ts|tsx|jsx|py|json|csv|yaml|yml|toml|sh|bash|zsh|c|cpp|h|hpp|java|rs|go|rb|swift|kt|css|xml|sql|r|m|lua)$/i;
+
+// HTML gets its own lane (extraction + rendered reader), not the text lane
+export const HTML_EXTENSIONS = /\.x?html?$/i;
+
+// Formats we do not parse but whose own apps export PDF in one click — met
+// with guidance instead of silence (readFileToAttachment returns null)
+const OFFICE_EXPORT_HINT = /\.(pptx?|key|odp|doc|rtf|odt|xlsx?|numbers|ods)$/i;
 
 // accept attribute for <input type="file"> — keep in sync with TEXT_EXTENSIONS
 export const FILE_INPUT_ACCEPT =
-  'image/*,.pdf,.txt,.md,.js,.ts,.tsx,.jsx,.py,.json,.csv,.yaml,.yml,.toml,.sh,.c,.cpp,.h,.java,.rs,.go,.rb,.swift,.css,.html,.xml,.sql';
+  'image/*,.pdf,.txt,.md,.js,.ts,.tsx,.jsx,.py,.json,.csv,.yaml,.yml,.toml,.sh,.c,.cpp,.h,.java,.rs,.go,.rb,.swift,.css,.html,.htm,.xml,.sql';
 
 // Identity of an attachment's content — used to dedup the same file uploaded
 // to multiple nodes or reached via multiple DAG paths.
@@ -25,6 +46,7 @@ export function readFileToAttachment(file: File): Promise<Attachment | null> {
     const addedAt = new Date().toISOString();
     const isImage = file.type.startsWith('image/');
     const isPDF = file.type === 'application/pdf' || file.name.endsWith('.pdf');
+    const isHTML = file.type === 'text/html' || HTML_EXTENSIONS.test(file.name);
     const isText = file.type.startsWith('text/') || TEXT_EXTENSIONS.test(file.name);
     const isDocx = file.name.toLowerCase().endsWith('.docx');
 
@@ -56,6 +78,12 @@ export function readFileToAttachment(file: File): Promise<Attachment | null> {
         } catch {
           resolve(null);
         }
+      });
+    } else if (isHTML) {
+      // raw source only serves the reader's original view; the readable
+      // Markdown (extractedText) is produced async in processFile
+      file.text().then((text) => {
+        resolve({ id, name: file.name, type: 'text/html', size: file.size, addedAt, content: text });
       });
     } else if (isText) {
       file.text().then((text) => {
@@ -121,8 +149,26 @@ export interface ProcessFileCallbacks {
  * PDFs run server-side extraction and deliver the result via `update`.
  */
 export async function processFile(file: File, cb: ProcessFileCallbacks): Promise<void> {
+  if (OFFICE_EXPORT_HINT.test(file.name)) {
+    toast('info', `${file.name}: ${t('content.officeExportHint')}`);
+    return;
+  }
   const att = await readFileToAttachment(file);
   if (!att) return;
+
+  if (att.type === 'text/html') {
+    cb.add({ ...att, isExtracting: true });
+    try {
+      const { extractHtmlMaterial } = await import('./html-material');
+      const r = await extractHtmlMaterial(att.content);
+      cb.update(att.id, { extractedText: r.markdown, numPages: r.numPages, isExtracting: false });
+    } catch {
+      // extraction machinery unavailable → the crude tag strip keeps the
+      // material usable (same net the link snapshot route uses)
+      cb.update(att.id, { extractedText: stripHtmlTags(att.content), isExtracting: false });
+    }
+    return;
+  }
 
   if (att.type !== 'application/pdf') {
     cb.add(att);

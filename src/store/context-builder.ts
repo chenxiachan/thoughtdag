@@ -222,6 +222,16 @@ export function buildContext(
         } else {
           messages.push({ role: 'user', content: `[PDF: ${att.name} — no extracted text yet (scanned or still extracting). The reader's Recognize can turn its pages into readable text.]` });
         }
+      } else if (att.type === 'text/html') {
+        // HTML: the extracted Markdown IS the model channel — raw source
+        // (tags, styles, boilerplate) never enters context
+        const body = att.extractedText?.trim();
+        messages.push({
+          role: 'user',
+          content: body
+            ? `[File: ${att.name}]\n${body}`
+            : `[File: ${att.name} — HTML with no extractable text yet]`,
+        });
       } else {
         messages.push({ role: 'user', content: `[File: ${att.name}]\n${att.content}` });
       }

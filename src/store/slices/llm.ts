@@ -139,6 +139,11 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
         if (att.extractedText) {
           contextMessages.push({ role: 'user', content: `[PDF: ${att.name}]\n${att.extractedText}` });
         }
+      } else if (att.type === 'text/html') {
+        // extracted Markdown only — raw HTML source never reaches a model
+        if (att.extractedText?.trim()) {
+          contextMessages.push({ role: 'user', content: `[File: ${att.name}]\n${att.extractedText}` });
+        }
       } else if (att.content) {
         contextMessages.push({ role: 'user', content: `[File: ${att.name}]\n${att.content}` });
       }

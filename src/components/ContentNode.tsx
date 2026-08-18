@@ -74,7 +74,11 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
   const clipSource = useStore((s) => {
     if (!clipAnchor) return null;
     const src = s.nodes.find((n) => n.data.attachments?.some((a) => a.id === clipAnchor.attId));
-    if (!src) return null;
+    if (!src) {
+      // link-snapshot clips carry the link NODE's id (snapshots aren't attachments)
+      const link = s.nodes.find((n) => n.id === clipAnchor.attId && n.data.stepKind === 'link');
+      return link ? [link.id, link.data.linkTitle || link.data.linkUrl || ''].join(String.fromCharCode(0)) : null;
+    }
     const att = src.data.attachments!.find((a) => a.id === clipAnchor.attId)!;
     return `${src.id}\u0000${att.name}`;
   });
