@@ -11,7 +11,7 @@
 
 ### [下载桌面版 ↓](https://chenxiachan.github.io/thoughtdag/?lang=zh#download) · [官网](https://chenxiachan.github.io/thoughtdag/?lang=zh)
 
-[English](./README.md) · [快速开始](#快速开始) · [有何不同](#thoughtdag-有何不同) · [研究](#研究--上下文干预基准) · [模型与隐私](#模型成本与隐私)
+[English](./README.md) · [快速开始](#快速开始) · [有何不同](#thoughtdag-和其他图形化-ai-工具有何不同) · [研究](#-研究为什么上下文需要可编辑) · [模型与隐私](#模型成本与隐私)
 
 <img src="docs/hero-demo-zh.gif" alt="真实录屏的 Hero 演示：在 PDF 阅读器圈选段落提问；删掉噪音边重新生成干净答案；三层语义缩放缩到地图形态；打开备份控制中心导出真实文件" width="100%"/>
 
@@ -68,17 +68,19 @@
 </tr>
 </table>
 
-## ThoughtDAG 有何不同
+## ThoughtDAG 和其他图形化 AI 工具有何不同
 
-| 类型 | 连线代表什么 | 更适合 |
-|------|------------|--------|
-| 线性聊天 | 时间顺序中的对话历史 | 简单、快速的问题 |
-| 思维导图与白板 | 给人看的视觉关系 | 自由整理与展示 |
-| 分支对话画布 | 对话的父子分支 | 探索不同回答路径 |
-| 工作流与 Agent 画布 | 数据流或执行顺序 | 自动化和流程编排 |
-| ThoughtDAG | 模型下一次真正接收的上下文 | 长线思考的人工分叉、合并、剪枝与追溯 |
+很多产品都有节点和连线，但这张图在不同产品中做的事并不一样。
 
-如果你已经在用一个 markdown 文件手工维护决策树，ThoughtDAG 就是那棵树的可操作版本：你连进来的分支，就是模型读到的全部。
+| 产品类别 | 与 ThoughtDAG 的区别 |
+|---|---|
+| 线性对话 | 上下文沿一条时间线累积；ThoughtDAG 可选择和合并可见路径。 |
+| 思维导图与数字白板 | 连线主要帮人整理概念；ThoughtDAG 的连线还会改变模型输入。 |
+| 分支对话画布 | 通常沿一条父链继承；ThoughtDAG 还能合并或剪枝多条路径。 |
+| 工作流与 Agent 画布 | 连线用于运行任务和传递数据；ThoughtDAG 的连线用于控制对话上下文。 |
+| RAG 与自动记忆 | 系统自动检索上下文；ThoughtDAG 让选择过程可见、可编辑。 |
+
+ThoughtDAG 是一张由人编辑的上下文图：连入节点的路径与显式引用构成下一次请求，被排除的内容则继续留在画布上。
 
 ## 快速开始
 
@@ -101,13 +103,17 @@ npm run dev       # → localhost:5173
 
 想先花十秒看看再决定装不装？[在线 Demo](https://app.thoughtdag.workers.dev) 在浏览器里直接跑，示例画布免 key。注意它是功能子集：免 key 联网搜索、部分直连工具和订阅桥只在桌面版/本地可用。
 
-## 研究 · 上下文干预基准
+## 🧪 研究：为什么上下文需要可编辑
 
-ThoughtDAG 也在检验一个具体问题：错误信息进入一段 LLM 对话后，究竟要移除多少受影响的路径，回答才会恢复？
+### 上下文干预基准 · 首轮实验
 
-首轮实验中，只删除错误源头修复了 **68/72** 个被带偏的案例；移除受污染的下游子图后，修复了 **72/72**。这个实验不解释模型内部为何这样回答，也不做通用模型排名；它检验的是：改变模型可见的上下文，会怎样改变下一次回答。
+错误信息进入一段 LLM 对话后，究竟要移除多少受影响的路径，回答才能恢复？
 
-🧪 **[阅读首轮案例](https://chenxiachan.github.io/thoughtdag/stories/context-repair/?lang=zh)** · 📊 **[实验方法与结果](https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v1/?lang=zh)** · 💬 **[建议下一轮测试模型](https://github.com/chenxiachan/thoughtdag/issues/new)**
+> 只删除错误源头，修复了 **68/72** 个案例；移除受污染的子图后，修复了 **72/72**。
+
+这个实验不解释模型内部为何这样回答，也不做通用模型排名。它检验的是一个更窄、可观察的问题：改变可见上下文，会不会改变下一次回答？
+
+📖 **[阅读首轮案例](https://chenxiachan.github.io/thoughtdag/stories/context-repair/?lang=zh)** · 📊 **[实验方法与结果](https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v1/?lang=zh)** · 💬 **[建议下一轮测试模型](https://github.com/chenxiachan/thoughtdag/issues/new)**
 
 ## 更多能力
 

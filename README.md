@@ -11,9 +11,11 @@
 
 ### [Download ↓](https://chenxiachan.github.io/thoughtdag/#download) · [Website](https://chenxiachan.github.io/thoughtdag/)
 
-[中文](./README_ZH.md) · [Quick start](#quick-start) · [How it differs](#how-thoughtdag-differs) · [Research](#research--context-intervention-benchmark) · [Models & privacy](#models-cost--privacy)
+[中文](./README_ZH.md) · [Quick start](#quick-start) · [How it differs](#how-thoughtdag-differs) · [Research](#-research-why-editable-context-matters) · [Models & privacy](#models-cost--privacy)
 
 <img src="docs/hero-demo-en.gif" alt="Hero demo, recorded from the live app: selecting a passage in the PDF reader and asking about it; deleting a noise edge and regenerating a clean answer; zooming out through three semantic tiers to the map; opening the backup control center and exporting a real file" width="100%"/>
+
+<p align="center"><a href="https://www.youtube.com/watch?v=-8BqAyaoNXQ"><img src="https://img.youtube.com/vi/-8BqAyaoNXQ/maxresdefault.jpg" alt="YouTube thumbnail for the ThoughtDAG narrated tour" width="640" /></a></p>
 
 **[▶ The 33-second narrated tour](https://www.youtube.com/watch?v=-8BqAyaoNXQ)**
 
@@ -70,15 +72,17 @@ Merge nodes into one higher conclusion; weave your highlights into cited prose. 
 
 ## How ThoughtDAG differs
 
-| Type | What a wire means | Better for |
-|------|-------------------|------------|
-| Linear chat | Conversation history in time order | Quick, simple questions |
-| Mind maps and whiteboards | Visual relations for human eyes | Free-form organizing and presenting |
-| Branching chat canvases | Parent-child forks of a conversation | Exploring alternative responses |
-| Workflow and agent canvases | Data flow or execution order | Automation and orchestration |
-| ThoughtDAG | The context the model actually receives next | Deliberate forking, merging, pruning and tracing of long-running thinking |
+Many products use nodes and edges, but the graph does a different job in each category.
 
-If you already keep a hand-maintained decision tree in a markdown file, ThoughtDAG is that tree made operational: the model reads exactly the branches you wire in.
+| Product category | How it differs from ThoughtDAG |
+|---|---|
+| Linear chat | Context follows one chronological thread; ThoughtDAG selects and merges visible paths. |
+| Mind maps and whiteboards | Edges organize ideas for people; ThoughtDAG edges also change model input. |
+| Branching chat canvases | They usually follow one inherited branch; ThoughtDAG can merge or prune several paths. |
+| Workflow and agent canvases | Edges run tasks and data; ThoughtDAG edges control conversational context. |
+| RAG and automatic memory | The system retrieves context automatically; ThoughtDAG makes the selection visible and editable. |
+
+ThoughtDAG is a user-authored context graph: incoming paths and explicit references form the next request, while excluded work stays visible on the canvas.
 
 ## Quick start
 
@@ -101,13 +105,17 @@ Environment variables, local models and connection details → [docs/setup.md](d
 
 Want a ten-second look before installing anything? The [hosted demo](https://app.thoughtdag.workers.dev) runs in the browser, and the example canvas needs no key. It is a feature subset: keyless web search, some direct-connection tools and the subscription bridge are desktop/local-only.
 
-## Research · Context Intervention Benchmark
+## 🧪 Research: Why editable context matters
 
-ThoughtDAG is also a testbed for a concrete question: when misleading context enters an LLM conversation, how much of the affected path must be removed before the answer recovers?
+### Context Intervention Benchmark · Pilot v1
 
-In the first pilot, deleting only the source repaired **68/72** derailed model-cases. Removing the contaminated subgraph repaired **72/72**. This does not explain hidden model reasoning or rank models; it tests how changing visible context changes the next answer.
+When misleading context enters an LLM conversation, how much of the affected path must be removed before the answer recovers?
 
-🧪 **[Read the first case study](https://chenxiachan.github.io/thoughtdag/stories/context-repair/)** · 📊 **[Methodology and results](https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v1/)** · 💬 **[Suggest a model for the next run](https://github.com/chenxiachan/thoughtdag/issues/new)**
+> **68/72** cases recovered after deleting only the misleading source. **72/72** recovered after removing the contaminated subgraph.
+
+This does not explain hidden model reasoning or rank models. It tests a narrower, observable claim: changing visible context changes the next answer.
+
+📖 **[Read the first case study](https://chenxiachan.github.io/thoughtdag/stories/context-repair/)** · 📊 **[Methodology and results](https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v1/)** · 💬 **[Suggest a model for the next run](https://github.com/chenxiachan/thoughtdag/issues/new)**
 
 ## More capabilities
 
