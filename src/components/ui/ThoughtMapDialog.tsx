@@ -7,7 +7,7 @@ import { useProjects } from '../../store/projects';
 import { useI18n, useT } from '../../i18n';
 import {
   extractStructure, computeStats, tidyPositions, handPositions,
-  statParts, fallbackCaption, attributionLine, TMAP_SITE_URL,
+  statParts, fallbackCaption, attributionLine, textWeight, clampWeight, TMAP_SITE_URL,
   type MapStructure, type MapStats,
 } from '../../lib/thought-map';
 import { llmCall } from '../../lib/api';
@@ -287,13 +287,13 @@ export default function ThoughtMapDialog() {
       const capLangName = capLang === 'zh' ? 'Chinese' : 'English';
       const raw = await llmCall([{
         role: 'user',
-        content: `You are naming a share image called a "thought map": a picture of how someone explored one question, node by node. Sources:\nRoot question: ${root}\nStep takeaways: ${plaques.join(' / ')}\nStructure: ${s}\n\nOutput STRICT JSON only, no code fence:\n{"title":"...","subtitle":"...","caption":"..."}\ntitle: in ${langName}, what this exploration was about, at most 24 characters, evocative but concrete, no tool names.\nsubtitle: in ${langName}, one short line of context, at most 40 characters.\ncaption: in ${capLangName}, 2 or 3 first-person sentences for a social post that WEAVE IN these numbers: ${capStats}. Calm and concrete, no hype, no hashtags, no emoji, no tool names.\nNever use dash characters anywhere; use commas or periods.`,
+        content: `You are naming a share image called a "thought map": a picture of how someone explored one question, node by node. Sources:\nRoot question: ${root}\nStep takeaways: ${plaques.join(' / ')}\nStructure: ${s}\n\nOutput STRICT JSON only, no code fence:\n{"title":"...","subtitle":"...","caption":"..."}\ntitle: in ${langName}, what this exploration was about, at most 24 CJK characters or 48 latin characters, evocative but concrete, no tool names.\nsubtitle: in ${langName}, one short line of context, at most 40 CJK characters or 80 latin characters.\ncaption: in ${capLangName}, 2 or 3 first-person sentences for a social post that WEAVE IN these numbers: ${capStats}. Calm and concrete, no hype, no hashtags, no emoji, no tool names.\nNever use dash characters anywhere; use commas or periods.`,
       }]);
       const m = raw.match(/\{[\s\S]*\}/);
       if (m) {
         const j = JSON.parse(m[0]) as { title?: string; subtitle?: string; caption?: string };
-        if (j.title) setTitle(j.title.slice(0, 24));
-        if (j.subtitle) setSubtitle(j.subtitle.slice(0, 40));
+        if (j.title) setTitle(clampWeight(j.title, 48));
+        if (j.subtitle) setSubtitle(clampWeight(j.subtitle, 80));
         if (j.caption) { capTouched.current = true; setCaption(`${j.caption.trim()}\n\n${attributionLine()}`); }
       } else {
         toast('error', t('tmap.draftFailed'));
@@ -371,19 +371,19 @@ export default function ThoughtMapDialog() {
                     {drafting ? t('tmap.drafting') : t('tmap.draft')}
                   </button>
                 </div>
-                <input value={title} maxLength={24} onChange={(e) => setTitle(e.target.value)} data-tmap-title placeholder={t('tmap.subtitlePh')}
+                <input value={title} onChange={(e) => setTitle(clampWeight(e.target.value, 48))} data-tmap-title placeholder={t('tmap.subtitlePh')}
                   className="w-full border border-line rounded-lg px-3 py-1.5 text-xs bg-card text-ink placeholder-ink-faint focus:outline-none focus:ring-1 focus:ring-accent/40" />
-                <div className="text-2xs text-ink-faint font-mono text-right mt-0.5">{title.length}/24</div>
+                <div className="text-2xs text-ink-faint font-mono text-right mt-0.5">{textWeight(title)}/48</div>
               </div>
               <div>
                 <div className="text-2xs text-ink-faint mb-1">{t('tmap.subtitle')}</div>
-                <input value={subtitle} maxLength={40} onChange={(e) => setSubtitle(e.target.value)} placeholder={t('tmap.subtitlePh')} data-tmap-subtitle
+                <input value={subtitle} onChange={(e) => setSubtitle(clampWeight(e.target.value, 80))} placeholder={t('tmap.subtitlePh')} data-tmap-subtitle
                   className="w-full border border-line rounded-lg px-3 py-1.5 text-xs bg-card text-ink placeholder-ink-faint focus:outline-none focus:ring-1 focus:ring-accent/40" />
               </div>
               <div>
                 <div className="text-2xs text-ink-faint mb-1">{t('tmap.sig')}</div>
-                <input value={sig} maxLength={24} placeholder={t('tmap.subtitlePh')} data-tmap-sig
-                  onChange={(e) => { setSig(e.target.value); localStorage.setItem('thoughtdag.tmapSignature', e.target.value); }}
+                <input value={sig} placeholder={t('tmap.subtitlePh')} data-tmap-sig
+                  onChange={(e) => { const v = clampWeight(e.target.value, 48); setSig(v); localStorage.setItem('thoughtdag.tmapSignature', v); }}
                   className="w-full border border-line rounded-lg px-3 py-1.5 text-xs bg-card text-ink placeholder-ink-faint focus:outline-none focus:ring-1 focus:ring-accent/40" />
               </div>
               <div className="flex items-center gap-2">

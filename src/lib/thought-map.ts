@@ -131,6 +131,23 @@ export function fallbackCaption(lang: 'zh' | 'en', title: string, stats: MapStat
   return `${title}. ${s.map(([n, l]) => `${n} ${l}`).join(', ')}.\n\nMapped as I thought.`;
 }
 
+/** Visual-width budget: CJK counts 2, latin 1 — 24 Chinese characters and
+ *  48 English ones spend the same ink on the sheet. */
+export function textWeight(str: string): number {
+  let w = 0;
+  for (const ch of str) w += /[\u2E80-\u9FFF\uF900-\uFAFF\uFF00-\uFF60\u3000-\u303F]/.test(ch) ? 2 : 1;
+  return w;
+}
+export function clampWeight(str: string, max: number): string {
+  let w = 0, out = '';
+  for (const ch of str) {
+    w += /[\u2E80-\u9FFF\uF900-\uFAFF\uFF00-\uFF60\u3000-\u303F]/.test(ch) ? 2 : 1;
+    if (w > max) break;
+    out += ch;
+  }
+  return out;
+}
+
 export function attributionLine(): string {
   return `Made with ThoughtDAG (${TMAP_SITE_URL})`;
 }
