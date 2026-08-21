@@ -6,7 +6,6 @@ import { useUiStore } from '../../lib/ui-store';
 import { useDateLocale, useI18n, useT, fmt } from '../../i18n';
 import { collectTimeline } from '../../lib/timeline';
 import { generateGedankengang, getCached, graphFingerprint, type Gedankengang } from '../../lib/gedankengang';
-import { exportGedankengangPoster } from '../../lib/poster';
 
 // The third overview, after highlights and materials: the canvas as a
 // chronicle. Every node in creation order, grouped by day, each row carrying
@@ -44,12 +43,6 @@ export default function TimelineOverviewModal({ onLocate }: { onLocate: (nodeId:
       .catch(() => setGedFailed(true))
       .finally(() => setGedLoading(false));
   };
-  const [exporting, setExporting] = useState(false);
-  const exportPoster = () => {
-    setExporting(true);
-    exportGedankengangPoster(lang, { onJourney: setGed }).finally(() => setExporting(false));
-  };
-
   if (!open) return null;
 
   const close = () => setOpen(false);
@@ -66,14 +59,13 @@ export default function TimelineOverviewModal({ onLocate }: { onLocate: (nodeId:
           <span className="text-2xs text-ink-faint">{fmt(t('tlov.count'), { n: entries.length })}</span>
           <div className="flex-1" />
           <button
-            onClick={exportPoster}
-            disabled={exporting || entries.length === 0}
-            data-poster-export
-            title={t('tlov.exportPosterTitle')}
+            onClick={() => { close(); useUiStore.getState().setThoughtMapOpen(true); }}
+            disabled={entries.length === 0}
+            data-tmap-from-timeline
             className="flex items-center gap-1.5 text-2xs text-ink-muted hover:text-accent hover:bg-accent/10 rounded-full px-2.5 py-1 transition-colors disabled:opacity-50"
           >
             <ImageDown size={13} strokeWidth={1.75} />
-            {exporting ? t('tlov.exportingPoster') : t('tlov.exportPoster')}
+            {t('tmap.export')}
           </button>
           <button onClick={close} className="text-ink-faint hover:text-ink w-7 h-7 rounded-lg hover:bg-wash flex items-center justify-center transition-colors">
             <X size={15} strokeWidth={1.75} />
