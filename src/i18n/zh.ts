@@ -284,7 +284,6 @@ export const zh: Record<keyof typeof en, string> = {
   'tmap.backToImage': '返回编辑图',
   'tmap.export': '导出思路地图',
   'tmap.kicker': '一张思路地图',
-  'tmap.zeroContent': '只导出形状与统计，不含画布里的任何文字',
   'tmap.publicTitle': '公开标题（手填）',
   'tmap.subtitle': '说明行（可选）',
   'tmap.subtitlePh': '留空则不显示',

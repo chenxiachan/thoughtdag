@@ -318,10 +318,7 @@ export default function ThoughtMapDialog() {
     <div className="fixed inset-0 z-[85] bg-ink/25 backdrop-blur-[2px] flex items-center justify-center animate-fade-in" onClick={close} data-thought-map>
       <div className="bg-surface rounded-2xl shadow-2xl border border-line w-[min(1040px,96vw)] max-h-[95vh] overflow-y-auto p-6" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-start justify-between mb-4">
-          <div>
-            <div className="text-sm font-semibold text-ink">{t('tmap.title')}{step === 'share' ? ` · ${t('tmap.shareStep')}` : ''}</div>
-            <div className="text-2xs text-ink-faint mt-0.5">{t('tmap.zeroContent')}</div>
-          </div>
+          <div className="text-sm font-semibold text-ink">{t('tmap.title')}{step === 'share' ? ` · ${t('tmap.shareStep')}` : ''}</div>
           <button onClick={close} className="w-7 h-7 rounded-lg text-ink-faint hover:bg-wash hover:text-ink flex items-center justify-center transition-colors">
             <X size={15} strokeWidth={1.75} />
           </button>

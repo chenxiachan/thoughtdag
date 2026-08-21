@@ -284,7 +284,6 @@ export const en = {
   'tmap.backToImage': 'Back to the image',
   'tmap.export': 'Export thought map',
   'tmap.kicker': 'A THOUGHT MAP',
-  'tmap.zeroContent': 'Shape and counts only — no text from the canvas ever leaves',
   'tmap.publicTitle': 'Public title (hand-written)',
   'tmap.subtitle': 'Byline (optional)',
   'tmap.subtitlePh': 'Empty means hidden',
