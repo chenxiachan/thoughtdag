@@ -53,20 +53,22 @@
 
 :root[data-theme='dark'] {
   color-scheme: dark;
-  --color-surface: #24211B;
-  --color-card: #2C2822;
-  --color-wash: #343029;
-  --color-line: #453F34;
-  --color-line-strong: #574F40;
+  /* elevation is deliberate: cards sit a full step above the canvas
+     (1.22×, was 1.10× — they read as objects, not stains) */
+  --color-surface: #211E18;
+  --color-card: #322D25;
+  --color-wash: #3B352B;
+  --color-line: #4C4536;
+  --color-line-strong: #5E5645;
   --color-ink: #EDE7DA;
   --color-ink-muted: #B5AB97;
-  --color-ink-faint: #8B826D;
+  --color-ink-faint: #948A73;
   --color-accent: #A79FF4;
   --color-accent-strong: #B9B2F7;
   --color-warm: #E3A45E;
   --color-trace: #D9A83E;
   --color-watch: #E0796F;
-  --canvas-dot: #3B362C;
+  --canvas-dot: #423B2E;
   --canvas-grid-fine: rgba(237, 231, 218, 0.05);
   --canvas-grid-major: rgba(237, 231, 218, 0.11);
   /* the tailwind semantic slices the UI actually uses, recomposed for dark
