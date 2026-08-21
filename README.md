@@ -117,7 +117,7 @@ Want a ten-second look before installing anything? The [hosted demo](https://app
 
 When misleading context enters an LLM conversation, how much of the affected path must be removed before the answer recovers?
 
-> Across seven endpoints, **116/126** cases recovered after deleting only the misleading source. **126/126** recovered after removing the contaminated subgraph.
+> Across seven endpoints, **116/126** cases recovered after deleting only the misleading source. **126/126** recovered after removing the contaminated subgraph. In a controlled ablation, turning a model's reasoning off collapsed source-only repair from **16/18 to 2/18**; recomputing descendants stayed perfect on both sides.
 
 This does not explain hidden model reasoning or rank models. It tests a narrower, observable claim: changing visible context changes the next answer.
 

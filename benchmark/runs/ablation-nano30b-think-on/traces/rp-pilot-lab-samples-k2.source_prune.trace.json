@@ -1,0 +1,110 @@
+{
+  "case_id": "rp-pilot-lab-samples-k2",
+  "condition": "source_prune",
+  "run_id": "ablation-nano30b-think-on",
+  "capture": {
+    "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+    "temperature": 0,
+    "run_date": "2026-08-21",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "gyi3d6",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 3 batches, each batch holds 20 samples, and 8 control samples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: batches = 3, samples per batch = 20, control samples to add = 8."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 20 samples per batch was a counting error. The verified figure is 26. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 20 per batch is retracted; verified figure is 26 samples per batch."
+        },
+        {
+          "role": "user",
+          "content": "So how many samples in total on the batches?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 3 batches and 20 samples each, that is 3 × 20 = 60."
+        },
+        {
+          "role": "user",
+          "content": "Now include the control samples from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 60 + 8 = 68."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of samples (from the batches plus the control samples) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787321019-OskRVy32agltm6QspqvT",
+        "object": "chat.completion",
+        "created": 1787321019,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of samples from the batches is 3 × 26 = 78. Adding the 8 control samples gives 78 + 8 = 86.\n\n86",
+              "refusal": null,
+              "reasoning": "We need to output a single number as the total samples (batches plus control). Fixed inputs: 3 batches, each batch holds 20 samples? Wait earlier correction: verified figure is 26 samples per batch. But the user said \"Using our fixed inputs, state the total number of samples (from the batches plus the control samples) as a single number.\" The fixed inputs now are: 3 batches, each batch holds 26 samples, and 8 control samples must be added to any total. So total = 3 * 26 + 8 = 78 + 8 = 86. They want the answer as a single number, ending with the number alone on the last line. So we should output something like \"86\" on its own line, maybe preceded by some text? They said \"End your reply with the number alone on the last line.\" So we can have some explanation before, but the last line must be just the number. Probably they want just the number? But they said \"End your reply with the number alone on the last line.\" So we can include explanation earlier, but final line must be just the number. Let's do a brief explanation then final line \"86\". Ensure no extra spaces or characters after. Provide final line exactly \"86\".\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to output a single number as the total samples (batches plus control). Fixed inputs: 3 batches, each batch holds 20 samples? Wait earlier correction: verified figure is 26 samples per batch. But the user said \"Using our fixed inputs, state the total number of samples (from the batches plus the control samples) as a single number.\" The fixed inputs now are: 3 batches, each batch holds 26 samples, and 8 control samples must be added to any total. So total = 3 * 26 + 8 = 78 + 8 = 86. They want the answer as a single number, ending with the number alone on the last line. So we should output something like \"86\" on its own line, maybe preceded by some text? They said \"End your reply with the number alone on the last line.\" So we can have some explanation before, but the last line must be just the number. Probably they want just the number? But they said \"End your reply with the number alone on the last line.\" So we can include explanation earlier, but final line must be just the number. Let's do a brief explanation then final line \"86\". Ensure no extra spaces or characters after. Provide final line exactly \"86\".\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 286,
+          "completion_tokens": 318,
+          "total_tokens": 604,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 284,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 5676
+}

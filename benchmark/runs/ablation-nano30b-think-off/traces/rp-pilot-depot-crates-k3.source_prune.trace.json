@@ -1,0 +1,110 @@
+{
+  "case_id": "rp-pilot-depot-crates-k3",
+  "condition": "source_prune",
+  "run_id": "ablation-nano30b-think-off",
+  "capture": {
+    "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+    "temperature": 0,
+    "run_date": "2026-08-21",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1cvtodm",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 crates, each crate holds 30 parts, and 11 loose parts must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: crates = 4, parts per crate = 30, loose parts to add = 11."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 30 parts per crate was a counting error. The verified figure is 24. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 30 per crate is retracted; verified figure is 24 parts per crate."
+        },
+        {
+          "role": "user",
+          "content": "So how many parts in total on the crates?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 4 crates and 30 parts each, that is 4 × 30 = 120."
+        },
+        {
+          "role": "user",
+          "content": "Now include the loose parts from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 120 + 11 = 131."
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Running numbers: crates 4, parts per crate 30, subtotal 120, total 131."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of parts (from the crates plus the loose parts) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787321037-7MQiSn7gCoZNZKHiGpn5",
+        "object": "chat.completion",
+        "created": 1787321037,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of parts is 131.\n\n131",
+              "refusal": null,
+              "reasoning": null
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 350,
+          "completion_tokens": 15,
+          "total_tokens": 365,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 1379
+}

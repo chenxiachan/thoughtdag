@@ -1,0 +1,102 @@
+{
+  "case_id": "rp-pilot-bakery-trays-k1",
+  "condition": "polluted",
+  "run_id": "ablation-nano30b-think-on",
+  "capture": {
+    "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+    "temperature": 0,
+    "run_date": "2026-08-21",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1a4k4zf",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15."
+        },
+        {
+          "role": "user",
+          "content": "Correction: I miscounted earlier, there are actually 15 trays."
+        },
+        {
+          "role": "assistant",
+          "content": "Understood, updating the input: trays = 15."
+        },
+        {
+          "role": "user",
+          "content": "So how many rolls in total on the trays?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 15 trays and 8 rolls each, that is 15 × 8 = 120."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787320737-sFlp34LlzjZ4WGqv2kMd",
+        "object": "chat.completion",
+        "created": 1787320737,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of rolls is 135.\n\n135",
+              "refusal": null,
+              "reasoning": "We need to compute total rolls = rolls from trays + loose rolls. Fixed inputs: trays = 15 (updated), each tray holds 8 rolls, and 15 loose rolls must be added to any total. So rolls from trays = 15 * 8 = 120. Add loose rolls = 15 => total = 135. Need to output as a single number, ending reply with the number alone on the last line. So reply should have some text maybe before, but final line must be just the number. Probably just output \"135\" on its own line. Ensure no extra characters after. Provide answer.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to compute total rolls = rolls from trays + loose rolls. Fixed inputs: trays = 15 (updated), each tray holds 8 rolls, and 15 loose rolls must be added to any total. So rolls from trays = 15 * 8 = 120. Add loose rolls = 15 => total = 135. Need to output as a single number, ending reply with the number alone on the last line. So reply should have some text maybe before, but final line must be just the number. Probably just output \"135\" on its own line. Ensure no extra characters after. Provide answer.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 229,
+          "completion_tokens": 156,
+          "total_tokens": 385,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 129,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 2954
+}

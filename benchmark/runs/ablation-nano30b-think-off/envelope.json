@@ -1,0 +1,30 @@
+{
+  "suite": "pilot-v1",
+  "tier": "pilot",
+  "provider": "openrouter/nvidia",
+  "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+  "model_revision": null,
+  "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+  "key_env": "OPENROUTER_API_KEY",
+  "decoding": {
+    "temperature": 0
+  },
+  "run_dates": [
+    "2026-08-21"
+  ],
+  "compiler_version": "2.0.0",
+  "currency": "USD",
+  "cost_per_run": 0,
+  "note_cost": "openrouter free-tier model",
+  "run_id": "ablation-nano30b-think-off",
+  "reasoning_request_mode": "explicit reasoning enabled:false (probe-verified: reasoning_tokens = 0, no reasoning field)",
+  "request_extra": {
+    "reasoning": {
+      "enabled": false
+    },
+    "usage": {
+      "include": true
+    }
+  },
+  "note": "Controlled reasoning ablation: ONE text-only model, reasoning explicitly toggled per request. Replaces the withdrawn wave-2 \"reasoning pair\" claim. Probe 2026-08-21: enabled:false yields 0 reasoning tokens on this endpoint."
+}

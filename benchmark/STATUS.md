@@ -37,7 +37,16 @@ New free endpoints, 135 conditions apiece, zero capture failures:
 - IN PROGRESS: z-ai/glm-5.2:free (generation pair vs glm-4.5-flash), google/gemma-4-31b-it:free (dense pair vs 26b MoE). Free-tier rate limits plus one provider 400-bug (OpenRouter routing, "Unknown name labels"); detached grinder running.
 
 ### CORRECTION 2026-08-21: the 30B comparison is not a reasoning ablation
-The wave-2 design intended a reasoning on/off pair. A user audit caught two flaws before they hardened. First, the endpoints are different models, not one model with a switch: the reasoning endpoint is the OMNI variant (ships vision and speech encoders per the NVIDIA model card); its sibling is text-only. Second, both envelopes record provider-default reasoning, so reasoning was never explicitly toggled on either side. Every "reasoning twin / reasoning on-off / reasoning amplifies residual context" claim was therefore withdrawn from the report, READMEs and models.json on 2026-08-21. The observation itself stands as exploratory: 14/18 vs 16/18 source-only recovery, including the only mis-type source-prune failure seen in any endpoint. A true ablation needs one text-only model with reasoning explicitly toggled per request (e.g. enable_thinking true/false); planned as the next capture, requires a runner extension to send per-request reasoning parameters.
+The wave-2 design intended a reasoning on/off pair. A user audit caught two flaws before they hardened. First, the endpoints are different models, not one model with a switch: the reasoning endpoint is the OMNI variant (ships vision and speech encoders per the NVIDIA model card); its sibling is text-only. Second, both envelopes record provider-default reasoning, so reasoning was never explicitly toggled on either side. Every "reasoning twin / reasoning on-off / reasoning amplifies residual context" claim was therefore withdrawn from the report, READMEs and models.json on 2026-08-21. The observation itself stands as exploratory: 14/18 vs 16/18 source-only recovery.
+
+### ABLATION RESULT 2026-08-21: reasoning protects repair
+Runner extended (envelope.request_extra merges per-request body fields). One text-only model (nemotron-3-nano-30b-a3b:free), 135 conditions twice, reasoning:{enabled:true|false}. Toggle probe-verified and audited across all calls (28,187 reasoning tokens ON, 0 OFF).
+- Harm identical both sides (18/27, three-way split unchanged): reasoning does not prevent derailment.
+- source_prune: 16/18 ON vs 2/18 OFF. The registered prediction (reasoning protects against residual contamination) is SUPPORTED by the valid test.
+- subgraph_prune: 18/18 ON vs 15/18 OFF. The three OFF failures are bare-arithmetic slips in the clean-but-shorter C0-prime state (e.g. concatenating 96 and 9 into 969): deletion restores cleanliness, not the work.
+- recompute: 18/18 both sides. For a non-reasoning model the strategy hierarchy reorders: recompute > subgraph > source.
+- Wave-2 confusion explained: the "non-reasoning" endpoint reasons by default (97 tokens in the probe), so the invalid comparison pointed the wrong way.
+Runs: ablation-nano30b-think-on / ablation-nano30b-think-off.
 
 ### Findings (seven endpoints, 126 derailed cells)
 1. Harm three-way split now SEVEN for seven (mis 9/9, temp 9/9, dis 0/9 every endpoint).
@@ -50,7 +59,6 @@ Report v2 published 2026-08-21 (website/research/context-repair-pilot-v2/; v1 ke
 ## Remaining gates
 1. Human visual sign-off on story canvases (open in ThoughtDAG) — still pending.
 2. Complete glm-5.2 and gemma-4-31b captures; score; lift the report to nine endpoints.
-3. Controlled reasoning ablation (enable_thinking toggle on one text-only model).
 4. First standalone article from depot-crates k3; label all numbers "Pilot / reference results".
 
 ## Cost note

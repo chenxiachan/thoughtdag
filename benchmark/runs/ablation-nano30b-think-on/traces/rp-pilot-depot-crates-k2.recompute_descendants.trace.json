@@ -1,0 +1,280 @@
+{
+  "case_id": "rp-pilot-depot-crates-k2",
+  "condition": "recompute_descendants",
+  "run_id": "ablation-nano30b-think-on",
+  "capture": {
+    "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+    "temperature": 0,
+    "run_date": "2026-08-21",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "1yh4edc",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 crates, each crate holds 30 parts, and 11 loose parts must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: crates = 4, parts per crate = 30, loose parts to add = 11."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 30 parts per crate was a counting error. The verified figure is 24. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 30 per crate is retracted; verified figure is 24 parts per crate."
+        },
+        {
+          "role": "user",
+          "content": "So how many parts in total on the crates?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787321110-8uS3X55xrEjq1Gruhlsk",
+        "object": "chat.completion",
+        "created": 1787321110,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The crates themselves contain  \n\n**4 crates × 24 parts per crate = 96 parts**.\n\nIf you also include the 11 loose parts that must be added to any total, the overall count becomes  \n\n**96 + 11 = 107 parts**.",
+              "refusal": null,
+              "reasoning": "We need to compute total parts on crates: 4 crates * 24 parts per crate = 96 parts. Then add 11 loose parts = 107 total parts. The user asks \"So how many parts in total on the crates?\" Might just want the total on crates (i.e., 96). But likely they want total including loose parts? The phrasing: \"So how many parts in total on the crates?\" Could be ambiguous. They previously said \"11 loose parts must be added to any total.\" So total overall = crate parts + loose parts. But they ask \"on the crates\" maybe just crate total. Let's answer both: crate total = 96, overall total = 107. Provide clear answer.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to compute total parts on crates: 4 crates * 24 parts per crate = 96 parts. Then add 11 loose parts = 107 total parts. The user asks \"So how many parts in total on the crates?\" Might just want the total on crates (i.e., 96). But likely they want total including loose parts? The phrasing: \"So how many parts in total on the crates?\" Could be ambiguous. They previously said \"11 loose parts must be added to any total.\" So total overall = crate parts + loose parts. But they ask \"on the crates\" maybe just crate total. Let's answer both: crate total = 96, overall total = 107. Provide clear answer.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 174,
+          "completion_tokens": 231,
+          "total_tokens": 405,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 153,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-c",
+      "prompt_hash": "1vb87w2",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 crates, each crate holds 30 parts, and 11 loose parts must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: crates = 4, parts per crate = 30, loose parts to add = 11."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 30 parts per crate was a counting error. The verified figure is 24. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 30 per crate is retracted; verified figure is 24 parts per crate."
+        },
+        {
+          "role": "user",
+          "content": "So how many parts in total on the crates?"
+        },
+        {
+          "role": "assistant",
+          "content": "The crates themselves contain  \n\n**4 crates × 24 parts per crate = 96 parts**.\n\nIf you also include the 11 loose parts that must be added to any total, the overall count becomes  \n\n**96 + 11 = 107 parts**."
+        },
+        {
+          "role": "user",
+          "content": "Now include the loose parts from our fixed inputs. What is the running total?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787321115-Zzg7xCqPB4IJTDHlMH3i",
+        "object": "chat.completion",
+        "created": 1787321115,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The crates hold  \n\n- **4 crates × 24 parts per crate = 96 parts**.\n\nAdding the fixed loose parts (11) gives the running total:\n\n**96 + 11 = 107 parts**.",
+              "refusal": null,
+              "reasoning": "We need to compute running total: crates total parts = 4 crates * 24 parts = 96. Add loose parts = 11 => total = 107. Provide answer.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to compute running total: crates total parts = 4 crates * 24 parts = 96. Add loose parts = 11 => total = 107. Provide answer.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 266,
+          "completion_tokens": 100,
+          "total_tokens": 366,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 35,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "o7rt0i",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 crates, each crate holds 30 parts, and 11 loose parts must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: crates = 4, parts per crate = 30, loose parts to add = 11."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 30 parts per crate was a counting error. The verified figure is 24. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 30 per crate is retracted; verified figure is 24 parts per crate."
+        },
+        {
+          "role": "user",
+          "content": "So how many parts in total on the crates?"
+        },
+        {
+          "role": "assistant",
+          "content": "The crates themselves contain  \n\n**4 crates × 24 parts per crate = 96 parts**.\n\nIf you also include the 11 loose parts that must be added to any total, the overall count becomes  \n\n**96 + 11 = 107 parts**."
+        },
+        {
+          "role": "user",
+          "content": "Now include the loose parts from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "The crates hold  \n\n- **4 crates × 24 parts per crate = 96 parts**.\n\nAdding the fixed loose parts (11) gives the running total:\n\n**96 + 11 = 107 parts**."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of parts (from the crates plus the loose parts) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787321118-On4jdojiMm2npQnZeoAO",
+        "object": "chat.completion",
+        "created": 1787321118,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of parts, combining the crates and the loose parts, is:\n\n**107**\n\n107",
+              "refusal": null,
+              "reasoning": "We need to output the total number of parts (crates + loose parts) as a single number, ending with that number alone on the last line. The fixed inputs: 4 crates, 24 parts per crate, 11 loose parts. Total = 4*24 + 11 = 96 + 11 = 107. So reply should end with \"107\" on its own line. Probably just output \"107\". Ensure last line is just the number. Provide maybe some preceding text? The instruction: \"End your reply with the number alone on the last line.\" So we can have preceding explanation, but final line must be just the number. Provide answer.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to output the total number of parts (crates + loose parts) as a single number, ending with that number alone on the last line. The fixed inputs: 4 crates, 24 parts per crate, 11 loose parts. Total = 4*24 + 11 = 96 + 11 = 107. So reply should end with \"107\" on its own line. Probably just output \"107\". Ensure last line is just the number. Provide maybe some preceding text? The instruction: \"End your reply with the number alone on the last line.\" So we can have preceding explanation, but final line must be just the number. Provide answer.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 370,
+          "completion_tokens": 178,
+          "total_tokens": 548,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 139,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 9819
+}

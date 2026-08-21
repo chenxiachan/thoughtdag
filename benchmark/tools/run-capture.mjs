@@ -19,7 +19,10 @@ async function call(messages) {
     const r = await fetch(env.endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
-      body: JSON.stringify({ model: env.model, temperature: env.decoding?.temperature ?? 0, messages }),
+      // request_extra: verbatim per-request body fields from the envelope —
+      // e.g. an explicit reasoning toggle for ablations. The envelope is the
+      // identity record, so the exact parameters always travel with the run.
+      body: JSON.stringify({ model: env.model, temperature: env.decoding?.temperature ?? 0, messages, ...(env.request_extra ?? {}) }),
     });
     if (r.status === 429 || r.status >= 500) { await new Promise((res) => setTimeout(res, Math.min(60000, 5000 * 2 ** attempt))); continue; }
     if (!r.ok) throw new Error(`HTTP ${r.status}: ${(await r.text()).slice(0, 200)}`);

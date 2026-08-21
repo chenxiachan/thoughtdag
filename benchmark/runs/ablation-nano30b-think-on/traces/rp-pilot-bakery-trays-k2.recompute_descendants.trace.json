@@ -1,0 +1,256 @@
+{
+  "case_id": "rp-pilot-bakery-trays-k2",
+  "condition": "recompute_descendants",
+  "run_id": "ablation-nano30b-think-on",
+  "capture": {
+    "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+    "temperature": 0,
+    "run_date": "2026-08-21",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "jpxfpq",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15."
+        },
+        {
+          "role": "user",
+          "content": "So how many rolls in total on the trays?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787320783-pvUwq8XNuuzEfmTAFEqB",
+        "object": "chat.completion",
+        "created": 1787320783,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The trays hold  \n\n\\(12 \\text{ trays} \\times 8 \\text{ rolls per tray} = 96 \\text{ rolls}\\).  \n\nSo there are **96 rolls on the trays**. (The 15 loose rolls are added separately.)",
+              "refusal": null,
+              "reasoning": "We need to compute total rolls on the trays: 12 trays * 8 rolls per tray = 96 rolls. The loose rolls are separate, but the question asks \"how many rolls in total on the trays?\" So answer is 96. Probably just answer 96.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to compute total rolls on the trays: 12 trays * 8 rolls per tray = 96 rolls. The loose rolls are separate, but the question asks \"how many rolls in total on the trays?\" So answer is 96. Probably just answer 96.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 107,
+          "completion_tokens": 126,
+          "total_tokens": 233,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 56,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-c",
+      "prompt_hash": "nr88w0",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15."
+        },
+        {
+          "role": "user",
+          "content": "So how many rolls in total on the trays?"
+        },
+        {
+          "role": "assistant",
+          "content": "The trays hold  \n\n\\(12 \\text{ trays} \\times 8 \\text{ rolls per tray} = 96 \\text{ rolls}\\).  \n\nSo there are **96 rolls on the trays**. (The 15 loose rolls are added separately.)"
+        },
+        {
+          "role": "user",
+          "content": "Now include the loose rolls from our fixed inputs. What is the running total?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787320785-zvDrt2frKU4Dhv7SVt9S",
+        "object": "chat.completion",
+        "created": 1787320785,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The trays hold **96 rolls** (12 × 8).  \nAdding the **15 loose rolls** gives a running total of:\n\n**96 + 15 = 111 rolls**.",
+              "refusal": null,
+              "reasoning": "We need to compute total rolls including loose rolls: 96 + 15 = 111. Provide answer.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to compute total rolls including loose rolls: 96 + 15 = 111. Provide answer.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 196,
+          "completion_tokens": 78,
+          "total_tokens": 274,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 22,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "1kx6if3",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15."
+        },
+        {
+          "role": "user",
+          "content": "So how many rolls in total on the trays?"
+        },
+        {
+          "role": "assistant",
+          "content": "The trays hold  \n\n\\(12 \\text{ trays} \\times 8 \\text{ rolls per tray} = 96 \\text{ rolls}\\).  \n\nSo there are **96 rolls on the trays**. (The 15 loose rolls are added separately.)"
+        },
+        {
+          "role": "user",
+          "content": "Now include the loose rolls from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "The trays hold **96 rolls** (12 × 8).  \nAdding the **15 loose rolls** gives a running total of:\n\n**96 + 15 = 111 rolls**."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787320787-cAWJJAceNynz6v39URlt",
+        "object": "chat.completion",
+        "created": 1787320787,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of rolls (trays plus loose rolls) is:\n\n111",
+              "refusal": null,
+              "reasoning": "We need to output a single number as the total rolls (trays + loose). Fixed inputs: 12 trays, each holds 8 rolls => 96. Add 15 loose => 111. Must end reply with the number alone on the last line. So we can have some text before, but final line must be just \"111\". Probably they want just the number alone on the last line, no extra characters. So we can say \"The total number of rolls is:\" then newline then \"111\". Ensure last line is just \"111\". No extra spaces or punctuation. Let's do that.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to output a single number as the total rolls (trays + loose). Fixed inputs: 12 trays, each holds 8 rolls => 96. Add 15 loose => 111. Must end reply with the number alone on the last line. So we can have some text before, but final line must be just \"111\". Probably they want just the number alone on the last line, no extra characters. So we can say \"The total number of rolls is:\" then newline then \"111\". Ensure last line is just \"111\". No extra spaces or punctuation. Let's do that.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 296,
+          "completion_tokens": 156,
+          "total_tokens": 452,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 125,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 6912
+}

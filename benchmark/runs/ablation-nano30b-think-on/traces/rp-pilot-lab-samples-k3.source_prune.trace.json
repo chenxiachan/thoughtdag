@@ -1,0 +1,118 @@
+{
+  "case_id": "rp-pilot-lab-samples-k3",
+  "condition": "source_prune",
+  "run_id": "ablation-nano30b-think-on",
+  "capture": {
+    "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+    "temperature": 0,
+    "run_date": "2026-08-21",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "n2st9t",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 3 batches, each batch holds 20 samples, and 8 control samples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: batches = 3, samples per batch = 20, control samples to add = 8."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 20 samples per batch was a counting error. The verified figure is 26. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 20 per batch is retracted; verified figure is 26 samples per batch."
+        },
+        {
+          "role": "user",
+          "content": "So how many samples in total on the batches?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 3 batches and 20 samples each, that is 3 × 20 = 60."
+        },
+        {
+          "role": "user",
+          "content": "Now include the control samples from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 60 + 8 = 68."
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Running numbers: batches 3, samples per batch 20, subtotal 60, total 68."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of samples (from the batches plus the control samples) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787321047-j8ZEJcEpDKsmuQRc5mT5",
+        "object": "chat.completion",
+        "created": 1787321047,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of samples, combining the batch samples and the required control samples, is calculated as follows: 3 batches × 26 samples per batch = 78 batch samples; adding the 8 control samples gives 78 + 8 = 86.\n\n86",
+              "refusal": null,
+              "reasoning": "We need to restate total number of samples (batches plus control samples) as a single number, ending reply with the number alone on the last line. Fixed inputs: 3 batches, each batch holds 20 samples (but earlier correction said 26? Wait earlier they corrected that 20 was error, verified figure is 26. Then they asked \"So how many samples in total on the batches?\" The assistant answered 60 (3*20). Then they asked to include control samples, running total 68. Then they asked to restate running numbers: batches 3, samples per batch 20, subtotal 60, total 68. Now they ask: \"Using our fixed inputs, state the total number of samples (from the batches plus the control samples) as a single number. End your reply with the number alone on the last line.\"\n\nWe need to interpret \"fixed inputs\". The fixed inputs are: there are 3 batches, each batch holds 20 samples, and 8 control samples must be added to any total. However earlier they corrected that 20 was a counting error, verified figure is 26. But then they said \"Update the fixed inputs.\" The assistant updated to 26 per batch. Then they asked \"So how many samples in total on the batches?\" The assistant answered 60 (using 20). That seems inconsistent. But now they ask to use fixed inputs. Which fixed inputs are current? The latest correction said verified figure is 26 per batch. So fixed inputs now: 3 batches, 26 samples per batch, 8 control samples. So total samples = 3*26 + 8 = 78 + 8 = 86. They want a single number, ending reply with the number alone on the last line. So we should output something like \"86\" on its own line at the end. Possibly we can include some preceding text, but the last line must be just the number. They said \"End your reply with the number alone on the last line.\" So we can have some explanation before, but final line must be just the number. Let's do that.\n\nThus answer: explanation then \"86\". Ensure last line is just \"86\".\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to restate total number of samples (batches plus control samples) as a single number, ending reply with the number alone on the last line. Fixed inputs: 3 batches, each batch holds 20 samples (but earlier correction said 26? Wait earlier they corrected that 20 was error, verified figure is 26. Then they asked \"So how many samples in total on the batches?\" The assistant answered 60 (3*20). Then they asked to include control samples, running total 68. Then they asked to restate running numbers: batches 3, samples per batch 20, subtotal 60, total 68. Now they ask: \"Using our fixed inputs, state the total number of samples (from the batches plus the control samples) as a single number. End your reply with the number alone on the last line.\"\n\nWe need to interpret \"fixed inputs\". The fixed inputs are: there are 3 batches, each batch holds 20 samples, and 8 control samples must be added to any total. However earlier they corrected that 20 was a counting error, verified figure is 26. But then they said \"Update the fixed inputs.\" The assistant updated to 26 per batch. Then they asked \"So how many samples in total on the batches?\" The assistant answered 60 (using 20). That seems inconsistent. But now they ask to use fixed inputs. Which fixed inputs are current? The latest correction said verified figure is 26 per batch. So fixed inputs now: 3 batches, 26 samples per batch, 8 control samples. So total samples = 3*26 + 8 = 78 + 8 = 86. They want a single number, ending reply with the number alone on the last line. So we should output something like \"86\" on its own line at the end. Possibly we can include some preceding text, but the last line must be just the number. They said \"End your reply with the number alone on the last line.\" So we can have some explanation before, but final line must be just the number. Let's do that.\n\nThus answer: explanation then \"86\". Ensure last line is just \"86\".\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 336,
+          "completion_tokens": 538,
+          "total_tokens": 874,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 483,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 10277
+}

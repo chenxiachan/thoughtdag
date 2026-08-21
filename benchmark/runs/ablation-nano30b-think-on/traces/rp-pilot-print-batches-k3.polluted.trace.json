@@ -1,0 +1,118 @@
+{
+  "case_id": "rp-pilot-print-batches-k3",
+  "condition": "polluted",
+  "run_id": "ablation-nano30b-think-on",
+  "capture": {
+    "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+    "temperature": 0,
+    "run_date": "2026-08-21",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1smh3gb",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 6 batches, each batch holds 25 pages, and 40 cover pages must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: batches = 6, pages per batch = 25, cover pages to add = 40."
+        },
+        {
+          "role": "user",
+          "content": "Side note before we continue: I visited the old printer yesterday. Interesting that they work with 32 there."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted, though the old printer's 32-page batches is unrelated to our count."
+        },
+        {
+          "role": "user",
+          "content": "So how many pages in total on the batches?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 6 batches and 25 pages each, that is 6 × 25 = 150. (the old printer's 32-page batches mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Now include the cover pages from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 150 + 40 = 190. (the old printer's 32-page batches mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Running numbers: batches 6, pages per batch 25, subtotal 150, total 190. (the old printer's 32-page batches mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of pages (from the batches plus the cover pages) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787321623-NKaBEL0edV3ZxGfY4Cpj",
+        "object": "chat.completion",
+        "created": 1787321623,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of pages is:\n190",
+              "refusal": null,
+              "reasoning": "We need to output the total number of pages (batches plus cover pages) as a single number, ending with that number alone on the last line. Must use fixed inputs: 6 batches, each batch holds 25 pages, and 40 cover pages must be added to any total. So total = 6*25 + 40 = 150 + 40 = 190. Must end reply with the number alone on the last line. So we can have some text before, but the last line must be just \"190\". Probably they want just the number on the last line, no extra punctuation. So reply could be something like \"The total is:\" then newline \"190\". But the last line must be the number alone. So we can write something like \"Total pages: 190\" but that would have extra words on last line? Actually last line must be the number alone, so we can have preceding lines with explanation, but final line must be just \"190\". So we can write: \"The total number of pages is:\" then newline \"190\". That satisfies. Ensure no extra spaces or characters after 190. So final line is exactly \"190\". Let's do that.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to output the total number of pages (batches plus cover pages) as a single number, ending with that number alone on the last line. Must use fixed inputs: 6 batches, each batch holds 25 pages, and 40 cover pages must be added to any total. So total = 6*25 + 40 = 150 + 40 = 190. Must end reply with the number alone on the last line. So we can have some text before, but the last line must be just \"190\". Probably they want just the number on the last line, no extra punctuation. So reply could be something like \"The total is:\" then newline \"190\". But the last line must be the number alone. So we can write something like \"Total pages: 190\" but that would have extra words on last line? Actually last line must be the number alone, so we can have preceding lines with explanation, but final line must be just \"190\". So we can write: \"The total number of pages is:\" then newline \"190\". That satisfies. Ensure no extra spaces or characters after 190. So final line is exactly \"190\". Let's do that.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 383,
+          "completion_tokens": 281,
+          "total_tokens": 664,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 252,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 11354
+}

@@ -1,0 +1,110 @@
+{
+  "case_id": "rp-pilot-bakery-trays-k3",
+  "condition": "clean",
+  "run_id": "ablation-nano30b-think-on",
+  "capture": {
+    "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+    "temperature": 0,
+    "run_date": "2026-08-21",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1778wg6",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15."
+        },
+        {
+          "role": "user",
+          "content": "So how many rolls in total on the trays?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 12 trays and 8 rolls each, that is 12 × 8 = 96."
+        },
+        {
+          "role": "user",
+          "content": "Now include the loose rolls from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 96 + 15 = 111."
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Running numbers: trays 12, rolls per tray 8, subtotal 96, total 111."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787320790-QqNhtFtsjiecUKImsbiu",
+        "object": "chat.completion",
+        "created": 1787320790,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of rolls, combining the trays and the loose rolls, is 111.\n\n111",
+              "refusal": null,
+              "reasoning": "We need to output a single number as the total rolls (trays total + loose rolls). Fixed inputs: 12 trays, each holds 8 rolls => 96. Add 15 loose rolls => 111. Must end reply with the number alone on the last line. So we can have some preceding text, but final line must be just \"111\". Ensure no extra spaces or characters. Provide answer.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to output a single number as the total rolls (trays total + loose rolls). Fixed inputs: 12 trays, each holds 8 rolls => 96. Add 15 loose rolls => 111. Must end reply with the number alone on the last line. So we can have some preceding text, but final line must be just \"111\". Ensure no extra spaces or characters. Provide answer.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 280,
+          "completion_tokens": 118,
+          "total_tokens": 398,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 86,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 2094
+}

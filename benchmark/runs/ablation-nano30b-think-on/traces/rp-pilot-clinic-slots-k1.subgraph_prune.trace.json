@@ -1,0 +1,94 @@
+{
+  "case_id": "rp-pilot-clinic-slots-k1",
+  "condition": "subgraph_prune",
+  "run_id": "ablation-nano30b-think-on",
+  "capture": {
+    "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+    "temperature": 0,
+    "run_date": "2026-08-21",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1noywxh",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 5 days, each day holds 18 slots, and 6 walk-in slots must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: days = 5, slots per day = 18, walk-in slots to add = 6."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 18 slots per day was a counting error. The verified figure is 21. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 18 per day is retracted; verified figure is 21 slots per day."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of slots (from the days plus the walk-in slots) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787321162-QXoql5tVumh2ibLyYOLa",
+        "object": "chat.completion",
+        "created": 1787321162,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of slots is calculated as follows: 5 days × 21 slots per day = 105 slots, plus 6 walk‑in slots = 111 slots.\n\n111",
+              "refusal": null,
+              "reasoning": "We need to compute total slots = days * slots per day + walk-in slots. Fixed inputs: days = 5, slots per day = 21 (verified), walk-in slots = 6. So total = 5*21 + 6 = 105 + 6 = 111. Need to state the total number of slots as a single number, and end reply with the number alone on the last line. So reply should include maybe some explanation before, but final line must be just the number. Probably they want just the number on the last line, but can have preceding text. They said \"End your reply with the number alone on the last line.\" So we can have preceding text, then final line with just \"111\". Ensure no extra spaces or characters. Provide final line exactly \"111\".\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to compute total slots = days * slots per day + walk-in slots. Fixed inputs: days = 5, slots per day = 21 (verified), walk-in slots = 6. So total = 5*21 + 6 = 105 + 6 = 111. Need to state the total number of slots as a single number, and end reply with the number alone on the last line. So reply should include maybe some explanation before, but final line must be just the number. Probably they want just the number on the last line, but can have preceding text. They said \"End your reply with the number alone on the last line.\" So we can have preceding text, then final line with just \"111\". Ensure no extra spaces or characters. Provide final line exactly \"111\".\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 199,
+          "completion_tokens": 222,
+          "total_tokens": 421,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 170,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 3719
+}

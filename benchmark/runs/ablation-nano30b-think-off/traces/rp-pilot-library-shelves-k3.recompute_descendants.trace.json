@@ -1,0 +1,321 @@
+{
+  "case_id": "rp-pilot-library-shelves-k3",
+  "condition": "recompute_descendants",
+  "run_id": "ablation-nano30b-think-off",
+  "capture": {
+    "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+    "temperature": 0,
+    "run_date": "2026-08-21",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "5wtvyb",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: shelves = 9, books per shelf = 14, boxed books to add = 22."
+        },
+        {
+          "role": "user",
+          "content": "So how many books in total on the shelves?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787320929-nD0J5VyTuG8BR0rYnX5Q",
+        "object": "chat.completion",
+        "created": 1787320929,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of books on the shelves is calculated by multiplying the number of shelves by the number of books per shelf:\n\n$$\n9 \\text{ shelves} \\times 14 \\text{ books per shelf} = 126 \\text{ books}\n$$\n\n**Answer:** 126 books.",
+              "refusal": null,
+              "reasoning": null
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 106,
+          "completion_tokens": 64,
+          "total_tokens": 170,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-c",
+      "prompt_hash": "o4n9m",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: shelves = 9, books per shelf = 14, boxed books to add = 22."
+        },
+        {
+          "role": "user",
+          "content": "So how many books in total on the shelves?"
+        },
+        {
+          "role": "assistant",
+          "content": "The total number of books on the shelves is calculated by multiplying the number of shelves by the number of books per shelf:\n\n$$\n9 \\text{ shelves} \\times 14 \\text{ books per shelf} = 126 \\text{ books}\n$$\n\n**Answer:** 126 books."
+        },
+        {
+          "role": "user",
+          "content": "Now include the boxed books from our fixed inputs. What is the running total?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787320930-93MJAlawrUS0kFpp4jlT",
+        "object": "chat.completion",
+        "created": 1787320930,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The running total is calculated by adding the boxed books (22) to the total books on the shelves (126):\n\n$$\n126 + 22 = 148\n$$\n\n**Answer:** 148 books.",
+              "refusal": null,
+              "reasoning": null
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 199,
+          "completion_tokens": 52,
+          "total_tokens": 251,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-d",
+      "prompt_hash": "putbgc",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: shelves = 9, books per shelf = 14, boxed books to add = 22."
+        },
+        {
+          "role": "user",
+          "content": "So how many books in total on the shelves?"
+        },
+        {
+          "role": "assistant",
+          "content": "The total number of books on the shelves is calculated by multiplying the number of shelves by the number of books per shelf:\n\n$$\n9 \\text{ shelves} \\times 14 \\text{ books per shelf} = 126 \\text{ books}\n$$\n\n**Answer:** 126 books."
+        },
+        {
+          "role": "user",
+          "content": "Now include the boxed books from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "The running total is calculated by adding the boxed books (22) to the total books on the shelves (126):\n\n$$\n126 + 22 = 148\n$$\n\n**Answer:** 148 books."
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787320932-9c2fwSc1Gi9w3Uvkia0S",
+        "object": "chat.completion",
+        "created": 1787320932,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Here are the running numbers restated clearly:  \n\n- **Shelves**: 9  \n- **Books per shelf**: 14  \n- **Total books on shelves**: 126  \n- **Boxed books to add**: 22  \n- **Running total (including boxed books)**: 148  \n\nAll values align with the fixed inputs provided.",
+              "refusal": null,
+              "reasoning": null
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 275,
+          "completion_tokens": 84,
+          "total_tokens": 359,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "y16ljh",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: shelves = 9, books per shelf = 14, boxed books to add = 22."
+        },
+        {
+          "role": "user",
+          "content": "So how many books in total on the shelves?"
+        },
+        {
+          "role": "assistant",
+          "content": "The total number of books on the shelves is calculated by multiplying the number of shelves by the number of books per shelf:\n\n$$\n9 \\text{ shelves} \\times 14 \\text{ books per shelf} = 126 \\text{ books}\n$$\n\n**Answer:** 126 books."
+        },
+        {
+          "role": "user",
+          "content": "Now include the boxed books from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "The running total is calculated by adding the boxed books (22) to the total books on the shelves (126):\n\n$$\n126 + 22 = 148\n$$\n\n**Answer:** 148 books."
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Here are the running numbers restated clearly:  \n\n- **Shelves**: 9  \n- **Books per shelf**: 14  \n- **Total books on shelves**: 126  \n- **Boxed books to add**: 22  \n- **Running total (including boxed books)**: 148  \n\nAll values align with the fixed inputs provided."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of books (from the shelves plus the boxed books) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787320933-ACOrQaylNzPVTz1VXozZ",
+        "object": "chat.completion",
+        "created": 1787320933,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of books, combining the shelf contents and the boxed books, is calculated as follows:  \n- Books on shelves: 9 shelves × 14 books = 126  \n- Boxed books to add: 22  \n- **Total**: 126 + 22 = **148**  \n\n148",
+              "refusal": null,
+              "reasoning": null
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 409,
+          "completion_tokens": 79,
+          "total_tokens": 488,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 6807
+}

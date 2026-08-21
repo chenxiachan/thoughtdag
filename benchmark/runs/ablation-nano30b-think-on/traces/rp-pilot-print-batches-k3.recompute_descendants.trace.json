@@ -1,0 +1,353 @@
+{
+  "case_id": "rp-pilot-print-batches-k3",
+  "condition": "recompute_descendants",
+  "run_id": "ablation-nano30b-think-on",
+  "capture": {
+    "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+    "temperature": 0,
+    "run_date": "2026-08-21",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "1uuad79",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 6 batches, each batch holds 25 pages, and 40 cover pages must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: batches = 6, pages per batch = 25, cover pages to add = 40."
+        },
+        {
+          "role": "user",
+          "content": "So how many pages in total on the batches?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787321631-nYdSPddEvwLH7fZPngnp",
+        "object": "chat.completion",
+        "created": 1787321631,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The batches contain:\n\n- **6 batches** × **25 pages per batch** = **150 pages**  \n\nSo, the batches together hold **150 pages** (before any cover pages are added). If you later add the 40 cover pages, the overall total would be 150 + 40 = 190 pages.",
+              "refusal": null,
+              "reasoning": "We need to compute total pages in batches: 6 batches * 25 pages = 150 pages. Then add 40 cover pages? The user asks \"So how many pages in total on the batches?\" Probably just the batch pages, not including cover pages. So answer: 150 pages. Could also mention that adding cover pages would make 190 total. But they asked specifically \"pages in total on the batches\". So answer: 150 pages.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to compute total pages in batches: 6 batches * 25 pages = 150 pages. Then add 40 cover pages? The user asks \"So how many pages in total on the batches?\" Probably just the batch pages, not including cover pages. So answer: 150 pages. Could also mention that adding cover pages would make 190 total. But they asked specifically \"pages in total on the batches\". So answer: 150 pages.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 104,
+          "completion_tokens": 184,
+          "total_tokens": 288,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 98,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-c",
+      "prompt_hash": "18fp94i",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 6 batches, each batch holds 25 pages, and 40 cover pages must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: batches = 6, pages per batch = 25, cover pages to add = 40."
+        },
+        {
+          "role": "user",
+          "content": "So how many pages in total on the batches?"
+        },
+        {
+          "role": "assistant",
+          "content": "The batches contain:\n\n- **6 batches** × **25 pages per batch** = **150 pages**  \n\nSo, the batches together hold **150 pages** (before any cover pages are added). If you later add the 40 cover pages, the overall total would be 150 + 40 = 190 pages."
+        },
+        {
+          "role": "user",
+          "content": "Now include the cover pages from our fixed inputs. What is the running total?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787321635-CHOWwbeb5Nqo9lRBDKlA",
+        "object": "chat.completion",
+        "created": 1787321635,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The batches contain  \n\n- 6 batches × 25 pages per batch = **150 pages**.\n\nAdding the required cover pages (40) gives the running total:\n\n**150 + 40 = 190 pages**.",
+              "refusal": null,
+              "reasoning": "We need to compute total pages including cover pages. Fixed inputs: 6 batches, each 25 pages => 150 pages. Plus 40 cover pages must be added to any total. So running total = 150 + 40 = 190 pages. Provide answer.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to compute total pages including cover pages. Fixed inputs: 6 batches, each 25 pages => 150 pages. Plus 40 cover pages must be added to any total. So running total = 150 + 40 = 190 pages. Provide answer.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 212,
+          "completion_tokens": 121,
+          "total_tokens": 333,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 54,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-d",
+      "prompt_hash": "1a47yfq",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 6 batches, each batch holds 25 pages, and 40 cover pages must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: batches = 6, pages per batch = 25, cover pages to add = 40."
+        },
+        {
+          "role": "user",
+          "content": "So how many pages in total on the batches?"
+        },
+        {
+          "role": "assistant",
+          "content": "The batches contain:\n\n- **6 batches** × **25 pages per batch** = **150 pages**  \n\nSo, the batches together hold **150 pages** (before any cover pages are added). If you later add the 40 cover pages, the overall total would be 150 + 40 = 190 pages."
+        },
+        {
+          "role": "user",
+          "content": "Now include the cover pages from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "The batches contain  \n\n- 6 batches × 25 pages per batch = **150 pages**.\n\nAdding the required cover pages (40) gives the running total:\n\n**150 + 40 = 190 pages**."
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787321637-MHZxqyU3aVeV4GYkQd8G",
+        "object": "chat.completion",
+        "created": 1787321637,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "**Running numbers to date**\n\n- **Batches:** 6  \n- **Pages per batch:** 25  \n- **Total pages from batches:** 6 × 25 = **150 pages**  \n- **Cover pages to add (fixed input):** 40  \n- **Running total (batches + cover pages):** 150 + 40 = **190 pages**",
+              "refusal": null,
+              "reasoning": "We need to restate running numbers: batches 6, pages per batch 25, cover pages 40, total pages from batches 150, total including cover pages 190. Provide concise restatement.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to restate running numbers: batches 6, pages per batch 25, cover pages 40, total pages from batches 150, total including cover pages 190. Provide concise restatement.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 291,
+          "completion_tokens": 148,
+          "total_tokens": 439,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 45,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "18l9nxv",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 6 batches, each batch holds 25 pages, and 40 cover pages must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: batches = 6, pages per batch = 25, cover pages to add = 40."
+        },
+        {
+          "role": "user",
+          "content": "So how many pages in total on the batches?"
+        },
+        {
+          "role": "assistant",
+          "content": "The batches contain:\n\n- **6 batches** × **25 pages per batch** = **150 pages**  \n\nSo, the batches together hold **150 pages** (before any cover pages are added). If you later add the 40 cover pages, the overall total would be 150 + 40 = 190 pages."
+        },
+        {
+          "role": "user",
+          "content": "Now include the cover pages from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "The batches contain  \n\n- 6 batches × 25 pages per batch = **150 pages**.\n\nAdding the required cover pages (40) gives the running total:\n\n**150 + 40 = 190 pages**."
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "**Running numbers to date**\n\n- **Batches:** 6  \n- **Pages per batch:** 25  \n- **Total pages from batches:** 6 × 25 = **150 pages**  \n- **Cover pages to add (fixed input):** 40  \n- **Running total (batches + cover pages):** 150 + 40 = **190 pages**"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of pages (from the batches plus the cover pages) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787321640-v5gsWVasPtEedKY7d622",
+        "object": "chat.completion",
+        "created": 1787321640,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of pages, combining the batch pages and the required cover pages, is:\n\n190\n\n190",
+              "refusal": null,
+              "reasoning": "We need to output a single number as the total pages (batches + cover pages). Fixed inputs: 6 batches, each 25 pages => 150 pages. Add 40 cover pages => 190. So answer should be just the number 190 on the last line, and presumably we can have some preceding text? The instruction: \"Using our fixed inputs, state the total number of pages (from the batches plus the cover pages) as a single number. End your reply with the number alone on the last line.\" So we can have explanation before, but final line must be just the number. Provide maybe a brief statement then final line \"190\". Ensure last line is just \"190\". No extra spaces? Probably just \"190\". Let's comply.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to output a single number as the total pages (batches + cover pages). Fixed inputs: 6 batches, each 25 pages => 150 pages. Add 40 cover pages => 190. So answer should be just the number 190 on the last line, and presumably we can have some preceding text? The instruction: \"Using our fixed inputs, state the total number of pages (from the batches plus the cover pages) as a single number. End your reply with the number alone on the last line.\" So we can have explanation before, but final line must be just the number. Provide maybe a brief statement then final line \"190\". Ensure last line is just \"190\". No extra spaces? Probably just \"190\". Let's comply.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 438,
+          "completion_tokens": 197,
+          "total_tokens": 635,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 168,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 12332
+}

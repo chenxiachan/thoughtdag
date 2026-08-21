@@ -1,0 +1,232 @@
+{
+  "case_id": "rp-pilot-garden-rows-k2",
+  "condition": "recompute_descendants",
+  "run_id": "ablation-nano30b-think-off",
+  "capture": {
+    "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+    "temperature": 0,
+    "run_date": "2026-08-21",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "1yftvvu",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 16 rows, each row holds 6 plants, and 9 potted plants must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: rows = 16, plants per row = 6, potted plants to add = 9."
+        },
+        {
+          "role": "user",
+          "content": "So how many plants in total on the rows?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787320953-vt4qUb7mXbWwvU605CFQ",
+        "object": "chat.completion",
+        "created": 1787320953,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The rows contain 16 rows × 6 plants per row = 96 plants.  \nAdding the 9 potted plants gives a total of 96 + 9 = 105 plants.  \n\n**Total plants: 105**.",
+              "refusal": null,
+              "reasoning": null
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 104,
+          "completion_tokens": 57,
+          "total_tokens": 161,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-c",
+      "prompt_hash": "199k21b",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 16 rows, each row holds 6 plants, and 9 potted plants must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: rows = 16, plants per row = 6, potted plants to add = 9."
+        },
+        {
+          "role": "user",
+          "content": "So how many plants in total on the rows?"
+        },
+        {
+          "role": "assistant",
+          "content": "The rows contain 16 rows × 6 plants per row = 96 plants.  \nAdding the 9 potted plants gives a total of 96 + 9 = 105 plants.  \n\n**Total plants: 105**."
+        },
+        {
+          "role": "user",
+          "content": "Now include the potted plants from our fixed inputs. What is the running total?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787320955-IzeesIBVPUX7X368XS9w",
+        "object": "chat.completion",
+        "created": 1787320955,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The running total including the potted plants is **105**.  \n\n**Breakdown**:  \n- Plants on rows: 16 rows × 6 plants = **96**  \n- Potted plants (fixed input): **+9**  \n- **Total**: 96 + 9 = **105**  \n\nThis remains the current running total.",
+              "refusal": null,
+              "reasoning": null
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 190,
+          "completion_tokens": 81,
+          "total_tokens": 271,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "24lgge",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 16 rows, each row holds 6 plants, and 9 potted plants must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: rows = 16, plants per row = 6, potted plants to add = 9."
+        },
+        {
+          "role": "user",
+          "content": "So how many plants in total on the rows?"
+        },
+        {
+          "role": "assistant",
+          "content": "The rows contain 16 rows × 6 plants per row = 96 plants.  \nAdding the 9 potted plants gives a total of 96 + 9 = 105 plants.  \n\n**Total plants: 105**."
+        },
+        {
+          "role": "user",
+          "content": "Now include the potted plants from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "The running total including the potted plants is **105**.  \n\n**Breakdown**:  \n- Plants on rows: 16 rows × 6 plants = **96**  \n- Potted plants (fixed input): **+9**  \n- **Total**: 96 + 9 = **105**  \n\nThis remains the current running total."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of plants (from the rows plus the potted plants) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787320957-PXnwp4jh6yl85SLXwIFh",
+        "object": "chat.completion",
+        "created": 1787320957,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of plants, combining the plants from the rows and the potted plants, is calculated as follows:  \n- Plants on rows: 16 rows × 6 plants per row = 96  \n- Potted plants (fixed input): 9  \n- **Total**: 96 + 9 = 105  \n\n105",
+              "refusal": null,
+              "reasoning": null
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 321,
+          "completion_tokens": 79,
+          "total_tokens": 400,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 12809
+}

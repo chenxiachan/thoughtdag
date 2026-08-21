@@ -1,0 +1,321 @@
+{
+  "case_id": "rp-pilot-orchard-bins-k3",
+  "condition": "recompute_descendants",
+  "run_id": "ablation-nano30b-think-off",
+  "capture": {
+    "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+    "temperature": 0,
+    "run_date": "2026-08-21",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "1yehyek",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "So how many apples in total on the bins?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787321117-yRTU37EaY2oDSI7pw1vC",
+        "object": "chat.completion",
+        "created": 1787321117,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of apples on the bins is calculated as follows:\n\n- Each of the 7 bins holds 13 apples → 7 × 13 = 91 apples.\n- Add the 18 windfall apples → 91 + 18 = **109 apples**.\n\n**Total: 109 apples**.",
+              "refusal": null,
+              "reasoning": null
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 106,
+          "completion_tokens": 72,
+          "total_tokens": 178,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-c",
+      "prompt_hash": "zxlda7",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "So how many apples in total on the bins?"
+        },
+        {
+          "role": "assistant",
+          "content": "The total number of apples on the bins is calculated as follows:\n\n- Each of the 7 bins holds 13 apples → 7 × 13 = 91 apples.\n- Add the 18 windfall apples → 91 + 18 = **109 apples**.\n\n**Total: 109 apples**."
+        },
+        {
+          "role": "user",
+          "content": "Now include the windfall apples from our fixed inputs. What is the running total?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787321121-UYYoDEMR5SJeeNgn3IxP",
+        "object": "chat.completion",
+        "created": 1787321121,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The running total, including the fixed windfall apples, is calculated as follows:\n\n- Apples on the bins: 7 bins × 13 apples/bin = **91 apples**.  \n- Add the fixed windfall apples: 91 + 18 = **109 apples**.  \n\n**Running total: 109 apples**.  \n\n*(This matches the prior calculation, as the windfall apples are already included in the fixed inputs.)*",
+              "refusal": null,
+              "reasoning": null
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 207,
+          "completion_tokens": 98,
+          "total_tokens": 305,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-d",
+      "prompt_hash": "211wi",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "So how many apples in total on the bins?"
+        },
+        {
+          "role": "assistant",
+          "content": "The total number of apples on the bins is calculated as follows:\n\n- Each of the 7 bins holds 13 apples → 7 × 13 = 91 apples.\n- Add the 18 windfall apples → 91 + 18 = **109 apples**.\n\n**Total: 109 apples**."
+        },
+        {
+          "role": "user",
+          "content": "Now include the windfall apples from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "The running total, including the fixed windfall apples, is calculated as follows:\n\n- Apples on the bins: 7 bins × 13 apples/bin = **91 apples**.  \n- Add the fixed windfall apples: 91 + 18 = **109 apples**.  \n\n**Running total: 109 apples**.  \n\n*(This matches the prior calculation, as the windfall apples are already included in the fixed inputs.)*"
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787321123-SPW8ETmWXghrMMCoaJMw",
+        "object": "chat.completion",
+        "created": 1787321123,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Here are the running numbers, restated clearly:  \n\n- **Apples on bins**: 7 bins × 13 apples/bin = **91 apples**  \n- **Windfall apples added**: **18 apples** (fixed input)  \n- **Running total**: 91 + 18 = **109 apples**  \n\n**Summary**:  \n- Total apples on bins: **91**  \n- Windfall apples added: **18**  \n- **Final running total: 109 apples**  \n\nAll values are based on your fixed inputs. No further adjustments needed.",
+              "refusal": null,
+              "reasoning": null
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 329,
+          "completion_tokens": 133,
+          "total_tokens": 462,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "grkmhk",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "So how many apples in total on the bins?"
+        },
+        {
+          "role": "assistant",
+          "content": "The total number of apples on the bins is calculated as follows:\n\n- Each of the 7 bins holds 13 apples → 7 × 13 = 91 apples.\n- Add the 18 windfall apples → 91 + 18 = **109 apples**.\n\n**Total: 109 apples**."
+        },
+        {
+          "role": "user",
+          "content": "Now include the windfall apples from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "The running total, including the fixed windfall apples, is calculated as follows:\n\n- Apples on the bins: 7 bins × 13 apples/bin = **91 apples**.  \n- Add the fixed windfall apples: 91 + 18 = **109 apples**.  \n\n**Running total: 109 apples**.  \n\n*(This matches the prior calculation, as the windfall apples are already included in the fixed inputs.)*"
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Here are the running numbers, restated clearly:  \n\n- **Apples on bins**: 7 bins × 13 apples/bin = **91 apples**  \n- **Windfall apples added**: **18 apples** (fixed input)  \n- **Running total**: 91 + 18 = **109 apples**  \n\n**Summary**:  \n- Total apples on bins: **91**  \n- Windfall apples added: **18**  \n- **Final running total: 109 apples**  \n\nAll values are based on your fixed inputs. No further adjustments needed."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787321126-dh5ZJH7HhBOq187f6r3U",
+        "object": "chat.completion",
+        "created": 1787321126,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of apples, calculated from the fixed inputs (7 bins × 13 apples per bin = 91 apples, plus 18 windfall apples), is:\n\n91 + 18 = 109\n\n109",
+              "refusal": null,
+              "reasoning": null
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 512,
+          "completion_tokens": 53,
+          "total_tokens": 565,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 10280
+}

@@ -162,7 +162,23 @@
           </div>
           <h3>An exploratory 30B comparison, and a correction</h3>
           <p>The registered prediction was that an explicitly reasoning model would "think through" contaminated echoes and resist them better than a non-reasoning sibling. The comparison as captured does not test this, for two reasons. The endpoints are different models rather than one model with a switch: the reasoning endpoint is the Omni variant, which ships vision and speech encoders, while its sibling is text-only. And both were run with provider-default reasoning settings, so reasoning was never explicitly toggled on either side.</p>
-          <p>What remains is an exploratory observation between two same-vendor, similar-scale endpoints: the Omni reasoning endpoint recovered 14/18 under source-only pruning against the text-only sibling's 16/18, and produced the only misinformation-type source-prune failure observed in any endpoint. Because the endpoints differ and reasoning was provider-default, this comparison does not isolate the effect of reasoning. A controlled ablation takes one text-only model with reasoning explicitly toggled per request; that experiment is planned, and any claim about reasoning is withheld until it runs.</p>
+          <p>What remains of that comparison is an exploratory observation between two same-vendor, similar-scale endpoints: 14/18 against 16/18 under source-only pruning. Because the endpoints differ and reasoning was provider-default on both, it isolates nothing.</p>
+          <h3>The controlled ablation: reasoning protects repair, and by a wide margin</h3>
+          <p>The valid experiment ran on August 21: one text-only model (Nemotron-3 Nano 30B), the full 135-condition suite twice, with reasoning explicitly toggled per request. The toggle was probe-verified before the run and audited across every captured call afterwards: 28,187 reasoning tokens with the switch on, exactly zero with it off.</p>
+          <div class="report-table-wrap">
+            <table class="report-table">
+              <thead><tr><th></th><th>Reasoning ON</th><th>Reasoning OFF</th></tr></thead>
+              <tbody>
+                <tr><td>Clean accuracy</td><td>27/27</td><td>27/27</td></tr>
+                <tr><td>Harm (mis / temp / distractor)</td><td>9/9 · 9/9 · 0/9</td><td>9/9 · 9/9 · 0/9</td></tr>
+                <tr><td>Delete source only</td><td><strong>16/18</strong></td><td><strong>2/18</strong></td></tr>
+                <tr><td>Delete contaminated subgraph</td><td>18/18</td><td>15/18</td></tr>
+                <tr><td>Delete source and recompute</td><td>18/18</td><td>18/18</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>Three results, each sharp. First, the registered prediction survives its valid test: with reasoning off, source-only recovery collapses from 16/18 to 2/18. A model that cannot deliberate adopts the contaminated echoes almost every time; deliberation is what lets it doubt them. Second, harm is untouched: the three-way pollution split is identical on both sides. Reasoning does not prevent a model from being derailed. It only changes what the model can recover from afterwards. Third, the repair hierarchy itself reorders without reasoning: recompute stays perfect at 18/18, subgraph deletion slips to 15/18, and source-only deletion all but fails. The subgraph failures are instructive: with the contaminated turns excised, the context is clean but the intermediate steps are gone, and the non-reasoning model miscalculates from the bare inputs (one failure literally concatenates 96 and 9 into 969). Deleting restores cleanliness but not the work; recomputation restores both, and for a non-reasoning model that difference is decisive.</p>
+          <p>This also resolves the earlier confusion. The wave-2 "non-reasoning" endpoint was quietly reasoning all along under provider defaults (97 reasoning tokens in the verification probe), which is why the invalid comparison pointed the wrong way.</p>
           <h3>Repair robustness is not a function of scale</h3>
           <p>The second registered prediction was that a 9B model would break the clean-accuracy ceiling and show weaker repair. It did neither: Nemotron Nano 9B answered 27/27 clean and recovered every derailed case under every strategy, a perfect score its own 30B siblings did not match. Across seven endpoints, resistance to residual contamination tracks neither parameter count nor vendor; it looks like an individual property of the training recipe.</p>
           <p class="report-meta">Two further endpoints are still being captured through free-tier rate limits: GLM-5.2 as a same-vendor generation pair and Gemma 4 31B dense as an architecture pair. They will be added when complete.</p>

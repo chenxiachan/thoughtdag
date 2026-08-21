@@ -1,0 +1,353 @@
+{
+  "case_id": "rp-pilot-bakery-trays-k3",
+  "condition": "recompute_descendants",
+  "run_id": "ablation-nano30b-think-on",
+  "capture": {
+    "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+    "temperature": 0,
+    "run_date": "2026-08-21",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "jpxfpq",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15."
+        },
+        {
+          "role": "user",
+          "content": "So how many rolls in total on the trays?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787320807-ULSJ15sCh6p9D3LRtuXn",
+        "object": "chat.completion",
+        "created": 1787320807,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The trays hold  \n\n\\(12 \\text{ trays} \\times 8 \\text{ rolls per tray} = 96 \\text{ rolls}\\).\n\nSo there are **96 rolls on the trays**. (If you also include the 15 loose rolls, the overall total would be 111 rolls.)",
+              "refusal": null,
+              "reasoning": "We need to compute total rolls on the trays: 12 trays * 8 rolls per tray = 96 rolls. Then add 15 loose rolls? The question: \"So how many rolls in total on the trays?\" Might just ask for total rolls on the trays (i.e., 96). Or maybe they want total including loose rolls? The phrasing: \"So how many rolls in total on the trays?\" Probably just the trays count, not including loose rolls. So answer: 96 rolls on the trays. If they want total including loose rolls, that would be 111. But they specifically said \"on the trays\". So answer: 96.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to compute total rolls on the trays: 12 trays * 8 rolls per tray = 96 rolls. Then add 15 loose rolls? The question: \"So how many rolls in total on the trays?\" Might just ask for total rolls on the trays (i.e., 96). Or maybe they want total including loose rolls? The phrasing: \"So how many rolls in total on the trays?\" Probably just the trays count, not including loose rolls. So answer: 96 rolls on the trays. If they want total including loose rolls, that would be 111. But they specifically said \"on the trays\". So answer: 96.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 107,
+          "completion_tokens": 224,
+          "total_tokens": 331,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 136,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-c",
+      "prompt_hash": "1u5yk36",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15."
+        },
+        {
+          "role": "user",
+          "content": "So how many rolls in total on the trays?"
+        },
+        {
+          "role": "assistant",
+          "content": "The trays hold  \n\n\\(12 \\text{ trays} \\times 8 \\text{ rolls per tray} = 96 \\text{ rolls}\\).\n\nSo there are **96 rolls on the trays**. (If you also include the 15 loose rolls, the overall total would be 111 rolls.)"
+        },
+        {
+          "role": "user",
+          "content": "Now include the loose rolls from our fixed inputs. What is the running total?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787320811-nU4vxi6eanF2WPVD1Ic6",
+        "object": "chat.completion",
+        "created": 1787320811,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The trays hold  \n\n\\(12 \\text{ trays} \\times 8 \\text{ rolls per tray} = 96 \\text{ rolls}\\).\n\nAdd the 15 loose rolls that must be included:\n\n\\(96 \\text{ rolls} + 15 \\text{ loose rolls} = 111 \\text{ rolls}\\).\n\n**Running total = 111 rolls.**",
+              "refusal": null,
+              "reasoning": "We need to compute total rolls including loose rolls. Fixed inputs: 12 trays, each holds 8 rolls, and 15 loose rolls must be added to any total. So total = 12*8 + 15 = 96 + 15 = 111. Provide answer.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to compute total rolls including loose rolls. Fixed inputs: 12 trays, each holds 8 rolls, and 15 loose rolls must be added to any total. So total = 12*8 + 15 = 96 + 15 = 111. Provide answer.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 206,
+          "completion_tokens": 155,
+          "total_tokens": 361,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 51,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-d",
+      "prompt_hash": "yeocmd",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15."
+        },
+        {
+          "role": "user",
+          "content": "So how many rolls in total on the trays?"
+        },
+        {
+          "role": "assistant",
+          "content": "The trays hold  \n\n\\(12 \\text{ trays} \\times 8 \\text{ rolls per tray} = 96 \\text{ rolls}\\).\n\nSo there are **96 rolls on the trays**. (If you also include the 15 loose rolls, the overall total would be 111 rolls.)"
+        },
+        {
+          "role": "user",
+          "content": "Now include the loose rolls from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "The trays hold  \n\n\\(12 \\text{ trays} \\times 8 \\text{ rolls per tray} = 96 \\text{ rolls}\\).\n\nAdd the 15 loose rolls that must be included:\n\n\\(96 \\text{ rolls} + 15 \\text{ loose rolls} = 111 \\text{ rolls}\\).\n\n**Running total = 111 rolls.**"
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787320815-FM0AI15S0pROOWZAdB4v",
+        "object": "chat.completion",
+        "created": 1787320815,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "**Running numbers to date**\n\n- **Trays:** 12  \n- **Rolls per tray:** 8  \n- **Loose rolls to add:** 15  \n\n**Calculated totals**\n\n- **Rolls on the trays:** 12 × 8 = 96  \n- **Overall running total (trays + loose rolls):** 96 + 15 = 111  \n\nSo far we have 96 rolls on the trays, and when the 15 loose rolls are included the total is **111 rolls**.",
+              "refusal": null,
+              "reasoning": "We need to restate running numbers: trays 12, rolls per tray 8, loose rolls 15, total on trays 96, total including loose 111. Provide concise restatement.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to restate running numbers: trays 12, rolls per tray 8, loose rolls 15, total on trays 96, total including loose 111. Provide concise restatement.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 316,
+          "completion_tokens": 181,
+          "total_tokens": 497,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 40,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "ruyfxc",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15."
+        },
+        {
+          "role": "user",
+          "content": "So how many rolls in total on the trays?"
+        },
+        {
+          "role": "assistant",
+          "content": "The trays hold  \n\n\\(12 \\text{ trays} \\times 8 \\text{ rolls per tray} = 96 \\text{ rolls}\\).\n\nSo there are **96 rolls on the trays**. (If you also include the 15 loose rolls, the overall total would be 111 rolls.)"
+        },
+        {
+          "role": "user",
+          "content": "Now include the loose rolls from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "The trays hold  \n\n\\(12 \\text{ trays} \\times 8 \\text{ rolls per tray} = 96 \\text{ rolls}\\).\n\nAdd the 15 loose rolls that must be included:\n\n\\(96 \\text{ rolls} + 15 \\text{ loose rolls} = 111 \\text{ rolls}\\).\n\n**Running total = 111 rolls.**"
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "**Running numbers to date**\n\n- **Trays:** 12  \n- **Rolls per tray:** 8  \n- **Loose rolls to add:** 15  \n\n**Calculated totals**\n\n- **Rolls on the trays:** 12 × 8 = 96  \n- **Overall running total (trays + loose rolls):** 96 + 15 = 111  \n\nSo far we have 96 rolls on the trays, and when the 15 loose rolls are included the total is **111 rolls**."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787320826-j61jakEDLSGLeFl2YlL2",
+        "object": "chat.completion",
+        "created": 1787320826,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of rolls, combining the rolls on the trays with the loose rolls, is:\n\n\\(12 \\text{ trays} \\times 8 \\text{ rolls per tray} = 96\\) rolls on the trays.  \nAdd the 15 loose rolls: \\(96 + 15 = 111\\).\n\n111",
+              "refusal": null,
+              "reasoning": "We need to output a single number as the total rolls (trays plus loose rolls). Fixed inputs: 12 trays, each holds 8 rolls, plus 15 loose rolls. So total = 12*8 + 15 = 96 + 15 = 111. Must end reply with the number alone on the last line. So we can give some explanation before, but final line must be just \"111\". Ensure no extra spaces or characters after. Provide answer.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to output a single number as the total rolls (trays plus loose rolls). Fixed inputs: 12 trays, each holds 8 rolls, plus 15 loose rolls. So total = 12*8 + 15 = 96 + 15 = 111. Must end reply with the number alone on the last line. So we can give some explanation before, but final line must be just \"111\". Ensure no extra spaces or characters after. Provide answer.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 498,
+          "completion_tokens": 188,
+          "total_tokens": 686,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 94,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 22868
+}
