@@ -1,0 +1,66 @@
+{
+  "case_id": "rp-pilot-ferry-decks-k1",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1t07vs1",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "So how many seats in total on the decks?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 4 decks and 22 seats each, that is 4 × 22 = 88. (the sister ferry's 5 decks mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "The total number of seats is calculated by first finding the seats from the decks and then adding the standing places. With 4 decks and 22 seats per deck, the deck seats total 4 × 22 = 88. Adding the 17 standing places gives 88 + 17 = 105.\n\n105",
+              "reasoning_content": "\nFirst, the user has fixed inputs: 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total.\n\nFrom the previous interaction, I calculated the total seats from the decks: 4 decks × 22 seats per deck = 88 seats.\n\nNow, I need to add the standing places. The user says \"17 standing places must be added to any total.\" So, I need to add these 17 standing places to the deck seats.\n\nTherefore, total capacity = seats from decks + standing places = 88 + 17.\n\nLet me compute that: 88 + 17 = 105.\n\nThe user asks for the total number of seats (from the decks plus the standing places) as a single number, and to end the reply with the number alone on the last line.\n\nSo, my response should have some explanation, but the last line must be just the number.\n\nI should confirm what \"seats\" means here. The user says \"total number of seats (from the decks plus the standing places)\". Standing places are not typically called seats, but in this context, it seems they are including both as part of the total capacity. The user specified \"seats\" in parentheses, but it might be a bit misleading. However, based on the query, I need to include both.\n\nRe-reading the user's message: \"state the total number of seats (from the decks plus the standing places)\". So, they are defining \"seats\" in this context to include both the deck seats and the standing places. That makes sense for total capacity.\n\nSo, total is 88 (deck seats) + 17 (standing places) = 105.\n\nNow, for the reply: I should provide a brief explanation, but end with the number alone.\n\nFor example: \"The total number of seats, including both deck seats and standing places, is 105.\" Then on the next line, just \"105\".\n\nThe user said \"End your reply with the number alone on the last line.\" So, I need to make sure that the last line is only the number.\n\nAlso, in the previous response, I had a calculation, but this is a new query, so I should start fresh.\n\nTo be precise: fixed inputs are decks=4, seats per deck=22, standing places=17.\n\nDeck seats total: 4 * 22 = 88.\n\nAdd standing places: 88 + 17 = 105.\n\nSo, final answer is 105.\n\nI think that's straightforward.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786886110,
+        "id": "2026081621141702477e56aa5c46ac",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "2026081621141702477e56aa5c46ac",
+        "usage": {
+          "completion_tokens": 585,
+          "prompt_tokens": 163,
+          "prompt_tokens_details": {
+            "cached_tokens": 108
+          },
+          "total_tokens": 748
+        }
+      }
+    }
+  ],
+  "latency_ms": 53172
+}

@@ -1,0 +1,58 @@
+{
+  "case_id": "rp-pilot-ferry-decks-k3",
+  "condition": "subgraph_prune",
+  "run_id": "pilot-v1-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "m31509",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "The total number of seats is calculated by multiplying the number of decks by the seats per deck and then adding the standing places.  \n4 decks × 22 seats per deck = 88 seats.  \n88 seats + 17 standing places = 105.  \n105",
+              "reasoning_content": "\nFirst, the fixed inputs are: 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total.\n\nI need to find the total number of seats, which includes both the seats from the decks and the standing places.\n\nStep 1: Calculate the total seats from the decks.\n\nThere are 4 decks, and each deck has 22 seats. So, total deck seats = number of decks × seats per deck.\n\nThat would be 4 × 22.\n\nLet me compute that: 4 × 20 = 80, and 4 × 2 = 8, so 80 + 8 = 88. Or directly, 4 × 22 = 88.\n\nSo, total deck seats = 88.\n\nStep 2: Add the standing places.\n\nThe standing places are 17, and they must be added to the total.\n\nSo, total seats = deck seats + standing places = 88 + 17.\n\n88 + 17: 88 + 10 = 98, and 98 + 7 = 105. Or 88 + 17 = 105.\n\nTherefore, the total number of seats is 105.\n\nThe user said \"state the total number of seats (from the decks plus the standing places) as a single number.\" And \"end your reply with the number alone on the last line.\"\n\nSo, I should just have the number 105 on the last line. But I need to make sure the response is clear. The user might expect some explanation, but the instruction says to end with the number alone, so I should probably have a brief response and then the number.\n\nRe-reading the user's message: \"Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\"\n\nSo, I can have a sentence or two, but the last line should be just the number.\n\nFor example: \"The total number of seats is 105.\" and then on the next line, just \"105\".\n\nBut to be precise, I'll keep it simple.\n\nSince it's a planning task, and I need to output the number, I'll do that.\n\nFinal calculation: 4 decks × 22 seats/deck = 88 seats.\n\n88 seats + 17 standing places = 105 total seats.\n\nYes.\n\nI think that's correct.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786886445,
+        "id": "20260816212021c6ab1b439c1a4b62",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "20260816212021c6ab1b439c1a4b62",
+        "usage": {
+          "completion_tokens": 555,
+          "prompt_tokens": 110,
+          "prompt_tokens_details": {
+            "cached_tokens": 109
+          },
+          "total_tokens": 665
+        }
+      }
+    }
+  ],
+  "latency_ms": 23494
+}

@@ -1,0 +1,110 @@
+{
+  "case_id": "rp-pilot-lab-samples-k2",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-gptoss20b",
+  "capture": {
+    "model": "openai/gpt-oss-20b:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "gyi3d6",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 3 batches, each batch holds 20 samples, and 8 control samples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: batches = 3, samples per batch = 20, control samples to add = 8."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 20 samples per batch was a counting error. The verified figure is 26. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 20 per batch is retracted; verified figure is 26 samples per batch."
+        },
+        {
+          "role": "user",
+          "content": "So how many samples in total on the batches?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 3 batches and 20 samples each, that is 3 × 20 = 60."
+        },
+        {
+          "role": "user",
+          "content": "Now include the control samples from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 60 + 8 = 68."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of samples (from the batches plus the control samples) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786888609-PHtgQD89JTLibqszx6zI",
+        "object": "chat.completion",
+        "created": 1786888609,
+        "model": "openai/gpt-oss-20b:free",
+        "provider": "Darkbloom",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of samples (batches + controls) is 86.  \n86",
+              "refusal": null,
+              "reasoning": "We need to respond with the total number of samples from batches plus control samples. But we have conflicting fixed inputs: earlier we had 20 per batch, then corrected to 26 per batch. The user says \"Using our fixed inputs, state the total number of samples (from the batches plus the control samples) as a single number. End your reply with the number alone on the last line.\" So we need to use the latest fixed inputs: 3 batches, each 26 samples, plus 8 control samples. So total = 3*26 + 8 = 78 + 8 = 86. We should output the number alone on the last line. Probably we can give a short answer: \"86\" on last line. The instruction: \"state the total number of samples (from the batches plus the control samples) as a single number. End your reply with the number alone on the last line.\" So we can write something like:\n\nTotal samples: 86\n\n86\n\nBut the last line must be the number alone. So we can do:\n\nTotal samples: 86\n\n86\n\nBut the last line is 86. That satisfies.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to respond with the total number of samples from batches plus control samples. But we have conflicting fixed inputs: earlier we had 20 per batch, then corrected to 26 per batch. The user says \"Using our fixed inputs, state the total number of samples (from the batches plus the control samples) as a single number. End your reply with the number alone on the last line.\" So we need to use the latest fixed inputs: 3 batches, each 26 samples, plus 8 control samples. So total = 3*26 + 8 = 78 + 8 = 86. We should output the number alone on the last line. Probably we can give a short answer: \"86\" on last line. The instruction: \"state the total number of samples (from the batches plus the control samples) as a single number. End your reply with the number alone on the last line.\" So we can write something like:\n\nTotal samples: 86\n\n86\n\nBut the last line must be the number alone. So we can do:\n\nTotal samples: 86\n\n86\n\nBut the last line is 86. That satisfies.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 314,
+          "completion_tokens": 263,
+          "total_tokens": 577,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.000022963,
+            "upstream_inference_prompt_cost": 0.000004553,
+            "upstream_inference_completions_cost": 0.00001841
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 236,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 8060
+}

@@ -1,0 +1,74 @@
+{
+  "case_id": "bm-ref-0001",
+  "condition": "selected_merge",
+  "run_id": "gate-v2-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1ogbzh5",
+      "messages": [
+        {
+          "role": "user",
+          "content": "I'm researching the film 'Stillwater Hours' and its production circle. Help me across a few threads."
+        },
+        {
+          "role": "assistant",
+          "content": "Understood. I'll help you track the people involved. Ask thread by thread."
+        },
+        {
+          "role": "user",
+          "content": "Who directed 'Stillwater Hours'?"
+        },
+        {
+          "role": "assistant",
+          "content": "According to the production notes you shared, 'Stillwater Hours' was directed by Lena Varkonen, a director known for slow-cinema framing."
+        },
+        {
+          "role": "user",
+          "content": "Where was Lena Varkonen born?"
+        },
+        {
+          "role": "assistant",
+          "content": "The biography excerpt states Lena Varkonen was born in Wildenport, a harbor town she often references in interviews."
+        },
+        {
+          "role": "user",
+          "content": "Based only on what we established in this conversation: in which town was the director of 'Stillwater Hours' born? Answer with the town name only. End your reply with the town name alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "Wildenport  \nWildenport",
+              "reasoning_content": "\nOkay, the user is asking about the birthplace of the director of 'Stillwater Hours' based solely on our previous conversation. Let me quickly recap what we've established so far. \n\nEarlier, I confirmed that Lena Varkonen directed the film, and then the user asked where she was born. I provided that information from the biography excerpt: Wildenport. Now the user wants just the town name, repeated at the end. \n\nHmm, the user seems very precise - they're emphasizing \"based only on what we established\" and want a minimal answer. Probably compiling research notes or needs a clean citation. The repetition request suggests they might be copying this into a document or database. \n\nI should strictly adhere to their formatting instructions: no extra text, just the town name on the last line. The answer is straightforward since we already covered this in the second exchange. \n\n*Double-checks memory* Yes, Wildenport was explicitly stated as her birthplace in the harbor town context. No ambiguity here. \n\nUser's tone is academic but efficient - they're clearly focused on data extraction rather than discussion. Best to deliver exactly what they requested without elaboration.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786879021,
+        "id": "2026081619165365c04ead11474abd",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "2026081619165365c04ead11474abd",
+        "usage": {
+          "completion_tokens": 247,
+          "prompt_tokens": 178,
+          "prompt_tokens_details": {
+            "cached_tokens": 133
+          },
+          "total_tokens": 425
+        }
+      }
+    }
+  ],
+  "latency_ms": 7823
+}

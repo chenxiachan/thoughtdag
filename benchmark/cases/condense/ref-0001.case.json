@@ -1,0 +1,171 @@
+{
+  "format": "thoughtdag-benchmark-case",
+  "version": 2,
+  "id": "cd-ref-0001",
+  "track": "condense",
+  "source": {
+    "dataset": "synthetic-research-log"
+  },
+  "construction": {
+    "language": "en",
+    "entity_type": "fictional",
+    "pollution_operator": "temporal-supersession"
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "setup",
+        "role": "background",
+        "content": {
+          "question": "We're optimizing the doping concentration of the VX-12 compound for sensor stability. Track my experiment log.",
+          "answer": "Ready. I'll keep track of hypotheses, results and revisions for the VX-12 doping series."
+        }
+      },
+      {
+        "id": "v1",
+        "role": "evidence",
+        "content": {
+          "question": "First batch results: stability peaked at 2% doping. Record the working conclusion.",
+          "answer": "Recorded: working conclusion v1 states 2% doping gives peak stability for VX-12, based on the first batch."
+        }
+      },
+      {
+        "id": "detour-1",
+        "role": "filler",
+        "content": {
+          "question": "Side note: could humidity in the lab have affected the electrode assembly?",
+          "answer": "Possibly. Humidity mainly affects electrode adhesion during assembly, but your assembly logs show the dry-room protocol was followed, so it is unlikely to change batch-level conclusions."
+        }
+      },
+      {
+        "id": "detour-2",
+        "role": "filler",
+        "content": {
+          "question": "Unrelated: remind me how the VX-11 series was archived last year.",
+          "answer": "The VX-11 series was archived by batch number with raw traces in the cold store and summaries in the shared drive, following the group's standard retention policy."
+        }
+      },
+      {
+        "id": "v2",
+        "role": "evidence",
+        "content": {
+          "question": "Correction from the re-run: the 2% peak was a measurement artifact from a miscalibrated probe. The corrected sweep shows the true peak at 4%. Update the working conclusion.",
+          "answer": "Updated: conclusion v1 (2%) is retracted as a measurement artifact. Working conclusion v2: peak stability at 4% doping, from the recalibrated sweep."
+        }
+      },
+      {
+        "id": "condensed",
+        "role": "condensation",
+        "content": {
+          "question": "[Condensed record of the VX-12 doping series]",
+          "answer": "VX-12 doping series, condensed: initial batch suggested a 2% peak, later retracted as a probe-calibration artifact. Current valid conclusion: peak stability at 4% doping (recalibrated sweep). Humidity ruled out as a factor."
+        },
+        "note": "Frozen reference condensation (~1/3 tokens of the full log)"
+      },
+      {
+        "id": "condensed-lossy",
+        "role": "condensation",
+        "content": {
+          "question": "[Condensed record of the VX-12 doping series]",
+          "answer": "VX-12 doping series, condensed: the first batch found peak stability at 2% doping. A recalibrated sweep also measured a peak at 4%. Humidity ruled out as a factor."
+        },
+        "note": "Negative control: supersession note missing, both values presented as live"
+      },
+      {
+        "id": "final",
+        "role": "final-question",
+        "content": {
+          "question": "Per our current valid conclusion, what doping concentration gives peak stability for VX-12? Answer with the percentage only. End your reply with the percentage alone on the last line.",
+          "answer": ""
+        }
+      }
+    ],
+    "edges": [
+      {
+        "from": "setup",
+        "to": "v1"
+      },
+      {
+        "from": "v1",
+        "to": "detour-1"
+      },
+      {
+        "from": "detour-1",
+        "to": "detour-2"
+      },
+      {
+        "from": "detour-2",
+        "to": "v2"
+      },
+      {
+        "from": "v2",
+        "to": "final"
+      }
+    ]
+  },
+  "conditions": {
+    "raw_full": {
+      "graph_ops": []
+    },
+    "dropped_detours": {
+      "graph_ops": [
+        {
+          "op": "remove_node",
+          "id": "detour-1"
+        },
+        {
+          "op": "remove_node",
+          "id": "detour-2"
+        },
+        {
+          "op": "add_edge",
+          "from": "v1",
+          "to": "v2"
+        }
+      ],
+      "note": "Renamed from matched_drop: this is remove-irrelevant-nodes, a real graph op. Token count reported, not forced equal (three-point token-accuracy curve)"
+    },
+    "fixed_condense": {
+      "graph_ops": [
+        {
+          "op": "remove_edge",
+          "from": "v2",
+          "to": "final"
+        },
+        {
+          "op": "add_edge",
+          "from": "condensed",
+          "to": "final"
+        }
+      ],
+      "note": "The condensed-copy rewiring: original chain becomes unreachable, distill node takes over"
+    },
+    "lossy_condense": {
+      "graph_ops": [
+        {
+          "op": "remove_edge",
+          "from": "v2",
+          "to": "final"
+        },
+        {
+          "op": "add_edge",
+          "from": "condensed-lossy",
+          "to": "final"
+        }
+      ],
+      "note": "Characteristic failure = answering 2%"
+    }
+  },
+  "scorer": {
+    "type": "exact-match",
+    "normalize": [
+      "lowercase",
+      "strip-punctuation"
+    ],
+    "extract": "last-percentage",
+    "gold_match": "equals-any",
+    "format": {
+      "type": "percentage-only"
+    }
+  }
+}

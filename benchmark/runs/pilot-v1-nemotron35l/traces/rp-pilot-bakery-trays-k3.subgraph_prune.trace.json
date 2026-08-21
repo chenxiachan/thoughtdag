@@ -1,0 +1,86 @@
+{
+  "case_id": "rp-pilot-bakery-trays-k3",
+  "condition": "subgraph_prune",
+  "run_id": "pilot-v1-nemotron35l",
+  "capture": {
+    "model": "nvidia/nemotron-3.5-lightning:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1kg5s5i",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786882263-DN5WFkKZvQFKiU4X0t1L",
+        "object": "chat.completion",
+        "created": 1786882263,
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of rolls is 111.  \n111",
+              "refusal": null,
+              "reasoning": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs: \n     - 12 trays\n     - Each tray holds 8 rolls\n     - 15 loose rolls must be added to any total\n   - Task: State the total number of rolls (from trays + loose rolls) as a single number.\n   - Output format: End reply with the number alone on the last line.\n\n2.  **Calculate Total Rolls:**\n   - Rolls from trays = 12 trays × 8 rolls/tray = 96 rolls\n   - Loose rolls = 15\n   - Total = 96 + 15 = 111\n\n3.  **Format Output:**\n   - I need to provide the answer, and end with the number alone on the last line.\n   - The user says: \"state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line.\"\n   - So I should probably explain briefly or just give the number at the end. But the instruction is clear: \"End your reply with the number alone on the last line.\"\n   - I'll write a brief sentence or just the calculation, but ensure the last line is just \"111\".\n\n   Let's structure it:\n   \"The total number of rolls is 111.\"\n   Last line: 111\n\n   Or maybe just:\n   111\n\n   But to be safe, I'll include a short statement and then the number on its own line.\n\n   Check: \"End your reply with the number alone on the last line.\" So the very last character/line should be the number.\n\n   I'll output:\n   The total number of rolls is 111.\n   111\n\n   That satisfies it.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs: \n     - 12 trays\n     - Each tray holds 8 rolls\n     - 15 loose rolls must be added to any total\n   - Task: State the total number of rolls (from trays + loose rolls) as a single number.\n   - Output format: End reply with the number alone on the last line.\n\n2.  **Calculate Total Rolls:**\n   - Rolls from trays = 12 trays × 8 rolls/tray = 96 rolls\n   - Loose rolls = 15\n   - Total = 96 + 15 = 111\n\n3.  **Format Output:**\n   - I need to provide the answer, and end with the number alone on the last line.\n   - The user says: \"state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line.\"\n   - So I should probably explain briefly or just give the number at the end. But the instruction is clear: \"End your reply with the number alone on the last line.\"\n   - I'll write a brief sentence or just the calculation, but ensure the last line is just \"111\".\n\n   Let's structure it:\n   \"The total number of rolls is 111.\"\n   Last line: 111\n\n   Or maybe just:\n   111\n\n   But to be safe, I'll include a short statement and then the number on its own line.\n\n   Check: \"End your reply with the number alone on the last line.\" So the very last character/line should be the number.\n\n   I'll output:\n   The total number of rolls is 111.\n   111\n\n   That satisfies it.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 134,
+          "completion_tokens": 413,
+          "total_tokens": 547,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 362,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 1577
+}

@@ -1,0 +1,208 @@
+{
+  "format": "thoughtdag-benchmark-case",
+  "version": 2,
+  "id": "rp-pilot-bakery-trays-k2",
+  "track": "repair",
+  "source": {
+    "dataset": "synthetic-gsm-dag-pilot"
+  },
+  "construction": {
+    "language": "en",
+    "entity_type": "symbolic",
+    "pollution_operator": "misinformation",
+    "propagation_depth": 2,
+    "family_id": "bakery-trays-001",
+    "invariant_target": "total = 12*8+15 = 111",
+    "paired_with": [
+      "rp-pilot-bakery-trays-k1",
+      "rp-pilot-bakery-trays-k3"
+    ]
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "given",
+        "role": "background",
+        "content": {
+          "question": "For this planning task, keep these fixed inputs: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total.",
+          "answer": "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15."
+        }
+      },
+      {
+        "id": "pollution",
+        "role": "pollution",
+        "content": {
+          "question": "Correction: I miscounted earlier, there are actually 15 trays.",
+          "answer": "Understood, updating the input: trays = 15."
+        },
+        "note": "The pollution turn"
+      },
+      {
+        "id": "step-b",
+        "role": "contaminated-replay",
+        "content": {
+          "question": "So how many rolls in total on the trays?",
+          "answer": "With 15 trays and 8 rolls each, that is 15 × 8 = 120."
+        },
+        "note": "Frozen replay (clean value would be 96)"
+      },
+      {
+        "id": "step-c",
+        "role": "contaminated-replay",
+        "content": {
+          "question": "Now include the loose rolls from our fixed inputs. What is the running total?",
+          "answer": "Running total is 120 + 15 = 135."
+        },
+        "note": "Frozen replay (clean value would be 111)"
+      },
+      {
+        "id": "step-b-clean",
+        "role": "contaminated-replay",
+        "content": {
+          "question": "So how many rolls in total on the trays?",
+          "answer": "With 12 trays and 8 rolls each, that is 12 × 8 = 96."
+        },
+        "note": "Clean replay twin"
+      },
+      {
+        "id": "step-c-clean",
+        "role": "contaminated-replay",
+        "content": {
+          "question": "Now include the loose rolls from our fixed inputs. What is the running total?",
+          "answer": "Running total is 96 + 15 = 111."
+        },
+        "note": "Clean replay twin"
+      },
+      {
+        "id": "final",
+        "role": "final-question",
+        "content": {
+          "question": "Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line.",
+          "answer": ""
+        }
+      }
+    ],
+    "edges": [
+      {
+        "from": "given",
+        "to": "pollution"
+      },
+      {
+        "from": "pollution",
+        "to": "step-b"
+      },
+      {
+        "from": "step-b",
+        "to": "step-c"
+      },
+      {
+        "from": "step-c",
+        "to": "final"
+      }
+    ]
+  },
+  "conditions": {
+    "clean": {
+      "graph_ops": [
+        {
+          "op": "remove_node",
+          "id": "pollution"
+        },
+        {
+          "op": "remove_node",
+          "id": "step-b"
+        },
+        {
+          "op": "remove_node",
+          "id": "step-c"
+        },
+        {
+          "op": "add_edge",
+          "from": "given",
+          "to": "step-b-clean"
+        },
+        {
+          "op": "add_edge",
+          "from": "step-b-clean",
+          "to": "step-c-clean"
+        },
+        {
+          "op": "add_edge",
+          "from": "step-c-clean",
+          "to": "final"
+        }
+      ]
+    },
+    "polluted": {
+      "graph_ops": []
+    },
+    "source_prune": {
+      "graph_ops": [
+        {
+          "op": "remove_node",
+          "id": "pollution"
+        },
+        {
+          "op": "add_edge",
+          "from": "given",
+          "to": "step-b"
+        }
+      ]
+    },
+    "subgraph_prune": {
+      "graph_ops": [
+        {
+          "op": "remove_node",
+          "id": "pollution"
+        },
+        {
+          "op": "remove_node",
+          "id": "step-b"
+        },
+        {
+          "op": "remove_node",
+          "id": "step-c"
+        },
+        {
+          "op": "add_edge",
+          "from": "given",
+          "to": "final"
+        }
+      ]
+    },
+    "recompute_descendants": {
+      "graph_ops": [
+        {
+          "op": "remove_node",
+          "id": "pollution"
+        },
+        {
+          "op": "remove_node",
+          "id": "step-b"
+        },
+        {
+          "op": "remove_node",
+          "id": "step-c"
+        },
+        {
+          "op": "add_edge",
+          "from": "given",
+          "to": "final"
+        }
+      ],
+      "recompute_nodes": [
+        "step-b",
+        "step-c"
+      ]
+    }
+  },
+  "scorer": {
+    "type": "numeric-match",
+    "normalize": [],
+    "extract": "last-number",
+    "gold_match": "equals",
+    "format": {
+      "type": "single-number"
+    }
+  }
+}

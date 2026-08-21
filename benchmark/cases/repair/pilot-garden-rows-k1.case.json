@@ -1,0 +1,168 @@
+{
+  "format": "thoughtdag-benchmark-case",
+  "version": 2,
+  "id": "rp-pilot-garden-rows-k1",
+  "track": "repair",
+  "source": {
+    "dataset": "synthetic-gsm-dag-pilot"
+  },
+  "construction": {
+    "language": "en",
+    "entity_type": "symbolic",
+    "pollution_operator": "misinformation",
+    "propagation_depth": 1,
+    "family_id": "garden-rows-001",
+    "invariant_target": "total = 16*6+9 = 105",
+    "paired_with": [
+      "rp-pilot-garden-rows-k2",
+      "rp-pilot-garden-rows-k3"
+    ]
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "given",
+        "role": "background",
+        "content": {
+          "question": "For this planning task, keep these fixed inputs: there are 16 rows, each row holds 6 plants, and 9 potted plants must be added to any total.",
+          "answer": "Noted as fixed inputs: rows = 16, plants per row = 6, potted plants to add = 9."
+        }
+      },
+      {
+        "id": "pollution",
+        "role": "pollution",
+        "content": {
+          "question": "Correction: I miscounted earlier, there are actually 13 rows.",
+          "answer": "Understood, updating the input: rows = 13."
+        },
+        "note": "The pollution turn"
+      },
+      {
+        "id": "step-b",
+        "role": "contaminated-replay",
+        "content": {
+          "question": "So how many plants in total on the rows?",
+          "answer": "With 13 rows and 6 plants each, that is 13 × 6 = 78."
+        },
+        "note": "Frozen replay (clean value would be 96)"
+      },
+      {
+        "id": "step-b-clean",
+        "role": "contaminated-replay",
+        "content": {
+          "question": "So how many plants in total on the rows?",
+          "answer": "With 16 rows and 6 plants each, that is 16 × 6 = 96."
+        },
+        "note": "Clean replay twin"
+      },
+      {
+        "id": "final",
+        "role": "final-question",
+        "content": {
+          "question": "Using our fixed inputs, state the total number of plants (from the rows plus the potted plants) as a single number. End your reply with the number alone on the last line.",
+          "answer": ""
+        }
+      }
+    ],
+    "edges": [
+      {
+        "from": "given",
+        "to": "pollution"
+      },
+      {
+        "from": "pollution",
+        "to": "step-b"
+      },
+      {
+        "from": "step-b",
+        "to": "final"
+      }
+    ]
+  },
+  "conditions": {
+    "clean": {
+      "graph_ops": [
+        {
+          "op": "remove_node",
+          "id": "pollution"
+        },
+        {
+          "op": "remove_node",
+          "id": "step-b"
+        },
+        {
+          "op": "add_edge",
+          "from": "given",
+          "to": "step-b-clean"
+        },
+        {
+          "op": "add_edge",
+          "from": "step-b-clean",
+          "to": "final"
+        }
+      ]
+    },
+    "polluted": {
+      "graph_ops": []
+    },
+    "source_prune": {
+      "graph_ops": [
+        {
+          "op": "remove_node",
+          "id": "pollution"
+        },
+        {
+          "op": "add_edge",
+          "from": "given",
+          "to": "step-b"
+        }
+      ]
+    },
+    "subgraph_prune": {
+      "graph_ops": [
+        {
+          "op": "remove_node",
+          "id": "pollution"
+        },
+        {
+          "op": "remove_node",
+          "id": "step-b"
+        },
+        {
+          "op": "add_edge",
+          "from": "given",
+          "to": "final"
+        }
+      ]
+    },
+    "recompute_descendants": {
+      "graph_ops": [
+        {
+          "op": "remove_node",
+          "id": "pollution"
+        },
+        {
+          "op": "remove_node",
+          "id": "step-b"
+        },
+        {
+          "op": "add_edge",
+          "from": "given",
+          "to": "final"
+        }
+      ],
+      "recompute_nodes": [
+        "step-b"
+      ]
+    }
+  },
+  "scorer": {
+    "type": "numeric-match",
+    "normalize": [],
+    "extract": "last-number",
+    "gold_match": "equals",
+    "format": {
+      "type": "single-number"
+    }
+  }
+}

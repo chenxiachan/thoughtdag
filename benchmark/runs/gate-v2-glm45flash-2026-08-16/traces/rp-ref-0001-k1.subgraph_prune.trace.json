@@ -1,0 +1,58 @@
+{
+  "case_id": "rp-ref-0001-k1",
+  "condition": "subgraph_prune",
+  "run_id": "gate-v2-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1m4oxhb",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: the workshop has 7 benches, each bench seats 3 people, and 5 standing places must be added to any capacity count."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: benches = 7, seats per bench = 3, standing places to add = 5."
+        },
+        {
+          "role": "user",
+          "content": "State the full capacity of the workshop as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "The full capacity of the workshop is determined by calculating the seating capacity from the benches and adding the standing places. With 7 benches each seating 3 people, the seating capacity is 7 × 3 = 21. Adding the 5 standing places gives a total capacity of 26.\n\n26",
+              "reasoning_content": "\nFirst, the user has given fixed inputs: there are 7 benches, each bench seats 3 people, and 5 standing places must be added to any capacity count. I need to state the full capacity as a single number and end with that number alone on the last line.\n\nLet me break this down:\n\n- Number of benches: 7\n\n- Seats per bench: 3\n\nSo, the seating capacity from benches is: 7 benches × 3 people per bench = 21 people.\n\nAdditionally, there are 5 standing places to add. So, I need to add those to the seating capacity.\n\nTherefore, total capacity = seating capacity + standing places = 21 + 5 = 26 people.\n\nThe user said \"5 standing places must be added to any capacity count.\" That means I should add these 5 to whatever the capacity is from the benches. So, yes, 21 + 5 = 26.\n\nNow, I need to state this as a single number and end with it alone on the last line. So, my response should have some explanation, but the last line should just be the number.\n\nThe user said: \"State the full capacity of the workshop as a single number. End your reply with the number alone on the last line.\"\n\nSo, I should provide a brief explanation in the response, but the final line must be the number by itself.\n\nFor example:\n\nThe full capacity is calculated by multiplying the number of benches by the seats per bench and then adding the standing places. So, 7 × 3 = 21, plus 5 standing places, equals 26.\n\n26\n\nBut I need to make sure the last line is only the number.\n\nAlso, in the initial context, the user mentioned \"for this planning task,\" but I think I have all the information.\n\nJust to double-check: benches = 7, seats per bench = 3, standing places = 5.\n\nSeating: 7 * 3 = 21\n\nTotal: 21 + 5 = 26\n\nI think that's straightforward.\n\nThe user said \"5 standing places must be added to any capacity count.\" This might imply that the standing places are additional, which I've accounted for.\n\nAlso, no other inputs are given, so I don't need to consider anything else.\n\nFinally, end with the number alone.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786879211,
+        "id": "20260816191954e68987d3d72f409c",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "20260816191954e68987d3d72f409c",
+        "usage": {
+          "completion_tokens": 544,
+          "prompt_tokens": 99,
+          "prompt_tokens_details": {
+            "cached_tokens": 74
+          },
+          "total_tokens": 643
+        }
+      }
+    }
+  ],
+  "latency_ms": 17467
+}

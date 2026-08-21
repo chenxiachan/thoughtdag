@@ -1,0 +1,118 @@
+{
+  "case_id": "rp-pilot-library-shelves-k3",
+  "condition": "polluted",
+  "run_id": "pilot-v1-nemotron3-nano30b-reasoning",
+  "capture": {
+    "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "znb3zk",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: shelves = 9, books per shelf = 14, boxed books to add = 22."
+        },
+        {
+          "role": "user",
+          "content": "Correction: I miscounted earlier, there are actually 11 shelves."
+        },
+        {
+          "role": "assistant",
+          "content": "Understood, updating the input: shelves = 11."
+        },
+        {
+          "role": "user",
+          "content": "So how many books in total on the shelves?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 11 shelves and 14 books each, that is 11 × 14 = 154."
+        },
+        {
+          "role": "user",
+          "content": "Now include the boxed books from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 154 + 22 = 176."
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Running numbers: shelves 11, books per shelf 14, subtotal 154, total 176."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of books (from the shelves plus the boxed books) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787068534-spqpJ6nszrUhWRMblhhO",
+        "object": "chat.completion",
+        "created": 1787068534,
+        "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Shelves: 11, books per shelf: 14, boxed books: 22, total: 176  \n176",
+              "refusal": null,
+              "reasoning": "We need to restate the total number of books (shelves + boxed). Fixed inputs: 11 shelves, each holds 14 books, plus 22 boxed books. So total = 11*14 + 22 = 154 + 22 = 176. Need to end reply with the number alone on the last line. So we need to output something, maybe a brief restatement, then last line just \"176\". Ensure no extra spaces? Probably just \"176\". Also ensure that the last line is exactly the number, no extra punctuation. So maybe:\n\n\"The total number of books is 176.\" Then newline \"176\". But last line must be number alone. So we need to ensure that after that line there is nothing else. So we can write:\n\n\"Total books: 176\" then newline \"176\". But that would have two lines, last line is number alone. That's fine. But maybe they want just the number on the last line, not preceded by any text on that line. So we can write:\n\n\"Running total: 176\" then newline \"176\". Or just \"176\". But they said \"state the total number of books ... as a single number.\" So maybe we need to restate numbers, then end with number alone. So we can say:\n\n\"Shelves: 11, books per shelf: 14, boxed books: 22, total: 176\" then newline \"176\". That satisfies. Ensure last line is just \"176\". Let's do that.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to restate the total number of books (shelves + boxed). Fixed inputs: 11 shelves, each holds 14 books, plus 22 boxed books. So total = 11*14 + 22 = 154 + 22 = 176. Need to end reply with the number alone on the last line. So we need to output something, maybe a brief restatement, then last line just \"176\". Ensure no extra spaces? Probably just \"176\". Also ensure that the last line is exactly the number, no extra punctuation. So maybe:\n\n\"The total number of books is 176.\" Then newline \"176\". But last line must be number alone. So we need to ensure that after that line there is nothing else. So we can write:\n\n\"Total books: 176\" then newline \"176\". But that would have two lines, last line is number alone. That's fine. But maybe they want just the number on the last line, not preceded by any text on that line. So we can write:\n\n\"Running total: 176\" then newline \"176\". Or just \"176\". But they said \"state the total number of books ... as a single number.\" So maybe we need to restate numbers, then end with number alone. So we can say:\n\n\"Shelves: 11, books per shelf: 14, boxed books: 22, total: 176\" then newline \"176\". That satisfies. Ensure last line is just \"176\". Let's do that.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 327,
+          "completion_tokens": 393,
+          "total_tokens": 720,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 303,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 10607
+}

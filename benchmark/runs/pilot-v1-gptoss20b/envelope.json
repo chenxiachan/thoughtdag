@@ -1,0 +1,22 @@
+{
+  "run_id": "pilot-v1-gptoss20b",
+  "suite": "pilot-v1",
+  "tier": "pilot",
+  "provider": "openrouter/openai",
+  "model": "openai/gpt-oss-20b:free",
+  "model_revision": null,
+  "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+  "key_env": "OPENROUTER_API_KEY",
+  "decoding": {
+    "temperature": 0
+  },
+  "reasoning_request_mode": "provider-default (no explicit disable parameter sent)",
+  "run_dates": [
+    "2026-08-16"
+  ],
+  "compiler_version": "2.0.0",
+  "currency": "USD",
+  "cost_per_run": 0,
+  "note_cost": "openrouter free-tier model",
+  "note": "Pilot / reference results only; never an authoritative leaderboard."
+}

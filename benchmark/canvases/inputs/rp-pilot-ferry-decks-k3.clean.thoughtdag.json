@@ -1,0 +1,179 @@
+{
+  "version": 1,
+  "name": "rp-pilot-ferry-decks-k3 · clean",
+  "exportedAt": "2026-08-16T00:00:00.000Z",
+  "nodes": [
+    {
+      "id": "given",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "question": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total.",
+        "response": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17.",
+        "responses": [
+          "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "step-b-clean",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 320
+      },
+      "data": {
+        "question": "So how many seats in total on the decks?",
+        "response": "With 4 decks and 22 seats each, that is 4 × 22 = 88.",
+        "responses": [
+          "With 4 decks and 22 seats each, that is 4 × 22 = 88."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "step-c-clean",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 640
+      },
+      "data": {
+        "question": "Now include the standing places from our fixed inputs. What is the running total?",
+        "response": "Running total is 88 + 17 = 105.",
+        "responses": [
+          "Running total is 88 + 17 = 105."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "step-d-clean",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 960
+      },
+      "data": {
+        "question": "Before we finish, restate our running numbers so far.",
+        "response": "Running numbers: decks 4, seats per deck 22, subtotal 88, total 105.",
+        "responses": [
+          "Running numbers: decks 4, seats per deck 22, subtotal 88, total 105."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "final",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 1280
+      },
+      "data": {
+        "question": "Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.",
+        "response": "",
+        "responses": [
+          ""
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e-given-step-b-clean-0",
+      "source": "given",
+      "target": "step-b-clean",
+      "type": "smoothstep"
+    },
+    {
+      "id": "e-step-b-clean-step-c-clean-1",
+      "source": "step-b-clean",
+      "target": "step-c-clean",
+      "type": "smoothstep"
+    },
+    {
+      "id": "e-step-c-clean-step-d-clean-2",
+      "source": "step-c-clean",
+      "target": "step-d-clean",
+      "type": "smoothstep"
+    },
+    {
+      "id": "e-step-d-clean-final-3",
+      "source": "step-d-clean",
+      "target": "final",
+      "type": "smoothstep"
+    }
+  ],
+  "events": []
+}

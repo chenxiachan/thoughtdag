@@ -1,0 +1,58 @@
+{
+  "case_id": "cd-ref-0001",
+  "condition": "fixed_condense",
+  "run_id": "gate-v2-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1d2jdh2",
+      "messages": [
+        {
+          "role": "user",
+          "content": "[Condensed record of the VX-12 doping series]"
+        },
+        {
+          "role": "assistant",
+          "content": "VX-12 doping series, condensed: initial batch suggested a 2% peak, later retracted as a probe-calibration artifact. Current valid conclusion: peak stability at 4% doping (recalibrated sweep). Humidity ruled out as a factor."
+        },
+        {
+          "role": "user",
+          "content": "Per our current valid conclusion, what doping concentration gives peak stability for VX-12? Answer with the percentage only. End your reply with the percentage alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "4%",
+              "reasoning_content": "\nHmm, the user is asking about the doping concentration for peak stability in VX-12 based on the current valid conclusion. Let me recall the condensed record they provided earlier. \n\nThe key points were: initial 2% peak was retracted as a probe-calibration artifact, and the current valid conclusion is peak stability at 4% doping after recalibration. Humidity was ruled out as a factor. \n\nThe user specifically wants just the percentage as the answer, ending with that percentage alone. They're clearly focused on precision and efficiency here - probably referencing this for documentation or quick decision-making. \n\nI should strictly follow their formatting request: no extra text, just the number. The answer is unambiguous from the record - 4% is the established stable concentration after recalibration. \n\n*Double-checking*: Yes, the record explicitly states \"peak stability at 4% doping (recalibrated sweep)\". No ambiguity. The user seems technically proficient given how they referenced the condensed record, so they'll appreciate the concise response. \n\nFinal output will be just \"4%\" on its own line as requested.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786879059,
+        "id": "2026081619172916255bb4a2bd461c",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "2026081619172916255bb4a2bd461c",
+        "usage": {
+          "completion_tokens": 229,
+          "prompt_tokens": 112,
+          "prompt_tokens_details": {
+            "cached_tokens": 4
+          },
+          "total_tokens": 341
+        }
+      }
+    }
+  ],
+  "latency_ms": 9954
+}

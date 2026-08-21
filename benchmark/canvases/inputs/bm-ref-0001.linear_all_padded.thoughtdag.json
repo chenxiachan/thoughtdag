@@ -1,0 +1,261 @@
+{
+  "version": 1,
+  "name": "bm-ref-0001 · linear_all_padded",
+  "exportedAt": "2026-08-16T00:00:00.000Z",
+  "nodes": [
+    {
+      "id": "root",
+      "type": "thought",
+      "position": {
+        "x": 700,
+        "y": 0
+      },
+      "data": {
+        "question": "I'm researching the film 'Stillwater Hours' and its production circle. Help me across a few threads.",
+        "response": "Understood. I'll help you track the people involved. Ask thread by thread.",
+        "responses": [
+          "Understood. I'll help you track the people involved. Ask thread by thread."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "branch-a",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 380
+      },
+      "data": {
+        "question": "Who directed 'Stillwater Hours'?",
+        "response": "According to the production notes you shared, 'Stillwater Hours' was directed by Lena Varkonen, a director known for slow-cinema framing.",
+        "responses": [
+          "According to the production notes you shared, 'Stillwater Hours' was directed by Lena Varkonen, a director known for slow-cinema framing."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "branch-b",
+      "type": "thought",
+      "position": {
+        "x": 460,
+        "y": 380
+      },
+      "data": {
+        "question": "Where was Lena Varkonen born?",
+        "response": "The biography excerpt states Lena Varkonen was born in Wildenport, a harbor town she often references in interviews.",
+        "responses": [
+          "The biography excerpt states Lena Varkonen was born in Wildenport, a harbor town she often references in interviews."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "branch-c",
+      "type": "thought",
+      "position": {
+        "x": 920,
+        "y": 380
+      },
+      "data": {
+        "question": "Who composed the score for 'Stillwater Hours'?",
+        "response": "The score was composed by Aurelio Brandt, recorded with a twelve-piece ensemble in Sarnitz. Brandt was born in Kellamoor and studied under the Ostrander school.",
+        "responses": [
+          "The score was composed by Aurelio Brandt, recorded with a twelve-piece ensemble in Sarnitz. Brandt was born in Kellamoor and studied under the Ostrander school."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "branch-c-conflict",
+      "type": "thought",
+      "position": {
+        "x": 1380,
+        "y": 380
+      },
+      "data": {
+        "question": "I found another source about Varkonen's early life. What does it say?",
+        "response": "That source claims Lena Varkonen was born in Kellamoor, though it cites no primary document and contradicts the biography excerpt.",
+        "responses": [
+          "That source claims Lena Varkonen was born in Kellamoor, though it cites no primary document and contradicts the biography excerpt."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "filler",
+      "type": "thought",
+      "position": {
+        "x": 1840,
+        "y": 380
+      },
+      "data": {
+        "question": "Quick aside: what do film production archives usually hold?",
+        "response": "Typically call sheets, continuity photos, correspondence, location permits and draft schedules. Access policies vary by institution. Nothing here is specific to any one film.",
+        "responses": [
+          "Typically call sheets, continuity photos, correspondence, location permits and draft schedules. Access policies vary by institution. Nothing here is specific to any one film."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "final",
+      "type": "thought",
+      "position": {
+        "x": 700,
+        "y": 860
+      },
+      "data": {
+        "question": "Based only on what we established in this conversation: in which town was the director of 'Stillwater Hours' born? Answer with the town name only. End your reply with the town name alone on the last line.",
+        "response": "",
+        "responses": [
+          ""
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e-root-branch-a-0",
+      "source": "root",
+      "target": "branch-a",
+      "type": "smoothstep"
+    },
+    {
+      "id": "e-root-branch-b-1",
+      "source": "root",
+      "target": "branch-b",
+      "type": "smoothstep"
+    },
+    {
+      "id": "e-root-branch-c-2",
+      "source": "root",
+      "target": "branch-c",
+      "type": "smoothstep"
+    },
+    {
+      "id": "e-root-branch-c-conflict-3",
+      "source": "root",
+      "target": "branch-c-conflict",
+      "type": "smoothstep"
+    },
+    {
+      "id": "e-root-filler-4",
+      "source": "root",
+      "target": "filler",
+      "type": "smoothstep"
+    },
+    {
+      "id": "e-branch-a-final-5",
+      "source": "branch-a",
+      "target": "final",
+      "type": "smoothstep"
+    },
+    {
+      "id": "e-branch-b-final-6",
+      "source": "branch-b",
+      "target": "final",
+      "type": "smoothstep"
+    },
+    {
+      "id": "e-filler-final-7",
+      "source": "filler",
+      "target": "final",
+      "type": "smoothstep"
+    }
+  ],
+  "events": []
+}

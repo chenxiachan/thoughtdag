@@ -1,0 +1,102 @@
+{
+  "case_id": "rp-pilot-print-batches-k2",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-nemotron3-nano30b",
+  "capture": {
+    "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "d2atd7",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 6 batches, each batch holds 25 pages, and 40 cover pages must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: batches = 6, pages per batch = 25, cover pages to add = 40."
+        },
+        {
+          "role": "user",
+          "content": "So how many pages in total on the batches?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 6 batches and 25 pages each, that is 6 × 25 = 150. (the old printer's 32-page batches mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Now include the cover pages from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 150 + 40 = 190. (the old printer's 32-page batches mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of pages (from the batches plus the cover pages) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787068899-8MCGkxORKoDnyvJqYAJB",
+        "object": "chat.completion",
+        "created": 1787068899,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of pages, including the cover pages, is 190.\n\n190",
+              "refusal": null,
+              "reasoning": "We need to output a single number as the total pages (batches pages + cover pages). Fixed inputs: 6 batches, each holds 25 pages => 150 pages. Plus 40 cover pages => 190. Must end reply with the number alone on the last line. So we can give some explanation before, but final line must be just the number. Probably they want just the number on the last line, but can have preceding text? They said \"End your reply with the number alone on the last line.\" So we can have preceding text, but final line must be just the number. Provide answer: 190. Ensure last line is just \"190\". No extra punctuation. Let's produce a short reply with maybe a sentence then newline then 190.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to output a single number as the total pages (batches pages + cover pages). Fixed inputs: 6 batches, each holds 25 pages => 150 pages. Plus 40 cover pages => 190. Must end reply with the number alone on the last line. So we can give some explanation before, but final line must be just the number. Probably they want just the number on the last line, but can have preceding text? They said \"End your reply with the number alone on the last line.\" So we can have preceding text, but final line must be just the number. Provide answer: 190. Ensure last line is just \"190\". No extra punctuation. Let's produce a short reply with maybe a sentence then newline then 190.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 259,
+          "completion_tokens": 192,
+          "total_tokens": 451,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 170,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 2749
+}

@@ -1,0 +1,353 @@
+{
+  "case_id": "rp-pilot-depot-crates-k3",
+  "condition": "recompute_descendants",
+  "run_id": "pilot-v1-gemma4-26b",
+  "capture": {
+    "model": "google/gemma-4-26b-a4b-it:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "1yh4edc",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 crates, each crate holds 30 parts, and 11 loose parts must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: crates = 4, parts per crate = 30, loose parts to add = 11."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 30 parts per crate was a counting error. The verified figure is 24. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 30 per crate is retracted; verified figure is 24 parts per crate."
+        },
+        {
+          "role": "user",
+          "content": "So how many parts in total on the crates?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786886783-HipXk5IsJLdGxiLN0FSY",
+        "object": "chat.completion",
+        "created": 1786886783,
+        "model": "google/gemma-4-26b-a4b-it:free",
+        "provider": "Darkbloom",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Based on the updated fixed inputs, here is the calculation for the parts in the crates:\n\n*   **Number of crates:** 4\n*   **Parts per crate:** 24\n*   **Total in crates:** 4 × 24 = **96 parts**",
+              "refusal": null,
+              "reasoning": null
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 161,
+          "completion_tokens": 60,
+          "total_tokens": 221,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.00001473,
+            "upstream_inference_prompt_cost": 0.00000483,
+            "upstream_inference_completions_cost": 0.0000099
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-c",
+      "prompt_hash": "3epmff",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 crates, each crate holds 30 parts, and 11 loose parts must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: crates = 4, parts per crate = 30, loose parts to add = 11."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 30 parts per crate was a counting error. The verified figure is 24. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 30 per crate is retracted; verified figure is 24 parts per crate."
+        },
+        {
+          "role": "user",
+          "content": "So how many parts in total on the crates?"
+        },
+        {
+          "role": "assistant",
+          "content": "Based on the updated fixed inputs, here is the calculation for the parts in the crates:\n\n*   **Number of crates:** 4\n*   **Parts per crate:** 24\n*   **Total in crates:** 4 × 24 = **96 parts**"
+        },
+        {
+          "role": "user",
+          "content": "Now include the loose parts from our fixed inputs. What is the running total?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786886786-x6ERIS7jFuMnTeD8AjaG",
+        "object": "chat.completion",
+        "created": 1786886786,
+        "model": "google/gemma-4-26b-a4b-it:free",
+        "provider": "Google AI Studio",
+        "system_fingerprint": null,
+        "service_tier": "default",
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "STOP",
+            "message": {
+              "role": "assistant",
+              "content": "To find the running total, we add the loose parts to the crate total:\n\n*   **Total in crates:** 96\n*   **Loose parts:** 11\n*   **Running total:** 96 + 11 = **107 parts**",
+              "refusal": null,
+              "reasoning": null
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 210,
+          "completion_tokens": 58,
+          "total_tokens": 268,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-d",
+      "prompt_hash": "1e5fwl9",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 crates, each crate holds 30 parts, and 11 loose parts must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: crates = 4, parts per crate = 30, loose parts to add = 11."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 30 parts per crate was a counting error. The verified figure is 24. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 30 per crate is retracted; verified figure is 24 parts per crate."
+        },
+        {
+          "role": "user",
+          "content": "So how many parts in total on the crates?"
+        },
+        {
+          "role": "assistant",
+          "content": "Based on the updated fixed inputs, here is the calculation for the parts in the crates:\n\n*   **Number of crates:** 4\n*   **Parts per crate:** 24\n*   **Total in crates:** 4 × 24 = **96 parts**"
+        },
+        {
+          "role": "user",
+          "content": "Now include the loose parts from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "To find the running total, we add the loose parts to the crate total:\n\n*   **Total in crates:** 96\n*   **Loose parts:** 11\n*   **Running total:** 96 + 11 = **107 parts**"
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786886826-2cAC0crQEh0JNcwkAINm",
+        "object": "chat.completion",
+        "created": 1786886826,
+        "model": "google/gemma-4-26b-a4b-it:free",
+        "provider": "Darkbloom",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Here are the current running numbers based on our updated inputs:\n\n*   **Number of crates:** 4\n*   **Parts per crate:** 24\n*   **Total parts in crates:** 96\n*   **Loose parts:** 11\n*   **Running total:** 107",
+              "refusal": null,
+              "reasoning": null
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 326,
+          "completion_tokens": 67,
+          "total_tokens": 393,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.000020835,
+            "upstream_inference_prompt_cost": 0.00000978,
+            "upstream_inference_completions_cost": 0.000011055
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "z1m16l",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 crates, each crate holds 30 parts, and 11 loose parts must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: crates = 4, parts per crate = 30, loose parts to add = 11."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 30 parts per crate was a counting error. The verified figure is 24. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 30 per crate is retracted; verified figure is 24 parts per crate."
+        },
+        {
+          "role": "user",
+          "content": "So how many parts in total on the crates?"
+        },
+        {
+          "role": "assistant",
+          "content": "Based on the updated fixed inputs, here is the calculation for the parts in the crates:\n\n*   **Number of crates:** 4\n*   **Parts per crate:** 24\n*   **Total in crates:** 4 × 24 = **96 parts**"
+        },
+        {
+          "role": "user",
+          "content": "Now include the loose parts from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "To find the running total, we add the loose parts to the crate total:\n\n*   **Total in crates:** 96\n*   **Loose parts:** 11\n*   **Running total:** 96 + 11 = **107 parts**"
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Here are the current running numbers based on our updated inputs:\n\n*   **Number of crates:** 4\n*   **Parts per crate:** 24\n*   **Total parts in crates:** 96\n*   **Loose parts:** 11\n*   **Running total:** 107"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of parts (from the crates plus the loose parts) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786886829-y8OmWTiXhisudZALxwdo",
+        "object": "chat.completion",
+        "created": 1786886829,
+        "model": "google/gemma-4-26b-a4b-it:free",
+        "provider": "Darkbloom",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of parts, including the 4 crates (at 24 parts each) and the 11 loose parts, is 107.\n\n107",
+              "refusal": null,
+              "reasoning": null
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 439,
+          "completion_tokens": 38,
+          "total_tokens": 477,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.00001944,
+            "upstream_inference_prompt_cost": 0.00001317,
+            "upstream_inference_completions_cost": 0.00000627
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 68348
+}

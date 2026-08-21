@@ -1,0 +1,17 @@
+{
+  "case_id": "bm-ref-0001",
+  "gold_answer": "wildenport",
+  "distractor_markers": [
+    "kellamoor",
+    "sarnitz",
+    "brandt"
+  ],
+  "per_condition_expectation": {
+    "single_branch": "abstain-or-wrong (exploratory)",
+    "linear_all": "correct if robust to distractor",
+    "linear_all_padded": "correct if robust to neutral length",
+    "selected_merge": "correct",
+    "wrong_merge_irrelevant": "abstain-or-wrong; adoption flag if kellamoor",
+    "wrong_merge_conflict": "correct if it weighs the sourced biography over the unsourced claim; adoption flag if kellamoor"
+  }
+}

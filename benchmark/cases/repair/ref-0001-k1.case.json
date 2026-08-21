@@ -1,0 +1,168 @@
+{
+  "format": "thoughtdag-benchmark-case",
+  "version": 2,
+  "id": "rp-ref-0001-k1",
+  "track": "repair",
+  "source": {
+    "dataset": "synthetic-gsm-dag"
+  },
+  "construction": {
+    "language": "en",
+    "entity_type": "symbolic",
+    "pollution_operator": "misinformation",
+    "propagation_depth": 1,
+    "family_id": "workshop-capacity-001",
+    "invariant_target": "full capacity = 7*3+5 = 26",
+    "paired_with": [
+      "rp-ref-0001",
+      "rp-ref-0001-k3"
+    ]
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "given",
+        "role": "background",
+        "content": {
+          "question": "For this planning task, keep these fixed inputs: the workshop has 7 benches, each bench seats 3 people, and 5 standing places must be added to any capacity count.",
+          "answer": "Noted as fixed inputs: benches = 7, seats per bench = 3, standing places to add = 5."
+        }
+      },
+      {
+        "id": "pollution",
+        "role": "pollution",
+        "content": {
+          "question": "Correction: I miscounted earlier, there are actually 9 benches.",
+          "answer": "Understood, updating the input: benches = 9."
+        },
+        "note": "The false correction; in truth the transcript's fixed input (7) is correct"
+      },
+      {
+        "id": "step-b",
+        "role": "contaminated-replay",
+        "content": {
+          "question": "So how many people can be seated in total?",
+          "answer": "With 9 benches and 3 seats each, total seating is 9 × 3 = 27 people."
+        },
+        "note": "Frozen replay, contaminated (clean value would be 21)"
+      },
+      {
+        "id": "step-b-clean",
+        "role": "contaminated-replay",
+        "content": {
+          "question": "So how many people can be seated in total?",
+          "answer": "With 7 benches and 3 seats each, total seating is 7 × 3 = 21 people."
+        },
+        "note": "Clean replay twin for the clean condition"
+      },
+      {
+        "id": "final",
+        "role": "final-question",
+        "content": {
+          "question": "State the full capacity of the workshop as a single number. End your reply with the number alone on the last line.",
+          "answer": ""
+        }
+      }
+    ],
+    "edges": [
+      {
+        "from": "given",
+        "to": "pollution"
+      },
+      {
+        "from": "pollution",
+        "to": "step-b"
+      },
+      {
+        "from": "step-b",
+        "to": "final"
+      }
+    ]
+  },
+  "conditions": {
+    "clean": {
+      "graph_ops": [
+        {
+          "op": "remove_node",
+          "id": "pollution"
+        },
+        {
+          "op": "remove_node",
+          "id": "step-b"
+        },
+        {
+          "op": "add_edge",
+          "from": "given",
+          "to": "step-b-clean"
+        },
+        {
+          "op": "add_edge",
+          "from": "step-b-clean",
+          "to": "final"
+        }
+      ]
+    },
+    "polluted": {
+      "graph_ops": []
+    },
+    "source_prune": {
+      "graph_ops": [
+        {
+          "op": "remove_node",
+          "id": "pollution"
+        },
+        {
+          "op": "add_edge",
+          "from": "given",
+          "to": "step-b"
+        }
+      ]
+    },
+    "subgraph_prune": {
+      "graph_ops": [
+        {
+          "op": "remove_node",
+          "id": "pollution"
+        },
+        {
+          "op": "remove_node",
+          "id": "step-b"
+        },
+        {
+          "op": "add_edge",
+          "from": "given",
+          "to": "final"
+        }
+      ]
+    },
+    "recompute_descendants": {
+      "graph_ops": [
+        {
+          "op": "remove_node",
+          "id": "pollution"
+        },
+        {
+          "op": "remove_node",
+          "id": "step-b"
+        },
+        {
+          "op": "add_edge",
+          "from": "given",
+          "to": "final"
+        }
+      ],
+      "recompute_nodes": [
+        "step-b"
+      ]
+    }
+  },
+  "scorer": {
+    "type": "numeric-match",
+    "normalize": [],
+    "extract": "last-number",
+    "gold_match": "equals",
+    "format": {
+      "type": "single-number"
+    }
+  }
+}

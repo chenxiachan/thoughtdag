@@ -1,0 +1,66 @@
+{
+  "case_id": "rp-pilot-bakery-trays-k1",
+  "condition": "clean",
+  "run_id": "pilot-v1-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1dolct8",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15."
+        },
+        {
+          "role": "user",
+          "content": "So how many rolls in total on the trays?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 12 trays and 8 rolls each, that is 12 × 8 = 96."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "The total number of rolls is calculated by multiplying the number of trays by the rolls per tray and then adding the loose rolls.  \nWith 12 trays and 8 rolls per tray, the tray rolls total 12 × 8 = 96.  \nAdding the 15 loose rolls gives 96 + 15 = 111.  \n\n111",
+              "reasoning_content": "\nFirst, the user is asking for the total number of rolls, including both the trays and the loose rolls. The fixed inputs are:\n\n- 12 trays\n\n- Each tray holds 8 rolls\n\n- 15 loose rolls must be added to any total\n\nFrom the previous conversation, I calculated that the rolls in the trays are 12 trays × 8 rolls per tray = 96 rolls.\n\nNow, I need to add the loose rolls. The user says \"15 loose rolls must be added to any total.\" So, I need to add 15 to the tray rolls.\n\nTherefore, total rolls = rolls in trays + loose rolls = 96 + 15.\n\nLet me compute that: 96 + 15 = 111.\n\nThe user specified to state the total as a single number and end the reply with the number alone on the last line. So, my response should have some explanation, but the last line must be just the number.\n\nI should make sure the explanation is clear. Reiterating the fixed inputs might be helpful, but since they're fixed, I can just state the calculation.\n\nSo, total rolls = (number of trays × rolls per tray) + loose rolls = (12 × 8) + 15 = 96 + 15 = 111.\n\nFinally, end with \"111\" on the last line.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786881302,
+        "id": "2026081619544538073d1d33b24596",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "2026081619544538073d1d33b24596",
+        "usage": {
+          "completion_tokens": 346,
+          "prompt_tokens": 148,
+          "prompt_tokens_details": {
+            "cached_tokens": 4
+          },
+          "total_tokens": 494
+        }
+      }
+    }
+  ],
+  "latency_ms": 18662
+}

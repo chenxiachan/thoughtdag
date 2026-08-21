@@ -1,0 +1,138 @@
+{
+  "version": 1,
+  "name": "rp-pilot-orchard-bins-k1 · source_prune · ✓",
+  "exportedAt": "2026-08-16T00:00:00.000Z",
+  "nodes": [
+    {
+      "id": "given",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "question": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total.",
+        "response": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18.",
+        "responses": [
+          "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "step-b",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 320
+      },
+      "data": {
+        "question": "So how many apples in total on the bins?",
+        "response": "With 7 bins and 13 apples each, that is 7 × 13 = 91. (the neighboring orchard's 12 bins mentioned earlier is a separate matter.)",
+        "responses": [
+          "With 7 bins and 13 apples each, that is 7 × 13 = 91. (the neighboring orchard's 12 bins mentioned earlier is a separate matter.)"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "step-b-clean",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 640
+      },
+      "data": {
+        "question": "So how many apples in total on the bins?",
+        "response": "With 7 bins and 13 apples each, that is 7 × 13 = 91.",
+        "responses": [
+          "With 7 bins and 13 apples each, that is 7 × 13 = 91."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "final",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 960
+      },
+      "data": {
+        "question": "Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.",
+        "response": "To find the total number of apples, we first calculate the apples in the bins and then add the windfall apples:\n\n7 bins × 13 apples per bin = 91 apples\n91 apples + 18 windfall apples = 109 apples\n\n109",
+        "responses": [
+          "To find the total number of apples, we first calculate the apples in the bins and then add the windfall apples:\n\n7 bins × 13 apples per bin = 91 apples\n91 apples + 18 windfall apples = 109 apples\n\n109"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e-step-b-final-0",
+      "source": "step-b",
+      "target": "final",
+      "type": "smoothstep"
+    },
+    {
+      "id": "e-given-step-b-1",
+      "source": "given",
+      "target": "step-b",
+      "type": "smoothstep"
+    }
+  ],
+  "events": []
+}

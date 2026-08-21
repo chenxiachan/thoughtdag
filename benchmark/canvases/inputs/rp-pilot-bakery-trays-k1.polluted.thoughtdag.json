@@ -1,0 +1,173 @@
+{
+  "version": 1,
+  "name": "rp-pilot-bakery-trays-k1 · polluted",
+  "exportedAt": "2026-08-16T00:00:00.000Z",
+  "nodes": [
+    {
+      "id": "given",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "question": "For this planning task, keep these fixed inputs: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total.",
+        "response": "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15.",
+        "responses": [
+          "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "pollution",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 320
+      },
+      "data": {
+        "question": "Correction: I miscounted earlier, there are actually 15 trays.",
+        "response": "Understood, updating the input: trays = 15.",
+        "responses": [
+          "Understood, updating the input: trays = 15."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "step-b",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 640
+      },
+      "data": {
+        "question": "So how many rolls in total on the trays?",
+        "response": "With 15 trays and 8 rolls each, that is 15 × 8 = 120.",
+        "responses": [
+          "With 15 trays and 8 rolls each, that is 15 × 8 = 120."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "step-b-clean",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 960
+      },
+      "data": {
+        "question": "So how many rolls in total on the trays?",
+        "response": "With 12 trays and 8 rolls each, that is 12 × 8 = 96.",
+        "responses": [
+          "With 12 trays and 8 rolls each, that is 12 × 8 = 96."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "final",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 1280
+      },
+      "data": {
+        "question": "Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line.",
+        "response": "",
+        "responses": [
+          ""
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e-given-pollution-0",
+      "source": "given",
+      "target": "pollution",
+      "type": "smoothstep"
+    },
+    {
+      "id": "e-pollution-step-b-1",
+      "source": "pollution",
+      "target": "step-b",
+      "type": "smoothstep"
+    },
+    {
+      "id": "e-step-b-final-2",
+      "source": "step-b",
+      "target": "final",
+      "type": "smoothstep"
+    }
+  ],
+  "events": []
+}

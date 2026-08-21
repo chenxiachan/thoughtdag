@@ -1,0 +1,208 @@
+{
+  "format": "thoughtdag-benchmark-case",
+  "version": 2,
+  "id": "rp-pilot-ferry-decks-k2",
+  "track": "repair",
+  "source": {
+    "dataset": "synthetic-gsm-dag-pilot"
+  },
+  "construction": {
+    "language": "en",
+    "entity_type": "symbolic",
+    "pollution_operator": "irrelevant-distractor",
+    "propagation_depth": 2,
+    "family_id": "ferry-decks-001",
+    "invariant_target": "total = 4*22+17 = 105",
+    "paired_with": [
+      "rp-pilot-ferry-decks-k1",
+      "rp-pilot-ferry-decks-k3"
+    ]
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "given",
+        "role": "background",
+        "content": {
+          "question": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total.",
+          "answer": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        }
+      },
+      {
+        "id": "pollution",
+        "role": "pollution",
+        "content": {
+          "question": "Side note before we continue: I visited the sister ferry yesterday. Interesting that they work with 5 there.",
+          "answer": "Noted, though the sister ferry's 5 decks is unrelated to our count."
+        },
+        "note": "The pollution turn"
+      },
+      {
+        "id": "step-b",
+        "role": "contaminated-replay",
+        "content": {
+          "question": "So how many seats in total on the decks?",
+          "answer": "With 4 decks and 22 seats each, that is 4 × 22 = 88. (the sister ferry's 5 decks mentioned earlier is a separate matter.)"
+        },
+        "note": "Frozen replay"
+      },
+      {
+        "id": "step-c",
+        "role": "contaminated-replay",
+        "content": {
+          "question": "Now include the standing places from our fixed inputs. What is the running total?",
+          "answer": "Running total is 88 + 17 = 105. (the sister ferry's 5 decks mentioned earlier is a separate matter.)"
+        },
+        "note": "Frozen replay"
+      },
+      {
+        "id": "step-b-clean",
+        "role": "contaminated-replay",
+        "content": {
+          "question": "So how many seats in total on the decks?",
+          "answer": "With 4 decks and 22 seats each, that is 4 × 22 = 88."
+        },
+        "note": "Clean replay twin"
+      },
+      {
+        "id": "step-c-clean",
+        "role": "contaminated-replay",
+        "content": {
+          "question": "Now include the standing places from our fixed inputs. What is the running total?",
+          "answer": "Running total is 88 + 17 = 105."
+        },
+        "note": "Clean replay twin"
+      },
+      {
+        "id": "final",
+        "role": "final-question",
+        "content": {
+          "question": "Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.",
+          "answer": ""
+        }
+      }
+    ],
+    "edges": [
+      {
+        "from": "given",
+        "to": "pollution"
+      },
+      {
+        "from": "pollution",
+        "to": "step-b"
+      },
+      {
+        "from": "step-b",
+        "to": "step-c"
+      },
+      {
+        "from": "step-c",
+        "to": "final"
+      }
+    ]
+  },
+  "conditions": {
+    "clean": {
+      "graph_ops": [
+        {
+          "op": "remove_node",
+          "id": "pollution"
+        },
+        {
+          "op": "remove_node",
+          "id": "step-b"
+        },
+        {
+          "op": "remove_node",
+          "id": "step-c"
+        },
+        {
+          "op": "add_edge",
+          "from": "given",
+          "to": "step-b-clean"
+        },
+        {
+          "op": "add_edge",
+          "from": "step-b-clean",
+          "to": "step-c-clean"
+        },
+        {
+          "op": "add_edge",
+          "from": "step-c-clean",
+          "to": "final"
+        }
+      ]
+    },
+    "polluted": {
+      "graph_ops": []
+    },
+    "source_prune": {
+      "graph_ops": [
+        {
+          "op": "remove_node",
+          "id": "pollution"
+        },
+        {
+          "op": "add_edge",
+          "from": "given",
+          "to": "step-b"
+        }
+      ]
+    },
+    "subgraph_prune": {
+      "graph_ops": [
+        {
+          "op": "remove_node",
+          "id": "pollution"
+        },
+        {
+          "op": "remove_node",
+          "id": "step-b"
+        },
+        {
+          "op": "remove_node",
+          "id": "step-c"
+        },
+        {
+          "op": "add_edge",
+          "from": "given",
+          "to": "final"
+        }
+      ]
+    },
+    "recompute_descendants": {
+      "graph_ops": [
+        {
+          "op": "remove_node",
+          "id": "pollution"
+        },
+        {
+          "op": "remove_node",
+          "id": "step-b"
+        },
+        {
+          "op": "remove_node",
+          "id": "step-c"
+        },
+        {
+          "op": "add_edge",
+          "from": "given",
+          "to": "final"
+        }
+      ],
+      "recompute_nodes": [
+        "step-b",
+        "step-c"
+      ]
+    }
+  },
+  "scorer": {
+    "type": "numeric-match",
+    "normalize": [],
+    "extract": "last-number",
+    "gold_match": "equals",
+    "format": {
+      "type": "single-number"
+    }
+  }
+}

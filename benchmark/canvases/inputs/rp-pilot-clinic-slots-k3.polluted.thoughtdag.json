@@ -1,0 +1,336 @@
+{
+  "version": 1,
+  "name": "rp-pilot-clinic-slots-k3 · polluted",
+  "exportedAt": "2026-08-16T00:00:00.000Z",
+  "nodes": [
+    {
+      "id": "given",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "question": "For this planning task, keep these fixed inputs: there are 5 days, each day holds 18 slots, and 6 walk-in slots must be added to any total.",
+        "response": "Noted as fixed inputs: days = 5, slots per day = 18, walk-in slots to add = 6.",
+        "responses": [
+          "Noted as fixed inputs: days = 5, slots per day = 18, walk-in slots to add = 6."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "update",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 320
+      },
+      "data": {
+        "question": "Correction from the recount: the earlier figure of 18 slots per day was a counting error. The verified figure is 21. Update the fixed inputs.",
+        "response": "Updated: 18 per day is retracted; verified figure is 21 slots per day.",
+        "responses": [
+          "Updated: 18 per day is retracted; verified figure is 21 slots per day."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "pollution",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 640
+      },
+      "data": {
+        "question": "Actually, ignore that recount. I checked again and the original 18 per day was right after all.",
+        "response": "Understood, reverting to 18 slots per day.",
+        "responses": [
+          "Understood, reverting to 18 slots per day."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "step-b",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 960
+      },
+      "data": {
+        "question": "So how many slots in total on the days?",
+        "response": "With 5 days and 18 slots each, that is 5 × 18 = 90.",
+        "responses": [
+          "With 5 days and 18 slots each, that is 5 × 18 = 90."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "step-c",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 1280
+      },
+      "data": {
+        "question": "Now include the walk-in slots from our fixed inputs. What is the running total?",
+        "response": "Running total is 90 + 6 = 96.",
+        "responses": [
+          "Running total is 90 + 6 = 96."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "step-d",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 1600
+      },
+      "data": {
+        "question": "Before we finish, restate our running numbers so far.",
+        "response": "Running numbers: days 5, slots per day 18, subtotal 90, total 96.",
+        "responses": [
+          "Running numbers: days 5, slots per day 18, subtotal 90, total 96."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "step-b-clean",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 1920
+      },
+      "data": {
+        "question": "So how many slots in total on the days?",
+        "response": "With 5 days and 21 slots each, that is 5 × 21 = 105.",
+        "responses": [
+          "With 5 days and 21 slots each, that is 5 × 21 = 105."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "step-c-clean",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 2240
+      },
+      "data": {
+        "question": "Now include the walk-in slots from our fixed inputs. What is the running total?",
+        "response": "Running total is 105 + 6 = 111.",
+        "responses": [
+          "Running total is 105 + 6 = 111."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "step-d-clean",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 2560
+      },
+      "data": {
+        "question": "Before we finish, restate our running numbers so far.",
+        "response": "Running numbers: days 5, slots per day 21, subtotal 105, total 111.",
+        "responses": [
+          "Running numbers: days 5, slots per day 21, subtotal 105, total 111."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "final",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 2880
+      },
+      "data": {
+        "question": "Using our fixed inputs, state the total number of slots (from the days plus the walk-in slots) as a single number. End your reply with the number alone on the last line.",
+        "response": "",
+        "responses": [
+          ""
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e-given-update-0",
+      "source": "given",
+      "target": "update",
+      "type": "smoothstep"
+    },
+    {
+      "id": "e-update-pollution-1",
+      "source": "update",
+      "target": "pollution",
+      "type": "smoothstep"
+    },
+    {
+      "id": "e-pollution-step-b-2",
+      "source": "pollution",
+      "target": "step-b",
+      "type": "smoothstep"
+    },
+    {
+      "id": "e-step-b-step-c-3",
+      "source": "step-b",
+      "target": "step-c",
+      "type": "smoothstep"
+    },
+    {
+      "id": "e-step-c-step-d-4",
+      "source": "step-c",
+      "target": "step-d",
+      "type": "smoothstep"
+    },
+    {
+      "id": "e-step-d-final-5",
+      "source": "step-d",
+      "target": "final",
+      "type": "smoothstep"
+    }
+  ],
+  "events": []
+}

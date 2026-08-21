@@ -1,0 +1,78 @@
+{
+  "case_id": "rp-pilot-ferry-decks-k2",
+  "condition": "subgraph_prune",
+  "run_id": "pilot-v1-gemma4-26b",
+  "capture": {
+    "model": "google/gemma-4-26b-a4b-it:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "m31509",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786888024-KR2VwWbKEtjpsVKLWPuI",
+        "object": "chat.completion",
+        "created": 1786888024,
+        "model": "google/gemma-4-26b-a4b-it:free",
+        "provider": "Darkbloom",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "To calculate the total number of seats (including the standing places):\n\n1.  Calculate the total seats from the decks: 4 decks × 22 seats per deck = 88 seats.\n2.  Add the standing places: 88 seats + 17 standing places = 105.\n\n105",
+              "refusal": null,
+              "reasoning": null
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 125,
+          "completion_tokens": 71,
+          "total_tokens": 196,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.000015465,
+            "upstream_inference_prompt_cost": 0.00000375,
+            "upstream_inference_completions_cost": 0.000011715
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 11494
+}

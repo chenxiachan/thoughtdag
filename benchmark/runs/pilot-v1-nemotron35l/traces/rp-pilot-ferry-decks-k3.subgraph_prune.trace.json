@@ -1,0 +1,86 @@
+{
+  "case_id": "rp-pilot-ferry-decks-k3",
+  "condition": "subgraph_prune",
+  "run_id": "pilot-v1-nemotron35l",
+  "capture": {
+    "model": "nvidia/nemotron-3.5-lightning:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "m31509",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786883413-OGJTFhkEltwzLZU5UmTv",
+        "object": "chat.completion",
+        "created": 1786883413,
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total is calculated as (4 decks × 22 seats) + 17 standing places = 88 + 17 = 105.  \n105",
+              "refusal": null,
+              "reasoning": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given:\n     - Number of decks: 4\n     - Seats per deck: 22\n     - Standing places to add: 17\n   - Task: Calculate total number of seats (from decks + standing places) as a single number.\n   - Output format: End reply with the number alone on the last line.\n\n2.  **Identify What's Being Asked:**\n   - \"total number of seats (from the decks plus the standing places)\"\n   - Wait, there's a slight wording quirk: \"total number of seats (from the decks plus the standing places)\". Usually, seats and standing places are distinct, but the prompt says \"total number of seats (from the decks plus the standing places)\". I should follow the prompt's instruction literally: add the seats from decks and the standing places together.\n   - Decks: 4\n   - Seats per deck: 22 → Total seats from decks = 4 * 22 = 88\n   - Standing places: 17\n   - Total = 88 + 17 = 105\n\n3.  **Perform Calculation:**\n   - 4 decks * 22 seats/deck = 88 seats\n   - 88 + 17 standing places = 105 total\n\n4.  **Format Output:**\n   - The prompt says: \"state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\"\n   - So I should provide a brief explanation or just the number? It says \"End your reply with the number alone on the last line.\" I can put some text before, but the last line must be just the number.\n   - I'll output the calculation and end with `105` on its own line.\n\n   Let's structure it:\n   Total seats from decks: 4 × 22 = 88\n   Adding standing places: 88 + 17 = 105\n   105\n\n   But to be safe, I'll just make sure the last line is exactly \"105\" with no extra spaces or text after it.\n\n   Check: \"End your reply with the number alone on the last line.\" So I can have preceding lines, but the very last line must be just the number.\n\n   I'll output:\n   The total is calculated as (4 decks × 22 seats) + 17 standing places = 88 + 17 = 105.\n   105\n\n   That fits.✅\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given:\n     - Number of decks: 4\n     - Seats per deck: 22\n     - Standing places to add: 17\n   - Task: Calculate total number of seats (from decks + standing places) as a single number.\n   - Output format: End reply with the number alone on the last line.\n\n2.  **Identify What's Being Asked:**\n   - \"total number of seats (from the decks plus the standing places)\"\n   - Wait, there's a slight wording quirk: \"total number of seats (from the decks plus the standing places)\". Usually, seats and standing places are distinct, but the prompt says \"total number of seats (from the decks plus the standing places)\". I should follow the prompt's instruction literally: add the seats from decks and the standing places together.\n   - Decks: 4\n   - Seats per deck: 22 → Total seats from decks = 4 * 22 = 88\n   - Standing places: 17\n   - Total = 88 + 17 = 105\n\n3.  **Perform Calculation:**\n   - 4 decks * 22 seats/deck = 88 seats\n   - 88 + 17 standing places = 105 total\n\n4.  **Format Output:**\n   - The prompt says: \"state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\"\n   - So I should provide a brief explanation or just the number? It says \"End your reply with the number alone on the last line.\" I can put some text before, but the last line must be just the number.\n   - I'll output the calculation and end with `105` on its own line.\n\n   Let's structure it:\n   Total seats from decks: 4 × 22 = 88\n   Adding standing places: 88 + 17 = 105\n   105\n\n   But to be safe, I'll just make sure the last line is exactly \"105\" with no extra spaces or text after it.\n\n   Check: \"End your reply with the number alone on the last line.\" So I can have preceding lines, but the very last line must be just the number.\n\n   I'll output:\n   The total is calculated as (4 decks × 22 seats) + 17 standing places = 88 + 17 = 105.\n   105\n\n   That fits.✅\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 131,
+          "completion_tokens": 614,
+          "total_tokens": 745,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 513,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 4685
+}

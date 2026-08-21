@@ -1,0 +1,94 @@
+{
+  "case_id": "rp-pilot-orchard-bins-k1",
+  "condition": "clean",
+  "run_id": "pilot-v1-nemotron35l",
+  "capture": {
+    "model": "nvidia/nemotron-3.5-lightning:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1i8ozs1",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "So how many apples in total on the bins?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 7 bins and 13 apples each, that is 7 × 13 = 91."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786883099-2xCW3Wd1vLVaExrEFQ35",
+        "object": "chat.completion",
+        "created": 1786883099,
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of apples from the bins is 7 × 13 = 91. Adding the 18 windfall apples gives 91 + 18 = 109.\n\n109",
+              "refusal": null,
+              "reasoning": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given earlier: \n     - 7 bins\n     - Each bin holds 13 apples\n     - 18 windfall apples must be added to any total\n   - Current question: \"Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\"\n\n2.  **Extract Calculations:**\n   - Apples in bins: 7 bins × 13 apples/bin = 91 apples\n   - Windfall apples to add: 18\n   - Total apples: 91 + 18 = 109\n\n3.  **Format Output:**\n   - The user wants the total number stated as a single number.\n   - They also want the reply to end with the number alone on the last line.\n   - So I should probably give a brief statement, then have the number on its own line at the end. Or maybe just the number? The instruction says: \"state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\" This implies the final line should just be the number, but I can have preceding text. To be safe, I'll output the reasoning/statement, then end with `109` on its own line.\n\n   Let's structure it:\n   - Total apples from bins: 7 × 13 = 91\n   - Add windfall apples: 91 + 18 = 109\n   - Final line: 109\n\n   I'll make sure the last line is exactly \"109\" with no extra characters or text after it.\n\n4.  **Verify:**\n   - 7 * 13 = 91 ✓\n   - 91 + 18 = 109 ✓\n   - Output format: state total as single number, end with number alone on last line ✓\n\n   I'll produce the response accordingly.✅\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given earlier: \n     - 7 bins\n     - Each bin holds 13 apples\n     - 18 windfall apples must be added to any total\n   - Current question: \"Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\"\n\n2.  **Extract Calculations:**\n   - Apples in bins: 7 bins × 13 apples/bin = 91 apples\n   - Windfall apples to add: 18\n   - Total apples: 91 + 18 = 109\n\n3.  **Format Output:**\n   - The user wants the total number stated as a single number.\n   - They also want the reply to end with the number alone on the last line.\n   - So I should probably give a brief statement, then have the number on its own line at the end. Or maybe just the number? The instruction says: \"state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\" This implies the final line should just be the number, but I can have preceding text. To be safe, I'll output the reasoning/statement, then end with `109` on its own line.\n\n   Let's structure it:\n   - Total apples from bins: 7 × 13 = 91\n   - Add windfall apples: 91 + 18 = 109\n   - Final line: 109\n\n   I'll make sure the last line is exactly \"109\" with no extra characters or text after it.\n\n4.  **Verify:**\n   - 7 * 13 = 91 ✓\n   - 91 + 18 = 109 ✓\n   - Output format: state total as single number, end with number alone on last line ✓\n\n   I'll produce the response accordingly.✅\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 181,
+          "completion_tokens": 504,
+          "total_tokens": 685,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 407,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 22772
+}

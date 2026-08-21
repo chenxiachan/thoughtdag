@@ -1,0 +1,280 @@
+{
+  "case_id": "rp-pilot-lab-samples-k2",
+  "condition": "recompute_descendants",
+  "run_id": "pilot-v1-gptoss20b",
+  "capture": {
+    "model": "openai/gpt-oss-20b:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "1p211vg",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 3 batches, each batch holds 20 samples, and 8 control samples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: batches = 3, samples per batch = 20, control samples to add = 8."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 20 samples per batch was a counting error. The verified figure is 26. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 20 per batch is retracted; verified figure is 26 samples per batch."
+        },
+        {
+          "role": "user",
+          "content": "So how many samples in total on the batches?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786888623-nzpylXjNLCuQtgGFtwVO",
+        "object": "chat.completion",
+        "created": 1786888623,
+        "model": "openai/gpt-oss-20b:free",
+        "provider": "Darkbloom",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "There are **78 samples** in total across the three batches.",
+              "refusal": null,
+              "reasoning": "We have 3 batches, each holds 26 samples. So total samples in batches = 3 * 26 = 78.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We have 3 batches, each holds 26 samples. So total samples in batches = 3 * 26 = 78.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 208,
+          "completion_tokens": 50,
+          "total_tokens": 258,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.000006516,
+            "upstream_inference_prompt_cost": 0.000003016,
+            "upstream_inference_completions_cost": 0.0000035
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 27,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-c",
+      "prompt_hash": "1itxgw9",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 3 batches, each batch holds 20 samples, and 8 control samples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: batches = 3, samples per batch = 20, control samples to add = 8."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 20 samples per batch was a counting error. The verified figure is 26. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 20 per batch is retracted; verified figure is 26 samples per batch."
+        },
+        {
+          "role": "user",
+          "content": "So how many samples in total on the batches?"
+        },
+        {
+          "role": "assistant",
+          "content": "There are **78 samples** in total across the three batches."
+        },
+        {
+          "role": "user",
+          "content": "Now include the control samples from our fixed inputs. What is the running total?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786888626-OowMaYWE3aKomXYHMHbs",
+        "object": "chat.completion",
+        "created": 1786888626,
+        "model": "openai/gpt-oss-20b:free",
+        "provider": "Darkbloom",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Adding the 8 control samples to the 78 batch samples gives a **running total of 86 samples**.",
+              "refusal": null,
+              "reasoning": "We need to add 8 control samples to 78. 78+8=86. Provide answer.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to add 8 control samples to 78. 78+8=86. Provide answer.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 247,
+          "completion_tokens": 55,
+          "total_tokens": 302,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.0000074315,
+            "upstream_inference_prompt_cost": 0.0000035815,
+            "upstream_inference_completions_cost": 0.00000385
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 22,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "1bcjb42",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 3 batches, each batch holds 20 samples, and 8 control samples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: batches = 3, samples per batch = 20, control samples to add = 8."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 20 samples per batch was a counting error. The verified figure is 26. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 20 per batch is retracted; verified figure is 26 samples per batch."
+        },
+        {
+          "role": "user",
+          "content": "So how many samples in total on the batches?"
+        },
+        {
+          "role": "assistant",
+          "content": "There are **78 samples** in total across the three batches."
+        },
+        {
+          "role": "user",
+          "content": "Now include the control samples from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Adding the 8 control samples to the 78 batch samples gives a **running total of 86 samples**."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of samples (from the batches plus the control samples) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786888644-f4URay9zoKldpTNWSYG1",
+        "object": "chat.completion",
+        "created": 1786888644,
+        "model": "openai/gpt-oss-20b:free",
+        "provider": "Darkbloom",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of samples (batches + control samples) is 86.  \n86",
+              "refusal": null,
+              "reasoning": "We need to output the total number of samples from batches plus control samples as a single number, and end reply with the number alone on the last line. So we should output something like:\n\nTotal number of samples: 86\n\nBut the instruction: \"state the total number of samples (from the batches plus the control samples) as a single number. End your reply with the number alone on the last line.\" So we should give the number alone on the last line. We can give some explanation before, but last line must be the number alone. So we can say:\n\nThe total number of samples is 86.\n\n86\n\nThus final answer: 86 on last line.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to output the total number of samples from batches plus control samples as a single number, and end reply with the number alone on the last line. So we should output something like:\n\nTotal number of samples: 86\n\nBut the instruction: \"state the total number of samples (from the batches plus the control samples) as a single number. End your reply with the number alone on the last line.\" So we should give the number alone on the last line. We can give some explanation before, but last line must be the number alone. So we can say:\n\nThe total number of samples is 86.\n\n86\n\nThus final answer: 86 on last line.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 317,
+          "completion_tokens": 165,
+          "total_tokens": 482,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.0000161465,
+            "upstream_inference_prompt_cost": 0.0000045965,
+            "upstream_inference_completions_cost": 0.00001155
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 137,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 28140
+}

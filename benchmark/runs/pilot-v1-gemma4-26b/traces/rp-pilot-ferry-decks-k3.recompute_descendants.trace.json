@@ -1,0 +1,321 @@
+{
+  "case_id": "rp-pilot-ferry-decks-k3",
+  "condition": "recompute_descendants",
+  "run_id": "pilot-v1-gemma4-26b",
+  "capture": {
+    "model": "google/gemma-4-26b-a4b-it:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "gdxj7j",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "So how many seats in total on the decks?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786888206-5FAk6KzGtg3iatEyBYfU",
+        "object": "chat.completion",
+        "created": 1786888206,
+        "model": "google/gemma-4-26b-a4b-it:free",
+        "provider": "Darkbloom",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "To find the total number of seats on the decks, you multiply the number of decks by the seats per deck:\n\n4 decks × 22 seats = **88 seats**",
+              "refusal": null,
+              "reasoning": null
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 98,
+          "completion_tokens": 38,
+          "total_tokens": 136,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.00000921,
+            "upstream_inference_prompt_cost": 0.00000294,
+            "upstream_inference_completions_cost": 0.00000627
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-c",
+      "prompt_hash": "13nro62",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "So how many seats in total on the decks?"
+        },
+        {
+          "role": "assistant",
+          "content": "To find the total number of seats on the decks, you multiply the number of decks by the seats per deck:\n\n4 decks × 22 seats = **88 seats**"
+        },
+        {
+          "role": "user",
+          "content": "Now include the standing places from our fixed inputs. What is the running total?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786888212-TY1ogh184XprJXMBLn4S",
+        "object": "chat.completion",
+        "created": 1786888212,
+        "model": "google/gemma-4-26b-a4b-it:free",
+        "provider": "Darkbloom",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "To get the running total, we add the standing places to the seat total:\n\n88 seats + 17 standing places = **105 total capacity**",
+              "refusal": null,
+              "reasoning": null
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 161,
+          "completion_tokens": 35,
+          "total_tokens": 196,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.000010605,
+            "upstream_inference_prompt_cost": 0.00000483,
+            "upstream_inference_completions_cost": 0.000005775
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-d",
+      "prompt_hash": "dr9i8j",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "So how many seats in total on the decks?"
+        },
+        {
+          "role": "assistant",
+          "content": "To find the total number of seats on the decks, you multiply the number of decks by the seats per deck:\n\n4 decks × 22 seats = **88 seats**"
+        },
+        {
+          "role": "user",
+          "content": "Now include the standing places from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "To get the running total, we add the standing places to the seat total:\n\n88 seats + 17 standing places = **105 total capacity**"
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786888216-Csl2IjuIrtVvzc5R0Gzi",
+        "object": "chat.completion",
+        "created": 1786888216,
+        "model": "google/gemma-4-26b-a4b-it:free",
+        "provider": "Darkbloom",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Here are the running numbers based on our fixed inputs and calculations so far:\n\n*   **Total Seats:** 88 (4 decks × 22 seats)\n*   **Standing Places:** 17\n*   **Running Total Capacity:** 105",
+              "refusal": null,
+              "reasoning": null
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 217,
+          "completion_tokens": 57,
+          "total_tokens": 274,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.000015915,
+            "upstream_inference_prompt_cost": 0.00000651,
+            "upstream_inference_completions_cost": 0.000009405
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "fq0foj",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "So how many seats in total on the decks?"
+        },
+        {
+          "role": "assistant",
+          "content": "To find the total number of seats on the decks, you multiply the number of decks by the seats per deck:\n\n4 decks × 22 seats = **88 seats**"
+        },
+        {
+          "role": "user",
+          "content": "Now include the standing places from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "To get the running total, we add the standing places to the seat total:\n\n88 seats + 17 standing places = **105 total capacity**"
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Here are the running numbers based on our fixed inputs and calculations so far:\n\n*   **Total Seats:** 88 (4 decks × 22 seats)\n*   **Standing Places:** 17\n*   **Running Total Capacity:** 105"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786888224-q0mMGu9fkGLRWaTQNGvu",
+        "object": "chat.completion",
+        "created": 1786888224,
+        "model": "google/gemma-4-26b-a4b-it:free",
+        "provider": "Darkbloom",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Based on the fixed inputs, the total number of seats and standing places combined is:\n\n105",
+              "refusal": null,
+              "reasoning": null
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 320,
+          "completion_tokens": 22,
+          "total_tokens": 342,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.00001323,
+            "upstream_inference_prompt_cost": 0.0000096,
+            "upstream_inference_completions_cost": 0.00000363
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 39733
+}

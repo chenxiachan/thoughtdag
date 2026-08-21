@@ -1,0 +1,256 @@
+{
+  "case_id": "rp-pilot-garden-rows-k2",
+  "condition": "recompute_descendants",
+  "run_id": "pilot-v1-gptoss20b",
+  "capture": {
+    "model": "openai/gpt-oss-20b:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "1yftvvu",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 16 rows, each row holds 6 plants, and 9 potted plants must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: rows = 16, plants per row = 6, potted plants to add = 9."
+        },
+        {
+          "role": "user",
+          "content": "So how many plants in total on the rows?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786888429-08BQXHAPzmHZHLmw5wuv",
+        "object": "chat.completion",
+        "created": 1786888429,
+        "model": "openai/gpt-oss-20b:free",
+        "provider": "Darkbloom",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "There are **96 plants** on the rows (16 rows × 6 plants each).",
+              "refusal": null,
+              "reasoning": "We need to compute total plants on rows: 16 rows * 6 plants each = 96. Then add 9 potted plants? The question: \"So how many plants in total on the rows?\" That likely refers only to rows, not including potted. So answer 96.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to compute total plants on rows: 16 rows * 6 plants each = 96. Then add 9 potted plants? The question: \"So how many plants in total on the rows?\" That likely refers only to rows, not including potted. So answer 96.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 150,
+          "completion_tokens": 91,
+          "total_tokens": 241,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.000008545,
+            "upstream_inference_prompt_cost": 0.000002175,
+            "upstream_inference_completions_cost": 0.00000637
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 60,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-c",
+      "prompt_hash": "3ukon3",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 16 rows, each row holds 6 plants, and 9 potted plants must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: rows = 16, plants per row = 6, potted plants to add = 9."
+        },
+        {
+          "role": "user",
+          "content": "So how many plants in total on the rows?"
+        },
+        {
+          "role": "assistant",
+          "content": "There are **96 plants** on the rows (16 rows × 6 plants each)."
+        },
+        {
+          "role": "user",
+          "content": "Now include the potted plants from our fixed inputs. What is the running total?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786888439-Iapz6MKY46Ulj9BFrFFt",
+        "object": "chat.completion",
+        "created": 1786888439,
+        "model": "openai/gpt-oss-20b:free",
+        "provider": "Darkbloom",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Adding the 9 potted plants to the 96 plants on the rows gives a running total of **105 plants**.",
+              "refusal": null,
+              "reasoning": "We need to add 9 potted plants to 96. So total 105.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to add 9 potted plants to 96. So total 105.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 198,
+          "completion_tokens": 53,
+          "total_tokens": 251,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.000006581,
+            "upstream_inference_prompt_cost": 0.000002871,
+            "upstream_inference_completions_cost": 0.00000371
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 18,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "10zedgo",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 16 rows, each row holds 6 plants, and 9 potted plants must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: rows = 16, plants per row = 6, potted plants to add = 9."
+        },
+        {
+          "role": "user",
+          "content": "So how many plants in total on the rows?"
+        },
+        {
+          "role": "assistant",
+          "content": "There are **96 plants** on the rows (16 rows × 6 plants each)."
+        },
+        {
+          "role": "user",
+          "content": "Now include the potted plants from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Adding the 9 potted plants to the 96 plants on the rows gives a running total of **105 plants**."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of plants (from the rows plus the potted plants) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786888442-WF62jmPA3UW14itqsXN6",
+        "object": "chat.completion",
+        "created": 1786888442,
+        "model": "openai/gpt-oss-20b:free",
+        "provider": "Darkbloom",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of plants is 105.  \n105",
+              "refusal": null,
+              "reasoning": "We need to output the total number of plants from rows plus potted plants. We have 16 rows * 6 plants = 96. Add 9 potted = 105. The instruction: \"state the total number of plants (from the rows plus the potted plants) as a single number. End your reply with the number alone on the last line.\" So we need to output something like:\n\nThe total number of plants is 105.\n\nBut we must end with the number alone on the last line. So we can write a sentence, then on the last line just \"105\". Ensure no trailing spaces. Let's produce: \"The total number of plants is 105.\" Then newline, then \"105\". That satisfies.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to output the total number of plants from rows plus potted plants. We have 16 rows * 6 plants = 96. Add 9 potted = 105. The instruction: \"state the total number of plants (from the rows plus the potted plants) as a single number. End your reply with the number alone on the last line.\" So we need to output something like:\n\nThe total number of plants is 105.\n\nBut we must end with the number alone on the last line. So we can write a sentence, then on the last line just \"105\". Ensure no trailing spaces. Let's produce: \"The total number of plants is 105.\" Then newline, then \"105\". That satisfies.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 271,
+          "completion_tokens": 170,
+          "total_tokens": 441,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.0000158295,
+            "upstream_inference_prompt_cost": 0.0000039295,
+            "upstream_inference_completions_cost": 0.0000119
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 149,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 20267
+}

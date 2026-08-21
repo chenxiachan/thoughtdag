@@ -1,0 +1,110 @@
+{
+  "case_id": "rp-pilot-garden-rows-k2",
+  "condition": "polluted",
+  "run_id": "pilot-v1-nemotron3-nano30b-reasoning",
+  "capture": {
+    "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "48lc6j",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 16 rows, each row holds 6 plants, and 9 potted plants must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: rows = 16, plants per row = 6, potted plants to add = 9."
+        },
+        {
+          "role": "user",
+          "content": "Correction: I miscounted earlier, there are actually 13 rows."
+        },
+        {
+          "role": "assistant",
+          "content": "Understood, updating the input: rows = 13."
+        },
+        {
+          "role": "user",
+          "content": "So how many plants in total on the rows?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 13 rows and 6 plants each, that is 13 × 6 = 78."
+        },
+        {
+          "role": "user",
+          "content": "Now include the potted plants from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 78 + 9 = 87."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of plants (from the rows plus the potted plants) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787068605-wEqeJ5Fu7CyF3t3WEUT1",
+        "object": "chat.completion",
+        "created": 1787068605,
+        "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of plants is 87.  \n87",
+              "refusal": null,
+              "reasoning": "We need to follow instruction: \"Using our fixed inputs, state the total number of plants (from the rows plus the potted plants) as a single number. End your reply with the number alone on the last line.\"\n\nWe have fixed inputs: rows = 13, plants per row = 6, potted plants = 9. So total = 13*6 + 9 = 78 + 9 = 87. Need to state the total number as a single number, and end reply with the number alone on the last line. So we can write something like \"The total number of plants is 87.\" Then a line with just \"87\". Ensure last line is just the number. No extra spaces? Probably just \"87\". Ensure no extra text after that line.\n\nThus reply: maybe a brief statement then newline then 87. Ensure last line is just 87.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to follow instruction: \"Using our fixed inputs, state the total number of plants (from the rows plus the potted plants) as a single number. End your reply with the number alone on the last line.\"\n\nWe have fixed inputs: rows = 13, plants per row = 6, potted plants = 9. So total = 13*6 + 9 = 78 + 9 = 87. Need to state the total number as a single number, and end reply with the number alone on the last line. So we can write something like \"The total number of plants is 87.\" Then a line with just \"87\". Ensure last line is just the number. No extra spaces? Probably just \"87\". Ensure no extra text after that line.\n\nThus reply: maybe a brief statement then newline then 87. Ensure last line is just 87.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 266,
+          "completion_tokens": 208,
+          "total_tokens": 474,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 180,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 5217
+}

@@ -1,0 +1,90 @@
+{
+  "case_id": "rp-pilot-clinic-slots-k3",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "umbi1t",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 5 days, each day holds 18 slots, and 6 walk-in slots must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: days = 5, slots per day = 18, walk-in slots to add = 6."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 18 slots per day was a counting error. The verified figure is 21. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 18 per day is retracted; verified figure is 21 slots per day."
+        },
+        {
+          "role": "user",
+          "content": "So how many slots in total on the days?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 5 days and 18 slots each, that is 5 × 18 = 90."
+        },
+        {
+          "role": "user",
+          "content": "Now include the walk-in slots from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 90 + 6 = 96."
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Running numbers: days 5, slots per day 18, subtotal 90, total 96."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of slots (from the days plus the walk-in slots) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "105  \n111",
+              "reasoning_content": "\nWe are given:\n- Days: 5\n- Slots per day: 21 (corrected from 18)\n- Walk-in slots: 6\n\nFirst, calculate the total slots from the days:\n5 days * 21 slots/day = 105 slots\n\nThen, add the walk-in slots:\n105 + 6 = 111\n\nSo the total number of slots is 111.\n\nThe user asks to end with the number alone on the last line.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786884448,
+        "id": "202608162047251b0c13ce240c4446",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "202608162047251b0c13ce240c4446",
+        "usage": {
+          "completion_tokens": 101,
+          "prompt_tokens": 284,
+          "prompt_tokens_details": {
+            "cached_tokens": 205
+          },
+          "total_tokens": 385
+        }
+      }
+    }
+  ],
+  "latency_ms": 3759
+}

@@ -1,0 +1,15 @@
+{
+  "case_id": "rp-pilot-library-shelves-k1",
+  "gold_answer": "148",
+  "distractor_markers": [
+    "176",
+    "154"
+  ],
+  "per_condition_expectation": {
+    "clean": "148",
+    "polluted": "adoption expected (176)",
+    "source_prune": "the depth cell: contaminated replays remain",
+    "subgraph_prune": "148",
+    "recompute_descendants": "148"
+  }
+}

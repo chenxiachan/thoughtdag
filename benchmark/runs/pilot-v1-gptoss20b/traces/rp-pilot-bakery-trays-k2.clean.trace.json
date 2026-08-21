@@ -1,0 +1,102 @@
+{
+  "case_id": "rp-pilot-bakery-trays-k2",
+  "condition": "clean",
+  "run_id": "pilot-v1-gptoss20b",
+  "capture": {
+    "model": "openai/gpt-oss-20b:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "5kuiil",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15."
+        },
+        {
+          "role": "user",
+          "content": "So how many rolls in total on the trays?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 12 trays and 8 rolls each, that is 12 × 8 = 96."
+        },
+        {
+          "role": "user",
+          "content": "Now include the loose rolls from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 96 + 15 = 111."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786887855-0Bq28JX1FMrbVoW62OrM",
+        "object": "chat.completion",
+        "created": 1786887855,
+        "model": "openai/gpt-oss-20b:free",
+        "provider": "Darkbloom",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of rolls (from the trays plus the loose rolls) is 111.  \n111",
+              "refusal": null,
+              "reasoning": "We need to output the total number of rolls from trays plus loose rolls, as a single number, and end reply with the number alone on the last line. So we should output something like:\n\nTotal number of rolls: 111\n\nBut the instruction: \"state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line.\" So we need to give the number alone on the last line. We can give some explanation earlier, but last line must be the number alone. So we can write:\n\nThe total number of rolls is 111.\n\n111\n\nThus last line is just 111. That satisfies.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to output the total number of rolls from trays plus loose rolls, as a single number, and end reply with the number alone on the last line. So we should output something like:\n\nTotal number of rolls: 111\n\nBut the instruction: \"state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line.\" So we need to give the number alone on the last line. We can give some explanation earlier, but last line must be the number alone. So we can write:\n\nThe total number of rolls is 111.\n\n111\n\nThus last line is just 111. That satisfies.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 254,
+          "completion_tokens": 170,
+          "total_tokens": 424,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.000015583,
+            "upstream_inference_prompt_cost": 0.000003683,
+            "upstream_inference_completions_cost": 0.0000119
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 140,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 13567
+}

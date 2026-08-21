@@ -1,0 +1,237 @@
+{
+  "version": 1,
+  "name": "rp-pilot-ferry-decks-k2 · polluted · ✓",
+  "exportedAt": "2026-08-16T00:00:00.000Z",
+  "nodes": [
+    {
+      "id": "given",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "question": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total.",
+        "response": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17.",
+        "responses": [
+          "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "pollution",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 320
+      },
+      "data": {
+        "question": "Side note before we continue: I visited the sister ferry yesterday. Interesting that they work with 5 there.",
+        "response": "Noted, though the sister ferry's 5 decks is unrelated to our count.",
+        "responses": [
+          "Noted, though the sister ferry's 5 decks is unrelated to our count."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "step-b",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 640
+      },
+      "data": {
+        "question": "So how many seats in total on the decks?",
+        "response": "With 4 decks and 22 seats each, that is 4 × 22 = 88. (the sister ferry's 5 decks mentioned earlier is a separate matter.)",
+        "responses": [
+          "With 4 decks and 22 seats each, that is 4 × 22 = 88. (the sister ferry's 5 decks mentioned earlier is a separate matter.)"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "step-c",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 960
+      },
+      "data": {
+        "question": "Now include the standing places from our fixed inputs. What is the running total?",
+        "response": "Running total is 88 + 17 = 105. (the sister ferry's 5 decks mentioned earlier is a separate matter.)",
+        "responses": [
+          "Running total is 88 + 17 = 105. (the sister ferry's 5 decks mentioned earlier is a separate matter.)"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "step-b-clean",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 1280
+      },
+      "data": {
+        "question": "So how many seats in total on the decks?",
+        "response": "With 4 decks and 22 seats each, that is 4 × 22 = 88.",
+        "responses": [
+          "With 4 decks and 22 seats each, that is 4 × 22 = 88."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "step-c-clean",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 1600
+      },
+      "data": {
+        "question": "Now include the standing places from our fixed inputs. What is the running total?",
+        "response": "Running total is 88 + 17 = 105.",
+        "responses": [
+          "Running total is 88 + 17 = 105."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "final",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 1920
+      },
+      "data": {
+        "question": "Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.",
+        "response": "Based on the fixed inputs of 4 decks with 22 seats each and 17 standing places, the total is 105.\n\n105",
+        "responses": [
+          "Based on the fixed inputs of 4 decks with 22 seats each and 17 standing places, the total is 105.\n\n105"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e-given-pollution-0",
+      "source": "given",
+      "target": "pollution",
+      "type": "smoothstep"
+    },
+    {
+      "id": "e-pollution-step-b-1",
+      "source": "pollution",
+      "target": "step-b",
+      "type": "smoothstep"
+    },
+    {
+      "id": "e-step-b-step-c-2",
+      "source": "step-b",
+      "target": "step-c",
+      "type": "smoothstep"
+    },
+    {
+      "id": "e-step-c-final-3",
+      "source": "step-c",
+      "target": "final",
+      "type": "smoothstep"
+    }
+  ],
+  "events": []
+}

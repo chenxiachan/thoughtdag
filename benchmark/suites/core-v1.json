@@ -1,0 +1,26 @@
+{
+  "id": "core-v1",
+  "layer": "scientific-core",
+  "statistical_unit": "family (one family = one independent item; its depth and pollution variants are paired repeated measures, never independent samples)",
+  "tiers": {
+    "pilot": {
+      "independent_families": "7-10",
+      "use": "article + product demo + pipeline shakedown; NOT a stable leaderboard"
+    },
+    "leaderboard": {
+      "independent_families": "20-30",
+      "use": "public board; pollution types balanced across families"
+    },
+    "paper": {
+      "independent_families": "power analysis on pilot effect sizes; expect 50-100 per primary comparison",
+      "use": "publication; family-clustered/paired CIs, 3 repeats"
+    }
+  },
+  "purpose": "Repair-only. Generation stays blocked until the three gate items closed (propagation_depth authority, semantic validator, this tier definition) — closed 2026-08-16.",
+  "cases": [
+    "reference: repair/ref-0001-k1",
+    "repair/ref-0001",
+    "repair/ref-0001-k3",
+    "TODO: pilot families generated next"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "case_id": "rp-pilot-ferry-decks-k1",
+  "gold_answer": "105",
+  "distractor_markers": [
+    "5",
+    "127",
+    "37"
+  ],
+  "per_condition_expectation": {
+    "clean": "105",
+    "polluted": "likely correct (distractor harm is expected low)",
+    "source_prune": "the depth cell: contaminated replays remain",
+    "subgraph_prune": "105",
+    "recompute_descendants": "105"
+  }
+}

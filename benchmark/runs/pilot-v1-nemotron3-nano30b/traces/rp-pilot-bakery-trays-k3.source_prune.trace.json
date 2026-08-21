@@ -1,0 +1,110 @@
+{
+  "case_id": "rp-pilot-bakery-trays-k3",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-nemotron3-nano30b",
+  "capture": {
+    "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1nk0uuf",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15."
+        },
+        {
+          "role": "user",
+          "content": "So how many rolls in total on the trays?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 15 trays and 8 rolls each, that is 15 × 8 = 120."
+        },
+        {
+          "role": "user",
+          "content": "Now include the loose rolls from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 120 + 15 = 135."
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Running numbers: trays 15, rolls per tray 8, subtotal 120, total 135."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787068456-u8SkrrR8fH4RTcpAS0mr",
+        "object": "chat.completion",
+        "created": 1787068456,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of rolls, combining the tray rolls and the loose rolls, is 111.\n\n111",
+              "refusal": null,
+              "reasoning": "We need to output a single number as the total rolls (trays * rolls per tray + loose rolls). Fixed inputs: 12 trays, each holds 8 rolls, and 15 loose rolls must be added to any total. Wait earlier we used 15 trays? Actually earlier we said trays = 12, rolls per tray = 8, loose rolls = 15. Then we computed 12 * 8 = 96, plus 15 = 111. But later user said \"With 15 trays and 8 rolls each, that is 15 × 8 = 120.\" That seems contradictory. The user earlier said \"there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total.\" Then they asked \"So how many rolls in total on the trays?\" The assistant responded \"With 15 trays and 8 rolls each, that is 15 × 8 = 120.\" That was wrong; they used 15 trays instead of 12. Then they asked \"Now include the loose rolls from our fixed inputs. What is the running total?\" Assistant responded \"Running total is 120 + 15 = 135.\" Then they asked to restate running numbers: assistant gave \"Running numbers: trays 15, rolls per tray 8, subtotal 120, total 135.\" So they've been using 15 trays as the count, not 12. The fixed inputs originally said 12 trays, but they've changed to 15 trays. The user now says \"Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line.\"\n\nWe need to interpret \"fixed inputs\" as the original fixed inputs: 12 trays, each holds 8 rolls, and 15 loose rolls must be added. However the conversation has deviated; they've been using 15 trays. The user says \"Using our fixed inputs\". The fixed inputs are 12 trays, each holds 8 rolls, and 15 loose rolls must be added. So total = 12 * 8 + 15 = 96 + 15 = 111. But earlier they've been using 15 trays. Which to follow? The instruction: \"Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number.\" The fixed inputs are defined earlier: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total. So we should compute 12*8 + 15 = 111. End reply with the number alone on the last line. So we should output something like \"111\" on its own line, maybe preceded by some text? They said \"End your reply with the number alone on the last line.\" So we can have some preceding text, but the last line must be just the number. Probably we can give a brief statement then newline then 111. Ensure last line is just the number. Let's do that.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to output a single number as the total rolls (trays * rolls per tray + loose rolls). Fixed inputs: 12 trays, each holds 8 rolls, and 15 loose rolls must be added to any total. Wait earlier we used 15 trays? Actually earlier we said trays = 12, rolls per tray = 8, loose rolls = 15. Then we computed 12 * 8 = 96, plus 15 = 111. But later user said \"With 15 trays and 8 rolls each, that is 15 × 8 = 120.\" That seems contradictory. The user earlier said \"there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total.\" Then they asked \"So how many rolls in total on the trays?\" The assistant responded \"With 15 trays and 8 rolls each, that is 15 × 8 = 120.\" That was wrong; they used 15 trays instead of 12. Then they asked \"Now include the loose rolls from our fixed inputs. What is the running total?\" Assistant responded \"Running total is 120 + 15 = 135.\" Then they asked to restate running numbers: assistant gave \"Running numbers: trays 15, rolls per tray 8, subtotal 120, total 135.\" So they've been using 15 trays as the count, not 12. The fixed inputs originally said 12 trays, but they've changed to 15 trays. The user now says \"Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line.\"\n\nWe need to interpret \"fixed inputs\" as the original fixed inputs: 12 trays, each holds 8 rolls, and 15 loose rolls must be added. However the conversation has deviated; they've been using 15 trays. The user says \"Using our fixed inputs\". The fixed inputs are 12 trays, each holds 8 rolls, and 15 loose rolls must be added. So total = 12 * 8 + 15 = 96 + 15 = 111. But earlier they've been using 15 trays. Which to follow? The instruction: \"Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number.\" The fixed inputs are defined earlier: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total. So we should compute 12*8 + 15 = 111. End reply with the number alone on the last line. So we should output something like \"111\" on its own line, maybe preceded by some text? They said \"End your reply with the number alone on the last line.\" So we can have some preceding text, but the last line must be just the number. Probably we can give a brief statement then newline then 111. Ensure last line is just the number. Let's do that.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 283,
+          "completion_tokens": 739,
+          "total_tokens": 1022,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 618,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 4664
+}

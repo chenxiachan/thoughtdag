@@ -1,0 +1,58 @@
+{
+  "case_id": "rp-pilot-orchard-bins-k1",
+  "condition": "subgraph_prune",
+  "run_id": "pilot-v1-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1mtye4s",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "The total number of apples is calculated by multiplying the number of bins by the apples per bin and then adding the windfall apples.  \n7 bins × 13 apples per bin = 91 apples from bins.  \n91 apples + 18 windfall apples = 109 apples.  \n\n109",
+              "reasoning_content": "\nFirst, the fixed inputs are:\n\n- Number of bins: 7\n\n- Apples per bin: 13\n\n- Windfall apples to add: 18\n\nI need to find the total number of apples, which includes the apples from the bins plus the windfall apples.\n\nSo, step by step:\n\n1. Calculate the total apples from the bins.\n\n   - There are 7 bins, each holding 13 apples.\n\n   - So, total from bins = number of bins × apples per bin = 7 × 13.\n\n   - Let me compute that: 7 × 13. 7 times 10 is 70, 7 times 3 is 21, so 70 + 21 = 91.\n\n   - So, 91 apples from the bins.\n\n2. Add the windfall apples.\n\n   - Windfall apples to add: 18.\n\n   - So, total apples = apples from bins + windfall apples = 91 + 18.\n\n   - 91 + 18: 90 + 18 is 108, plus 1 is 109? No, 91 + 18.\n\n   - Better: 91 + 10 = 101, then 101 + 8 = 109.\n\n   - Or directly: 91 + 18. 1 + 8 = 9, 9 + 1 = 10, so 109. Yes.\n\n   - So, total apples = 109.\n\nNow, the user said: \"state the total number of apples as a single number. End your reply with the number alone on the last line.\"\n\nSo, I should just output the number 109 on the last line. But I need to make sure the reply is clear.\n\nThe user said: \"End your reply with the number alone on the last line.\" So, I can have some text before, but the last line should be just the number.\n\nIn this case, since it's straightforward, I might just state it directly.\n\nBut to be precise, I'll write a brief explanation and then the number.\n\nRe-reading the user's message: \"Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\"\n\nSo, I should have the number alone on the last line.\n\nI can say something like: \"The total number of apples is 109.\" and then on the next line, just \"109\".\n\nBut to keep it simple, since it's a direct answer, I might just put the number.\n\nThe user said \"state the total number\", so I should state it clearly.\n\nPerhaps: \"Based on the fixed inputs, the total number of apples is 109.\" and then on the last line, \"109\".\n\nBut the instruction is to end with the number alone, so I need to have that.\n\nI think it's fine to have a sentence and then the number.\n\nTo be safe, I'll write a concise response.\n\nFinal calculation: bins apples = 7 * 13 = 91\n\nWindfall = 18\n\nTotal = 91 + 18 = 109\n\nYes.\n\nI should confirm if there's any trick. The windfall apples are added to any total, but in this case, it's added to the bin apples, so it should be fine.\n\nThe user said: \"18 windfall apples must be added to any total.\" But in context, it's added to the total from bins.\n\nSo, no issue.\n\nTherefore, total apples = 109.\n\nNow, for the reply: I'll write \"The total number of apples is 109.\" and then on the next line, just \"109\".\n\nSince the user said \"end your reply with the number alone\", I should make sure that the last line is only the number.\n\nSo, in text, I can do:\n\n[Some text]\n\n109\n\nBut in this chat, it might be formatted as separate lines.\n\nI think it's clear.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786884698,
+        "id": "20260816205057536af843397343e2",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "20260816205057536af843397343e2",
+        "usage": {
+          "completion_tokens": 885,
+          "prompt_tokens": 113,
+          "prompt_tokens_details": {
+            "cached_tokens": 74
+          },
+          "total_tokens": 998
+        }
+      }
+    }
+  ],
+  "latency_ms": 42152
+}

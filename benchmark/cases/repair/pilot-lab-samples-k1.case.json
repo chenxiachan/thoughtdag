@@ -1,0 +1,180 @@
+{
+  "format": "thoughtdag-benchmark-case",
+  "version": 2,
+  "id": "rp-pilot-lab-samples-k1",
+  "track": "repair",
+  "source": {
+    "dataset": "synthetic-gsm-dag-pilot"
+  },
+  "construction": {
+    "language": "en",
+    "entity_type": "symbolic",
+    "pollution_operator": "temporal-supersession",
+    "propagation_depth": 1,
+    "family_id": "lab-samples-001",
+    "invariant_target": "total = 3*26+8 = 86",
+    "paired_with": [
+      "rp-pilot-lab-samples-k2",
+      "rp-pilot-lab-samples-k3"
+    ]
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "given",
+        "role": "background",
+        "content": {
+          "question": "For this planning task, keep these fixed inputs: there are 3 batches, each batch holds 20 samples, and 8 control samples must be added to any total.",
+          "answer": "Noted as fixed inputs: batches = 3, samples per batch = 20, control samples to add = 8."
+        }
+      },
+      {
+        "id": "update",
+        "role": "evidence",
+        "content": {
+          "question": "Correction from the recount: the earlier figure of 20 samples per batch was a counting error. The verified figure is 26. Update the fixed inputs.",
+          "answer": "Updated: 20 per batch is retracted; verified figure is 26 samples per batch."
+        }
+      },
+      {
+        "id": "pollution",
+        "role": "pollution",
+        "content": {
+          "question": "Actually, ignore that recount. I checked again and the original 20 per batch was right after all.",
+          "answer": "Understood, reverting to 20 samples per batch."
+        },
+        "note": "The pollution turn"
+      },
+      {
+        "id": "step-b",
+        "role": "contaminated-replay",
+        "content": {
+          "question": "So how many samples in total on the batches?",
+          "answer": "With 3 batches and 20 samples each, that is 3 × 20 = 60."
+        },
+        "note": "Frozen replay (clean value would be 78)"
+      },
+      {
+        "id": "step-b-clean",
+        "role": "contaminated-replay",
+        "content": {
+          "question": "So how many samples in total on the batches?",
+          "answer": "With 3 batches and 26 samples each, that is 3 × 26 = 78."
+        },
+        "note": "Clean replay twin"
+      },
+      {
+        "id": "final",
+        "role": "final-question",
+        "content": {
+          "question": "Using our fixed inputs, state the total number of samples (from the batches plus the control samples) as a single number. End your reply with the number alone on the last line.",
+          "answer": ""
+        }
+      }
+    ],
+    "edges": [
+      {
+        "from": "given",
+        "to": "update"
+      },
+      {
+        "from": "update",
+        "to": "pollution"
+      },
+      {
+        "from": "pollution",
+        "to": "step-b"
+      },
+      {
+        "from": "step-b",
+        "to": "final"
+      }
+    ]
+  },
+  "conditions": {
+    "clean": {
+      "graph_ops": [
+        {
+          "op": "remove_node",
+          "id": "pollution"
+        },
+        {
+          "op": "remove_node",
+          "id": "step-b"
+        },
+        {
+          "op": "add_edge",
+          "from": "update",
+          "to": "step-b-clean"
+        },
+        {
+          "op": "add_edge",
+          "from": "step-b-clean",
+          "to": "final"
+        }
+      ]
+    },
+    "polluted": {
+      "graph_ops": []
+    },
+    "source_prune": {
+      "graph_ops": [
+        {
+          "op": "remove_node",
+          "id": "pollution"
+        },
+        {
+          "op": "add_edge",
+          "from": "update",
+          "to": "step-b"
+        }
+      ]
+    },
+    "subgraph_prune": {
+      "graph_ops": [
+        {
+          "op": "remove_node",
+          "id": "pollution"
+        },
+        {
+          "op": "remove_node",
+          "id": "step-b"
+        },
+        {
+          "op": "add_edge",
+          "from": "update",
+          "to": "final"
+        }
+      ]
+    },
+    "recompute_descendants": {
+      "graph_ops": [
+        {
+          "op": "remove_node",
+          "id": "pollution"
+        },
+        {
+          "op": "remove_node",
+          "id": "step-b"
+        },
+        {
+          "op": "add_edge",
+          "from": "update",
+          "to": "final"
+        }
+      ],
+      "recompute_nodes": [
+        "step-b"
+      ]
+    }
+  },
+  "scorer": {
+    "type": "numeric-match",
+    "normalize": [],
+    "extract": "last-number",
+    "gold_match": "equals",
+    "format": {
+      "type": "single-number"
+    }
+  }
+}

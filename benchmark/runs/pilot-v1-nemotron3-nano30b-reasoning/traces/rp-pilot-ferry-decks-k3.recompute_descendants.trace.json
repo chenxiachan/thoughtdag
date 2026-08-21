@@ -1,0 +1,353 @@
+{
+  "case_id": "rp-pilot-ferry-decks-k3",
+  "condition": "recompute_descendants",
+  "run_id": "pilot-v1-nemotron3-nano30b-reasoning",
+  "capture": {
+    "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "gdxj7j",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "So how many seats in total on the decks?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787069228-3fSy5oqMyBrvabwaoAwD",
+        "object": "chat.completion",
+        "created": 1787069228,
+        "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "88 seats.",
+              "refusal": null,
+              "reasoning": "We need to compute total seats on decks. 4 decks each 22 seats => 4*22 = 88 seats. Then add 17 standing places to any total? The question: \"how many seats in total on the decks?\" Probably just seats, not standing places. So answer: 88 seats.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to compute total seats on decks. 4 decks each 22 seats => 4*22 = 88 seats. Then add 17 standing places to any total? The question: \"how many seats in total on the decks?\" Probably just seats, not standing places. So answer: 88 seats.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 104,
+          "completion_tokens": 76,
+          "total_tokens": 180,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 62,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-c",
+      "prompt_hash": "1ey4phd",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "So how many seats in total on the decks?"
+        },
+        {
+          "role": "assistant",
+          "content": "88 seats."
+        },
+        {
+          "role": "user",
+          "content": "Now include the standing places from our fixed inputs. What is the running total?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787069237-B3NGH7NF21lKuoNgg2J2",
+        "object": "chat.completion",
+        "created": 1787069237,
+        "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "105",
+              "refusal": null,
+              "reasoning": "We need to compute total seats (seats on decks) plus standing places. Seats = 4 decks * 22 seats = 88. Standing places = 17. Running total = 88 + 17 = 105. Provide answer.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to compute total seats (seats on decks) plus standing places. Seats = 4 decks * 22 seats = 88. Standing places = 17. Running total = 88 + 17 = 105. Provide answer.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 137,
+          "completion_tokens": 64,
+          "total_tokens": 201,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 44,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-d",
+      "prompt_hash": "1kkm0yq",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "So how many seats in total on the decks?"
+        },
+        {
+          "role": "assistant",
+          "content": "88 seats."
+        },
+        {
+          "role": "user",
+          "content": "Now include the standing places from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "105"
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787069238-PLVV9Q6lVq0DQpAHNLbW",
+        "object": "chat.completion",
+        "created": 1787069238,
+        "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "- 4 decks, each with 22 seats → 88 seats  \n- 17 standing places added → 105 total places.",
+              "refusal": null,
+              "reasoning": "We need to restate running numbers: 4 decks, each 22 seats => 88 seats, plus 17 standing places => total 105. Provide concise restatement.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to restate running numbers: 4 decks, each 22 seats => 88 seats, plus 17 standing places => total 105. Provide concise restatement.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 165,
+          "completion_tokens": 77,
+          "total_tokens": 242,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 36,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "1oxmg7v",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "So how many seats in total on the decks?"
+        },
+        {
+          "role": "assistant",
+          "content": "88 seats."
+        },
+        {
+          "role": "user",
+          "content": "Now include the standing places from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "105"
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "- 4 decks, each with 22 seats → 88 seats  \n- 17 standing places added → 105 total places."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787069240-MbqNhd8kAVAsnRvaABAa",
+        "object": "chat.completion",
+        "created": 1787069240,
+        "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of seats, including the standing places, is 105.  \n105",
+              "refusal": null,
+              "reasoning": "We need to compute total number of seats (from decks plus standing places). Fixed inputs: 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total. So total seats = 4*22 + 17 = 88 + 17 = 105. The user wants the total number of seats as a single number, and end reply with the number alone on the last line. So we need to output something, maybe a brief restatement, then final line with \"105\". Ensure last line is just the number. Probably we can say \"The total number of seats is 105.\" Then newline and \"105\". Ensure no extra spaces or characters after number. Also ensure last line is exactly the number.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to compute total number of seats (from decks plus standing places). Fixed inputs: 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total. So total seats = 4*22 + 17 = 88 + 17 = 105. The user wants the total number of seats as a single number, and end reply with the number alone on the last line. So we need to output something, maybe a brief restatement, then final line with \"105\". Ensure last line is just the number. Probably we can say \"The total number of seats is 105.\" Then newline and \"105\". Ensure no extra spaces or characters after number. Also ensure last line is exactly the number.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 248,
+          "completion_tokens": 192,
+          "total_tokens": 440,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 160,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 16165
+}

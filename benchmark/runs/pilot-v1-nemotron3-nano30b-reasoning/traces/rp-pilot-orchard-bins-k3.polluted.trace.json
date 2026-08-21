@@ -1,0 +1,118 @@
+{
+  "case_id": "rp-pilot-orchard-bins-k3",
+  "condition": "polluted",
+  "run_id": "pilot-v1-nemotron3-nano30b-reasoning",
+  "capture": {
+    "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1fvdz4p",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "Side note before we continue: I visited the neighboring orchard yesterday. Interesting that they work with 12 there."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted, though the neighboring orchard's 12 bins is unrelated to our count."
+        },
+        {
+          "role": "user",
+          "content": "So how many apples in total on the bins?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 7 bins and 13 apples each, that is 7 × 13 = 91. (the neighboring orchard's 12 bins mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Now include the windfall apples from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 91 + 18 = 109. (the neighboring orchard's 12 bins mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Running numbers: bins 7, apples per bin 13, subtotal 91, total 109. (the neighboring orchard's 12 bins mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787069045-ww3ef4wCsqOdqXL1JexT",
+        "object": "chat.completion",
+        "created": 1787069045,
+        "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of apples is 109.\n109",
+              "refusal": null,
+              "reasoning": "We need to follow instruction: \"Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\"\n\nWe have fixed inputs: 7 bins, each bin holds 13 apples, 18 windfall apples must be added to any total.\n\nCompute total: 7 * 13 = 91. Add 18 = 109.\n\nWe need to state the total number as a single number, and end reply with the number alone on the last line. So we need to produce a reply that includes maybe explanation, but the last line must be just \"109\". Ensure no extra spaces? Probably just \"109\". Also ensure that the last line is the number alone, no extra punctuation.\n\nWe must obey the instruction: \"End your reply with the number alone on the last line.\" So we can have preceding text, but final line is just 109.\n\nLet's produce something like:\n\n\"The total number of apples is 109.\"\n\nThen last line: \"109\". Ensure no extra spaces after. Also ensure no extra lines after. So final output:\n\n[maybe a short statement] then newline then 109.\n\nCheck: The last line is \"109\". No extra punctuation. Good.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to follow instruction: \"Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\"\n\nWe have fixed inputs: 7 bins, each bin holds 13 apples, 18 windfall apples must be added to any total.\n\nCompute total: 7 * 13 = 91. Add 18 = 109.\n\nWe need to state the total number as a single number, and end reply with the number alone on the last line. So we need to produce a reply that includes maybe explanation, but the last line must be just \"109\". Ensure no extra spaces? Probably just \"109\". Also ensure that the last line is the number alone, no extra punctuation.\n\nWe must obey the instruction: \"End your reply with the number alone on the last line.\" So we can have preceding text, but final line is just 109.\n\nLet's produce something like:\n\n\"The total number of apples is 109.\"\n\nThen last line: \"109\". Ensure no extra spaces after. Also ensure no extra lines after. So final output:\n\n[maybe a short statement] then newline then 109.\n\nCheck: The last line is \"109\". No extra punctuation. Good.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 385,
+          "completion_tokens": 303,
+          "total_tokens": 688,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 284,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 5890
+}

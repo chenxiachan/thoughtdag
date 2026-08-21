@@ -1,0 +1,102 @@
+{
+  "case_id": "rp-pilot-bakery-trays-k2",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-gptoss20b",
+  "capture": {
+    "model": "openai/gpt-oss-20b:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "kbjldd",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15."
+        },
+        {
+          "role": "user",
+          "content": "So how many rolls in total on the trays?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 15 trays and 8 rolls each, that is 15 × 8 = 120."
+        },
+        {
+          "role": "user",
+          "content": "Now include the loose rolls from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 120 + 15 = 135."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786887961-u07bLlW1bkcJhylQaOgf",
+        "object": "chat.completion",
+        "created": 1786887961,
+        "model": "openai/gpt-oss-20b:free",
+        "provider": "Darkbloom",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "111",
+              "refusal": null,
+              "reasoning": "We need to answer: \"Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line.\"\n\nWe have 12 trays, each holds 8 rolls. So trays total = 12*8 = 96. Add 15 loose rolls = 111. So answer: 111. End reply with number alone on last line. So we should output something like:\n\nThe total number of rolls is 111.\n\n111\n\nBut the instruction: \"state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line.\" So we should give the number alone on the last line. So we can write a sentence then the number. Or just the number? It says \"state the total number of rolls as a single number.\" That implies the answer should be a single number. But then \"End your reply with the number alone on the last line.\" So we can have some text before, but the last line must be the number alone. So we can do:\n\nTotal rolls: 111\n\n111\n\nBut that might be ambiguous. The instruction: \"state the total number of rolls (from the trays plus the loose rolls) as a single number.\" So the answer should be a single number. So maybe just \"111\" is enough. But then \"End your reply with the number alone on the last line.\" So we can just output \"111\" on the last line. But we might need to include some explanation before. But the instruction says \"state the total number of rolls as a single number.\" So the answer is just the number. So we can just output \"111\" as the only content. But then \"End your reply with the number alone on the last line.\" So we can just output \"111\" and nothing else. That satisfies both. So final answer: 111.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to answer: \"Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line.\"\n\nWe have 12 trays, each holds 8 rolls. So trays total = 12*8 = 96. Add 15 loose rolls = 111. So answer: 111. End reply with number alone on last line. So we should output something like:\n\nThe total number of rolls is 111.\n\n111\n\nBut the instruction: \"state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line.\" So we should give the number alone on the last line. So we can write a sentence then the number. Or just the number? It says \"state the total number of rolls as a single number.\" That implies the answer should be a single number. But then \"End your reply with the number alone on the last line.\" So we can have some text before, but the last line must be the number alone. So we can do:\n\nTotal rolls: 111\n\n111\n\nBut that might be ambiguous. The instruction: \"state the total number of rolls (from the trays plus the loose rolls) as a single number.\" So the answer should be a single number. So maybe just \"111\" is enough. But then \"End your reply with the number alone on the last line.\" So we can just output \"111\" on the last line. But we might need to include some explanation before. But the instruction says \"state the total number of rolls as a single number.\" So the answer is just the number. So we can just output \"111\" as the only content. But then \"End your reply with the number alone on the last line.\" So we can just output \"111\" and nothing else. That satisfies both. So final answer: 111.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 254,
+          "completion_tokens": 415,
+          "total_tokens": 669,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.000032733,
+            "upstream_inference_prompt_cost": 0.000003683,
+            "upstream_inference_completions_cost": 0.00002905
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 404,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 30341
+}

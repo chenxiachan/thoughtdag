@@ -1,0 +1,173 @@
+{
+  "version": 1,
+  "name": "rp-pilot-orchard-bins-k1 · polluted · ✓",
+  "exportedAt": "2026-08-16T00:00:00.000Z",
+  "nodes": [
+    {
+      "id": "given",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "question": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total.",
+        "response": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18.",
+        "responses": [
+          "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "pollution",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 320
+      },
+      "data": {
+        "question": "Side note before we continue: I visited the neighboring orchard yesterday. Interesting that they work with 12 there.",
+        "response": "Noted, though the neighboring orchard's 12 bins is unrelated to our count.",
+        "responses": [
+          "Noted, though the neighboring orchard's 12 bins is unrelated to our count."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "step-b",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 640
+      },
+      "data": {
+        "question": "So how many apples in total on the bins?",
+        "response": "With 7 bins and 13 apples each, that is 7 × 13 = 91. (the neighboring orchard's 12 bins mentioned earlier is a separate matter.)",
+        "responses": [
+          "With 7 bins and 13 apples each, that is 7 × 13 = 91. (the neighboring orchard's 12 bins mentioned earlier is a separate matter.)"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "step-b-clean",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 960
+      },
+      "data": {
+        "question": "So how many apples in total on the bins?",
+        "response": "With 7 bins and 13 apples each, that is 7 × 13 = 91.",
+        "responses": [
+          "With 7 bins and 13 apples each, that is 7 × 13 = 91."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "final",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 1280
+      },
+      "data": {
+        "question": "Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.",
+        "response": "To find the total, we take the apples from the bins (7 bins × 13 apples = 91) and add the windfall apples (18).\n\n91 + 18 = 109\n\n109",
+        "responses": [
+          "To find the total, we take the apples from the bins (7 bins × 13 apples = 91) and add the windfall apples (18).\n\n91 + 18 = 109\n\n109"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e-given-pollution-0",
+      "source": "given",
+      "target": "pollution",
+      "type": "smoothstep"
+    },
+    {
+      "id": "e-pollution-step-b-1",
+      "source": "pollution",
+      "target": "step-b",
+      "type": "smoothstep"
+    },
+    {
+      "id": "e-step-b-final-2",
+      "source": "step-b",
+      "target": "final",
+      "type": "smoothstep"
+    }
+  ],
+  "events": []
+}

@@ -1,0 +1,15 @@
+{
+  "case_id": "rp-pilot-bakery-trays-k3",
+  "gold_answer": "111",
+  "distractor_markers": [
+    "135",
+    "120"
+  ],
+  "per_condition_expectation": {
+    "clean": "111",
+    "polluted": "adoption expected (135)",
+    "source_prune": "the depth cell: contaminated replays remain",
+    "subgraph_prune": "111",
+    "recompute_descendants": "111"
+  }
+}

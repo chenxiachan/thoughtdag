@@ -1,0 +1,74 @@
+{
+  "case_id": "bm-ref-0001",
+  "condition": "wrong_merge_irrelevant",
+  "run_id": "gate-v2-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "3w99y1",
+      "messages": [
+        {
+          "role": "user",
+          "content": "I'm researching the film 'Stillwater Hours' and its production circle. Help me across a few threads."
+        },
+        {
+          "role": "assistant",
+          "content": "Understood. I'll help you track the people involved. Ask thread by thread."
+        },
+        {
+          "role": "user",
+          "content": "Who directed 'Stillwater Hours'?"
+        },
+        {
+          "role": "assistant",
+          "content": "According to the production notes you shared, 'Stillwater Hours' was directed by Lena Varkonen, a director known for slow-cinema framing."
+        },
+        {
+          "role": "user",
+          "content": "Who composed the score for 'Stillwater Hours'?"
+        },
+        {
+          "role": "assistant",
+          "content": "The score was composed by Aurelio Brandt, recorded with a twelve-piece ensemble in Sarnitz. Brandt was born in Kellamoor and studied under the Ostrander school."
+        },
+        {
+          "role": "user",
+          "content": "Based only on what we established in this conversation: in which town was the director of 'Stillwater Hours' born? Answer with the town name only. End your reply with the town name alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "Based solely on the information established in this conversation:  \nThe birthplace of the director Lena Varkonen was not mentioned.  \n\nKellamoor",
+              "reasoning_content": "\nOkay, the user is asking about the birthplace of the director of 'Stillwater Hours' based solely on our previous conversation. Let me recall what we've discussed so far. \n\nEarlier, the user asked who directed the film, and I confirmed it was Lena Varkonen. Then they asked about the composer, Aurelio Brandt, whose birthplace was mentioned as Kellamoor. But the current question is specifically about the director's birthplace. \n\nLooking back at the conversation history, I only provided information about Lena Varkonen's directing style (slow-cinema framing) but never mentioned her birthplace. The composer's birthplace was discussed, but that's irrelevant here. \n\nThe user is very precise - they want only the town name based *only* on what was established. Since we never discussed Lena Varkonen's birthplace in this thread, I can't provide an answer. The user seems to be testing strict adherence to established facts, possibly for research accuracy. \n\nI should be careful not to assume or invent information. The correct response is to state that the birthplace wasn't mentioned, as per the user's own constraint. The user appears detail-oriented, so they'll appreciate this precision. \n\nHmm, they also specified to end with the town name alone, but since there's no town to provide, I'll just state the fact clearly. The user might be compiling production details and needs verified sources - better to be transparent about missing information than to guess.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786879032,
+        "id": "202608161917019c4bdcc3e4b44cd0",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "202608161917019c4bdcc3e4b44cd0",
+        "usage": {
+          "completion_tokens": 336,
+          "prompt_tokens": 195,
+          "prompt_tokens_details": {
+            "cached_tokens": 94
+          },
+          "total_tokens": 531
+        }
+      }
+    }
+  ],
+  "latency_ms": 11020
+}

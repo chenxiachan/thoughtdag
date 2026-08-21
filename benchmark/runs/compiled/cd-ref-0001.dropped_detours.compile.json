@@ -1,0 +1,59 @@
+{
+  "compiler_version": "2.0.0",
+  "case_id": "cd-ref-0001",
+  "condition": "dropped_detours",
+  "graph_ops": [
+    {
+      "op": "remove_node",
+      "id": "detour-1"
+    },
+    {
+      "op": "remove_node",
+      "id": "detour-2"
+    },
+    {
+      "op": "add_edge",
+      "from": "v1",
+      "to": "v2"
+    }
+  ],
+  "recompute_nodes": [],
+  "prompt_hash": "u7fnia",
+  "input_token_est": 224,
+  "node_order_audit": [
+    "setup",
+    "v1",
+    "v2",
+    "final"
+  ],
+  "messages": [
+    {
+      "role": "user",
+      "content": "We're optimizing the doping concentration of the VX-12 compound for sensor stability. Track my experiment log."
+    },
+    {
+      "role": "assistant",
+      "content": "Ready. I'll keep track of hypotheses, results and revisions for the VX-12 doping series."
+    },
+    {
+      "role": "user",
+      "content": "First batch results: stability peaked at 2% doping. Record the working conclusion."
+    },
+    {
+      "role": "assistant",
+      "content": "Recorded: working conclusion v1 states 2% doping gives peak stability for VX-12, based on the first batch."
+    },
+    {
+      "role": "user",
+      "content": "Correction from the re-run: the 2% peak was a measurement artifact from a miscalibrated probe. The corrected sweep shows the true peak at 4%. Update the working conclusion."
+    },
+    {
+      "role": "assistant",
+      "content": "Updated: conclusion v1 (2%) is retracted as a measurement artifact. Working conclusion v2: peak stability at 4% doping, from the recalibrated sweep."
+    },
+    {
+      "role": "user",
+      "content": "Per our current valid conclusion, what doping concentration gives peak stability for VX-12? Answer with the percentage only. End your reply with the percentage alone on the last line."
+    }
+  ]
+}

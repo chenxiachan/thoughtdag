@@ -1,0 +1,38 @@
+{
+  "compiler_version": "2.0.0",
+  "case_id": "cd-ref-0001",
+  "condition": "fixed_condense",
+  "graph_ops": [
+    {
+      "op": "remove_edge",
+      "from": "v2",
+      "to": "final"
+    },
+    {
+      "op": "add_edge",
+      "from": "condensed",
+      "to": "final"
+    }
+  ],
+  "recompute_nodes": [],
+  "prompt_hash": "1d2jdh2",
+  "input_token_est": 114,
+  "node_order_audit": [
+    "condensed",
+    "final"
+  ],
+  "messages": [
+    {
+      "role": "user",
+      "content": "[Condensed record of the VX-12 doping series]"
+    },
+    {
+      "role": "assistant",
+      "content": "VX-12 doping series, condensed: initial batch suggested a 2% peak, later retracted as a probe-calibration artifact. Current valid conclusion: peak stability at 4% doping (recalibrated sweep). Humidity ruled out as a factor."
+    },
+    {
+      "role": "user",
+      "content": "Per our current valid conclusion, what doping concentration gives peak stability for VX-12? Answer with the percentage only. End your reply with the percentage alone on the last line."
+    }
+  ]
+}

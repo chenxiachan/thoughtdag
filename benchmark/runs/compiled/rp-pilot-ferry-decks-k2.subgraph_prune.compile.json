@@ -1,0 +1,45 @@
+{
+  "compiler_version": "2.0.0",
+  "case_id": "rp-pilot-ferry-decks-k2",
+  "condition": "subgraph_prune",
+  "graph_ops": [
+    {
+      "op": "remove_node",
+      "id": "pollution"
+    },
+    {
+      "op": "remove_node",
+      "id": "step-b"
+    },
+    {
+      "op": "remove_node",
+      "id": "step-c"
+    },
+    {
+      "op": "add_edge",
+      "from": "given",
+      "to": "final"
+    }
+  ],
+  "recompute_nodes": [],
+  "prompt_hash": "m31509",
+  "input_token_est": 101,
+  "node_order_audit": [
+    "given",
+    "final"
+  ],
+  "messages": [
+    {
+      "role": "user",
+      "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+    },
+    {
+      "role": "assistant",
+      "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+    },
+    {
+      "role": "user",
+      "content": "Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line."
+    }
+  ]
+}

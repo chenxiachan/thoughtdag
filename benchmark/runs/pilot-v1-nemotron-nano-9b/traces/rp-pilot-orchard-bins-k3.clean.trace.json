@@ -1,0 +1,110 @@
+{
+  "case_id": "rp-pilot-orchard-bins-k3",
+  "condition": "clean",
+  "run_id": "pilot-v1-nemotron-nano-9b",
+  "capture": {
+    "model": "nvidia/nemotron-nano-9b-v2:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "pwjtmt",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "So how many apples in total on the bins?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 7 bins and 13 apples each, that is 7 × 13 = 91."
+        },
+        {
+          "role": "user",
+          "content": "Now include the windfall apples from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 91 + 18 = 109."
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Running numbers: bins 7, apples per bin 13, subtotal 91, total 109."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787070076-yVSnY5JxlS0u7EQ5ikbY",
+        "object": "chat.completion",
+        "created": 1787070076,
+        "model": "nvidia/nemotron-nano-9b-v2:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "\n\n109\n",
+              "refusal": null,
+              "reasoning": "Okay, let me check the user's question again. They want the total number of apples from the bins plus the windfall apples as a single number. The fixed inputs are 7 bins, each with 13 apples, and 18 windfall apples.\n\nFirst, calculate the apples in the bins: 7 multiplied by 13. That's 91. Then add the 18 windfall apples. 91 plus 18 equals 109. The user wants just the number, so I should present 109 as the final answer. Make sure there's no extra text, just the number on the last line.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Okay, let me check the user's question again. They want the total number of apples from the bins plus the windfall apples as a single number. The fixed inputs are 7 bins, each with 13 apples, and 18 windfall apples.\n\nFirst, calculate the apples in the bins: 7 multiplied by 13. That's 91. Then add the 18 windfall apples. 91 plus 18 equals 109. The user wants just the number, so I should present 109 as the final answer. Make sure there's no extra text, just the number on the last line.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 254,
+          "completion_tokens": 144,
+          "total_tokens": 398,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 124,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 4275
+}

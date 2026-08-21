@@ -1,0 +1,86 @@
+{
+  "case_id": "rp-pilot-ferry-decks-k1",
+  "condition": "subgraph_prune",
+  "run_id": "pilot-v1-nemotron35l",
+  "capture": {
+    "model": "nvidia/nemotron-3.5-lightning:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "m31509",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786883353-pCrk5GZmfwZs1k7AstwD",
+        "object": "chat.completion",
+        "created": 1786883353,
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of seats is calculated as follows:  \n4 decks × 22 seats = 88 seats  \n88 seats + 17 standing places = 105  \n\n105",
+              "refusal": null,
+              "reasoning": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs: \n     - 4 decks\n     - Each deck holds 22 seats\n     - 17 standing places must be added to any total\n   - Task: State the total number of seats (from decks + standing places) as a single number\n   - Output format: End reply with the number alone on the last line\n\n2.  **Calculate:**\n   - Seats from decks: 4 decks × 22 seats/deck = 88 seats\n   - Standing places: 17\n   - Total = 88 + 17 = 105\n\n3.  **Format Output:**\n   - Need to output the total number as a single number\n   - End the reply with the number alone on the last line\n   - So I should probably just output \"105\" on its own line, or maybe include some text but ensure the last line is just \"105\". The prompt says: \"state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\"\n   - I'll provide a brief explanation or just directly state it, but make sure the very last line is exactly \"105\".\n\n   Let's structure it: \n   \"The total number of seats is 105.\"\n   \"105\"\n   \n   Wait, the prompt says: \"state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\" So I should output just the number at the end, possibly after some text, but the last line must be the number alone. I'll do: \n   \"105\"\n   But maybe they want a sentence then the number. I'll output: \n   \"The total is 105.\"\n   \"105\"\n   Actually, to be safe, I'll just put the calculation and end with 105 on its own line.\n\n   Let's verify calculation: 4 * 22 = 88. 88 + 17 = 105. Correct.\n\n   Output format: I'll write a concise response, ending with \"105\" on a separate line.✅\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs: \n     - 4 decks\n     - Each deck holds 22 seats\n     - 17 standing places must be added to any total\n   - Task: State the total number of seats (from decks + standing places) as a single number\n   - Output format: End reply with the number alone on the last line\n\n2.  **Calculate:**\n   - Seats from decks: 4 decks × 22 seats/deck = 88 seats\n   - Standing places: 17\n   - Total = 88 + 17 = 105\n\n3.  **Format Output:**\n   - Need to output the total number as a single number\n   - End the reply with the number alone on the last line\n   - So I should probably just output \"105\" on its own line, or maybe include some text but ensure the last line is just \"105\". The prompt says: \"state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\"\n   - I'll provide a brief explanation or just directly state it, but make sure the very last line is exactly \"105\".\n\n   Let's structure it: \n   \"The total number of seats is 105.\"\n   \"105\"\n   \n   Wait, the prompt says: \"state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\" So I should output just the number at the end, possibly after some text, but the last line must be the number alone. I'll do: \n   \"105\"\n   But maybe they want a sentence then the number. I'll output: \n   \"The total is 105.\"\n   \"105\"\n   Actually, to be safe, I'll just put the calculation and end with 105 on its own line.\n\n   Let's verify calculation: 4 * 22 = 88. 88 + 17 = 105. Correct.\n\n   Output format: I'll write a concise response, ending with \"105\" on a separate line.✅\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 131,
+          "completion_tokens": 550,
+          "total_tokens": 681,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 448,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 2833
+}

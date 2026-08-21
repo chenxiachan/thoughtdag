@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Context Repair for LLMs: Pilot v2 — ThoughtDAG</title>
+    <meta name="description" content="Seven models, controlled pairs: propagation, pruning, and dependency-ordered recomputation in editable LLM context graphs." />
+    <meta name="robots" content="index,follow,max-image-preview:large" />
+    <meta name="theme-color" content="#f8f6fb" />
+    <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg" />
+    <link rel="canonical" href="https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v2/" />
+    <link rel="stylesheet" href="../../assets/research-pages.css" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Context Repair for LLMs: Pilot v2 — ThoughtDAG" />
+    <meta property="og:description" content="Seven models, controlled pairs: propagation, pruning, and dependency-ordered recomputation in editable LLM context graphs." />
+    <meta property="og:url" content="https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v2/" />
+    <meta property="og:image" content="https://chenxiachan.github.io/thoughtdag/assets/context-repair-strategies.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Context Repair for LLMs: Pilot v2" />
+    <meta name="twitter:description" content="Propagation, pruning, and dependency-ordered recomputation." />
+    <meta name="twitter:image" content="https://chenxiachan.github.io/thoughtdag/assets/context-repair-strategies.png" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "Context Repair for LLMs: Pilot v2",
+        "alternativeHeadline": "Propagation, pruning, and dependency-ordered recomputation",
+        "datePublished": "2026-08-17",
+        "dateModified": "2026-08-19",
+        "author": { "@type": "Person", "name": "Xia Chen" },
+        "publisher": { "@type": "Organization", "name": "ThoughtDAG" },
+        "mainEntityOfPage": "https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v2/",
+        "image": "https://chenxiachan.github.io/thoughtdag/assets/context-repair-strategies.png"
+      }
+    </script>
+  </head>
+  <body>
+    <nav class="site-nav" aria-label="Primary navigation">
+      <a class="brand" href="../../#research">
+        <img src="../../assets/favicon.svg" alt="" />
+        <span>ThoughtDAG</span>
+      </a>
+      <div class="nav-links">
+        <a class="nav-link" href="../../stories/context-repair/">Case study</a>
+        <a class="nav-link" href="https://github.com/chenxiachan/thoughtdag/tree/main/benchmark" target="_blank" rel="noreferrer">Data &amp; code ↗</a>
+        <a class="nav-link primary" href="https://github.com/chenxiachan/thoughtdag" target="_blank" rel="noreferrer">GitHub ↗</a>
+      </div>
+    </nav>
+
+    <div class="report-shell">
+      <article class="report-main">
+        <header class="report-header">
+          <span class="eyebrow">THOUGHTDAG RESEARCH · PILOT V2</span>
+          <h1>Context Repair for LLMs: Pilot v2</h1>
+          <p class="report-subtitle">Propagation, pruning, and dependency-ordered recomputation.</p>
+          <p class="report-meta">Results collected August 16–19, 2026 · 7 model endpoints · 945 captured conditions · 0 capture failures</p>
+          <div class="finding"><strong>Result in one sentence.</strong> Across 126 paired cases in which conflicting context first caused a wrong answer, removing the contaminated subgraph repaired 126/126, recomputing its descendants repaired 125/126, and deleting only the original bad turn repaired 116/126.</div>
+        </header>
+
+        <section class="report-section" id="problem">
+          <h2>The problem</h2>
+          <p>Suppose an LLM conversation contains a wrong correction. You remove that turn. Is the conversation repaired?</p>
+          <p>Not necessarily. By the time the error is noticed, later answers may already have repeated it, calculated from it, and turned it into new claims. Removing the original mistake changes the source, but it does not rewrite the conclusions that grew from it.</p>
+          <p>This is difficult to see in a linear transcript. It becomes much more obvious when the conversation is represented as a dependency graph.</p>
+        </section>
+
+        <section class="report-section" id="case">
+          <h2>A controlled example</h2>
+          <p>The flagship case is deliberately simple so that the answer can be scored without an LLM judge. Four crates contain 30 parts each, plus 11 loose parts. A verified recount changes 30 to 24.</p>
+          <div class="equation">4 × 24 + 11 = 107</div>
+          <p>A false turn then restores 30. Three descendants propagate that mistake: <code>4 × 30 = 120</code>, then <code>120 + 11 = 131</code>, followed by a restatement of the stale working values. The final question always asks for one number using the fixed inputs.</p>
+          <figure class="report-figure">
+            <img src="../../assets/context-repair-flagship.png" alt="Five graph conditions and seven model outputs in the flagship depot-crates case" />
+            <figcaption>Five graph states, one unchanged final question. Three of seven endpoints — from three different vendors — still returned the identical wrong number 131 after the false source itself was removed.</figcaption>
+          </figure>
+        </section>
+
+        <section class="report-section" id="conditions">
+          <h2>Five graph conditions</h2>
+          <div class="report-table-wrap">
+            <table class="report-table">
+              <thead><tr><th>Condition</th><th>Context presented</th><th>What it tests</th></tr></thead>
+              <tbody>
+                <tr><td>Clean</td><td>Verified value and clean intermediate turns</td><td>Can the model solve the task at all?</td></tr>
+                <tr><td>Polluted</td><td>False reversal plus contaminated descendants</td><td>Does the error change the answer?</td></tr>
+                <tr><td>Source prune</td><td>False reversal removed; descendants retained</td><td>Is deleting the source sufficient?</td></tr>
+                <tr><td>Subgraph prune</td><td>False reversal and descendants removed</td><td>Does complete excision restore the answer?</td></tr>
+                <tr><td>Recompute descendants</td><td>False reversal removed; descendants regenerated in dependency order</td><td>Can the line of inquiry be repaired rather than discarded?</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>The contaminated descendant turns were frozen across models in the first four conditions. Only the recompute condition asked each model to regenerate them. This separates sensitivity to identical faulty history from the ability to rebuild it.</p>
+        </section>
+
+        <section class="report-section" id="flagship">
+          <h2>The flagship result</h2>
+          <p>Seven model endpoints were tested at temperature 0 with provider-default reasoning settings. On this one case, every model agrees on four of the five graph states — and splits on exactly one.</p>
+          <div class="report-table-wrap">
+            <table class="report-table">
+              <thead><tr><th>Graph condition</th><th>Outcome across the seven endpoints</th></tr></thead>
+              <tbody>
+                <tr><td>Clean</td><td>All seven → <strong>107</strong></td></tr>
+                <tr><td>Polluted</td><td>All seven → <strong>131</strong></td></tr>
+                <tr><td>Delete source only</td><td>Four → 107 · <strong>Gemma 4 26B, GPT-OSS 20B, Nemotron-3 30B reasoning → 131</strong></td></tr>
+                <tr><td>Delete contaminated subgraph</td><td>All seven → <strong>107</strong></td></tr>
+                <tr><td>Delete source and recompute</td><td>All seven → <strong>107</strong></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>This is not evidence of hidden memory. The residual error remained visibly present in downstream statements. Deleting one node does not automatically invalidate text that was already generated from it.</p>
+        </section>
+
+        <section class="report-section" id="pilot">
+          <h2>What happened across the full pilot</h2>
+          <p>The pilot contains 9 task families at propagation depths 1, 2, and 3. Each model ran 135 conditions. Headline repair metrics are conditioned on cases answered correctly under clean context and incorrectly after pollution. Four endpoints were captured on August 16; three more joined on August 19 as controlled pairs (see the next section).</p>
+          <h3>Context sensitivity was consistent — seven for seven</h3>
+          <ul>
+            <li>Clean context: 27/27 correct for every model.</li>
+            <li>Explicit misinformation: 9/9 caused a wrong answer for every model.</li>
+            <li>False supersession of a verified update: 9/9 caused a wrong answer for every model.</li>
+            <li>A numerically similar but irrelevant aside: 0/9 caused a wrong answer for every model.</li>
+          </ul>
+          <p>Seven models from four vendors reproduce this three-way split cell for cell. Whether context derails a model is decided by the <em>type</em> of pollution — conflicting claims always land, irrelevant asides never do.</p>
+          <h3>Repair strategy mattered</h3>
+          <div class="report-table-wrap">
+            <table class="report-table">
+              <thead><tr><th>Repair operation</th><th>Recovered</th><th>Recovery rate</th></tr></thead>
+              <tbody>
+                <tr><td>Delete contaminated subgraph</td><td>126/126</td><td>100%</td></tr>
+                <tr><td>Delete source and recompute descendants</td><td>125/126</td><td>99.2%</td></tr>
+                <tr><td>Delete source only</td><td>116/126</td><td>92.1%</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <figure class="report-figure">
+            <img src="../../assets/context-repair-strategies.png" alt="Recovery rates for three context repair strategies" />
+            <figcaption>Recovery among the 126 paired cases that were first derailed by conflicting context, across all seven endpoints.</figcaption>
+          </figure>
+          <p>Nine of the ten source-prune failures occurred in false-supersession cases; Gemma showed the clearest depth pattern: 6/6 at depth 1, 5/6 at depth 2, and 4/6 at depth 3. Stale information that was once true is the stickiest pollution: with the false rollback deleted, its echoes in later turns read like ordinary history.</p>
+          <figure class="report-figure">
+            <img src="../../assets/context-repair-model-matrix.png" alt="Repair successes by model and strategy" />
+            <figcaption>The pilot is a test of context intervention, not an authoritative model leaderboard.</figcaption>
+          </figure>
+        </section>
+
+        <section class="report-section" id="wave2">
+          <h2>A second wave of controlled pairs</h2>
+          <p>Three further free endpoints were chosen not for coverage but as <em>pairs</em>, each isolating one variable. Two predictions were registered before running; both were refuted — which is the point of registering them.</p>
+          <div class="report-table-wrap">
+            <table class="report-table">
+              <thead><tr><th>Model</th><th>Source only</th><th>by depth (k1 / k2 / k3)</th><th>Subgraph</th><th>Recompute</th></tr></thead>
+              <tbody>
+                <tr><td>GLM-4.5 Flash</td><td>18/18</td><td>6 / 6 / 6</td><td>18/18</td><td>17/18</td></tr>
+                <tr><td>Nemotron 3.5 Lightning</td><td>18/18</td><td>6 / 6 / 6</td><td>18/18</td><td>18/18</td></tr>
+                <tr><td>Gemma 4 26B (MoE)</td><td>15/18</td><td>6 / 5 / 4</td><td>18/18</td><td>18/18</td></tr>
+                <tr><td>GPT-OSS 20B</td><td>17/18</td><td>6 / 6 / 5</td><td>18/18</td><td>18/18</td></tr>
+                <tr><td>Nemotron-3 Nano 30B <em>reasoning</em></td><td>14/18</td><td>4 / 6 / 4</td><td>18/18</td><td>18/18</td></tr>
+                <tr><td>Nemotron-3 Nano 30B</td><td>16/18</td><td>5 / 6 / 5</td><td>18/18</td><td>18/18</td></tr>
+                <tr><td>Nemotron Nano 9B</td><td>18/18</td><td>6 / 6 / 6</td><td>18/18</td><td>18/18</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <h3>Reasoning does not protect against residual context — it may amplify it</h3>
+          <p>The cleanest pair: two 30B models from the same vendor, same architecture, differing only in explicit reasoning. The registered prediction was that a reasoning model would "think through" the contaminated echoes and resist them. The opposite held: the reasoning variant recovered 14/18 under source-only pruning against its sibling's 16/18, and produced the only misinformation-type source-prune failure observed in any model. A plausible mechanism — recorded here as a hypothesis, not a finding — is that explicit reasoning revisits the contaminated echoes as evidence, giving the stale value more chances to be adopted rather than more chances to be doubted.</p>
+          <h3>Repair robustness is not a function of scale</h3>
+          <p>The second registered prediction was that a 9B model would break the clean-accuracy ceiling and show weaker repair. It did neither: Nemotron Nano 9B answered 27/27 clean and recovered every derailed case under every strategy — a perfect score its own 30B siblings did not match. Across seven models, resistance to residual contamination does not track parameter count, vendor, or reasoning mode; it looks like an individual property of the training recipe.</p>
+          <p class="report-meta">Two further endpoints (GLM-5.2 as a same-vendor generation pair, Gemma 4 31B dense as an architecture pair) are still being captured through free-tier rate limits and will be added when complete.</p>
+        </section>
+
+        <section class="report-section" id="meaning">
+          <h2>What this result means</h2>
+          <h3>1. A conversational error can become state</h3>
+          <p>Once an incorrect value has been used in later calculations and summaries, the descendants become independent carriers of the mistake.</p>
+          <h3>2. Removing evidence and repairing consequences are different operations</h3>
+          <p>Deleting the bad source changes what should be believed. It does not necessarily change what later turns already say.</p>
+          <h3>3. Recalculation has to follow dependency order</h3>
+          <p>A child should not be regenerated before its stale parent. ThoughtDAG records these dependencies as edges and replays stale nodes upstream to downstream.</p>
+          <h3>4. The graph is an experimental intervention</h3>
+          <p>In ThoughtDAG, an edge determines which upstream nodes enter the next request. Editing a wire changes serialized context, making pruning and replay testable operations rather than visual metaphors.</p>
+        </section>
+
+        <section class="report-section" id="lengthrot">
+          <h2>Interference, not capacity: where this sits next to context-length degradation</h2>
+          <p>A separate line of work shows that input <em>length alone</em> hurts models: <a class="text-link" href="https://research.trychroma.com/context-rot" target="_blank" rel="noreferrer">Chroma's Context Rot study ↗</a> measured non-uniform accuracy drops across 18 frontier models well before their advertised windows, and <a class="text-link" href="https://arxiv.org/abs/2502.05167" target="_blank" rel="noreferrer">NoLiMa ↗</a> found 11 of 12 models falling below half their short-context performance by 32K tokens (<a class="text-link" href="https://arxiv.org/abs/2404.06654" target="_blank" rel="noreferrer">RULER ↗</a> makes the same claimed-vs-effective distinction with synthetic retrieval).</p>
+          <p>This pilot is designed to sit on the other side of that divide. Every serialized request here is under 1K tokens — below 1% of any tested model's window — so capacity pressure is excluded by construction. What derails these models is a single conflicting sentence in an otherwise short context: <strong>semantic interference, not length</strong>. The two failure modes are complementary, and conflating them is easy; a token-matched neutral-filler control (same length, no conflict) is the planned next addition to separate them within the same task families.</p>
+          <p>The taxonomies also map onto each other. Context-rot work distinguishes <em>poisoning</em> (errors reproducing through context), <em>distraction</em>, and <em>confusion</em>; our three pollution operators — explicit misinformation, false supersession, and the numerically similar aside — probe the same territory with exact-match scoring. Notably, our "distraction" analogue never landed (0/9 for all seven models at these lengths), consistent with the view that irrelevant content mainly hurts as contexts grow long.</p>
+        </section>
+
+        <section class="report-section" id="limits">
+          <h2>What this pilot does not establish</h2>
+          <div class="caveat">
+            <p>This is not a general ranking of the seven models. The tasks are synthetic, each endpoint was run once at temperature 0, and provider-default reasoning was not normalized. Per-model repair differences of one or two cases sit within single-run noise; the cross-model regularities (the three-way harm split, the strategy hierarchy, the failure-type concentration) are the findings, not the per-model scores.</p>
+            <p>The pilot does not reveal why a model generated a token, measure hidden reasoning, or show that every real research conversation benefits from manual graph editing.</p>
+          </div>
+          <p>It establishes a narrower result: in controlled multi-turn tasks, an erroneous claim can continue to influence an LLM after its source turn is removed because it has propagated into downstream conversation. Removing contaminated descendants or regenerating them in dependency order repairs this residual context more reliably than deleting the source alone.</p>
+        </section>
+
+        <section class="report-section" id="reproduce">
+          <h2>Reproduce and inspect</h2>
+          <p>The benchmark stores graph cases, exact serialized requests, responses, usage, declarative scores, and importable ThoughtDAG canvases.</p>
+          <ul>
+            <li><a class="text-link" href="https://github.com/chenxiachan/thoughtdag/blob/main/benchmark/cases/repair/pilot-depot-crates-k3.case.json" target="_blank" rel="noreferrer">Flagship case specification ↗</a></li>
+            <li><a class="text-link" href="https://github.com/chenxiachan/thoughtdag/blob/main/benchmark/canvases/results/rp-pilot-depot-crates-k3.story.thoughtdag.json" target="_blank" rel="noreferrer">Importable story canvas ↗</a></li>
+            <li><a class="text-link" href="https://github.com/chenxiachan/thoughtdag/blob/main/benchmark/STATUS.md" target="_blank" rel="noreferrer">Pilot status and aggregate results ↗</a></li>
+            <li><a class="text-link" href="https://github.com/chenxiachan/thoughtdag/blob/main/benchmark/DESIGN.md" target="_blank" rel="noreferrer">Benchmark design ↗</a></li>
+          </ul>
+          <p>ThoughtDAG is the reference implementation used to visualize and reproduce the intervention. It is not the conclusion of the experiment.</p>
+        </section>
+      </article>
+
+      <aside class="report-aside" aria-label="Report sections">
+        <strong>On this page</strong>
+        <a href="#problem">The problem</a>
+        <a href="#case">Controlled example</a>
+        <a href="#conditions">Five conditions</a>
+        <a href="#flagship">Flagship result</a>
+        <a href="#pilot">Full pilot</a>
+        <a href="#wave2">Controlled pairs</a>
+        <a href="#meaning">Interpretation</a>
+        <a href="#lengthrot">Vs. length degradation</a>
+        <a href="#limits">Limitations</a>
+        <a href="#reproduce">Reproduce</a>
+        <a class="aside-cta" href="../../stories/context-repair/">View the concise case study →</a>
+      </aside>
+    </div>
+
+    <footer class="page-footer">ThoughtDAG · Context Repair Pilot v2 · Pilot results, not an authoritative model leaderboard</footer>
+  </body>
+</html>

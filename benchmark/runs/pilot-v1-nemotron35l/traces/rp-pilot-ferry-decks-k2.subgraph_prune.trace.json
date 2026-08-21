@@ -1,0 +1,86 @@
+{
+  "case_id": "rp-pilot-ferry-decks-k2",
+  "condition": "subgraph_prune",
+  "run_id": "pilot-v1-nemotron35l",
+  "capture": {
+    "model": "nvidia/nemotron-3.5-lightning:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "m31509",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786883373-gFycN5jw4qrAJxUhSAk4",
+        "object": "chat.completion",
+        "created": 1786883373,
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of seats from the decks is 4 × 22 = 88. Adding the 17 standing places gives 88 + 17 = 105.\n\n105",
+              "refusal": null,
+              "reasoning": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs: \n     - 4 decks\n     - Each deck holds 22 seats\n     - 17 standing places must be added to any total\n   - Task: State the total number of seats (from the decks plus the standing places) as a single number.\n   - Output format: End reply with the number alone on the last line.\n\n2.  **Calculate:**\n   - Seats from decks: 4 decks × 22 seats/deck = 88 seats\n   - Standing places: 17\n   - Total: 88 + 17 = 105\n\n3.  **Format Output:**\n   - I need to provide the answer, and end with the number alone on the last line.\n   - The user says: \"state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\"\n   - So I should probably explain briefly, then have \"105\" on its own line at the end. Or just the number? The instruction says \"End your reply with the number alone on the last line.\" This implies I can have other text before, but the very last line must be just the number.\n\n   Let's structure: \n   \"The total number of seats is 105.\"\n   \"105\"\n   \n   Wait, make sure: \"state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\"\n   I'll just output the calculation and end with 105 on its own line.\n\n   Check math: 4 * 22 = 88. 88 + 17 = 105. Correct.\n\n   Output:\n   The total number of seats is 105.\n   105\n\n   Or maybe just \"105\" on the last line, with possibly a preceding sentence. I'll keep it simple.✅\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs: \n     - 4 decks\n     - Each deck holds 22 seats\n     - 17 standing places must be added to any total\n   - Task: State the total number of seats (from the decks plus the standing places) as a single number.\n   - Output format: End reply with the number alone on the last line.\n\n2.  **Calculate:**\n   - Seats from decks: 4 decks × 22 seats/deck = 88 seats\n   - Standing places: 17\n   - Total: 88 + 17 = 105\n\n3.  **Format Output:**\n   - I need to provide the answer, and end with the number alone on the last line.\n   - The user says: \"state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\"\n   - So I should probably explain briefly, then have \"105\" on its own line at the end. Or just the number? The instruction says \"End your reply with the number alone on the last line.\" This implies I can have other text before, but the very last line must be just the number.\n\n   Let's structure: \n   \"The total number of seats is 105.\"\n   \"105\"\n   \n   Wait, make sure: \"state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\"\n   I'll just output the calculation and end with 105 on its own line.\n\n   Check math: 4 * 22 = 88. 88 + 17 = 105. Correct.\n\n   Output:\n   The total number of seats is 105.\n   105\n\n   Or maybe just \"105\" on the last line, with possibly a preceding sentence. I'll keep it simple.✅\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 131,
+          "completion_tokens": 491,
+          "total_tokens": 622,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 400,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 2886
+}

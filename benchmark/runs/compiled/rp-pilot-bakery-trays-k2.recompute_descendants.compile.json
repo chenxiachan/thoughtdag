@@ -1,0 +1,48 @@
+{
+  "compiler_version": "2.0.0",
+  "case_id": "rp-pilot-bakery-trays-k2",
+  "condition": "recompute_descendants",
+  "graph_ops": [
+    {
+      "op": "remove_node",
+      "id": "pollution"
+    },
+    {
+      "op": "remove_node",
+      "id": "step-b"
+    },
+    {
+      "op": "remove_node",
+      "id": "step-c"
+    },
+    {
+      "op": "add_edge",
+      "from": "given",
+      "to": "final"
+    }
+  ],
+  "recompute_nodes": [
+    "step-b",
+    "step-c"
+  ],
+  "prompt_hash": "1kg5s5i",
+  "input_token_est": 98,
+  "node_order_audit": [
+    "given",
+    "final"
+  ],
+  "messages": [
+    {
+      "role": "user",
+      "content": "For this planning task, keep these fixed inputs: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total."
+    },
+    {
+      "role": "assistant",
+      "content": "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15."
+    },
+    {
+      "role": "user",
+      "content": "Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line."
+    }
+  ]
+}

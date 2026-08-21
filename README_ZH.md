@@ -109,11 +109,11 @@ npm run dev       # → localhost:5173
 
 错误信息进入一段 LLM 对话后，究竟要移除多少受影响的路径，回答才能恢复？
 
-> 只删除错误源头，修复了 **68/72** 个案例；移除受污染的子图后，修复了 **72/72**。
+> 七个模型、126 个配对案例：只删除错误源头修复 **116/126**；移除受污染子图修复 **126/126**。同尺寸的推理版模型在残留污染下的修复率反而低于非推理版。
 
 这个实验不解释模型内部为何这样回答，也不做通用模型排名。它检验的是一个更窄、可观察的问题：改变可见上下文，会不会改变下一次回答？
 
-📖 **[阅读首轮案例](https://chenxiachan.github.io/thoughtdag/stories/context-repair/?lang=zh)** · 📊 **[实验方法与结果](https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v1/?lang=zh)** · 💬 **[建议下一轮测试模型](https://github.com/chenxiachan/thoughtdag/issues/new)**
+📖 **[阅读首轮案例](https://chenxiachan.github.io/thoughtdag/stories/context-repair/?lang=zh)** · 📊 **[实验方法与结果](https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v2/?lang=zh)** · 💬 **[建议下一轮测试模型](https://github.com/chenxiachan/thoughtdag/issues/new)**
 
 ## 更多能力
 

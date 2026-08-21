@@ -1,0 +1,280 @@
+{
+  "case_id": "rp-pilot-lab-samples-k2",
+  "condition": "recompute_descendants",
+  "run_id": "pilot-v1-nemotron3-nano30b",
+  "capture": {
+    "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "1p211vg",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 3 batches, each batch holds 20 samples, and 8 control samples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: batches = 3, samples per batch = 20, control samples to add = 8."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 20 samples per batch was a counting error. The verified figure is 26. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 20 per batch is retracted; verified figure is 26 samples per batch."
+        },
+        {
+          "role": "user",
+          "content": "So how many samples in total on the batches?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787068621-eA0pxiLocg9LXlrmolv7",
+        "object": "chat.completion",
+        "created": 1787068621,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The batches now contain:\n\n- **3 batches × 26 samples per batch = 78 samples** (just the batch‑derived samples).\n\nIf you also add the required **8 control samples** to that total, the overall count becomes:\n\n- **78 + 8 = 86 samples** in total.",
+              "refusal": null,
+              "reasoning": "We need to compute total samples on the batches given 3 batches each with 26 samples. So total = 3 * 26 = 78. Also note that 8 control samples must be added to any total. The user asks \"So how many samples in total on the batches?\" Likely they want the total number of samples on the batches (i.e., 78). Possibly they also want to include control samples? The earlier instruction: \"8 control samples must be added to any total.\" So total including controls = 78 + 8 = 86. But the question: \"So how many samples in total on the batches?\" Might just be 78. But they might want the total including controls? Let's interpret: They previously said \"8 control samples must be added to any total.\" So they might want the total number of samples after adding controls. The phrasing \"samples in total on the batches\" could refer to the batch samples only, not including controls. But they might want the overall total including controls. Let's answer both: batch total = 78; with controls = 86. Provide clear answer.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to compute total samples on the batches given 3 batches each with 26 samples. So total = 3 * 26 = 78. Also note that 8 control samples must be added to any total. The user asks \"So how many samples in total on the batches?\" Likely they want the total number of samples on the batches (i.e., 78). Possibly they also want to include control samples? The earlier instruction: \"8 control samples must be added to any total.\" So total including controls = 78 + 8 = 86. But the question: \"So how many samples in total on the batches?\" Might just be 78. But they might want the total including controls? Let's interpret: They previously said \"8 control samples must be added to any total.\" So they might want the total number of samples after adding controls. The phrasing \"samples in total on the batches\" could refer to the batch samples only, not including controls. But they might want the overall total including controls. Let's answer both: batch total = 78; with controls = 86. Provide clear answer.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 169,
+          "completion_tokens": 312,
+          "total_tokens": 481,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 253,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-c",
+      "prompt_hash": "qzhw0d",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 3 batches, each batch holds 20 samples, and 8 control samples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: batches = 3, samples per batch = 20, control samples to add = 8."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 20 samples per batch was a counting error. The verified figure is 26. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 20 per batch is retracted; verified figure is 26 samples per batch."
+        },
+        {
+          "role": "user",
+          "content": "So how many samples in total on the batches?"
+        },
+        {
+          "role": "assistant",
+          "content": "The batches now contain:\n\n- **3 batches × 26 samples per batch = 78 samples** (just the batch‑derived samples).\n\nIf you also add the required **8 control samples** to that total, the overall count becomes:\n\n- **78 + 8 = 86 samples** in total."
+        },
+        {
+          "role": "user",
+          "content": "Now include the control samples from our fixed inputs. What is the running total?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787068624-m9xT28Q633Bm2LN4PAiS",
+        "object": "chat.completion",
+        "created": 1787068624,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The running total, including the required control samples, is:\n\n- **Batch samples:** 3 batches × 26 samples = 78 samples  \n- **Control samples:** 8 samples  \n\n**Total = 78 + 8 = 86 samples**.",
+              "refusal": null,
+              "reasoning": "We need to compute running total including control samples. Fixed inputs: 3 batches, each batch holds 26 samples (verified), and 8 control samples must be added to any total. So total samples = 3*26 + 8 = 78 + 8 = 86. Provide answer.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to compute running total including control samples. Fixed inputs: 3 batches, each batch holds 26 samples (verified), and 8 control samples must be added to any total. So total samples = 3*26 + 8 = 78 + 8 = 86. Provide answer.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 265,
+          "completion_tokens": 141,
+          "total_tokens": 406,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 60,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "2nbxm9",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 3 batches, each batch holds 20 samples, and 8 control samples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: batches = 3, samples per batch = 20, control samples to add = 8."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 20 samples per batch was a counting error. The verified figure is 26. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 20 per batch is retracted; verified figure is 26 samples per batch."
+        },
+        {
+          "role": "user",
+          "content": "So how many samples in total on the batches?"
+        },
+        {
+          "role": "assistant",
+          "content": "The batches now contain:\n\n- **3 batches × 26 samples per batch = 78 samples** (just the batch‑derived samples).\n\nIf you also add the required **8 control samples** to that total, the overall count becomes:\n\n- **78 + 8 = 86 samples** in total."
+        },
+        {
+          "role": "user",
+          "content": "Now include the control samples from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "The running total, including the required control samples, is:\n\n- **Batch samples:** 3 batches × 26 samples = 78 samples  \n- **Control samples:** 8 samples  \n\n**Total = 78 + 8 = 86 samples**."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of samples (from the batches plus the control samples) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787068626-mcEGxYymnHr1sRVRIlQs",
+        "object": "chat.completion",
+        "created": 1787068626,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of samples, including the batch samples and the required control samples, is:\n\n3 batches × 26 samples = 78 samples  \n+ 8 control samples = 86 samples  \n\n86",
+              "refusal": null,
+              "reasoning": "We need to output a single number as the total number of samples (batches plus control). Fixed inputs: 3 batches, each holds 26 samples (verified), and 8 control samples must be added to any total. So total = 3*26 + 8 = 78 + 8 = 86. Need to end reply with the number alone on the last line. So we can give some explanation before, but final line must be just \"86\". Ensure no extra spaces or characters after. Provide answer.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to output a single number as the total number of samples (batches plus control). Fixed inputs: 3 batches, each holds 26 samples (verified), and 8 control samples must be added to any total. So total = 3*26 + 8 = 78 + 8 = 86. Need to end reply with the number alone on the last line. So we can give some explanation before, but final line must be just \"86\". Ensure no extra spaces or characters after. Provide answer.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 387,
+          "completion_tokens": 175,
+          "total_tokens": 562,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 107,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 14011
+}

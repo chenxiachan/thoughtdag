@@ -1,0 +1,74 @@
+{
+  "case_id": "rp-pilot-lab-samples-k1",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1kx2tbx",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 3 batches, each batch holds 20 samples, and 8 control samples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: batches = 3, samples per batch = 20, control samples to add = 8."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 20 samples per batch was a counting error. The verified figure is 26. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 20 per batch is retracted; verified figure is 26 samples per batch."
+        },
+        {
+          "role": "user",
+          "content": "So how many samples in total on the batches?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 3 batches and 20 samples each, that is 3 × 20 = 60."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of samples (from the batches plus the control samples) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "The total number of samples from the batches and the control samples is calculated as follows:  \n3 batches × 26 samples per batch = 78 samples from batches.  \nAdding the 8 control samples gives 78 + 8 = 86 samples.  \n\n86",
+              "reasoning_content": "\nFirst, the user is asking for the total number of samples, including both the batch samples and the control samples. I need to use the fixed inputs that were established earlier.\n\nFrom the conversation:\n\n- There are 3 batches.\n\n- Each batch holds 26 samples (this was corrected from 20).\n\n- Additionally, 8 control samples must be added to any total.\n\nSo, to find the total number of samples:\n\n1. Calculate the total from the batches: 3 batches × 26 samples per batch.\n\n   - 3 × 26 = 78 samples from batches.\n\n2. Add the control samples: 78 + 8 = 86 samples.\n\nThe user specified to end the reply with the number alone on the last line. So, I should provide the answer in a sentence and then just the number.\n\nAlso, in the last interaction, the user said \"Using our fixed inputs\", and I need to ensure I'm using the updated figure of 26, not the initial 20.\n\nConfirming the fixed inputs:\n\n- Batches: 3\n\n- Samples per batch: 26 (corrected)\n\n- Control samples: 8\n\nTotal samples = (3 × 26) + 8 = 78 + 8 = 86.\n\nNow, for the reply: I should state it clearly and end with the number.\n\nFor example: \"The total number of samples is 86.\" and then on the next line, just \"86\".\n\nThe user said: \"End your reply with the number alone on the last line.\" So, I need to have the number as the last thing, probably on a separate line.\n\nIn text, I can write a sentence and then the number on a new line.\n\nSince this is a text-based response, I'll do that.\n\nFinal answer: 86.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786883244,
+        "id": "202608162027062f223ed799eb40a3",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "202608162027062f223ed799eb40a3",
+        "usage": {
+          "completion_tokens": 427,
+          "prompt_tokens": 205,
+          "prompt_tokens_details": {
+            "cached_tokens": 150
+          },
+          "total_tokens": 632
+        }
+      }
+    }
+  ],
+  "latency_ms": 18337
+}

@@ -1,0 +1,9 @@
+{
+  "id": "scenario-v1",
+  "layer": "scenario-suite",
+  "purpose": "Product-capability scenarios and demos (branch-merge, condense). Separate evidence duty; never merged into the core leaderboard.",
+  "cases": [
+    "branch-merge/ref-0001",
+    "condense/ref-0001"
+  ]
+}

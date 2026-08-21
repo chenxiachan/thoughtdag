@@ -1,0 +1,172 @@
+{
+  "case_id": "rp-pilot-library-shelves-k2",
+  "condition": "recompute_descendants",
+  "run_id": "pilot-v1-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "5wtvyb",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: shelves = 9, books per shelf = 14, boxed books to add = 22."
+        },
+        {
+          "role": "user",
+          "content": "So how many books in total on the shelves?"
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "Based on the fixed inputs provided:\n- There are 9 shelves.\n- Each shelf holds 14 books, meaning the shelves are currently full (as no other information is given about the current number of books on the shelves).\n- 22 boxed books must be added to the total inventory, but they are not specified to be placed on the shelves.\n\nThe number of books currently on the shelves is calculated as follows:  \n9 shelves × 14 books per shelf = 126 books.\n\nThe 22 boxed books are additional and must be included in the total inventory, but they are not on the shelves. Therefore, the total number of books on the shelves remains 126.\n\n**Final Answer:**  \n126 books are on the shelves.",
+              "reasoning_content": "\nFirst, the user is asking for the total number of books on the shelves. I need to recall the fixed inputs from the previous message.\n\nThe fixed inputs are:\n\n- Number of shelves: 9\n\n- Books per shelf: 14\n\n- Boxed books to add: 22\n\nThe boxed books must be added to any total. So, I need to calculate the total books on the shelves first, and then add the boxed books.\n\nThe question is: \"how many books in total on the shelves?\" But it says \"on the shelves,\" which might imply only the books currently on the shelves, not including the boxed books. However, the boxed books are to be added to the total, so I need to clarify.\n\nReading the question carefully: \"how many books in total on the shelves?\" This could be ambiguous. Does \"on the shelves\" refer to the books that are already placed on the shelves, or does it include the boxed books after they are added?\n\nThe previous context says: \"22 boxed books must be added to any total.\" So, the boxed books are additional and need to be included in the total count.\n\nBut the question specifically says \"on the shelves.\" After adding the boxed books, they might be placed on the shelves or stored elsewhere. The problem doesn't specify where the boxed books are placed; it just says they must be added to the total.\n\nRe-reading the user's message: \"For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total.\"\n\nThen the user asks: \"So how many books in total on the shelves?\"\n\nI think \"on the shelves\" might be referring to the books that are physically on the shelves, but since the boxed books are to be added, and presumably they are also placed on the shelves, but the shelves might have limited capacity.\n\nEach shelf holds 14 books, and there are 9 shelves. So the total capacity is 9 * 14 = 126 books.\n\nBut the boxed books are additional, so if I add them, the total books would be more than the capacity, but the problem doesn't say that the shelves are full or anything. It just gives the capacity and says boxed books must be added.\n\nThe question is about the total number of books, not necessarily that they are all on the shelves. But the user says \"on the shelves,\" which might imply only those that are placed.\n\nThis is confusing. Let me think step by step.\n\nFirst, calculate the current books on the shelves. The fixed inputs don't specify how many books are currently on the shelves; it only gives the capacity and the boxed books to add.\n\nThe fixed inputs are: shelves = 9, books per shelf = 14 (which is capacity), and boxed books = 22 to be added.\n\nBut it doesn't say how many books are already on the shelves. That seems like a missing piece.\n\nPerhaps I need to assume that the shelves are full or something. But the problem doesn't state that.\n\nMaybe \"each shelf holds 14 books\" means that currently, each shelf has 14 books, so they are full.\n\nThat might be a reasonable assumption. In many such problems, when capacity is given without current count, it's often assumed that the shelves are full.\n\nLet me check the context. The user says \"keep these fixed inputs,\" and then asks for total books on the shelves.\n\nPerhaps the \"books per shelf\" is the current number, not just capacity.\n\nThe phrase \"each shelf holds 14 books\" could mean capacity, but in common parlance, it might imply that they are holding that many.\n\nTo be precise, I should consider both possibilities.\n\nBut let's see the boxed books: \"22 boxed books must be added to any total.\" So, regardless of current state, we add 22 books.\n\nBut for the total on the shelves, if the shelves are not full, adding boxed books might fill them or exceed capacity.\n\nThe problem doesn't specify if the shelves are full initially.\n\nPerhaps I need to calculate the total capacity and then add the boxed books, but that might exceed capacity.\n\nAnother thought: the \"total\" in \"added to any total\" might refer to the total number of books, not necessarily on the shelves.\n\nBut the question is specifically \"on the shelves.\"\n\nI think there's ambiguity here.\n\nLet me try to interpret based on standard problem-solving.\n\nTypically, in such tasks, when it says \"each shelf holds 14 books,\" it means the capacity, and we need to know how many are currently on them. But here, no current number is given, so probably it's assumed that the shelves are full.\n\nMoreover, the boxed books are to be added, so likely, we need to add them to the existing books.\n\nSo, let's assume that initially, each shelf has 14 books, so total books on shelves initially are 9 * 14 = 126.\n\nThen, we add 22 boxed books. Now, where are these added? If we add them to the shelves, but the shelves are already full, so we might need to place them elsewhere, or perhaps the shelves can hold more, but the capacity is given as 14 per shelf, so probably not.\n\nThe problem says \"must be added to any total,\" which might mean that the total number of books increases by 22, but not necessarily that they are all on the shelves.\n\nBut the question is \"how many books in total on the shelves?\" which might be different from the total books if some are boxed and not on shelves.\n\nThis is messy.\n\nPerhaps the boxed books are also to be placed on the shelves, but since the shelves are full, we need to see if there's space.\n\nTotal capacity is 9 * 14 = 126 books.\n\nIf initially full, 126 books on shelves.\n\nAdd 22 boxed books. If we place them on shelves, but shelves can only hold 126, so we can't place all 22; we can only place up to the capacity, but that doesn't make sense because the problem says \"must be added,\" implying they are included.\n\nPerhaps the shelves are not full initially. But no information is given.\n\nAnother idea: \"each shelf holds 14 books\" might mean that currently, each shelf has 14 books, so they are full, and the boxed books are additional, so total books are 126 + 22 = 148, but not all can be on shelves if capacity is 126.\n\nBut the question is \"on the shelves,\" so if we can't place all on shelves, then only 126 are on shelves, but that seems odd because the boxed books must be added, but perhaps not to the shelves.\n\nThe problem doesn't specify where the boxed books are placed.\n\nTo resolve this, I should look back at the initial instruction.\n\nThe user said: \"For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total.\"\n\nThen asks for \"books in total on the shelves.\"\n\nI think the key is \"added to any total,\" which suggests that the boxed books are part of the total count, but \"on the shelves\" might be separate.\n\nPerhaps \"on the shelves\" refers to the books that are shelved, and the boxed books are not yet shelved, so they are not on the shelves.\n\nBut the problem says \"must be added to any total,\" which might mean they are included in the total inventory, but not necessarily on the shelves.\n\nThe question is specifically \"on the shelves,\" so probably only the books currently on the shelves are counted, and the boxed books are additional but not on shelves yet.\n\nBut that seems inconsistent with \"must be added to any total,\" which might imply they are part of the total.\n\nPerhaps \"total\" here means the total number of books in the library or something, and \"on the shelves\" is a subset.\n\nBut the user is asking for \"books in total on the shelves,\" which is confusing.\n\nLet's read the question again: \"So how many books in total on the shelves?\"\n\nI think \"in total\" might be emphasizing the total number, and \"on the shelves\" specifies the location.\n\nSo, it's the total number of books that are on the shelves.\n\nNow, with the fixed inputs, if the shelves are full, there are 9 * 14 = 126 books on the shelves.\n\nThe boxed books are 22, but if they are not on the shelves, then the number on shelves is still 126.\n\nBut the problem says \"must be added to any total,\" which might mean that the total number of books is increased by 22, but for the \"on the shelves\" count, it might not include them if they are not shelved.\n\nHowever, the problem doesn't specify whether the boxed books are shelved or not.\n\nThis is ambiguous.\n\nPerhaps in the context of the planning task, the boxed books are to be placed on the shelves, but since the shelves are full, we need to see if there's space or if we need to adjust.\n\nBut the problem doesn't say anything about that.\n\nAnother interpretation: \"each shelf holds 14 books\" is the capacity, and initially, there might be fewer books, but no number is given, so likely it's assumed full.\n\nPerhaps the \"boxed books\" are already included or something, but that doesn't make sense.\n\nLet's calculate the total capacity: 9 * 14 = 126.\n\nIf we add 22 boxed books, total books are 126 + 22 = 148, but if the shelves can only hold 126, then only 126 can be on shelves, and 22 are boxed and not on shelves.\n\nSo, books on shelves are 126.\n\nBut the user might expect the total books including boxed, but the question specifies \"on the shelves.\"\n\nPerhaps the boxed books are to be added to the shelves, so we need to place them, but since shelves are full, we can't, so perhaps the answer is that it's not possible, but that seems unlikely for a planning task.\n\nMaybe the shelves can hold more, but the capacity is given as 14, so probably not.\n\nAnother thought: \"each shelf holds 14 books\" might mean that currently, each shelf has 14 books, so they are full, and the boxed books are additional, so when we add them, we might need to put them on new shelves or something, but the problem doesn't mention additional shelves.\n\nThe fixed inputs are only 9 shelves, so probably no more shelves.\n\nSo, likely, the boxed books cannot be placed on the shelves if they are full.\n\nBut the problem says \"must be added to any total,\" which might mean they are part of the total inventory, but not necessarily on the shelves.\n\nFor the question \"books in total on the shelves,\" it should be the number that are currently on the shelves, which is 126, and the boxed books are not on shelves.\n\nBut that seems too straightforward, and why mention the boxed books if they are not relevant to the \"on the shelves\" count.\n\nPerhaps \"added to any total\" means that the total number of books is the sum of books on shelves and boxed books, but for the \"on the shelves\" count, it's separate.\n\nBut the user is asking for \"on the shelves,\" so probably 126.\n\nLet's see if there's another way.\n\nPerhaps \"each shelf holds 14 books\" is not the current number, but the capacity, and we need to know how many are on shelves, but it's not given, so we can't determine.\n\nBut that can't be, because the user is asking for it, so likely it's assumed full.\n\nMaybe the boxed books are to be placed on the shelves, and we need to calculate how many can be placed, but the problem says \"must be added,\" implying all are added, so perhaps we need to assume that there is space or something.\n\nTotal capacity is 126, if initially full, no space for 22 more.\n\nBut perhaps initially, the shelves are not full. But no information.\n\nAnother idea: \"22 boxed books must be added to any total\" might mean that when we calculate the total, we add 22, but for the shelves, it's separate.\n\nI think I need to make an assumption.\n\nLet me assume that initially, the shelves are full, so 9 * 14 = 126 books on shelves.\n\nThen, the boxed books are 22, and they are added to the total inventory, but not necessarily on the shelves. So, books on shelves remain 126.\n\nIf the boxed books are to be placed on the shelves, but since no space, perhaps only some can be placed, but the problem doesn't specify.\n\nPerhaps in the planning task, we are to add the boxed books to the shelves, so we need to see if there is space, but with 9 shelves at 14 each, capacity 126, if full, no space, so we can't add them, but the problem says \"must be added,\" so contradiction.\n\nUnless the shelves are not full.\n\nBut how many are on shelves initially? Not given.\n\nPerhaps \"each shelf holds 14 books\" means that each shelf can hold 14, but currently, there might be fewer, but since no number is given, and the boxed books are to be added, perhaps we need to calculate the total after adding, but for \"on the shelves,\" it might be the capacity or something.\n\nI recall that in some problems, \"holds\" means capacity, and we need to find how many are on shelves after adding, but with capacity constraint.\n\nBut here, if we add 22 books to full shelves, we can't.\n\nPerhaps the boxed books are already included in the count, but that doesn't make sense.\n\nLet's look for clues in the user's message.\n\nThe user says: \"So how many books in total on the shelves?\" after stating the fixed inputs.\n\nPerhaps \"in total\" means the total number after adding the boxed books, and \"on the shelves\" is the location, but if we add them to shelves, but can't, so maybe we need to assume that the shelves can hold them or something.\n\nAnother interpretation: \"each shelf holds 14 books\" is the current number, so 126 on shelves, and \"22 boxed books must be added to any total\" means that the total number of books is 126 + 22 = 148, but for \"on the shelves,\" it's still 126, as boxed books are not on shelves.\n\nBut the user might want the total books, not just on shelves.\n\nThe question is specifically \"on the shelves.\"\n\nPerhaps in the context, \"on the shelves\" includes all books that are shelved, and the boxed books are to be shelved, so after adding, they are on shelves.\n\nBut with capacity 126, and 126 + 22 = 148 > 126, so impossible.\n\nUnless the capacity is not binding, but the problem gives it, so probably it is.\n\nPerhaps \"each shelf holds 14 books\" is not a capacity constraint, but just a statement of how many are there, and we can add more, but that doesn't make sense because \"holds\" usually means capacity.\n\nI think the most reasonable assumption is that the shelves are full initially, so 126 books on shelves, and the boxed books are additional but not on shelves, so books on shelves are 126.\n\nAnd the \"must be added to any total\" means that the total inventory is 148, but for this question, it's 126.\n\nPerhaps the user wants the total books including boxed, but the question says \"on the shelves,\" so likely not.\n\nLet's see the initial planning task. The user didn't specify what the task is, only the fixed inputs.\n\nPerhaps in the planning task, we are to add the boxed books to the shelves, and we need to calculate how many are on shelves after that, but since capacity is exceeded, it's not possible, but that seems unlikely.\n\nMaybe the shelves can hold more than 14, but the input says \"holds 14,\" so probably not.\n\nAnother idea: \"each shelf holds 14 books\" might mean that each shelf has 14 books currently, and the boxed books are to be added, and we need to place them on the shelves, but since no space, we might need to use the capacity, but the capacity is given as 14, so perhaps we can't.\n\nI think I have to go with the initial assumption.\n\nLet me calculate the total books on shelves as 9 * 14 = 126, and the boxed books are separate, so for \"on the shelves,\" it's 126.\n\nPerhaps \"added to any total\" means that the total number of books is the sum, but for the shelves, it's the capacity or something.\n\nI recall that in some contexts, \"total on the shelves\" means the number that can be shelved, but here it's \"books in total on the shelves,\" which likely means the number currently on them.\n\nPerhaps after adding the boxed books, if we place them, but we can't, so only 126.\n\nBut let's check if there's a different interpretation.\n\nSuppose that the \"boxed books\" are not yet on shelves, and we are to add them to the shelves, but since shelves are full, we can't, so the number on shelves remains 126.\n\nIf the shelves are not full, but no information, so likely full.\n\nPerhaps the fixed inputs imply that the shelves are full, as is common.\n\nSo, I'll go with 126.\n\nBut let's see the boxed books: \"must be added to any total,\" which might be for a different part, but for this question, it's not relevant.\n\nSo, books on shelves: 9 shelves * 14 books/shelf = 126 books.\n\nSo, the answer should be 126.\n\nBut the user might expect the total including boxed books.\n\nPerhaps \"in total\" means the total number after adding, and \"on the shelves\" is a misnomer, or perhaps after adding, they are on shelves.\n\nBut with capacity 126, and 126 + 22 = 148 > 126, so impossible.\n\nUnless the capacity is per shelf, but we can add more shelves, but the fixed inputs are only 9 shelves, so no.\n\nThe fixed inputs are fixed, so no additional shelves.\n\nSo, probably, the boxed books are not on shelves, or only some are.\n\nBut the problem says \"must be added,\" so likely all are added to the inventory, but not to the shelves.\n\nFor the question \"books in total on the shelves,\" it should be the number that are on the shelves, which is 126.\n\nPerhaps the \"total\" in \"in total\" refers to the sum, but \"on the shelves\" specifies the location.\n\nI think 126 is the answer.\n\nLet's double-check with a different approach.\n\nSuppose we calculate the total capacity: 9 * 14 = 126.\n\nIf we add 22 boxed books, total books are 148.\n\nBut the shelves can only hold 126, so only 126 can be on shelves, and 22 are boxed and not on shelves.\n\nSo, books on shelves are 126.\n\nIf the boxed books are to be placed on the shelves, but since no space, perhaps we need to remove some books or something, but the problem doesn't say that.\n\nSo, I think 126 is correct.\n\nPerhaps \"added to any total\" means that the total number of books is increased by 22, but for the shelves, it's separate.\n\nSo, I'll go with that.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786882240,
+        "id": "20260816200837fbfb31464d244ae2",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "20260816200837fbfb31464d244ae2",
+        "usage": {
+          "completion_tokens": 4226,
+          "prompt_tokens": 83,
+          "prompt_tokens_details": {
+            "cached_tokens": 82
+          },
+          "total_tokens": 4309
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-c",
+      "prompt_hash": "1ty5sne",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: shelves = 9, books per shelf = 14, boxed books to add = 22."
+        },
+        {
+          "role": "user",
+          "content": "So how many books in total on the shelves?"
+        },
+        {
+          "role": "assistant",
+          "content": "Based on the fixed inputs provided:\n- There are 9 shelves.\n- Each shelf holds 14 books, meaning the shelves are currently full (as no other information is given about the current number of books on the shelves).\n- 22 boxed books must be added to the total inventory, but they are not specified to be placed on the shelves.\n\nThe number of books currently on the shelves is calculated as follows:  \n9 shelves × 14 books per shelf = 126 books.\n\nThe 22 boxed books are additional and must be included in the total inventory, but they are not on the shelves. Therefore, the total number of books on the shelves remains 126.\n\n**Final Answer:**  \n126 books are on the shelves."
+        },
+        {
+          "role": "user",
+          "content": "Now include the boxed books from our fixed inputs. What is the running total?"
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "Based on the fixed inputs:  \n- 9 shelves × 14 books per shelf = **126 books** on the shelves.  \n- Adding the 22 boxed books: **126 + 22 = 148 books**.  \n\n**Running total (all books): 148**.",
+              "reasoning_content": "\nWe are given:\n- 9 shelves\n- Each shelf holds 14 books\n- 22 boxed books must be added to any total\n\nFirst, calculate the number of books on the shelves:\n9 shelves * 14 books per shelf = 126 books\n\nThen, add the boxed books:\n126 books (on shelves) + 22 boxed books = 148 books\n\nSo the running total (total books) is 148.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786882244,
+        "id": "202608162010408f35051b981a4d13",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "202608162010408f35051b981a4d13",
+        "usage": {
+          "completion_tokens": 150,
+          "prompt_tokens": 253,
+          "prompt_tokens_details": {
+            "cached_tokens": 100
+          },
+          "total_tokens": 403
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "1208t1q",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: shelves = 9, books per shelf = 14, boxed books to add = 22."
+        },
+        {
+          "role": "user",
+          "content": "So how many books in total on the shelves?"
+        },
+        {
+          "role": "assistant",
+          "content": "Based on the fixed inputs provided:\n- There are 9 shelves.\n- Each shelf holds 14 books, meaning the shelves are currently full (as no other information is given about the current number of books on the shelves).\n- 22 boxed books must be added to the total inventory, but they are not specified to be placed on the shelves.\n\nThe number of books currently on the shelves is calculated as follows:  \n9 shelves × 14 books per shelf = 126 books.\n\nThe 22 boxed books are additional and must be included in the total inventory, but they are not on the shelves. Therefore, the total number of books on the shelves remains 126.\n\n**Final Answer:**  \n126 books are on the shelves."
+        },
+        {
+          "role": "user",
+          "content": "Now include the boxed books from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Based on the fixed inputs:  \n- 9 shelves × 14 books per shelf = **126 books** on the shelves.  \n- Adding the 22 boxed books: **126 + 22 = 148 books**.  \n\n**Running total (all books): 148**."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of books (from the shelves plus the boxed books) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "The total number of books is calculated by multiplying the number of shelves by the books per shelf and adding the boxed books.  \n9 shelves × 14 books per shelf = 126 books.  \n126 books + 22 boxed books = 148 books.  \n\n148",
+              "reasoning_content": "\nFirst, the user is asking for the total number of books, including both the books on the shelves and the boxed books. The fixed inputs are:\n\n- 9 shelves\n\n- Each shelf holds 14 books\n\n- 22 boxed books must be added\n\nI need to calculate the total books on the shelves first. That's the number of shelves multiplied by the books per shelf.\n\nSo, 9 shelves × 14 books per shelf = 126 books.\n\nThen, I have to add the boxed books: 22 books.\n\nSo, total books = books on shelves + boxed books = 126 + 22.\n\nLet me compute that: 126 + 22 = 148.\n\nThe user says \"state the total number of books (from the shelves plus the boxed books) as a single number.\" And \"end your reply with the number alone on the last line.\"\n\nSo, I should provide the answer as 148, and make sure that the last line is just the number.\n\nIn the previous interactions, I've already calculated this. In the last response, I said \"Running total (all books): 148.\" But now they want it as a single number on the last line.\n\nI need to format my response correctly. I should probably have some explanation, but end with the number alone.\n\nRe-reading the user's message: \"Using our fixed inputs, state the total number of books (from the shelves plus the boxed books) as a single number. End your reply with the number alone on the last line.\"\n\nSo, I can have a brief explanation, but the last line must be just the number.\n\nFor example:\n\nThe total number of books is calculated by multiplying the number of shelves by the books per shelf and adding the boxed books.\n\n9 × 14 = 126\n\n126 + 22 = 148\n\n148\n\nBut to make it concise, I can say:\n\nBased on the fixed inputs, the total number of books is 148.\n\n148\n\nOr even simpler:\n\n148\n\nBut I think they expect some reasoning, but the instruction is to end with the number alone.\n\nLooking back at the history, in the first response, I explained it, and in the second, I gave the running total.\n\nTo be safe, I'll provide a short explanation and then the number.\n\nSo:\n\nThe books on the shelves: 9 shelves × 14 books/shelf = 126 books.\n\nAdding the boxed books: 126 + 22 = 148 books.\n\nTotal books: 148\n\n148\n\nBut the last line should be just the number, so perhaps:\n\n148\n\nI think that's fine.\n\nTo confirm, the fixed inputs are consistent: shelves=9, books per shelf=14, boxed books=22.\n\nNo changes mentioned.\n\nSo, total = (9 * 14) + 22 = 126 + 22 = 148.\n\nYes.\n\nFinal answer is 148.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786882267,
+        "id": "202608162010440e0662871648457e",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "202608162010440e0662871648457e",
+        "usage": {
+          "completion_tokens": 649,
+          "prompt_tokens": 355,
+          "prompt_tokens_details": {
+            "cached_tokens": 255
+          },
+          "total_tokens": 1004
+        }
+      }
+    }
+  ],
+  "latency_ms": 149819
+}

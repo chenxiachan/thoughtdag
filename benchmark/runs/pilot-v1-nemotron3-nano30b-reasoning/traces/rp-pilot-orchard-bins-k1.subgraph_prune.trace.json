@@ -1,0 +1,86 @@
+{
+  "case_id": "rp-pilot-orchard-bins-k1",
+  "condition": "subgraph_prune",
+  "run_id": "pilot-v1-nemotron3-nano30b-reasoning",
+  "capture": {
+    "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1mtye4s",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787068995-29dpLDEql4KKJyysxzp5",
+        "object": "chat.completion",
+        "created": 1787068995,
+        "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of apples is 109.\n\n109",
+              "refusal": null,
+              "reasoning": "We need to compute total apples: 7 bins * 13 apples each = 91. Then add 18 windfall apples => 91 + 18 = 109. Need to state total number as a single number, end reply with the number alone on the last line. So we need to output something, maybe explanation then final line with 109. Ensure last line is just \"109\". Probably include brief statement before. Ensure last line is only the number.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to compute total apples: 7 bins * 13 apples each = 91. Then add 18 windfall apples => 91 + 18 = 109. Need to state total number as a single number, end reply with the number alone on the last line. So we need to output something, maybe explanation then final line with 109. Ensure last line is just \"109\". Probably include brief statement before. Ensure last line is only the number.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 134,
+          "completion_tokens": 123,
+          "total_tokens": 257,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 99,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 3783
+}

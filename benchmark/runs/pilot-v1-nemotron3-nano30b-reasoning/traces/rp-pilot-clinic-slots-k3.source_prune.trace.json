@@ -1,0 +1,118 @@
+{
+  "case_id": "rp-pilot-clinic-slots-k3",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-nemotron3-nano30b-reasoning",
+  "capture": {
+    "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "umbi1t",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 5 days, each day holds 18 slots, and 6 walk-in slots must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: days = 5, slots per day = 18, walk-in slots to add = 6."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 18 slots per day was a counting error. The verified figure is 21. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 18 per day is retracted; verified figure is 21 slots per day."
+        },
+        {
+          "role": "user",
+          "content": "So how many slots in total on the days?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 5 days and 18 slots each, that is 5 × 18 = 90."
+        },
+        {
+          "role": "user",
+          "content": "Now include the walk-in slots from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 90 + 6 = 96."
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Running numbers: days 5, slots per day 18, subtotal 90, total 96."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of slots (from the days plus the walk-in slots) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787068962-HW6EIdzKEstkBhYDbeg2",
+        "object": "chat.completion",
+        "created": 1787068962,
+        "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of slots is 111.  \n111",
+              "refusal": null,
+              "reasoning": "We need to restate total number of slots (from days plus walk-in slots) as a single number, end reply with number alone on last line. Fixed inputs: days = 5, slots per day = 18 (but earlier correction said 21? Wait: The user said \"Correction from the recount: the earlier figure of 18 slots per day was a counting error. The verified figure is 21.\" Then they asked \"So how many slots in total on the days?\" The assistant answered 5*18=90, which used 18, not 21. That is contradictory. The user then said \"Now include the walk-in slots from our fixed inputs. What is the running total?\" Assistant answered 90+6=96. So they used 18 still. The user now asks \"Using our fixed inputs, state the total number of slots (from the days plus the walk-in slots) as a single number.\" The fixed inputs: days = 5, slots per day = 18? Or 21? The last correction said verified figure is 21. But the assistant didn't incorporate that. The user hasn't corrected that again. The \"fixed inputs\" likely refer to the original statement: \"there are 5 days, each day holds 18 slots, and 6 walk-in slots must be added to any total.\" Then the user corrected the 18 to 21. So now the fixed inputs are 5 days, 21 slots per day, 6 walk-in slots. The question: \"Using our fixed inputs, state the total number of slots (from the days plus the walk-in slots) as a single number.\" So compute 5 * 21 = 105, plus 6 = 111. So answer should be 111, and last line just \"111\". Ensure no extra text after that line. Probably we need to restate numbers? The instruction: \"Using our fixed inputs, state the total number of slots (from the days plus the walk-in slots) as a single number. End your reply with the number alone on the last line.\" So we can give a brief statement then the number. But must end with number alone on last line. So maybe:\n\n\"The total is 111.\" Then newline \"111\". Ensure last line is just 111. Let's do that.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to restate total number of slots (from days plus walk-in slots) as a single number, end reply with number alone on last line. Fixed inputs: days = 5, slots per day = 18 (but earlier correction said 21? Wait: The user said \"Correction from the recount: the earlier figure of 18 slots per day was a counting error. The verified figure is 21.\" Then they asked \"So how many slots in total on the days?\" The assistant answered 5*18=90, which used 18, not 21. That is contradictory. The user then said \"Now include the walk-in slots from our fixed inputs. What is the running total?\" Assistant answered 90+6=96. So they used 18 still. The user now asks \"Using our fixed inputs, state the total number of slots (from the days plus the walk-in slots) as a single number.\" The fixed inputs: days = 5, slots per day = 18? Or 21? The last correction said verified figure is 21. But the assistant didn't incorporate that. The user hasn't corrected that again. The \"fixed inputs\" likely refer to the original statement: \"there are 5 days, each day holds 18 slots, and 6 walk-in slots must be added to any total.\" Then the user corrected the 18 to 21. So now the fixed inputs are 5 days, 21 slots per day, 6 walk-in slots. The question: \"Using our fixed inputs, state the total number of slots (from the days plus the walk-in slots) as a single number.\" So compute 5 * 21 = 105, plus 6 = 111. So answer should be 111, and last line just \"111\". Ensure no extra text after that line. Probably we need to restate numbers? The instruction: \"Using our fixed inputs, state the total number of slots (from the days plus the walk-in slots) as a single number. End your reply with the number alone on the last line.\" So we can give a brief statement then the number. But must end with number alone on last line. So maybe:\n\n\"The total is 111.\" Then newline \"111\". Ensure last line is just 111. Let's do that.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 340,
+          "completion_tokens": 530,
+          "total_tokens": 870,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 475,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 8064
+}

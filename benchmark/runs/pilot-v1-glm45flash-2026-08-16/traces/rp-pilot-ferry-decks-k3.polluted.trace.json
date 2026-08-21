@@ -1,0 +1,90 @@
+{
+  "case_id": "rp-pilot-ferry-decks-k3",
+  "condition": "polluted",
+  "run_id": "pilot-v1-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "sltim2",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "Side note before we continue: I visited the sister ferry yesterday. Interesting that they work with 5 there."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted, though the sister ferry's 5 decks is unrelated to our count."
+        },
+        {
+          "role": "user",
+          "content": "So how many seats in total on the decks?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 4 decks and 22 seats each, that is 4 × 22 = 88. (the sister ferry's 5 decks mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Now include the standing places from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 88 + 17 = 105. (the sister ferry's 5 decks mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Running numbers: decks 4, seats per deck 22, subtotal 88, total 105. (the sister ferry's 5 decks mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "The total number of seats, including both deck seats and standing places, is calculated as follows:  \n- Deck seats: 4 decks × 22 seats per deck = 88 seats  \n- Standing places: 17  \n- Total: 88 + 17 = 105  \n\n105",
+              "reasoning_content": "\nFirst, the user is asking for the total number of seats, including both the deck seats and the standing places. From the fixed inputs, I know there are 4 decks, each with 22 seats, and 17 standing places must be added.\n\nI need to calculate the total seats from the decks: 4 decks × 22 seats per deck = 88 seats.\n\nThen, add the standing places: 88 + 17 = 105.\n\nThe user wants this as a single number, and to end the reply with that number alone on the last line.\n\nAlso, in previous interactions, I've been noting that the sister ferry's 5 decks is unrelated, but since the user didn't mention it this time, I don't need to include that in the response. The instruction is to use the fixed inputs, which are decks=4, seats per deck=22, standing places=17.\n\nSo, the total is 105.\n\nNow, for the reply: I should state the total clearly, but since it says \"state the total number... as a single number\" and \"end your reply with the number alone on the last line,\" I need to have some text before that, but the last line should just be the number.\n\nRe-reading the user's message: \"state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\"\n\nSo, I can have a brief explanation or just present it directly. To be clear, I'll say something like \"The total number of seats is:\" and then the number on the next line.\n\nBut to keep it simple, since it's a straightforward calculation, I can just state it.\n\nIn the context, the user has been asking for running totals, so I should be consistent.\n\nFinally, end with the number alone.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786886404,
+        "id": "202608162119505918b46036c54f28",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "202608162119505918b46036c54f28",
+        "usage": {
+          "completion_tokens": 442,
+          "prompt_tokens": 314,
+          "prompt_tokens_details": {
+            "cached_tokens": 221
+          },
+          "total_tokens": 756
+        }
+      }
+    }
+  ],
+  "latency_ms": 14840
+}

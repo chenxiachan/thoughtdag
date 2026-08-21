@@ -1,0 +1,110 @@
+{
+  "case_id": "rp-pilot-ferry-decks-k3",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-nemotron3-nano30b",
+  "capture": {
+    "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "cje3h4",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "So how many seats in total on the decks?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 4 decks and 22 seats each, that is 4 × 22 = 88. (the sister ferry's 5 decks mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Now include the standing places from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 88 + 17 = 105. (the sister ferry's 5 decks mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Running numbers: decks 4, seats per deck 22, subtotal 88, total 105. (the sister ferry's 5 decks mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787068979-KW3aE84yau3oKK6TASsz",
+        "object": "chat.completion",
+        "created": 1787068979,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The combined total of seats from the decks plus the required standing places is:\n\n105",
+              "refusal": null,
+              "reasoning": "We need to output a single number as the total number of seats (from decks plus standing places). The fixed inputs: 4 decks, each holds 22 seats, and 17 standing places must be added to any total. So total seats = 4*22 + 17 = 88 + 17 = 105. They want the total number of seats (from decks plus standing places) as a single number, and end reply with the number alone on the last line. So we should output something like \"105\" on the last line, maybe preceded by some text? They said \"End your reply with the number alone on the last line.\" So we can have preceding text, but the final line must be just the number. Probably they want just the number on the last line, no extra characters. So we can write something like \"The total is:\" then newline then \"105\". But the last line must be just the number. So we can output:\n\nTotal seats: 105\n\nBut that would have extra text on last line? Actually \"Total seats: 105\" includes colon and text, not just number. They want the number alone on the last line. So we need to have the number alone on the final line. We can have preceding lines with explanation, but final line must be just \"105\". So we can write:\n\nThe combined total of seats and standing places is:\n\n105\n\nBut that would have \"105\" on its own line, which is fine. However the line \"105\" is the last line, containing only the number. That satisfies. Ensure no extra whitespace? Probably fine.\n\nThus answer: Provide explanation then final line \"105\".\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to output a single number as the total number of seats (from decks plus standing places). The fixed inputs: 4 decks, each holds 22 seats, and 17 standing places must be added to any total. So total seats = 4*22 + 17 = 88 + 17 = 105. They want the total number of seats (from decks plus standing places) as a single number, and end reply with the number alone on the last line. So we should output something like \"105\" on the last line, maybe preceded by some text? They said \"End your reply with the number alone on the last line.\" So we can have preceding text, but the final line must be just the number. Probably they want just the number on the last line, no extra characters. So we can write something like \"The total is:\" then newline then \"105\". But the last line must be just the number. So we can output:\n\nTotal seats: 105\n\nBut that would have extra text on last line? Actually \"Total seats: 105\" includes colon and text, not just number. They want the number alone on the last line. So we need to have the number alone on the final line. We can have preceding lines with explanation, but final line must be just \"105\". So we can write:\n\nThe combined total of seats and standing places is:\n\n105\n\nBut that would have \"105\" on its own line, which is fine. However the line \"105\" is the last line, containing only the number. That satisfies. Ensure no extra whitespace? Probably fine.\n\nThus answer: Provide explanation then final line \"105\".\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 319,
+          "completion_tokens": 388,
+          "total_tokens": 707,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 368,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 5060
+}

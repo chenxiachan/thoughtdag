@@ -1,0 +1,58 @@
+{
+  "case_id": "rp-pilot-garden-rows-k3",
+  "condition": "subgraph_prune",
+  "run_id": "pilot-v1-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "e23wgm",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 16 rows, each row holds 6 plants, and 9 potted plants must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: rows = 16, plants per row = 6, potted plants to add = 9."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of plants (from the rows plus the potted plants) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "The total number of plants is calculated by first finding the number of plants in the rows and then adding the potted plants. With 16 rows and 6 plants per row, the row plants total 16 × 6 = 96. Adding the 9 potted plants gives 96 + 9 = 105.\n\n105",
+              "reasoning_content": "\nFirst, the fixed inputs are:\n\n- Number of rows: 16\n\n- Plants per row: 6\n\n- Potted plants to add: 9\n\nI need to find the total number of plants, which includes the plants from the rows plus the potted plants.\n\nSo, step by step:\n\n1. Calculate the total plants from the rows.\n\n   - There are 16 rows, and each row has 6 plants.\n\n   - So, total row plants = number of rows × plants per row = 16 × 6.\n\n   - Let me compute that: 16 × 6 = 96.\n\n2. Add the potted plants.\n\n   - Potted plants to add: 9.\n\n   - So, total plants = row plants + potted plants = 96 + 9.\n\n   - 96 + 9 = 105.\n\nTherefore, the total number of plants is 105.\n\nThe user said to end the reply with the number alone on the last line. So, I should have some explanation, but the last line should just be the number.\n\nAlso, in the initial context, it was a planning task, but now it's straightforward calculation.\n\nLet me double-check:\n\n- Rows: 16\n\n- Plants per row: 6\n\n- Total row plants: 16 × 6 = 96\n\n- Potted plants: 9\n\n- Total: 96 + 9 = 105\n\nYes, that seems correct.\n\nI think that's it.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786883100,
+        "id": "20260816202448bc535573557344a4",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "20260816202448bc535573557344a4",
+        "usage": {
+          "completion_tokens": 377,
+          "prompt_tokens": 113,
+          "prompt_tokens_details": {
+            "cached_tokens": 112
+          },
+          "total_tokens": 490
+        }
+      }
+    }
+  ],
+  "latency_ms": 11853
+}

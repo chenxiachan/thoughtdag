@@ -1,0 +1,82 @@
+{
+  "case_id": "bm-ref-0001",
+  "condition": "linear_all_padded",
+  "run_id": "gate-v2-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "177aavn",
+      "messages": [
+        {
+          "role": "user",
+          "content": "I'm researching the film 'Stillwater Hours' and its production circle. Help me across a few threads."
+        },
+        {
+          "role": "assistant",
+          "content": "Understood. I'll help you track the people involved. Ask thread by thread."
+        },
+        {
+          "role": "user",
+          "content": "Who directed 'Stillwater Hours'?"
+        },
+        {
+          "role": "assistant",
+          "content": "According to the production notes you shared, 'Stillwater Hours' was directed by Lena Varkonen, a director known for slow-cinema framing."
+        },
+        {
+          "role": "user",
+          "content": "Where was Lena Varkonen born?"
+        },
+        {
+          "role": "assistant",
+          "content": "The biography excerpt states Lena Varkonen was born in Wildenport, a harbor town she often references in interviews."
+        },
+        {
+          "role": "user",
+          "content": "Quick aside: what do film production archives usually hold?"
+        },
+        {
+          "role": "assistant",
+          "content": "Typically call sheets, continuity photos, correspondence, location permits and draft schedules. Access policies vary by institution. Nothing here is specific to any one film."
+        },
+        {
+          "role": "user",
+          "content": "Based only on what we established in this conversation: in which town was the director of 'Stillwater Hours' born? Answer with the town name only. End your reply with the town name alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "Wildenport  \nWildenport",
+              "reasoning_content": "\nOkay, the user is asking a very specific question based solely on our previous conversation. They want to know the birth town of the director of 'Stillwater Hours' using only the information we've already established. \n\nLooking back at the history: I confirmed Lena Varkonen directed the film, and earlier I mentioned she was born in Wildenport based on a biography excerpt. The user is being extremely precise here - they're testing if I can stick strictly to our established facts without adding new information. \n\nHmm, they also included a strict formatting instruction: answer with the town name only, ending with that name on the last line. This suggests they might be compiling data or verifying consistency. The \"quick aside\" about film archives earlier shows they're methodically researching production details. \n\nI recall Wildenport was mentioned as a harbor town she references in interviews. That's the only birthplace data we've discussed. No other locations were mentioned for her origins. \n\nThe user seems detail-oriented - they're cross-referencing information and want concise answers. Probably building a production dossier. I'll give exactly what they asked for: just the town name, formatted precisely as requested. \n\nWildenport",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786879013,
+        "id": "20260816191643fb1162b27892449a",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "20260816191643fb1162b27892449a",
+        "usage": {
+          "completion_tokens": 253,
+          "prompt_tokens": 227,
+          "prompt_tokens_details": {
+            "cached_tokens": 133
+          },
+          "total_tokens": 480
+        }
+      }
+    }
+  ],
+  "latency_ms": 10304
+}

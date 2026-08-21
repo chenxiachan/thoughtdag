@@ -1,0 +1,15 @@
+{
+  "case_id": "rp-pilot-depot-crates-k3",
+  "gold_answer": "107",
+  "distractor_markers": [
+    "131",
+    "120"
+  ],
+  "per_condition_expectation": {
+    "clean": "107",
+    "polluted": "adoption expected (131)",
+    "source_prune": "the depth cell: contaminated replays remain",
+    "subgraph_prune": "107",
+    "recompute_descendants": "107"
+  }
+}

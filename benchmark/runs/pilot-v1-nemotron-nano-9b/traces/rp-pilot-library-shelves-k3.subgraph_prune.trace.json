@@ -1,0 +1,86 @@
+{
+  "case_id": "rp-pilot-library-shelves-k3",
+  "condition": "subgraph_prune",
+  "run_id": "pilot-v1-nemotron-nano-9b",
+  "capture": {
+    "model": "nvidia/nemotron-nano-9b-v2:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "c69d6l",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: shelves = 9, books per shelf = 14, boxed books to add = 22."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of books (from the shelves plus the boxed books) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787068683-RzsABSfzOccDE97aGP7w",
+        "object": "chat.completion",
+        "created": 1787068683,
+        "model": "nvidia/nemotron-nano-9b-v2:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "148\n",
+              "refusal": null,
+              "reasoning": "Okay, let's see. The user wants the total number of books from the shelves plus the boxed books. The fixed inputs are 9 shelves, each holding 14 books, and 22 boxed books to add.\n\nFirst, I need to calculate the total books on the shelves. That's 9 shelves multiplied by 14 books each. So 9 times 14. Let me do that math. 9*10 is 90, and 9*4 is 36, so 90+36=126. So 126 books on the shelves.\n\nThen add the 22 boxed books. So 126 plus 22. That would be 148. Let me check again. 126 + 20 is 146, plus 2 more is 148. Yep, that seems right.\n\nSo the total number of books is 148. The user wants just the number on the last line. I should make sure there's no extra text, just the number. Alright, that's straightforward.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Okay, let's see. The user wants the total number of books from the shelves plus the boxed books. The fixed inputs are 9 shelves, each holding 14 books, and 22 boxed books to add.\n\nFirst, I need to calculate the total books on the shelves. That's 9 shelves multiplied by 14 books each. So 9 times 14. Let me do that math. 9*10 is 90, and 9*4 is 36, so 90+36=126. So 126 books on the shelves.\n\nThen add the 22 boxed books. So 126 plus 22. That would be 148. Let me check again. 126 + 20 is 146, plus 2 more is 148. Yep, that seems right.\n\nSo the total number of books is 148. The user wants just the number on the last line. I should make sure there's no extra text, just the number. Alright, that's straightforward.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 125,
+          "completion_tokens": 246,
+          "total_tokens": 371,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 181,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 5705
+}

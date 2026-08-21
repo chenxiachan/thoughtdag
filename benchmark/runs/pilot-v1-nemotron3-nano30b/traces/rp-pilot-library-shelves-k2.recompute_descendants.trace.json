@@ -1,0 +1,256 @@
+{
+  "case_id": "rp-pilot-library-shelves-k2",
+  "condition": "recompute_descendants",
+  "run_id": "pilot-v1-nemotron3-nano30b",
+  "capture": {
+    "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "5wtvyb",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: shelves = 9, books per shelf = 14, boxed books to add = 22."
+        },
+        {
+          "role": "user",
+          "content": "So how many books in total on the shelves?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787068505-uC0XIGeHRQxFhhc9vhKi",
+        "object": "chat.completion",
+        "created": 1787068505,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The shelves hold  \n\n\\(9 \\text{ shelves} \\times 14 \\text{ books per shelf} = 126 \\text{ books}\\).\n\nAdding the required 22 boxed books gives  \n\n\\(126 + 22 = 148\\).\n\n**Total books = 148.**",
+              "refusal": null,
+              "reasoning": "We need to compute total books on shelves: 9 shelves * 14 books per shelf = 126 books. Then add 22 boxed books to any total? The question: \"So how many books in total on the shelves?\" Probably they want total books including the boxed books? The phrasing: \"22 boxed books must be added to any total.\" So total books = shelf books + 22 = 126 + 22 = 148. Provide answer.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to compute total books on shelves: 9 shelves * 14 books per shelf = 126 books. Then add 22 boxed books to any total? The question: \"So how many books in total on the shelves?\" Probably they want total books including the boxed books? The phrasing: \"22 boxed books must be added to any total.\" So total books = shelf books + 22 = 126 + 22 = 148. Provide answer.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 106,
+          "completion_tokens": 180,
+          "total_tokens": 286,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 93,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-c",
+      "prompt_hash": "xeg0le",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: shelves = 9, books per shelf = 14, boxed books to add = 22."
+        },
+        {
+          "role": "user",
+          "content": "So how many books in total on the shelves?"
+        },
+        {
+          "role": "assistant",
+          "content": "The shelves hold  \n\n\\(9 \\text{ shelves} \\times 14 \\text{ books per shelf} = 126 \\text{ books}\\).\n\nAdding the required 22 boxed books gives  \n\n\\(126 + 22 = 148\\).\n\n**Total books = 148.**"
+        },
+        {
+          "role": "user",
+          "content": "Now include the boxed books from our fixed inputs. What is the running total?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787068507-26eNUCCPdQdU2AgwKnJi",
+        "object": "chat.completion",
+        "created": 1787068507,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The running total, including the required boxed books, is:\n\n\\[\n\\text{Total books} = (9 \\text{ shelves} \\times 14 \\text{ books per shelf}) + 22 \\text{ boxed books}\n= 126 + 22 = \\mathbf{148}\n\\]",
+              "refusal": null,
+              "reasoning": "We need to respond with running total including boxed books. Fixed inputs: 9 shelves, each holds 14 books, and 22 boxed books must be added to any total. So total = 9*14 + 22 = 126+22 = 148. Provide answer.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to respond with running total including boxed books. Fixed inputs: 9 shelves, each holds 14 books, and 22 boxed books must be added to any total. So total = 9*14 + 22 = 126+22 = 148. Provide answer.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 205,
+          "completion_tokens": 141,
+          "total_tokens": 346,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 53,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "1cjukmu",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: shelves = 9, books per shelf = 14, boxed books to add = 22."
+        },
+        {
+          "role": "user",
+          "content": "So how many books in total on the shelves?"
+        },
+        {
+          "role": "assistant",
+          "content": "The shelves hold  \n\n\\(9 \\text{ shelves} \\times 14 \\text{ books per shelf} = 126 \\text{ books}\\).\n\nAdding the required 22 boxed books gives  \n\n\\(126 + 22 = 148\\).\n\n**Total books = 148.**"
+        },
+        {
+          "role": "user",
+          "content": "Now include the boxed books from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "The running total, including the required boxed books, is:\n\n\\[\n\\text{Total books} = (9 \\text{ shelves} \\times 14 \\text{ books per shelf}) + 22 \\text{ boxed books}\n= 126 + 22 = \\mathbf{148}\n\\]"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of books (from the shelves plus the boxed books) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787068509-SqJDGHjp6rSoDqCswRpG",
+        "object": "chat.completion",
+        "created": 1787068509,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of books, including those on the shelves and the boxed books, is:\n\n148\n\n148",
+              "refusal": null,
+              "reasoning": "We need to output a single number as the total, and end reply with that number alone on the last line. So we should output maybe some text before, but final line must be just the number. The total is 148. So we can say \"The total number of books is:\" then newline then \"148\". Ensure last line is just \"148\". No extra spaces or punctuation. Provide answer.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to output a single number as the total, and end reply with that number alone on the last line. So we should output maybe some text before, but final line must be just the number. The total is 148. So we can say \"The total number of books is:\" then newline then \"148\". Ensure last line is just \"148\". No extra spaces or punctuation. Provide answer.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 325,
+          "completion_tokens": 118,
+          "total_tokens": 443,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 90,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 6997
+}

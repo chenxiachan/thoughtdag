@@ -1,0 +1,58 @@
+{
+  "case_id": "cd-ref-0001",
+  "condition": "lossy_condense",
+  "run_id": "gate-v2-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "hpnbx0",
+      "messages": [
+        {
+          "role": "user",
+          "content": "[Condensed record of the VX-12 doping series]"
+        },
+        {
+          "role": "assistant",
+          "content": "VX-12 doping series, condensed: the first batch found peak stability at 2% doping. A recalibrated sweep also measured a peak at 4%. Humidity ruled out as a factor."
+        },
+        {
+          "role": "user",
+          "content": "Per our current valid conclusion, what doping concentration gives peak stability for VX-12? Answer with the percentage only. End your reply with the percentage alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "4",
+              "reasoning_content": "\nHmm, the user is asking about the peak stability doping concentration for VX-12 based on the condensed record they provided earlier. Let me recall what was in that record. \n\nThe key points were: first batch showed peak stability at 2% doping, then a recalibrated sweep found another peak at 4%. Humidity was ruled out as a factor. \n\nThe user specifically wants the answer as a percentage only, with that percentage alone on the last line. They're being very precise about the format. \n\nI need to be careful here - the record shows two peaks. But the user says \"per our current valid conclusion\" - that implies we should go with the most authoritative finding. The recalibrated sweep would be more reliable than the initial batch measurement. \n\nThe recalibrated sweep found 4% as the peak. That should be the answer. The user seems to want a straightforward, no-nonsense response. \n\nI'll just put \"4\" on the last line as requested. No extra explanation needed since they specified the format. \n\nThe user appears to be a researcher or engineer working with this material. They're focused on getting the precise data point without fluff. Probably using this for some critical application. \n\nBetter double-check: yes, the recalibrated sweep is the more recent and controlled measurement. 4% is the correct answer here.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786879067,
+        "id": "20260816191739d4ad11fd19414fad",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "20260816191739d4ad11fd19414fad",
+        "usage": {
+          "completion_tokens": 279,
+          "prompt_tokens": 100,
+          "prompt_tokens_details": {
+            "cached_tokens": 30
+          },
+          "total_tokens": 379
+        }
+      }
+    }
+  ],
+  "latency_ms": 8083
+}

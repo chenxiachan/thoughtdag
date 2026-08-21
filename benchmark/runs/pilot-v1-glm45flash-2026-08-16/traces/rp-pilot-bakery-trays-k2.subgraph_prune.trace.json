@@ -1,0 +1,58 @@
+{
+  "case_id": "rp-pilot-bakery-trays-k2",
+  "condition": "subgraph_prune",
+  "run_id": "pilot-v1-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1kg5s5i",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "The total number of rolls is calculated by multiplying the number of trays by the rolls per tray and then adding the loose rolls.  \n12 trays * 8 rolls per tray = 96 rolls from trays.  \n96 rolls + 15 loose rolls = 111 rolls.  \n\n111",
+              "reasoning_content": "\nFirst, the fixed inputs are:\n\n- Number of trays: 12\n\n- Rolls per tray: 8\n\n- Loose rolls to add: 15\n\nI need to find the total number of rolls, which includes the rolls from the trays plus the loose rolls.\n\nSo, step by step:\n\n1. Calculate the total rolls from the trays.\n\n   - Number of trays: 12\n\n   - Rolls per tray: 8\n\n   - Therefore, total rolls from trays = 12 trays * 8 rolls/tray\n\n   - 12 * 8 = 96\n\n2. Add the loose rolls.\n\n   - Loose rolls to add: 15\n\n   - So, total rolls = rolls from trays + loose rolls = 96 + 15\n\n   - 96 + 15 = 111\n\nTherefore, the total number of rolls is 111.\n\nThe user said to end the reply with the number alone on the last line. So, I should have some explanation, but the last line should just be the number.\n\nAlso, in the previous interaction, I acknowledged the fixed inputs, so I don't need to repeat them unless necessary. But for clarity, I can state the calculation briefly.\n\nFinal answer should be 111.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786881501,
+        "id": "202608161958075a342950a5cb41a6",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "202608161958075a342950a5cb41a6",
+        "usage": {
+          "completion_tokens": 313,
+          "prompt_tokens": 110,
+          "prompt_tokens_details": {
+            "cached_tokens": 109
+          },
+          "total_tokens": 423
+        }
+      }
+    }
+  ],
+  "latency_ms": 14865
+}

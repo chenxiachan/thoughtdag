@@ -1,0 +1,91 @@
+{
+  "compiler_version": "2.0.0",
+  "case_id": "rp-pilot-library-shelves-k3",
+  "condition": "clean",
+  "graph_ops": [
+    {
+      "op": "remove_node",
+      "id": "pollution"
+    },
+    {
+      "op": "remove_node",
+      "id": "step-b"
+    },
+    {
+      "op": "remove_node",
+      "id": "step-c"
+    },
+    {
+      "op": "remove_node",
+      "id": "step-d"
+    },
+    {
+      "op": "add_edge",
+      "from": "given",
+      "to": "step-b-clean"
+    },
+    {
+      "op": "add_edge",
+      "from": "step-b-clean",
+      "to": "step-c-clean"
+    },
+    {
+      "op": "add_edge",
+      "from": "step-c-clean",
+      "to": "step-d-clean"
+    },
+    {
+      "op": "add_edge",
+      "from": "step-d-clean",
+      "to": "final"
+    }
+  ],
+  "recompute_nodes": [],
+  "prompt_hash": "1p32yyd",
+  "input_token_est": 184,
+  "node_order_audit": [
+    "given",
+    "step-b-clean",
+    "step-c-clean",
+    "step-d-clean",
+    "final"
+  ],
+  "messages": [
+    {
+      "role": "user",
+      "content": "For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total."
+    },
+    {
+      "role": "assistant",
+      "content": "Noted as fixed inputs: shelves = 9, books per shelf = 14, boxed books to add = 22."
+    },
+    {
+      "role": "user",
+      "content": "So how many books in total on the shelves?"
+    },
+    {
+      "role": "assistant",
+      "content": "With 9 shelves and 14 books each, that is 9 × 14 = 126."
+    },
+    {
+      "role": "user",
+      "content": "Now include the boxed books from our fixed inputs. What is the running total?"
+    },
+    {
+      "role": "assistant",
+      "content": "Running total is 126 + 22 = 148."
+    },
+    {
+      "role": "user",
+      "content": "Before we finish, restate our running numbers so far."
+    },
+    {
+      "role": "assistant",
+      "content": "Running numbers: shelves 9, books per shelf 14, subtotal 126, total 148."
+    },
+    {
+      "role": "user",
+      "content": "Using our fixed inputs, state the total number of books (from the shelves plus the boxed books) as a single number. End your reply with the number alone on the last line."
+    }
+  ]
+}

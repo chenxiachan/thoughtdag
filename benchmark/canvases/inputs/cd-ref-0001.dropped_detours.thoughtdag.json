@@ -1,0 +1,202 @@
+{
+  "version": 1,
+  "name": "cd-ref-0001 · dropped_detours",
+  "exportedAt": "2026-08-16T00:00:00.000Z",
+  "nodes": [
+    {
+      "id": "setup",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "question": "We're optimizing the doping concentration of the VX-12 compound for sensor stability. Track my experiment log.",
+        "response": "Ready. I'll keep track of hypotheses, results and revisions for the VX-12 doping series.",
+        "responses": [
+          "Ready. I'll keep track of hypotheses, results and revisions for the VX-12 doping series."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "v1",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 320
+      },
+      "data": {
+        "question": "First batch results: stability peaked at 2% doping. Record the working conclusion.",
+        "response": "Recorded: working conclusion v1 states 2% doping gives peak stability for VX-12, based on the first batch.",
+        "responses": [
+          "Recorded: working conclusion v1 states 2% doping gives peak stability for VX-12, based on the first batch."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "v2",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 1280
+      },
+      "data": {
+        "question": "Correction from the re-run: the 2% peak was a measurement artifact from a miscalibrated probe. The corrected sweep shows the true peak at 4%. Update the working conclusion.",
+        "response": "Updated: conclusion v1 (2%) is retracted as a measurement artifact. Working conclusion v2: peak stability at 4% doping, from the recalibrated sweep.",
+        "responses": [
+          "Updated: conclusion v1 (2%) is retracted as a measurement artifact. Working conclusion v2: peak stability at 4% doping, from the recalibrated sweep."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "condensed",
+      "type": "thought",
+      "position": {
+        "x": 700,
+        "y": 640
+      },
+      "data": {
+        "question": "[Condensed record of the VX-12 doping series]",
+        "response": "VX-12 doping series, condensed: initial batch suggested a 2% peak, later retracted as a probe-calibration artifact. Current valid conclusion: peak stability at 4% doping (recalibrated sweep). Humidity ruled out as a factor.",
+        "responses": [
+          "VX-12 doping series, condensed: initial batch suggested a 2% peak, later retracted as a probe-calibration artifact. Current valid conclusion: peak stability at 4% doping (recalibrated sweep). Humidity ruled out as a factor."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "condensed-lossy",
+      "type": "thought",
+      "position": {
+        "x": 700,
+        "y": 1000
+      },
+      "data": {
+        "question": "[Condensed record of the VX-12 doping series]",
+        "response": "VX-12 doping series, condensed: the first batch found peak stability at 2% doping. A recalibrated sweep also measured a peak at 4%. Humidity ruled out as a factor.",
+        "responses": [
+          "VX-12 doping series, condensed: the first batch found peak stability at 2% doping. A recalibrated sweep also measured a peak at 4%. Humidity ruled out as a factor."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "final",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 1600
+      },
+      "data": {
+        "question": "Per our current valid conclusion, what doping concentration gives peak stability for VX-12? Answer with the percentage only. End your reply with the percentage alone on the last line.",
+        "response": "",
+        "responses": [
+          ""
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e-setup-v1-0",
+      "source": "setup",
+      "target": "v1",
+      "type": "smoothstep"
+    },
+    {
+      "id": "e-v2-final-1",
+      "source": "v2",
+      "target": "final",
+      "type": "smoothstep"
+    },
+    {
+      "id": "e-v1-v2-2",
+      "source": "v1",
+      "target": "v2",
+      "type": "smoothstep"
+    }
+  ],
+  "events": []
+}

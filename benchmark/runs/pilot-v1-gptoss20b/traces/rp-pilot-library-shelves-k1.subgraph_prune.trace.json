@@ -1,0 +1,86 @@
+{
+  "case_id": "rp-pilot-library-shelves-k1",
+  "condition": "subgraph_prune",
+  "run_id": "pilot-v1-gptoss20b",
+  "capture": {
+    "model": "openai/gpt-oss-20b:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "c69d6l",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: shelves = 9, books per shelf = 14, boxed books to add = 22."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of books (from the shelves plus the boxed books) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786888137-Eb99mKMaDVtjzhqD6FB8",
+        "object": "chat.completion",
+        "created": 1786888137,
+        "model": "openai/gpt-oss-20b:free",
+        "provider": "Darkbloom",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of books (shelves plus boxed books) is 148.  \n148",
+              "refusal": null,
+              "reasoning": "We need to compute total books on shelves: 9 shelves * 14 books each = 126. Add 22 boxed books: 126 + 22 = 148. End reply with number alone on last line. So we should output something like:\n\nTotal books: 148\n\nBut the instruction: \"End your reply with the number alone on the last line.\" So we can have some text before, but last line must be just the number. So we can write:\n\nThe total number of books is 148.\n\n148\n\nThus last line is 148.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to compute total books on shelves: 9 shelves * 14 books each = 126. Add 22 boxed books: 126 + 22 = 148. End reply with number alone on last line. So we should output something like:\n\nTotal books: 148\n\nBut the instruction: \"End your reply with the number alone on the last line.\" So we can have some text before, but last line must be just the number. So we can write:\n\nThe total number of books is 148.\n\n148\n\nThus last line is 148.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 175,
+          "completion_tokens": 143,
+          "total_tokens": 318,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.0000125475,
+            "upstream_inference_prompt_cost": 0.0000025375,
+            "upstream_inference_completions_cost": 0.00001001
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 115,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 3570
+}

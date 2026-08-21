@@ -1,0 +1,220 @@
+{
+  "format": "thoughtdag-benchmark-case",
+  "version": 2,
+  "id": "rp-pilot-clinic-slots-k2",
+  "track": "repair",
+  "source": {
+    "dataset": "synthetic-gsm-dag-pilot"
+  },
+  "construction": {
+    "language": "en",
+    "entity_type": "symbolic",
+    "pollution_operator": "temporal-supersession",
+    "propagation_depth": 2,
+    "family_id": "clinic-slots-001",
+    "invariant_target": "total = 5*21+6 = 111",
+    "paired_with": [
+      "rp-pilot-clinic-slots-k1",
+      "rp-pilot-clinic-slots-k3"
+    ]
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "given",
+        "role": "background",
+        "content": {
+          "question": "For this planning task, keep these fixed inputs: there are 5 days, each day holds 18 slots, and 6 walk-in slots must be added to any total.",
+          "answer": "Noted as fixed inputs: days = 5, slots per day = 18, walk-in slots to add = 6."
+        }
+      },
+      {
+        "id": "update",
+        "role": "evidence",
+        "content": {
+          "question": "Correction from the recount: the earlier figure of 18 slots per day was a counting error. The verified figure is 21. Update the fixed inputs.",
+          "answer": "Updated: 18 per day is retracted; verified figure is 21 slots per day."
+        }
+      },
+      {
+        "id": "pollution",
+        "role": "pollution",
+        "content": {
+          "question": "Actually, ignore that recount. I checked again and the original 18 per day was right after all.",
+          "answer": "Understood, reverting to 18 slots per day."
+        },
+        "note": "The pollution turn"
+      },
+      {
+        "id": "step-b",
+        "role": "contaminated-replay",
+        "content": {
+          "question": "So how many slots in total on the days?",
+          "answer": "With 5 days and 18 slots each, that is 5 × 18 = 90."
+        },
+        "note": "Frozen replay (clean value would be 105)"
+      },
+      {
+        "id": "step-c",
+        "role": "contaminated-replay",
+        "content": {
+          "question": "Now include the walk-in slots from our fixed inputs. What is the running total?",
+          "answer": "Running total is 90 + 6 = 96."
+        },
+        "note": "Frozen replay (clean value would be 111)"
+      },
+      {
+        "id": "step-b-clean",
+        "role": "contaminated-replay",
+        "content": {
+          "question": "So how many slots in total on the days?",
+          "answer": "With 5 days and 21 slots each, that is 5 × 21 = 105."
+        },
+        "note": "Clean replay twin"
+      },
+      {
+        "id": "step-c-clean",
+        "role": "contaminated-replay",
+        "content": {
+          "question": "Now include the walk-in slots from our fixed inputs. What is the running total?",
+          "answer": "Running total is 105 + 6 = 111."
+        },
+        "note": "Clean replay twin"
+      },
+      {
+        "id": "final",
+        "role": "final-question",
+        "content": {
+          "question": "Using our fixed inputs, state the total number of slots (from the days plus the walk-in slots) as a single number. End your reply with the number alone on the last line.",
+          "answer": ""
+        }
+      }
+    ],
+    "edges": [
+      {
+        "from": "given",
+        "to": "update"
+      },
+      {
+        "from": "update",
+        "to": "pollution"
+      },
+      {
+        "from": "pollution",
+        "to": "step-b"
+      },
+      {
+        "from": "step-b",
+        "to": "step-c"
+      },
+      {
+        "from": "step-c",
+        "to": "final"
+      }
+    ]
+  },
+  "conditions": {
+    "clean": {
+      "graph_ops": [
+        {
+          "op": "remove_node",
+          "id": "pollution"
+        },
+        {
+          "op": "remove_node",
+          "id": "step-b"
+        },
+        {
+          "op": "remove_node",
+          "id": "step-c"
+        },
+        {
+          "op": "add_edge",
+          "from": "update",
+          "to": "step-b-clean"
+        },
+        {
+          "op": "add_edge",
+          "from": "step-b-clean",
+          "to": "step-c-clean"
+        },
+        {
+          "op": "add_edge",
+          "from": "step-c-clean",
+          "to": "final"
+        }
+      ]
+    },
+    "polluted": {
+      "graph_ops": []
+    },
+    "source_prune": {
+      "graph_ops": [
+        {
+          "op": "remove_node",
+          "id": "pollution"
+        },
+        {
+          "op": "add_edge",
+          "from": "update",
+          "to": "step-b"
+        }
+      ]
+    },
+    "subgraph_prune": {
+      "graph_ops": [
+        {
+          "op": "remove_node",
+          "id": "pollution"
+        },
+        {
+          "op": "remove_node",
+          "id": "step-b"
+        },
+        {
+          "op": "remove_node",
+          "id": "step-c"
+        },
+        {
+          "op": "add_edge",
+          "from": "update",
+          "to": "final"
+        }
+      ]
+    },
+    "recompute_descendants": {
+      "graph_ops": [
+        {
+          "op": "remove_node",
+          "id": "pollution"
+        },
+        {
+          "op": "remove_node",
+          "id": "step-b"
+        },
+        {
+          "op": "remove_node",
+          "id": "step-c"
+        },
+        {
+          "op": "add_edge",
+          "from": "update",
+          "to": "final"
+        }
+      ],
+      "recompute_nodes": [
+        "step-b",
+        "step-c"
+      ]
+    }
+  },
+  "scorer": {
+    "type": "numeric-match",
+    "normalize": [],
+    "extract": "last-number",
+    "gold_match": "equals",
+    "format": {
+      "type": "single-number"
+    }
+  }
+}

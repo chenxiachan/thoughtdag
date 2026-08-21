@@ -1,0 +1,64 @@
+{
+  "compiler_version": "2.0.0",
+  "case_id": "rp-pilot-library-shelves-k3",
+  "condition": "source_prune",
+  "graph_ops": [
+    {
+      "op": "remove_node",
+      "id": "pollution"
+    },
+    {
+      "op": "add_edge",
+      "from": "given",
+      "to": "step-b"
+    }
+  ],
+  "recompute_nodes": [],
+  "prompt_hash": "oek6yd",
+  "input_token_est": 185,
+  "node_order_audit": [
+    "given",
+    "step-b",
+    "step-c",
+    "step-d",
+    "final"
+  ],
+  "messages": [
+    {
+      "role": "user",
+      "content": "For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total."
+    },
+    {
+      "role": "assistant",
+      "content": "Noted as fixed inputs: shelves = 9, books per shelf = 14, boxed books to add = 22."
+    },
+    {
+      "role": "user",
+      "content": "So how many books in total on the shelves?"
+    },
+    {
+      "role": "assistant",
+      "content": "With 11 shelves and 14 books each, that is 11 × 14 = 154."
+    },
+    {
+      "role": "user",
+      "content": "Now include the boxed books from our fixed inputs. What is the running total?"
+    },
+    {
+      "role": "assistant",
+      "content": "Running total is 154 + 22 = 176."
+    },
+    {
+      "role": "user",
+      "content": "Before we finish, restate our running numbers so far."
+    },
+    {
+      "role": "assistant",
+      "content": "Running numbers: shelves 11, books per shelf 14, subtotal 154, total 176."
+    },
+    {
+      "role": "user",
+      "content": "Using our fixed inputs, state the total number of books (from the shelves plus the boxed books) as a single number. End your reply with the number alone on the last line."
+    }
+  ]
+}

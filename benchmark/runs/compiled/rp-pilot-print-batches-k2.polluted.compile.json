@@ -1,0 +1,54 @@
+{
+  "compiler_version": "2.0.0",
+  "case_id": "rp-pilot-print-batches-k2",
+  "condition": "polluted",
+  "graph_ops": [],
+  "recompute_nodes": [],
+  "prompt_hash": "105o4sp",
+  "input_token_est": 236,
+  "node_order_audit": [
+    "given",
+    "pollution",
+    "step-b",
+    "step-c",
+    "final"
+  ],
+  "messages": [
+    {
+      "role": "user",
+      "content": "For this planning task, keep these fixed inputs: there are 6 batches, each batch holds 25 pages, and 40 cover pages must be added to any total."
+    },
+    {
+      "role": "assistant",
+      "content": "Noted as fixed inputs: batches = 6, pages per batch = 25, cover pages to add = 40."
+    },
+    {
+      "role": "user",
+      "content": "Side note before we continue: I visited the old printer yesterday. Interesting that they work with 32 there."
+    },
+    {
+      "role": "assistant",
+      "content": "Noted, though the old printer's 32-page batches is unrelated to our count."
+    },
+    {
+      "role": "user",
+      "content": "So how many pages in total on the batches?"
+    },
+    {
+      "role": "assistant",
+      "content": "With 6 batches and 25 pages each, that is 6 × 25 = 150. (the old printer's 32-page batches mentioned earlier is a separate matter.)"
+    },
+    {
+      "role": "user",
+      "content": "Now include the cover pages from our fixed inputs. What is the running total?"
+    },
+    {
+      "role": "assistant",
+      "content": "Running total is 150 + 40 = 190. (the old printer's 32-page batches mentioned earlier is a separate matter.)"
+    },
+    {
+      "role": "user",
+      "content": "Using our fixed inputs, state the total number of pages (from the batches plus the cover pages) as a single number. End your reply with the number alone on the last line."
+    }
+  ]
+}

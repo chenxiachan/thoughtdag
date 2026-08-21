@@ -1,0 +1,94 @@
+{
+  "case_id": "rp-pilot-garden-rows-k1",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-nemotron-nano-9b",
+  "capture": {
+    "model": "nvidia/nemotron-nano-9b-v2:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1ue5yw6",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 16 rows, each row holds 6 plants, and 9 potted plants must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: rows = 16, plants per row = 6, potted plants to add = 9."
+        },
+        {
+          "role": "user",
+          "content": "So how many plants in total on the rows?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 13 rows and 6 plants each, that is 13 × 6 = 78."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of plants (from the rows plus the potted plants) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787068735-qYhhIHGD5LVfgR06s52W",
+        "object": "chat.completion",
+        "created": 1787068735,
+        "model": "nvidia/nemotron-nano-9b-v2:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "\n\n105\n",
+              "refusal": null,
+              "reasoning": "Okay, let's see. The user wants the total number of plants from the rows plus the potted plants. The fixed inputs are 16 rows, each with 6 plants, and 9 potted plants to add.\n\nFirst, calculate the plants in the rows: 16 rows multiplied by 6 plants per row. That's 16 * 6. Let me do that math. 16 times 6 is 96. Then add the 9 potted plants. So 96 + 9 equals 105. \n\nWait, the user mentioned \"any total\" for the potted plants, but the fixed input is 9 potted plants must be added. So regardless of where they're placed, we just add 9 to the total from the rows. \n\nSo the total should be 96 + 9 = 105. The answer is 105. I need to make sure I didn't mix up any numbers. The rows are 16, not 13 as in the previous example. Yeah, 16*6 is definitely 96. Adding 9 gives 105. That's the total.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Okay, let's see. The user wants the total number of plants from the rows plus the potted plants. The fixed inputs are 16 rows, each with 6 plants, and 9 potted plants to add.\n\nFirst, calculate the plants in the rows: 16 rows multiplied by 6 plants per row. That's 16 * 6. Let me do that math. 16 times 6 is 96. Then add the 9 potted plants. So 96 + 9 equals 105. \n\nWait, the user mentioned \"any total\" for the potted plants, but the fixed input is 9 potted plants must be added. So regardless of where they're placed, we just add 9 to the total from the rows. \n\nSo the total should be 96 + 9 = 105. The answer is 105. I need to make sure I didn't mix up any numbers. The rows are 16, not 13 as in the previous example. Yeah, 16*6 is definitely 96. Adding 9 gives 105. That's the total.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 165,
+          "completion_tokens": 259,
+          "total_tokens": 424,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 199,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 7129
+}

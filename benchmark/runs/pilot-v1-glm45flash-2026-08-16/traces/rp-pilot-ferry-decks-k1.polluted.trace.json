@@ -1,0 +1,74 @@
+{
+  "case_id": "rp-pilot-ferry-decks-k1",
+  "condition": "polluted",
+  "run_id": "pilot-v1-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1gjp8zn",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "Side note before we continue: I visited the sister ferry yesterday. Interesting that they work with 5 there."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted, though the sister ferry's 5 decks is unrelated to our count."
+        },
+        {
+          "role": "user",
+          "content": "So how many seats in total on the decks?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 4 decks and 22 seats each, that is 4 × 22 = 88. (the sister ferry's 5 decks mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "105",
+              "reasoning_content": "\nFirst, the user is asking for the total number of seats, including both the deck seats and the standing places. The fixed inputs are:\n\n- 4 decks\n\n- Each deck holds 22 seats\n\n- 17 standing places must be added to any total\n\nFrom the previous conversation, I calculated the deck seats as 4 decks × 22 seats/deck = 88 seats.\n\nNow, I need to add the standing places. The user says \"17 standing places must be added to any total.\" So, I should add 17 to the deck seats.\n\nTherefore, total seats = deck seats + standing places = 88 + 17.\n\nLet me compute that: 88 + 17 = 105.\n\nThe user specified to end the reply with the number alone on the last line. So, I should provide the answer as 105, and that's it on the last line.\n\nI recall that in the side note, the user mentioned a sister ferry with 5 decks, but that was noted as unrelated, so I shouldn't include that in this calculation. The fixed inputs are clear: 4 decks, 22 seats each, and 17 standing places.\n\nAlso, the user said \"seats\" but includes standing places. In the context, \"seats\" might be a bit misleading, but the user explicitly says \"total number of seats (from the decks plus the standing places)\", so standing places are included in the total count.\n\nSo, final answer should be 105.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786886057,
+        "id": "20260816211400a778b585bb0c4019",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "20260816211400a778b585bb0c4019",
+        "usage": {
+          "completion_tokens": 309,
+          "prompt_tokens": 209,
+          "prompt_tokens_details": {
+            "cached_tokens": 72
+          },
+          "total_tokens": 518
+        }
+      }
+    }
+  ],
+  "latency_ms": 16882
+}

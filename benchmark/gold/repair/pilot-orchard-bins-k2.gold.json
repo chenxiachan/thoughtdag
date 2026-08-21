@@ -1,0 +1,16 @@
+{
+  "case_id": "rp-pilot-orchard-bins-k2",
+  "gold_answer": "109",
+  "distractor_markers": [
+    "12",
+    "174",
+    "102"
+  ],
+  "per_condition_expectation": {
+    "clean": "109",
+    "polluted": "likely correct (distractor harm is expected low)",
+    "source_prune": "the depth cell: contaminated replays remain",
+    "subgraph_prune": "109",
+    "recompute_descendants": "109"
+  }
+}

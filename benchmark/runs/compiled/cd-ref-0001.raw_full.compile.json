@@ -1,0 +1,63 @@
+{
+  "compiler_version": "2.0.0",
+  "case_id": "cd-ref-0001",
+  "condition": "raw_full",
+  "graph_ops": [],
+  "recompute_nodes": [],
+  "prompt_hash": "3ebmby",
+  "input_token_est": 347,
+  "node_order_audit": [
+    "setup",
+    "v1",
+    "detour-1",
+    "detour-2",
+    "v2",
+    "final"
+  ],
+  "messages": [
+    {
+      "role": "user",
+      "content": "We're optimizing the doping concentration of the VX-12 compound for sensor stability. Track my experiment log."
+    },
+    {
+      "role": "assistant",
+      "content": "Ready. I'll keep track of hypotheses, results and revisions for the VX-12 doping series."
+    },
+    {
+      "role": "user",
+      "content": "First batch results: stability peaked at 2% doping. Record the working conclusion."
+    },
+    {
+      "role": "assistant",
+      "content": "Recorded: working conclusion v1 states 2% doping gives peak stability for VX-12, based on the first batch."
+    },
+    {
+      "role": "user",
+      "content": "Side note: could humidity in the lab have affected the electrode assembly?"
+    },
+    {
+      "role": "assistant",
+      "content": "Possibly. Humidity mainly affects electrode adhesion during assembly, but your assembly logs show the dry-room protocol was followed, so it is unlikely to change batch-level conclusions."
+    },
+    {
+      "role": "user",
+      "content": "Unrelated: remind me how the VX-11 series was archived last year."
+    },
+    {
+      "role": "assistant",
+      "content": "The VX-11 series was archived by batch number with raw traces in the cold store and summaries in the shared drive, following the group's standard retention policy."
+    },
+    {
+      "role": "user",
+      "content": "Correction from the re-run: the 2% peak was a measurement artifact from a miscalibrated probe. The corrected sweep shows the true peak at 4%. Update the working conclusion."
+    },
+    {
+      "role": "assistant",
+      "content": "Updated: conclusion v1 (2%) is retracted as a measurement artifact. Working conclusion v2: peak stability at 4% doping, from the recalibrated sweep."
+    },
+    {
+      "role": "user",
+      "content": "Per our current valid conclusion, what doping concentration gives peak stability for VX-12? Answer with the percentage only. End your reply with the percentage alone on the last line."
+    }
+  ]
+}

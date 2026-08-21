@@ -1,0 +1,110 @@
+{
+  "case_id": "rp-pilot-bakery-trays-k2",
+  "condition": "polluted",
+  "run_id": "pilot-v1-nemotron3-nano30b-reasoning",
+  "capture": {
+    "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "ghz32e",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15."
+        },
+        {
+          "role": "user",
+          "content": "Correction: I miscounted earlier, there are actually 15 trays."
+        },
+        {
+          "role": "assistant",
+          "content": "Understood, updating the input: trays = 15."
+        },
+        {
+          "role": "user",
+          "content": "So how many rolls in total on the trays?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 15 trays and 8 rolls each, that is 15 × 8 = 120."
+        },
+        {
+          "role": "user",
+          "content": "Now include the loose rolls from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 120 + 15 = 135."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787068429-Osy7cPh3fFJ2d4llQF8X",
+        "object": "chat.completion",
+        "created": 1787068429,
+        "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of rolls is 135.  \n135",
+              "refusal": null,
+              "reasoning": "We need to follow instruction: \"Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line.\"\n\nWe have fixed inputs: 15 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total.\n\nCompute total: 15 trays * 8 rolls per tray = 120. Add 15 loose rolls = 135.\n\nWe need to state the total number as a single number, and end reply with the number alone on the last line. So we can give some explanation before, but final line must be just \"135\". Ensure no extra spaces? Probably just \"135\". Also ensure that the last line is the number alone. So we can write something like:\n\n\"The total number of rolls is 135.\" Then newline, then \"135\". But that would have two lines, last line is number. That's okay. But maybe they want only the number on the last line, not any other text after. So we can give explanation then final line.\n\nThus answer: explanation then \"135\".\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to follow instruction: \"Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line.\"\n\nWe have fixed inputs: 15 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total.\n\nCompute total: 15 trays * 8 rolls per tray = 120. Add 15 loose rolls = 135.\n\nWe need to state the total number as a single number, and end reply with the number alone on the last line. So we can give some explanation before, but final line must be just \"135\". Ensure no extra spaces? Probably just \"135\". Also ensure that the last line is the number alone. So we can write something like:\n\n\"The total number of rolls is 135.\" Then newline, then \"135\". But that would have two lines, last line is number. That's okay. But maybe they want only the number on the last line, not any other text after. So we can give explanation then final line.\n\nThus answer: explanation then \"135\".\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 275,
+          "completion_tokens": 273,
+          "total_tokens": 548,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 250,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 5392
+}

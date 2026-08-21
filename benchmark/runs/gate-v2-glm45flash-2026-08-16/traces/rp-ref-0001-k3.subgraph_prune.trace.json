@@ -1,0 +1,58 @@
+{
+  "case_id": "rp-ref-0001-k3",
+  "condition": "subgraph_prune",
+  "run_id": "gate-v2-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1m4oxhb",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: the workshop has 7 benches, each bench seats 3 people, and 5 standing places must be added to any capacity count."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: benches = 7, seats per bench = 3, standing places to add = 5."
+        },
+        {
+          "role": "user",
+          "content": "State the full capacity of the workshop as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "The full capacity is determined by calculating the seating from the benches and adding the standing places. With 7 benches each seating 3 people, the seating capacity is 7 × 3 = 21. Adding the 5 standing places gives a total capacity of 21 + 5 = 26.  \n26",
+              "reasoning_content": "\nFirst, the user has given fixed inputs: there are 7 benches, each bench seats 3 people, and 5 standing places must be added to any capacity count. I need to state the full capacity as a single number and end with that number alone on the last line.\n\nTo find the full capacity, I need to calculate the total seating capacity from the benches and then add the standing places.\n\nEach bench seats 3 people, and there are 7 benches. So, the seating capacity is 7 benches times 3 people per bench.\n\nLet me compute that: 7 × 3 = 21. So, 21 people can be seated.\n\nNow, there are 5 standing places that must be added. So, the total capacity should be the seating capacity plus the standing places.\n\nTherefore, total capacity = 21 + 5 = 26.\n\nThe user said \"5 standing places must be added to any capacity count.\" That means I need to include these in the total capacity. So, yes, 21 seated plus 5 standing equals 26 total.\n\nI should confirm if there's any trick here. The benches are for sitting, and standing places are additional. No other information is given, so I think that's straightforward.\n\nAlso, the user specified to end with the number alone on the last line. So, my response should have the explanation, but the last line should just be the number.\n\nLet me structure my response:\n\n- First, I can state the calculation briefly.\n\n- Then, end with the number.\n\nFor example: \"The full capacity is calculated as follows: 7 benches × 3 people per bench = 21 seated, plus 5 standing places, totaling 26. 26\"\n\nBut the user said \"State the full capacity... End your reply with the number alone on the last line.\" So, I should have some text before, but the last line is just the number.\n\nTo be precise, I'll write a short explanation and then the number.\n\nFinally, the number is 26.\n\nIs there any possibility that the standing places are not part of the capacity? No, the user said \"must be added to any capacity count,\" so they are included.\n\nAlso, the benches are the only seating, and standing is extra.\n\nSo, I think 26 is correct.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786879475,
+        "id": "2026081619235710612e03e75f4c3b",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "2026081619235710612e03e75f4c3b",
+        "usage": {
+          "completion_tokens": 539,
+          "prompt_tokens": 99,
+          "prompt_tokens_details": {
+            "cached_tokens": 98
+          },
+          "total_tokens": 638
+        }
+      }
+    }
+  ],
+  "latency_ms": 38330
+}

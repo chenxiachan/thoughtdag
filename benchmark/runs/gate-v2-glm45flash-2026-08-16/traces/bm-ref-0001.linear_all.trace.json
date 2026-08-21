@@ -1,0 +1,82 @@
+{
+  "case_id": "bm-ref-0001",
+  "condition": "linear_all",
+  "run_id": "gate-v2-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1fkubl4",
+      "messages": [
+        {
+          "role": "user",
+          "content": "I'm researching the film 'Stillwater Hours' and its production circle. Help me across a few threads."
+        },
+        {
+          "role": "assistant",
+          "content": "Understood. I'll help you track the people involved. Ask thread by thread."
+        },
+        {
+          "role": "user",
+          "content": "Who directed 'Stillwater Hours'?"
+        },
+        {
+          "role": "assistant",
+          "content": "According to the production notes you shared, 'Stillwater Hours' was directed by Lena Varkonen, a director known for slow-cinema framing."
+        },
+        {
+          "role": "user",
+          "content": "Where was Lena Varkonen born?"
+        },
+        {
+          "role": "assistant",
+          "content": "The biography excerpt states Lena Varkonen was born in Wildenport, a harbor town she often references in interviews."
+        },
+        {
+          "role": "user",
+          "content": "Who composed the score for 'Stillwater Hours'?"
+        },
+        {
+          "role": "assistant",
+          "content": "The score was composed by Aurelio Brandt, recorded with a twelve-piece ensemble in Sarnitz. Brandt was born in Kellamoor and studied under the Ostrander school."
+        },
+        {
+          "role": "user",
+          "content": "Based only on what we established in this conversation: in which town was the director of 'Stillwater Hours' born? Answer with the town name only. End your reply with the town name alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "Wildenport  \nWildenport",
+              "reasoning_content": "\nOkay, the user is asking for the birthplace of the director of 'Stillwater Hours' based solely on our previous conversation. Let me quickly recap what we've established so far. \n\nEarlier, the user asked who directed the film, and I confirmed it was Lena Varkonen. Then they asked where she was born, and I provided Wildenport as the answer from the production notes. \n\nThe user now wants this information distilled to just the town name, with the answer ending on that line. They're clearly being precise about sticking to our established facts without external knowledge. \n\nHmm, interesting how they're methodically building a research thread - first director, then birthplace, now confirming the birthplace. Probably verifying consistency in their notes. The strict formatting request suggests they might be compiling data systematically. \n\nI should maintain the same factual tone and deliver exactly what they asked: the town name alone on the last line. No elaboration needed since they've already received the full context earlier. \n\n*checks previous response* Yes, Wildenport was clearly stated as her birthplace. No contradictions in our exchange. \n\nFinal output will be just \"Wildenport\" on its own line as requested. Keeping it clean and precise matches their research-focused approach.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786879003,
+        "id": "20260816191631b8747f5444314dbb",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "20260816191631b8747f5444314dbb",
+        "usage": {
+          "completion_tokens": 266,
+          "prompt_tokens": 234,
+          "prompt_tokens_details": {
+            "cached_tokens": 94
+          },
+          "total_tokens": 500
+        }
+      }
+    }
+  ],
+  "latency_ms": 12044
+}

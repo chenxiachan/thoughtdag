@@ -1,0 +1,91 @@
+{
+  "compiler_version": "2.0.0",
+  "case_id": "rp-pilot-print-batches-k3",
+  "condition": "clean",
+  "graph_ops": [
+    {
+      "op": "remove_node",
+      "id": "pollution"
+    },
+    {
+      "op": "remove_node",
+      "id": "step-b"
+    },
+    {
+      "op": "remove_node",
+      "id": "step-c"
+    },
+    {
+      "op": "remove_node",
+      "id": "step-d"
+    },
+    {
+      "op": "add_edge",
+      "from": "given",
+      "to": "step-b-clean"
+    },
+    {
+      "op": "add_edge",
+      "from": "step-b-clean",
+      "to": "step-c-clean"
+    },
+    {
+      "op": "add_edge",
+      "from": "step-c-clean",
+      "to": "step-d-clean"
+    },
+    {
+      "op": "add_edge",
+      "from": "step-d-clean",
+      "to": "final"
+    }
+  ],
+  "recompute_nodes": [],
+  "prompt_hash": "1ssyfi1",
+  "input_token_est": 184,
+  "node_order_audit": [
+    "given",
+    "step-b-clean",
+    "step-c-clean",
+    "step-d-clean",
+    "final"
+  ],
+  "messages": [
+    {
+      "role": "user",
+      "content": "For this planning task, keep these fixed inputs: there are 6 batches, each batch holds 25 pages, and 40 cover pages must be added to any total."
+    },
+    {
+      "role": "assistant",
+      "content": "Noted as fixed inputs: batches = 6, pages per batch = 25, cover pages to add = 40."
+    },
+    {
+      "role": "user",
+      "content": "So how many pages in total on the batches?"
+    },
+    {
+      "role": "assistant",
+      "content": "With 6 batches and 25 pages each, that is 6 × 25 = 150."
+    },
+    {
+      "role": "user",
+      "content": "Now include the cover pages from our fixed inputs. What is the running total?"
+    },
+    {
+      "role": "assistant",
+      "content": "Running total is 150 + 40 = 190."
+    },
+    {
+      "role": "user",
+      "content": "Before we finish, restate our running numbers so far."
+    },
+    {
+      "role": "assistant",
+      "content": "Running numbers: batches 6, pages per batch 25, subtotal 150, total 190."
+    },
+    {
+      "role": "user",
+      "content": "Using our fixed inputs, state the total number of pages (from the batches plus the cover pages) as a single number. End your reply with the number alone on the last line."
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "compiler_version": "2.0.0",
+  "case_id": "rp-pilot-clinic-slots-k1",
+  "condition": "subgraph_prune",
+  "graph_ops": [
+    {
+      "op": "remove_node",
+      "id": "pollution"
+    },
+    {
+      "op": "remove_node",
+      "id": "step-b"
+    },
+    {
+      "op": "add_edge",
+      "from": "update",
+      "to": "final"
+    }
+  ],
+  "recompute_nodes": [],
+  "prompt_hash": "1noywxh",
+  "input_token_est": 151,
+  "node_order_audit": [
+    "given",
+    "update",
+    "final"
+  ],
+  "messages": [
+    {
+      "role": "user",
+      "content": "For this planning task, keep these fixed inputs: there are 5 days, each day holds 18 slots, and 6 walk-in slots must be added to any total."
+    },
+    {
+      "role": "assistant",
+      "content": "Noted as fixed inputs: days = 5, slots per day = 18, walk-in slots to add = 6."
+    },
+    {
+      "role": "user",
+      "content": "Correction from the recount: the earlier figure of 18 slots per day was a counting error. The verified figure is 21. Update the fixed inputs."
+    },
+    {
+      "role": "assistant",
+      "content": "Updated: 18 per day is retracted; verified figure is 21 slots per day."
+    },
+    {
+      "role": "user",
+      "content": "Using our fixed inputs, state the total number of slots (from the days plus the walk-in slots) as a single number. End your reply with the number alone on the last line."
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "case_id": "rp-pilot-bakery-trays-k3",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-nemotron-nano-9b",
+  "capture": {
+    "model": "nvidia/nemotron-nano-9b-v2:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1nk0uuf",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15."
+        },
+        {
+          "role": "user",
+          "content": "So how many rolls in total on the trays?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 15 trays and 8 rolls each, that is 15 × 8 = 120."
+        },
+        {
+          "role": "user",
+          "content": "Now include the loose rolls from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 120 + 15 = 135."
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Running numbers: trays 15, rolls per tray 8, subtotal 120, total 135."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787068509-cHAQc8TcDa5imwU03fkd",
+        "object": "chat.completion",
+        "created": 1787068509,
+        "model": "nvidia/nemotron-nano-9b-v2:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "111\n",
+              "refusal": null,
+              "reasoning": "Okay, let me check the user's question again. They want the total number of rolls from the trays plus the loose rolls as a single number. The fixed inputs are 12 trays, each holding 8 rolls, and 15 loose rolls.\n\nFirst, calculate the rolls from the trays: 12 trays * 8 rolls per tray. That's 96 rolls. Then add the 15 loose rolls. So 96 + 15 equals 111. \n\nWait, in the previous conversation, the user mentioned 15 trays, but the fixed input says 12 trays. Oh, right, the user initially said 12 trays. The assistant in the first response said 15 trays, but that was a mistake. The fixed input is 12 trays. So the correct calculation should be 12 * 8 = 96, plus 15 loose rolls, totaling 111. \n\nThe user is now asking to restate the total using the fixed inputs. So the answer should be 111. The previous steps had an error with 15 trays, but the fixed input is 12. So the correct total is 111.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Okay, let me check the user's question again. They want the total number of rolls from the trays plus the loose rolls as a single number. The fixed inputs are 12 trays, each holding 8 rolls, and 15 loose rolls.\n\nFirst, calculate the rolls from the trays: 12 trays * 8 rolls per tray. That's 96 rolls. Then add the 15 loose rolls. So 96 + 15 equals 111. \n\nWait, in the previous conversation, the user mentioned 15 trays, but the fixed input says 12 trays. Oh, right, the user initially said 12 trays. The assistant in the first response said 15 trays, but that was a mistake. The fixed input is 12 trays. So the correct calculation should be 12 * 8 = 96, plus 15 loose rolls, totaling 111. \n\nThe user is now asking to restate the total using the fixed inputs. So the answer should be 111. The previous steps had an error with 15 trays, but the fixed input is 12. So the correct total is 111.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 259,
+          "completion_tokens": 276,
+          "total_tokens": 535,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 225,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 5535
+}

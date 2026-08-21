@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "thoughtdag-benchmark-trace",
+  "type": "object",
+  "required": [
+    "case_id",
+    "condition",
+    "run_id",
+    "steps"
+  ],
+  "properties": {
+    "case_id": {
+      "type": "string"
+    },
+    "condition": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "kind",
+          "prompt_hash",
+          "messages",
+          "raw_response"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "recompute",
+              "final"
+            ]
+          },
+          "node": {
+            "type": "string"
+          },
+          "prompt_hash": {
+            "type": "string"
+          },
+          "messages": {
+            "type": "array"
+          },
+          "raw_response": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "result_snapshot_at_capture": {
+      "type": "object",
+      "description": "Optional historical snapshot; never authoritative"
+    },
+    "snapshot_note": {
+      "type": "string"
+    }
+  }
+}

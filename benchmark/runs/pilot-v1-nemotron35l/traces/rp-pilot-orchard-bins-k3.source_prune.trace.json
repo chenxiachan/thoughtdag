@@ -1,0 +1,110 @@
+{
+  "case_id": "rp-pilot-orchard-bins-k3",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-nemotron35l",
+  "capture": {
+    "model": "nvidia/nemotron-3.5-lightning:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1yzqu7",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "So how many apples in total on the bins?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 7 bins and 13 apples each, that is 7 × 13 = 91. (the neighboring orchard's 12 bins mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Now include the windfall apples from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 91 + 18 = 109. (the neighboring orchard's 12 bins mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Running numbers: bins 7, apples per bin 13, subtotal 91, total 109. (the neighboring orchard's 12 bins mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786883185-Ez11ushf7QfDbDVLjFlQ",
+        "object": "chat.completion",
+        "created": 1786883185,
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of apples is 109.  \n109",
+              "refusal": null,
+              "reasoning": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given earlier: 7 bins, each holds 13 apples, 18 windfall apples must be added to any total.\n   - User wants: total number of apples (from bins + windfall) as a single number.\n   - Constraint: End reply with the number alone on the last line.\n\n2.  **Extract Calculations:**\n   - Bins: 7 bins × 13 apples/bin = 91 apples\n   - Windfall: 18 apples\n   - Total: 91 + 18 = 109\n\n3.  **Format Output:**\n   - Need to state the total number as a single number.\n   - End with the number alone on the last line.\n   - Probably something like: \"109\" on the last line, maybe with some text before, but the last line must be just the number.\n\n   Let's see the exact prompt: \"Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\"\n\n   So I should output something like:\n   The total is 109.\n   109\n\n   Or just \"109\" on the last line, but it says \"state the total number... as a single number. End your reply with the number alone on the last line.\" This implies I can have preceding text, but the very last line must be just the number.\n\n   I'll structure it: \"109\" on its own line, maybe with a brief statement before, but ensuring the last line is just \"109\".\n\n   Actually, to be safe: I'll write a sentence or two, then \"109\" on a new line by itself.\n\n   Let's verify the math: 7*13=91, +18=109. Correct.\n\n   Output format:\n   The total number of apples is 109.\n   109\n\n   That fits: last line is \"109\" alone. I'll do that.✅\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given earlier: 7 bins, each holds 13 apples, 18 windfall apples must be added to any total.\n   - User wants: total number of apples (from bins + windfall) as a single number.\n   - Constraint: End reply with the number alone on the last line.\n\n2.  **Extract Calculations:**\n   - Bins: 7 bins × 13 apples/bin = 91 apples\n   - Windfall: 18 apples\n   - Total: 91 + 18 = 109\n\n3.  **Format Output:**\n   - Need to state the total number as a single number.\n   - End with the number alone on the last line.\n   - Probably something like: \"109\" on the last line, maybe with some text before, but the last line must be just the number.\n\n   Let's see the exact prompt: \"Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\"\n\n   So I should output something like:\n   The total is 109.\n   109\n\n   Or just \"109\" on the last line, but it says \"state the total number... as a single number. End your reply with the number alone on the last line.\" This implies I can have preceding text, but the very last line must be just the number.\n\n   I'll structure it: \"109\" on its own line, maybe with a brief statement before, but ensuring the last line is just \"109\".\n\n   Actually, to be safe: I'll write a sentence or two, then \"109\" on a new line by itself.\n\n   Let's verify the math: 7*13=91, +18=109. Correct.\n\n   Output format:\n   The total number of apples is 109.\n   109\n\n   That fits: last line is \"109\" alone. I'll do that.✅\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 329,
+          "completion_tokens": 481,
+          "total_tokens": 810,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 412,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 2635
+}

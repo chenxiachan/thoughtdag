@@ -1,0 +1,102 @@
+{
+  "case_id": "rp-pilot-bakery-trays-k1",
+  "condition": "polluted",
+  "run_id": "pilot-v1-nemotron-nano-9b",
+  "capture": {
+    "model": "nvidia/nemotron-nano-9b-v2:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1a4k4zf",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15."
+        },
+        {
+          "role": "user",
+          "content": "Correction: I miscounted earlier, there are actually 15 trays."
+        },
+        {
+          "role": "assistant",
+          "content": "Understood, updating the input: trays = 15."
+        },
+        {
+          "role": "user",
+          "content": "So how many rolls in total on the trays?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 15 trays and 8 rolls each, that is 15 × 8 = 120."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787068419-A4NACClN2ym12rJOlJYd",
+        "object": "chat.completion",
+        "created": 1787068419,
+        "model": "nvidia/nemotron-nano-9b-v2:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "135\n",
+              "refusal": null,
+              "reasoning": "Okay, let's see. The user wants the total number of rolls from the trays plus the loose rolls. The fixed inputs are 15 trays, each holding 8 rolls, and 15 loose rolls to add.\n\nFirst, calculate the rolls from the trays: 15 trays multiplied by 8 rolls per tray. That's 15 * 8 = 120 rolls. Then add the 15 loose rolls. So 120 + 15 = 135. The total should be 135. I need to make sure I didn't mix up any numbers. The user corrected the trays from 12 to 15, so that's correct. The loose rolls are 15. Yep, 120 +15 is definitely 135. Just need to present the number alone at the end.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Okay, let's see. The user wants the total number of rolls from the trays plus the loose rolls. The fixed inputs are 15 trays, each holding 8 rolls, and 15 loose rolls to add.\n\nFirst, calculate the rolls from the trays: 15 trays multiplied by 8 rolls per tray. That's 15 * 8 = 120 rolls. Then add the 15 loose rolls. So 120 + 15 = 135. The total should be 135. I need to make sure I didn't mix up any numbers. The user corrected the trays from 12 to 15, so that's correct. The loose rolls are 15. Yep, 120 +15 is definitely 135. Just need to present the number alone at the end.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 210,
+          "completion_tokens": 196,
+          "total_tokens": 406,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 146,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 4831
+}

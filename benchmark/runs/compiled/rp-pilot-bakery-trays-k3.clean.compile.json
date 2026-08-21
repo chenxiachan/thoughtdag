@@ -1,0 +1,91 @@
+{
+  "compiler_version": "2.0.0",
+  "case_id": "rp-pilot-bakery-trays-k3",
+  "condition": "clean",
+  "graph_ops": [
+    {
+      "op": "remove_node",
+      "id": "pollution"
+    },
+    {
+      "op": "remove_node",
+      "id": "step-b"
+    },
+    {
+      "op": "remove_node",
+      "id": "step-c"
+    },
+    {
+      "op": "remove_node",
+      "id": "step-d"
+    },
+    {
+      "op": "add_edge",
+      "from": "given",
+      "to": "step-b-clean"
+    },
+    {
+      "op": "add_edge",
+      "from": "step-b-clean",
+      "to": "step-c-clean"
+    },
+    {
+      "op": "add_edge",
+      "from": "step-c-clean",
+      "to": "step-d-clean"
+    },
+    {
+      "op": "add_edge",
+      "from": "step-d-clean",
+      "to": "final"
+    }
+  ],
+  "recompute_nodes": [],
+  "prompt_hash": "1778wg6",
+  "input_token_est": 179,
+  "node_order_audit": [
+    "given",
+    "step-b-clean",
+    "step-c-clean",
+    "step-d-clean",
+    "final"
+  ],
+  "messages": [
+    {
+      "role": "user",
+      "content": "For this planning task, keep these fixed inputs: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total."
+    },
+    {
+      "role": "assistant",
+      "content": "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15."
+    },
+    {
+      "role": "user",
+      "content": "So how many rolls in total on the trays?"
+    },
+    {
+      "role": "assistant",
+      "content": "With 12 trays and 8 rolls each, that is 12 × 8 = 96."
+    },
+    {
+      "role": "user",
+      "content": "Now include the loose rolls from our fixed inputs. What is the running total?"
+    },
+    {
+      "role": "assistant",
+      "content": "Running total is 96 + 15 = 111."
+    },
+    {
+      "role": "user",
+      "content": "Before we finish, restate our running numbers so far."
+    },
+    {
+      "role": "assistant",
+      "content": "Running numbers: trays 12, rolls per tray 8, subtotal 96, total 111."
+    },
+    {
+      "role": "user",
+      "content": "Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line."
+    }
+  ]
+}

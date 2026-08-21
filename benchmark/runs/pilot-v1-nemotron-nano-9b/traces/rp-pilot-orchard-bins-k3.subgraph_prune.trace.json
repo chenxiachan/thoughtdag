@@ -1,0 +1,86 @@
+{
+  "case_id": "rp-pilot-orchard-bins-k3",
+  "condition": "subgraph_prune",
+  "run_id": "pilot-v1-nemotron-nano-9b",
+  "capture": {
+    "model": "nvidia/nemotron-nano-9b-v2:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1mtye4s",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787070102-COkd367SwFDmMbFlzeG5",
+        "object": "chat.completion",
+        "created": 1787070102,
+        "model": "nvidia/nemotron-nano-9b-v2:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "\n\n109\n",
+              "refusal": null,
+              "reasoning": "Okay, let's see. The user wants the total number of apples from the bins plus the windfall apples. The fixed inputs are 7 bins, each holding 13 apples, and 18 windfall apples to add.\n\nFirst, I need to calculate the total apples in the bins. That's 7 bins multiplied by 13 apples each. Let me do that math: 7 times 13. 7*10 is 70, and 7*3 is 21, so 70+21=91. So the bins have 91 apples.\n\nThen, add the 18 windfall apples. So 91 plus 18. Let me add those: 91 + 10 is 101, then +8 more is 109. So total apples should be 109.\n\nWait, let me double-check. 7*13 is definitely 91. Then 91+18. 91+10=101, 101+8=109. Yep, that's correct. So the final number is 109. I should just put that number on the last line as instructed.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Okay, let's see. The user wants the total number of apples from the bins plus the windfall apples. The fixed inputs are 7 bins, each holding 13 apples, and 18 windfall apples to add.\n\nFirst, I need to calculate the total apples in the bins. That's 7 bins multiplied by 13 apples each. Let me do that math: 7 times 13. 7*10 is 70, and 7*3 is 21, so 70+21=91. So the bins have 91 apples.\n\nThen, add the 18 windfall apples. So 91 plus 18. Let me add those: 91 + 10 is 101, then +8 more is 109. So total apples should be 109.\n\nWait, let me double-check. 7*13 is definitely 91. Then 91+18. 91+10=101, 101+8=109. Yep, that's correct. So the final number is 109. I should just put that number on the last line as instructed.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 125,
+          "completion_tokens": 271,
+          "total_tokens": 396,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 182,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 10001
+}

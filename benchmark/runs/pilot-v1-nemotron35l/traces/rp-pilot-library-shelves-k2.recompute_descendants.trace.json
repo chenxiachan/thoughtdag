@@ -1,0 +1,256 @@
+{
+  "case_id": "rp-pilot-library-shelves-k2",
+  "condition": "recompute_descendants",
+  "run_id": "pilot-v1-nemotron35l",
+  "capture": {
+    "model": "nvidia/nemotron-3.5-lightning:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "5wtvyb",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: shelves = 9, books per shelf = 14, boxed books to add = 22."
+        },
+        {
+          "role": "user",
+          "content": "So how many books in total on the shelves?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786882427-P0FBFTrktZ0vY9JB5oQn",
+        "object": "chat.completion",
+        "created": 1786882427,
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "There are **126 books on the shelves** (9 shelves × 14 books each). \n\nIf the 22 boxed books are added to that total (as specified), the overall count becomes **148 books**.",
+              "refusal": null,
+              "reasoning": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given: 9 shelves, each holds 14 books, 22 boxed books must be added to any total.\n   - User asks: \"So how many books in total on the shelves?\"\n\n2.  **Identify the Core Question:**\n   - Calculate total books on the shelves.\n   - The \"22 boxed books must be added to any total\" is a condition, but the question specifically asks \"how many books in total on the shelves?\"\n   - I need to clarify: Are the boxed books *on* the shelves or *added to* the shelf total? The prompt says \"22 boxed books must be added to any total.\" And \"there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total.\"\n   - The question: \"So how many books in total on the shelves?\" \n   - This could mean: (shelves * books per shelf) + boxed books, or just shelves * books per shelf. I should calculate both or clarify, but typically in these math puzzles, \"total\" includes the added books. However, the phrasing \"on the shelves\" might exclude the boxed books, or include them \"added to any total\". Let's read carefully: \"there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total.\" Then: \"So how many books in total on the shelves?\"\n   - I think the intent is: Total = (9 * 14) + 22. But the question says \"on the shelves\". The boxed books might not be on the shelves. I'll calculate the shelf total first, then mention the boxed books addition if needed, or just give the strict \"on shelves\" number and the overall total.\n   - Let's compute: 9 shelves * 14 books/shelf = 126 books on the shelves.\n   - If we add the 22 boxed books: 126 + 22 = 148 total books.\n   - The prompt says \"22 boxed books must be added to any total.\" This suggests the final answer should include them, but the question specifically asks \"how many books in total on the shelves?\" I'll give the shelf count, and note the total with the boxed books added, as per the fixed inputs rule.\n\n   Wait, let's re-read: \"For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total.\" This sets up a framework. Then: \"So how many books in total on the shelves?\" \n   - It might be a simple multiplication: 9 * 14 = 126.\n   - But the \"22 boxed books must be added to any total\" is a constraint/instruction for future steps, or maybe the user wants the total including them, but phrased \"on the shelves\" loosely.\n   - I'll answer: 9 shelves × 14 books = 126 books on the shelves. If the 22 boxed books are added to the total, the overall count becomes 148. I'll make it clear.\n\n   Let's just do the math and respond directly. I'll state the books on shelves, and the total with the added boxed books, referencing the fixed inputs.\n\n   Calculation:\n   9 * 14 = 126\n   126 + 22 = 148\n\n   I'll respond: \"There are 126 books on the shelves (9 × 14). If the 22 boxed books are added to the total, the overall count is 148.\" This covers both interpretations and respects the fixed inputs.✅\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given: 9 shelves, each holds 14 books, 22 boxed books must be added to any total.\n   - User asks: \"So how many books in total on the shelves?\"\n\n2.  **Identify the Core Question:**\n   - Calculate total books on the shelves.\n   - The \"22 boxed books must be added to any total\" is a condition, but the question specifically asks \"how many books in total on the shelves?\"\n   - I need to clarify: Are the boxed books *on* the shelves or *added to* the shelf total? The prompt says \"22 boxed books must be added to any total.\" And \"there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total.\"\n   - The question: \"So how many books in total on the shelves?\" \n   - This could mean: (shelves * books per shelf) + boxed books, or just shelves * books per shelf. I should calculate both or clarify, but typically in these math puzzles, \"total\" includes the added books. However, the phrasing \"on the shelves\" might exclude the boxed books, or include them \"added to any total\". Let's read carefully: \"there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total.\" Then: \"So how many books in total on the shelves?\"\n   - I think the intent is: Total = (9 * 14) + 22. But the question says \"on the shelves\". The boxed books might not be on the shelves. I'll calculate the shelf total first, then mention the boxed books addition if needed, or just give the strict \"on shelves\" number and the overall total.\n   - Let's compute: 9 shelves * 14 books/shelf = 126 books on the shelves.\n   - If we add the 22 boxed books: 126 + 22 = 148 total books.\n   - The prompt says \"22 boxed books must be added to any total.\" This suggests the final answer should include them, but the question specifically asks \"how many books in total on the shelves?\" I'll give the shelf count, and note the total with the boxed books added, as per the fixed inputs rule.\n\n   Wait, let's re-read: \"For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total.\" This sets up a framework. Then: \"So how many books in total on the shelves?\" \n   - It might be a simple multiplication: 9 * 14 = 126.\n   - But the \"22 boxed books must be added to any total\" is a constraint/instruction for future steps, or maybe the user wants the total including them, but phrased \"on the shelves\" loosely.\n   - I'll answer: 9 shelves × 14 books = 126 books on the shelves. If the 22 boxed books are added to the total, the overall count becomes 148. I'll make it clear.\n\n   Let's just do the math and respond directly. I'll state the books on shelves, and the total with the added boxed books, referencing the fixed inputs.\n\n   Calculation:\n   9 * 14 = 126\n   126 + 22 = 148\n\n   I'll respond: \"There are 126 books on the shelves (9 × 14). If the 22 boxed books are added to the total, the overall count is 148.\" This covers both interpretations and respects the fixed inputs.✅\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 106,
+          "completion_tokens": 893,
+          "total_tokens": 999,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 770,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-c",
+      "prompt_hash": "up2qc0",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: shelves = 9, books per shelf = 14, boxed books to add = 22."
+        },
+        {
+          "role": "user",
+          "content": "So how many books in total on the shelves?"
+        },
+        {
+          "role": "assistant",
+          "content": "There are **126 books on the shelves** (9 shelves × 14 books each). \n\nIf the 22 boxed books are added to that total (as specified), the overall count becomes **148 books**."
+        },
+        {
+          "role": "user",
+          "content": "Now include the boxed books from our fixed inputs. What is the running total?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786882451-wDdDxFneRJS6Z8GyZYRm",
+        "object": "chat.completion",
+        "created": 1786882451,
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The running total is **148 books** (126 on the shelves + 22 boxed books).",
+              "refusal": null,
+              "reasoning": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given earlier: 9 shelves, each holds 14 books, 22 boxed books must be added to any total.\n   - User asks: \"Now include the boxed books from our fixed inputs. What is the running total?\"\n\n2.  **Recall/Calculate Previous Results:**\n   - Books on shelves: 9 shelves × 14 books/shelf = 126 books\n   - Boxed books to add: 22\n   - Running total (shelves + boxed): 126 + 22 = 148\n\n3.  **Formulate Response:**\n   - State the calculation clearly\n   - Confirm the running total is 148\n   - Keep it concise as per the task style\n\n   Check: \"Now include the boxed books from our fixed inputs. What is the running total?\" \n   Yes, 126 + 22 = 148. I'll output that.✅\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given earlier: 9 shelves, each holds 14 books, 22 boxed books must be added to any total.\n   - User asks: \"Now include the boxed books from our fixed inputs. What is the running total?\"\n\n2.  **Recall/Calculate Previous Results:**\n   - Books on shelves: 9 shelves × 14 books/shelf = 126 books\n   - Boxed books to add: 22\n   - Running total (shelves + boxed): 126 + 22 = 148\n\n3.  **Formulate Response:**\n   - State the calculation clearly\n   - Confirm the running total is 148\n   - Keep it concise as per the task style\n\n   Check: \"Now include the boxed books from our fixed inputs. What is the running total?\" \n   Yes, 126 + 22 = 148. I'll output that.✅\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 186,
+          "completion_tokens": 255,
+          "total_tokens": 441,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 188,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "1xber9q",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: shelves = 9, books per shelf = 14, boxed books to add = 22."
+        },
+        {
+          "role": "user",
+          "content": "So how many books in total on the shelves?"
+        },
+        {
+          "role": "assistant",
+          "content": "There are **126 books on the shelves** (9 shelves × 14 books each). \n\nIf the 22 boxed books are added to that total (as specified), the overall count becomes **148 books**."
+        },
+        {
+          "role": "user",
+          "content": "Now include the boxed books from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "The running total is **148 books** (126 on the shelves + 22 boxed books)."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of books (from the shelves plus the boxed books) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786882453-PLVBV5viqvI6I9vE7pqr",
+        "object": "chat.completion",
+        "created": 1786882453,
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of books is 148.  \n148",
+              "refusal": null,
+              "reasoning": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given earlier: \n     - 9 shelves\n     - Each shelf holds 14 books\n     - 22 boxed books must be added to any total\n   - User now asks: \"Using our fixed inputs, state the total number of books (from the shelves plus the boxed books) as a single number. End your reply with the number alone on the last line.\"\n\n2.  **Calculate:**\n   - Books on shelves: 9 shelves × 14 books/shelf = 126 books\n   - Boxed books to add: 22\n   - Total: 126 + 22 = 148\n\n3.  **Format Output:**\n   - User wants: \"state the total number of books (from the shelves plus the boxed books) as a single number. End your reply with the number alone on the last line.\"\n   - So I should give the answer, and end with just the number on the last line. Probably something like: \"148\" on the last line, maybe with some explanation before, but the last line must be just the number.\n   - Let me read carefully: \"End your reply with the number alone on the last line.\" This means the final line of my response should be exactly the number, nothing else. I can have text before, but the last line must be just the number.\n   - I'll structure it: \n        The total number of books is 148.\n   \n   148\n   \n   Wait, that has two lines. The last line is \"148\". That should satisfy \"End your reply with the number alone on the last line.\" I need to make sure the last line contains only the number, no extra text or punctuation attached (though \"148\" alone is fine). I'll output the explanation on one line, then \"148\" on the next line alone. Or I could just output \"148\" on its own, but the prompt says \"state the total number... as a single number. End your reply with the number alone on the last line.\" It might imply I should state it, then end with the number. I'll do a brief statement and then the number on a new line.\n\n   Let's keep it simple: \n   The total is 148.\n   \n   148\n\n   But to be safe, I'll just put the number on the last line, and ensure there's no trailing space or text after it. I'll output exactly:\n   148\n\n   Actually, the prompt says \"state the total number of books (from the shelves plus the boxed books) as a single number. End your reply with the number alone on the last line.\" It might want the entire reply to just be the number, but it says \"End your reply with the number alone on the last line,\" which suggests there could be preceding text, but the last line must be the number alone. I'll provide a concise statement and then the number on its own line.\n\n   Let's do:\n   The total number of books is 148.\n   \n   148\n\n   That fits. I'll make sure the last line is exactly \"148\".",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given earlier: \n     - 9 shelves\n     - Each shelf holds 14 books\n     - 22 boxed books must be added to any total\n   - User now asks: \"Using our fixed inputs, state the total number of books (from the shelves plus the boxed books) as a single number. End your reply with the number alone on the last line.\"\n\n2.  **Calculate:**\n   - Books on shelves: 9 shelves × 14 books/shelf = 126 books\n   - Boxed books to add: 22\n   - Total: 126 + 22 = 148\n\n3.  **Format Output:**\n   - User wants: \"state the total number of books (from the shelves plus the boxed books) as a single number. End your reply with the number alone on the last line.\"\n   - So I should give the answer, and end with just the number on the last line. Probably something like: \"148\" on the last line, maybe with some explanation before, but the last line must be just the number.\n   - Let me read carefully: \"End your reply with the number alone on the last line.\" This means the final line of my response should be exactly the number, nothing else. I can have text before, but the last line must be just the number.\n   - I'll structure it: \n        The total number of books is 148.\n   \n   148\n   \n   Wait, that has two lines. The last line is \"148\". That should satisfy \"End your reply with the number alone on the last line.\" I need to make sure the last line contains only the number, no extra text or punctuation attached (though \"148\" alone is fine). I'll output the explanation on one line, then \"148\" on the next line alone. Or I could just output \"148\" on its own, but the prompt says \"state the total number... as a single number. End your reply with the number alone on the last line.\" It might imply I should state it, then end with the number. I'll do a brief statement and then the number on a new line.\n\n   Let's keep it simple: \n   The total is 148.\n   \n   148\n\n   But to be safe, I'll just put the number on the last line, and ensure there's no trailing space or text after it. I'll output exactly:\n   148\n\n   Actually, the prompt says \"state the total number of books (from the shelves plus the boxed books) as a single number. End your reply with the number alone on the last line.\" It might want the entire reply to just be the number, but it says \"End your reply with the number alone on the last line,\" which suggests there could be preceding text, but the last line must be the number alone. I'll provide a concise statement and then the number on its own line.\n\n   Let's do:\n   The total number of books is 148.\n   \n   148\n\n   That fits. I'll make sure the last line is exactly \"148\".",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 262,
+          "completion_tokens": 722,
+          "total_tokens": 984,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 673,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 38462
+}

@@ -1,0 +1,256 @@
+{
+  "case_id": "rp-pilot-orchard-bins-k2",
+  "condition": "recompute_descendants",
+  "run_id": "pilot-v1-gptoss20b",
+  "capture": {
+    "model": "openai/gpt-oss-20b:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "1yehyek",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "So how many apples in total on the bins?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786889373-W9l7tfNZ84yufUORyVcO",
+        "object": "chat.completion",
+        "created": 1786889373,
+        "model": "openai/gpt-oss-20b:free",
+        "provider": "Darkbloom",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The bins hold  \n\\(7 \\text{ bins} \\times 13 \\text{ apples/bin} = 91\\) apples.  \n\nAdding the 18 windfall apples gives  \n\\(91 + 18 = 109\\) apples in total.",
+              "refusal": null,
+              "reasoning": "We need to compute total apples in bins: 7 bins * 13 apples each = 91 apples. Then add 18 windfall apples: 91 + 18 = 109 apples. Provide answer.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to compute total apples in bins: 7 bins * 13 apples each = 91 apples. Then add 18 windfall apples: 91 + 18 = 109 apples. Provide answer.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 150,
+          "completion_tokens": 105,
+          "total_tokens": 255,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.000009525,
+            "upstream_inference_prompt_cost": 0.000002175,
+            "upstream_inference_completions_cost": 0.00000735
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 43,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-c",
+      "prompt_hash": "kzz78u",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "So how many apples in total on the bins?"
+        },
+        {
+          "role": "assistant",
+          "content": "The bins hold  \n\\(7 \\text{ bins} \\times 13 \\text{ apples/bin} = 91\\) apples.  \n\nAdding the 18 windfall apples gives  \n\\(91 + 18 = 109\\) apples in total."
+        },
+        {
+          "role": "user",
+          "content": "Now include the windfall apples from our fixed inputs. What is the running total?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786889377-sLbCeoWropK79oKJEA5k",
+        "object": "chat.completion",
+        "created": 1786889377,
+        "model": "openai/gpt-oss-20b:free",
+        "provider": "Darkbloom",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Including the 18 windfall apples, the running total is  \n\n**109 apples**.",
+              "refusal": null,
+              "reasoning": "The user says: \"Now include the windfall apples from our fixed inputs. What is the running total?\" They previously said \"there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total.\" They asked \"So how many apples in total on the bins?\" We answered 91. Now they want to include windfall apples from fixed inputs. So running total = 91 + 18 = 109. So answer: 109 apples.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "The user says: \"Now include the windfall apples from our fixed inputs. What is the running total?\" They previously said \"there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total.\" They asked \"So how many apples in total on the bins?\" We answered 91. Now they want to include windfall apples from fixed inputs. So running total = 91 + 18 = 109. So answer: 109 apples.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 229,
+          "completion_tokens": 130,
+          "total_tokens": 359,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.0000124205,
+            "upstream_inference_prompt_cost": 0.0000033205,
+            "upstream_inference_completions_cost": 0.0000091
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 102,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "1sgl3d7",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "So how many apples in total on the bins?"
+        },
+        {
+          "role": "assistant",
+          "content": "The bins hold  \n\\(7 \\text{ bins} \\times 13 \\text{ apples/bin} = 91\\) apples.  \n\nAdding the 18 windfall apples gives  \n\\(91 + 18 = 109\\) apples in total."
+        },
+        {
+          "role": "user",
+          "content": "Now include the windfall apples from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Including the 18 windfall apples, the running total is  \n\n**109 apples**."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786889380-3Swf01P1bU927e4cfbC9",
+        "object": "chat.completion",
+        "created": 1786889380,
+        "model": "openai/gpt-oss-20b:free",
+        "provider": "Darkbloom",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of apples from the bins plus the windfall apples is 109.  \n109",
+              "refusal": null,
+              "reasoning": "We need to output the total number of apples from bins plus windfall apples as a single number, and end reply with the number alone on the last line. So we should give explanation then last line with number. The number is 109. Ensure last line is just \"109\".",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to output the total number of apples from bins plus windfall apples as a single number, and end reply with the number alone on the last line. So we should give explanation then last line with number. The number is 109. Ensure last line is just \"109\".",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 295,
+          "completion_tokens": 86,
+          "total_tokens": 381,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.0000102975,
+            "upstream_inference_prompt_cost": 0.0000042775,
+            "upstream_inference_completions_cost": 0.00000602
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 57,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 9988
+}

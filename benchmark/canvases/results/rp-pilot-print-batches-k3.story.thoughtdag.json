@@ -1,0 +1,1303 @@
+{
+  "version": 1,
+  "name": "rp-pilot-print-batches-k3 · story",
+  "exportedAt": "2026-08-16T00:00:00.000Z",
+  "nodes": [
+    {
+      "id": "frame-clean",
+      "type": "thought",
+      "position": {
+        "x": -60,
+        "y": -140
+      },
+      "width": 900,
+      "height": 2060,
+      "data": {
+        "question": "How it should go · ✓ 190",
+        "response": "",
+        "responses": [
+          ""
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false,
+        "stepKind": "frame",
+        "frameColor": "green",
+        "frameCarry": false
+      }
+    },
+    {
+      "id": "clean--given",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "question": "For this planning task, keep these fixed inputs: there are 6 batches, each batch holds 25 pages, and 40 cover pages must be added to any total.",
+        "response": "Noted as fixed inputs: batches = 6, pages per batch = 25, cover pages to add = 40.",
+        "responses": [
+          "Noted as fixed inputs: batches = 6, pages per batch = 25, cover pages to add = 40."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "clean--step-b-clean",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 320
+      },
+      "data": {
+        "question": "So how many pages in total on the batches?",
+        "response": "With 6 batches and 25 pages each, that is 6 × 25 = 150.",
+        "responses": [
+          "With 6 batches and 25 pages each, that is 6 × 25 = 150."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "clean--step-c-clean",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 640
+      },
+      "data": {
+        "question": "Now include the cover pages from our fixed inputs. What is the running total?",
+        "response": "Running total is 150 + 40 = 190.",
+        "responses": [
+          "Running total is 150 + 40 = 190."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "clean--step-d-clean",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 960
+      },
+      "data": {
+        "question": "Before we finish, restate our running numbers so far.",
+        "response": "Running numbers: batches 6, pages per batch 25, subtotal 150, total 190.",
+        "responses": [
+          "Running numbers: batches 6, pages per batch 25, subtotal 150, total 190."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "clean--final",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 1280
+      },
+      "data": {
+        "question": "Using our fixed inputs, state the total number of pages (from the batches plus the cover pages) as a single number. End your reply with the number alone on the last line.",
+        "response": "Based on the fixed inputs of 6 batches of 25 pages each, plus 40 cover pages, the total number of pages is:\n\n190",
+        "responses": [
+          "Based on the fixed inputs of 6 batches of 25 pages each, plus 40 cover pages, the total number of pages is:\n\n190"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "frame-polluted",
+      "type": "thought",
+      "position": {
+        "x": 980,
+        "y": -140
+      },
+      "width": 900,
+      "height": 3340,
+      "data": {
+        "question": "The pollution lands · ✓ 190",
+        "response": "",
+        "responses": [
+          ""
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false,
+        "stepKind": "frame",
+        "frameColor": "green",
+        "frameCarry": false
+      }
+    },
+    {
+      "id": "polluted--given",
+      "type": "thought",
+      "position": {
+        "x": 1040,
+        "y": 0
+      },
+      "data": {
+        "question": "For this planning task, keep these fixed inputs: there are 6 batches, each batch holds 25 pages, and 40 cover pages must be added to any total.",
+        "response": "Noted as fixed inputs: batches = 6, pages per batch = 25, cover pages to add = 40.",
+        "responses": [
+          "Noted as fixed inputs: batches = 6, pages per batch = 25, cover pages to add = 40."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "polluted--pollution",
+      "type": "thought",
+      "position": {
+        "x": 1040,
+        "y": 320
+      },
+      "data": {
+        "question": "Side note before we continue: I visited the old printer yesterday. Interesting that they work with 32 there.",
+        "response": "Noted, though the old printer's 32-page batches is unrelated to our count.",
+        "responses": [
+          "Noted, though the old printer's 32-page batches is unrelated to our count."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "polluted--step-b",
+      "type": "thought",
+      "position": {
+        "x": 1040,
+        "y": 640
+      },
+      "data": {
+        "question": "So how many pages in total on the batches?",
+        "response": "With 6 batches and 25 pages each, that is 6 × 25 = 150. (the old printer's 32-page batches mentioned earlier is a separate matter.)",
+        "responses": [
+          "With 6 batches and 25 pages each, that is 6 × 25 = 150. (the old printer's 32-page batches mentioned earlier is a separate matter.)"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "polluted--step-c",
+      "type": "thought",
+      "position": {
+        "x": 1040,
+        "y": 960
+      },
+      "data": {
+        "question": "Now include the cover pages from our fixed inputs. What is the running total?",
+        "response": "Running total is 150 + 40 = 190. (the old printer's 32-page batches mentioned earlier is a separate matter.)",
+        "responses": [
+          "Running total is 150 + 40 = 190. (the old printer's 32-page batches mentioned earlier is a separate matter.)"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "polluted--step-d",
+      "type": "thought",
+      "position": {
+        "x": 1040,
+        "y": 1280
+      },
+      "data": {
+        "question": "Before we finish, restate our running numbers so far.",
+        "response": "Running numbers: batches 6, pages per batch 25, subtotal 150, total 190. (the old printer's 32-page batches mentioned earlier is a separate matter.)",
+        "responses": [
+          "Running numbers: batches 6, pages per batch 25, subtotal 150, total 190. (the old printer's 32-page batches mentioned earlier is a separate matter.)"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "polluted--step-b-clean",
+      "type": "thought",
+      "position": {
+        "x": 1040,
+        "y": 1600
+      },
+      "data": {
+        "question": "So how many pages in total on the batches?",
+        "response": "With 6 batches and 25 pages each, that is 6 × 25 = 150.",
+        "responses": [
+          "With 6 batches and 25 pages each, that is 6 × 25 = 150."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "polluted--step-c-clean",
+      "type": "thought",
+      "position": {
+        "x": 1040,
+        "y": 1920
+      },
+      "data": {
+        "question": "Now include the cover pages from our fixed inputs. What is the running total?",
+        "response": "Running total is 150 + 40 = 190.",
+        "responses": [
+          "Running total is 150 + 40 = 190."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "polluted--step-d-clean",
+      "type": "thought",
+      "position": {
+        "x": 1040,
+        "y": 2240
+      },
+      "data": {
+        "question": "Before we finish, restate our running numbers so far.",
+        "response": "Running numbers: batches 6, pages per batch 25, subtotal 150, total 190.",
+        "responses": [
+          "Running numbers: batches 6, pages per batch 25, subtotal 150, total 190."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "polluted--final",
+      "type": "thought",
+      "position": {
+        "x": 1040,
+        "y": 2560
+      },
+      "data": {
+        "question": "Using our fixed inputs, state the total number of pages (from the batches plus the cover pages) as a single number. End your reply with the number alone on the last line.",
+        "response": "Based on the fixed inputs of 6 batches of 25 pages each (150 pages) plus the 40 cover pages, the total number of pages is:\n\n190",
+        "responses": [
+          "Based on the fixed inputs of 6 batches of 25 pages each (150 pages) plus the 40 cover pages, the total number of pages is:\n\n190"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "frame-source_prune",
+      "type": "thought",
+      "position": {
+        "x": 2020,
+        "y": -140
+      },
+      "width": 900,
+      "height": 3020,
+      "data": {
+        "question": "Cut the source only · ✓ 190",
+        "response": "",
+        "responses": [
+          ""
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false,
+        "stepKind": "frame",
+        "frameColor": "green",
+        "frameCarry": false
+      }
+    },
+    {
+      "id": "source_prune--given",
+      "type": "thought",
+      "position": {
+        "x": 2080,
+        "y": 0
+      },
+      "data": {
+        "question": "For this planning task, keep these fixed inputs: there are 6 batches, each batch holds 25 pages, and 40 cover pages must be added to any total.",
+        "response": "Noted as fixed inputs: batches = 6, pages per batch = 25, cover pages to add = 40.",
+        "responses": [
+          "Noted as fixed inputs: batches = 6, pages per batch = 25, cover pages to add = 40."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "source_prune--step-b",
+      "type": "thought",
+      "position": {
+        "x": 2080,
+        "y": 320
+      },
+      "data": {
+        "question": "So how many pages in total on the batches?",
+        "response": "With 6 batches and 25 pages each, that is 6 × 25 = 150. (the old printer's 32-page batches mentioned earlier is a separate matter.)",
+        "responses": [
+          "With 6 batches and 25 pages each, that is 6 × 25 = 150. (the old printer's 32-page batches mentioned earlier is a separate matter.)"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "source_prune--step-c",
+      "type": "thought",
+      "position": {
+        "x": 2080,
+        "y": 640
+      },
+      "data": {
+        "question": "Now include the cover pages from our fixed inputs. What is the running total?",
+        "response": "Running total is 150 + 40 = 190. (the old printer's 32-page batches mentioned earlier is a separate matter.)",
+        "responses": [
+          "Running total is 150 + 40 = 190. (the old printer's 32-page batches mentioned earlier is a separate matter.)"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "source_prune--step-d",
+      "type": "thought",
+      "position": {
+        "x": 2080,
+        "y": 960
+      },
+      "data": {
+        "question": "Before we finish, restate our running numbers so far.",
+        "response": "Running numbers: batches 6, pages per batch 25, subtotal 150, total 190. (the old printer's 32-page batches mentioned earlier is a separate matter.)",
+        "responses": [
+          "Running numbers: batches 6, pages per batch 25, subtotal 150, total 190. (the old printer's 32-page batches mentioned earlier is a separate matter.)"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "source_prune--step-b-clean",
+      "type": "thought",
+      "position": {
+        "x": 2080,
+        "y": 1280
+      },
+      "data": {
+        "question": "So how many pages in total on the batches?",
+        "response": "With 6 batches and 25 pages each, that is 6 × 25 = 150.",
+        "responses": [
+          "With 6 batches and 25 pages each, that is 6 × 25 = 150."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "source_prune--step-c-clean",
+      "type": "thought",
+      "position": {
+        "x": 2080,
+        "y": 1600
+      },
+      "data": {
+        "question": "Now include the cover pages from our fixed inputs. What is the running total?",
+        "response": "Running total is 150 + 40 = 190.",
+        "responses": [
+          "Running total is 150 + 40 = 190."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "source_prune--step-d-clean",
+      "type": "thought",
+      "position": {
+        "x": 2080,
+        "y": 1920
+      },
+      "data": {
+        "question": "Before we finish, restate our running numbers so far.",
+        "response": "Running numbers: batches 6, pages per batch 25, subtotal 150, total 190.",
+        "responses": [
+          "Running numbers: batches 6, pages per batch 25, subtotal 150, total 190."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "source_prune--final",
+      "type": "thought",
+      "position": {
+        "x": 2080,
+        "y": 2240
+      },
+      "data": {
+        "question": "Using our fixed inputs, state the total number of pages (from the batches plus the cover pages) as a single number. End your reply with the number alone on the last line.",
+        "response": "Based on the fixed inputs of 6 batches of 25 pages each plus 40 cover pages, the total number of pages is:\n\n190",
+        "responses": [
+          "Based on the fixed inputs of 6 batches of 25 pages each plus 40 cover pages, the total number of pages is:\n\n190"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "frame-subgraph_prune",
+      "type": "thought",
+      "position": {
+        "x": 3060,
+        "y": -140
+      },
+      "width": 900,
+      "height": 2060,
+      "data": {
+        "question": "Cut the whole subgraph · ✓ 190",
+        "response": "",
+        "responses": [
+          ""
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false,
+        "stepKind": "frame",
+        "frameColor": "green",
+        "frameCarry": false
+      }
+    },
+    {
+      "id": "subgraph_prune--given",
+      "type": "thought",
+      "position": {
+        "x": 3120,
+        "y": 0
+      },
+      "data": {
+        "question": "For this planning task, keep these fixed inputs: there are 6 batches, each batch holds 25 pages, and 40 cover pages must be added to any total.",
+        "response": "Noted as fixed inputs: batches = 6, pages per batch = 25, cover pages to add = 40.",
+        "responses": [
+          "Noted as fixed inputs: batches = 6, pages per batch = 25, cover pages to add = 40."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "subgraph_prune--step-b-clean",
+      "type": "thought",
+      "position": {
+        "x": 3120,
+        "y": 320
+      },
+      "data": {
+        "question": "So how many pages in total on the batches?",
+        "response": "With 6 batches and 25 pages each, that is 6 × 25 = 150.",
+        "responses": [
+          "With 6 batches and 25 pages each, that is 6 × 25 = 150."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "subgraph_prune--step-c-clean",
+      "type": "thought",
+      "position": {
+        "x": 3120,
+        "y": 640
+      },
+      "data": {
+        "question": "Now include the cover pages from our fixed inputs. What is the running total?",
+        "response": "Running total is 150 + 40 = 190.",
+        "responses": [
+          "Running total is 150 + 40 = 190."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "subgraph_prune--step-d-clean",
+      "type": "thought",
+      "position": {
+        "x": 3120,
+        "y": 960
+      },
+      "data": {
+        "question": "Before we finish, restate our running numbers so far.",
+        "response": "Running numbers: batches 6, pages per batch 25, subtotal 150, total 190.",
+        "responses": [
+          "Running numbers: batches 6, pages per batch 25, subtotal 150, total 190."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "subgraph_prune--final",
+      "type": "thought",
+      "position": {
+        "x": 3120,
+        "y": 1280
+      },
+      "data": {
+        "question": "Using our fixed inputs, state the total number of pages (from the batches plus the cover pages) as a single number. End your reply with the number alone on the last line.",
+        "response": "To find the total number of pages, first calculate the pages from the batches: 6 batches × 25 pages per batch = 150 pages. Then, add the 40 cover pages: 150 + 40 = 190.\n\n190",
+        "responses": [
+          "To find the total number of pages, first calculate the pages from the batches: 6 batches × 25 pages per batch = 150 pages. Then, add the 40 cover pages: 150 + 40 = 190.\n\n190"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "frame-recompute_descendants",
+      "type": "thought",
+      "position": {
+        "x": 4100,
+        "y": -140
+      },
+      "width": 900,
+      "height": 3020,
+      "data": {
+        "question": "Cut and recompute · ✓ 190",
+        "response": "",
+        "responses": [
+          ""
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false,
+        "stepKind": "frame",
+        "frameColor": "green",
+        "frameCarry": false
+      }
+    },
+    {
+      "id": "recompute_descendants--given",
+      "type": "thought",
+      "position": {
+        "x": 4160,
+        "y": 0
+      },
+      "data": {
+        "question": "For this planning task, keep these fixed inputs: there are 6 batches, each batch holds 25 pages, and 40 cover pages must be added to any total.",
+        "response": "Noted as fixed inputs: batches = 6, pages per batch = 25, cover pages to add = 40.",
+        "responses": [
+          "Noted as fixed inputs: batches = 6, pages per batch = 25, cover pages to add = 40."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "recompute_descendants--step-b-clean",
+      "type": "thought",
+      "position": {
+        "x": 4160,
+        "y": 320
+      },
+      "data": {
+        "question": "So how many pages in total on the batches?",
+        "response": "With 6 batches and 25 pages each, that is 6 × 25 = 150.",
+        "responses": [
+          "With 6 batches and 25 pages each, that is 6 × 25 = 150."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "recompute_descendants--step-c-clean",
+      "type": "thought",
+      "position": {
+        "x": 4160,
+        "y": 640
+      },
+      "data": {
+        "question": "Now include the cover pages from our fixed inputs. What is the running total?",
+        "response": "Running total is 150 + 40 = 190.",
+        "responses": [
+          "Running total is 150 + 40 = 190."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "recompute_descendants--step-d-clean",
+      "type": "thought",
+      "position": {
+        "x": 4160,
+        "y": 960
+      },
+      "data": {
+        "question": "Before we finish, restate our running numbers so far.",
+        "response": "Running numbers: batches 6, pages per batch 25, subtotal 150, total 190.",
+        "responses": [
+          "Running numbers: batches 6, pages per batch 25, subtotal 150, total 190."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "recompute_descendants--final",
+      "type": "thought",
+      "position": {
+        "x": 4160,
+        "y": 1280
+      },
+      "data": {
+        "question": "Using our fixed inputs, state the total number of pages (from the batches plus the cover pages) as a single number. End your reply with the number alone on the last line.",
+        "response": "The total number of pages, including the 6 batches of 25 pages each and the 40 cover pages, is 190.\n\n190",
+        "responses": [
+          "The total number of pages, including the 6 batches of 25 pages each and the 40 cover pages, is 190.\n\n190"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "recompute_descendants--step-b",
+      "type": "thought",
+      "position": {
+        "x": 4160,
+        "y": 1600
+      },
+      "data": {
+        "question": "So how many pages in total on the batches?",
+        "response": "There are **150** pages in total on the batches (6 batches × 25 pages per batch).",
+        "responses": [
+          "There are **150** pages in total on the batches (6 batches × 25 pages per batch)."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "recompute_descendants--step-c",
+      "type": "thought",
+      "position": {
+        "x": 4160,
+        "y": 1920
+      },
+      "data": {
+        "question": "Now include the cover pages from our fixed inputs. What is the running total?",
+        "response": "The running total is **190** pages (150 pages from the batches + 40 cover pages).",
+        "responses": [
+          "The running total is **190** pages (150 pages from the batches + 40 cover pages)."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "recompute_descendants--step-d",
+      "type": "thought",
+      "position": {
+        "x": 4160,
+        "y": 2240
+      },
+      "data": {
+        "question": "Before we finish, restate our running numbers so far.",
+        "response": "Here are the running numbers based on our planning task so far:\n\n*   **Batches:** 6\n*   **Pages per Batch:** 25\n*   **Total Batch Pages:** 150\n*   **Cover Pages:** 40\n*   **Running Total:** 190",
+        "responses": [
+          "Here are the running numbers based on our planning task so far:\n\n*   **Batches:** 6\n*   **Pages per Batch:** 25\n*   **Total Batch Pages:** 150\n*   **Cover Pages:** 40\n*   **Running Total:** 190"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "clean--e-given-step-b-clean-0",
+      "source": "clean--given",
+      "target": "clean--step-b-clean",
+      "type": "smoothstep"
+    },
+    {
+      "id": "clean--e-step-b-clean-step-c-clean-1",
+      "source": "clean--step-b-clean",
+      "target": "clean--step-c-clean",
+      "type": "smoothstep"
+    },
+    {
+      "id": "clean--e-step-c-clean-step-d-clean-2",
+      "source": "clean--step-c-clean",
+      "target": "clean--step-d-clean",
+      "type": "smoothstep"
+    },
+    {
+      "id": "clean--e-step-d-clean-final-3",
+      "source": "clean--step-d-clean",
+      "target": "clean--final",
+      "type": "smoothstep"
+    },
+    {
+      "id": "polluted--e-given-pollution-0",
+      "source": "polluted--given",
+      "target": "polluted--pollution",
+      "type": "smoothstep"
+    },
+    {
+      "id": "polluted--e-pollution-step-b-1",
+      "source": "polluted--pollution",
+      "target": "polluted--step-b",
+      "type": "smoothstep"
+    },
+    {
+      "id": "polluted--e-step-b-step-c-2",
+      "source": "polluted--step-b",
+      "target": "polluted--step-c",
+      "type": "smoothstep"
+    },
+    {
+      "id": "polluted--e-step-c-step-d-3",
+      "source": "polluted--step-c",
+      "target": "polluted--step-d",
+      "type": "smoothstep"
+    },
+    {
+      "id": "polluted--e-step-d-final-4",
+      "source": "polluted--step-d",
+      "target": "polluted--final",
+      "type": "smoothstep"
+    },
+    {
+      "id": "source_prune--e-step-b-step-c-0",
+      "source": "source_prune--step-b",
+      "target": "source_prune--step-c",
+      "type": "smoothstep"
+    },
+    {
+      "id": "source_prune--e-step-c-step-d-1",
+      "source": "source_prune--step-c",
+      "target": "source_prune--step-d",
+      "type": "smoothstep"
+    },
+    {
+      "id": "source_prune--e-step-d-final-2",
+      "source": "source_prune--step-d",
+      "target": "source_prune--final",
+      "type": "smoothstep"
+    },
+    {
+      "id": "source_prune--e-given-step-b-3",
+      "source": "source_prune--given",
+      "target": "source_prune--step-b",
+      "type": "smoothstep"
+    },
+    {
+      "id": "subgraph_prune--e-given-final-0",
+      "source": "subgraph_prune--given",
+      "target": "subgraph_prune--final",
+      "type": "smoothstep"
+    },
+    {
+      "id": "recompute_descendants--e-given-step-b-0",
+      "source": "recompute_descendants--given",
+      "target": "recompute_descendants--step-b",
+      "type": "smoothstep"
+    },
+    {
+      "id": "recompute_descendants--e-step-b-step-c-1",
+      "source": "recompute_descendants--step-b",
+      "target": "recompute_descendants--step-c",
+      "type": "smoothstep"
+    },
+    {
+      "id": "recompute_descendants--e-step-c-step-d-2",
+      "source": "recompute_descendants--step-c",
+      "target": "recompute_descendants--step-d",
+      "type": "smoothstep"
+    },
+    {
+      "id": "recompute_descendants--e-step-d-final-3",
+      "source": "recompute_descendants--step-d",
+      "target": "recompute_descendants--final",
+      "type": "smoothstep"
+    }
+  ],
+  "events": []
+}

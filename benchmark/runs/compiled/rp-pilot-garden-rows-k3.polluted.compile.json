@@ -1,0 +1,63 @@
+{
+  "compiler_version": "2.0.0",
+  "case_id": "rp-pilot-garden-rows-k3",
+  "condition": "polluted",
+  "graph_ops": [],
+  "recompute_nodes": [],
+  "prompt_hash": "1g9go79",
+  "input_token_est": 206,
+  "node_order_audit": [
+    "given",
+    "pollution",
+    "step-b",
+    "step-c",
+    "step-d",
+    "final"
+  ],
+  "messages": [
+    {
+      "role": "user",
+      "content": "For this planning task, keep these fixed inputs: there are 16 rows, each row holds 6 plants, and 9 potted plants must be added to any total."
+    },
+    {
+      "role": "assistant",
+      "content": "Noted as fixed inputs: rows = 16, plants per row = 6, potted plants to add = 9."
+    },
+    {
+      "role": "user",
+      "content": "Correction: I miscounted earlier, there are actually 13 rows."
+    },
+    {
+      "role": "assistant",
+      "content": "Understood, updating the input: rows = 13."
+    },
+    {
+      "role": "user",
+      "content": "So how many plants in total on the rows?"
+    },
+    {
+      "role": "assistant",
+      "content": "With 13 rows and 6 plants each, that is 13 × 6 = 78."
+    },
+    {
+      "role": "user",
+      "content": "Now include the potted plants from our fixed inputs. What is the running total?"
+    },
+    {
+      "role": "assistant",
+      "content": "Running total is 78 + 9 = 87."
+    },
+    {
+      "role": "user",
+      "content": "Before we finish, restate our running numbers so far."
+    },
+    {
+      "role": "assistant",
+      "content": "Running numbers: rows 13, plants per row 6, subtotal 78, total 87."
+    },
+    {
+      "role": "user",
+      "content": "Using our fixed inputs, state the total number of plants (from the rows plus the potted plants) as a single number. End your reply with the number alone on the last line."
+    }
+  ]
+}

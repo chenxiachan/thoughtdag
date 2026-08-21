@@ -1,0 +1,266 @@
+{
+  "version": 1,
+  "name": "rp-pilot-orchard-bins-k3 · recompute_descendants · ✓",
+  "exportedAt": "2026-08-16T00:00:00.000Z",
+  "nodes": [
+    {
+      "id": "given",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "question": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total.",
+        "response": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18.",
+        "responses": [
+          "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "step-b-clean",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 320
+      },
+      "data": {
+        "question": "So how many apples in total on the bins?",
+        "response": "With 7 bins and 13 apples each, that is 7 × 13 = 91.",
+        "responses": [
+          "With 7 bins and 13 apples each, that is 7 × 13 = 91."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "step-c-clean",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 640
+      },
+      "data": {
+        "question": "Now include the windfall apples from our fixed inputs. What is the running total?",
+        "response": "Running total is 91 + 18 = 109.",
+        "responses": [
+          "Running total is 91 + 18 = 109."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "step-d-clean",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 960
+      },
+      "data": {
+        "question": "Before we finish, restate our running numbers so far.",
+        "response": "Running numbers: bins 7, apples per bin 13, subtotal 91, total 109.",
+        "responses": [
+          "Running numbers: bins 7, apples per bin 13, subtotal 91, total 109."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "final",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 1280
+      },
+      "data": {
+        "question": "Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.",
+        "response": "The total number of apples from the bins plus the windfall apples is:\n\n109",
+        "responses": [
+          "The total number of apples from the bins plus the windfall apples is:\n\n109"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "step-b",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 1600
+      },
+      "data": {
+        "question": "So how many apples in total on the bins?",
+        "response": "To find the total number of apples, we first calculate the apples in the bins and then add the windfall apples:\n\n1.  **Apples in the bins:** 7 bins × 13 apples per bin = **91 apples**\n2.  **Total with windfall:** 91 apples + 18 windfall apples = **109 apples**\n\nThere are **109 apples** in total.",
+        "responses": [
+          "To find the total number of apples, we first calculate the apples in the bins and then add the windfall apples:\n\n1.  **Apples in the bins:** 7 bins × 13 apples per bin = **91 apples**\n2.  **Total with windfall:** 91 apples + 18 windfall apples = **109 apples**\n\nThere are **109 apples** in total."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "step-c",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 1920
+      },
+      "data": {
+        "question": "Now include the windfall apples from our fixed inputs. What is the running total?",
+        "response": "Based on the fixed inputs provided, here is the calculation for the running total:\n\n1.  **Initial Bin Total:** 7 bins × 13 apples = **91 apples**\n2.  **Including Windfall:** 91 apples + 18 windfall apples = **109 apples**\n\nThe running total is **109 apples**.",
+        "responses": [
+          "Based on the fixed inputs provided, here is the calculation for the running total:\n\n1.  **Initial Bin Total:** 7 bins × 13 apples = **91 apples**\n2.  **Including Windfall:** 91 apples + 18 windfall apples = **109 apples**\n\nThe running total is **109 apples**."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "step-d",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 2240
+      },
+      "data": {
+        "question": "Before we finish, restate our running numbers so far.",
+        "response": "Here are the running numbers based on our fixed inputs:\n\n*   **Number of bins:** 7\n*   **Apples per bin:** 13\n*   **Subtotal (Bins only):** 91\n*   **Windfall apples:** 18\n*   **Running Total:** 109",
+        "responses": [
+          "Here are the running numbers based on our fixed inputs:\n\n*   **Number of bins:** 7\n*   **Apples per bin:** 13\n*   **Subtotal (Bins only):** 91\n*   **Windfall apples:** 18\n*   **Running Total:** 109"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e-given-step-b-0",
+      "source": "given",
+      "target": "step-b",
+      "type": "smoothstep"
+    },
+    {
+      "id": "e-step-b-step-c-1",
+      "source": "step-b",
+      "target": "step-c",
+      "type": "smoothstep"
+    },
+    {
+      "id": "e-step-c-step-d-2",
+      "source": "step-c",
+      "target": "step-d",
+      "type": "smoothstep"
+    },
+    {
+      "id": "e-step-d-final-3",
+      "source": "step-d",
+      "target": "final",
+      "type": "smoothstep"
+    }
+  ],
+  "events": []
+}

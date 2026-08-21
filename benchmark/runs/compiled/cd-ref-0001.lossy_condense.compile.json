@@ -1,0 +1,38 @@
+{
+  "compiler_version": "2.0.0",
+  "case_id": "cd-ref-0001",
+  "condition": "lossy_condense",
+  "graph_ops": [
+    {
+      "op": "remove_edge",
+      "from": "v2",
+      "to": "final"
+    },
+    {
+      "op": "add_edge",
+      "from": "condensed-lossy",
+      "to": "final"
+    }
+  ],
+  "recompute_nodes": [],
+  "prompt_hash": "hpnbx0",
+  "input_token_est": 99,
+  "node_order_audit": [
+    "condensed-lossy",
+    "final"
+  ],
+  "messages": [
+    {
+      "role": "user",
+      "content": "[Condensed record of the VX-12 doping series]"
+    },
+    {
+      "role": "assistant",
+      "content": "VX-12 doping series, condensed: the first batch found peak stability at 2% doping. A recalibrated sweep also measured a peak at 4%. Humidity ruled out as a factor."
+    },
+    {
+      "role": "user",
+      "content": "Per our current valid conclusion, what doping concentration gives peak stability for VX-12? Answer with the percentage only. End your reply with the percentage alone on the last line."
+    }
+  ]
+}

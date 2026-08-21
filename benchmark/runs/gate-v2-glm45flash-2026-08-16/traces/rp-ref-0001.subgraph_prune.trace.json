@@ -1,0 +1,58 @@
+{
+  "case_id": "rp-ref-0001",
+  "condition": "subgraph_prune",
+  "run_id": "gate-v2-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1m4oxhb",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: the workshop has 7 benches, each bench seats 3 people, and 5 standing places must be added to any capacity count."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: benches = 7, seats per bench = 3, standing places to add = 5."
+        },
+        {
+          "role": "user",
+          "content": "State the full capacity of the workshop as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "The full capacity is determined by calculating the seating capacity from the benches and adding the standing places. With 7 benches each seating 3 people, the seating capacity is 7 × 3 = 21. Adding the 5 standing places gives a total capacity of 26.\n\n26",
+              "reasoning_content": "\nFirst, the user has given fixed inputs: there are 7 benches, each bench seats 3 people, and 5 standing places must be added to any capacity count. I need to state the full capacity as a single number and end with that number alone on the last line.\n\nLet me calculate the seating capacity first. There are 7 benches, and each bench seats 3 people. So, the total seating capacity is 7 times 3.\n\n7 × 3 = 21. So, 21 people can be seated.\n\nNow, there are 5 standing places that must be added to this capacity. So, I need to add those 5 to the seating capacity.\n\nFull capacity = seating capacity + standing places = 21 + 5.\n\n21 + 5 = 26.\n\nTherefore, the full capacity is 26 people.\n\nThe user said \"5 standing places must be added to any capacity count.\" I think that means the standing places are additional to the seating, so yes, adding them makes sense.\n\nAlso, the user specified to end with the number alone on the last line. So, my response should have some explanation, but the last line should just be the number.\n\nRe-reading the user's message: \"State the full capacity of the workshop as a single number. End your reply with the number alone on the last line.\"\n\nSo, I should provide a brief explanation in my response, but the final output should be just the number.\n\nFor example, I could say: \"The full capacity is calculated by multiplying the number of benches by the seats per bench and then adding the standing places. Thus, 7 benches × 3 people/bench = 21 seated, plus 5 standing, equals 26.\"\n\nThen, on the last line, just \"26\".\n\nBut to be precise, I should make sure the calculation is correct.\n\nFixed inputs:\n\n- Benches: 7\n\n- Seats per bench: 3\n\n- Standing places: 5\n\nSeating capacity: 7 × 3 = 21\n\nFull capacity: 21 + 5 = 26\n\nYes, that seems straightforward.\n\nI think that's all. No other complexities mentioned.\n\nSo, my response should be: \"Based on the fixed inputs, the seating capacity is 7 benches × 3 people per bench = 21 people. Adding the 5 standing places, the full capacity is 26 people.\"\n\nThen, on the last line: \"26\"\n\nBut the user said \"end your reply with the number alone on the last line,\" so I need to have the number by itself at the end.\n\nPerhaps I should write the explanation and then the number on a new line.\n\nIn text, I can do that.\n\nSince this is a text-based response, I'll write it out.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786879342,
+        "id": "20260816192154a93c41e09be54601",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "20260816192154a93c41e09be54601",
+        "usage": {
+          "completion_tokens": 631,
+          "prompt_tokens": 99,
+          "prompt_tokens_details": {
+            "cached_tokens": 98
+          },
+          "total_tokens": 730
+        }
+      }
+    }
+  ],
+  "latency_ms": 28441
+}

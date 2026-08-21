@@ -38,5 +38,5 @@ video/archive/
 video/public/audio/
 /marketing/
 
-# Context-operations benchmark (internal until reference gate passes)
-benchmark/
+# Context-operations benchmark: published (reference gate closed 2026-08-16,
+# report live). In-capture run dirs join as they complete.

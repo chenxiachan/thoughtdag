@@ -1,0 +1,94 @@
+{
+  "case_id": "rp-pilot-bakery-trays-k1",
+  "condition": "clean",
+  "run_id": "pilot-v1-nemotron3-nano30b",
+  "capture": {
+    "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1dolct8",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15."
+        },
+        {
+          "role": "user",
+          "content": "So how many rolls in total on the trays?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 12 trays and 8 rolls each, that is 12 × 8 = 96."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787068410-KX6qZiytWMNjB8MKAY5W",
+        "object": "chat.completion",
+        "created": 1787068410,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The trays hold 12 × 8 = 96 rolls. Adding the 15 loose rolls gives a total of 96 + 15 = 111.\n\n111",
+              "refusal": null,
+              "reasoning": "We need to compute total rolls = rolls on trays + loose rolls. Rolls on trays = 12 trays * 8 rolls per tray = 96. Loose rolls = 15. Total = 96 + 15 = 111. Need to end reply with the number alone on the last line. So reply should have some text before, then final line just \"111\". Probably just output \"111\" on its own line. But they said \"End your reply with the number alone on the last line.\" So we can have preceding explanation, then final line with just the number. Provide answer.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to compute total rolls = rolls on trays + loose rolls. Rolls on trays = 12 trays * 8 rolls per tray = 96. Loose rolls = 15. Total = 96 + 15 = 111. Need to end reply with the number alone on the last line. So reply should have some text before, then final line just \"111\". Probably just output \"111\" on its own line. But they said \"End your reply with the number alone on the last line.\" So we can have preceding explanation, then final line with just the number. Provide answer.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 183,
+          "completion_tokens": 186,
+          "total_tokens": 369,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 123,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 3343
+}

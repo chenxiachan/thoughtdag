@@ -1,0 +1,94 @@
+{
+  "case_id": "rp-pilot-garden-rows-k1",
+  "condition": "clean",
+  "run_id": "pilot-v1-nemotron35l",
+  "capture": {
+    "model": "nvidia/nemotron-3.5-lightning:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "10si3gs",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 16 rows, each row holds 6 plants, and 9 potted plants must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: rows = 16, plants per row = 6, potted plants to add = 9."
+        },
+        {
+          "role": "user",
+          "content": "So how many plants in total on the rows?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 16 rows and 6 plants each, that is 16 × 6 = 96."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of plants (from the rows plus the potted plants) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786882535-7DCGkajVJyV9Lvh4rMqg",
+        "object": "chat.completion",
+        "created": 1786882535,
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of plants from the rows is 16 × 6 = 96. Adding the 9 potted plants gives 96 + 9 = 105.\n\n105",
+              "refusal": null,
+              "reasoning": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given earlier: \n     - 16 rows\n     - 6 plants per row\n     - 9 potted plants to add to any total\n   - Current question: \"Using our fixed inputs, state the total number of plants (from the rows plus the potted plants) as a single number. End your reply with the number alone on the last line.\"\n\n2.  **Calculate Row Plants:**\n   - 16 rows × 6 plants/row = 96 plants\n\n3.  **Add Potted Plants:**\n   - 96 + 9 = 105\n\n4.  **Format Output:**\n   - \"state the total number of plants (from the rows plus the potted plants) as a single number.\"\n   - \"End your reply with the number alone on the last line.\"\n   - So I should provide the answer, probably with some brief context or just the number at the end, but the last line must be the number alone.\n   - I'll output something like: \"The total is 105\" and then on a new line just \"105\", or I can structure it so the last line is exactly the number. I'll make sure the final line contains only the number.\n\n   Let's draft: \n   Total plants from rows: 16 × 6 = 96\n   Adding the 9 potted plants: 96 + 9 = 105\n   105\n\n   That fits: last line is \"105\" alone. I'll output exactly that.✅\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given earlier: \n     - 16 rows\n     - 6 plants per row\n     - 9 potted plants to add to any total\n   - Current question: \"Using our fixed inputs, state the total number of plants (from the rows plus the potted plants) as a single number. End your reply with the number alone on the last line.\"\n\n2.  **Calculate Row Plants:**\n   - 16 rows × 6 plants/row = 96 plants\n\n3.  **Add Potted Plants:**\n   - 96 + 9 = 105\n\n4.  **Format Output:**\n   - \"state the total number of plants (from the rows plus the potted plants) as a single number.\"\n   - \"End your reply with the number alone on the last line.\"\n   - So I should provide the answer, probably with some brief context or just the number at the end, but the last line must be the number alone.\n   - I'll output something like: \"The total is 105\" and then on a new line just \"105\", or I can structure it so the last line is exactly the number. I'll make sure the final line contains only the number.\n\n   Let's draft: \n   Total plants from rows: 16 × 6 = 96\n   Adding the 9 potted plants: 96 + 9 = 105\n   105\n\n   That fits: last line is \"105\" alone. I'll output exactly that.✅\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 179,
+          "completion_tokens": 398,
+          "total_tokens": 577,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 308,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 2466
+}

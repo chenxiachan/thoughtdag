@@ -1,0 +1,74 @@
+{
+  "case_id": "rp-pilot-orchard-bins-k2",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "13s33uz",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "So how many apples in total on the bins?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 7 bins and 13 apples each, that is 7 × 13 = 91. (the neighboring orchard's 12 bins mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Now include the windfall apples from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 91 + 18 = 109. (the neighboring orchard's 12 bins mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "The total number of apples is calculated from the fixed inputs: 7 bins each holding 13 apples, plus 18 windfall apples.  \n7 bins × 13 apples/bin = 91 apples from bins.  \nAdding the windfall apples: 91 + 18 = 109 apples.  \n\n109",
+              "reasoning_content": "\nFirst, the user is asking for the total number of apples from the bins plus the windfall apples. The fixed inputs are: 7 bins, each holding 13 apples, and 18 windfall apples to add.\n\nFrom the previous conversation, I calculated that the bins hold 7 × 13 = 91 apples. Then, adding the windfall apples: 91 + 18 = 109 apples.\n\nThe user wants this as a single number, and to end the reply with that number alone on the last line. So, I need to provide the answer in a specific format.\n\nI should confirm the fixed inputs: bins = 7, apples per bin = 13, windfall apples = 18. No changes mentioned, so it's consistent.\n\nTotal apples = (number of bins × apples per bin) + windfall apples = (7 × 13) + 18.\n\nCalculating: 7 × 13 = 91, 91 + 18 = 109.\n\nThe user mentioned \"the neighboring orchard's 12 bins\" in previous replies, but they specified that it's a separate matter and not to include it. So, I should ignore that and stick to the fixed inputs given.\n\nTherefore, the total is 109 apples.\n\nNow, for the reply: I need to state the total as a single number and end with that number alone on the last line. So, I can have some text before, but the last line should just be \"109\".\n\nTo make it clear, I'll write a brief explanation and then the number.\n\nFinal answer: 109",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786884914,
+        "id": "20260816205457156712a51e61486f",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "20260816205457156712a51e61486f",
+        "usage": {
+          "completion_tokens": 391,
+          "prompt_tokens": 219,
+          "prompt_tokens_details": {
+            "cached_tokens": 128
+          },
+          "total_tokens": 610
+        }
+      }
+    }
+  ],
+  "latency_ms": 17490
+}

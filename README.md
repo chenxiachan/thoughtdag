@@ -107,15 +107,15 @@ Want a ten-second look before installing anything? The [hosted demo](https://app
 
 ## 🧪 Research: Why editable context matters
 
-### Context Intervention Benchmark · Pilot v1
+### Context Intervention Benchmark · Pilot v2
 
 When misleading context enters an LLM conversation, how much of the affected path must be removed before the answer recovers?
 
-> **68/72** cases recovered after deleting only the misleading source. **72/72** recovered after removing the contaminated subgraph.
+> Across seven models, **116/126** cases recovered after deleting only the misleading source; **126/126** after removing the contaminated subgraph. A same-size reasoning twin repaired *fewer* residual-context cases than its non-reasoning sibling.
 
 This does not explain hidden model reasoning or rank models. It tests a narrower, observable claim: changing visible context changes the next answer.
 
-📖 **[Read the first case study](https://chenxiachan.github.io/thoughtdag/stories/context-repair/)** · 📊 **[Methodology and results](https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v1/)** · 💬 **[Suggest a model for the next run](https://github.com/chenxiachan/thoughtdag/issues/new)**
+📖 **[Read the first case study](https://chenxiachan.github.io/thoughtdag/stories/context-repair/)** · 📊 **[Methodology and results](https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v2/)** · 💬 **[Suggest a model for the next run](https://github.com/chenxiachan/thoughtdag/issues/new)**
 
 ## More capabilities
 

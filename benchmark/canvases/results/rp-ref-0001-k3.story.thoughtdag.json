@@ -1,0 +1,1303 @@
+{
+  "version": 1,
+  "name": "rp-ref-0001-k3 · story",
+  "exportedAt": "2026-08-16T00:00:00.000Z",
+  "nodes": [
+    {
+      "id": "frame-clean",
+      "type": "thought",
+      "position": {
+        "x": -60,
+        "y": -140
+      },
+      "width": 900,
+      "height": 2380,
+      "data": {
+        "question": "How it should go · ✓ 26",
+        "response": "",
+        "responses": [
+          ""
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false,
+        "stepKind": "frame",
+        "frameColor": "green",
+        "frameCarry": false
+      }
+    },
+    {
+      "id": "clean--given",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "question": "For this planning task, keep these fixed inputs: the workshop has 7 benches, each bench seats 3 people, and 5 standing places must be added to any capacity count.",
+        "response": "Noted as fixed inputs: benches = 7, seats per bench = 3, standing places to add = 5.",
+        "responses": [
+          "Noted as fixed inputs: benches = 7, seats per bench = 3, standing places to add = 5."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "clean--step-b-clean",
+      "type": "thought",
+      "position": {
+        "x": 294,
+        "y": 640
+      },
+      "data": {
+        "question": "So how many people can be seated in total?",
+        "response": "With 7 benches and 3 seats each, total seating is 7 × 3 = 21 people.",
+        "responses": [
+          "With 7 benches and 3 seats each, total seating is 7 × 3 = 21 people."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "clean--step-c-clean",
+      "type": "thought",
+      "position": {
+        "x": 294,
+        "y": 960
+      },
+      "data": {
+        "question": "Now include the standing places from our fixed inputs. What is the full capacity?",
+        "response": "Full capacity is seating plus standing: 21 + 5 = 26.",
+        "responses": [
+          "Full capacity is seating plus standing: 21 + 5 = 26."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "clean--final",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 1600
+      },
+      "data": {
+        "question": "State the full capacity of the workshop as a single number. End your reply with the number alone on the last line.",
+        "response": "26",
+        "responses": [
+          "26"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "clean--step-d-clean",
+      "type": "thought",
+      "position": {
+        "x": 294,
+        "y": 1280
+      },
+      "data": {
+        "question": "Before we finish, restate our running numbers so far.",
+        "response": "Running numbers: benches 7, seats per bench 3, seated 21, full capacity 26.",
+        "responses": [
+          "Running numbers: benches 7, seats per bench 3, seated 21, full capacity 26."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "frame-polluted",
+      "type": "thought",
+      "position": {
+        "x": 980,
+        "y": -140
+      },
+      "width": 900,
+      "height": 2380,
+      "data": {
+        "question": "The pollution lands · ✗ 32",
+        "response": "",
+        "responses": [
+          ""
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false,
+        "stepKind": "frame",
+        "frameColor": "red",
+        "frameCarry": false
+      }
+    },
+    {
+      "id": "polluted--given",
+      "type": "thought",
+      "position": {
+        "x": 1040,
+        "y": 0
+      },
+      "data": {
+        "question": "For this planning task, keep these fixed inputs: the workshop has 7 benches, each bench seats 3 people, and 5 standing places must be added to any capacity count.",
+        "response": "Noted as fixed inputs: benches = 7, seats per bench = 3, standing places to add = 5.",
+        "responses": [
+          "Noted as fixed inputs: benches = 7, seats per bench = 3, standing places to add = 5."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "polluted--pollution",
+      "type": "thought",
+      "position": {
+        "x": 1040,
+        "y": 320
+      },
+      "data": {
+        "question": "Correction: I miscounted earlier, there are actually 9 benches.",
+        "response": "Understood, updating the input: benches = 9.",
+        "responses": [
+          "Understood, updating the input: benches = 9."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "polluted--step-b",
+      "type": "thought",
+      "position": {
+        "x": 1040,
+        "y": 640
+      },
+      "data": {
+        "question": "So how many people can be seated in total?",
+        "response": "With 9 benches and 3 seats each, total seating is 9 × 3 = 27 people.",
+        "responses": [
+          "With 9 benches and 3 seats each, total seating is 9 × 3 = 27 people."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "polluted--step-c",
+      "type": "thought",
+      "position": {
+        "x": 1040,
+        "y": 960
+      },
+      "data": {
+        "question": "Now include the standing places from our fixed inputs. What is the full capacity?",
+        "response": "Full capacity is seating plus standing: 27 + 5 = 32.",
+        "responses": [
+          "Full capacity is seating plus standing: 27 + 5 = 32."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "polluted--step-b-clean",
+      "type": "thought",
+      "position": {
+        "x": 1334,
+        "y": 640
+      },
+      "data": {
+        "question": "So how many people can be seated in total?",
+        "response": "With 7 benches and 3 seats each, total seating is 7 × 3 = 21 people.",
+        "responses": [
+          "With 7 benches and 3 seats each, total seating is 7 × 3 = 21 people."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "polluted--step-c-clean",
+      "type": "thought",
+      "position": {
+        "x": 1334,
+        "y": 960
+      },
+      "data": {
+        "question": "Now include the standing places from our fixed inputs. What is the full capacity?",
+        "response": "Full capacity is seating plus standing: 21 + 5 = 26.",
+        "responses": [
+          "Full capacity is seating plus standing: 21 + 5 = 26."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "polluted--final",
+      "type": "thought",
+      "position": {
+        "x": 1040,
+        "y": 1600
+      },
+      "data": {
+        "question": "State the full capacity of the workshop as a single number. End your reply with the number alone on the last line.",
+        "response": "32",
+        "responses": [
+          "32"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "polluted--step-d",
+      "type": "thought",
+      "position": {
+        "x": 1040,
+        "y": 1280
+      },
+      "data": {
+        "question": "Before we finish, restate our running numbers so far.",
+        "response": "Running numbers: benches 9, seats per bench 3, seated 27, full capacity 32.",
+        "responses": [
+          "Running numbers: benches 9, seats per bench 3, seated 27, full capacity 32."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "polluted--step-d-clean",
+      "type": "thought",
+      "position": {
+        "x": 1334,
+        "y": 1280
+      },
+      "data": {
+        "question": "Before we finish, restate our running numbers so far.",
+        "response": "Running numbers: benches 7, seats per bench 3, seated 21, full capacity 26.",
+        "responses": [
+          "Running numbers: benches 7, seats per bench 3, seated 21, full capacity 26."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "frame-source_prune",
+      "type": "thought",
+      "position": {
+        "x": 2020,
+        "y": -140
+      },
+      "width": 900,
+      "height": 2380,
+      "data": {
+        "question": "Cut the source only · ✗ 32",
+        "response": "",
+        "responses": [
+          ""
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false,
+        "stepKind": "frame",
+        "frameColor": "red",
+        "frameCarry": false
+      }
+    },
+    {
+      "id": "source_prune--given",
+      "type": "thought",
+      "position": {
+        "x": 2080,
+        "y": 0
+      },
+      "data": {
+        "question": "For this planning task, keep these fixed inputs: the workshop has 7 benches, each bench seats 3 people, and 5 standing places must be added to any capacity count.",
+        "response": "Noted as fixed inputs: benches = 7, seats per bench = 3, standing places to add = 5.",
+        "responses": [
+          "Noted as fixed inputs: benches = 7, seats per bench = 3, standing places to add = 5."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "source_prune--step-b",
+      "type": "thought",
+      "position": {
+        "x": 2080,
+        "y": 640
+      },
+      "data": {
+        "question": "So how many people can be seated in total?",
+        "response": "With 9 benches and 3 seats each, total seating is 9 × 3 = 27 people.",
+        "responses": [
+          "With 9 benches and 3 seats each, total seating is 9 × 3 = 27 people."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "source_prune--step-c",
+      "type": "thought",
+      "position": {
+        "x": 2080,
+        "y": 960
+      },
+      "data": {
+        "question": "Now include the standing places from our fixed inputs. What is the full capacity?",
+        "response": "Full capacity is seating plus standing: 27 + 5 = 32.",
+        "responses": [
+          "Full capacity is seating plus standing: 27 + 5 = 32."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "source_prune--step-b-clean",
+      "type": "thought",
+      "position": {
+        "x": 2374,
+        "y": 640
+      },
+      "data": {
+        "question": "So how many people can be seated in total?",
+        "response": "With 7 benches and 3 seats each, total seating is 7 × 3 = 21 people.",
+        "responses": [
+          "With 7 benches and 3 seats each, total seating is 7 × 3 = 21 people."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "source_prune--step-c-clean",
+      "type": "thought",
+      "position": {
+        "x": 2374,
+        "y": 960
+      },
+      "data": {
+        "question": "Now include the standing places from our fixed inputs. What is the full capacity?",
+        "response": "Full capacity is seating plus standing: 21 + 5 = 26.",
+        "responses": [
+          "Full capacity is seating plus standing: 21 + 5 = 26."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "source_prune--final",
+      "type": "thought",
+      "position": {
+        "x": 2080,
+        "y": 1600
+      },
+      "data": {
+        "question": "State the full capacity of the workshop as a single number. End your reply with the number alone on the last line.",
+        "response": "32",
+        "responses": [
+          "32"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "source_prune--step-d",
+      "type": "thought",
+      "position": {
+        "x": 2080,
+        "y": 1280
+      },
+      "data": {
+        "question": "Before we finish, restate our running numbers so far.",
+        "response": "Running numbers: benches 9, seats per bench 3, seated 27, full capacity 32.",
+        "responses": [
+          "Running numbers: benches 9, seats per bench 3, seated 27, full capacity 32."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "source_prune--step-d-clean",
+      "type": "thought",
+      "position": {
+        "x": 2374,
+        "y": 1280
+      },
+      "data": {
+        "question": "Before we finish, restate our running numbers so far.",
+        "response": "Running numbers: benches 7, seats per bench 3, seated 21, full capacity 26.",
+        "responses": [
+          "Running numbers: benches 7, seats per bench 3, seated 21, full capacity 26."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "frame-subgraph_prune",
+      "type": "thought",
+      "position": {
+        "x": 3060,
+        "y": -140
+      },
+      "width": 900,
+      "height": 2380,
+      "data": {
+        "question": "Cut the whole subgraph · ✓ 26",
+        "response": "",
+        "responses": [
+          ""
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false,
+        "stepKind": "frame",
+        "frameColor": "green",
+        "frameCarry": false
+      }
+    },
+    {
+      "id": "subgraph_prune--given",
+      "type": "thought",
+      "position": {
+        "x": 3120,
+        "y": 0
+      },
+      "data": {
+        "question": "For this planning task, keep these fixed inputs: the workshop has 7 benches, each bench seats 3 people, and 5 standing places must be added to any capacity count.",
+        "response": "Noted as fixed inputs: benches = 7, seats per bench = 3, standing places to add = 5.",
+        "responses": [
+          "Noted as fixed inputs: benches = 7, seats per bench = 3, standing places to add = 5."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "subgraph_prune--step-b-clean",
+      "type": "thought",
+      "position": {
+        "x": 3414,
+        "y": 640
+      },
+      "data": {
+        "question": "So how many people can be seated in total?",
+        "response": "With 7 benches and 3 seats each, total seating is 7 × 3 = 21 people.",
+        "responses": [
+          "With 7 benches and 3 seats each, total seating is 7 × 3 = 21 people."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "subgraph_prune--step-c-clean",
+      "type": "thought",
+      "position": {
+        "x": 3414,
+        "y": 960
+      },
+      "data": {
+        "question": "Now include the standing places from our fixed inputs. What is the full capacity?",
+        "response": "Full capacity is seating plus standing: 21 + 5 = 26.",
+        "responses": [
+          "Full capacity is seating plus standing: 21 + 5 = 26."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "subgraph_prune--final",
+      "type": "thought",
+      "position": {
+        "x": 3120,
+        "y": 1600
+      },
+      "data": {
+        "question": "State the full capacity of the workshop as a single number. End your reply with the number alone on the last line.",
+        "response": "The full capacity is determined by calculating the seating from the benches and adding the standing places. With 7 benches each seating 3 people, the seating capacity is 7 × 3 = 21. Adding the 5 standing places gives a total capacity of 21 + 5 = 26.  \n26",
+        "responses": [
+          "The full capacity is determined by calculating the seating from the benches and adding the standing places. With 7 benches each seating 3 people, the seating capacity is 7 × 3 = 21. Adding the 5 standing places gives a total capacity of 21 + 5 = 26.  \n26"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "subgraph_prune--step-d-clean",
+      "type": "thought",
+      "position": {
+        "x": 3414,
+        "y": 1280
+      },
+      "data": {
+        "question": "Before we finish, restate our running numbers so far.",
+        "response": "Running numbers: benches 7, seats per bench 3, seated 21, full capacity 26.",
+        "responses": [
+          "Running numbers: benches 7, seats per bench 3, seated 21, full capacity 26."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "frame-recompute_descendants",
+      "type": "thought",
+      "position": {
+        "x": 4100,
+        "y": -140
+      },
+      "width": 900,
+      "height": 2380,
+      "data": {
+        "question": "Cut and recompute · ✓ 26",
+        "response": "",
+        "responses": [
+          ""
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false,
+        "stepKind": "frame",
+        "frameColor": "green",
+        "frameCarry": false
+      }
+    },
+    {
+      "id": "recompute_descendants--given",
+      "type": "thought",
+      "position": {
+        "x": 4160,
+        "y": 0
+      },
+      "data": {
+        "question": "For this planning task, keep these fixed inputs: the workshop has 7 benches, each bench seats 3 people, and 5 standing places must be added to any capacity count.",
+        "response": "Noted as fixed inputs: benches = 7, seats per bench = 3, standing places to add = 5.",
+        "responses": [
+          "Noted as fixed inputs: benches = 7, seats per bench = 3, standing places to add = 5."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "recompute_descendants--step-b-clean",
+      "type": "thought",
+      "position": {
+        "x": 4454,
+        "y": 640
+      },
+      "data": {
+        "question": "So how many people can be seated in total?",
+        "response": "With 7 benches and 3 seats each, total seating is 7 × 3 = 21 people.",
+        "responses": [
+          "With 7 benches and 3 seats each, total seating is 7 × 3 = 21 people."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "recompute_descendants--step-c-clean",
+      "type": "thought",
+      "position": {
+        "x": 4454,
+        "y": 960
+      },
+      "data": {
+        "question": "Now include the standing places from our fixed inputs. What is the full capacity?",
+        "response": "Full capacity is seating plus standing: 21 + 5 = 26.",
+        "responses": [
+          "Full capacity is seating plus standing: 21 + 5 = 26."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "recompute_descendants--final",
+      "type": "thought",
+      "position": {
+        "x": 4160,
+        "y": 1600
+      },
+      "data": {
+        "question": "State the full capacity of the workshop as a single number. End your reply with the number alone on the last line.",
+        "response": "26",
+        "responses": [
+          "26"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "recompute_descendants--step-d-clean",
+      "type": "thought",
+      "position": {
+        "x": 4454,
+        "y": 1280
+      },
+      "data": {
+        "question": "Before we finish, restate our running numbers so far.",
+        "response": "Running numbers: benches 7, seats per bench 3, seated 21, full capacity 26.",
+        "responses": [
+          "Running numbers: benches 7, seats per bench 3, seated 21, full capacity 26."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "recompute_descendants--step-b",
+      "type": "thought",
+      "position": {
+        "x": 4160,
+        "y": 640
+      },
+      "data": {
+        "question": "So how many people can be seated in total?",
+        "response": "Based on the fixed inputs provided:\n- Number of benches: 7\n- Each bench seats: 3 people\n\nThe total seated capacity is calculated solely from the benches, as standing places are separate and not part of seating. Therefore:\n\n**Total seated capacity = Number of benches × Seats per bench**  \n= 7 × 3  \n= **21 people**\n\n### Additional Context:\n- The 5 standing places are fixed inputs that must be added to the **total capacity** (seated + standing), but they do not affect the seated count. For reference, the total capacity of the workshop would be 21 (seated) + 5 (standing) = 26 people.\n- If you need further clarification or have more questions about the workshop capacity, feel free to ask!",
+        "responses": [
+          "Based on the fixed inputs provided:\n- Number of benches: 7\n- Each bench seats: 3 people\n\nThe total seated capacity is calculated solely from the benches, as standing places are separate and not part of seating. Therefore:\n\n**Total seated capacity = Number of benches × Seats per bench**  \n= 7 × 3  \n= **21 people**\n\n### Additional Context:\n- The 5 standing places are fixed inputs that must be added to the **total capacity** (seated + standing), but they do not affect the seated count. For reference, the total capacity of the workshop would be 21 (seated) + 5 (standing) = 26 people.\n- If you need further clarification or have more questions about the workshop capacity, feel free to ask!"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "recompute_descendants--step-c",
+      "type": "thought",
+      "position": {
+        "x": 4160,
+        "y": 960
+      },
+      "data": {
+        "question": "Now include the standing places from our fixed inputs. What is the full capacity?",
+        "response": "Based on the fixed inputs:  \n- **Benches**: 7  \n- **Seats per bench**: 3  \n- **Standing places**: 5  \n\n### Full Capacity Calculation:  \n1. **Seated Capacity**:  \n   \\( 7 \\text{ benches} \\times 3 \\text{ seats/bench} = 21 \\text{ people} \\)  \n\n2. **Total Capacity (Seated + Standing)**:  \n   \\( 21 \\text{ (seated)} + 5 \\text{ (standing)} = 26 \\text{ people} \\)  \n\n### Final Answer:  \nThe full capacity of the workshop is **26 people** (21 seated + 5 standing).",
+        "responses": [
+          "Based on the fixed inputs:  \n- **Benches**: 7  \n- **Seats per bench**: 3  \n- **Standing places**: 5  \n\n### Full Capacity Calculation:  \n1. **Seated Capacity**:  \n   \\( 7 \\text{ benches} \\times 3 \\text{ seats/bench} = 21 \\text{ people} \\)  \n\n2. **Total Capacity (Seated + Standing)**:  \n   \\( 21 \\text{ (seated)} + 5 \\text{ (standing)} = 26 \\text{ people} \\)  \n\n### Final Answer:  \nThe full capacity of the workshop is **26 people** (21 seated + 5 standing)."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "recompute_descendants--step-d",
+      "type": "thought",
+      "position": {
+        "x": 4160,
+        "y": 1280
+      },
+      "data": {
+        "question": "Before we finish, restate our running numbers so far.",
+        "response": "Based on our fixed inputs and calculations, here's the complete recap of the running numbers:\n\n### Fixed Inputs:\n- **Benches**: 7  \n- **Seats per bench**: 3  \n- **Standing places**: 5 (mandatory addition to total capacity)  \n\n### Calculated Capacities:\n1. **Seated Capacity**:  \n   \\( 7 \\text{ benches} \\times 3 \\text{ seats/bench} = 21 \\text{ people} \\)  \n2. **Full Capacity (Seated + Standing)**:  \n   \\( 21 \\text{ (seated)} + 5 \\text{ (standing)} = 26 \\text{ people} \\)  \n\n### Final Summary:\n- **Total seated**: 21 people  \n- **Total standing**: 5 people  \n- **Full workshop capacity**: 26 people  \n\nLet me know if you need further adjustments or clarification!",
+        "responses": [
+          "Based on our fixed inputs and calculations, here's the complete recap of the running numbers:\n\n### Fixed Inputs:\n- **Benches**: 7  \n- **Seats per bench**: 3  \n- **Standing places**: 5 (mandatory addition to total capacity)  \n\n### Calculated Capacities:\n1. **Seated Capacity**:  \n   \\( 7 \\text{ benches} \\times 3 \\text{ seats/bench} = 21 \\text{ people} \\)  \n2. **Full Capacity (Seated + Standing)**:  \n   \\( 21 \\text{ (seated)} + 5 \\text{ (standing)} = 26 \\text{ people} \\)  \n\n### Final Summary:\n- **Total seated**: 21 people  \n- **Total standing**: 5 people  \n- **Full workshop capacity**: 26 people  \n\nLet me know if you need further adjustments or clarification!"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "clean--e-given-step-b-clean-0",
+      "source": "clean--given",
+      "target": "clean--step-b-clean",
+      "type": "smoothstep"
+    },
+    {
+      "id": "clean--e-step-b-clean-step-c-clean-1",
+      "source": "clean--step-b-clean",
+      "target": "clean--step-c-clean",
+      "type": "smoothstep"
+    },
+    {
+      "id": "clean--e-step-c-clean-step-d-clean-2",
+      "source": "clean--step-c-clean",
+      "target": "clean--step-d-clean",
+      "type": "smoothstep"
+    },
+    {
+      "id": "clean--e-step-d-clean-final-3",
+      "source": "clean--step-d-clean",
+      "target": "clean--final",
+      "type": "smoothstep"
+    },
+    {
+      "id": "polluted--e-given-pollution-0",
+      "source": "polluted--given",
+      "target": "polluted--pollution",
+      "type": "smoothstep"
+    },
+    {
+      "id": "polluted--e-pollution-step-b-1",
+      "source": "polluted--pollution",
+      "target": "polluted--step-b",
+      "type": "smoothstep"
+    },
+    {
+      "id": "polluted--e-step-b-step-c-2",
+      "source": "polluted--step-b",
+      "target": "polluted--step-c",
+      "type": "smoothstep"
+    },
+    {
+      "id": "polluted--e-step-c-step-d-3",
+      "source": "polluted--step-c",
+      "target": "polluted--step-d",
+      "type": "smoothstep"
+    },
+    {
+      "id": "polluted--e-step-d-final-4",
+      "source": "polluted--step-d",
+      "target": "polluted--final",
+      "type": "smoothstep"
+    },
+    {
+      "id": "source_prune--e-step-b-step-c-0",
+      "source": "source_prune--step-b",
+      "target": "source_prune--step-c",
+      "type": "smoothstep"
+    },
+    {
+      "id": "source_prune--e-step-c-step-d-1",
+      "source": "source_prune--step-c",
+      "target": "source_prune--step-d",
+      "type": "smoothstep"
+    },
+    {
+      "id": "source_prune--e-step-d-final-2",
+      "source": "source_prune--step-d",
+      "target": "source_prune--final",
+      "type": "smoothstep"
+    },
+    {
+      "id": "source_prune--e-given-step-b-3",
+      "source": "source_prune--given",
+      "target": "source_prune--step-b",
+      "type": "smoothstep"
+    },
+    {
+      "id": "subgraph_prune--e-given-final-0",
+      "source": "subgraph_prune--given",
+      "target": "subgraph_prune--final",
+      "type": "smoothstep"
+    },
+    {
+      "id": "recompute_descendants--e-given-step-b-0",
+      "source": "recompute_descendants--given",
+      "target": "recompute_descendants--step-b",
+      "type": "smoothstep"
+    },
+    {
+      "id": "recompute_descendants--e-step-b-step-c-1",
+      "source": "recompute_descendants--step-b",
+      "target": "recompute_descendants--step-c",
+      "type": "smoothstep"
+    },
+    {
+      "id": "recompute_descendants--e-step-c-step-d-2",
+      "source": "recompute_descendants--step-c",
+      "target": "recompute_descendants--step-d",
+      "type": "smoothstep"
+    },
+    {
+      "id": "recompute_descendants--e-step-d-final-3",
+      "source": "recompute_descendants--step-d",
+      "target": "recompute_descendants--final",
+      "type": "smoothstep"
+    }
+  ],
+  "events": []
+}

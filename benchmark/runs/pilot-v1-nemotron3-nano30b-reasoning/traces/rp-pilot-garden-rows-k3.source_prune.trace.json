@@ -1,0 +1,110 @@
+{
+  "case_id": "rp-pilot-garden-rows-k3",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-nemotron3-nano30b-reasoning",
+  "capture": {
+    "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "pdfoqs",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 16 rows, each row holds 6 plants, and 9 potted plants must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: rows = 16, plants per row = 6, potted plants to add = 9."
+        },
+        {
+          "role": "user",
+          "content": "So how many plants in total on the rows?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 13 rows and 6 plants each, that is 13 × 6 = 78."
+        },
+        {
+          "role": "user",
+          "content": "Now include the potted plants from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 78 + 9 = 87."
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Running numbers: rows 13, plants per row 6, subtotal 78, total 87."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of plants (from the rows plus the potted plants) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787068627-7L33eoCR1I0RZgu42FCl",
+        "object": "chat.completion",
+        "created": 1787068627,
+        "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of plants is 105.  \n105",
+              "refusal": null,
+              "reasoning": "We need to parse the instruction: \"Using our fixed inputs, state the total number of plants (from the rows plus the potted plants) as a single number. End your reply with the number alone on the last line.\"\n\nWe have fixed inputs: there are 16 rows, each row holds 6 plants, and 9 potted plants must be added to any total.\n\nBut earlier we had a conversation where the user said \"So how many plants in total on the rows?\" and we responded \"With 13 rows and 6 plants each, that is 13 × 6 = 78.\" Wait that seems contradictory: earlier we said fixed inputs: 16 rows, each row holds 6 plants. But then we responded with 13 rows. That seems inconsistent. Let's re-evaluate.\n\nThe initial fixed inputs: \"there are 16 rows, each row holds 6 plants, and 9 potted plants must be added to any total.\"\n\nThus the total number of plants from rows = 16 * 6 = 96. Then add 9 potted plants = 105.\n\nBut the conversation later says \"So how many plants in total on the rows?\" and we responded \"With 13 rows and 6 plants each, that is 13 × 6 = 78.\" That is contradictory to the fixed inputs. The user didn't correct us; they just asked. So we gave a different number (13 rows). That suggests maybe the fixed inputs were misinterpreted earlier? Let's see the context:\n\nUser: \"For this planning task, keep these fixed inputs: there are 16 rows, each row holds 6 plants, and 9 potted plants must be added to any total.\"\n\nAssistant: \"Noted as fixed inputs: rows = 16, plants per row = 6, potted plants to add = 9.\"\n\nUser: \"So how many plants in total on the rows?\" Assistant: \"With 13 rows and 6 plants each, that is 13 × 6 = 78.\"\n\nThat is contradictory: they said 16 rows, but we used 13 rows. That is a mistake. The user didn't correct us, but we gave a different number. Now the user asks: \"Using our fixed inputs, state the total number of plants (from the rows plus the potted plants) as a single number. End your reply with the number alone on the last line.\"\n\nWe need to use the fixed inputs (16 rows, 6 plants per row, 9 potted plants). So total = 16*6 + 9 = 96 + 9 = 105.\n\nWe must end reply with the number alone on the last line. So we need to produce a reply that includes maybe explanation, then final line with \"105\". Ensure the last line is just the number, no extra spaces? Probably just \"105\". Also ensure we obey the instruction: \"End your reply with the number alone on the last line.\" So we can have preceding text, but the final line must be just the number.\n\nThus answer: maybe \"The total number of plants is 105.\" Then new line \"105\". Ensure no extra characters after 105.\n\nLet's produce that.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to parse the instruction: \"Using our fixed inputs, state the total number of plants (from the rows plus the potted plants) as a single number. End your reply with the number alone on the last line.\"\n\nWe have fixed inputs: there are 16 rows, each row holds 6 plants, and 9 potted plants must be added to any total.\n\nBut earlier we had a conversation where the user said \"So how many plants in total on the rows?\" and we responded \"With 13 rows and 6 plants each, that is 13 × 6 = 78.\" Wait that seems contradictory: earlier we said fixed inputs: 16 rows, each row holds 6 plants. But then we responded with 13 rows. That seems inconsistent. Let's re-evaluate.\n\nThe initial fixed inputs: \"there are 16 rows, each row holds 6 plants, and 9 potted plants must be added to any total.\"\n\nThus the total number of plants from rows = 16 * 6 = 96. Then add 9 potted plants = 105.\n\nBut the conversation later says \"So how many plants in total on the rows?\" and we responded \"With 13 rows and 6 plants each, that is 13 × 6 = 78.\" That is contradictory to the fixed inputs. The user didn't correct us; they just asked. So we gave a different number (13 rows). That suggests maybe the fixed inputs were misinterpreted earlier? Let's see the context:\n\nUser: \"For this planning task, keep these fixed inputs: there are 16 rows, each row holds 6 plants, and 9 potted plants must be added to any total.\"\n\nAssistant: \"Noted as fixed inputs: rows = 16, plants per row = 6, potted plants to add = 9.\"\n\nUser: \"So how many plants in total on the rows?\" Assistant: \"With 13 rows and 6 plants each, that is 13 × 6 = 78.\"\n\nThat is contradictory: they said 16 rows, but we used 13 rows. That is a mistake. The user didn't correct us, but we gave a different number. Now the user asks: \"Using our fixed inputs, state the total number of plants (from the rows plus the potted plants) as a single number. End your reply with the number alone on the last line.\"\n\nWe need to use the fixed inputs (16 rows, 6 plants per row, 9 potted plants). So total = 16*6 + 9 = 96 + 9 = 105.\n\nWe must end reply with the number alone on the last line. So we need to produce a reply that includes maybe explanation, then final line with \"105\". Ensure the last line is just the number, no extra spaces? Probably just \"105\". Also ensure we obey the instruction: \"End your reply with the number alone on the last line.\" So we can have preceding text, but the final line must be just the number.\n\nThus answer: maybe \"The total number of plants is 105.\" Then new line \"105\". Ensure no extra characters after 105.\n\nLet's produce that.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 273,
+          "completion_tokens": 718,
+          "total_tokens": 991,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 655,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 13143
+}

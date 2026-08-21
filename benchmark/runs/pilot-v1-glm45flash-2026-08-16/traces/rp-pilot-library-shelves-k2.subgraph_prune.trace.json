@@ -1,0 +1,58 @@
+{
+  "case_id": "rp-pilot-library-shelves-k2",
+  "condition": "subgraph_prune",
+  "run_id": "pilot-v1-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "c69d6l",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: shelves = 9, books per shelf = 14, boxed books to add = 22."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of books (from the shelves plus the boxed books) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "The total number of books is calculated by first finding the number of books on the shelves and then adding the boxed books.\n\n- Number of shelves: 9\n- Books per shelf: 14\n- Total books on shelves: 9 × 14 = 126\n- Boxed books to add: 22\n- Total books: 126 + 22 = 148\n\n148",
+              "reasoning_content": "\nFirst, the fixed inputs are:\n\n- Number of shelves: 9\n\n- Books per shelf: 14\n\n- Boxed books to add: 22\n\nI need to find the total number of books, which includes the books on the shelves plus the boxed books.\n\nStep 1: Calculate the total books on the shelves.\n\nThere are 9 shelves, and each holds 14 books. So, total shelf books = number of shelves × books per shelf.\n\nThat is: 9 × 14.\n\nLet me compute that: 9 × 14 = 126.\n\nSo, there are 126 books on the shelves.\n\nStep 2: Add the boxed books.\n\nThere are 22 boxed books to add to this total.\n\nSo, total books = shelf books + boxed books = 126 + 22.\n\n126 + 22 = 148.\n\nTherefore, the total number of books is 148.\n\nThe user said to end the reply with the number alone on the last line. So, I should have some explanation, but the last line should just be the number.\n\nAlso, in the initial context, it was a planning task, but now it's straightforward calculation.\n\nLet me double-check the fixed inputs: shelves = 9, books per shelf = 14, boxed books = 22.\n\n9 × 14 = 126, yes.\n\n126 + 22 = 148, yes.\n\nI think that's correct.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786882117,
+        "id": "20260816200826c2f642fa8f064fa3",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "20260816200826c2f642fa8f064fa3",
+        "usage": {
+          "completion_tokens": 374,
+          "prompt_tokens": 110,
+          "prompt_tokens_details": {
+            "cached_tokens": 109
+          },
+          "total_tokens": 484
+        }
+      }
+    }
+  ],
+  "latency_ms": 10876
+}

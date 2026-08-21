@@ -1,0 +1,82 @@
+{
+  "case_id": "rp-pilot-ferry-decks-k3",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "cje3h4",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "So how many seats in total on the decks?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 4 decks and 22 seats each, that is 4 × 22 = 88. (the sister ferry's 5 decks mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Now include the standing places from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 88 + 17 = 105. (the sister ferry's 5 decks mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Running numbers: decks 4, seats per deck 22, subtotal 88, total 105. (the sister ferry's 5 decks mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "Based on the fixed inputs of 4 decks with 22 seats each and 17 standing places, the total number of seats is calculated as follows:  \n4 decks × 22 seats/deck = 88 seats from decks.  \nAdding the standing places: 88 + 17 = 105.  \n\n105",
+              "reasoning_content": "\nFirst, the user is asking for the total number of seats, including both the deck seats and the standing places. From the fixed inputs, I know there are 4 decks, each with 22 seats, and 17 standing places must be added.\n\nI need to calculate the total seats from the decks. That's 4 decks times 22 seats per deck. So, 4 × 22 = 88 seats.\n\nThen, I have to add the standing places: 17.\n\nSo, total seats = deck seats + standing places = 88 + 17 = 105.\n\nThe user wants this as a single number, and to end the reply with the number alone on the last line. That means I should provide some context or explanation before, but the final line should just be the number.\n\nLooking back at the conversation, the user has been consistent with the fixed inputs: decks=4, seats per deck=22, standing places=17. And in previous responses, I've calculated 88 for deck seats and 105 total.\n\nThe user also mentioned \"the sister ferry's 5 decks mentioned earlier is a separate matter,\" but in this query, it's not relevant. I should focus on the current fixed inputs.\n\nSo, total number of seats is 105.\n\nNow, for the reply: I need to state it clearly. Perhaps I can say something like: \"Based on the fixed inputs, the total number of seats including standing places is 105.\" And then end with \"105\" on the last line.\n\nThe user said: \"state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\"\n\nSo, I should have a brief explanation, but the last line must be just the number.\n\nTo be precise, I'll write a sentence or two, and then the number.\n\nFinally, ensure that the number is correct: 4 decks × 22 seats/deck = 88 seats. 88 + 17 standing places = 105. Yes.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786886421,
+        "id": "20260816212005185499b009fd433f",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "20260816212005185499b009fd433f",
+        "usage": {
+          "completion_tokens": 487,
+          "prompt_tokens": 268,
+          "prompt_tokens_details": {
+            "cached_tokens": 175
+          },
+          "total_tokens": 755
+        }
+      }
+    }
+  ],
+  "latency_ms": 16752
+}

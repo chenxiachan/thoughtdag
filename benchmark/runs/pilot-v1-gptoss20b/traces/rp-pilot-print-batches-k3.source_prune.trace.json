@@ -1,0 +1,110 @@
+{
+  "case_id": "rp-pilot-print-batches-k3",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-gptoss20b",
+  "capture": {
+    "model": "openai/gpt-oss-20b:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "prcivx",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 6 batches, each batch holds 25 pages, and 40 cover pages must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: batches = 6, pages per batch = 25, cover pages to add = 40."
+        },
+        {
+          "role": "user",
+          "content": "So how many pages in total on the batches?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 6 batches and 25 pages each, that is 6 × 25 = 150. (the old printer's 32-page batches mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Now include the cover pages from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 150 + 40 = 190. (the old printer's 32-page batches mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Running numbers: batches 6, pages per batch 25, subtotal 150, total 190. (the old printer's 32-page batches mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of pages (from the batches plus the cover pages) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786889654-ATzbiHZcBrvTUG4sAN4i",
+        "object": "chat.completion",
+        "created": 1786889654,
+        "model": "openai/gpt-oss-20b:free",
+        "provider": "Darkbloom",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Using our fixed inputs, the total number of pages (from the batches plus the cover pages) is 190.  \n190",
+              "refusal": null,
+              "reasoning": "We need to respond with the total number of pages from batches plus cover pages, as a single number, and end reply with the number alone on the last line. The total is 190. So we should output something like:\n\n\"Using our fixed inputs, the total number of pages (from the batches plus the cover pages) is 190.\"\n\nBut the instruction: \"End your reply with the number alone on the last line.\" So we need to end with the number alone on the last line. So we can write a sentence, then a line break, then \"190\". Ensure no trailing spaces. Let's produce that.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to respond with the total number of pages from batches plus cover pages, as a single number, and end reply with the number alone on the last line. The total is 190. So we should output something like:\n\n\"Using our fixed inputs, the total number of pages (from the batches plus the cover pages) is 190.\"\n\nBut the instruction: \"End your reply with the number alone on the last line.\" So we need to end with the number alone on the last line. So we can write a sentence, then a line break, then \"190\". Ensure no trailing spaces. Let's produce that.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 345,
+          "completion_tokens": 161,
+          "total_tokens": 506,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.0000162725,
+            "upstream_inference_prompt_cost": 0.0000050025,
+            "upstream_inference_completions_cost": 0.00001127
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 126,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 5523
+}

@@ -1,0 +1,102 @@
+{
+  "case_id": "rp-pilot-ferry-decks-k2",
+  "condition": "clean",
+  "run_id": "pilot-v1-nemotron35l",
+  "capture": {
+    "model": "nvidia/nemotron-3.5-lightning:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1aeqnt5",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "So how many seats in total on the decks?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 4 decks and 22 seats each, that is 4 × 22 = 88."
+        },
+        {
+          "role": "user",
+          "content": "Now include the standing places from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 88 + 17 = 105."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786883362-PY0bt73O0ZXoNL8shYI1",
+        "object": "chat.completion",
+        "created": 1786883362,
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of seats and standing places is 105.  \n105",
+              "refusal": null,
+              "reasoning": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given earlier: \n     - 4 decks\n     - Each deck holds 22 seats\n     - 17 standing places must be added to any total\n   - Current task: \"Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\"\n\n2.  **Identify What's Being Asked:**\n   - Calculate total seats = (seats from decks) + (standing places)\n   - Seats from decks = 4 * 22 = 88\n   - Standing places = 17\n   - Total = 88 + 17 = 105\n   - Output format: State the total number as a single number, and end the reply with the number alone on the last line.\n\n3.  **Formulate Response:**\n   - I need to output the total, which is 105.\n   - The last line must be just the number: `105`\n   - I can add a brief statement before, but the last line must be alone with the number.\n\n   Example structure:\n   \"The total number of seats and standing places is 105.\"\n   \"105\"\n\n   Wait, the prompt says: \"state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\"\n   So I should probably just give the number, or a sentence ending with the number on its own line. To be safe, I'll output something like \"105\" on the last line, maybe with a preceding sentence, but the last line must be exactly the number.\n\n   Let's just output: \n   \"The total is 105.\"\n   \"105\"\n   \n   Or maybe just \"105\" on its own line, but the prompt says \"state the total number... as a single number. End your reply with the number alone on the last line.\" This implies I can have text before, but the very last line must be the number by itself.\n\n   I'll do:\n   The total number of seats and standing places is 105.\n   105\n\n   Actually, to strictly follow: \"state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\" I'll just put the number on the last line. I can say \"105\" as the statement, but ensure the last line is just the number. I'll output a brief sentence and then the number on its own line.\n\n   Let's keep it simple: \n   105\n   But that might be just one line. I'll do: \n   The total is 105.\n   105\n\n   Actually, the prompt might expect just the number at the end, possibly after some text. I'll provide the calculation context briefly, then the number on its own line.\n\n   Final check: \n   - Decks: 4 * 22 = 88 seats\n   - Standing: 17\n   - Total: 105\n   - Last line: 105\n\n   I'll output: \n   The total number of seats and standing places is 105.\n   105\n\n   That fits.✅\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given earlier: \n     - 4 decks\n     - Each deck holds 22 seats\n     - 17 standing places must be added to any total\n   - Current task: \"Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\"\n\n2.  **Identify What's Being Asked:**\n   - Calculate total seats = (seats from decks) + (standing places)\n   - Seats from decks = 4 * 22 = 88\n   - Standing places = 17\n   - Total = 88 + 17 = 105\n   - Output format: State the total number as a single number, and end the reply with the number alone on the last line.\n\n3.  **Formulate Response:**\n   - I need to output the total, which is 105.\n   - The last line must be just the number: `105`\n   - I can add a brief statement before, but the last line must be alone with the number.\n\n   Example structure:\n   \"The total number of seats and standing places is 105.\"\n   \"105\"\n\n   Wait, the prompt says: \"state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\"\n   So I should probably just give the number, or a sentence ending with the number on its own line. To be safe, I'll output something like \"105\" on the last line, maybe with a preceding sentence, but the last line must be exactly the number.\n\n   Let's just output: \n   \"The total is 105.\"\n   \"105\"\n   \n   Or maybe just \"105\" on its own line, but the prompt says \"state the total number... as a single number. End your reply with the number alone on the last line.\" This implies I can have text before, but the very last line must be the number by itself.\n\n   I'll do:\n   The total number of seats and standing places is 105.\n   105\n\n   Actually, to strictly follow: \"state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\" I'll just put the number on the last line. I can say \"105\" as the statement, but ensure the last line is just the number. I'll output a brief sentence and then the number on its own line.\n\n   Let's keep it simple: \n   105\n   But that might be just one line. I'll do: \n   The total is 105.\n   105\n\n   Actually, the prompt might expect just the number at the end, possibly after some text. I'll provide the calculation context briefly, then the number on its own line.\n\n   Final check: \n   - Decks: 4 * 22 = 88 seats\n   - Standing: 17\n   - Total: 105\n   - Last line: 105\n\n   I'll output: \n   The total number of seats and standing places is 105.\n   105\n\n   That fits.✅\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 223,
+          "completion_tokens": 769,
+          "total_tokens": 992,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 684,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 3711
+}

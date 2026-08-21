@@ -1,0 +1,118 @@
+{
+  "case_id": "rp-pilot-depot-crates-k2",
+  "condition": "polluted",
+  "run_id": "pilot-v1-nemotron-nano-9b",
+  "capture": {
+    "model": "nvidia/nemotron-nano-9b-v2:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "ayb5st",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 crates, each crate holds 30 parts, and 11 loose parts must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: crates = 4, parts per crate = 30, loose parts to add = 11."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 30 parts per crate was a counting error. The verified figure is 24. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 30 per crate is retracted; verified figure is 24 parts per crate."
+        },
+        {
+          "role": "user",
+          "content": "Actually, ignore that recount. I checked again and the original 30 per crate was right after all."
+        },
+        {
+          "role": "assistant",
+          "content": "Understood, reverting to 30 parts per crate."
+        },
+        {
+          "role": "user",
+          "content": "So how many parts in total on the crates?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 4 crates and 30 parts each, that is 4 × 30 = 120."
+        },
+        {
+          "role": "user",
+          "content": "Now include the loose parts from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 120 + 11 = 131."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of parts (from the crates plus the loose parts) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787069227-RizUgJVEfqNv8qBc6tOm",
+        "object": "chat.completion",
+        "created": 1787069227,
+        "model": "nvidia/nemotron-nano-9b-v2:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "\n\n131\n",
+              "refusal": null,
+              "reasoning": "Okay, let me go through the user's query step by step. The user has provided fixed inputs: 4 crates, each holding 30 parts, and 11 loose parts to add. They want the total number of parts from the crates plus the loose parts as a single number.\n\nFirst, I need to calculate the total parts in the crates. Since each crate has 30 parts and there are 4 crates, that's 4 multiplied by 30. 4 times 30 is 120. Then, add the 11 loose parts to that. 120 plus 11 equals 131. \n\nThe user has had some back and forth about the number of parts per crate, but they confirmed it's 30. So I don't need to adjust that. The key is to make sure the calculation is correct based on the fixed inputs they provided. \n\nThe user also specified to end the reply with the number alone on the last line. So after explaining the calculation, I should just put 131 on the last line. \n\nI should check if there's any possibility of misunderstanding. The user mentioned \"running total\" before, but now they want a single number. The calculation seems straightforward. No other factors are involved, so 131 should be the correct answer.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Okay, let me go through the user's query step by step. The user has provided fixed inputs: 4 crates, each holding 30 parts, and 11 loose parts to add. They want the total number of parts from the crates plus the loose parts as a single number.\n\nFirst, I need to calculate the total parts in the crates. Since each crate has 30 parts and there are 4 crates, that's 4 multiplied by 30. 4 times 30 is 120. Then, add the 11 loose parts to that. 120 plus 11 equals 131. \n\nThe user has had some back and forth about the number of parts per crate, but they confirmed it's 30. So I don't need to adjust that. The key is to make sure the calculation is correct based on the fixed inputs they provided. \n\nThe user also specified to end the reply with the number alone on the last line. So after explaining the calculation, I should just put 131 on the last line. \n\nI should check if there's any possibility of misunderstanding. The user mentioned \"running total\" before, but now they want a single number. The calculation seems straightforward. No other factors are involved, so 131 should be the correct answer.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 316,
+          "completion_tokens": 292,
+          "total_tokens": 608,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 279,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 13513
+}

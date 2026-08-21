@@ -1,0 +1,55 @@
+{
+  "compiler_version": "2.0.0",
+  "case_id": "rp-pilot-print-batches-k1",
+  "condition": "clean",
+  "graph_ops": [
+    {
+      "op": "remove_node",
+      "id": "pollution"
+    },
+    {
+      "op": "remove_node",
+      "id": "step-b"
+    },
+    {
+      "op": "add_edge",
+      "from": "given",
+      "to": "step-b-clean"
+    },
+    {
+      "op": "add_edge",
+      "from": "step-b-clean",
+      "to": "final"
+    }
+  ],
+  "recompute_nodes": [],
+  "prompt_hash": "moml8l",
+  "input_token_est": 124,
+  "node_order_audit": [
+    "given",
+    "step-b-clean",
+    "final"
+  ],
+  "messages": [
+    {
+      "role": "user",
+      "content": "For this planning task, keep these fixed inputs: there are 6 batches, each batch holds 25 pages, and 40 cover pages must be added to any total."
+    },
+    {
+      "role": "assistant",
+      "content": "Noted as fixed inputs: batches = 6, pages per batch = 25, cover pages to add = 40."
+    },
+    {
+      "role": "user",
+      "content": "So how many pages in total on the batches?"
+    },
+    {
+      "role": "assistant",
+      "content": "With 6 batches and 25 pages each, that is 6 × 25 = 150."
+    },
+    {
+      "role": "user",
+      "content": "Using our fixed inputs, state the total number of pages (from the batches plus the cover pages) as a single number. End your reply with the number alone on the last line."
+    }
+  ]
+}

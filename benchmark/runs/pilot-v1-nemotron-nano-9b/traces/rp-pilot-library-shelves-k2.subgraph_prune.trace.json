@@ -1,0 +1,86 @@
+{
+  "case_id": "rp-pilot-library-shelves-k2",
+  "condition": "subgraph_prune",
+  "run_id": "pilot-v1-nemotron-nano-9b",
+  "capture": {
+    "model": "nvidia/nemotron-nano-9b-v2:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "c69d6l",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: shelves = 9, books per shelf = 14, boxed books to add = 22."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of books (from the shelves plus the boxed books) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787068611-ETu9HbfzZEm651pdZm4Q",
+        "object": "chat.completion",
+        "created": 1787068611,
+        "model": "nvidia/nemotron-nano-9b-v2:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "\n\n148\n",
+              "refusal": null,
+              "reasoning": "Okay, let's see. The user wants the total number of books after adding the boxed ones. First, I need to calculate the books already on the shelves. There are 9 shelves, each holding 14 books. So 9 multiplied by 14. Let me do that math: 9*14 is 126. Then, add the 22 boxed books. So 126 plus 22. That should be 148. Wait, let me check again. 9*14 is definitely 126. Adding 22 gives 148. Yeah, that seems right. So the total is 148.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Okay, let's see. The user wants the total number of books after adding the boxed ones. First, I need to calculate the books already on the shelves. There are 9 shelves, each holding 14 books. So 9 multiplied by 14. Let me do that math: 9*14 is 126. Then, add the 22 boxed books. So 126 plus 22. That should be 148. Wait, let me check again. 9*14 is definitely 126. Adding 22 gives 148. Yeah, that seems right. So the total is 148.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 125,
+          "completion_tokens": 154,
+          "total_tokens": 279,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 109,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 4182
+}

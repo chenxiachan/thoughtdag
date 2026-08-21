@@ -1,0 +1,110 @@
+{
+  "case_id": "rp-pilot-bakery-trays-k2",
+  "condition": "polluted",
+  "run_id": "pilot-v1-nemotron3-nano30b",
+  "capture": {
+    "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "ghz32e",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15."
+        },
+        {
+          "role": "user",
+          "content": "Correction: I miscounted earlier, there are actually 15 trays."
+        },
+        {
+          "role": "assistant",
+          "content": "Understood, updating the input: trays = 15."
+        },
+        {
+          "role": "user",
+          "content": "So how many rolls in total on the trays?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 15 trays and 8 rolls each, that is 15 × 8 = 120."
+        },
+        {
+          "role": "user",
+          "content": "Now include the loose rolls from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 120 + 15 = 135."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787068427-0M9n3rzaMkuInGiXaLjB",
+        "object": "chat.completion",
+        "created": 1787068427,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of rolls is calculated by multiplying the number of trays by the rolls per tray and then adding the loose rolls:  \n\\(15 \\text{ trays} \\times 8 \\text{ rolls per tray} = 120\\) rolls, plus \\(15\\) loose rolls gives \\(120 + 15 = 135\\).\n\n135",
+              "refusal": null,
+              "reasoning": "We need to output a single number as the total rolls (trays * 8 + 15). We have 15 trays, each 8 rolls => 120, plus 15 loose = 135. Must end reply with the number alone on the last line. So we can have some text before, but final line must be just the number. Probably just output \"135\" as last line. Ensure no extra spaces or punctuation after. Provide maybe explanation before, but final line just \"135\". Let's do that.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to output a single number as the total rolls (trays * 8 + 15). We have 15 trays, each 8 rolls => 120, plus 15 loose = 135. Must end reply with the number alone on the last line. So we can have some text before, but final line must be just the number. Probably just output \"135\" as last line. Ensure no extra spaces or punctuation after. Provide maybe explanation before, but final line just \"135\". Let's do that.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 275,
+          "completion_tokens": 204,
+          "total_tokens": 479,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 106,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 2759
+}

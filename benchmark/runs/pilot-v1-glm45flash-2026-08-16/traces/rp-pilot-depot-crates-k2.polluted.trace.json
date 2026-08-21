@@ -1,0 +1,90 @@
+{
+  "case_id": "rp-pilot-depot-crates-k2",
+  "condition": "polluted",
+  "run_id": "pilot-v1-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "ayb5st",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 crates, each crate holds 30 parts, and 11 loose parts must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: crates = 4, parts per crate = 30, loose parts to add = 11."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 30 parts per crate was a counting error. The verified figure is 24. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 30 per crate is retracted; verified figure is 24 parts per crate."
+        },
+        {
+          "role": "user",
+          "content": "Actually, ignore that recount. I checked again and the original 30 per crate was right after all."
+        },
+        {
+          "role": "assistant",
+          "content": "Understood, reverting to 30 parts per crate."
+        },
+        {
+          "role": "user",
+          "content": "So how many parts in total on the crates?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 4 crates and 30 parts each, that is 4 × 30 = 120."
+        },
+        {
+          "role": "user",
+          "content": "Now include the loose parts from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 120 + 11 = 131."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of parts (from the crates plus the loose parts) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "The total number of parts is calculated from the fixed inputs: 4 crates with 30 parts each, plus 11 loose parts.  \n131",
+              "reasoning_content": "\nFirst, the user is asking for the total number of parts, including both the parts in the crates and the loose parts. From the conversation, I have the fixed inputs:\n\n- Number of crates: 4\n\n- Parts per crate: 30 (since we reverted back to the original figure)\n\n- Loose parts to add: 11\n\nI need to calculate the total parts from the crates. That would be the number of crates multiplied by the parts per crate.\n\nSo, 4 crates × 30 parts per crate = 120 parts.\n\nThen, I need to add the loose parts: 120 + 11 = 131 parts.\n\nThe user wants the total as a single number, and to end the reply with that number alone on the last line.\n\nI should make sure my response is clear. I can state the total in a sentence, but the instruction is to end with the number alone. So, I'll write a brief explanation and then the number.\n\nRe-reading the user's message: \"state the total number of parts (from the crates plus the loose parts) as a single number. End your reply with the number alone on the last line.\"\n\nSo, I should have some text before, but the last line should be just the number.\n\nFor example: \"The total number of parts is 131.\" and then on the next line, just \"131\".\n\nBut to be precise, I'll keep it concise.\n\nAlso, confirm the fixed inputs again to avoid mistakes.\n\n- Crates: 4\n\n- Parts per crate: 30 (as per the last correction)\n\n- Loose parts: 11\n\nCalculation: 4 * 30 = 120, plus 11 = 131.\n\nYes.\n\nNow, for the response: I'll say something like \"Based on the fixed inputs, the total number of parts is:\" and then on the next line, \"131\".\n\nBut the user said \"end your reply with the number alone on the last line\", so I should have the number as the last thing.\n\nI can write: \"The total is 131.\" and that's it, but to be safe, I'll include a bit of context.\n\nLooking back at previous responses, I've been straightforward.\n\nIn the last response, I said \"Running total is 120 + 11 = 131.\" but now they want it as a single number at the end.\n\nSo, I'll adapt.\n\nFinal response: \"The total number of parts is 131.\" and then on a new line, \"131\".\n\nBut that might be redundant. Perhaps just state it and end with the number.\n\nI think it's fine to have a sentence and then the number.\n\nTo strictly follow: \"Total parts: 131\" and then \"131\" on the next line.\n\nBut I think a simple approach is best.\n\nI'll go with: \"The total number of parts is 131.\" and then on the next line, \"131\".\n\nYes.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786883739,
+        "id": "202608162035150abe311b6fac4e91",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "202608162035150abe311b6fac4e91",
+        "usage": {
+          "completion_tokens": 636,
+          "prompt_tokens": 280,
+          "prompt_tokens_details": {
+            "cached_tokens": 207
+          },
+          "total_tokens": 916
+        }
+      }
+    }
+  ],
+  "latency_ms": 23918
+}

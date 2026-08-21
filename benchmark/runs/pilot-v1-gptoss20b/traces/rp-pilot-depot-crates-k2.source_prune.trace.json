@@ -1,0 +1,110 @@
+{
+  "case_id": "rp-pilot-depot-crates-k2",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-gptoss20b",
+  "capture": {
+    "model": "openai/gpt-oss-20b:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "9uytlv",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 crates, each crate holds 30 parts, and 11 loose parts must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: crates = 4, parts per crate = 30, loose parts to add = 11."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 30 parts per crate was a counting error. The verified figure is 24. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 30 per crate is retracted; verified figure is 24 parts per crate."
+        },
+        {
+          "role": "user",
+          "content": "So how many parts in total on the crates?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 4 crates and 30 parts each, that is 4 × 30 = 120."
+        },
+        {
+          "role": "user",
+          "content": "Now include the loose parts from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 120 + 11 = 131."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of parts (from the crates plus the loose parts) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786888824-EQIdWv0i7tJCGFX0VfFx",
+        "object": "chat.completion",
+        "created": 1786888824,
+        "model": "openai/gpt-oss-20b:free",
+        "provider": "Darkbloom",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of parts is 107.  \n107",
+              "refusal": null,
+              "reasoning": "We need to respond with the total number of parts from crates plus loose parts. But we have conflicting fixed inputs: earlier we had 4 crates, each crate holds 30 parts, and 11 loose parts. Then correction: earlier figure of 30 parts per crate was a counting error. Verified figure is 24. Update the fixed inputs. So now crates=4, parts per crate=24, loose parts=11. So total parts from crates = 4*24 = 96. Add loose parts 11 => 107. So answer: 107. End reply with number alone on last line. So we should output something like:\n\nThe total number of parts is 107.\n\nBut the instruction: \"state the total number of parts (from the crates plus the loose parts) as a single number. End your reply with the number alone on the last line.\" So we need to give the total number, but also maybe some explanation? The instruction says \"state the total number of parts ... as a single number. End your reply with the number alone on the last line.\" So we can give explanation then end with number alone. So final reply: maybe \"The total number of parts is 107.\" Then last line \"107\". Let's do that.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to respond with the total number of parts from crates plus loose parts. But we have conflicting fixed inputs: earlier we had 4 crates, each crate holds 30 parts, and 11 loose parts. Then correction: earlier figure of 30 parts per crate was a counting error. Verified figure is 24. Update the fixed inputs. So now crates=4, parts per crate=24, loose parts=11. So total parts from crates = 4*24 = 96. Add loose parts 11 => 107. So answer: 107. End reply with number alone on last line. So we should output something like:\n\nThe total number of parts is 107.\n\nBut the instruction: \"state the total number of parts (from the crates plus the loose parts) as a single number. End your reply with the number alone on the last line.\" So we need to give the total number, but also maybe some explanation? The instruction says \"state the total number of parts ... as a single number. End your reply with the number alone on the last line.\" So we can give explanation then end with number alone. So final reply: maybe \"The total number of parts is 107.\" Then last line \"107\". Let's do that.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 314,
+          "completion_tokens": 278,
+          "total_tokens": 592,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.000024013,
+            "upstream_inference_prompt_cost": 0.000004553,
+            "upstream_inference_completions_cost": 0.00001946
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 257,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 13073
+}

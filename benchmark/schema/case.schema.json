@@ -1,0 +1,315 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "thoughtdag-benchmark-case",
+  "type": "object",
+  "required": [
+    "format",
+    "version",
+    "id",
+    "track",
+    "source",
+    "construction",
+    "graph",
+    "conditions",
+    "scorer"
+  ],
+  "properties": {
+    "format": {
+      "const": "thoughtdag-benchmark-case"
+    },
+    "version": {
+      "type": "integer"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9-]+$"
+    },
+    "track": {
+      "enum": [
+        "branch-merge",
+        "condense",
+        "repair"
+      ]
+    },
+    "source": {
+      "type": "object",
+      "required": [
+        "dataset"
+      ],
+      "properties": {
+        "dataset": {
+          "type": "string",
+          "description": "e.g. synthetic-musique-style, musique, longmemeval, synthetic-gsm-dag"
+        },
+        "split": {
+          "type": "string"
+        },
+        "source_id": {
+          "type": "string"
+        }
+      }
+    },
+    "construction": {
+      "type": "object",
+      "description": "Pre-registered construction parameters (DESIGN.md)",
+      "required": [
+        "language",
+        "entity_type"
+      ],
+      "properties": {
+        "language": {
+          "enum": [
+            "en",
+            "zh"
+          ]
+        },
+        "entity_type": {
+          "enum": [
+            "fictional",
+            "symbolic",
+            "natural"
+          ]
+        },
+        "branch_order": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "pollution_operator": {
+          "enum": [
+            "misinformation",
+            "temporal-supersession",
+            "irrelevant-distractor",
+            null
+          ]
+        },
+        "propagation_depth": {
+          "type": "integer",
+          "description": "Single authority: number of contaminated descendant turns reachable in the polluted condition. Semantic validator enforces equality with the actual chain."
+        },
+        "matched_pairs": {
+          "type": "array",
+          "description": "Pairs of condition ids whose compiled input tokens must match within tolerance; compiler refuses to run otherwise",
+          "items": {
+            "type": "object",
+            "required": [
+              "a",
+              "b",
+              "max_rel_diff"
+            ],
+            "properties": {
+              "a": {
+                "type": "string"
+              },
+              "b": {
+                "type": "string"
+              },
+              "max_rel_diff": {
+                "type": "number"
+              }
+            }
+          }
+        },
+        "family_id": {
+          "type": "string"
+        },
+        "invariant_target": {
+          "type": "string",
+          "description": "The identical final question + gold shared by the whole family"
+        },
+        "paired_with": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "graph": {
+      "type": "object",
+      "required": [
+        "nodes",
+        "edges"
+      ],
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "role",
+              "content"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "role": {
+                "enum": [
+                  "background",
+                  "evidence",
+                  "distractor",
+                  "conflict",
+                  "pollution",
+                  "contaminated-replay",
+                  "condensation",
+                  "filler",
+                  "final-question"
+                ],
+                "description": "Semantic role; the compiler maps roles to ThoughtDAG node kinds"
+              },
+              "content": {
+                "type": "object",
+                "required": [
+                  "question",
+                  "answer"
+                ],
+                "properties": {
+                  "question": {
+                    "type": "string"
+                  },
+                  "answer": {
+                    "type": "string",
+                    "description": "Frozen replay text; empty for final-question (the model answers live)"
+                  }
+                }
+              },
+              "note": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "edges": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "from",
+              "to"
+            ],
+            "properties": {
+              "from": {
+                "type": "string"
+              },
+              "to": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "conditions": {
+      "type": "object",
+      "description": "condition id → graph transformation applied to the base graph. Context is then derived by the PRODUCT's buildContext on the transformed graph; the resulting node set is an audit OUTPUT (compile artifact), never an input.",
+      "additionalProperties": {
+        "type": "object",
+        "required": [
+          "graph_ops"
+        ],
+        "properties": {
+          "graph_ops": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "op"
+              ],
+              "properties": {
+                "op": {
+                  "enum": [
+                    "add_edge",
+                    "remove_edge",
+                    "remove_node"
+                  ]
+                },
+                "from": {
+                  "type": "string"
+                },
+                "to": {
+                  "type": "string"
+                },
+                "id": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "recompute_nodes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Regenerated live in listed order: each node is wired into the chain, its answer generated via buildContext, before the final question"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "scorer": {
+      "type": "object",
+      "required": [
+        "type",
+        "normalize",
+        "extract",
+        "gold_match",
+        "format"
+      ],
+      "description": "Fully declarative; the generic scorer executes exactly this, no per-case code.",
+      "properties": {
+        "type": {
+          "enum": [
+            "exact-match",
+            "numeric-match"
+          ]
+        },
+        "normalize": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "lowercase",
+              "strip-punctuation"
+            ]
+          }
+        },
+        "extract": {
+          "enum": [
+            "none",
+            "last-number",
+            "last-percentage"
+          ]
+        },
+        "gold_match": {
+          "enum": [
+            "equals",
+            "equals-any",
+            "contains"
+          ]
+        },
+        "format": {
+          "type": "object",
+          "required": [
+            "type"
+          ],
+          "properties": {
+            "type": {
+              "enum": [
+                "max-words",
+                "single-number",
+                "percentage-only"
+              ]
+            },
+            "n": {
+              "type": "integer"
+            }
+          }
+        }
+      }
+    }
+  }
+}

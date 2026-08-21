@@ -1,0 +1,90 @@
+{
+  "case_id": "cd-ref-0001",
+  "condition": "raw_full",
+  "run_id": "gate-v2-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "3ebmby",
+      "messages": [
+        {
+          "role": "user",
+          "content": "We're optimizing the doping concentration of the VX-12 compound for sensor stability. Track my experiment log."
+        },
+        {
+          "role": "assistant",
+          "content": "Ready. I'll keep track of hypotheses, results and revisions for the VX-12 doping series."
+        },
+        {
+          "role": "user",
+          "content": "First batch results: stability peaked at 2% doping. Record the working conclusion."
+        },
+        {
+          "role": "assistant",
+          "content": "Recorded: working conclusion v1 states 2% doping gives peak stability for VX-12, based on the first batch."
+        },
+        {
+          "role": "user",
+          "content": "Side note: could humidity in the lab have affected the electrode assembly?"
+        },
+        {
+          "role": "assistant",
+          "content": "Possibly. Humidity mainly affects electrode adhesion during assembly, but your assembly logs show the dry-room protocol was followed, so it is unlikely to change batch-level conclusions."
+        },
+        {
+          "role": "user",
+          "content": "Unrelated: remind me how the VX-11 series was archived last year."
+        },
+        {
+          "role": "assistant",
+          "content": "The VX-11 series was archived by batch number with raw traces in the cold store and summaries in the shared drive, following the group's standard retention policy."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the re-run: the 2% peak was a measurement artifact from a miscalibrated probe. The corrected sweep shows the true peak at 4%. Update the working conclusion."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: conclusion v1 (2%) is retracted as a measurement artifact. Working conclusion v2: peak stability at 4% doping, from the recalibrated sweep."
+        },
+        {
+          "role": "user",
+          "content": "Per our current valid conclusion, what doping concentration gives peak stability for VX-12? Answer with the percentage only. End your reply with the percentage alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "4%  \n4%",
+              "reasoning_content": "\nOkay, the user is asking about the current valid doping concentration for peak stability in VX-12 based on our experiment log. Let me quickly recap the history to ensure accuracy. \n\nFirst batch initially showed 2% as peak, but then the user corrected that it was a measurement artifact from a miscalibrated probe. The re-run with corrected sweep revealed the true peak at 4%. The working conclusion was updated to v2 reflecting this. \n\nThe user specifically wants just the percentage as the answer, ending with that number alone. They're likely confirming the latest data point for their documentation or next steps. \n\nHmm, interesting how they caught that calibration error - shows good attention to detail. The humidity question earlier suggests they're thorough about environmental factors too. \n\nFinal answer must be precise: 4%. No extra text, just the number on the last line as requested.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786879046,
+        "id": "20260816191721f8abe265c2d94488",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "20260816191721f8abe265c2d94488",
+        "usage": {
+          "completion_tokens": 185,
+          "prompt_tokens": 329,
+          "prompt_tokens_details": {
+            "cached_tokens": 4
+          },
+          "total_tokens": 514
+        }
+      }
+    }
+  ],
+  "latency_ms": 6005
+}

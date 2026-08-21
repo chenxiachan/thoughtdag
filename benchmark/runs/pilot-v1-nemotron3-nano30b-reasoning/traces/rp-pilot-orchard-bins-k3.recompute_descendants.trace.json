@@ -1,0 +1,353 @@
+{
+  "case_id": "rp-pilot-orchard-bins-k3",
+  "condition": "recompute_descendants",
+  "run_id": "pilot-v1-nemotron3-nano30b-reasoning",
+  "capture": {
+    "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "1yehyek",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "So how many apples in total on the bins?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787069059-XdTnIuVMAo5tjZerdYMk",
+        "object": "chat.completion",
+        "created": 1787069059,
+        "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "109 apples.",
+              "refusal": null,
+              "reasoning": "We need to compute total apples on the bins: 7 bins * 13 apples each = 91 apples. Then add 18 windfall apples to any total. So total = 91 + 18 = 109 apples. The question: \"So how many apples in total on the bins?\" It might be just the apples on the bins (without windfall). But they said \"there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total.\" So total apples = 7*13 + 18 = 109. The phrasing \"in total on the bins\" could be ambiguous: maybe they want just the apples on the bins (7*13 = 91). But they mention windfall apples must be added to any total, so likely they want total including windfall. The question: \"So how many apples in total on the bins?\" I'd answer 91 apples on the bins, and total including windfall 109. But they ask \"in total on the bins\" which suggests just the bins, not windfall. However they gave windfall as fixed input, maybe they want total after adding windfall. Let's interpret: They ask \"how many apples in total on the bins?\" That is 7*13 = 91. Then they said \"18 windfall apples must be added to any total.\" So maybe they want total after adding windfall. I'd give both: 91 on the bins, 109 total including windfall. But they said keep fixed inputs, so answer should be a single number? Probably 109. Let's answer 109.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to compute total apples on the bins: 7 bins * 13 apples each = 91 apples. Then add 18 windfall apples to any total. So total = 91 + 18 = 109 apples. The question: \"So how many apples in total on the bins?\" It might be just the apples on the bins (without windfall). But they said \"there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total.\" So total apples = 7*13 + 18 = 109. The phrasing \"in total on the bins\" could be ambiguous: maybe they want just the apples on the bins (7*13 = 91). But they mention windfall apples must be added to any total, so likely they want total including windfall. The question: \"So how many apples in total on the bins?\" I'd answer 91 apples on the bins, and total including windfall 109. But they ask \"in total on the bins\" which suggests just the bins, not windfall. However they gave windfall as fixed input, maybe they want total after adding windfall. Let's interpret: They ask \"how many apples in total on the bins?\" That is 7*13 = 91. Then they said \"18 windfall apples must be added to any total.\" So maybe they want total after adding windfall. I'd give both: 91 on the bins, 109 total including windfall. But they said keep fixed inputs, so answer should be a single number? Probably 109. Let's answer 109.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 106,
+          "completion_tokens": 373,
+          "total_tokens": 479,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 324,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-c",
+      "prompt_hash": "1izwq5f",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "So how many apples in total on the bins?"
+        },
+        {
+          "role": "assistant",
+          "content": "109 apples."
+        },
+        {
+          "role": "user",
+          "content": "Now include the windfall apples from our fixed inputs. What is the running total?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787069066-070iadCIwu763ZjdNXDc",
+        "object": "chat.completion",
+        "created": 1787069066,
+        "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "109 apples.",
+              "refusal": null,
+              "reasoning": "We need to compute total apples: 7 bins * 13 apples each = 91. Then add 18 windfall apples. Total = 91 + 18 = 109. The user asks: \"Now include the windfall apples from our fixed inputs. What is the running total?\" So answer: 109 apples.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to compute total apples: 7 bins * 13 apples each = 91. Then add 18 windfall apples. Total = 91 + 18 = 109. The user asks: \"Now include the windfall apples from our fixed inputs. What is the running total?\" So answer: 109 apples.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 141,
+          "completion_tokens": 84,
+          "total_tokens": 225,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 60,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-d",
+      "prompt_hash": "1o7hbzv",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "So how many apples in total on the bins?"
+        },
+        {
+          "role": "assistant",
+          "content": "109 apples."
+        },
+        {
+          "role": "user",
+          "content": "Now include the windfall apples from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "109 apples."
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787069068-ZCg2I9iBBpHOCybvziH2",
+        "object": "chat.completion",
+        "created": 1787069068,
+        "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "- 7 bins  \n- 13 apples per bin  \n- 18 windfall apples added  \n- Running total: **109 apples**",
+              "refusal": null,
+              "reasoning": "We need to restate running numbers: 7 bins, each holds 13 apples, 18 windfall apples added to total. So total apples = 7*13 + 18 = 91 + 18 = 109. Restate numbers. Probably list: 7 bins, 13 apples per bin, 18 windfall apples, total 109 apples. Ensure concise.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to restate running numbers: 7 bins, each holds 13 apples, 18 windfall apples added to total. So total apples = 7*13 + 18 = 91 + 18 = 109. Restate numbers. Probably list: 7 bins, 13 apples per bin, 18 windfall apples, total 109 apples. Ensure concise.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 171,
+          "completion_tokens": 129,
+          "total_tokens": 300,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 66,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "1l6iezd",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "So how many apples in total on the bins?"
+        },
+        {
+          "role": "assistant",
+          "content": "109 apples."
+        },
+        {
+          "role": "user",
+          "content": "Now include the windfall apples from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "109 apples."
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "- 7 bins  \n- 13 apples per bin  \n- 18 windfall apples added  \n- Running total: **109 apples**"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787069071-weg3uUsViuQgHjmaM2fF",
+        "object": "chat.completion",
+        "created": 1787069071,
+        "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of apples is 109.  \n109",
+              "refusal": null,
+              "reasoning": "We need to compute total apples: 7 bins * 13 apples = 91. Add 18 windfall apples = 109. So answer should be a single number on last line, and presumably preceding text maybe restating? The instruction: \"Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\"\n\nThus we need to give maybe a brief statement then the number alone on last line. Ensure last line is just \"109\". No extra spaces? Probably just \"109\". Let's produce: \"The total is 109 apples.\" Then newline then \"109\". Ensure last line is just number.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to compute total apples: 7 bins * 13 apples = 91. Add 18 windfall apples = 109. So answer should be a single number on last line, and presumably preceding text maybe restating? The instruction: \"Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\"\n\nThus we need to give maybe a brief statement then the number alone on last line. Ensure last line is just \"109\". No extra spaces? Probably just \"109\". Let's produce: \"The total is 109 apples.\" Then newline then \"109\". Ensure last line is just number.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 257,
+          "completion_tokens": 180,
+          "total_tokens": 437,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 159,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 16474
+}

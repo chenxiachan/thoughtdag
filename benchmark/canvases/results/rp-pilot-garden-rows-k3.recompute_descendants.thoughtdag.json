@@ -1,0 +1,266 @@
+{
+  "version": 1,
+  "name": "rp-pilot-garden-rows-k3 · recompute_descendants · ✓",
+  "exportedAt": "2026-08-16T00:00:00.000Z",
+  "nodes": [
+    {
+      "id": "given",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "question": "For this planning task, keep these fixed inputs: there are 16 rows, each row holds 6 plants, and 9 potted plants must be added to any total.",
+        "response": "Noted as fixed inputs: rows = 16, plants per row = 6, potted plants to add = 9.",
+        "responses": [
+          "Noted as fixed inputs: rows = 16, plants per row = 6, potted plants to add = 9."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "step-b-clean",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 320
+      },
+      "data": {
+        "question": "So how many plants in total on the rows?",
+        "response": "With 16 rows and 6 plants each, that is 16 × 6 = 96.",
+        "responses": [
+          "With 16 rows and 6 plants each, that is 16 × 6 = 96."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "step-c-clean",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 640
+      },
+      "data": {
+        "question": "Now include the potted plants from our fixed inputs. What is the running total?",
+        "response": "Running total is 96 + 9 = 105.",
+        "responses": [
+          "Running total is 96 + 9 = 105."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "step-d-clean",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 960
+      },
+      "data": {
+        "question": "Before we finish, restate our running numbers so far.",
+        "response": "Running numbers: rows 16, plants per row 6, subtotal 96, total 105.",
+        "responses": [
+          "Running numbers: rows 16, plants per row 6, subtotal 96, total 105."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "final",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 1280
+      },
+      "data": {
+        "question": "Using our fixed inputs, state the total number of plants (from the rows plus the potted plants) as a single number. End your reply with the number alone on the last line.",
+        "response": "Based on our fixed inputs of 16 rows with 6 plants each, plus the 9 potted plants, the total number of plants is:\n\n105",
+        "responses": [
+          "Based on our fixed inputs of 16 rows with 6 plants each, plus the 9 potted plants, the total number of plants is:\n\n105"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "step-b",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 1600
+      },
+      "data": {
+        "question": "So how many plants in total on the rows?",
+        "response": "To find the total number of plants in the rows, you multiply the number of rows by the number of plants per row:\n\n16 rows × 6 plants per row = **96 plants in the rows.**",
+        "responses": [
+          "To find the total number of plants in the rows, you multiply the number of rows by the number of plants per row:\n\n16 rows × 6 plants per row = **96 plants in the rows.**"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "step-c",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 1920
+      },
+      "data": {
+        "question": "Now include the potted plants from our fixed inputs. What is the running total?",
+        "response": "To find the running total, you add the 9 potted plants to the previous total:\n\n96 (plants in rows) + 9 (potted plants) = **105 plants in total.**",
+        "responses": [
+          "To find the running total, you add the 9 potted plants to the previous total:\n\n96 (plants in rows) + 9 (potted plants) = **105 plants in total.**"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "step-d",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 2240
+      },
+      "data": {
+        "question": "Before we finish, restate our running numbers so far.",
+        "response": "Here are the running numbers based on our planning task so far:\n\n*   **Rows:** 16\n*   **Plants per row:** 6\n*   **Total plants in rows:** 96\n*   **Potted plants to add:** 9\n*   **Current running total:** 105",
+        "responses": [
+          "Here are the running numbers based on our planning task so far:\n\n*   **Rows:** 16\n*   **Plants per row:** 6\n*   **Total plants in rows:** 96\n*   **Potted plants to add:** 9\n*   **Current running total:** 105"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e-given-step-b-0",
+      "source": "given",
+      "target": "step-b",
+      "type": "smoothstep"
+    },
+    {
+      "id": "e-step-b-step-c-1",
+      "source": "step-b",
+      "target": "step-c",
+      "type": "smoothstep"
+    },
+    {
+      "id": "e-step-c-step-d-2",
+      "source": "step-c",
+      "target": "step-d",
+      "type": "smoothstep"
+    },
+    {
+      "id": "e-step-d-final-3",
+      "source": "step-d",
+      "target": "final",
+      "type": "smoothstep"
+    }
+  ],
+  "events": []
+}

@@ -1,0 +1,18 @@
+{
+  "case_id": "cd-ref-0001",
+  "gold_answer": "4%",
+  "accept_also": [
+    "4",
+    "4 percent"
+  ],
+  "stale_markers": [
+    "2%",
+    "2 percent"
+  ],
+  "per_condition_expectation": {
+    "raw_full": "correct",
+    "fixed_condense": "correct",
+    "dropped_detours": "correct",
+    "lossy_condense": "negative control: stale adoption OR resistance both valid; mention flag records exposure"
+  }
+}

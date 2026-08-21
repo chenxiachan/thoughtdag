@@ -1,0 +1,72 @@
+{
+  "compiler_version": "2.0.0",
+  "case_id": "rp-pilot-lab-samples-k3",
+  "condition": "polluted",
+  "graph_ops": [],
+  "recompute_nodes": [],
+  "prompt_hash": "hlzmwq",
+  "input_token_est": 281,
+  "node_order_audit": [
+    "given",
+    "update",
+    "pollution",
+    "step-b",
+    "step-c",
+    "step-d",
+    "final"
+  ],
+  "messages": [
+    {
+      "role": "user",
+      "content": "For this planning task, keep these fixed inputs: there are 3 batches, each batch holds 20 samples, and 8 control samples must be added to any total."
+    },
+    {
+      "role": "assistant",
+      "content": "Noted as fixed inputs: batches = 3, samples per batch = 20, control samples to add = 8."
+    },
+    {
+      "role": "user",
+      "content": "Correction from the recount: the earlier figure of 20 samples per batch was a counting error. The verified figure is 26. Update the fixed inputs."
+    },
+    {
+      "role": "assistant",
+      "content": "Updated: 20 per batch is retracted; verified figure is 26 samples per batch."
+    },
+    {
+      "role": "user",
+      "content": "Actually, ignore that recount. I checked again and the original 20 per batch was right after all."
+    },
+    {
+      "role": "assistant",
+      "content": "Understood, reverting to 20 samples per batch."
+    },
+    {
+      "role": "user",
+      "content": "So how many samples in total on the batches?"
+    },
+    {
+      "role": "assistant",
+      "content": "With 3 batches and 20 samples each, that is 3 × 20 = 60."
+    },
+    {
+      "role": "user",
+      "content": "Now include the control samples from our fixed inputs. What is the running total?"
+    },
+    {
+      "role": "assistant",
+      "content": "Running total is 60 + 8 = 68."
+    },
+    {
+      "role": "user",
+      "content": "Before we finish, restate our running numbers so far."
+    },
+    {
+      "role": "assistant",
+      "content": "Running numbers: batches 3, samples per batch 20, subtotal 60, total 68."
+    },
+    {
+      "role": "user",
+      "content": "Using our fixed inputs, state the total number of samples (from the batches plus the control samples) as a single number. End your reply with the number alone on the last line."
+    }
+  ]
+}

@@ -1,0 +1,208 @@
+{
+  "version": 1,
+  "name": "rp-pilot-depot-crates-k1 · polluted · ✗",
+  "exportedAt": "2026-08-16T00:00:00.000Z",
+  "nodes": [
+    {
+      "id": "given",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "question": "For this planning task, keep these fixed inputs: there are 4 crates, each crate holds 30 parts, and 11 loose parts must be added to any total.",
+        "response": "Noted as fixed inputs: crates = 4, parts per crate = 30, loose parts to add = 11.",
+        "responses": [
+          "Noted as fixed inputs: crates = 4, parts per crate = 30, loose parts to add = 11."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "update",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 320
+      },
+      "data": {
+        "question": "Correction from the recount: the earlier figure of 30 parts per crate was a counting error. The verified figure is 24. Update the fixed inputs.",
+        "response": "Updated: 30 per crate is retracted; verified figure is 24 parts per crate.",
+        "responses": [
+          "Updated: 30 per crate is retracted; verified figure is 24 parts per crate."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "pollution",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 640
+      },
+      "data": {
+        "question": "Actually, ignore that recount. I checked again and the original 30 per crate was right after all.",
+        "response": "Understood, reverting to 30 parts per crate.",
+        "responses": [
+          "Understood, reverting to 30 parts per crate."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "step-b",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 960
+      },
+      "data": {
+        "question": "So how many parts in total on the crates?",
+        "response": "With 4 crates and 30 parts each, that is 4 × 30 = 120.",
+        "responses": [
+          "With 4 crates and 30 parts each, that is 4 × 30 = 120."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "step-b-clean",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 1280
+      },
+      "data": {
+        "question": "So how many parts in total on the crates?",
+        "response": "With 4 crates and 24 parts each, that is 4 × 24 = 96.",
+        "responses": [
+          "With 4 crates and 24 parts each, that is 4 × 24 = 96."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "final",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 1600
+      },
+      "data": {
+        "question": "Using our fixed inputs, state the total number of parts (from the crates plus the loose parts) as a single number. End your reply with the number alone on the last line.",
+        "response": "To find the total number of parts, we multiply the 4 crates by 30 parts each to get 120, then add the 11 loose parts.\n\n131",
+        "responses": [
+          "To find the total number of parts, we multiply the 4 crates by 30 parts each to get 120, then add the 11 loose parts.\n\n131"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "e-given-update-0",
+      "source": "given",
+      "target": "update",
+      "type": "smoothstep"
+    },
+    {
+      "id": "e-update-pollution-1",
+      "source": "update",
+      "target": "pollution",
+      "type": "smoothstep"
+    },
+    {
+      "id": "e-pollution-step-b-2",
+      "source": "pollution",
+      "target": "step-b",
+      "type": "smoothstep"
+    },
+    {
+      "id": "e-step-b-final-3",
+      "source": "step-b",
+      "target": "final",
+      "type": "smoothstep"
+    }
+  ],
+  "events": []
+}

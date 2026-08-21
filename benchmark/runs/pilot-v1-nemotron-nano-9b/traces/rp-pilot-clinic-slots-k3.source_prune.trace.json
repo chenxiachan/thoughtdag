@@ -1,0 +1,118 @@
+{
+  "case_id": "rp-pilot-clinic-slots-k3",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-nemotron-nano-9b",
+  "capture": {
+    "model": "nvidia/nemotron-nano-9b-v2:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "umbi1t",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 5 days, each day holds 18 slots, and 6 walk-in slots must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: days = 5, slots per day = 18, walk-in slots to add = 6."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 18 slots per day was a counting error. The verified figure is 21. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 18 per day is retracted; verified figure is 21 slots per day."
+        },
+        {
+          "role": "user",
+          "content": "So how many slots in total on the days?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 5 days and 18 slots each, that is 5 × 18 = 90."
+        },
+        {
+          "role": "user",
+          "content": "Now include the walk-in slots from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 90 + 6 = 96."
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Running numbers: days 5, slots per day 18, subtotal 90, total 96."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of slots (from the days plus the walk-in slots) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787069477-DsCbmyRH74KgumOYwZZv",
+        "object": "chat.completion",
+        "created": 1787069477,
+        "model": "nvidia/nemotron-nano-9b-v2:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "\n\n111\n",
+              "refusal": null,
+              "reasoning": "Okay, let me go through the user's query step by step. The user wants the total number of slots, which includes both the daily slots and the walk-in slots.\n\nFirst, the fixed inputs are 5 days, each with 21 slots (since the initial 18 was corrected to 21). So, calculating the daily slots: 5 days multiplied by 21 slots per day equals 105. Then, adding the 6 walk-in slots gives 105 + 6 = 111. \n\nThe user emphasized ending with just the number, so I need to make sure the final answer is 111 without any extra text. Let me double-check the calculations to avoid any mistakes. Yes, 5*21 is definitely 105, plus 6 is 111. That should be the correct total.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Okay, let me go through the user's query step by step. The user wants the total number of slots, which includes both the daily slots and the walk-in slots.\n\nFirst, the fixed inputs are 5 days, each with 21 slots (since the initial 18 was corrected to 21). So, calculating the daily slots: 5 days multiplied by 21 slots per day equals 105. Then, adding the 6 walk-in slots gives 105 + 6 = 111. \n\nThe user emphasized ending with just the number, so I need to make sure the final answer is 111 without any extra text. Let me double-check the calculations to avoid any mistakes. Yes, 5*21 is definitely 105, plus 6 is 111. That should be the correct total.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 311,
+          "completion_tokens": 191,
+          "total_tokens": 502,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 165,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 5494
+}

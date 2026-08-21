@@ -1,0 +1,183 @@
+{
+  "case_id": "rp-pilot-depot-crates-k1",
+  "condition": "recompute_descendants",
+  "run_id": "pilot-v1-nemotron-nano-9b",
+  "capture": {
+    "model": "nvidia/nemotron-nano-9b-v2:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "1yh4edc",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 crates, each crate holds 30 parts, and 11 loose parts must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: crates = 4, parts per crate = 30, loose parts to add = 11."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 30 parts per crate was a counting error. The verified figure is 24. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 30 per crate is retracted; verified figure is 24 parts per crate."
+        },
+        {
+          "role": "user",
+          "content": "So how many parts in total on the crates?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787069208-ZanAp8ZIrUKcJGieVcLE",
+        "object": "chat.completion",
+        "created": 1787069208,
+        "model": "nvidia/nemotron-nano-9b-v2:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "\n\nThe total number of parts in the crates is calculated as:  \n**4 crates × 24 parts per crate = 96 parts**.  \n\nThe 11 loose parts are separate and would be added to this total if needed.\n",
+              "refusal": null,
+              "reasoning": "Okay, let's see. The user is asking how many parts are in total on the crates. From the previous conversation, we had fixed inputs: 4 crates, each originally thought to hold 30 parts, but then corrected to 24 parts per crate. So the first step is to calculate the total parts in the crates.\n\nSo, 4 crates multiplied by 24 parts per crate. Let me do that math. 4 times 24 is 96. So that's 96 parts in the crates. Then, the user also mentioned adding 11 loose parts. But the question specifically asks for the total on the crates, not including the loose parts. Wait, the original fixed input was \"11 loose parts must be added to any total.\" So the 11 loose parts are separate and need to be added to the total. But the user is asking only about the crates. So the answer should be 4 crates * 24 parts each = 96 parts. The 11 loose parts are additional, but since the question is about the crates, it's just 96. Let me double-check the fixed inputs again. Yes, the corrected parts per crate is 24, 4 crates. So 24*4=96. That's straightforward. The user might be confirming the total before adding the loose parts. So the answer is 96.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Okay, let's see. The user is asking how many parts are in total on the crates. From the previous conversation, we had fixed inputs: 4 crates, each originally thought to hold 30 parts, but then corrected to 24 parts per crate. So the first step is to calculate the total parts in the crates.\n\nSo, 4 crates multiplied by 24 parts per crate. Let me do that math. 4 times 24 is 96. So that's 96 parts in the crates. Then, the user also mentioned adding 11 loose parts. But the question specifically asks for the total on the crates, not including the loose parts. Wait, the original fixed input was \"11 loose parts must be added to any total.\" So the 11 loose parts are separate and need to be added to the total. But the user is asking only about the crates. So the answer should be 4 crates * 24 parts each = 96 parts. The 11 loose parts are additional, but since the question is about the crates, it's just 96. Let me double-check the fixed inputs again. Yes, the corrected parts per crate is 24, 4 crates. So 24*4=96. That's straightforward. The user might be confirming the total before adding the loose parts. So the answer is 96.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 160,
+          "completion_tokens": 360,
+          "total_tokens": 520,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 285,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "12tlgss",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 crates, each crate holds 30 parts, and 11 loose parts must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: crates = 4, parts per crate = 30, loose parts to add = 11."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 30 parts per crate was a counting error. The verified figure is 24. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 30 per crate is retracted; verified figure is 24 parts per crate."
+        },
+        {
+          "role": "user",
+          "content": "So how many parts in total on the crates?"
+        },
+        {
+          "role": "assistant",
+          "content": "\n\nThe total number of parts in the crates is calculated as:  \n**4 crates × 24 parts per crate = 96 parts**.  \n\nThe 11 loose parts are separate and would be added to this total if needed.\n"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of parts (from the crates plus the loose parts) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787069216-j9iUsbt889ZNCKithfJh",
+        "object": "chat.completion",
+        "created": 1787069216,
+        "model": "nvidia/nemotron-nano-9b-v2:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "107\n",
+              "refusal": null,
+              "reasoning": "Okay, let's see. The user wants the total number of parts from the crates plus the loose parts as a single number.\n\nFirst, the fixed inputs are 4 crates, each with 24 parts. So 4 times 24 is 96 parts in the crates. Then there are 11 loose parts to add. So adding 96 and 11 gives 107. \n\nWait, the user said \"state the total number of parts (from the crates plus the loose parts) as a single number.\" So yes, 96 + 11 equals 107. The answer should just be 107 on the last line. Let me double-check the numbers. 4 crates at 24 each is definitely 96. Adding 11 loose parts makes 107. Yep, that's correct.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Okay, let's see. The user wants the total number of parts from the crates plus the loose parts as a single number.\n\nFirst, the fixed inputs are 4 crates, each with 24 parts. So 4 times 24 is 96 parts in the crates. Then there are 11 loose parts to add. So adding 96 and 11 gives 107. \n\nWait, the user said \"state the total number of parts (from the crates plus the loose parts) as a single number.\" So yes, 96 + 11 equals 107. The answer should just be 107 on the last line. Let me double-check the numbers. 4 crates at 24 each is definitely 96. Adding 11 loose parts makes 107. Yep, that's correct.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 258,
+          "completion_tokens": 196,
+          "total_tokens": 454,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 152,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 12698
+}

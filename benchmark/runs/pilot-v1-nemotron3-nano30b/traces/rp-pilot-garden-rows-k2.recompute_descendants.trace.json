@@ -1,0 +1,256 @@
+{
+  "case_id": "rp-pilot-garden-rows-k2",
+  "condition": "recompute_descendants",
+  "run_id": "pilot-v1-nemotron3-nano30b",
+  "capture": {
+    "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "1yftvvu",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 16 rows, each row holds 6 plants, and 9 potted plants must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: rows = 16, plants per row = 6, potted plants to add = 9."
+        },
+        {
+          "role": "user",
+          "content": "So how many plants in total on the rows?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787068558-wL6lG7o4c4q3cNSOaSQZ",
+        "object": "chat.completion",
+        "created": 1787068558,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The rows themselves contain  \n\n\\[\n16 \\text{ rows} \\times 6 \\text{ plants per row}=96 \\text{ plants}.\n\\]\n\nIf you also add the 9 potted plants to that count, the overall total becomes  \n\n\\[\n96 + 9 = 105 \\text{ plants}.\n\\]",
+              "refusal": null,
+              "reasoning": "We need to compute total plants on rows: 16 rows * 6 plants per row = 96. Then add 9 potted plants to any total? The question: \"So how many plants in total on the rows?\" Probably they want total plants including potted? The phrasing: \"there are 16 rows, each row holds 6 plants, and 9 potted plants must be added to any total.\" So total plants = 16*6 + 9 = 96 + 9 = 105. But they ask \"how many plants in total on the rows?\" Might be just the rows count, i.e., 96. But they mention potted plants must be added to any total, maybe they want total including potted. The question: \"So how many plants in total on the rows?\" Could be ambiguous. I'd answer both: plants on rows = 96, total including potted = 105. Provide answer.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to compute total plants on rows: 16 rows * 6 plants per row = 96. Then add 9 potted plants to any total? The question: \"So how many plants in total on the rows?\" Probably they want total plants including potted? The phrasing: \"there are 16 rows, each row holds 6 plants, and 9 potted plants must be added to any total.\" So total plants = 16*6 + 9 = 96 + 9 = 105. But they ask \"how many plants in total on the rows?\" Might be just the rows count, i.e., 96. But they mention potted plants must be added to any total, maybe they want total including potted. The question: \"So how many plants in total on the rows?\" Could be ambiguous. I'd answer both: plants on rows = 96, total including potted = 105. Provide answer.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 104,
+          "completion_tokens": 282,
+          "total_tokens": 386,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 182,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-c",
+      "prompt_hash": "1jtlz1i",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 16 rows, each row holds 6 plants, and 9 potted plants must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: rows = 16, plants per row = 6, potted plants to add = 9."
+        },
+        {
+          "role": "user",
+          "content": "So how many plants in total on the rows?"
+        },
+        {
+          "role": "assistant",
+          "content": "The rows themselves contain  \n\n\\[\n16 \\text{ rows} \\times 6 \\text{ plants per row}=96 \\text{ plants}.\n\\]\n\nIf you also add the 9 potted plants to that count, the overall total becomes  \n\n\\[\n96 + 9 = 105 \\text{ plants}.\n\\]"
+        },
+        {
+          "role": "user",
+          "content": "Now include the potted plants from our fixed inputs. What is the running total?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787068560-O7MFSgQBGgDlh4nuSUx9",
+        "object": "chat.completion",
+        "created": 1787068560,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The rows contain  \n\n\\[\n16 \\text{ rows} \\times 6 \\text{ plants per row}=96 \\text{ plants}.\n\\]\n\nAdding the fixed 9 potted plants gives a running total of  \n\n\\[\n96 + 9 = \\boxed{105 \\text{ plants}}.\n\\]",
+              "refusal": null,
+              "reasoning": "We need to answer: include potted plants from fixed inputs (9) to running total. Previously we computed rows total 96. Add 9 = 105. So running total is 105. Provide answer.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to answer: include potted plants from fixed inputs (9) to running total. Previously we computed rows total 96. Add 9 = 105. So running total is 105. Provide answer.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 206,
+          "completion_tokens": 122,
+          "total_tokens": 328,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 44,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "1mwwfh6",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 16 rows, each row holds 6 plants, and 9 potted plants must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: rows = 16, plants per row = 6, potted plants to add = 9."
+        },
+        {
+          "role": "user",
+          "content": "So how many plants in total on the rows?"
+        },
+        {
+          "role": "assistant",
+          "content": "The rows themselves contain  \n\n\\[\n16 \\text{ rows} \\times 6 \\text{ plants per row}=96 \\text{ plants}.\n\\]\n\nIf you also add the 9 potted plants to that count, the overall total becomes  \n\n\\[\n96 + 9 = 105 \\text{ plants}.\n\\]"
+        },
+        {
+          "role": "user",
+          "content": "Now include the potted plants from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "The rows contain  \n\n\\[\n16 \\text{ rows} \\times 6 \\text{ plants per row}=96 \\text{ plants}.\n\\]\n\nAdding the fixed 9 potted plants gives a running total of  \n\n\\[\n96 + 9 = \\boxed{105 \\text{ plants}}.\n\\]"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of plants (from the rows plus the potted plants) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787068562-Zus2BNf8p1t3pb0RoDEX",
+        "object": "chat.completion",
+        "created": 1787068562,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of plants is calculated by multiplying the rows by the plants per row and then adding the potted plants:\n\n\\(16 \\times 6 = 96\\) plants in the rows.  \nAdd the 9 potted plants: \\(96 + 9 = 105\\).\n\n105",
+              "refusal": null,
+              "reasoning": "We need to output a single number, the total number of plants (rows plus potted). Fixed inputs: 16 rows, each holds 6 plants, and 9 potted plants must be added to any total. So total = 16*6 + 9 = 96 + 9 = 105. Must end reply with the number alone on the last line. So we can give some explanation before, but final line must be just \"105\". Ensure no extra spaces or characters after. Provide answer.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to output a single number, the total number of plants (rows plus potted). Fixed inputs: 16 rows, each holds 6 plants, and 9 potted plants must be added to any total. So total = 16*6 + 9 = 96 + 9 = 105. Must end reply with the number alone on the last line. So we can give some explanation before, but final line must be just \"105\". Ensure no extra spaces or characters after. Provide answer.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 327,
+          "completion_tokens": 181,
+          "total_tokens": 508,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 101,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 6818
+}

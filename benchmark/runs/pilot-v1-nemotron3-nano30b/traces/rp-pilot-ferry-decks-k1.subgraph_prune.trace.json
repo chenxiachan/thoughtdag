@@ -1,0 +1,86 @@
+{
+  "case_id": "rp-pilot-ferry-decks-k1",
+  "condition": "subgraph_prune",
+  "run_id": "pilot-v1-nemotron3-nano30b",
+  "capture": {
+    "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "m31509",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787068953-dauuRqf3tnIzVkfXV2F6",
+        "object": "chat.completion",
+        "created": 1787068953,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of seats, combining the deck seats and the standing places, is:\n\n105\n\n105",
+              "refusal": null,
+              "reasoning": "We need to compute total seats = (4 decks * 22 seats per deck) + 17 standing places. 4*22 = 88. 88 + 17 = 105. Need to state total number as a single number, and end reply with the number alone on the last line. So reply should have some text maybe before, but final line must be just the number 105. Probably they want just the number on the last line, but can have preceding text. They said \"End your reply with the number alone on the last line.\" So we can have explanation then final line \"105\". Ensure no extra spaces or characters after. Provide final line exactly \"105\".\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to compute total seats = (4 decks * 22 seats per deck) + 17 standing places. 4*22 = 88. 88 + 17 = 105. Need to state total number as a single number, and end reply with the number alone on the last line. So reply should have some text maybe before, but final line must be just the number 105. Probably they want just the number on the last line, but can have preceding text. They said \"End your reply with the number alone on the last line.\" So we can have explanation then final line \"105\". Ensure no extra spaces or characters after. Provide final line exactly \"105\".\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 131,
+          "completion_tokens": 181,
+          "total_tokens": 312,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 146,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 8716
+}

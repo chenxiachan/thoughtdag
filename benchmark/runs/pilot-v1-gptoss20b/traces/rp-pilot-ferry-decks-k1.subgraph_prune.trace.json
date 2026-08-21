@@ -1,0 +1,86 @@
+{
+  "case_id": "rp-pilot-ferry-decks-k1",
+  "condition": "subgraph_prune",
+  "run_id": "pilot-v1-gptoss20b",
+  "capture": {
+    "model": "openai/gpt-oss-20b:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "m31509",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786889731-eBHQRGVktqwKBxdjiA8r",
+        "object": "chat.completion",
+        "created": 1786889731,
+        "model": "openai/gpt-oss-20b:free",
+        "provider": "Darkbloom",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of seats (from the decks plus the standing places) is 105.  \n105",
+              "refusal": null,
+              "reasoning": "We need to compute total seats from decks plus standing places. Decks: 4 decks * 22 seats each = 88 seats. Standing places: 17. Total = 88 + 17 = 105. End reply with number alone on last line. So we should output something like:\n\nTotal seats: 105\n\nBut the instruction: \"state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\" So we should give some explanation maybe, but final line must be just the number. So we can write:\n\nThe total number of seats is 105.\n\n105\n\nYes.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to compute total seats from decks plus standing places. Decks: 4 decks * 22 seats each = 88 seats. Standing places: 17. Total = 88 + 17 = 105. End reply with number alone on last line. So we should output something like:\n\nTotal seats: 105\n\nBut the instruction: \"state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\" So we should give some explanation maybe, but final line must be just the number. So we can write:\n\nThe total number of seats is 105.\n\n105\n\nYes.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 175,
+          "completion_tokens": 169,
+          "total_tokens": 344,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.0000143675,
+            "upstream_inference_prompt_cost": 0.0000025375,
+            "upstream_inference_completions_cost": 0.00001183
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 139,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 7162
+}

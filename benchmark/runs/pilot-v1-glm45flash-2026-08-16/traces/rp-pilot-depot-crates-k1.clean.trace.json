@@ -1,0 +1,74 @@
+{
+  "case_id": "rp-pilot-depot-crates-k1",
+  "condition": "clean",
+  "run_id": "pilot-v1-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1r1clus",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 crates, each crate holds 30 parts, and 11 loose parts must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: crates = 4, parts per crate = 30, loose parts to add = 11."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 30 parts per crate was a counting error. The verified figure is 24. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 30 per crate is retracted; verified figure is 24 parts per crate."
+        },
+        {
+          "role": "user",
+          "content": "So how many parts in total on the crates?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 4 crates and 24 parts each, that is 4 × 24 = 96."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of parts (from the crates plus the loose parts) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "The total number of parts is calculated by multiplying the number of crates by the parts per crate and then adding the loose parts. With 4 crates each holding 24 parts, that gives 96 parts, and adding 11 loose parts results in a total of 107 parts.  \n107",
+              "reasoning_content": "\nFirst, the user is asking for the total number of parts, including both the parts in the crates and the loose parts. I need to use the fixed inputs that were established earlier.\n\nFrom the conversation:\n\n- There are 4 crates.\n\n- Each crate holds 24 parts (this was updated from the initial 30 due to a correction).\n\n- Additionally, there are 11 loose parts that must be added to any total.\n\nSo, to find the total parts:\n\n1. Calculate the parts in the crates: 4 crates × 24 parts per crate.\n\n   - 4 × 24 = 96 parts.\n\n2. Add the loose parts: 96 + 11.\n\n   - 96 + 11 = 107 parts.\n\nThe user specified to end the reply with the number alone on the last line. So, I should provide the answer in a sentence and then just the number.\n\nAlso, ensure that I'm using the correct fixed inputs. The correction was made: 24 parts per crate, not 30. And loose parts are 11.\n\nFinally, the total is 107.\n\nNow, for the reply structure: I should state the total clearly and then end with the number.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786883635,
+        "id": "20260816203340e80592b4d3244d84",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "20260816203340e80592b4d3244d84",
+        "usage": {
+          "completion_tokens": 306,
+          "prompt_tokens": 205,
+          "prompt_tokens_details": {
+            "cached_tokens": 17
+          },
+          "total_tokens": 511
+        }
+      }
+    }
+  ],
+  "latency_ms": 14754
+}

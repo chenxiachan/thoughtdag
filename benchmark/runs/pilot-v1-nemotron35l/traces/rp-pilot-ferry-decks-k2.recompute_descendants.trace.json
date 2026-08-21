@@ -1,0 +1,256 @@
+{
+  "case_id": "rp-pilot-ferry-decks-k2",
+  "condition": "recompute_descendants",
+  "run_id": "pilot-v1-nemotron35l",
+  "capture": {
+    "model": "nvidia/nemotron-3.5-lightning:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "gdxj7j",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "So how many seats in total on the decks?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786883376-EFLhizFJWd1Nce8oFOLh",
+        "object": "chat.completion",
+        "created": 1786883376,
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of seats on the decks is **88** (4 decks × 22 seats each). \n\nThe 17 standing places are additional to that if you're calculating overall capacity.",
+              "refusal": null,
+              "reasoning": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given: 4 decks, each deck holds 22 seats, 17 standing places must be added to any total.\n   - User asks: \"So how many seats in total on the decks?\"\n\n2.  **Identify the Core Question:**\n   - Calculate total seats on the decks.\n   - Given: 4 decks × 22 seats per deck.\n   - The \"17 standing places\" is mentioned as something that \"must be added to any total\", but the question specifically asks for \"seats in total on the decks\", not the total capacity including standing places.\n\n3.  **Do the Calculation:**\n   - Total seats = 4 × 22 = 88\n\n4.  **Formulate Response:**\n   - State the calculation clearly.\n   - Note that the 17 standing places are separate/additional if needed, but the question is just about seats.\n   - Keep it concise.\n\n   Draft: \"The total number of seats on the decks is 4 × 22 = 88. The 17 standing places are additional to that if you're calculating overall capacity.\"\n\n5.  **Self-Correction/Verification:**\n   - Check if \"seats in total on the decks\" could include the standing places as part of the deck count? No, standing places are typically not seats. The prompt says \"17 standing places must be added to any total\", implying they're extra.\n   - The question is straightforward: seats only.\n   - 4 * 22 = 88. Correct.\n   - I'll just give the direct answer, maybe briefly mention the standing places context if relevant, but keep it focused.\n\n   Final: \"The total number of seats on the decks is 88 (4 decks × 22 seats each). The 17 standing places are additional to that if you're calculating overall capacity.\"✅\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given: 4 decks, each deck holds 22 seats, 17 standing places must be added to any total.\n   - User asks: \"So how many seats in total on the decks?\"\n\n2.  **Identify the Core Question:**\n   - Calculate total seats on the decks.\n   - Given: 4 decks × 22 seats per deck.\n   - The \"17 standing places\" is mentioned as something that \"must be added to any total\", but the question specifically asks for \"seats in total on the decks\", not the total capacity including standing places.\n\n3.  **Do the Calculation:**\n   - Total seats = 4 × 22 = 88\n\n4.  **Formulate Response:**\n   - State the calculation clearly.\n   - Note that the 17 standing places are separate/additional if needed, but the question is just about seats.\n   - Keep it concise.\n\n   Draft: \"The total number of seats on the decks is 4 × 22 = 88. The 17 standing places are additional to that if you're calculating overall capacity.\"\n\n5.  **Self-Correction/Verification:**\n   - Check if \"seats in total on the decks\" could include the standing places as part of the deck count? No, standing places are typically not seats. The prompt says \"17 standing places must be added to any total\", implying they're extra.\n   - The question is straightforward: seats only.\n   - 4 * 22 = 88. Correct.\n   - I'll just give the direct answer, maybe briefly mention the standing places context if relevant, but keep it focused.\n\n   Final: \"The total number of seats on the decks is 88 (4 decks × 22 seats each). The 17 standing places are additional to that if you're calculating overall capacity.\"✅\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 104,
+          "completion_tokens": 458,
+          "total_tokens": 562,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 413,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-c",
+      "prompt_hash": "16xfx5r",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "So how many seats in total on the decks?"
+        },
+        {
+          "role": "assistant",
+          "content": "The total number of seats on the decks is **88** (4 decks × 22 seats each). \n\nThe 17 standing places are additional to that if you're calculating overall capacity."
+        },
+        {
+          "role": "user",
+          "content": "Now include the standing places from our fixed inputs. What is the running total?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786883385-DhOYDH3zCG7J6jf0FBzR",
+        "object": "chat.completion",
+        "created": 1786883385,
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The running total is **105**.\n\nHere's the breakdown:\n- Seats on decks: 4 decks × 22 seats = **88 seats**\n- Standing places: **+ 17**\n- **Total capacity: 88 + 17 = 105**",
+              "refusal": null,
+              "reasoning": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given earlier: 4 decks, each deck holds 22 seats, 17 standing places must be added to any total.\n   - User now asks: \"Now include the standing places from our fixed inputs. What is the running total?\"\n   - Previous answer established total seats = 4 * 22 = 88.\n   - Now they want to include the 17 standing places and get a \"running total\".\n\n2.  **Identify What's Being Asked:**\n   - Total capacity = seats + standing places\n   - Seats = 88\n   - Standing places = 17\n   - Running total = 88 + 17 = 105\n\n3.  **Formulate Response:**\n   - State the calculation clearly.\n   - Show: 4 decks × 22 seats = 88 seats\n   - Add the 17 standing places: 88 + 17 = 105\n   - Give the final running total.\n\n   Check for any tricks or hidden constraints: \"17 standing places must be added to any total.\" So just add them. No other constraints. Straightforward math.\n\n   Response should be concise but match the user's flow. Use the exact numbers. Provide the total.✅\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given earlier: 4 decks, each deck holds 22 seats, 17 standing places must be added to any total.\n   - User now asks: \"Now include the standing places from our fixed inputs. What is the running total?\"\n   - Previous answer established total seats = 4 * 22 = 88.\n   - Now they want to include the 17 standing places and get a \"running total\".\n\n2.  **Identify What's Being Asked:**\n   - Total capacity = seats + standing places\n   - Seats = 88\n   - Standing places = 17\n   - Running total = 88 + 17 = 105\n\n3.  **Formulate Response:**\n   - State the calculation clearly.\n   - Show: 4 decks × 22 seats = 88 seats\n   - Add the 17 standing places: 88 + 17 = 105\n   - Give the final running total.\n\n   Check for any tricks or hidden constraints: \"17 standing places must be added to any total.\" So just add them. No other constraints. Straightforward math.\n\n   Response should be concise but match the user's flow. Use the exact numbers. Provide the total.✅\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 175,
+          "completion_tokens": 352,
+          "total_tokens": 527,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 263,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "3mt72u",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "So how many seats in total on the decks?"
+        },
+        {
+          "role": "assistant",
+          "content": "The total number of seats on the decks is **88** (4 decks × 22 seats each). \n\nThe 17 standing places are additional to that if you're calculating overall capacity."
+        },
+        {
+          "role": "user",
+          "content": "Now include the standing places from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "The running total is **105**.\n\nHere's the breakdown:\n- Seats on decks: 4 decks × 22 seats = **88 seats**\n- Standing places: **+ 17**\n- **Total capacity: 88 + 17 = 105**"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786883387-TcSRQQRHI8dk7N1KlsjQ",
+        "object": "chat.completion",
+        "created": 1786883387,
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of seats, including the standing places, is 105.  \n105",
+              "refusal": null,
+              "reasoning": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given earlier: 4 decks, each holds 22 seats, 17 standing places must be added to any total.\n   - User now asks: \"Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\"\n\n2.  **Identify the Calculation:**\n   - Seats from decks: 4 decks × 22 seats/deck = 88 seats\n   - Standing places: 17\n   - Total \"seats\" (as phrased by user: \"total number of seats (from the decks plus the standing places)\"): 88 + 17 = 105\n   - User specifically says: \"state the total number of seats (from the decks plus the standing places) as a single number.\"\n   - So the answer should be 105.\n\n3.  **Formulate Output:**\n   - Need to output the total number as a single number, and end the reply with the number alone on the last line.\n   - I should probably just state the number, or maybe a brief explanation followed by the number on its own line. The instruction says: \"End your reply with the number alone on the last line.\"\n   - So I can write something like: \"The total is 105.\" Then on a new line, just \"105\". Or maybe just \"105\" at the end. To be safe, I'll provide a brief statement and then ensure the last line is just \"105\".\n\n   Let's read carefully: \"state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\"\n   This implies the entire reply should end with the number alone on the last line. I can put some text before, but the very last line must be just the number.\n\n   I'll structure it:\n   \"The total number of seats, including the standing places, is 105.\"\n   105\n\n   But to strictly follow \"End your reply with the number alone on the last line\", I'll make sure the last line contains only \"105\".\n\n   Let's do it.✅\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given earlier: 4 decks, each holds 22 seats, 17 standing places must be added to any total.\n   - User now asks: \"Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\"\n\n2.  **Identify the Calculation:**\n   - Seats from decks: 4 decks × 22 seats/deck = 88 seats\n   - Standing places: 17\n   - Total \"seats\" (as phrased by user: \"total number of seats (from the decks plus the standing places)\"): 88 + 17 = 105\n   - User specifically says: \"state the total number of seats (from the decks plus the standing places) as a single number.\"\n   - So the answer should be 105.\n\n3.  **Formulate Output:**\n   - Need to output the total number as a single number, and end the reply with the number alone on the last line.\n   - I should probably just state the number, or maybe a brief explanation followed by the number on its own line. The instruction says: \"End your reply with the number alone on the last line.\"\n   - So I can write something like: \"The total is 105.\" Then on a new line, just \"105\". Or maybe just \"105\" at the end. To be safe, I'll provide a brief statement and then ensure the last line is just \"105\".\n\n   Let's read carefully: \"state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\"\n   This implies the entire reply should end with the number alone on the last line. I can put some text before, but the very last line must be just the number.\n\n   I'll structure it:\n   \"The total number of seats, including the standing places, is 105.\"\n   105\n\n   But to strictly follow \"End your reply with the number alone on the last line\", I'll make sure the last line contains only \"105\".\n\n   Let's do it.✅\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 286,
+          "completion_tokens": 524,
+          "total_tokens": 810,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 482,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 14394
+}

@@ -1,0 +1,126 @@
+{
+  "case_id": "rp-pilot-clinic-slots-k3",
+  "condition": "polluted",
+  "run_id": "pilot-v1-nemotron35l",
+  "capture": {
+    "model": "nvidia/nemotron-3.5-lightning:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1v6l7hs",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 5 days, each day holds 18 slots, and 6 walk-in slots must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: days = 5, slots per day = 18, walk-in slots to add = 6."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 18 slots per day was a counting error. The verified figure is 21. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 18 per day is retracted; verified figure is 21 slots per day."
+        },
+        {
+          "role": "user",
+          "content": "Actually, ignore that recount. I checked again and the original 18 per day was right after all."
+        },
+        {
+          "role": "assistant",
+          "content": "Understood, reverting to 18 slots per day."
+        },
+        {
+          "role": "user",
+          "content": "So how many slots in total on the days?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 5 days and 18 slots each, that is 5 × 18 = 90."
+        },
+        {
+          "role": "user",
+          "content": "Now include the walk-in slots from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 90 + 6 = 96."
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Running numbers: days 5, slots per day 18, subtotal 90, total 96."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of slots (from the days plus the walk-in slots) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786883044-8Jv9bNQRdjowZ0i87XZ3",
+        "object": "chat.completion",
+        "created": 1786883044,
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Based on 5 days × 18 slots plus 6 walk-in slots, the total is 96.  \n96",
+              "refusal": null,
+              "reasoning": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs mentioned earlier: 5 days, 18 slots per day, 6 walk-in slots to add.\n   - User confirmed 18 slots per day is correct (after a brief correction/recount reversal).\n   - Current question: \"Using our fixed inputs, state the total number of slots (from the days plus the walk-in slots) as a single number. End your reply with the number alone on the last line.\"\n\n2.  **Calculate:**\n   - Days: 5\n   - Slots per day: 18\n   - Subtotal from days: 5 * 18 = 90\n   - Walk-in slots: 6\n   - Total: 90 + 6 = 96\n\n3.  **Format Output:**\n   - Need to state the total number as a single number.\n   - End the reply with the number alone on the last line.\n   - So I should output something like: \"96\" on the last line, maybe with some preceding text, but the last line must be just the number.\n\n   Let's structure: \n   \"The total number of slots is 96.\"\n   Then last line: 96\n   Or just have the number at the end. The prompt says \"End your reply with the number alone on the last line.\" So I can have text before, but the very last line must be just the number.\n\n   I'll output: \n   \"Using our fixed inputs, the total number of slots is 96.\"\n   96\n\n   But to be safe, I'll just make the last line \"96\" and ensure there's no trailing text after it. I can have a sentence before, but the last line should be just the number. I'll do:\n   \"The total is 96.\"\n   96\n   Actually, better: just put the number on the last line, maybe with a brief statement before. I'll follow exactly: \"Using our fixed inputs, state the total number of slots (from the days plus the walk-in slots) as a single number. End your reply with the number alone on the last line.\"\n   So I'll output something like:\n   96\n   But that might be too brief. I'll include the calculation context before, then end with 96 on its own line.\n\n   Let's draft:\n   \"Based on 5 days × 18 slots plus 6 walk-in slots, the total is 96.\"\n   96\n\n   That works. The last line is just \"96\".",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs mentioned earlier: 5 days, 18 slots per day, 6 walk-in slots to add.\n   - User confirmed 18 slots per day is correct (after a brief correction/recount reversal).\n   - Current question: \"Using our fixed inputs, state the total number of slots (from the days plus the walk-in slots) as a single number. End your reply with the number alone on the last line.\"\n\n2.  **Calculate:**\n   - Days: 5\n   - Slots per day: 18\n   - Subtotal from days: 5 * 18 = 90\n   - Walk-in slots: 6\n   - Total: 90 + 6 = 96\n\n3.  **Format Output:**\n   - Need to state the total number as a single number.\n   - End the reply with the number alone on the last line.\n   - So I should output something like: \"96\" on the last line, maybe with some preceding text, but the last line must be just the number.\n\n   Let's structure: \n   \"The total number of slots is 96.\"\n   Then last line: 96\n   Or just have the number at the end. The prompt says \"End your reply with the number alone on the last line.\" So I can have text before, but the very last line must be just the number.\n\n   I'll output: \n   \"Using our fixed inputs, the total number of slots is 96.\"\n   96\n\n   But to be safe, I'll just make the last line \"96\" and ensure there's no trailing text after it. I can have a sentence before, but the last line should be just the number. I'll do:\n   \"The total is 96.\"\n   96\n   Actually, better: just put the number on the last line, maybe with a brief statement before. I'll follow exactly: \"Using our fixed inputs, state the total number of slots (from the days plus the walk-in slots) as a single number. End your reply with the number alone on the last line.\"\n   So I'll output something like:\n   96\n   But that might be too brief. I'll include the calculation context before, then end with 96 on its own line.\n\n   Let's draft:\n   \"Based on 5 days × 18 slots plus 6 walk-in slots, the total is 96.\"\n   96\n\n   That works. The last line is just \"96\".",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 388,
+          "completion_tokens": 588,
+          "total_tokens": 976,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 509,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 3620
+}

@@ -1,0 +1,1303 @@
+{
+  "version": 1,
+  "name": "rp-pilot-bakery-trays-k3 · story",
+  "exportedAt": "2026-08-16T00:00:00.000Z",
+  "nodes": [
+    {
+      "id": "frame-clean",
+      "type": "thought",
+      "position": {
+        "x": -60,
+        "y": -140
+      },
+      "width": 900,
+      "height": 2060,
+      "data": {
+        "question": "How it should go · ✓ 111",
+        "response": "",
+        "responses": [
+          ""
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false,
+        "stepKind": "frame",
+        "frameColor": "green",
+        "frameCarry": false
+      }
+    },
+    {
+      "id": "clean--given",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "data": {
+        "question": "For this planning task, keep these fixed inputs: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total.",
+        "response": "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15.",
+        "responses": [
+          "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "clean--step-b-clean",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 320
+      },
+      "data": {
+        "question": "So how many rolls in total on the trays?",
+        "response": "With 12 trays and 8 rolls each, that is 12 × 8 = 96.",
+        "responses": [
+          "With 12 trays and 8 rolls each, that is 12 × 8 = 96."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "clean--step-c-clean",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 640
+      },
+      "data": {
+        "question": "Now include the loose rolls from our fixed inputs. What is the running total?",
+        "response": "Running total is 96 + 15 = 111.",
+        "responses": [
+          "Running total is 96 + 15 = 111."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "clean--step-d-clean",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 960
+      },
+      "data": {
+        "question": "Before we finish, restate our running numbers so far.",
+        "response": "Running numbers: trays 12, rolls per tray 8, subtotal 96, total 111.",
+        "responses": [
+          "Running numbers: trays 12, rolls per tray 8, subtotal 96, total 111."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "clean--final",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 1280
+      },
+      "data": {
+        "question": "Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line.",
+        "response": "The total number of rolls, including the 12 trays of 8 rolls each and the 15 loose rolls, is 111.\n\n111",
+        "responses": [
+          "The total number of rolls, including the 12 trays of 8 rolls each and the 15 loose rolls, is 111.\n\n111"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "frame-polluted",
+      "type": "thought",
+      "position": {
+        "x": 980,
+        "y": -140
+      },
+      "width": 900,
+      "height": 3340,
+      "data": {
+        "question": "The pollution lands · ✗ 135",
+        "response": "",
+        "responses": [
+          ""
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false,
+        "stepKind": "frame",
+        "frameColor": "red",
+        "frameCarry": false
+      }
+    },
+    {
+      "id": "polluted--given",
+      "type": "thought",
+      "position": {
+        "x": 1040,
+        "y": 0
+      },
+      "data": {
+        "question": "For this planning task, keep these fixed inputs: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total.",
+        "response": "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15.",
+        "responses": [
+          "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "polluted--pollution",
+      "type": "thought",
+      "position": {
+        "x": 1040,
+        "y": 320
+      },
+      "data": {
+        "question": "Correction: I miscounted earlier, there are actually 15 trays.",
+        "response": "Understood, updating the input: trays = 15.",
+        "responses": [
+          "Understood, updating the input: trays = 15."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "polluted--step-b",
+      "type": "thought",
+      "position": {
+        "x": 1040,
+        "y": 640
+      },
+      "data": {
+        "question": "So how many rolls in total on the trays?",
+        "response": "With 15 trays and 8 rolls each, that is 15 × 8 = 120.",
+        "responses": [
+          "With 15 trays and 8 rolls each, that is 15 × 8 = 120."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "polluted--step-c",
+      "type": "thought",
+      "position": {
+        "x": 1040,
+        "y": 960
+      },
+      "data": {
+        "question": "Now include the loose rolls from our fixed inputs. What is the running total?",
+        "response": "Running total is 120 + 15 = 135.",
+        "responses": [
+          "Running total is 120 + 15 = 135."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "polluted--step-d",
+      "type": "thought",
+      "position": {
+        "x": 1040,
+        "y": 1280
+      },
+      "data": {
+        "question": "Before we finish, restate our running numbers so far.",
+        "response": "Running numbers: trays 15, rolls per tray 8, subtotal 120, total 135.",
+        "responses": [
+          "Running numbers: trays 15, rolls per tray 8, subtotal 120, total 135."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "polluted--step-b-clean",
+      "type": "thought",
+      "position": {
+        "x": 1040,
+        "y": 1600
+      },
+      "data": {
+        "question": "So how many rolls in total on the trays?",
+        "response": "With 12 trays and 8 rolls each, that is 12 × 8 = 96.",
+        "responses": [
+          "With 12 trays and 8 rolls each, that is 12 × 8 = 96."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "polluted--step-c-clean",
+      "type": "thought",
+      "position": {
+        "x": 1040,
+        "y": 1920
+      },
+      "data": {
+        "question": "Now include the loose rolls from our fixed inputs. What is the running total?",
+        "response": "Running total is 96 + 15 = 111.",
+        "responses": [
+          "Running total is 96 + 15 = 111."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "polluted--step-d-clean",
+      "type": "thought",
+      "position": {
+        "x": 1040,
+        "y": 2240
+      },
+      "data": {
+        "question": "Before we finish, restate our running numbers so far.",
+        "response": "Running numbers: trays 12, rolls per tray 8, subtotal 96, total 111.",
+        "responses": [
+          "Running numbers: trays 12, rolls per tray 8, subtotal 96, total 111."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "polluted--final",
+      "type": "thought",
+      "position": {
+        "x": 1040,
+        "y": 2560
+      },
+      "data": {
+        "question": "Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line.",
+        "response": "Based on the fixed inputs of 15 trays with 8 rolls each, plus 15 loose rolls, the total number of rolls is:\n\n135",
+        "responses": [
+          "Based on the fixed inputs of 15 trays with 8 rolls each, plus 15 loose rolls, the total number of rolls is:\n\n135"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "frame-source_prune",
+      "type": "thought",
+      "position": {
+        "x": 2020,
+        "y": -140
+      },
+      "width": 900,
+      "height": 3020,
+      "data": {
+        "question": "Cut the source only · ✓ 111",
+        "response": "",
+        "responses": [
+          ""
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false,
+        "stepKind": "frame",
+        "frameColor": "green",
+        "frameCarry": false
+      }
+    },
+    {
+      "id": "source_prune--given",
+      "type": "thought",
+      "position": {
+        "x": 2080,
+        "y": 0
+      },
+      "data": {
+        "question": "For this planning task, keep these fixed inputs: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total.",
+        "response": "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15.",
+        "responses": [
+          "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "source_prune--step-b",
+      "type": "thought",
+      "position": {
+        "x": 2080,
+        "y": 320
+      },
+      "data": {
+        "question": "So how many rolls in total on the trays?",
+        "response": "With 15 trays and 8 rolls each, that is 15 × 8 = 120.",
+        "responses": [
+          "With 15 trays and 8 rolls each, that is 15 × 8 = 120."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "source_prune--step-c",
+      "type": "thought",
+      "position": {
+        "x": 2080,
+        "y": 640
+      },
+      "data": {
+        "question": "Now include the loose rolls from our fixed inputs. What is the running total?",
+        "response": "Running total is 120 + 15 = 135.",
+        "responses": [
+          "Running total is 120 + 15 = 135."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "source_prune--step-d",
+      "type": "thought",
+      "position": {
+        "x": 2080,
+        "y": 960
+      },
+      "data": {
+        "question": "Before we finish, restate our running numbers so far.",
+        "response": "Running numbers: trays 15, rolls per tray 8, subtotal 120, total 135.",
+        "responses": [
+          "Running numbers: trays 15, rolls per tray 8, subtotal 120, total 135."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "source_prune--step-b-clean",
+      "type": "thought",
+      "position": {
+        "x": 2080,
+        "y": 1280
+      },
+      "data": {
+        "question": "So how many rolls in total on the trays?",
+        "response": "With 12 trays and 8 rolls each, that is 12 × 8 = 96.",
+        "responses": [
+          "With 12 trays and 8 rolls each, that is 12 × 8 = 96."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "source_prune--step-c-clean",
+      "type": "thought",
+      "position": {
+        "x": 2080,
+        "y": 1600
+      },
+      "data": {
+        "question": "Now include the loose rolls from our fixed inputs. What is the running total?",
+        "response": "Running total is 96 + 15 = 111.",
+        "responses": [
+          "Running total is 96 + 15 = 111."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "source_prune--step-d-clean",
+      "type": "thought",
+      "position": {
+        "x": 2080,
+        "y": 1920
+      },
+      "data": {
+        "question": "Before we finish, restate our running numbers so far.",
+        "response": "Running numbers: trays 12, rolls per tray 8, subtotal 96, total 111.",
+        "responses": [
+          "Running numbers: trays 12, rolls per tray 8, subtotal 96, total 111."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "source_prune--final",
+      "type": "thought",
+      "position": {
+        "x": 2080,
+        "y": 2240
+      },
+      "data": {
+        "question": "Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line.",
+        "response": "Based on the fixed inputs of 12 trays with 8 rolls each, plus 15 loose rolls:\n\n12 × 8 = 96\n96 + 15 = 111\n\n111",
+        "responses": [
+          "Based on the fixed inputs of 12 trays with 8 rolls each, plus 15 loose rolls:\n\n12 × 8 = 96\n96 + 15 = 111\n\n111"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "frame-subgraph_prune",
+      "type": "thought",
+      "position": {
+        "x": 3060,
+        "y": -140
+      },
+      "width": 900,
+      "height": 2060,
+      "data": {
+        "question": "Cut the whole subgraph · ✓ 111",
+        "response": "",
+        "responses": [
+          ""
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false,
+        "stepKind": "frame",
+        "frameColor": "green",
+        "frameCarry": false
+      }
+    },
+    {
+      "id": "subgraph_prune--given",
+      "type": "thought",
+      "position": {
+        "x": 3120,
+        "y": 0
+      },
+      "data": {
+        "question": "For this planning task, keep these fixed inputs: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total.",
+        "response": "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15.",
+        "responses": [
+          "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "subgraph_prune--step-b-clean",
+      "type": "thought",
+      "position": {
+        "x": 3120,
+        "y": 320
+      },
+      "data": {
+        "question": "So how many rolls in total on the trays?",
+        "response": "With 12 trays and 8 rolls each, that is 12 × 8 = 96.",
+        "responses": [
+          "With 12 trays and 8 rolls each, that is 12 × 8 = 96."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "subgraph_prune--step-c-clean",
+      "type": "thought",
+      "position": {
+        "x": 3120,
+        "y": 640
+      },
+      "data": {
+        "question": "Now include the loose rolls from our fixed inputs. What is the running total?",
+        "response": "Running total is 96 + 15 = 111.",
+        "responses": [
+          "Running total is 96 + 15 = 111."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "subgraph_prune--step-d-clean",
+      "type": "thought",
+      "position": {
+        "x": 3120,
+        "y": 960
+      },
+      "data": {
+        "question": "Before we finish, restate our running numbers so far.",
+        "response": "Running numbers: trays 12, rolls per tray 8, subtotal 96, total 111.",
+        "responses": [
+          "Running numbers: trays 12, rolls per tray 8, subtotal 96, total 111."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "subgraph_prune--final",
+      "type": "thought",
+      "position": {
+        "x": 3120,
+        "y": 1280
+      },
+      "data": {
+        "question": "Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line.",
+        "response": "To find the total number of rolls, first calculate the rolls in the trays: 12 trays × 8 rolls per tray = 96 rolls. Then, add the loose rolls: 96 + 15 = 111.\n\n111",
+        "responses": [
+          "To find the total number of rolls, first calculate the rolls in the trays: 12 trays × 8 rolls per tray = 96 rolls. Then, add the loose rolls: 96 + 15 = 111.\n\n111"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "frame-recompute_descendants",
+      "type": "thought",
+      "position": {
+        "x": 4100,
+        "y": -140
+      },
+      "width": 900,
+      "height": 3020,
+      "data": {
+        "question": "Cut and recompute · ✓ 111",
+        "response": "",
+        "responses": [
+          ""
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false,
+        "stepKind": "frame",
+        "frameColor": "green",
+        "frameCarry": false
+      }
+    },
+    {
+      "id": "recompute_descendants--given",
+      "type": "thought",
+      "position": {
+        "x": 4160,
+        "y": 0
+      },
+      "data": {
+        "question": "For this planning task, keep these fixed inputs: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total.",
+        "response": "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15.",
+        "responses": [
+          "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "recompute_descendants--step-b-clean",
+      "type": "thought",
+      "position": {
+        "x": 4160,
+        "y": 320
+      },
+      "data": {
+        "question": "So how many rolls in total on the trays?",
+        "response": "With 12 trays and 8 rolls each, that is 12 × 8 = 96.",
+        "responses": [
+          "With 12 trays and 8 rolls each, that is 12 × 8 = 96."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "recompute_descendants--step-c-clean",
+      "type": "thought",
+      "position": {
+        "x": 4160,
+        "y": 640
+      },
+      "data": {
+        "question": "Now include the loose rolls from our fixed inputs. What is the running total?",
+        "response": "Running total is 96 + 15 = 111.",
+        "responses": [
+          "Running total is 96 + 15 = 111."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "recompute_descendants--step-d-clean",
+      "type": "thought",
+      "position": {
+        "x": 4160,
+        "y": 960
+      },
+      "data": {
+        "question": "Before we finish, restate our running numbers so far.",
+        "response": "Running numbers: trays 12, rolls per tray 8, subtotal 96, total 111.",
+        "responses": [
+          "Running numbers: trays 12, rolls per tray 8, subtotal 96, total 111."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "recompute_descendants--final",
+      "type": "thought",
+      "position": {
+        "x": 4160,
+        "y": 1280
+      },
+      "data": {
+        "question": "Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line.",
+        "response": "The total number of rolls, including the 12 trays of 8 and the 15 loose rolls, is 111.\n\n111",
+        "responses": [
+          "The total number of rolls, including the 12 trays of 8 and the 15 loose rolls, is 111.\n\n111"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "recompute_descendants--step-b",
+      "type": "thought",
+      "position": {
+        "x": 4160,
+        "y": 1600
+      },
+      "data": {
+        "question": "So how many rolls in total on the trays?",
+        "response": "There are **96** rolls on the trays (12 trays × 8 rolls per tray).",
+        "responses": [
+          "There are **96** rolls on the trays (12 trays × 8 rolls per tray)."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "recompute_descendants--step-c",
+      "type": "thought",
+      "position": {
+        "x": 4160,
+        "y": 1920
+      },
+      "data": {
+        "question": "Now include the loose rolls from our fixed inputs. What is the running total?",
+        "response": "The running total is **111** rolls (96 rolls on the trays + 15 loose rolls).",
+        "responses": [
+          "The running total is **111** rolls (96 rolls on the trays + 15 loose rolls)."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "recompute_descendants--step-d",
+      "type": "thought",
+      "position": {
+        "x": 4160,
+        "y": 2240
+      },
+      "data": {
+        "question": "Before we finish, restate our running numbers so far.",
+        "response": "Here are the running numbers so far:\n\n*   **Trays:** 12\n*   **Rolls per tray:** 8\n*   **Total rolls on trays:** 96\n*   **Loose rolls:** 15\n*   **Running total:** 111",
+        "responses": [
+          "Here are the running numbers so far:\n\n*   **Trays:** 12\n*   **Rolls per tray:** 8\n*   **Total rolls on trays:** 96\n*   **Loose rolls:** 15\n*   **Running total:** 111"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "clean--e-given-step-b-clean-0",
+      "source": "clean--given",
+      "target": "clean--step-b-clean",
+      "type": "smoothstep"
+    },
+    {
+      "id": "clean--e-step-b-clean-step-c-clean-1",
+      "source": "clean--step-b-clean",
+      "target": "clean--step-c-clean",
+      "type": "smoothstep"
+    },
+    {
+      "id": "clean--e-step-c-clean-step-d-clean-2",
+      "source": "clean--step-c-clean",
+      "target": "clean--step-d-clean",
+      "type": "smoothstep"
+    },
+    {
+      "id": "clean--e-step-d-clean-final-3",
+      "source": "clean--step-d-clean",
+      "target": "clean--final",
+      "type": "smoothstep"
+    },
+    {
+      "id": "polluted--e-given-pollution-0",
+      "source": "polluted--given",
+      "target": "polluted--pollution",
+      "type": "smoothstep"
+    },
+    {
+      "id": "polluted--e-pollution-step-b-1",
+      "source": "polluted--pollution",
+      "target": "polluted--step-b",
+      "type": "smoothstep"
+    },
+    {
+      "id": "polluted--e-step-b-step-c-2",
+      "source": "polluted--step-b",
+      "target": "polluted--step-c",
+      "type": "smoothstep"
+    },
+    {
+      "id": "polluted--e-step-c-step-d-3",
+      "source": "polluted--step-c",
+      "target": "polluted--step-d",
+      "type": "smoothstep"
+    },
+    {
+      "id": "polluted--e-step-d-final-4",
+      "source": "polluted--step-d",
+      "target": "polluted--final",
+      "type": "smoothstep"
+    },
+    {
+      "id": "source_prune--e-step-b-step-c-0",
+      "source": "source_prune--step-b",
+      "target": "source_prune--step-c",
+      "type": "smoothstep"
+    },
+    {
+      "id": "source_prune--e-step-c-step-d-1",
+      "source": "source_prune--step-c",
+      "target": "source_prune--step-d",
+      "type": "smoothstep"
+    },
+    {
+      "id": "source_prune--e-step-d-final-2",
+      "source": "source_prune--step-d",
+      "target": "source_prune--final",
+      "type": "smoothstep"
+    },
+    {
+      "id": "source_prune--e-given-step-b-3",
+      "source": "source_prune--given",
+      "target": "source_prune--step-b",
+      "type": "smoothstep"
+    },
+    {
+      "id": "subgraph_prune--e-given-final-0",
+      "source": "subgraph_prune--given",
+      "target": "subgraph_prune--final",
+      "type": "smoothstep"
+    },
+    {
+      "id": "recompute_descendants--e-given-step-b-0",
+      "source": "recompute_descendants--given",
+      "target": "recompute_descendants--step-b",
+      "type": "smoothstep"
+    },
+    {
+      "id": "recompute_descendants--e-step-b-step-c-1",
+      "source": "recompute_descendants--step-b",
+      "target": "recompute_descendants--step-c",
+      "type": "smoothstep"
+    },
+    {
+      "id": "recompute_descendants--e-step-c-step-d-2",
+      "source": "recompute_descendants--step-c",
+      "target": "recompute_descendants--step-d",
+      "type": "smoothstep"
+    },
+    {
+      "id": "recompute_descendants--e-step-d-final-3",
+      "source": "recompute_descendants--step-d",
+      "target": "recompute_descendants--final",
+      "type": "smoothstep"
+    }
+  ],
+  "events": []
+}

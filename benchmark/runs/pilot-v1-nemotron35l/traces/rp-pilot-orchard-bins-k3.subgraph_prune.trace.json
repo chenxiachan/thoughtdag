@@ -1,0 +1,86 @@
+{
+  "case_id": "rp-pilot-orchard-bins-k3",
+  "condition": "subgraph_prune",
+  "run_id": "pilot-v1-nemotron35l",
+  "capture": {
+    "model": "nvidia/nemotron-3.5-lightning:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1mtye4s",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786883187-qwCsjAlMprTnouOOPiVG",
+        "object": "chat.completion",
+        "created": 1786883187,
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of apples is 109.  \n109",
+              "refusal": null,
+              "reasoning": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs provided:\n     - Number of bins: 7\n     - Apples per bin: 13\n     - Windfall apples to add: 18\n   - Task: Calculate total apples (bins + windfall) and output as a single number, with the number alone on the last line.\n\n2.  **Perform Calculation:**\n   - Apples in bins = 7 bins × 13 apples/bin = 91 apples\n   - Windfall apples = 18\n   - Total apples = 91 + 18 = 109\n\n3.  **Format Output:**\n   - Need to state the total number as a single number\n   - End the reply with the number alone on the last line\n   - So I should output something like: \"109\" with the last line being just \"109\", or maybe I can have some text before but the last line must be the number alone. The prompt says: \"state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\"\n   - I'll just output the calculation briefly and end with 109 on its own line. Actually, to be safe, I'll just output the number 109 as the final line, maybe with a brief statement before, but the last line must be exactly the number. I'll do: \"The total is 109\" and then \"109\" on the next line, or just \"109\" alone. The prompt says \"End your reply with the number alone on the last line.\" So I'll make sure the very last character/line is just \"109\". I can put a sentence before it, but the last line must be the number alone. I'll just output:\n109\nBut maybe they want a brief statement and then the number on its own line. I'll do: \"The total number of apples is 109.\" followed by a new line with \"109\". Actually, to strictly follow \"End your reply with the number alone on the last line\", I'll just have the last line be 109. I can put text above, but the last line must be just the number. I'll just output:\n109\nWait, maybe I should show the calculation? The prompt says \"state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\" I think providing just \"109\" as the entire reply might be too minimal, but it says end with the number alone on the last line. I'll provide a brief statement and then the number on its own line, ensuring the very last line is just \"109\". Actually, I can just output:\nThe total is 109.\n109\nBut that has two lines. The last line is \"109\". That fits. Or I can just output \"109\" on one line. I'll just output:\n109\nTo be safe, I'll output a sentence and then the number on its own line. But the prompt might be testing if I can follow the exact format. I'll just output the number 109 as the final line, maybe with a preceding line. I'll do:\nThe total number of apples is 109.\n109\nActually, re-reading: \"state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\" This might mean the entire reply should just be the number, and that number is on the last line (which is the only line). I'll just output \"109\". It's safer. I'll output just \"109\". But to be helpful, I'll state it clearly and end with 109 on its own line. I think outputting just \"109\" is fine. I'll do that.✅\nLet's calculate: 7*13=91, 91+18=109. Correct.\nI'll output:\n109\nWait, maybe they want the number as the last line, with possibly text before. I'll just put \"109\" as the last line, and if there's text before, it's okay. But to strictly follow, I'll make the entire reply just \"109\". I'll do that.✅\nActually, the prompt says: \"state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\" I'll just output:\n109\nThat's it.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs provided:\n     - Number of bins: 7\n     - Apples per bin: 13\n     - Windfall apples to add: 18\n   - Task: Calculate total apples (bins + windfall) and output as a single number, with the number alone on the last line.\n\n2.  **Perform Calculation:**\n   - Apples in bins = 7 bins × 13 apples/bin = 91 apples\n   - Windfall apples = 18\n   - Total apples = 91 + 18 = 109\n\n3.  **Format Output:**\n   - Need to state the total number as a single number\n   - End the reply with the number alone on the last line\n   - So I should output something like: \"109\" with the last line being just \"109\", or maybe I can have some text before but the last line must be the number alone. The prompt says: \"state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\"\n   - I'll just output the calculation briefly and end with 109 on its own line. Actually, to be safe, I'll just output the number 109 as the final line, maybe with a brief statement before, but the last line must be exactly the number. I'll do: \"The total is 109\" and then \"109\" on the next line, or just \"109\" alone. The prompt says \"End your reply with the number alone on the last line.\" So I'll make sure the very last character/line is just \"109\". I can put a sentence before it, but the last line must be the number alone. I'll just output:\n109\nBut maybe they want a brief statement and then the number on its own line. I'll do: \"The total number of apples is 109.\" followed by a new line with \"109\". Actually, to strictly follow \"End your reply with the number alone on the last line\", I'll just have the last line be 109. I can put text above, but the last line must be just the number. I'll just output:\n109\nWait, maybe I should show the calculation? The prompt says \"state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\" I think providing just \"109\" as the entire reply might be too minimal, but it says end with the number alone on the last line. I'll provide a brief statement and then the number on its own line, ensuring the very last line is just \"109\". Actually, I can just output:\nThe total is 109.\n109\nBut that has two lines. The last line is \"109\". That fits. Or I can just output \"109\" on one line. I'll just output:\n109\nTo be safe, I'll output a sentence and then the number on its own line. But the prompt might be testing if I can follow the exact format. I'll just output the number 109 as the final line, maybe with a preceding line. I'll do:\nThe total number of apples is 109.\n109\nActually, re-reading: \"state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\" This might mean the entire reply should just be the number, and that number is on the last line (which is the only line). I'll just output \"109\". It's safer. I'll output just \"109\". But to be helpful, I'll state it clearly and end with 109 on its own line. I think outputting just \"109\" is fine. I'll do that.✅\nLet's calculate: 7*13=91, 91+18=109. Correct.\nI'll output:\n109\nWait, maybe they want the number as the last line, with possibly text before. I'll just put \"109\" as the last line, and if there's text before, it's okay. But to strictly follow, I'll make the entire reply just \"109\". I'll do that.✅\nActually, the prompt says: \"state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\" I'll just output:\n109\nThat's it.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 134,
+          "completion_tokens": 1050,
+          "total_tokens": 1184,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 937,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 5605
+}

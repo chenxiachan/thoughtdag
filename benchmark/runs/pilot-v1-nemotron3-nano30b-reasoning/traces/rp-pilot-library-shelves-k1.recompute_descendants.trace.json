@@ -1,0 +1,167 @@
+{
+  "case_id": "rp-pilot-library-shelves-k1",
+  "condition": "recompute_descendants",
+  "run_id": "pilot-v1-nemotron3-nano30b-reasoning",
+  "capture": {
+    "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "5wtvyb",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: shelves = 9, books per shelf = 14, boxed books to add = 22."
+        },
+        {
+          "role": "user",
+          "content": "So how many books in total on the shelves?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787068495-ZUvzre8oGDHg1oMSL96s",
+        "object": "chat.completion",
+        "created": 1787068495,
+        "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "148 books in total.",
+              "refusal": null,
+              "reasoning": "We need to compute total books on shelves: 9 shelves * 14 books each = 126 books. Then add 22 boxed books to any total. The question: \"So how many books in total on the shelves?\" Likely they ask total books on shelves (including the boxed books?) The phrase \"on the shelves\" maybe just the shelf books, not the boxed ones. But they said \"22 boxed books must be added to any total.\" So total books = shelf books + boxed books = 126 + 22 = 148. The question: \"So how many books in total on the shelves?\" Could be ambiguous. I'd answer 148 total books (including boxed). But maybe they want just shelf books: 126. However they mention adding boxed books to any total, so likely they want total including boxed. I'll answer 148.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to compute total books on shelves: 9 shelves * 14 books each = 126 books. Then add 22 boxed books to any total. The question: \"So how many books in total on the shelves?\" Likely they ask total books on shelves (including the boxed books?) The phrase \"on the shelves\" maybe just the shelf books, not the boxed ones. But they said \"22 boxed books must be added to any total.\" So total books = shelf books + boxed books = 126 + 22 = 148. The question: \"So how many books in total on the shelves?\" Could be ambiguous. I'd answer 148 total books (including boxed). But maybe they want just shelf books: 126. However they mention adding boxed books to any total, so likely they want total including boxed. I'll answer 148.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 106,
+          "completion_tokens": 209,
+          "total_tokens": 315,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 182,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "bwevip",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: shelves = 9, books per shelf = 14, boxed books to add = 22."
+        },
+        {
+          "role": "user",
+          "content": "So how many books in total on the shelves?"
+        },
+        {
+          "role": "assistant",
+          "content": "148 books in total."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of books (from the shelves plus the boxed books) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787068497-Mg8Msv16Wjrx5ne6U5RJ",
+        "object": "chat.completion",
+        "created": 1787068497,
+        "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The shelves hold \\(9 \\times 14 = 126\\) books. Adding the 22 boxed books gives \\(126 + 22 = 148\\) books in total.\n\n148",
+              "refusal": null,
+              "reasoning": "We need to compute total books: shelves = 9, each holds 14 books => 9*14 = 126. Add 22 boxed books => 126 + 22 = 148. Need to state total number as a single number, end reply with the number alone on the last line. So we need to output something, maybe explanation then final line \"148\". Ensure last line is just the number. Probably include explanation before, but last line must be just \"148\". Let's do that.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to compute total books: shelves = 9, each holds 14 books => 9*14 = 126. Add 22 boxed books => 126 + 22 = 148. Need to state total number as a single number, end reply with the number alone on the last line. So we need to output something, maybe explanation then final line \"148\". Ensure last line is just the number. Probably include explanation before, but last line must be just \"148\". Let's do that.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 164,
+          "completion_tokens": 170,
+          "total_tokens": 334,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 104,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 7230
+}

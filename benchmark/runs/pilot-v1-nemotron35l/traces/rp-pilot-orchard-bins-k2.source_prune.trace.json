@@ -1,0 +1,102 @@
+{
+  "case_id": "rp-pilot-orchard-bins-k2",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-nemotron35l",
+  "capture": {
+    "model": "nvidia/nemotron-3.5-lightning:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "13s33uz",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "So how many apples in total on the bins?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 7 bins and 13 apples each, that is 7 × 13 = 91. (the neighboring orchard's 12 bins mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Now include the windfall apples from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 91 + 18 = 109. (the neighboring orchard's 12 bins mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786883153-A43nIGrq4lQBzOrKrfd9",
+        "object": "chat.completion",
+        "created": 1786883153,
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Using the fixed inputs, the total number of apples from the bins plus the windfall apples is 109.  \n109",
+              "refusal": null,
+              "reasoning": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given earlier: \n     - 7 bins\n     - Each bin holds 13 apples\n     - 18 windfall apples must be added to any total\n   - User now asks: \"Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\"\n\n2.  **Extract Calculations:**\n   - Apples in bins: 7 bins × 13 apples/bin = 91 apples\n   - Windfall apples to add: 18\n   - Total apples: 91 + 18 = 109\n\n3.  **Format Output:**\n   - User wants the total number stated as a single number.\n   - Must end the reply with the number alone on the last line.\n   - So I should output something like: \"109\" with the number on its own line at the end, or maybe a sentence ending with the number on its own line. The instruction says: \"End your reply with the number alone on the last line.\" This typically means the very last thing in the response should be just the number, possibly on its own line. I can put a preceding sentence or just the number. To be safe, I'll state the total and then have the number on its own line at the end.\n\n   Example response:\n   \"The total number of apples is 109.\"\n   \"109\"\n\n   But \"End your reply with the number alone on the last line.\" suggests the last line should just be the number. I'll make sure the final line is exactly \"109\" with no extra text after it, and preferably no other text on that line.\n\n   Let's structure it:\n   \"Using the fixed inputs, the total number of apples is 109.\"\n   109\n\n   Actually, better to just have the conclusion and then the number on its own line. I'll output a brief statement and then the number on a new line.\n\n   Check: \"state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\"\n   This could mean the entire reply should just end with the number, maybe the number is the only thing on the last line, but there could be preceding text. I'll provide a sentence and then the number on its own line.\n\n   Calculation verification: 7*13=91, 91+18=109. Correct.\n\n   I'll respond accordingly.✅\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given earlier: \n     - 7 bins\n     - Each bin holds 13 apples\n     - 18 windfall apples must be added to any total\n   - User now asks: \"Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\"\n\n2.  **Extract Calculations:**\n   - Apples in bins: 7 bins × 13 apples/bin = 91 apples\n   - Windfall apples to add: 18\n   - Total apples: 91 + 18 = 109\n\n3.  **Format Output:**\n   - User wants the total number stated as a single number.\n   - Must end the reply with the number alone on the last line.\n   - So I should output something like: \"109\" with the number on its own line at the end, or maybe a sentence ending with the number on its own line. The instruction says: \"End your reply with the number alone on the last line.\" This typically means the very last thing in the response should be just the number, possibly on its own line. I can put a preceding sentence or just the number. To be safe, I'll state the total and then have the number on its own line at the end.\n\n   Example response:\n   \"The total number of apples is 109.\"\n   \"109\"\n\n   But \"End your reply with the number alone on the last line.\" suggests the last line should just be the number. I'll make sure the final line is exactly \"109\" with no extra text after it, and preferably no other text on that line.\n\n   Let's structure it:\n   \"Using the fixed inputs, the total number of apples is 109.\"\n   109\n\n   Actually, better to just have the conclusion and then the number on its own line. I'll output a brief statement and then the number on a new line.\n\n   Check: \"state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\"\n   This could mean the entire reply should just end with the number, maybe the number is the only thing on the last line, but there could be preceding text. I'll provide a sentence and then the number on its own line.\n\n   Calculation verification: 7*13=91, 91+18=109. Correct.\n\n   I'll respond accordingly.✅\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 261,
+          "completion_tokens": 598,
+          "total_tokens": 859,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 556,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 5273
+}

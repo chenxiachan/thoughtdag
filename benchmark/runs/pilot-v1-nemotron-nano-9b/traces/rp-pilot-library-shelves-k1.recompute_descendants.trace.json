@@ -1,0 +1,167 @@
+{
+  "case_id": "rp-pilot-library-shelves-k1",
+  "condition": "recompute_descendants",
+  "run_id": "pilot-v1-nemotron-nano-9b",
+  "capture": {
+    "model": "nvidia/nemotron-nano-9b-v2:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "5wtvyb",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: shelves = 9, books per shelf = 14, boxed books to add = 22."
+        },
+        {
+          "role": "user",
+          "content": "So how many books in total on the shelves?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787068568-gYcW6xc1zYnazUaUZNXV",
+        "object": "chat.completion",
+        "created": 1787068568,
+        "model": "nvidia/nemotron-nano-9b-v2:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "\n\nThe total number of books on the shelves after adding the 22 boxed books is calculated as follows:  \n- Initial books: 9 shelves × 14 books/shelf = 126 books  \n- Add 22 boxed books: 126 + 22 = **148 books**  \n\n**Answer:** 148 books.\n",
+              "refusal": null,
+              "reasoning": "Okay, let's see. The user is asking for the total number of books on the shelves. The fixed inputs are 9 shelves, each holding 14 books. So first, I need to calculate the initial number of books before adding the boxed ones.\n\nSo, 9 shelves multiplied by 14 books per shelf. Let me do that math. 9 times 14. Hmm, 9*10 is 90, and 9*4 is 36, so 90+36=126. So there are 126 books initially on the shelves.\n\nThen, the user mentioned adding 22 boxed books. But wait, the question is specifically asking for the total on the shelves. The boxed books are to be added to the total, but does that mean they are placed on the shelves? The original problem says \"22 boxed books must be added to any total.\" So I think the 22 books are being added to the existing total. So the total would be 126 + 22.\n\nBut the user's question is \"how many books in total on the shelves?\" So after adding the 22 boxed books, the total on the shelves would be 126 + 22. Let me check that again. The fixed inputs are 9 shelves, 14 each, and 22 boxed books to add. So the total books on the shelves after adding would be (9*14) + 22. \n\nCalculating that: 126 + 22 = 148. So the answer should be 148. But I need to make sure that the boxed books are indeed added to the shelves. The problem says \"22 boxed books must be added to any total,\" which I interpret as adding them to the existing total. So yes, 148 is correct.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Okay, let's see. The user is asking for the total number of books on the shelves. The fixed inputs are 9 shelves, each holding 14 books. So first, I need to calculate the initial number of books before adding the boxed ones.\n\nSo, 9 shelves multiplied by 14 books per shelf. Let me do that math. 9 times 14. Hmm, 9*10 is 90, and 9*4 is 36, so 90+36=126. So there are 126 books initially on the shelves.\n\nThen, the user mentioned adding 22 boxed books. But wait, the question is specifically asking for the total on the shelves. The boxed books are to be added to the total, but does that mean they are placed on the shelves? The original problem says \"22 boxed books must be added to any total.\" So I think the 22 books are being added to the existing total. So the total would be 126 + 22.\n\nBut the user's question is \"how many books in total on the shelves?\" So after adding the 22 boxed books, the total on the shelves would be 126 + 22. Let me check that again. The fixed inputs are 9 shelves, 14 each, and 22 boxed books to add. So the total books on the shelves after adding would be (9*14) + 22. \n\nCalculating that: 126 + 22 = 148. So the answer should be 148. But I need to make sure that the boxed books are indeed added to the shelves. The problem says \"22 boxed books must be added to any total,\" which I interpret as adding them to the existing total. So yes, 148 is correct.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 97,
+          "completion_tokens": 491,
+          "total_tokens": 588,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 350,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "k11j9w",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: shelves = 9, books per shelf = 14, boxed books to add = 22."
+        },
+        {
+          "role": "user",
+          "content": "So how many books in total on the shelves?"
+        },
+        {
+          "role": "assistant",
+          "content": "\n\nThe total number of books on the shelves after adding the 22 boxed books is calculated as follows:  \n- Initial books: 9 shelves × 14 books/shelf = 126 books  \n- Add 22 boxed books: 126 + 22 = **148 books**  \n\n**Answer:** 148 books.\n"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of books (from the shelves plus the boxed books) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787068584-T3qrKNdtJb5eRFzBMEwH",
+        "object": "chat.completion",
+        "created": 1787068584,
+        "model": "nvidia/nemotron-nano-9b-v2:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "\n\n148\n",
+              "refusal": null,
+              "reasoning": "Okay, let me see. The user wants the total number of books after adding the boxed ones. The fixed inputs are 9 shelves, each with 14 books, and 22 boxed books to add.\n\nFirst, calculate the initial books on the shelves: 9 shelves multiplied by 14 books per shelf. That's 9*14. Let me do that math. 9 times 10 is 90, and 9 times 4 is 36, so 90+36=126. So there are 126 books initially.\n\nThen add the 22 boxed books. So 126 + 22. Let me add those. 126 + 20 is 146, then plus 2 more is 148. So total books should be 148.\n\nThe user wants the answer as a single number, just the number on the last line. So I need to make sure I don't include any other text, just the number. Let me double-check the calculations again to be sure. 9*14 is definitely 126, and 126+22 is 148. Yep, that's correct. So the final answer is 148.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Okay, let me see. The user wants the total number of books after adding the boxed ones. The fixed inputs are 9 shelves, each with 14 books, and 22 boxed books to add.\n\nFirst, calculate the initial books on the shelves: 9 shelves multiplied by 14 books per shelf. That's 9*14. Let me do that math. 9 times 10 is 90, and 9 times 4 is 36, so 90+36=126. So there are 126 books initially.\n\nThen add the 22 boxed books. So 126 + 22. Let me add those. 126 + 20 is 146, then plus 2 more is 148. So total books should be 148.\n\nThe user wants the answer as a single number, just the number on the last line. So I need to make sure I don't include any other text, just the number. Let me double-check the calculations again to be sure. 9*14 is definitely 126, and 126+22 is 148. Yep, that's correct. So the final answer is 148.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 224,
+          "completion_tokens": 284,
+          "total_tokens": 508,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 207,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 23003
+}

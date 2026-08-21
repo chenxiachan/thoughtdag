@@ -1,0 +1,102 @@
+{
+  "case_id": "rp-pilot-orchard-bins-k2",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-nemotron3-nano30b",
+  "capture": {
+    "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "13s33uz",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "So how many apples in total on the bins?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 7 bins and 13 apples each, that is 7 × 13 = 91. (the neighboring orchard's 12 bins mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Now include the windfall apples from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 91 + 18 = 109. (the neighboring orchard's 12 bins mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787068839-rGipP6ayVJCj2gt7iIeV",
+        "object": "chat.completion",
+        "created": 1787068839,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "109",
+              "refusal": null,
+              "reasoning": "We need to output a single number as the total apples from bins plus windfall apples. Fixed inputs: 7 bins, each holds 13 apples => 7*13=91. Add windfall apples = 18 => total = 109. Must end reply with the number alone on the last line. So we can have some preceding text? The instruction: \"End your reply with the number alone on the last line.\" So we can have preceding explanation, but final line must be just the number. Probably they want just the number on its own line. So we can output something like \"The total is:\" then newline then \"109\". But the last line must be just the number. So we can output \"109\" as the last line. Possibly preceding lines are okay. But safest: just output the number alone, no extra text. But they said \"End your reply with the number alone on the last line.\" That implies we can have preceding text, but final line must be just the number. Could output \"Total apples: 109\" then newline \"109\"? That would have number on last line but also preceding text includes number again. Might be okay. But to be safe, just output the number alone as the entire reply. That satisfies ending with number alone. Let's do that.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to output a single number as the total apples from bins plus windfall apples. Fixed inputs: 7 bins, each holds 13 apples => 7*13=91. Add windfall apples = 18 => total = 109. Must end reply with the number alone on the last line. So we can have some preceding text? The instruction: \"End your reply with the number alone on the last line.\" So we can have preceding explanation, but final line must be just the number. Probably they want just the number on its own line. So we can output something like \"The total is:\" then newline then \"109\". But the last line must be just the number. So we can output \"109\" as the last line. Possibly preceding lines are okay. But safest: just output the number alone, no extra text. But they said \"End your reply with the number alone on the last line.\" That implies we can have preceding text, but final line must be just the number. Could output \"Total apples: 109\" then newline \"109\"? That would have number on last line but also preceding text includes number again. Might be okay. But to be safe, just output the number alone as the entire reply. That satisfies ending with number alone. Let's do that.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 261,
+          "completion_tokens": 287,
+          "total_tokens": 548,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 289,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 2911
+}

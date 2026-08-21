@@ -1,0 +1,74 @@
+{
+  "case_id": "rp-ref-0001",
+  "condition": "source_prune",
+  "run_id": "gate-v2-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1bzfnh7",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: the workshop has 7 benches, each bench seats 3 people, and 5 standing places must be added to any capacity count."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: benches = 7, seats per bench = 3, standing places to add = 5."
+        },
+        {
+          "role": "user",
+          "content": "So how many people can be seated in total?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 9 benches and 3 seats each, total seating is 9 × 3 = 27 people."
+        },
+        {
+          "role": "user",
+          "content": "Now include the standing places from our fixed inputs. What is the full capacity?"
+        },
+        {
+          "role": "assistant",
+          "content": "Full capacity is seating plus standing: 27 + 5 = 32."
+        },
+        {
+          "role": "user",
+          "content": "State the full capacity of the workshop as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "The full capacity includes both seated and standing spaces. With 7 benches each seating 3 people, the seating capacity is 21. Adding the 5 standing places gives a total capacity of 26.  \n26",
+              "reasoning_content": "\nFirst, the user is asking for the full capacity of the workshop. From the conversation history, I have fixed inputs: 7 benches, each bench seats 3 people, and 5 standing places must be added.\n\nIn the initial setup, the user said: \"the workshop has 7 benches, each bench seats 3 people, and 5 standing places must be added to any capacity count.\"\n\nThen, in the first response, I calculated the seating capacity: 7 benches × 3 seats per bench = 21 people seated.\n\nBut in the next message, the user said: \"So how many people can be seated in total?\" and I replied with 27, which is incorrect because I used 9 benches instead of 7. That was a mistake.\n\nLet me correct that. The fixed inputs are 7 benches, not 9. So, seating capacity should be 7 × 3 = 21.\n\nThen, the user asked: \"Now include the standing places from our fixed inputs. What is the full capacity?\" and I said 27 + 5 = 32, but again, that was based on the wrong seating of 27.\n\nSo, I need to use the correct numbers.\n\nFixed inputs:\n\n- Number of benches: 7\n\n- Seats per bench: 3\n\n- Standing places: 5\n\nSeating capacity = benches × seats per bench = 7 × 3 = 21\n\nFull capacity = seating capacity + standing places = 21 + 5 = 26\n\nNow, the user says: \"State the full capacity of the workshop as a single number. End your reply with the number alone on the last line.\"\n\nSo, I need to provide the full capacity as a single number, which is 26, and end with that number on the last line.\n\nI should not include any other text in the reply, just the number at the end.\n\nBut to be clear, I'll write a brief explanation and then the number, but the instruction says to end with the number alone, so probably I should have the number as the last thing.\n\nRe-reading the user's message: \"End your reply with the number alone on the last line.\" So, I can have some text before, but the last line should be just the number.\n\nIn my previous incorrect responses, I had text and then the number, but now I need to correct it.\n\nSo, for this response, I should state the full capacity correctly.\n\nFull capacity is 26.\n\nConfirming: 7 benches × 3 seats = 21 seated, plus 5 standing, total 26.\n\nYes.\n\nNow, for the reply: I need to end with the number alone on the last line.\n\nSo, I can say something like: \"The full capacity of the workshop is 26.\" and then on the next line, just \"26\".\n\nBut to make it clear, I'll write a concise response.\n\nSince the user is asking to state it as a single number and end with it, I'll do that.\n\nFinal answer: 26",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786879314,
+        "id": "202608161921304728606575b1456d",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "202608161921304728606575b1456d",
+        "usage": {
+          "completion_tokens": 671,
+          "prompt_tokens": 178,
+          "prompt_tokens_details": {
+            "cached_tokens": 114
+          },
+          "total_tokens": 849
+        }
+      }
+    }
+  ],
+  "latency_ms": 24391
+}

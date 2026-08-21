@@ -1,0 +1,58 @@
+{
+  "case_id": "rp-pilot-ferry-decks-k2",
+  "condition": "subgraph_prune",
+  "run_id": "pilot-v1-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "m31509",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "The total number of seats is calculated by first finding the seats from the decks and then adding the standing places. With 4 decks each holding 22 seats, the deck seats total 4 × 22 = 88. Adding the 17 standing places gives 88 + 17 = 105.\n\n105",
+              "reasoning_content": "\nFirst, the fixed inputs are: 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total.\n\nI need to find the total number of seats, which includes both the seats from the decks and the standing places.\n\nStep 1: Calculate the total seats from the decks.\n\nThere are 4 decks, and each deck has 22 seats. So, total deck seats = number of decks × seats per deck.\n\nThat would be 4 × 22.\n\nLet me compute that: 4 × 20 = 80, and 4 × 2 = 8, so 80 + 8 = 88. Or directly, 4 × 22 = 88.\n\nSo, total deck seats = 88.\n\nStep 2: Add the standing places.\n\nThe standing places are 17, and it says \"must be added to any total.\" So, I need to add these 17 to the deck seats to get the total capacity.\n\nTherefore, total seats = deck seats + standing places = 88 + 17.\n\n88 + 17: 88 + 10 = 98, and 98 + 7 = 105. Or 88 + 17 = 105.\n\nSo, total number of seats is 105.\n\nThe user said \"state the total number of seats (from the decks plus the standing places) as a single number.\" And \"end your reply with the number alone on the last line.\"\n\nI should make sure that the standing places are indeed part of the total seats. The user said \"seats\" but standing places might not be seats; they could be standing room. However, in the context, it says \"total number of seats\" but then specifies \"from the decks plus the standing places.\" Let me read carefully.\n\n\"state the total number of seats (from the decks plus the standing places)\"\n\nIt says \"seats\" but includes standing places. That might be a bit confusing. In common usage, standing places aren't seats, but here it seems like the total capacity includes both. The user is using \"seats\" loosely to mean total capacity or something.\n\nLooking back: \"the total number of seats (from the decks plus the standing places)\"\n\nAnd in the fixed inputs, it says \"17 standing places must be added to any total.\"\n\nSo, I think for this context, \"seats\" is being used to mean the total available spaces, including standing. So, I should include both.\n\nPerhaps it's a bit ambiguous, but based on the instruction, I need to add the standing places to the deck seats to get the total.\n\nAlso, the user says \"any total,\" which might imply that the standing places are added to whatever the deck seats are.\n\nSo, total = deck seats + standing places = 88 + 17 = 105.\n\nNow, I need to end with the number alone on the last line.\n\nSo, my response should have some explanation, but the last line should be just the number.\n\nThe user said: \"End your reply with the number alone on the last line.\"\n\nSo, I can have a brief explanation, but the final output should be the number.\n\nFor example: \"The total number of seats is 105.\" and then on the next line, just \"105\".\n\nBut to be precise, since it says \"as a single number\" and \"end with the number alone,\" I should probably have the number by itself at the end.\n\nI think it's fine to have a sentence before, but the last line must be the number.\n\nLet me see the instruction: \"state the total number of seats ... as a single number. End your reply with the number alone on the last line.\"\n\nSo, I can say: \"Based on the fixed inputs, the total number of seats including standing places is 105.\" and then on the next line, \"105\".\n\nBut to keep it simple, since it's a planning task, maybe just the number at the end.\n\nI think for clarity, I'll include a short sentence.\n\nBut the user might expect just the number, but the instruction says \"state\" and then \"end with,\" so probably a full reply with the number last.\n\nI'll do: \"The total number of seats is 105.\" and then \"105\" on the next line.\n\nBut to be safe, I'll make sure the calculation is correct.\n\nFixed inputs: decks = 4, seats per deck = 22, standing places = 17.\n\nDeck seats: 4 * 22 = 88.\n\nTotal: 88 + 17 = 105.\n\nYes.\n\nI could think of it as: total capacity = (number of decks * seats per deck) + standing places.\n\nSo, (4 * 22) + 17 = 88 + 17 = 105.\n\nNo other inputs, so it should be straightforward.\n\nThe user said \"any total,\" but in this case, it's clear.\n\nSo, I think 105 is correct.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786886297,
+        "id": "20260816211740eb27610c78b142f3",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "20260816211740eb27610c78b142f3",
+        "usage": {
+          "completion_tokens": 1090,
+          "prompt_tokens": 110,
+          "prompt_tokens_details": {
+            "cached_tokens": 109
+          },
+          "total_tokens": 1200
+        }
+      }
+    }
+  ],
+  "latency_ms": 37219
+}

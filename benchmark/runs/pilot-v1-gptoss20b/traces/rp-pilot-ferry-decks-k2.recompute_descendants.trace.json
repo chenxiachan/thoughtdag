@@ -1,0 +1,256 @@
+{
+  "case_id": "rp-pilot-ferry-decks-k2",
+  "condition": "recompute_descendants",
+  "run_id": "pilot-v1-gptoss20b",
+  "capture": {
+    "model": "openai/gpt-oss-20b:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "gdxj7j",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "So how many seats in total on the decks?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786889827-tISiScAx9CGhEgDcExMc",
+        "object": "chat.completion",
+        "created": 1786889827,
+        "model": "openai/gpt-oss-20b:free",
+        "provider": "Darkbloom",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "There are **88 seats** in total on the decks (4 decks × 22 seats each).",
+              "refusal": null,
+              "reasoning": "We need to compute total seats on decks: 4 decks * 22 seats each = 88 seats. The question: \"So how many seats in total on the decks?\" So answer: 88 seats.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to compute total seats on decks: 4 decks * 22 seats each = 88 seats. The question: \"So how many seats in total on the decks?\" So answer: 88 seats.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 148,
+          "completion_tokens": 76,
+          "total_tokens": 224,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.000007466,
+            "upstream_inference_prompt_cost": 0.000002146,
+            "upstream_inference_completions_cost": 0.00000532
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 43,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-c",
+      "prompt_hash": "1r1xtgk",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "So how many seats in total on the decks?"
+        },
+        {
+          "role": "assistant",
+          "content": "There are **88 seats** in total on the decks (4 decks × 22 seats each)."
+        },
+        {
+          "role": "user",
+          "content": "Now include the standing places from our fixed inputs. What is the running total?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786889830-uYenQZ7gUmhULFnL82Zd",
+        "object": "chat.completion",
+        "created": 1786889830,
+        "model": "openai/gpt-oss-20b:free",
+        "provider": "Darkbloom",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Adding the 17 standing places to the 88 seats gives a **running total of 105** people that can be accommodated on the decks.",
+              "refusal": null,
+              "reasoning": "We need to add 17 standing places to 88 seats. So total 105. Provide answer.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to add 17 standing places to 88 seats. So total 105. Provide answer.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 197,
+          "completion_tokens": 60,
+          "total_tokens": 257,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.0000070565,
+            "upstream_inference_prompt_cost": 0.0000028565,
+            "upstream_inference_completions_cost": 0.0000042
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 21,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "2ygd8x",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "So how many seats in total on the decks?"
+        },
+        {
+          "role": "assistant",
+          "content": "There are **88 seats** in total on the decks (4 decks × 22 seats each)."
+        },
+        {
+          "role": "user",
+          "content": "Now include the standing places from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Adding the 17 standing places to the 88 seats gives a **running total of 105** people that can be accommodated on the decks."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786889834-ckBQwkDGQws52PYkoKxK",
+        "object": "chat.completion",
+        "created": 1786889834,
+        "model": "openai/gpt-oss-20b:free",
+        "provider": "Darkbloom",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of seats (including the standing places) is 105.  \n105",
+              "refusal": null,
+              "reasoning": "We need to output the total number of seats from decks plus standing places as a single number, end reply with the number alone on the last line. So we should give a short answer: maybe \"105\" on last line. But we need to state the total number of seats (from decks plus standing places) as a single number. End reply with the number alone on the last line. So we can write something like:\n\nThe total number of seats (including standing places) is 105.\n\n105\n\nBut the instruction: \"state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\" So we should output the number alone on the last line. So we can write a sentence, then the number on the last line. Let's do that.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to output the total number of seats from decks plus standing places as a single number, end reply with the number alone on the last line. So we should give a short answer: maybe \"105\" on last line. But we need to state the total number of seats (from decks plus standing places) as a single number. End reply with the number alone on the last line. So we can write something like:\n\nThe total number of seats (including standing places) is 105.\n\n105\n\nBut the instruction: \"state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\" So we should output the number alone on the last line. So we can write a sentence, then the number on the last line. Let's do that.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 273,
+          "completion_tokens": 197,
+          "total_tokens": 470,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.0000177485,
+            "upstream_inference_prompt_cost": 0.0000039585,
+            "upstream_inference_completions_cost": 0.00001379
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 170,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 20425
+}

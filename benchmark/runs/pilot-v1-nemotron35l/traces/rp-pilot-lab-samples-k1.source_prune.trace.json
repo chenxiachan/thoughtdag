@@ -1,0 +1,102 @@
+{
+  "case_id": "rp-pilot-lab-samples-k1",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-nemotron35l",
+  "capture": {
+    "model": "nvidia/nemotron-3.5-lightning:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1kx2tbx",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 3 batches, each batch holds 20 samples, and 8 control samples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: batches = 3, samples per batch = 20, control samples to add = 8."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 20 samples per batch was a counting error. The verified figure is 26. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 20 per batch is retracted; verified figure is 26 samples per batch."
+        },
+        {
+          "role": "user",
+          "content": "So how many samples in total on the batches?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 3 batches and 20 samples each, that is 3 × 20 = 60."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of samples (from the batches plus the control samples) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786882676-gcHV23ma90wJrM3Supiy",
+        "object": "chat.completion",
+        "created": 1786882676,
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of samples is 86.  \n86",
+              "refusal": null,
+              "reasoning": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs stated earlier: \n     - 3 batches\n     - 26 samples per batch (updated from 20)\n     - 8 control samples to add to any total\n   - User asks: \"Using our fixed inputs, state the total number of samples (from the batches plus the control samples) as a single number. End your reply with the number alone on the last line.\"\n\n2.  **Calculate Total Samples:**\n   - Batches: 3 batches × 26 samples/batch = 78 samples\n   - Control samples: 8\n   - Total = 78 + 8 = 86\n\n3.  **Format Output:**\n   - \"state the total number of samples (from the batches plus the control samples) as a single number.\"\n   - \"End your reply with the number alone on the last line.\"\n   - So I should provide a brief statement or just the number at the end, but the instruction says \"End your reply with the number alone on the last line.\" It might allow some text before, but the last line must be just the number. I'll output the total and ensure the last line is just \"86\".\n\n   Let's structure: \n   \"The total number of samples is 86.\"\n   Then last line: 86\n\n   But to be safe, I'll just put the number on the last line, maybe with a preceding sentence that ends before, or I can just output the number directly as the last line. The prompt says \"state the total number... as a single number. End your reply with the number alone on the last line.\" I'll output something like: \"86\" but maybe they want the calculation shown? I'll provide a brief statement and then the number on its own line.\n\n   Actually, reading carefully: \"state the total number of samples (from the batches plus the control samples) as a single number. End your reply with the number alone on the last line.\" This could mean the entire reply should just be the number, with the last line being that number. But to be safe, I'll output the number on its own line at the end, possibly with a preceding sentence, but ensuring the very last line is just the number.\n\n   I'll do: \n   The total is 86.\n   86\n\n   Or just \"86\" as the whole reply? The instruction says \"End your reply with the number alone on the last line.\" This implies there might be text before, but the last line must be the number alone. I'll provide a concise statement and then the number on its own line.\n\n   Let's calculate again: 3 batches * 26 = 78. + 8 controls = 86. Correct.\n\n   I'll output: \n   The total number of samples is 86.\n   86\n\n   That fits.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs stated earlier: \n     - 3 batches\n     - 26 samples per batch (updated from 20)\n     - 8 control samples to add to any total\n   - User asks: \"Using our fixed inputs, state the total number of samples (from the batches plus the control samples) as a single number. End your reply with the number alone on the last line.\"\n\n2.  **Calculate Total Samples:**\n   - Batches: 3 batches × 26 samples/batch = 78 samples\n   - Control samples: 8\n   - Total = 78 + 8 = 86\n\n3.  **Format Output:**\n   - \"state the total number of samples (from the batches plus the control samples) as a single number.\"\n   - \"End your reply with the number alone on the last line.\"\n   - So I should provide a brief statement or just the number at the end, but the instruction says \"End your reply with the number alone on the last line.\" It might allow some text before, but the last line must be just the number. I'll output the total and ensure the last line is just \"86\".\n\n   Let's structure: \n   \"The total number of samples is 86.\"\n   Then last line: 86\n\n   But to be safe, I'll just put the number on the last line, maybe with a preceding sentence that ends before, or I can just output the number directly as the last line. The prompt says \"state the total number... as a single number. End your reply with the number alone on the last line.\" I'll output something like: \"86\" but maybe they want the calculation shown? I'll provide a brief statement and then the number on its own line.\n\n   Actually, reading carefully: \"state the total number of samples (from the batches plus the control samples) as a single number. End your reply with the number alone on the last line.\" This could mean the entire reply should just be the number, with the last line being that number. But to be safe, I'll output the number on its own line at the end, possibly with a preceding sentence, but ensuring the very last line is just the number.\n\n   I'll do: \n   The total is 86.\n   86\n\n   Or just \"86\" as the whole reply? The instruction says \"End your reply with the number alone on the last line.\" This implies there might be text before, but the last line must be the number alone. I'll provide a concise statement and then the number on its own line.\n\n   Let's calculate again: 3 batches * 26 = 78. + 8 controls = 86. Correct.\n\n   I'll output: \n   The total number of samples is 86.\n   86\n\n   That fits.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 243,
+          "completion_tokens": 637,
+          "total_tokens": 880,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 620,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 3734
+}

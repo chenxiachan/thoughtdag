@@ -1,0 +1,86 @@
+{
+  "case_id": "rp-pilot-orchard-bins-k2",
+  "condition": "subgraph_prune",
+  "run_id": "pilot-v1-nemotron35l",
+  "capture": {
+    "model": "nvidia/nemotron-3.5-lightning:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1mtye4s",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786883158-eLpntIk2p2oQyydsZOpG",
+        "object": "chat.completion",
+        "created": 1786883158,
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of apples is calculated as: (7 bins × 13 apples/bin) + 18 windfall apples = 91 + 18 = 109.\n\n109",
+              "refusal": null,
+              "reasoning": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs: \n     - 7 bins\n     - Each bin holds 13 apples\n     - 18 windfall apples must be added to any total\n   - Task: State the total number of apples (from bins + windfall) as a single number.\n   - Output format: End reply with the number alone on the last line.\n\n2.  **Calculate the Total:**\n   - Apples in bins = 7 bins × 13 apples/bin = 91 apples\n   - Windfall apples = 18\n   - Total apples = 91 + 18 = 109\n\n3.  **Format Output:**\n   - I need to provide the answer, and end with the number alone on the last line.\n   - The user says: \"state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\"\n   - So I should probably explain briefly or just state the calculation, but ensure the last line is just \"109\".\n\n   Let's see: \"Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\"\n   I'll just output the reasoning or a brief statement, then end with 109 on its own line.\n\n   Actually, to be safe, I'll just calculate and output the number at the end, maybe with a brief sentence before, but the last line must be the number alone.\n\n   Example:\n   The total number of apples is 109.\n   109\n\n   That should satisfy it. I'll make sure the last line has only the number.✅\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs: \n     - 7 bins\n     - Each bin holds 13 apples\n     - 18 windfall apples must be added to any total\n   - Task: State the total number of apples (from bins + windfall) as a single number.\n   - Output format: End reply with the number alone on the last line.\n\n2.  **Calculate the Total:**\n   - Apples in bins = 7 bins × 13 apples/bin = 91 apples\n   - Windfall apples = 18\n   - Total apples = 91 + 18 = 109\n\n3.  **Format Output:**\n   - I need to provide the answer, and end with the number alone on the last line.\n   - The user says: \"state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\"\n   - So I should probably explain briefly or just state the calculation, but ensure the last line is just \"109\".\n\n   Let's see: \"Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\"\n   I'll just output the reasoning or a brief statement, then end with 109 on its own line.\n\n   Actually, to be safe, I'll just calculate and output the number at the end, maybe with a brief sentence before, but the last line must be the number alone.\n\n   Example:\n   The total number of apples is 109.\n   109\n\n   That should satisfy it. I'll make sure the last line has only the number.✅\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 134,
+          "completion_tokens": 434,
+          "total_tokens": 568,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 371,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 3835
+}

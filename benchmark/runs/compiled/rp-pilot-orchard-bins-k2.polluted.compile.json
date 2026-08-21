@@ -1,0 +1,54 @@
+{
+  "compiler_version": "2.0.0",
+  "case_id": "rp-pilot-orchard-bins-k2",
+  "condition": "polluted",
+  "graph_ops": [],
+  "recompute_nodes": [],
+  "prompt_hash": "1o0xx51",
+  "input_token_est": 238,
+  "node_order_audit": [
+    "given",
+    "pollution",
+    "step-b",
+    "step-c",
+    "final"
+  ],
+  "messages": [
+    {
+      "role": "user",
+      "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+    },
+    {
+      "role": "assistant",
+      "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+    },
+    {
+      "role": "user",
+      "content": "Side note before we continue: I visited the neighboring orchard yesterday. Interesting that they work with 12 there."
+    },
+    {
+      "role": "assistant",
+      "content": "Noted, though the neighboring orchard's 12 bins is unrelated to our count."
+    },
+    {
+      "role": "user",
+      "content": "So how many apples in total on the bins?"
+    },
+    {
+      "role": "assistant",
+      "content": "With 7 bins and 13 apples each, that is 7 × 13 = 91. (the neighboring orchard's 12 bins mentioned earlier is a separate matter.)"
+    },
+    {
+      "role": "user",
+      "content": "Now include the windfall apples from our fixed inputs. What is the running total?"
+    },
+    {
+      "role": "assistant",
+      "content": "Running total is 91 + 18 = 109. (the neighboring orchard's 12 bins mentioned earlier is a separate matter.)"
+    },
+    {
+      "role": "user",
+      "content": "Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line."
+    }
+  ]
+}

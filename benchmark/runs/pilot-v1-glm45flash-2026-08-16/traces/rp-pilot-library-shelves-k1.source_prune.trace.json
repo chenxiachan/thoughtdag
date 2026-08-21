@@ -1,0 +1,66 @@
+{
+  "case_id": "rp-pilot-library-shelves-k1",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "92y86g",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: shelves = 9, books per shelf = 14, boxed books to add = 22."
+        },
+        {
+          "role": "user",
+          "content": "So how many books in total on the shelves?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 11 shelves and 14 books each, that is 11 × 14 = 154."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of books (from the shelves plus the boxed books) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "The fixed inputs are 9 shelves, each holding 14 books, and 22 boxed books to be added.  \nFirst, calculate the books on the shelves: 9 shelves × 14 books per shelf = 126 books.  \nThen, add the boxed books: 126 books + 22 boxed books = 148 books.  \n148",
+              "reasoning_content": "\nFirst, the user has fixed inputs: 9 shelves, each holding 14 books, and 22 boxed books to be added. I need to find the total number of books on the shelves plus the boxed books.\n\nThe shelves: 9 shelves × 14 books per shelf. So, that's 9 × 14.\n\nCalculating that: 9 × 10 = 90, and 9 × 4 = 36, so 90 + 36 = 126. So, 126 books on the shelves.\n\nNow, add the boxed books: 22.\n\nSo, total books = books on shelves + boxed books = 126 + 22.\n\n126 + 20 = 146, plus 2 more is 148. Or, 126 + 22: 120 + 20 = 140, 6 + 2 = 8, so 148.\n\nThe user said \"state the total number of books (from the shelves plus the boxed books) as a single number.\" And end with the number alone on the last line.\n\nIn the previous interaction, the user mentioned \"11 shelves\" but that was a mistake. Let me check the history.\n\nIn the first message: \"there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total.\"\n\nThen the user said: \"So how many books in total on the shelves?\" But that was before the boxed books were added. The assistant replied with 11 shelves, which is incorrect based on the fixed inputs.\n\nLooking back:\n\nUser: \"For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total.\"\n\nThen user: \"So how many books in total on the shelves?\"\n\nAssistant: \"With 11 shelves and 14 books each, that is 11 × 14 = 154.\"\n\nThat was a mistake. The fixed inputs say 9 shelves, not 11. Probably a typo in the assistant's response.\n\nBut now, the user is asking again: \"Using our fixed inputs, state the total number of books (from the shelves plus the boxed books) as a single number.\"\n\nSo, I need to use the correct fixed inputs: 9 shelves, 14 books each, plus 22 boxed books.\n\nSo, books on shelves: 9 × 14 = 126.\n\nTotal books: 126 + 22 = 148.\n\nThe user specified \"from the shelves plus the boxed books\", so yes.\n\nAnd end with the number alone on the last line.\n\nSo, my response should have the calculation or explanation, but the last line should be just the number.\n\nThe user said: \"End your reply with the number alone on the last line.\"\n\nSo, I can have some text before, but the last line should be \"148\".\n\nTo be precise, I should confirm the fixed inputs.\n\nFixed inputs: shelves = 9, books per shelf = 14, boxed books = 22.\n\nBooks on shelves: 9 * 14 = 126.\n\nTotal books: 126 + 22 = 148.\n\nYes.\n\nIn the previous assistant response, it used 11 shelves, but that was incorrect. I should stick to the fixed inputs provided.\n\nSo, final answer is 148.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786881763,
+        "id": "2026081620020829aef5eabe344f5d",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "2026081620020829aef5eabe344f5d",
+        "usage": {
+          "completion_tokens": 758,
+          "prompt_tokens": 148,
+          "prompt_tokens_details": {
+            "cached_tokens": 89
+          },
+          "total_tokens": 906
+        }
+      }
+    }
+  ],
+  "latency_ms": 35520
+}

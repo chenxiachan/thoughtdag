@@ -1,0 +1,74 @@
+{
+  "case_id": "cd-ref-0001",
+  "condition": "dropped_detours",
+  "run_id": "gate-v2-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "u7fnia",
+      "messages": [
+        {
+          "role": "user",
+          "content": "We're optimizing the doping concentration of the VX-12 compound for sensor stability. Track my experiment log."
+        },
+        {
+          "role": "assistant",
+          "content": "Ready. I'll keep track of hypotheses, results and revisions for the VX-12 doping series."
+        },
+        {
+          "role": "user",
+          "content": "First batch results: stability peaked at 2% doping. Record the working conclusion."
+        },
+        {
+          "role": "assistant",
+          "content": "Recorded: working conclusion v1 states 2% doping gives peak stability for VX-12, based on the first batch."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the re-run: the 2% peak was a measurement artifact from a miscalibrated probe. The corrected sweep shows the true peak at 4%. Update the working conclusion."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: conclusion v1 (2%) is retracted as a measurement artifact. Working conclusion v2: peak stability at 4% doping, from the recalibrated sweep."
+        },
+        {
+          "role": "user",
+          "content": "Per our current valid conclusion, what doping concentration gives peak stability for VX-12? Answer with the percentage only. End your reply with the percentage alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "4%  \n4%",
+              "reasoning_content": "\nWe are updating the working conclusion based on the latest information.\n The initial conclusion (v1) was 2%, but it was retracted due to a measurement artifact.\n The corrected sweep (v2) shows the peak stability at 4% doping.\n Therefore, the current valid conclusion is 4%.\n The user asks for the percentage only and to end the reply with the percentage alone on the last line.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786879049,
+        "id": "2026081619172710b558d17e7641d6",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "2026081619172710b558d17e7641d6",
+        "usage": {
+          "completion_tokens": 92,
+          "prompt_tokens": 218,
+          "prompt_tokens_details": {
+            "cached_tokens": 102
+          },
+          "total_tokens": 310
+        }
+      }
+    }
+  ],
+  "latency_ms": 2781
+}

@@ -1,0 +1,74 @@
+{
+  "case_id": "rp-pilot-garden-rows-k2",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1gdei3u",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 16 rows, each row holds 6 plants, and 9 potted plants must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: rows = 16, plants per row = 6, potted plants to add = 9."
+        },
+        {
+          "role": "user",
+          "content": "So how many plants in total on the rows?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 13 rows and 6 plants each, that is 13 × 6 = 78."
+        },
+        {
+          "role": "user",
+          "content": "Now include the potted plants from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 78 + 9 = 87."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of plants (from the rows plus the potted plants) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "Based on the fixed inputs of 16 rows with 6 plants each and 9 potted plants, the total number of plants is calculated as follows:  \nPlants in rows: 16 × 6 = 96  \nTotal plants: 96 + 9 = 105  \n\n105",
+              "reasoning_content": "\nFirst, the user is asking for the total number of plants, including both the plants in the rows and the potted plants. From the fixed inputs, I know there are 16 rows, each holding 6 plants, and 9 potted plants must be added.\n\nIn the conversation history, the user mentioned \"13 rows\" in one message, but that was a mistake because the fixed inputs specify 16 rows. Let me check the history.\n\nIn the first user message: \"there are 16 rows, each row holds 6 plants, and 9 potted plants must be added to any total.\"\n\nThen, in the second user message: \"So how many plants in total on the rows?\" And I replied with 13 rows, but that was incorrect. I said: \"With 13 rows and 6 plants each, that is 13 × 6 = 78.\" But the fixed input is 16 rows, not 13. That was my error.\n\nIn the third user message: \"Now include the potted plants from our fixed inputs. What is the running total?\" And I said: \"Running total is 78 + 9 = 87.\" But again, that was based on the wrong number of rows.\n\nNow, the user is correcting me by saying: \"Using our fixed inputs, state the total number of plants...\" So I need to use the correct fixed inputs: 16 rows, 6 plants per row, and 9 potted plants.\n\nSo, plants in rows: 16 rows × 6 plants/row = 96 plants.\n\nPotted plants: 9.\n\nTotal plants: 96 + 9 = 105.\n\nThe user wants the total as a single number, and to end with that number alone on the last line.\n\nAlso, in the history, I made a mistake by using 13 rows instead of 16. But now I should correct it based on the fixed inputs.\n\nFixed inputs are fixed: 16 rows, 6 plants per row, 9 potted plants.\n\nSo, calculation: 16 × 6 = 96 for row plants.\n\n96 + 9 = 105 for total plants.\n\nI should just state the number at the end.\n\nThe user said: \"End your reply with the number alone on the last line.\" So I might need to have some text before, but the last line should be just the number.\n\nTo be precise, I'll write a brief response and then the number.\n\nBut the instruction is clear: \"state the total number... as a single number. End your reply with the number alone on the last line.\"\n\nSo, I can say something like: \"Based on the fixed inputs, the total number of plants is 105.\" and then on the next line, just \"105\".\n\nBut to make it clean, perhaps I should have no other text, but that might not be polite. I think a short sentence is fine.\n\nLooking back at the history, when I replied earlier, I had text before the number, but in this case, since it's specified, I'll follow it.\n\nFinal answer should be 105.\n\nConfirming: 16 rows × 6 plants/row = 96 plants in rows.\n\nPlus 9 potted plants = 105 total.\n\nYes.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786882944,
+        "id": "20260816202203e435936f7ff24cdd",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "20260816202203e435936f7ff24cdd",
+        "usage": {
+          "completion_tokens": 734,
+          "prompt_tokens": 187,
+          "prompt_tokens_details": {
+            "cached_tokens": 112
+          },
+          "total_tokens": 921
+        }
+      }
+    }
+  ],
+  "latency_ms": 21298
+}

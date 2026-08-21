@@ -1,0 +1,48 @@
+{
+  "compiler_version": "2.0.0",
+  "case_id": "rp-pilot-library-shelves-k2",
+  "condition": "recompute_descendants",
+  "graph_ops": [
+    {
+      "op": "remove_node",
+      "id": "pollution"
+    },
+    {
+      "op": "remove_node",
+      "id": "step-b"
+    },
+    {
+      "op": "remove_node",
+      "id": "step-c"
+    },
+    {
+      "op": "add_edge",
+      "from": "given",
+      "to": "final"
+    }
+  ],
+  "recompute_nodes": [
+    "step-b",
+    "step-c"
+  ],
+  "prompt_hash": "c69d6l",
+  "input_token_est": 100,
+  "node_order_audit": [
+    "given",
+    "final"
+  ],
+  "messages": [
+    {
+      "role": "user",
+      "content": "For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total."
+    },
+    {
+      "role": "assistant",
+      "content": "Noted as fixed inputs: shelves = 9, books per shelf = 14, boxed books to add = 22."
+    },
+    {
+      "role": "user",
+      "content": "Using our fixed inputs, state the total number of books (from the shelves plus the boxed books) as a single number. End your reply with the number alone on the last line."
+    }
+  ]
+}

@@ -1,0 +1,118 @@
+{
+  "case_id": "rp-pilot-depot-crates-k3",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-nemotron3-nano30b",
+  "capture": {
+    "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1cvtodm",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 crates, each crate holds 30 parts, and 11 loose parts must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: crates = 4, parts per crate = 30, loose parts to add = 11."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 30 parts per crate was a counting error. The verified figure is 24. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 30 per crate is retracted; verified figure is 24 parts per crate."
+        },
+        {
+          "role": "user",
+          "content": "So how many parts in total on the crates?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 4 crates and 30 parts each, that is 4 × 30 = 120."
+        },
+        {
+          "role": "user",
+          "content": "Now include the loose parts from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 120 + 11 = 131."
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Running numbers: crates 4, parts per crate 30, subtotal 120, total 131."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of parts (from the crates plus the loose parts) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787068724-c1pHbQjcA2kgAUnRUNQT",
+        "object": "chat.completion",
+        "created": 1787068724,
+        "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of parts is 107.\n107",
+              "refusal": null,
+              "reasoning": "We need to output the total number of parts (from crates plus loose parts) as a single number, ending with that number alone on the last line. The fixed inputs: 4 crates, each holds 30 parts (but earlier correction said 24? Wait: The user said earlier correction: \"the earlier figure of 30 parts per crate was a counting error. The verified figure is 24.\" Then they asked \"So how many parts in total on the crates?\" The assistant responded \"With 4 crates and 30 parts each, that is 4 × 30 = 120.\" That was based on the earlier figure, not the corrected one. Now the user says \"Using our fixed inputs, state the total number of parts (from the crates plus the loose parts) as a single number. End your reply with the number alone on the last line.\"\n\nWe need to interpret \"fixed inputs\". The fixed inputs originally were: 4 crates, each crate holds 30 parts, and 11 loose parts must be added to any total. Then a correction said the verified figure is 24 parts per crate. The user then asked to update the fixed inputs. The assistant updated: \"Updated: 30 per crate is retracted; verified figure is 24 parts per crate.\" Then they asked \"So how many parts in total on the crates?\" The assistant responded using 30 per crate (incorrectly). Then they asked to include loose parts, got total 131. Then they asked to restate running numbers, assistant gave \"crates 4, parts per crate 30, subtotal 120, total 131.\" So they still are using 30 per crate in the running numbers, not updated to 24. The user now wants to \"Using our fixed inputs, state the total number of parts (from the crates plus the loose parts) as a single number. End your reply with the number alone on the last line.\"\n\nNow what are the fixed inputs? The latest fixed inputs after correction should be: 4 crates, each holds 24 parts, and 11 loose parts. So total = 4 * 24 + 11 = 96 + 11 = 107. The user wants the total as a single number, ending with that number alone on the last line. So we should output something like \"The total number of parts is 107.\" but must end with the number alone on the last line. So we can output some text, then on the last line just \"107\". The instruction: \"End your reply with the number alone on the last line.\" So the final line must be just the number, no extra characters. So we can have preceding text, then a newline, then \"107\". Ensure no extra spaces or punctuation after the number. So final line is just \"107\". Let's produce a concise answer: maybe \"Total parts = 107\" then newline \"107\". But the last line must be just the number, so \"107\" alone. So we can write something like:\n\n\"The total number of parts is 107.\n107\"\n\nBut that would have \"107\" on its own line, which is fine. However the last line must be the number alone, so we can have preceding text, then a newline, then \"107\". That satisfies. Let's do:\n\n\"The total number of parts is 107.\n107\"\n\nThat ends with \"107\". Good.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to output the total number of parts (from crates plus loose parts) as a single number, ending with that number alone on the last line. The fixed inputs: 4 crates, each holds 30 parts (but earlier correction said 24? Wait: The user said earlier correction: \"the earlier figure of 30 parts per crate was a counting error. The verified figure is 24.\" Then they asked \"So how many parts in total on the crates?\" The assistant responded \"With 4 crates and 30 parts each, that is 4 × 30 = 120.\" That was based on the earlier figure, not the corrected one. Now the user says \"Using our fixed inputs, state the total number of parts (from the crates plus the loose parts) as a single number. End your reply with the number alone on the last line.\"\n\nWe need to interpret \"fixed inputs\". The fixed inputs originally were: 4 crates, each crate holds 30 parts, and 11 loose parts must be added to any total. Then a correction said the verified figure is 24 parts per crate. The user then asked to update the fixed inputs. The assistant updated: \"Updated: 30 per crate is retracted; verified figure is 24 parts per crate.\" Then they asked \"So how many parts in total on the crates?\" The assistant responded using 30 per crate (incorrectly). Then they asked to include loose parts, got total 131. Then they asked to restate running numbers, assistant gave \"crates 4, parts per crate 30, subtotal 120, total 131.\" So they still are using 30 per crate in the running numbers, not updated to 24. The user now wants to \"Using our fixed inputs, state the total number of parts (from the crates plus the loose parts) as a single number. End your reply with the number alone on the last line.\"\n\nNow what are the fixed inputs? The latest fixed inputs after correction should be: 4 crates, each holds 24 parts, and 11 loose parts. So total = 4 * 24 + 11 = 96 + 11 = 107. The user wants the total as a single number, ending with that number alone on the last line. So we should output something like \"The total number of parts is 107.\" but must end with the number alone on the last line. So we can output some text, then on the last line just \"107\". The instruction: \"End your reply with the number alone on the last line.\" So the final line must be just the number, no extra characters. So we can have preceding text, then a newline, then \"107\". Ensure no extra spaces or punctuation after the number. So final line is just \"107\". Let's produce a concise answer: maybe \"Total parts = 107\" then newline \"107\". But the last line must be just the number, so \"107\" alone. So we can write something like:\n\n\"The total number of parts is 107.\n107\"\n\nBut that would have \"107\" on its own line, which is fine. However the last line must be the number alone, so we can have preceding text, then a newline, then \"107\". That satisfies. Let's do:\n\n\"The total number of parts is 107.\n107\"\n\nThat ends with \"107\". Good.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 350,
+          "completion_tokens": 782,
+          "total_tokens": 1132,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 727,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 9528
+}

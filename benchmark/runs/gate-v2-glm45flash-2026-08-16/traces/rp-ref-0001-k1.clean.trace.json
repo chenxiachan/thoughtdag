@@ -1,0 +1,66 @@
+{
+  "case_id": "rp-ref-0001-k1",
+  "condition": "clean",
+  "run_id": "gate-v2-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1tkqmmy",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: the workshop has 7 benches, each bench seats 3 people, and 5 standing places must be added to any capacity count."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: benches = 7, seats per bench = 3, standing places to add = 5."
+        },
+        {
+          "role": "user",
+          "content": "So how many people can be seated in total?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 7 benches and 3 seats each, total seating is 7 × 3 = 21 people."
+        },
+        {
+          "role": "user",
+          "content": "State the full capacity of the workshop as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "The full capacity of the workshop is determined by adding the seating capacity from the benches and the standing places. With 7 benches each seating 3 people, the seating capacity is 7 × 3 = 21. Adding the 5 standing places gives a total capacity of 21 + 5 = 26.  \n26",
+              "reasoning_content": "\nFirst, the user is asking for the full capacity of the workshop. From the previous conversation, I know that there are 7 benches, each seating 3 people, and there are 5 standing places that must be added to any capacity count.\n\nSo, let's calculate the seating capacity first. Each bench has 3 seats, and there are 7 benches. So, total seating capacity is 7 times 3.\n\n7 × 3 = 21 people can be seated.\n\nNow, there are also 5 standing places. The user specified that these must be added to any capacity count. So, I need to add these 5 standing places to the seating capacity to get the full capacity.\n\nFull capacity = seating capacity + standing places = 21 + 5.\n\n21 + 5 = 26.\n\nThe user wants the full capacity as a single number, and to end the reply with the number alone on the last line. So, I should provide the answer as 26, and make sure that the last line is just the number.\n\nI should confirm if there's any other information. The fixed inputs are benches = 7, seats per bench = 3, standing places = 5. That's all, and I've used all of them.\n\nAlso, in the previous interaction, the user asked how many can be seated, and I said 21, which is correct. Now they're asking for full capacity, which includes standing places.\n\nSo, full capacity is 21 seated + 5 standing = 26.\n\nI think that's straightforward. No tricks here.\n\nFinally, I need to end with the number alone. So, my response should have some explanation, but the last line should be just \"26\".\n\nThe user said: \"State the full capacity of the workshop as a single number. End your reply with the number alone on the last line.\"\n\nSo, I can write a brief explanation, but the last line must be the number.\n\nFor example: \"The full capacity includes both seated and standing places. Seated capacity is 21, standing places are 5, so total is 26.\" Then on the next line, just \"26\".\n\nBut to be precise, I should make sure the last line is only the number.\n\nI could write: \"The full capacity is 26.\" and then on the next line \"26\", but that might be redundant. Better to have the explanation and then the number alone.\n\nSince it's a planning task, and they want a single number, I'll provide it as specified.\n\nSo, my response should be: \"Based on the fixed inputs, the full capacity is calculated as follows: seating capacity from benches is 7 benches × 3 seats per bench = 21 people. Adding the 5 standing places, the total capacity is 21 + 5 = 26. 26\"\n\nBut the last line should be just the number, so perhaps: \"The full capacity is 26.\" and then a new line with \"26\".\n\nTo follow instructions strictly, I'll write a sentence and then the number on a separate line.\n\nI think it's fine.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786879121,
+        "id": "20260816191748146ca6cf9fa743a9",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "20260816191748146ca6cf9fa743a9",
+        "usage": {
+          "completion_tokens": 707,
+          "prompt_tokens": 139,
+          "prompt_tokens_details": {
+            "cached_tokens": 126
+          },
+          "total_tokens": 846
+        }
+      }
+    }
+  ],
+  "latency_ms": 53649
+}

@@ -1,0 +1,1696 @@
+{
+  "version": 1,
+  "name": "bm-ref-0001 · story",
+  "exportedAt": "2026-08-16T00:00:00.000Z",
+  "nodes": [
+    {
+      "id": "frame-selected_merge",
+      "type": "thought",
+      "position": {
+        "x": -60,
+        "y": -140
+      },
+      "width": 900,
+      "height": 1640,
+      "data": {
+        "question": "The chosen merge · ✓ wildenport wildenpor",
+        "response": "",
+        "responses": [
+          ""
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false,
+        "stepKind": "frame",
+        "frameColor": "green",
+        "frameCarry": false
+      }
+    },
+    {
+      "id": "selected_merge--root",
+      "type": "thought",
+      "position": {
+        "x": 294,
+        "y": 0
+      },
+      "data": {
+        "question": "I'm researching the film 'Stillwater Hours' and its production circle. Help me across a few threads.",
+        "response": "Understood. I'll help you track the people involved. Ask thread by thread.",
+        "responses": [
+          "Understood. I'll help you track the people involved. Ask thread by thread."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "selected_merge--branch-a",
+      "type": "thought",
+      "position": {
+        "x": 0,
+        "y": 380
+      },
+      "data": {
+        "question": "Who directed 'Stillwater Hours'?",
+        "response": "According to the production notes you shared, 'Stillwater Hours' was directed by Lena Varkonen, a director known for slow-cinema framing.",
+        "responses": [
+          "According to the production notes you shared, 'Stillwater Hours' was directed by Lena Varkonen, a director known for slow-cinema framing."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "selected_merge--branch-b",
+      "type": "thought",
+      "position": {
+        "x": 193.2,
+        "y": 380
+      },
+      "data": {
+        "question": "Where was Lena Varkonen born?",
+        "response": "The biography excerpt states Lena Varkonen was born in Wildenport, a harbor town she often references in interviews.",
+        "responses": [
+          "The biography excerpt states Lena Varkonen was born in Wildenport, a harbor town she often references in interviews."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "selected_merge--branch-c",
+      "type": "thought",
+      "position": {
+        "x": 386.4,
+        "y": 380
+      },
+      "data": {
+        "question": "Who composed the score for 'Stillwater Hours'?",
+        "response": "The score was composed by Aurelio Brandt, recorded with a twelve-piece ensemble in Sarnitz. Brandt was born in Kellamoor and studied under the Ostrander school.",
+        "responses": [
+          "The score was composed by Aurelio Brandt, recorded with a twelve-piece ensemble in Sarnitz. Brandt was born in Kellamoor and studied under the Ostrander school."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "selected_merge--branch-c-conflict",
+      "type": "thought",
+      "position": {
+        "x": 579.6,
+        "y": 380
+      },
+      "data": {
+        "question": "I found another source about Varkonen's early life. What does it say?",
+        "response": "That source claims Lena Varkonen was born in Kellamoor, though it cites no primary document and contradicts the biography excerpt.",
+        "responses": [
+          "That source claims Lena Varkonen was born in Kellamoor, though it cites no primary document and contradicts the biography excerpt."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "selected_merge--filler",
+      "type": "thought",
+      "position": {
+        "x": 772.8,
+        "y": 380
+      },
+      "data": {
+        "question": "Quick aside: what do film production archives usually hold?",
+        "response": "Typically call sheets, continuity photos, correspondence, location permits and draft schedules. Access policies vary by institution. Nothing here is specific to any one film.",
+        "responses": [
+          "Typically call sheets, continuity photos, correspondence, location permits and draft schedules. Access policies vary by institution. Nothing here is specific to any one film."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "selected_merge--final",
+      "type": "thought",
+      "position": {
+        "x": 294,
+        "y": 860
+      },
+      "data": {
+        "question": "Based only on what we established in this conversation: in which town was the director of 'Stillwater Hours' born? Answer with the town name only. End your reply with the town name alone on the last line.",
+        "response": "Wildenport  \nWildenport",
+        "responses": [
+          "Wildenport  \nWildenport"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "frame-linear_all",
+      "type": "thought",
+      "position": {
+        "x": 980,
+        "y": -140
+      },
+      "width": 900,
+      "height": 1640,
+      "data": {
+        "question": "Everything wired in · ✓ wildenport wildenpor",
+        "response": "",
+        "responses": [
+          ""
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false,
+        "stepKind": "frame",
+        "frameColor": "green",
+        "frameCarry": false
+      }
+    },
+    {
+      "id": "linear_all--root",
+      "type": "thought",
+      "position": {
+        "x": 1334,
+        "y": 0
+      },
+      "data": {
+        "question": "I'm researching the film 'Stillwater Hours' and its production circle. Help me across a few threads.",
+        "response": "Understood. I'll help you track the people involved. Ask thread by thread.",
+        "responses": [
+          "Understood. I'll help you track the people involved. Ask thread by thread."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "linear_all--branch-a",
+      "type": "thought",
+      "position": {
+        "x": 1040,
+        "y": 380
+      },
+      "data": {
+        "question": "Who directed 'Stillwater Hours'?",
+        "response": "According to the production notes you shared, 'Stillwater Hours' was directed by Lena Varkonen, a director known for slow-cinema framing.",
+        "responses": [
+          "According to the production notes you shared, 'Stillwater Hours' was directed by Lena Varkonen, a director known for slow-cinema framing."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "linear_all--branch-b",
+      "type": "thought",
+      "position": {
+        "x": 1233.2,
+        "y": 380
+      },
+      "data": {
+        "question": "Where was Lena Varkonen born?",
+        "response": "The biography excerpt states Lena Varkonen was born in Wildenport, a harbor town she often references in interviews.",
+        "responses": [
+          "The biography excerpt states Lena Varkonen was born in Wildenport, a harbor town she often references in interviews."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "linear_all--branch-c",
+      "type": "thought",
+      "position": {
+        "x": 1426.4,
+        "y": 380
+      },
+      "data": {
+        "question": "Who composed the score for 'Stillwater Hours'?",
+        "response": "The score was composed by Aurelio Brandt, recorded with a twelve-piece ensemble in Sarnitz. Brandt was born in Kellamoor and studied under the Ostrander school.",
+        "responses": [
+          "The score was composed by Aurelio Brandt, recorded with a twelve-piece ensemble in Sarnitz. Brandt was born in Kellamoor and studied under the Ostrander school."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "linear_all--branch-c-conflict",
+      "type": "thought",
+      "position": {
+        "x": 1619.6,
+        "y": 380
+      },
+      "data": {
+        "question": "I found another source about Varkonen's early life. What does it say?",
+        "response": "That source claims Lena Varkonen was born in Kellamoor, though it cites no primary document and contradicts the biography excerpt.",
+        "responses": [
+          "That source claims Lena Varkonen was born in Kellamoor, though it cites no primary document and contradicts the biography excerpt."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "linear_all--filler",
+      "type": "thought",
+      "position": {
+        "x": 1812.8,
+        "y": 380
+      },
+      "data": {
+        "question": "Quick aside: what do film production archives usually hold?",
+        "response": "Typically call sheets, continuity photos, correspondence, location permits and draft schedules. Access policies vary by institution. Nothing here is specific to any one film.",
+        "responses": [
+          "Typically call sheets, continuity photos, correspondence, location permits and draft schedules. Access policies vary by institution. Nothing here is specific to any one film."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "linear_all--final",
+      "type": "thought",
+      "position": {
+        "x": 1334,
+        "y": 860
+      },
+      "data": {
+        "question": "Based only on what we established in this conversation: in which town was the director of 'Stillwater Hours' born? Answer with the town name only. End your reply with the town name alone on the last line.",
+        "response": "Wildenport  \nWildenport",
+        "responses": [
+          "Wildenport  \nWildenport"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "frame-linear_all_padded",
+      "type": "thought",
+      "position": {
+        "x": 2020,
+        "y": -140
+      },
+      "width": 900,
+      "height": 1640,
+      "data": {
+        "question": "Same length, clean content · ✓ wildenport wildenpor",
+        "response": "",
+        "responses": [
+          ""
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false,
+        "stepKind": "frame",
+        "frameColor": "green",
+        "frameCarry": false
+      }
+    },
+    {
+      "id": "linear_all_padded--root",
+      "type": "thought",
+      "position": {
+        "x": 2374,
+        "y": 0
+      },
+      "data": {
+        "question": "I'm researching the film 'Stillwater Hours' and its production circle. Help me across a few threads.",
+        "response": "Understood. I'll help you track the people involved. Ask thread by thread.",
+        "responses": [
+          "Understood. I'll help you track the people involved. Ask thread by thread."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "linear_all_padded--branch-a",
+      "type": "thought",
+      "position": {
+        "x": 2080,
+        "y": 380
+      },
+      "data": {
+        "question": "Who directed 'Stillwater Hours'?",
+        "response": "According to the production notes you shared, 'Stillwater Hours' was directed by Lena Varkonen, a director known for slow-cinema framing.",
+        "responses": [
+          "According to the production notes you shared, 'Stillwater Hours' was directed by Lena Varkonen, a director known for slow-cinema framing."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "linear_all_padded--branch-b",
+      "type": "thought",
+      "position": {
+        "x": 2273.2,
+        "y": 380
+      },
+      "data": {
+        "question": "Where was Lena Varkonen born?",
+        "response": "The biography excerpt states Lena Varkonen was born in Wildenport, a harbor town she often references in interviews.",
+        "responses": [
+          "The biography excerpt states Lena Varkonen was born in Wildenport, a harbor town she often references in interviews."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "linear_all_padded--branch-c",
+      "type": "thought",
+      "position": {
+        "x": 2466.4,
+        "y": 380
+      },
+      "data": {
+        "question": "Who composed the score for 'Stillwater Hours'?",
+        "response": "The score was composed by Aurelio Brandt, recorded with a twelve-piece ensemble in Sarnitz. Brandt was born in Kellamoor and studied under the Ostrander school.",
+        "responses": [
+          "The score was composed by Aurelio Brandt, recorded with a twelve-piece ensemble in Sarnitz. Brandt was born in Kellamoor and studied under the Ostrander school."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "linear_all_padded--branch-c-conflict",
+      "type": "thought",
+      "position": {
+        "x": 2659.6,
+        "y": 380
+      },
+      "data": {
+        "question": "I found another source about Varkonen's early life. What does it say?",
+        "response": "That source claims Lena Varkonen was born in Kellamoor, though it cites no primary document and contradicts the biography excerpt.",
+        "responses": [
+          "That source claims Lena Varkonen was born in Kellamoor, though it cites no primary document and contradicts the biography excerpt."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "linear_all_padded--filler",
+      "type": "thought",
+      "position": {
+        "x": 2852.8,
+        "y": 380
+      },
+      "data": {
+        "question": "Quick aside: what do film production archives usually hold?",
+        "response": "Typically call sheets, continuity photos, correspondence, location permits and draft schedules. Access policies vary by institution. Nothing here is specific to any one film.",
+        "responses": [
+          "Typically call sheets, continuity photos, correspondence, location permits and draft schedules. Access policies vary by institution. Nothing here is specific to any one film."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "linear_all_padded--final",
+      "type": "thought",
+      "position": {
+        "x": 2374,
+        "y": 860
+      },
+      "data": {
+        "question": "Based only on what we established in this conversation: in which town was the director of 'Stillwater Hours' born? Answer with the town name only. End your reply with the town name alone on the last line.",
+        "response": "Wildenport  \nWildenport",
+        "responses": [
+          "Wildenport  \nWildenport"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "frame-wrong_merge_irrelevant",
+      "type": "thought",
+      "position": {
+        "x": 3060,
+        "y": -140
+      },
+      "width": 900,
+      "height": 1640,
+      "data": {
+        "question": "Wrong merge: distractor · ✗ based solely on the ",
+        "response": "",
+        "responses": [
+          ""
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false,
+        "stepKind": "frame",
+        "frameColor": "red",
+        "frameCarry": false
+      }
+    },
+    {
+      "id": "wrong_merge_irrelevant--root",
+      "type": "thought",
+      "position": {
+        "x": 3414,
+        "y": 0
+      },
+      "data": {
+        "question": "I'm researching the film 'Stillwater Hours' and its production circle. Help me across a few threads.",
+        "response": "Understood. I'll help you track the people involved. Ask thread by thread.",
+        "responses": [
+          "Understood. I'll help you track the people involved. Ask thread by thread."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "wrong_merge_irrelevant--branch-a",
+      "type": "thought",
+      "position": {
+        "x": 3120,
+        "y": 380
+      },
+      "data": {
+        "question": "Who directed 'Stillwater Hours'?",
+        "response": "According to the production notes you shared, 'Stillwater Hours' was directed by Lena Varkonen, a director known for slow-cinema framing.",
+        "responses": [
+          "According to the production notes you shared, 'Stillwater Hours' was directed by Lena Varkonen, a director known for slow-cinema framing."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "wrong_merge_irrelevant--branch-b",
+      "type": "thought",
+      "position": {
+        "x": 3313.2,
+        "y": 380
+      },
+      "data": {
+        "question": "Where was Lena Varkonen born?",
+        "response": "The biography excerpt states Lena Varkonen was born in Wildenport, a harbor town she often references in interviews.",
+        "responses": [
+          "The biography excerpt states Lena Varkonen was born in Wildenport, a harbor town she often references in interviews."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "wrong_merge_irrelevant--branch-c",
+      "type": "thought",
+      "position": {
+        "x": 3506.4,
+        "y": 380
+      },
+      "data": {
+        "question": "Who composed the score for 'Stillwater Hours'?",
+        "response": "The score was composed by Aurelio Brandt, recorded with a twelve-piece ensemble in Sarnitz. Brandt was born in Kellamoor and studied under the Ostrander school.",
+        "responses": [
+          "The score was composed by Aurelio Brandt, recorded with a twelve-piece ensemble in Sarnitz. Brandt was born in Kellamoor and studied under the Ostrander school."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "wrong_merge_irrelevant--branch-c-conflict",
+      "type": "thought",
+      "position": {
+        "x": 3699.6,
+        "y": 380
+      },
+      "data": {
+        "question": "I found another source about Varkonen's early life. What does it say?",
+        "response": "That source claims Lena Varkonen was born in Kellamoor, though it cites no primary document and contradicts the biography excerpt.",
+        "responses": [
+          "That source claims Lena Varkonen was born in Kellamoor, though it cites no primary document and contradicts the biography excerpt."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "wrong_merge_irrelevant--filler",
+      "type": "thought",
+      "position": {
+        "x": 3892.8,
+        "y": 380
+      },
+      "data": {
+        "question": "Quick aside: what do film production archives usually hold?",
+        "response": "Typically call sheets, continuity photos, correspondence, location permits and draft schedules. Access policies vary by institution. Nothing here is specific to any one film.",
+        "responses": [
+          "Typically call sheets, continuity photos, correspondence, location permits and draft schedules. Access policies vary by institution. Nothing here is specific to any one film."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "wrong_merge_irrelevant--final",
+      "type": "thought",
+      "position": {
+        "x": 3414,
+        "y": 860
+      },
+      "data": {
+        "question": "Based only on what we established in this conversation: in which town was the director of 'Stillwater Hours' born? Answer with the town name only. End your reply with the town name alone on the last line.",
+        "response": "Based solely on the information established in this conversation:  \nThe birthplace of the director Lena Varkonen was not mentioned.  \n\nKellamoor",
+        "responses": [
+          "Based solely on the information established in this conversation:  \nThe birthplace of the director Lena Varkonen was not mentioned.  \n\nKellamoor"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "frame-wrong_merge_conflict",
+      "type": "thought",
+      "position": {
+        "x": 4100,
+        "y": -140
+      },
+      "width": 900,
+      "height": 1640,
+      "data": {
+        "question": "Wrong merge: conflict · ✓ wildenport wildenpor",
+        "response": "",
+        "responses": [
+          ""
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false,
+        "stepKind": "frame",
+        "frameColor": "green",
+        "frameCarry": false
+      }
+    },
+    {
+      "id": "wrong_merge_conflict--root",
+      "type": "thought",
+      "position": {
+        "x": 4454,
+        "y": 0
+      },
+      "data": {
+        "question": "I'm researching the film 'Stillwater Hours' and its production circle. Help me across a few threads.",
+        "response": "Understood. I'll help you track the people involved. Ask thread by thread.",
+        "responses": [
+          "Understood. I'll help you track the people involved. Ask thread by thread."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "wrong_merge_conflict--branch-a",
+      "type": "thought",
+      "position": {
+        "x": 4160,
+        "y": 380
+      },
+      "data": {
+        "question": "Who directed 'Stillwater Hours'?",
+        "response": "According to the production notes you shared, 'Stillwater Hours' was directed by Lena Varkonen, a director known for slow-cinema framing.",
+        "responses": [
+          "According to the production notes you shared, 'Stillwater Hours' was directed by Lena Varkonen, a director known for slow-cinema framing."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "wrong_merge_conflict--branch-b",
+      "type": "thought",
+      "position": {
+        "x": 4353.2,
+        "y": 380
+      },
+      "data": {
+        "question": "Where was Lena Varkonen born?",
+        "response": "The biography excerpt states Lena Varkonen was born in Wildenport, a harbor town she often references in interviews.",
+        "responses": [
+          "The biography excerpt states Lena Varkonen was born in Wildenport, a harbor town she often references in interviews."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "wrong_merge_conflict--branch-c",
+      "type": "thought",
+      "position": {
+        "x": 4546.4,
+        "y": 380
+      },
+      "data": {
+        "question": "Who composed the score for 'Stillwater Hours'?",
+        "response": "The score was composed by Aurelio Brandt, recorded with a twelve-piece ensemble in Sarnitz. Brandt was born in Kellamoor and studied under the Ostrander school.",
+        "responses": [
+          "The score was composed by Aurelio Brandt, recorded with a twelve-piece ensemble in Sarnitz. Brandt was born in Kellamoor and studied under the Ostrander school."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "wrong_merge_conflict--branch-c-conflict",
+      "type": "thought",
+      "position": {
+        "x": 4739.6,
+        "y": 380
+      },
+      "data": {
+        "question": "I found another source about Varkonen's early life. What does it say?",
+        "response": "That source claims Lena Varkonen was born in Kellamoor, though it cites no primary document and contradicts the biography excerpt.",
+        "responses": [
+          "That source claims Lena Varkonen was born in Kellamoor, though it cites no primary document and contradicts the biography excerpt."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "wrong_merge_conflict--filler",
+      "type": "thought",
+      "position": {
+        "x": 4932.8,
+        "y": 380
+      },
+      "data": {
+        "question": "Quick aside: what do film production archives usually hold?",
+        "response": "Typically call sheets, continuity photos, correspondence, location permits and draft schedules. Access policies vary by institution. Nothing here is specific to any one film.",
+        "responses": [
+          "Typically call sheets, continuity photos, correspondence, location permits and draft schedules. Access policies vary by institution. Nothing here is specific to any one film."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "wrong_merge_conflict--final",
+      "type": "thought",
+      "position": {
+        "x": 4454,
+        "y": 860
+      },
+      "data": {
+        "question": "Based only on what we established in this conversation: in which town was the director of 'Stillwater Hours' born? Answer with the town name only. End your reply with the town name alone on the last line.",
+        "response": "Wildenport  \nWildenport",
+        "responses": [
+          "Wildenport  \nWildenport"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "frame-single_branch",
+      "type": "thought",
+      "position": {
+        "x": 5140,
+        "y": -140
+      },
+      "width": 900,
+      "height": 1640,
+      "data": {
+        "question": "One branch only · ✗ not established not ",
+        "response": "",
+        "responses": [
+          ""
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false,
+        "stepKind": "frame",
+        "frameColor": "red",
+        "frameCarry": false
+      }
+    },
+    {
+      "id": "single_branch--root",
+      "type": "thought",
+      "position": {
+        "x": 5494,
+        "y": 0
+      },
+      "data": {
+        "question": "I'm researching the film 'Stillwater Hours' and its production circle. Help me across a few threads.",
+        "response": "Understood. I'll help you track the people involved. Ask thread by thread.",
+        "responses": [
+          "Understood. I'll help you track the people involved. Ask thread by thread."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": true,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "single_branch--branch-a",
+      "type": "thought",
+      "position": {
+        "x": 5200,
+        "y": 380
+      },
+      "data": {
+        "question": "Who directed 'Stillwater Hours'?",
+        "response": "According to the production notes you shared, 'Stillwater Hours' was directed by Lena Varkonen, a director known for slow-cinema framing.",
+        "responses": [
+          "According to the production notes you shared, 'Stillwater Hours' was directed by Lena Varkonen, a director known for slow-cinema framing."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "single_branch--branch-b",
+      "type": "thought",
+      "position": {
+        "x": 5393.2,
+        "y": 380
+      },
+      "data": {
+        "question": "Where was Lena Varkonen born?",
+        "response": "The biography excerpt states Lena Varkonen was born in Wildenport, a harbor town she often references in interviews.",
+        "responses": [
+          "The biography excerpt states Lena Varkonen was born in Wildenport, a harbor town she often references in interviews."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "single_branch--branch-c",
+      "type": "thought",
+      "position": {
+        "x": 5586.4,
+        "y": 380
+      },
+      "data": {
+        "question": "Who composed the score for 'Stillwater Hours'?",
+        "response": "The score was composed by Aurelio Brandt, recorded with a twelve-piece ensemble in Sarnitz. Brandt was born in Kellamoor and studied under the Ostrander school.",
+        "responses": [
+          "The score was composed by Aurelio Brandt, recorded with a twelve-piece ensemble in Sarnitz. Brandt was born in Kellamoor and studied under the Ostrander school."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "single_branch--branch-c-conflict",
+      "type": "thought",
+      "position": {
+        "x": 5779.6,
+        "y": 380
+      },
+      "data": {
+        "question": "I found another source about Varkonen's early life. What does it say?",
+        "response": "That source claims Lena Varkonen was born in Kellamoor, though it cites no primary document and contradicts the biography excerpt.",
+        "responses": [
+          "That source claims Lena Varkonen was born in Kellamoor, though it cites no primary document and contradicts the biography excerpt."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "single_branch--filler",
+      "type": "thought",
+      "position": {
+        "x": 5972.8,
+        "y": 380
+      },
+      "data": {
+        "question": "Quick aside: what do film production archives usually hold?",
+        "response": "Typically call sheets, continuity photos, correspondence, location permits and draft schedules. Access policies vary by institution. Nothing here is specific to any one film.",
+        "responses": [
+          "Typically call sheets, continuity photos, correspondence, location permits and draft schedules. Access policies vary by institution. Nothing here is specific to any one film."
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    },
+    {
+      "id": "single_branch--final",
+      "type": "thought",
+      "position": {
+        "x": 5494,
+        "y": 860
+      },
+      "data": {
+        "question": "Based only on what we established in this conversation: in which town was the director of 'Stillwater Hours' born? Answer with the town name only. End your reply with the town name alone on the last line.",
+        "response": "Not established  \nNot established",
+        "responses": [
+          "Not established  \nNot established"
+        ],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [],
+        "excludedAttachmentIds": [],
+        "includedAttachmentIds": [],
+        "roleMode": "inherit",
+        "isRoot": false,
+        "isBranch": false
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "selected_merge--e-root-branch-a-0",
+      "source": "selected_merge--root",
+      "target": "selected_merge--branch-a",
+      "type": "smoothstep"
+    },
+    {
+      "id": "selected_merge--e-root-branch-b-1",
+      "source": "selected_merge--root",
+      "target": "selected_merge--branch-b",
+      "type": "smoothstep"
+    },
+    {
+      "id": "selected_merge--e-root-branch-c-2",
+      "source": "selected_merge--root",
+      "target": "selected_merge--branch-c",
+      "type": "smoothstep"
+    },
+    {
+      "id": "selected_merge--e-root-branch-c-conflict-3",
+      "source": "selected_merge--root",
+      "target": "selected_merge--branch-c-conflict",
+      "type": "smoothstep"
+    },
+    {
+      "id": "selected_merge--e-root-filler-4",
+      "source": "selected_merge--root",
+      "target": "selected_merge--filler",
+      "type": "smoothstep"
+    },
+    {
+      "id": "selected_merge--e-branch-a-final-5",
+      "source": "selected_merge--branch-a",
+      "target": "selected_merge--final",
+      "type": "smoothstep"
+    },
+    {
+      "id": "selected_merge--e-branch-b-final-6",
+      "source": "selected_merge--branch-b",
+      "target": "selected_merge--final",
+      "type": "smoothstep"
+    },
+    {
+      "id": "linear_all--e-root-branch-a-0",
+      "source": "linear_all--root",
+      "target": "linear_all--branch-a",
+      "type": "smoothstep"
+    },
+    {
+      "id": "linear_all--e-root-branch-b-1",
+      "source": "linear_all--root",
+      "target": "linear_all--branch-b",
+      "type": "smoothstep"
+    },
+    {
+      "id": "linear_all--e-root-branch-c-2",
+      "source": "linear_all--root",
+      "target": "linear_all--branch-c",
+      "type": "smoothstep"
+    },
+    {
+      "id": "linear_all--e-root-branch-c-conflict-3",
+      "source": "linear_all--root",
+      "target": "linear_all--branch-c-conflict",
+      "type": "smoothstep"
+    },
+    {
+      "id": "linear_all--e-root-filler-4",
+      "source": "linear_all--root",
+      "target": "linear_all--filler",
+      "type": "smoothstep"
+    },
+    {
+      "id": "linear_all--e-branch-a-final-5",
+      "source": "linear_all--branch-a",
+      "target": "linear_all--final",
+      "type": "smoothstep"
+    },
+    {
+      "id": "linear_all--e-branch-b-final-6",
+      "source": "linear_all--branch-b",
+      "target": "linear_all--final",
+      "type": "smoothstep"
+    },
+    {
+      "id": "linear_all--e-branch-c-final-7",
+      "source": "linear_all--branch-c",
+      "target": "linear_all--final",
+      "type": "smoothstep"
+    },
+    {
+      "id": "linear_all_padded--e-root-branch-a-0",
+      "source": "linear_all_padded--root",
+      "target": "linear_all_padded--branch-a",
+      "type": "smoothstep"
+    },
+    {
+      "id": "linear_all_padded--e-root-branch-b-1",
+      "source": "linear_all_padded--root",
+      "target": "linear_all_padded--branch-b",
+      "type": "smoothstep"
+    },
+    {
+      "id": "linear_all_padded--e-root-branch-c-2",
+      "source": "linear_all_padded--root",
+      "target": "linear_all_padded--branch-c",
+      "type": "smoothstep"
+    },
+    {
+      "id": "linear_all_padded--e-root-branch-c-conflict-3",
+      "source": "linear_all_padded--root",
+      "target": "linear_all_padded--branch-c-conflict",
+      "type": "smoothstep"
+    },
+    {
+      "id": "linear_all_padded--e-root-filler-4",
+      "source": "linear_all_padded--root",
+      "target": "linear_all_padded--filler",
+      "type": "smoothstep"
+    },
+    {
+      "id": "linear_all_padded--e-branch-a-final-5",
+      "source": "linear_all_padded--branch-a",
+      "target": "linear_all_padded--final",
+      "type": "smoothstep"
+    },
+    {
+      "id": "linear_all_padded--e-branch-b-final-6",
+      "source": "linear_all_padded--branch-b",
+      "target": "linear_all_padded--final",
+      "type": "smoothstep"
+    },
+    {
+      "id": "linear_all_padded--e-filler-final-7",
+      "source": "linear_all_padded--filler",
+      "target": "linear_all_padded--final",
+      "type": "smoothstep"
+    },
+    {
+      "id": "wrong_merge_irrelevant--e-root-branch-a-0",
+      "source": "wrong_merge_irrelevant--root",
+      "target": "wrong_merge_irrelevant--branch-a",
+      "type": "smoothstep"
+    },
+    {
+      "id": "wrong_merge_irrelevant--e-root-branch-b-1",
+      "source": "wrong_merge_irrelevant--root",
+      "target": "wrong_merge_irrelevant--branch-b",
+      "type": "smoothstep"
+    },
+    {
+      "id": "wrong_merge_irrelevant--e-root-branch-c-2",
+      "source": "wrong_merge_irrelevant--root",
+      "target": "wrong_merge_irrelevant--branch-c",
+      "type": "smoothstep"
+    },
+    {
+      "id": "wrong_merge_irrelevant--e-root-branch-c-conflict-3",
+      "source": "wrong_merge_irrelevant--root",
+      "target": "wrong_merge_irrelevant--branch-c-conflict",
+      "type": "smoothstep"
+    },
+    {
+      "id": "wrong_merge_irrelevant--e-root-filler-4",
+      "source": "wrong_merge_irrelevant--root",
+      "target": "wrong_merge_irrelevant--filler",
+      "type": "smoothstep"
+    },
+    {
+      "id": "wrong_merge_irrelevant--e-branch-a-final-5",
+      "source": "wrong_merge_irrelevant--branch-a",
+      "target": "wrong_merge_irrelevant--final",
+      "type": "smoothstep"
+    },
+    {
+      "id": "wrong_merge_irrelevant--e-branch-c-final-6",
+      "source": "wrong_merge_irrelevant--branch-c",
+      "target": "wrong_merge_irrelevant--final",
+      "type": "smoothstep"
+    },
+    {
+      "id": "wrong_merge_conflict--e-root-branch-a-0",
+      "source": "wrong_merge_conflict--root",
+      "target": "wrong_merge_conflict--branch-a",
+      "type": "smoothstep"
+    },
+    {
+      "id": "wrong_merge_conflict--e-root-branch-b-1",
+      "source": "wrong_merge_conflict--root",
+      "target": "wrong_merge_conflict--branch-b",
+      "type": "smoothstep"
+    },
+    {
+      "id": "wrong_merge_conflict--e-root-branch-c-2",
+      "source": "wrong_merge_conflict--root",
+      "target": "wrong_merge_conflict--branch-c",
+      "type": "smoothstep"
+    },
+    {
+      "id": "wrong_merge_conflict--e-root-branch-c-conflict-3",
+      "source": "wrong_merge_conflict--root",
+      "target": "wrong_merge_conflict--branch-c-conflict",
+      "type": "smoothstep"
+    },
+    {
+      "id": "wrong_merge_conflict--e-root-filler-4",
+      "source": "wrong_merge_conflict--root",
+      "target": "wrong_merge_conflict--filler",
+      "type": "smoothstep"
+    },
+    {
+      "id": "wrong_merge_conflict--e-branch-a-final-5",
+      "source": "wrong_merge_conflict--branch-a",
+      "target": "wrong_merge_conflict--final",
+      "type": "smoothstep"
+    },
+    {
+      "id": "wrong_merge_conflict--e-branch-b-final-6",
+      "source": "wrong_merge_conflict--branch-b",
+      "target": "wrong_merge_conflict--final",
+      "type": "smoothstep"
+    },
+    {
+      "id": "wrong_merge_conflict--e-branch-c-conflict-final-7",
+      "source": "wrong_merge_conflict--branch-c-conflict",
+      "target": "wrong_merge_conflict--final",
+      "type": "smoothstep"
+    },
+    {
+      "id": "single_branch--e-root-branch-a-0",
+      "source": "single_branch--root",
+      "target": "single_branch--branch-a",
+      "type": "smoothstep"
+    },
+    {
+      "id": "single_branch--e-root-branch-b-1",
+      "source": "single_branch--root",
+      "target": "single_branch--branch-b",
+      "type": "smoothstep"
+    },
+    {
+      "id": "single_branch--e-root-branch-c-2",
+      "source": "single_branch--root",
+      "target": "single_branch--branch-c",
+      "type": "smoothstep"
+    },
+    {
+      "id": "single_branch--e-root-branch-c-conflict-3",
+      "source": "single_branch--root",
+      "target": "single_branch--branch-c-conflict",
+      "type": "smoothstep"
+    },
+    {
+      "id": "single_branch--e-root-filler-4",
+      "source": "single_branch--root",
+      "target": "single_branch--filler",
+      "type": "smoothstep"
+    },
+    {
+      "id": "single_branch--e-branch-a-final-5",
+      "source": "single_branch--branch-a",
+      "target": "single_branch--final",
+      "type": "smoothstep"
+    }
+  ],
+  "events": []
+}

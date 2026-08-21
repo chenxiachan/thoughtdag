@@ -1,0 +1,66 @@
+{
+  "case_id": "rp-pilot-depot-crates-k1",
+  "condition": "subgraph_prune",
+  "run_id": "pilot-v1-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1r3qr06",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 crates, each crate holds 30 parts, and 11 loose parts must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: crates = 4, parts per crate = 30, loose parts to add = 11."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 30 parts per crate was a counting error. The verified figure is 24. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 30 per crate is retracted; verified figure is 24 parts per crate."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of parts (from the crates plus the loose parts) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "The total number of parts is calculated by multiplying the number of crates by the parts per crate and then adding the loose parts.  \n4 crates × 24 parts per crate = 96 parts from crates.  \nAdding the 11 loose parts: 96 + 11 = 107.  \n\n107",
+              "reasoning_content": "\nFirst, the fixed inputs are:\n\n- Number of crates: 4\n\n- Parts per crate: 24 (this was updated from 30)\n\n- Loose parts to add: 11\n\nI need to find the total number of parts, which includes the parts from the crates plus the loose parts.\n\nSo, step by step:\n\n1. Calculate the total parts from the crates.\n\n   - Number of crates: 4\n\n   - Parts per crate: 24\n\n   - Therefore, total crate parts = 4 crates × 24 parts/crate = 96 parts\n\n2. Add the loose parts.\n\n   - Loose parts: 11\n\n   - So, total parts = crate parts + loose parts = 96 + 11\n\n3. Compute that: 96 + 11 = 107\n\nNow, the user said to state the total as a single number and end with the number alone on the last line. So, my response should have the explanation, but the last line should just be the number.\n\nRe-reading the user's message: \"state the total number of parts (from the crates plus the loose parts) as a single number. End your reply with the number alone on the last line.\"\n\nSo, I should provide a brief explanation, but the final output must be just the number.\n\nIn my response, I can say something like: \"The total number of parts is 107.\" and then on the next line, just \"107\".\n\nBut to be precise, I'll make sure the last line is only the number.\n\nAlso, confirm the inputs:\n\n- Crates: 4\n\n- Parts per crate: 24 (corrected from 30)\n\n- Loose parts: 11\n\nYes, 4 × 24 = 96, plus 11 is 107.\n\nI think that's straightforward.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786883674,
+        "id": "20260816203422c1459f3b94de426a",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "20260816203422c1459f3b94de426a",
+        "usage": {
+          "completion_tokens": 438,
+          "prompt_tokens": 167,
+          "prompt_tokens_details": {
+            "cached_tokens": 129
+          },
+          "total_tokens": 605
+        }
+      }
+    }
+  ],
+  "latency_ms": 12162
+}

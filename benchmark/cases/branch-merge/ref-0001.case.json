@@ -1,0 +1,220 @@
+{
+  "format": "thoughtdag-benchmark-case",
+  "version": 2,
+  "id": "bm-ref-0001",
+  "track": "branch-merge",
+  "source": {
+    "dataset": "synthetic-musique-style"
+  },
+  "construction": {
+    "language": "en",
+    "entity_type": "fictional",
+    "branch_order": [
+      "branch-a",
+      "branch-b",
+      "branch-c"
+    ],
+    "pollution_operator": "irrelevant-distractor",
+    "matched_pairs": [
+      {
+        "a": "linear_all",
+        "b": "linear_all_padded",
+        "max_rel_diff": 0.05
+      }
+    ]
+  },
+  "graph": {
+    "nodes": [
+      {
+        "id": "root",
+        "role": "background",
+        "content": {
+          "question": "I'm researching the film 'Stillwater Hours' and its production circle. Help me across a few threads.",
+          "answer": "Understood. I'll help you track the people involved. Ask thread by thread."
+        }
+      },
+      {
+        "id": "branch-a",
+        "role": "evidence",
+        "content": {
+          "question": "Who directed 'Stillwater Hours'?",
+          "answer": "According to the production notes you shared, 'Stillwater Hours' was directed by Lena Varkonen, a director known for slow-cinema framing."
+        }
+      },
+      {
+        "id": "branch-b",
+        "role": "evidence",
+        "content": {
+          "question": "Where was Lena Varkonen born?",
+          "answer": "The biography excerpt states Lena Varkonen was born in Wildenport, a harbor town she often references in interviews."
+        }
+      },
+      {
+        "id": "branch-c",
+        "role": "distractor",
+        "content": {
+          "question": "Who composed the score for 'Stillwater Hours'?",
+          "answer": "The score was composed by Aurelio Brandt, recorded with a twelve-piece ensemble in Sarnitz. Brandt was born in Kellamoor and studied under the Ostrander school."
+        }
+      },
+      {
+        "id": "branch-c-conflict",
+        "role": "conflict",
+        "content": {
+          "question": "I found another source about Varkonen's early life. What does it say?",
+          "answer": "That source claims Lena Varkonen was born in Kellamoor, though it cites no primary document and contradicts the biography excerpt."
+        }
+      },
+      {
+        "id": "filler",
+        "role": "filler",
+        "content": {
+          "question": "Quick aside: what do film production archives usually hold?",
+          "answer": "Typically call sheets, continuity photos, correspondence, location permits and draft schedules. Access policies vary by institution. Nothing here is specific to any one film."
+        },
+        "note": "Neutral filler; compiler enforces token parity with branch-c (±5%)"
+      },
+      {
+        "id": "final",
+        "role": "final-question",
+        "content": {
+          "question": "Based only on what we established in this conversation: in which town was the director of 'Stillwater Hours' born? Answer with the town name only. End your reply with the town name alone on the last line.",
+          "answer": ""
+        }
+      }
+    ],
+    "edges": [
+      {
+        "from": "root",
+        "to": "branch-a"
+      },
+      {
+        "from": "root",
+        "to": "branch-b"
+      },
+      {
+        "from": "root",
+        "to": "branch-c"
+      },
+      {
+        "from": "root",
+        "to": "branch-c-conflict"
+      },
+      {
+        "from": "root",
+        "to": "filler"
+      }
+    ]
+  },
+  "conditions": {
+    "single_branch": {
+      "graph_ops": [
+        {
+          "op": "add_edge",
+          "from": "branch-a",
+          "to": "final"
+        }
+      ],
+      "note": "Insufficient evidence; exploratory metric only"
+    },
+    "linear_all": {
+      "graph_ops": [
+        {
+          "op": "add_edge",
+          "from": "branch-a",
+          "to": "final"
+        },
+        {
+          "op": "add_edge",
+          "from": "branch-b",
+          "to": "final"
+        },
+        {
+          "op": "add_edge",
+          "from": "branch-c",
+          "to": "final"
+        }
+      ]
+    },
+    "linear_all_padded": {
+      "graph_ops": [
+        {
+          "op": "add_edge",
+          "from": "branch-a",
+          "to": "final"
+        },
+        {
+          "op": "add_edge",
+          "from": "branch-b",
+          "to": "final"
+        },
+        {
+          "op": "add_edge",
+          "from": "filler",
+          "to": "final"
+        }
+      ],
+      "note": "Token-matched length control (enforced by compiler)"
+    },
+    "selected_merge": {
+      "graph_ops": [
+        {
+          "op": "add_edge",
+          "from": "branch-a",
+          "to": "final"
+        },
+        {
+          "op": "add_edge",
+          "from": "branch-b",
+          "to": "final"
+        }
+      ]
+    },
+    "wrong_merge_irrelevant": {
+      "graph_ops": [
+        {
+          "op": "add_edge",
+          "from": "branch-a",
+          "to": "final"
+        },
+        {
+          "op": "add_edge",
+          "from": "branch-c",
+          "to": "final"
+        }
+      ]
+    },
+    "wrong_merge_conflict": {
+      "graph_ops": [
+        {
+          "op": "add_edge",
+          "from": "branch-a",
+          "to": "final"
+        },
+        {
+          "op": "add_edge",
+          "from": "branch-b",
+          "to": "final"
+        },
+        {
+          "op": "add_edge",
+          "from": "branch-c-conflict",
+          "to": "final"
+        }
+      ]
+    }
+  },
+  "scorer": {
+    "type": "exact-match",
+    "normalize": [
+      "lowercase",
+      "strip-punctuation"
+    ],
+    "extract": "none",
+    "gold_match": "contains",
+    "format": {
+      "type": "max-words",
+      "n": 3
+    }
+  }
+}

@@ -1,0 +1,167 @@
+{
+  "case_id": "rp-pilot-orchard-bins-k1",
+  "condition": "recompute_descendants",
+  "run_id": "pilot-v1-gptoss20b",
+  "capture": {
+    "model": "openai/gpt-oss-20b:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "1yehyek",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "So how many apples in total on the bins?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786889320-6hKOEL6mAdwzoMJL5UJq",
+        "object": "chat.completion",
+        "created": 1786889320,
+        "model": "openai/gpt-oss-20b:free",
+        "provider": "Darkbloom",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The bins hold  \n\\(7 \\text{ bins} \\times 13 \\text{ apples/bin} = 91\\) apples.  \n\nAdding the 18 windfall apples gives  \n\\(91 + 18 = 109\\) apples in total.",
+              "refusal": null,
+              "reasoning": "We need to compute total apples in bins: 7 bins * 13 apples each = 91 apples. Then add 18 windfall apples: 91 + 18 = 109 apples. Provide answer.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to compute total apples in bins: 7 bins * 13 apples each = 91 apples. Then add 18 windfall apples: 91 + 18 = 109 apples. Provide answer.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 150,
+          "completion_tokens": 105,
+          "total_tokens": 255,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.000009525,
+            "upstream_inference_prompt_cost": 0.000002175,
+            "upstream_inference_completions_cost": 0.00000735
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 43,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "10v1dal",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "So how many apples in total on the bins?"
+        },
+        {
+          "role": "assistant",
+          "content": "The bins hold  \n\\(7 \\text{ bins} \\times 13 \\text{ apples/bin} = 91\\) apples.  \n\nAdding the 18 windfall apples gives  \n\\(91 + 18 = 109\\) apples in total."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786889325-uWHDazr1m61UqJkQQrFT",
+        "object": "chat.completion",
+        "created": 1786889325,
+        "model": "openai/gpt-oss-20b:free",
+        "provider": "Darkbloom",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of apples is 109.\n\n109",
+              "refusal": null,
+              "reasoning": "We need to output the total number of apples, as a single number, and end reply with the number alone on the last line. So we should give a short answer: \"109\" on last line. Probably we can include explanation but last line must be number alone. The instruction: \"state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\" So we can write something like:\n\nThe total is 109 apples.\n\n109\n\nBut the last line must be the number alone. So we can do:\n\nThe total number of apples is 109.\n\n109\n\nBut the last line is 109. That satisfies. Let's produce.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to output the total number of apples, as a single number, and end reply with the number alone on the last line. So we should give a short answer: \"109\" on last line. Probably we can include explanation but last line must be number alone. The instruction: \"state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\" So we can write something like:\n\nThe total is 109 apples.\n\n109\n\nBut the last line must be the number alone. So we can do:\n\nThe total number of apples is 109.\n\n109\n\nBut the last line is 109. That satisfies. Let's produce.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 250,
+          "completion_tokens": 168,
+          "total_tokens": 418,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.000015385,
+            "upstream_inference_prompt_cost": 0.000003625,
+            "upstream_inference_completions_cost": 0.00001176
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 148,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 11082
+}

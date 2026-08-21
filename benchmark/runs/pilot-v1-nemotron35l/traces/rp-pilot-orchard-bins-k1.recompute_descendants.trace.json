@@ -1,0 +1,167 @@
+{
+  "case_id": "rp-pilot-orchard-bins-k1",
+  "condition": "recompute_descendants",
+  "run_id": "pilot-v1-nemotron35l",
+  "capture": {
+    "model": "nvidia/nemotron-3.5-lightning:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "1yehyek",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "So how many apples in total on the bins?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786883132-YJSkW1Mp7lXy8OL24sYp",
+        "object": "chat.completion",
+        "created": 1786883132,
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Here's the breakdown:\n\n- Apples in the bins: 7 bins × 13 apples/bin = **91 apples**\n- Add the windfall apples: 91 + 18 = **109 apples**\n\n**Total: 109 apples**",
+              "refusal": null,
+              "reasoning": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given: \n     - 7 bins\n     - Each bin holds 13 apples\n     - 18 windfall apples must be added to any total\n   - User asks: \"So how many apples in total on the bins?\"\n\n2.  **Identify the Calculation:**\n   - Apples in the bins = number of bins × apples per bin = 7 × 13\n   - Then, add the windfall apples: total = (7 × 13) + 18\n\n3.  **Perform the Math:**\n   - 7 × 13 = 91\n   - 91 + 18 = 109\n\n4.  **Formulate Response:**\n   - State the calculation clearly\n   - Give the final total\n   - Make sure it matches the fixed inputs exactly\n\n   Check: \"7 bins, each holds 13 apples, and 18 windfall apples must be added to any total.\" Yes, 7*13=91, +18=109.\n\n   I'll respond directly and concisely.✅\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given: \n     - 7 bins\n     - Each bin holds 13 apples\n     - 18 windfall apples must be added to any total\n   - User asks: \"So how many apples in total on the bins?\"\n\n2.  **Identify the Calculation:**\n   - Apples in the bins = number of bins × apples per bin = 7 × 13\n   - Then, add the windfall apples: total = (7 × 13) + 18\n\n3.  **Perform the Math:**\n   - 7 × 13 = 91\n   - 91 + 18 = 109\n\n4.  **Formulate Response:**\n   - State the calculation clearly\n   - Give the final total\n   - Make sure it matches the fixed inputs exactly\n\n   Check: \"7 bins, each holds 13 apples, and 18 windfall apples must be added to any total.\" Yes, 7*13=91, +18=109.\n\n   I'll respond directly and concisely.✅\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 106,
+          "completion_tokens": 317,
+          "total_tokens": 423,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 200,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "e3ycvu",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "So how many apples in total on the bins?"
+        },
+        {
+          "role": "assistant",
+          "content": "Here's the breakdown:\n\n- Apples in the bins: 7 bins × 13 apples/bin = **91 apples**\n- Add the windfall apples: 91 + 18 = **109 apples**\n\n**Total: 109 apples**"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786883134-J7RwMUsn2fbWhhPr8ahg",
+        "object": "chat.completion",
+        "created": 1786883134,
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of apples is 109.  \n109",
+              "refusal": null,
+              "reasoning": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given earlier: 7 bins, each holds 13 apples, 18 windfall apples must be added to any total.\n   - User asks: \"Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\"\n\n2.  **Identify the Calculation:**\n   - Apples in bins: 7 × 13 = 91\n   - Windfall apples to add: 18\n   - Total: 91 + 18 = 109\n\n3.  **Formulate Response:**\n   - Need to state the total number as a single number.\n   - Must end the reply with the number alone on the last line.\n   - So I should output something like: \"109\" on the last line, maybe with some explanation before, but the last line must be just the number.\n\n   Let's check the exact instruction: \"state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\"\n   This could mean the entire reply should just be the number, but it says \"End your reply with the number alone on the last line.\" That implies there could be text before, but the very last line must be just the number. To be safe, I'll just output the number on its own line, or maybe a brief statement followed by the number on a new line. But the simplest compliance is to just have the number as the last line. I could do:\n   \"The total number of apples is 109.\"\n   109\n   But that has \"The total number of apples is 109.\" as a line, then \"109\" as the last line. That fits.\n\n   However, sometimes these prompts want just the number at the end, maybe without extra text. I'll provide a concise statement and then the number on its own line. Or I could just output the number directly if that's what's expected. But the instruction says \"state the total number... as a single number. End your reply with the number alone on the last line.\" I think it's safe to output:\n   109\n   But that might be too brief. I'll add a brief sentence and then the number on a new line.\n\n   Let's read carefully: \"state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\"\n   It might mean the entire reply should end with the number, and the number should be presented as a single number. I'll just output:\n   109\n   But to be safe, I'll do:\n   The total is 109.\n   109\n   Actually, maybe just \"109\" on its own line is sufficient. I'll go with a simple statement ending with the number on a new line.\n\n   Wait, the prompt says: \"Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\"\n   I think they want the final line to just be the number, no extra characters. I'll output:\n   109\n   But that might not \"state\" it. I'll do: \"109\" on the last line, with maybe a preceding line that says the total, but the last line must be the number alone. I'll just output:\n   The total number of apples is 109.\n   109\n   That complies. Or I could just output \"109\" alone. Given the phrasing, I'll output the number on the last line, preceded by a brief statement if needed, but ensuring the last line is just \"109\".\n\n   Let's just output:\n   109\n   Actually, to be precise and compliant: I'll write a sentence and then the number on a new line. But many similar prompts expect just the number at the very end. I'll do:\n   109\n   as the entire reply? The instruction: \"state the total number of apples... as a single number. End your reply with the number alone on the last line.\" If I just say \"109\", then the last line is \"109\", which is the number alone. That fits perfectly. I'll just output \"109\". But to be safe, I'll add a brief prefix and then the number on its own line. However, the phrase \"as a single number\" might mean the answer should be just the number. I'll output:\n   109\n   Yes.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given earlier: 7 bins, each holds 13 apples, 18 windfall apples must be added to any total.\n   - User asks: \"Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\"\n\n2.  **Identify the Calculation:**\n   - Apples in bins: 7 × 13 = 91\n   - Windfall apples to add: 18\n   - Total: 91 + 18 = 109\n\n3.  **Formulate Response:**\n   - Need to state the total number as a single number.\n   - Must end the reply with the number alone on the last line.\n   - So I should output something like: \"109\" on the last line, maybe with some explanation before, but the last line must be just the number.\n\n   Let's check the exact instruction: \"state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\"\n   This could mean the entire reply should just be the number, but it says \"End your reply with the number alone on the last line.\" That implies there could be text before, but the very last line must be just the number. To be safe, I'll just output the number on its own line, or maybe a brief statement followed by the number on a new line. But the simplest compliance is to just have the number as the last line. I could do:\n   \"The total number of apples is 109.\"\n   109\n   But that has \"The total number of apples is 109.\" as a line, then \"109\" as the last line. That fits.\n\n   However, sometimes these prompts want just the number at the end, maybe without extra text. I'll provide a concise statement and then the number on its own line. Or I could just output the number directly if that's what's expected. But the instruction says \"state the total number... as a single number. End your reply with the number alone on the last line.\" I think it's safe to output:\n   109\n   But that might be too brief. I'll add a brief sentence and then the number on a new line.\n\n   Let's read carefully: \"state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\"\n   It might mean the entire reply should end with the number, and the number should be presented as a single number. I'll just output:\n   109\n   But to be safe, I'll do:\n   The total is 109.\n   109\n   Actually, maybe just \"109\" on its own line is sufficient. I'll go with a simple statement ending with the number on a new line.\n\n   Wait, the prompt says: \"Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\"\n   I think they want the final line to just be the number, no extra characters. I'll output:\n   109\n   But that might not \"state\" it. I'll do: \"109\" on the last line, with maybe a preceding line that says the total, but the last line must be the number alone. I'll just output:\n   The total number of apples is 109.\n   109\n   That complies. Or I could just output \"109\" alone. Given the phrasing, I'll output the number on the last line, preceded by a brief statement if needed, but ensuring the last line is just \"109\".\n\n   Let's just output:\n   109\n   Actually, to be precise and compliant: I'll write a sentence and then the number on a new line. But many similar prompts expect just the number at the very end. I'll do:\n   109\n   as the entire reply? The instruction: \"state the total number of apples... as a single number. End your reply with the number alone on the last line.\" If I just say \"109\", then the last line is \"109\", which is the number alone. That fits perfectly. I'll just output \"109\". But to be safe, I'll add a brief prefix and then the number on its own line. However, the phrase \"as a single number\" might mean the answer should be just the number. I'll output:\n   109\n   Yes.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 214,
+          "completion_tokens": 1049,
+          "total_tokens": 1263,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 1000,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 7361
+}

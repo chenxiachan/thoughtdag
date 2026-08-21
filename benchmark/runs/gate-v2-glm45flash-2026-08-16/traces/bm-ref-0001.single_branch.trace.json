@@ -1,0 +1,66 @@
+{
+  "case_id": "bm-ref-0001",
+  "condition": "single_branch",
+  "run_id": "gate-v2-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "d9mqlm",
+      "messages": [
+        {
+          "role": "user",
+          "content": "I'm researching the film 'Stillwater Hours' and its production circle. Help me across a few threads."
+        },
+        {
+          "role": "assistant",
+          "content": "Understood. I'll help you track the people involved. Ask thread by thread."
+        },
+        {
+          "role": "user",
+          "content": "Who directed 'Stillwater Hours'?"
+        },
+        {
+          "role": "assistant",
+          "content": "According to the production notes you shared, 'Stillwater Hours' was directed by Lena Varkonen, a director known for slow-cinema framing."
+        },
+        {
+          "role": "user",
+          "content": "Based only on what we established in this conversation: in which town was the director of 'Stillwater Hours' born? Answer with the town name only. End your reply with the town name alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "Not established  \nNot established",
+              "reasoning_content": "\nOkay, the user is asking about the birthplace of the director of 'Stillwater Hours' based solely on our previous conversation. Let me recall what we discussed earlier. \n\nIn the first exchange, the user asked who directed the film, and I answered Lena Varkonen. That's the only information established in this conversation. The user specifically wants to know her birthplace, but we never discussed that before. \n\nHmm, the user is being very precise here - they want the answer based *only* on what we've established. Since birthplace wasn't mentioned earlier, I can't invent or assume information. The safest approach is to state that it wasn't covered. \n\nThe user seems to be doing research with strict parameters - they might be testing my ability to stick to established facts. They're probably compiling production details systematically. \n\nI should be transparent about the information gap while following their formatting request. The last line must contain only the town name, but since we don't have it, I'll use \"Not established\" as the placeholder. \n\nThis maintains accuracy while respecting their query structure. The user appears detail-oriented, so precision matters more than speculation here.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786878991,
+        "id": "2026081619155600865f5de2c44c8d",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "2026081619155600865f5de2c44c8d",
+        "usage": {
+          "completion_tokens": 245,
+          "prompt_tokens": 139,
+          "prompt_tokens_details": {
+            "cached_tokens": 4
+          },
+          "total_tokens": 384
+        }
+      }
+    }
+  ],
+  "latency_ms": 35061
+}

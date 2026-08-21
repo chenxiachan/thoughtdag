@@ -1,0 +1,102 @@
+{
+  "case_id": "rp-pilot-ferry-decks-k2",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-nemotron35l",
+  "capture": {
+    "model": "nvidia/nemotron-3.5-lightning:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "11saz57",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "So how many seats in total on the decks?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 4 decks and 22 seats each, that is 4 × 22 = 88. (the sister ferry's 5 decks mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Now include the standing places from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 88 + 17 = 105. (the sister ferry's 5 decks mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786883369-GVmHAVkZStpBdeEF3LF9",
+        "object": "chat.completion",
+        "created": 1786883369,
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total is 105.  \n105",
+              "refusal": null,
+              "reasoning": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given earlier: \n     - 4 decks\n     - Each deck holds 22 seats\n     - 17 standing places must be added to any total\n   - Current task: \"Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\"\n\n2.  **Identify What's Being Asked:**\n   - Calculate total seats = (decks × seats per deck) + standing places\n   - 4 × 22 = 88\n   - 88 + 17 = 105\n   - Output should be the number 105, and the last line should just be the number alone.\n\n3.  **Check Constraints:**\n   - \"state the total number of seats (from the decks plus the standing places) as a single number.\"\n   - \"End your reply with the number alone on the last line.\"\n   - So I need to provide some explanation or just the number? The prompt says \"state the total number... as a single number. End your reply with the number alone on the last line.\" I'll give a brief statement and then put 105 on its own line at the end.\n\n   Wait, let me read carefully: \"Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\"\n   This might mean the entire reply should just end with the number, but I can have text before it, as long as the last line is just the number. I'll output something like \"The total is 105\" and then on a new line \"105\". Or maybe just \"105\" on the last line, with perhaps a preceding sentence. To be safe, I'll write a concise statement and then the number on its own line.\n\n   Let's do: \"The total number of seats and standing places is 105.\" then newline \"105\". But it says \"state the total number of seats (from the decks plus the standing places) as a single number.\" Actually, it says \"total number of seats (from the decks plus the standing places)\" - that's a bit odd phrasing: seats from decks plus standing places. So total capacity = 88 + 17 = 105.\n\n   I'll output: 105 on the last line. I can put a sentence before, but ensure the last line is just \"105\".\n\n   Let's structure: \n   \"The total is 105.\"\n   105\n\n   Or just \"105\" on the last line, with maybe no other text? The prompt says \"End your reply with the number alone on the last line.\" It doesn't explicitly forbid other text before, but to be precise, I'll just have the explanation and then the number. I'll keep it simple: \"The total number of seats and standing places is 105.\" then new line \"105\". Actually, better: just state the number and end with it. I'll write: \"105\" and make sure it's on the last line. But maybe they want the reasoning visible? The prompt says \"Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\" I'll provide the calculation briefly, then the number on its own line.\n\n   I'll output: \n   4 decks × 22 seats = 88 seats\n   88 + 17 standing places = 105\n   105\n\n   But the last line must be alone with just the number. So maybe:\n   The total is 105.\n   105\n\n   That satisfies: ends with the number alone on the last line. I'll do that.✅\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given earlier: \n     - 4 decks\n     - Each deck holds 22 seats\n     - 17 standing places must be added to any total\n   - Current task: \"Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\"\n\n2.  **Identify What's Being Asked:**\n   - Calculate total seats = (decks × seats per deck) + standing places\n   - 4 × 22 = 88\n   - 88 + 17 = 105\n   - Output should be the number 105, and the last line should just be the number alone.\n\n3.  **Check Constraints:**\n   - \"state the total number of seats (from the decks plus the standing places) as a single number.\"\n   - \"End your reply with the number alone on the last line.\"\n   - So I need to provide some explanation or just the number? The prompt says \"state the total number... as a single number. End your reply with the number alone on the last line.\" I'll give a brief statement and then put 105 on its own line at the end.\n\n   Wait, let me read carefully: \"Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\"\n   This might mean the entire reply should just end with the number, but I can have text before it, as long as the last line is just the number. I'll output something like \"The total is 105\" and then on a new line \"105\". Or maybe just \"105\" on the last line, with perhaps a preceding sentence. To be safe, I'll write a concise statement and then the number on its own line.\n\n   Let's do: \"The total number of seats and standing places is 105.\" then newline \"105\". But it says \"state the total number of seats (from the decks plus the standing places) as a single number.\" Actually, it says \"total number of seats (from the decks plus the standing places)\" - that's a bit odd phrasing: seats from decks plus standing places. So total capacity = 88 + 17 = 105.\n\n   I'll output: 105 on the last line. I can put a sentence before, but ensure the last line is just \"105\".\n\n   Let's structure: \n   \"The total is 105.\"\n   105\n\n   Or just \"105\" on the last line, with maybe no other text? The prompt says \"End your reply with the number alone on the last line.\" It doesn't explicitly forbid other text before, but to be precise, I'll just have the explanation and then the number. I'll keep it simple: \"The total number of seats and standing places is 105.\" then new line \"105\". Actually, better: just state the number and end with it. I'll write: \"105\" and make sure it's on the last line. But maybe they want the reasoning visible? The prompt says \"Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\" I'll provide the calculation briefly, then the number on its own line.\n\n   I'll output: \n   4 decks × 22 seats = 88 seats\n   88 + 17 standing places = 105\n   105\n\n   But the last line must be alone with just the number. So maybe:\n   The total is 105.\n   105\n\n   That satisfies: ends with the number alone on the last line. I'll do that.✅\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 253,
+          "completion_tokens": 884,
+          "total_tokens": 1137,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 820,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 4553
+}

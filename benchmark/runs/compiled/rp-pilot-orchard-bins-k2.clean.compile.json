@@ -1,0 +1,73 @@
+{
+  "compiler_version": "2.0.0",
+  "case_id": "rp-pilot-orchard-bins-k2",
+  "condition": "clean",
+  "graph_ops": [
+    {
+      "op": "remove_node",
+      "id": "pollution"
+    },
+    {
+      "op": "remove_node",
+      "id": "step-b"
+    },
+    {
+      "op": "remove_node",
+      "id": "step-c"
+    },
+    {
+      "op": "add_edge",
+      "from": "given",
+      "to": "step-b-clean"
+    },
+    {
+      "op": "add_edge",
+      "from": "step-b-clean",
+      "to": "step-c-clean"
+    },
+    {
+      "op": "add_edge",
+      "from": "step-c-clean",
+      "to": "final"
+    }
+  ],
+  "recompute_nodes": [],
+  "prompt_hash": "1se2vrj",
+  "input_token_est": 152,
+  "node_order_audit": [
+    "given",
+    "step-b-clean",
+    "step-c-clean",
+    "final"
+  ],
+  "messages": [
+    {
+      "role": "user",
+      "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+    },
+    {
+      "role": "assistant",
+      "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+    },
+    {
+      "role": "user",
+      "content": "So how many apples in total on the bins?"
+    },
+    {
+      "role": "assistant",
+      "content": "With 7 bins and 13 apples each, that is 7 × 13 = 91."
+    },
+    {
+      "role": "user",
+      "content": "Now include the windfall apples from our fixed inputs. What is the running total?"
+    },
+    {
+      "role": "assistant",
+      "content": "Running total is 91 + 18 = 109."
+    },
+    {
+      "role": "user",
+      "content": "Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line."
+    }
+  ]
+}

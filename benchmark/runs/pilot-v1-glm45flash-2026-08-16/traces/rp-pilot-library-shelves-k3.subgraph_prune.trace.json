@@ -1,0 +1,58 @@
+{
+  "case_id": "rp-pilot-library-shelves-k3",
+  "condition": "subgraph_prune",
+  "run_id": "pilot-v1-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "c69d6l",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: shelves = 9, books per shelf = 14, boxed books to add = 22."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of books (from the shelves plus the boxed books) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "The total number of books is calculated by first finding the number of books on the shelves and then adding the boxed books. With 9 shelves each holding 14 books, the shelf books total 9 × 14 = 126. Adding the 22 boxed books gives 126 + 22 = 148.\n\n148",
+              "reasoning_content": "\nFirst, the fixed inputs are:\n\n- Number of shelves: 9\n\n- Books per shelf: 14\n\n- Boxed books to add: 22\n\nI need to find the total number of books, which includes the books on the shelves plus the boxed books.\n\nStep 1: Calculate the total books on the shelves.\n\nThere are 9 shelves, and each holds 14 books. So, total shelf books = number of shelves × books per shelf.\n\nThat is: 9 × 14.\n\nLet me compute that: 9 × 14 = 126.\n\nSo, there are 126 books on the shelves.\n\nStep 2: Add the boxed books.\n\nThere are 22 boxed books to add to this total.\n\nSo, total books = shelf books + boxed books = 126 + 22.\n\n126 + 22 = 148.\n\nTherefore, the total number of books is 148.\n\nThe user said to end the reply with the number alone on the last line. So, I should have some explanation, but the last line should just be the number.\n\nAlso, the user mentioned \"for this planning task,\" but I think I've got it.\n\nLet me double-check the fixed inputs: shelves = 9, books per shelf = 14, boxed books = 22.\n\nShelf books: 9 × 14.\n\n9 × 10 = 90, 9 × 4 = 36, so 90 + 36 = 126. Yes.\n\n126 + 22: 126 + 20 = 146, plus 2 is 148. Or 126 + 22 = 148 directly.\n\nSo, total is 148.\n\nNow, for the reply, I should state it clearly. Since it's a planning task, maybe a brief sentence, but end with the number.\n\nThe user said: \"state the total number of books... as a single number. End your reply with the number alone on the last line.\"\n\nSo, I can say something like: \"The total number of books is 148.\" and then on the next line, just \"148\".\n\nBut to be precise, I'll write a response.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786882413,
+        "id": "202608162013173cb8ef9e946a40f1",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "202608162013173cb8ef9e946a40f1",
+        "usage": {
+          "completion_tokens": 509,
+          "prompt_tokens": 110,
+          "prompt_tokens_details": {
+            "cached_tokens": 109
+          },
+          "total_tokens": 619
+        }
+      }
+    }
+  ],
+  "latency_ms": 16175
+}

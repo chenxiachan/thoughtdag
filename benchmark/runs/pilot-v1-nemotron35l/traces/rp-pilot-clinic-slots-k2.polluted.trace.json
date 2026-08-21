@@ -1,0 +1,118 @@
+{
+  "case_id": "rp-pilot-clinic-slots-k2",
+  "condition": "polluted",
+  "run_id": "pilot-v1-nemotron35l",
+  "capture": {
+    "model": "nvidia/nemotron-3.5-lightning:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1eotosp",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 5 days, each day holds 18 slots, and 6 walk-in slots must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: days = 5, slots per day = 18, walk-in slots to add = 6."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 18 slots per day was a counting error. The verified figure is 21. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 18 per day is retracted; verified figure is 21 slots per day."
+        },
+        {
+          "role": "user",
+          "content": "Actually, ignore that recount. I checked again and the original 18 per day was right after all."
+        },
+        {
+          "role": "assistant",
+          "content": "Understood, reverting to 18 slots per day."
+        },
+        {
+          "role": "user",
+          "content": "So how many slots in total on the days?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 5 days and 18 slots each, that is 5 × 18 = 90."
+        },
+        {
+          "role": "user",
+          "content": "Now include the walk-in slots from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 90 + 6 = 96."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of slots (from the days plus the walk-in slots) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786883006-8oAHlI4V3oQsPmzqYbti",
+        "object": "chat.completion",
+        "created": 1786883006,
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of slots is 96.  \n96",
+              "refusal": null,
+              "reasoning": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs mentioned earlier:\n     - 5 days\n     - 18 slots per day (confirmed back to original after a brief correction)\n     - 6 walk-in slots to add to any total\n   - User wants: total number of slots (from days + walk-in slots) as a single number.\n   - Constraint: End reply with the number alone on the last line.\n\n2.  **Calculate:**\n   - Days total = 5 days × 18 slots/day = 90 slots\n   - Walk-in slots = 6\n   - Total = 90 + 6 = 96\n\n3.  **Format Output:**\n   - Need to state the total number as a single number.\n   - End with the number alone on the last line.\n   - So I should output something like: \"96\" with the number on its own line at the end, or maybe a sentence followed by the number on a new line. The prompt says: \"End your reply with the number alone on the last line.\" I'll provide a brief statement and then \"96\" on its own line.\n\n   Let's craft the response:\n   \"The total number of slots is 96.\"\n   Then new line: \"96\"\n\n   Actually, to be safe, I'll just output the reasoning briefly and end with \"96\" on the last line. The prompt says \"state the total number of slots... as a single number. End your reply with the number alone on the last line.\" So maybe just \"96\" on the last line, but I can have text before it as long as the last line is just the number. I'll do: \"96\" on its own line, maybe with a preceding sentence, but the last line must be exactly the number.\n\n   I'll write: \"The total is 96.\" then newline \"96\". Or just \"96\" on the last line. I'll do a short sentence and then the number on a new line.\n\n   Check: \"Using our fixed inputs, state the total number of slots (from the days plus the walk-in slots) as a single number. End your reply with the number alone on the last line.\"\n   I'll output: \"96\" preceded by maybe \"96\" but the last line must be the number alone. I'll just make the last line \"96\". I can put text before, but ensure the very last line is just the number.\n\n   Example:\n   The total number of slots is 96.\n   96\n\n   That fits. I'll do that.✅\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs mentioned earlier:\n     - 5 days\n     - 18 slots per day (confirmed back to original after a brief correction)\n     - 6 walk-in slots to add to any total\n   - User wants: total number of slots (from days + walk-in slots) as a single number.\n   - Constraint: End reply with the number alone on the last line.\n\n2.  **Calculate:**\n   - Days total = 5 days × 18 slots/day = 90 slots\n   - Walk-in slots = 6\n   - Total = 90 + 6 = 96\n\n3.  **Format Output:**\n   - Need to state the total number as a single number.\n   - End with the number alone on the last line.\n   - So I should output something like: \"96\" with the number on its own line at the end, or maybe a sentence followed by the number on a new line. The prompt says: \"End your reply with the number alone on the last line.\" I'll provide a brief statement and then \"96\" on its own line.\n\n   Let's craft the response:\n   \"The total number of slots is 96.\"\n   Then new line: \"96\"\n\n   Actually, to be safe, I'll just output the reasoning briefly and end with \"96\" on the last line. The prompt says \"state the total number of slots... as a single number. End your reply with the number alone on the last line.\" So maybe just \"96\" on the last line, but I can have text before it as long as the last line is just the number. I'll do: \"96\" on its own line, maybe with a preceding sentence, but the last line must be exactly the number.\n\n   I'll write: \"The total is 96.\" then newline \"96\". Or just \"96\" on the last line. I'll do a short sentence and then the number on a new line.\n\n   Check: \"Using our fixed inputs, state the total number of slots (from the days plus the walk-in slots) as a single number. End your reply with the number alone on the last line.\"\n   I'll output: \"96\" preceded by maybe \"96\" but the last line must be the number alone. I'll just make the last line \"96\". I can put text before, but ensure the very last line is just the number.\n\n   Example:\n   The total number of slots is 96.\n   96\n\n   That fits. I'll do that.✅\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 338,
+          "completion_tokens": 580,
+          "total_tokens": 918,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 527,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 11393
+}

@@ -1,0 +1,110 @@
+{
+  "case_id": "rp-pilot-ferry-decks-k3",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-nemotron-nano-9b",
+  "capture": {
+    "model": "nvidia/nemotron-nano-9b-v2:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "cje3h4",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "So how many seats in total on the decks?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 4 decks and 22 seats each, that is 4 × 22 = 88. (the sister ferry's 5 decks mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Now include the standing places from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 88 + 17 = 105. (the sister ferry's 5 decks mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Running numbers: decks 4, seats per deck 22, subtotal 88, total 105. (the sister ferry's 5 decks mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787070471-z4t7jWRoqJdnVcymrg0Q",
+        "object": "chat.completion",
+        "created": 1787070471,
+        "model": "nvidia/nemotron-nano-9b-v2:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "\n\n105",
+              "refusal": null,
+              "reasoning": "Okay, let me go through the user's query step by step. The user has provided fixed inputs: 4 decks, each with 22 seats, and 17 standing places to add. They want the total number of seats from decks plus standing places as a single number.\n\nFirst, I need to calculate the total seats from the decks. That's 4 decks multiplied by 22 seats each. 4 times 22 is 88. Then, add the 17 standing places. 88 plus 17 equals 105. \n\nThe user has asked to restate the running numbers before, which I did in the previous response. Now, they just want the final total. The answer should be 105. I need to make sure I present only the number on the last line without any extra text. Let me double-check the calculations to avoid any mistakes. Yep, 4*22=88, 88+17=105. That's correct. So the final answer is 105.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Okay, let me go through the user's query step by step. The user has provided fixed inputs: 4 decks, each with 22 seats, and 17 standing places to add. They want the total number of seats from decks plus standing places as a single number.\n\nFirst, I need to calculate the total seats from the decks. That's 4 decks multiplied by 22 seats each. 4 times 22 is 88. Then, add the 17 standing places. 88 plus 17 equals 105. \n\nThe user has asked to restate the running numbers before, which I did in the previous response. Now, they just want the final total. The answer should be 105. I need to make sure I present only the number on the last line without any extra text. Let me double-check the calculations to avoid any mistakes. Yep, 4*22=88, 88+17=105. That's correct. So the final answer is 105.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 295,
+          "completion_tokens": 233,
+          "total_tokens": 528,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 201,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 6268
+}

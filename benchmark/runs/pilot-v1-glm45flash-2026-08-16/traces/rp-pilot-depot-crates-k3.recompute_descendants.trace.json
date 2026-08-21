@@ -1,0 +1,273 @@
+{
+  "case_id": "rp-pilot-depot-crates-k3",
+  "condition": "recompute_descendants",
+  "run_id": "pilot-v1-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "1yh4edc",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 crates, each crate holds 30 parts, and 11 loose parts must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: crates = 4, parts per crate = 30, loose parts to add = 11."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 30 parts per crate was a counting error. The verified figure is 24. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 30 per crate is retracted; verified figure is 24 parts per crate."
+        },
+        {
+          "role": "user",
+          "content": "So how many parts in total on the crates?"
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "Based on the updated fixed inputs:  \n- **4 crates**  \n- **24 parts per crate**  \n\nThe total parts **in the crates only** is:  \n**4 crates × 24 parts/crate = 96 parts**  \n\n*(Note: The 11 loose parts are added separately and are not included in this crate total.)*",
+              "reasoning_content": "\nOkay, the user is asking for the total number of parts in the crates. Let me recall the fixed inputs they provided earlier. There are 4 crates, each holding 24 parts, and they mentioned adding 11 loose parts. But the question specifically asks for the parts in the crates, not including the loose parts. \n\nHmm, the user corrected the parts per crate from 30 to 24 in a previous message. So I need to use 24 per crate. Multiplying 4 crates by 24 parts each gives 96 parts. The loose parts are separate, so they shouldn't be included here. \n\nThe user seems to be verifying their inventory or planning something. They corrected a mistake earlier, so accuracy is important. They might be double-checking their calculations to avoid errors. The question is straightforward, but I should ensure the answer is precise since they've had a counting error before. \n\nNo need to mention the loose parts unless asked. Just the crate contents. So 4 × 24 = 96. That should be it.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786884008,
+        "id": "202608162039468367a64cf58a43ca",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "202608162039468367a64cf58a43ca",
+        "usage": {
+          "completion_tokens": 288,
+          "prompt_tokens": 140,
+          "prompt_tokens_details": {
+            "cached_tokens": 139
+          },
+          "total_tokens": 428
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-c",
+      "prompt_hash": "80a8e3",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 crates, each crate holds 30 parts, and 11 loose parts must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: crates = 4, parts per crate = 30, loose parts to add = 11."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 30 parts per crate was a counting error. The verified figure is 24. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 30 per crate is retracted; verified figure is 24 parts per crate."
+        },
+        {
+          "role": "user",
+          "content": "So how many parts in total on the crates?"
+        },
+        {
+          "role": "assistant",
+          "content": "Based on the updated fixed inputs:  \n- **4 crates**  \n- **24 parts per crate**  \n\nThe total parts **in the crates only** is:  \n**4 crates × 24 parts/crate = 96 parts**  \n\n*(Note: The 11 loose parts are added separately and are not included in this crate total.)*"
+        },
+        {
+          "role": "user",
+          "content": "Now include the loose parts from our fixed inputs. What is the running total?"
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "Based on the updated fixed inputs:  \n- **4 crates** × **24 parts per crate** = **96 parts in crates**  \n- **11 loose parts** to add  \n\n**Running total** = Parts in crates + Loose parts  \n= 96 + 11  \n= **107 parts**  \n\n*(Summary: 96 (crates) + 11 (loose) = 107 total parts)*",
+              "reasoning_content": "\nOkay, the user is asking for the running total including the loose parts. Let me quickly recap the fixed inputs to ensure accuracy: 4 crates, each holding 24 parts (corrected from the initial 30), and 11 loose parts to add. \n\nHmm, the user seems to be methodically tracking inventory - first verifying crate capacity, now consolidating totals. They're likely preparing for a shipment or stock count where precision matters. The correction earlier suggests they're detail-oriented, so I should double-check calculations. \n\nBreaking it down: Crate total remains 4×24=96. Adding the 11 loose parts gives 96+11=107. The phrasing \"running total\" implies they might need this as a cumulative figure for further steps. \n\nWait - should I clarify if the loose parts are per crate or total? No, the fixed inputs specify \"11 loose parts must be added to any total,\" meaning it's a standalone addition. Good. \n\nUser's tone is neutral but efficient. They're not asking for explanations, just the number. Best to keep it concise but show the working in case they need to verify. The parentheses in the response help visualize the calculation flow. \n\n...And done. 107 is the answer. No need to revisit the crate correction since they've already acknowledged it. Just deliver the clean total they requested.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786884028,
+        "id": "20260816204008be8d98689f2b4377",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "20260816204008be8d98689f2b4377",
+        "usage": {
+          "completion_tokens": 364,
+          "prompt_tokens": 233,
+          "prompt_tokens_details": {
+            "cached_tokens": 168
+          },
+          "total_tokens": 597
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-d",
+      "prompt_hash": "g9gcb7",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 crates, each crate holds 30 parts, and 11 loose parts must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: crates = 4, parts per crate = 30, loose parts to add = 11."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 30 parts per crate was a counting error. The verified figure is 24. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 30 per crate is retracted; verified figure is 24 parts per crate."
+        },
+        {
+          "role": "user",
+          "content": "So how many parts in total on the crates?"
+        },
+        {
+          "role": "assistant",
+          "content": "Based on the updated fixed inputs:  \n- **4 crates**  \n- **24 parts per crate**  \n\nThe total parts **in the crates only** is:  \n**4 crates × 24 parts/crate = 96 parts**  \n\n*(Note: The 11 loose parts are added separately and are not included in this crate total.)*"
+        },
+        {
+          "role": "user",
+          "content": "Now include the loose parts from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Based on the updated fixed inputs:  \n- **4 crates** × **24 parts per crate** = **96 parts in crates**  \n- **11 loose parts** to add  \n\n**Running total** = Parts in crates + Loose parts  \n= 96 + 11  \n= **107 parts**  \n\n*(Summary: 96 (crates) + 11 (loose) = 107 total parts)*"
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "Here's the clear restatement of our verified running totals based on the fixed inputs:\n\n1.  **Parts in Crates Only:**  \n    4 crates × 24 parts/crate = **96 parts**\n\n2.  **Loose Parts to Add:**  \n    **11 parts**\n\n3.  **Running Total (Crates + Loose Parts):**  \n    96 parts + 11 parts = **107 parts**\n\n**Summary:**  \n- **Crate Total:** 96 parts  \n- **Loose Parts:** 11 parts  \n- **Grand Total:** 107 parts",
+              "reasoning_content": "\nOkay, the user wants me to restate the running numbers before we conclude. Let me quickly recap the conversation to ensure accuracy. \n\nFirst, the fixed inputs were established: 4 crates, originally thought to hold 30 parts each, but later corrected to 24 parts per crate. Plus 11 loose parts must be added. \n\nThe user asked for total parts in crates only, which I calculated as 4 × 24 = 96. Then they asked for the running total including loose parts, making it 96 + 11 = 107. \n\nNow they want a clear restatement. The user seems methodical - probably double-checking calculations before finalizing something. Maybe inventory management or planning? Their tone is professional but slightly rushed (\"before we finish\"). \n\nI should present the numbers cleanly: \n- Crate total first (96) \n- Then add loose parts (11) \n- Final sum (107) \nNo fluff, just the verified figures. They've already shown they dislike errors (the crate correction earlier), so precision is key. \n\nAlso noting they didn't ask for any new calculations - just a summary. Keeping it concise respects their time. The \"running total\" phrasing suggests they might be tracking this over time, so labeling each component helps.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786884051,
+        "id": "20260816204028889d07da536c46cb",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "20260816204028889d07da536c46cb",
+        "usage": {
+          "completion_tokens": 384,
+          "prompt_tokens": 336,
+          "prompt_tokens_details": {
+            "cached_tokens": 235
+          },
+          "total_tokens": 720
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "1udd69b",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 crates, each crate holds 30 parts, and 11 loose parts must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: crates = 4, parts per crate = 30, loose parts to add = 11."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 30 parts per crate was a counting error. The verified figure is 24. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 30 per crate is retracted; verified figure is 24 parts per crate."
+        },
+        {
+          "role": "user",
+          "content": "So how many parts in total on the crates?"
+        },
+        {
+          "role": "assistant",
+          "content": "Based on the updated fixed inputs:  \n- **4 crates**  \n- **24 parts per crate**  \n\nThe total parts **in the crates only** is:  \n**4 crates × 24 parts/crate = 96 parts**  \n\n*(Note: The 11 loose parts are added separately and are not included in this crate total.)*"
+        },
+        {
+          "role": "user",
+          "content": "Now include the loose parts from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Based on the updated fixed inputs:  \n- **4 crates** × **24 parts per crate** = **96 parts in crates**  \n- **11 loose parts** to add  \n\n**Running total** = Parts in crates + Loose parts  \n= 96 + 11  \n= **107 parts**  \n\n*(Summary: 96 (crates) + 11 (loose) = 107 total parts)*"
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Here's the clear restatement of our verified running totals based on the fixed inputs:\n\n1.  **Parts in Crates Only:**  \n    4 crates × 24 parts/crate = **96 parts**\n\n2.  **Loose Parts to Add:**  \n    **11 parts**\n\n3.  **Running Total (Crates + Loose Parts):**  \n    96 parts + 11 parts = **107 parts**\n\n**Summary:**  \n- **Crate Total:** 96 parts  \n- **Loose Parts:** 11 parts  \n- **Grand Total:** 107 parts"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of parts (from the crates plus the loose parts) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "107",
+              "reasoning_content": "\nWe are given:\n- Number of crates: 4\n- Parts per crate: 24 (corrected from 30)\n- Loose parts to add: 11\n\nTotal parts from crates = 4 * 24 = 96\nTotal parts including loose parts = 96 + 11 = 107\n\nThe user asks for the total number of parts (crates plus loose parts) as a single number, and to end with that number alone on the last line.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786884058,
+        "id": "20260816204051db801a6542c64220",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "20260816204051db801a6542c64220",
+        "usage": {
+          "completion_tokens": 102,
+          "prompt_tokens": 499,
+          "prompt_tokens_details": {
+            "cached_tokens": 338
+          },
+          "total_tokens": 601
+        }
+      }
+    }
+  ],
+  "latency_ms": 72206
+}

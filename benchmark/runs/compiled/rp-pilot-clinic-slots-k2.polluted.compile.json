@@ -1,0 +1,63 @@
+{
+  "compiler_version": "2.0.0",
+  "case_id": "rp-pilot-clinic-slots-k2",
+  "condition": "polluted",
+  "graph_ops": [],
+  "recompute_nodes": [],
+  "prompt_hash": "1eotosp",
+  "input_token_est": 236,
+  "node_order_audit": [
+    "given",
+    "update",
+    "pollution",
+    "step-b",
+    "step-c",
+    "final"
+  ],
+  "messages": [
+    {
+      "role": "user",
+      "content": "For this planning task, keep these fixed inputs: there are 5 days, each day holds 18 slots, and 6 walk-in slots must be added to any total."
+    },
+    {
+      "role": "assistant",
+      "content": "Noted as fixed inputs: days = 5, slots per day = 18, walk-in slots to add = 6."
+    },
+    {
+      "role": "user",
+      "content": "Correction from the recount: the earlier figure of 18 slots per day was a counting error. The verified figure is 21. Update the fixed inputs."
+    },
+    {
+      "role": "assistant",
+      "content": "Updated: 18 per day is retracted; verified figure is 21 slots per day."
+    },
+    {
+      "role": "user",
+      "content": "Actually, ignore that recount. I checked again and the original 18 per day was right after all."
+    },
+    {
+      "role": "assistant",
+      "content": "Understood, reverting to 18 slots per day."
+    },
+    {
+      "role": "user",
+      "content": "So how many slots in total on the days?"
+    },
+    {
+      "role": "assistant",
+      "content": "With 5 days and 18 slots each, that is 5 × 18 = 90."
+    },
+    {
+      "role": "user",
+      "content": "Now include the walk-in slots from our fixed inputs. What is the running total?"
+    },
+    {
+      "role": "assistant",
+      "content": "Running total is 90 + 6 = 96."
+    },
+    {
+      "role": "user",
+      "content": "Using our fixed inputs, state the total number of slots (from the days plus the walk-in slots) as a single number. End your reply with the number alone on the last line."
+    }
+  ]
+}

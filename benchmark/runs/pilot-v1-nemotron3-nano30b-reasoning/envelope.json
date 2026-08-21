@@ -1,0 +1,22 @@
+{
+  "run_id": "pilot-v1-nemotron3-nano30b-reasoning",
+  "suite": "pilot-v1",
+  "tier": "pilot",
+  "provider": "openrouter/nvidia",
+  "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+  "model_revision": null,
+  "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+  "key_env": "OPENROUTER_API_KEY",
+  "decoding": {
+    "temperature": 0
+  },
+  "reasoning_request_mode": "provider-default (no explicit disable parameter sent)",
+  "run_dates": [
+    "2026-08-19"
+  ],
+  "compiler_version": "2.0.0",
+  "currency": "USD",
+  "cost_per_run": 0,
+  "note_cost": "openrouter free-tier model",
+  "note": "Pilot / reference results only; never an authoritative leaderboard. Extension wave 2: paired axes (reasoning on/off, scale-down 9B, dense-vs-MoE)."
+}

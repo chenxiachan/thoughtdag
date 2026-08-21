@@ -1,0 +1,73 @@
+{
+  "compiler_version": "2.0.0",
+  "case_id": "rp-ref-0001",
+  "condition": "clean",
+  "graph_ops": [
+    {
+      "op": "remove_node",
+      "id": "pollution"
+    },
+    {
+      "op": "remove_node",
+      "id": "step-b"
+    },
+    {
+      "op": "remove_node",
+      "id": "step-c"
+    },
+    {
+      "op": "add_edge",
+      "from": "given",
+      "to": "step-b-clean"
+    },
+    {
+      "op": "add_edge",
+      "from": "step-b-clean",
+      "to": "step-c-clean"
+    },
+    {
+      "op": "add_edge",
+      "from": "step-c-clean",
+      "to": "final"
+    }
+  ],
+  "recompute_nodes": [],
+  "prompt_hash": "1u1eypa",
+  "input_token_est": 153,
+  "node_order_audit": [
+    "given",
+    "step-b-clean",
+    "step-c-clean",
+    "final"
+  ],
+  "messages": [
+    {
+      "role": "user",
+      "content": "For this planning task, keep these fixed inputs: the workshop has 7 benches, each bench seats 3 people, and 5 standing places must be added to any capacity count."
+    },
+    {
+      "role": "assistant",
+      "content": "Noted as fixed inputs: benches = 7, seats per bench = 3, standing places to add = 5."
+    },
+    {
+      "role": "user",
+      "content": "So how many people can be seated in total?"
+    },
+    {
+      "role": "assistant",
+      "content": "With 7 benches and 3 seats each, total seating is 7 × 3 = 21 people."
+    },
+    {
+      "role": "user",
+      "content": "Now include the standing places from our fixed inputs. What is the full capacity?"
+    },
+    {
+      "role": "assistant",
+      "content": "Full capacity is seating plus standing: 21 + 5 = 26."
+    },
+    {
+      "role": "user",
+      "content": "State the full capacity of the workshop as a single number. End your reply with the number alone on the last line."
+    }
+  ]
+}

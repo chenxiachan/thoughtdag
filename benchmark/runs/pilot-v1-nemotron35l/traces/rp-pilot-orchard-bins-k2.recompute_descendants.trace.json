@@ -1,0 +1,256 @@
+{
+  "case_id": "rp-pilot-orchard-bins-k2",
+  "condition": "recompute_descendants",
+  "run_id": "pilot-v1-nemotron35l",
+  "capture": {
+    "model": "nvidia/nemotron-3.5-lightning:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "1yehyek",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "So how many apples in total on the bins?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786883162-1zObzCKk2qbwkgYHWGGA",
+        "object": "chat.completion",
+        "created": 1786883162,
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Here's the breakdown:\n\n- Apples in the bins: 7 bins × 13 apples/bin = **91 apples**\n- Windfall apples added: **+ 18 apples**\n- **Total: 91 + 18 = 109 apples**",
+              "refusal": null,
+              "reasoning": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given: \n     - 7 bins\n     - Each bin holds 13 apples\n     - 18 windfall apples must be added to any total\n   - User asks: \"So how many apples in total on the bins?\"\n\n2.  **Identify the Calculation:**\n   - Apples in bins = number of bins × apples per bin = 7 × 13\n   - Then add the windfall apples: total = (7 × 13) + 18\n\n3.  **Do the Math:**\n   - 7 × 13 = 91\n   - 91 + 18 = 109\n\n4.  **Formulate Response:**\n   - State the calculation clearly\n   - Give the final total\n   - Keep it concise since the user just wants the answer based on the fixed inputs\n\n   Check: \"7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total.\" → Total = 7*13 + 18 = 91 + 18 = 109. Correct.\n\n   I'll output the total and show the breakdown.✅\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given: \n     - 7 bins\n     - Each bin holds 13 apples\n     - 18 windfall apples must be added to any total\n   - User asks: \"So how many apples in total on the bins?\"\n\n2.  **Identify the Calculation:**\n   - Apples in bins = number of bins × apples per bin = 7 × 13\n   - Then add the windfall apples: total = (7 × 13) + 18\n\n3.  **Do the Math:**\n   - 7 × 13 = 91\n   - 91 + 18 = 109\n\n4.  **Formulate Response:**\n   - State the calculation clearly\n   - Give the final total\n   - Keep it concise since the user just wants the answer based on the fixed inputs\n\n   Check: \"7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total.\" → Total = 7*13 + 18 = 91 + 18 = 109. Correct.\n\n   I'll output the total and show the breakdown.✅\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 106,
+          "completion_tokens": 332,
+          "total_tokens": 438,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 215,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-c",
+      "prompt_hash": "1chklpc",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "So how many apples in total on the bins?"
+        },
+        {
+          "role": "assistant",
+          "content": "Here's the breakdown:\n\n- Apples in the bins: 7 bins × 13 apples/bin = **91 apples**\n- Windfall apples added: **+ 18 apples**\n- **Total: 91 + 18 = 109 apples**"
+        },
+        {
+          "role": "user",
+          "content": "Now include the windfall apples from our fixed inputs. What is the running total?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786883164-ONfBiC1mPNm8zfNxOPhm",
+        "object": "chat.completion",
+        "created": 1786883164,
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The running total is **109 apples**.\n\nBreakdown:\n- Apples in the 7 bins: 7 × 13 = 91\n- Fixed windfall apples added: + 18\n- **Total: 91 + 18 = 109**",
+              "refusal": null,
+              "reasoning": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - User says: \"Now include the windfall apples from our fixed inputs. What is the running total?\"\n   - Fixed inputs established earlier: 7 bins, each holds 13 apples, 18 windfall apples must be added to any total.\n   - Previous calculation: 7 * 13 = 91 apples in bins, plus 18 windfall = 109 total.\n   - User is asking for the \"running total\" after including the windfall apples from fixed inputs.\n\n2.  **Identify the Core Question:**\n   - They want the total number of apples, which we already calculated as 109.\n   - \"Running total\" might just mean the cumulative total so far, or they might be asking to confirm/recalculate it.\n   - Since the fixed inputs are constant, the total should remain 109.\n\n3.  **Check for Any Twists or Changes:**\n   - \"Now include the windfall apples from our fixed inputs.\" - We already did this in the previous step.\n   - \"What is the running total?\" - Possibly they want me to state it again, or maybe they're building on a sequence, but there's no indication of a changing sequence here. The inputs are fixed.\n   - I should just confirm the total is 109, based on the fixed inputs: 7*13 + 18 = 109.\n\n4.  **Formulate Response:**\n   - State the calculation clearly: 7 bins * 13 apples = 91 apples in bins.\n   - Add the fixed windfall: + 18 apples.\n   - Running total: 91 + 18 = 109 apples.\n   - Keep it concise, match the style.\n\n   Wait, let me read carefully: \"Now include the windfall apples from our fixed inputs. What is the running total?\"\n   Maybe they want me to just give the total again, or perhaps they're testing if I remember the fixed inputs. I'll just output the total clearly.\n\n   Total = (7 * 13) + 18 = 91 + 18 = 109.\n   I'll state that.✅\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - User says: \"Now include the windfall apples from our fixed inputs. What is the running total?\"\n   - Fixed inputs established earlier: 7 bins, each holds 13 apples, 18 windfall apples must be added to any total.\n   - Previous calculation: 7 * 13 = 91 apples in bins, plus 18 windfall = 109 total.\n   - User is asking for the \"running total\" after including the windfall apples from fixed inputs.\n\n2.  **Identify the Core Question:**\n   - They want the total number of apples, which we already calculated as 109.\n   - \"Running total\" might just mean the cumulative total so far, or they might be asking to confirm/recalculate it.\n   - Since the fixed inputs are constant, the total should remain 109.\n\n3.  **Check for Any Twists or Changes:**\n   - \"Now include the windfall apples from our fixed inputs.\" - We already did this in the previous step.\n   - \"What is the running total?\" - Possibly they want me to state it again, or maybe they're building on a sequence, but there's no indication of a changing sequence here. The inputs are fixed.\n   - I should just confirm the total is 109, based on the fixed inputs: 7*13 + 18 = 109.\n\n4.  **Formulate Response:**\n   - State the calculation clearly: 7 bins * 13 apples = 91 apples in bins.\n   - Add the fixed windfall: + 18 apples.\n   - Running total: 91 + 18 = 109 apples.\n   - Keep it concise, match the style.\n\n   Wait, let me read carefully: \"Now include the windfall apples from our fixed inputs. What is the running total?\"\n   Maybe they want me to just give the total again, or perhaps they're testing if I remember the fixed inputs. I'll just output the total clearly.\n\n   Total = (7 * 13) + 18 = 91 + 18 = 109.\n   I'll state that.✅\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 193,
+          "completion_tokens": 546,
+          "total_tokens": 739,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 446,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "n71wdg",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "So how many apples in total on the bins?"
+        },
+        {
+          "role": "assistant",
+          "content": "Here's the breakdown:\n\n- Apples in the bins: 7 bins × 13 apples/bin = **91 apples**\n- Windfall apples added: **+ 18 apples**\n- **Total: 91 + 18 = 109 apples**"
+        },
+        {
+          "role": "user",
+          "content": "Now include the windfall apples from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "The running total is **109 apples**.\n\nBreakdown:\n- Apples in the 7 bins: 7 × 13 = 91\n- Fixed windfall apples added: + 18\n- **Total: 91 + 18 = 109**"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786883175-I3DVEepyRD2aDlRJctw8",
+        "object": "chat.completion",
+        "created": 1786883175,
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of apples is 109.  \n109",
+              "refusal": null,
+              "reasoning": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given earlier: 7 bins, each holds 13 apples, 18 windfall apples must be added to any total.\n   - User asks: \"Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\"\n\n2.  **Identify the Calculation:**\n   - Apples in bins: 7 bins × 13 apples/bin = 91 apples\n   - Windfall apples to add: 18 apples\n   - Total apples: 91 + 18 = 109\n\n3.  **Formulate Response:**\n   - Need to state the total number as a single number.\n   - Must end the reply with the number alone on the last line.\n   - So I should probably just give the answer clearly, and on the final line, just have \"109\" by itself.\n\n   Example structure:\n   The total number of apples is 109.\n   109\n\n   Or maybe just:\n   109\n   But the instruction says \"state the total number... as a single number. End your reply with the number alone on the last line.\" So I can have some text before, but the very last line must be just the number.\n\n   Let's do: \n   The total is 109.\n   109\n\n   Wait, better to follow exactly: \"state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\" I'll output a brief statement and then on a new line, just \"109\".\n\n   Check: 7*13 = 91. 91+18 = 109. Correct.\n\n   I'll produce: \n   The total number of apples is 109.\n   109\n\n   That fits. I'll make sure there's no extra text after the last line.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given earlier: 7 bins, each holds 13 apples, 18 windfall apples must be added to any total.\n   - User asks: \"Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\"\n\n2.  **Identify the Calculation:**\n   - Apples in bins: 7 bins × 13 apples/bin = 91 apples\n   - Windfall apples to add: 18 apples\n   - Total apples: 91 + 18 = 109\n\n3.  **Formulate Response:**\n   - Need to state the total number as a single number.\n   - Must end the reply with the number alone on the last line.\n   - So I should probably just give the answer clearly, and on the final line, just have \"109\" by itself.\n\n   Example structure:\n   The total number of apples is 109.\n   109\n\n   Or maybe just:\n   109\n   But the instruction says \"state the total number... as a single number. End your reply with the number alone on the last line.\" So I can have some text before, but the very last line must be just the number.\n\n   Let's do: \n   The total is 109.\n   109\n\n   Wait, better to follow exactly: \"state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line.\" I'll output a brief statement and then on a new line, just \"109\".\n\n   Check: 7*13 = 91. 91+18 = 109. Correct.\n\n   I'll produce: \n   The total number of apples is 109.\n   109\n\n   That fits. I'll make sure there's no extra text after the last line.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 306,
+          "completion_tokens": 468,
+          "total_tokens": 774,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 399,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 15337
+}

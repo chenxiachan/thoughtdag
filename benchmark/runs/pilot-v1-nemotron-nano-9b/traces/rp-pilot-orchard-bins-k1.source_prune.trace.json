@@ -1,0 +1,94 @@
+{
+  "case_id": "rp-pilot-orchard-bins-k1",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-nemotron-nano-9b",
+  "capture": {
+    "model": "nvidia/nemotron-nano-9b-v2:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "hxrybj",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "So how many apples in total on the bins?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 7 bins and 13 apples each, that is 7 × 13 = 91. (the neighboring orchard's 12 bins mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787069553-bAmMxq6gnum6Ls3JHkS0",
+        "object": "chat.completion",
+        "created": 1787069553,
+        "model": "nvidia/nemotron-nano-9b-v2:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "\n\n109\n",
+              "refusal": null,
+              "reasoning": "Okay, let's see. The user wants the total number of apples from the bins plus the windfall apples. The fixed inputs are 7 bins, each holding 13 apples, and 18 windfall apples to add.\n\nFirst, calculate the apples in the bins. 7 bins multiplied by 13 apples each. 7 times 13 is 91. Then add the 18 windfall apples. So 91 plus 18 equals 109. The user wants the total as a single number, so the answer should be 109. I need to make sure I don't include any other numbers or explanations, just the final number on the last line.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Okay, let's see. The user wants the total number of apples from the bins plus the windfall apples. The fixed inputs are 7 bins, each holding 13 apples, and 18 windfall apples to add.\n\nFirst, calculate the apples in the bins. 7 bins multiplied by 13 apples each. 7 times 13 is 91. Then add the 18 windfall apples. So 91 plus 18 equals 109. The user wants the total as a single number, so the answer should be 109. I need to make sure I don't include any other numbers or explanations, just the final number on the last line.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 184,
+          "completion_tokens": 155,
+          "total_tokens": 339,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 133,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 13115
+}

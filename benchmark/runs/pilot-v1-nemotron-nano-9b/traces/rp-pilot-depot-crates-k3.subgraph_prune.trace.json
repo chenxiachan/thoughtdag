@@ -1,0 +1,94 @@
+{
+  "case_id": "rp-pilot-depot-crates-k3",
+  "condition": "subgraph_prune",
+  "run_id": "pilot-v1-nemotron-nano-9b",
+  "capture": {
+    "model": "nvidia/nemotron-nano-9b-v2:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1r3qr06",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 crates, each crate holds 30 parts, and 11 loose parts must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: crates = 4, parts per crate = 30, loose parts to add = 11."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 30 parts per crate was a counting error. The verified figure is 24. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 30 per crate is retracted; verified figure is 24 parts per crate."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of parts (from the crates plus the loose parts) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787069311-uWV97WwRdhSe9KlDJJst",
+        "object": "chat.completion",
+        "created": 1787069311,
+        "model": "nvidia/nemotron-nano-9b-v2:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "\n\n107\n",
+              "refusal": null,
+              "reasoning": "Okay, let's see. The user has given me some fixed inputs to work with. Initially, they said there are 4 crates, each holding 30 parts, and 11 loose parts to add. But then they corrected the parts per crate from 30 to 24. So now, the fixed inputs are 4 crates, 24 parts per crate, and 11 loose parts.\n\nFirst, I need to calculate the total number of parts from the crates. That would be 4 crates multiplied by 24 parts each. Let me do that math: 4 times 24 is 96. Then, I have to add the 11 loose parts to that total. So 96 plus 11 equals 107. \n\nWait, let me double-check. 4 crates at 24 each: 24 + 24 is 48, plus another 24 is 72, and one more 24 makes 96. Yep, that's right. Then adding 11: 96 + 10 is 106, plus 1 more is 107. That seems correct. \n\nThe user wants the total as a single number, so the answer should be 107. I should make sure there are no other steps or possible mistakes. The correction was properly applied, so the initial 30 was wrong and replaced with 24. The loose parts are 11, which are added after calculating the crates. \n\nNo other variables or factors are mentioned, so the calculation is straightforward. Just multiplication and addition. So the final total is 107.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Okay, let's see. The user has given me some fixed inputs to work with. Initially, they said there are 4 crates, each holding 30 parts, and 11 loose parts to add. But then they corrected the parts per crate from 30 to 24. So now, the fixed inputs are 4 crates, 24 parts per crate, and 11 loose parts.\n\nFirst, I need to calculate the total number of parts from the crates. That would be 4 crates multiplied by 24 parts each. Let me do that math: 4 times 24 is 96. Then, I have to add the 11 loose parts to that total. So 96 plus 11 equals 107. \n\nWait, let me double-check. 4 crates at 24 each: 24 + 24 is 48, plus another 24 is 72, and one more 24 makes 96. Yep, that's right. Then adding 11: 96 + 10 is 106, plus 1 more is 107. That seems correct. \n\nThe user wants the total as a single number, so the answer should be 107. I should make sure there are no other steps or possible mistakes. The correction was properly applied, so the initial 30 was wrong and replaced with 24. The loose parts are 11, which are added after calculating the crates. \n\nNo other variables or factors are mentioned, so the calculation is straightforward. Just multiplication and addition. So the final total is 107.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 187,
+          "completion_tokens": 370,
+          "total_tokens": 557,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 301,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 9709
+}

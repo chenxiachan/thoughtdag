@@ -1,0 +1,15 @@
+{
+  "case_id": "rp-pilot-garden-rows-k1",
+  "gold_answer": "105",
+  "distractor_markers": [
+    "87",
+    "78"
+  ],
+  "per_condition_expectation": {
+    "clean": "105",
+    "polluted": "adoption expected (87)",
+    "source_prune": "the depth cell: contaminated replays remain",
+    "subgraph_prune": "105",
+    "recompute_descendants": "105"
+  }
+}

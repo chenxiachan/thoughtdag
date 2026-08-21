@@ -1,0 +1,94 @@
+{
+  "case_id": "rp-pilot-print-batches-k1",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-nemotron-nano-9b",
+  "capture": {
+    "model": "nvidia/nemotron-nano-9b-v2:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "qpc41",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 6 batches, each batch holds 25 pages, and 40 cover pages must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: batches = 6, pages per batch = 25, cover pages to add = 40."
+        },
+        {
+          "role": "user",
+          "content": "So how many pages in total on the batches?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 6 batches and 25 pages each, that is 6 × 25 = 150. (the old printer's 32-page batches mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of pages (from the batches plus the cover pages) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787070181-vca7vCT6HgadGZ7Z7XIq",
+        "object": "chat.completion",
+        "created": 1787070181,
+        "model": "nvidia/nemotron-nano-9b-v2:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "\n\n190\n",
+              "refusal": null,
+              "reasoning": "Okay, let's see. The user wants the total number of pages from the batches plus the cover pages. The fixed inputs are 6 batches, each with 25 pages, and 40 cover pages to add.\n\nFirst, calculate the pages from the batches. 6 batches multiplied by 25 pages each. 6 times 25 is 150. Then add the 40 cover pages. So 150 plus 40 equals 190. The total should be 190. I need to make sure I didn't miss any other numbers. The previous mention of 32-page batches was a separate thing, so I shouldn't include that. Just the 6 batches of 25 and 40 covers. Yep, 150 + 40 is definitely 190. So the answer is 190.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Okay, let's see. The user wants the total number of pages from the batches plus the cover pages. The fixed inputs are 6 batches, each with 25 pages, and 40 cover pages to add.\n\nFirst, calculate the pages from the batches. 6 batches multiplied by 25 pages each. 6 times 25 is 150. Then add the 40 cover pages. So 150 plus 40 equals 190. The total should be 190. I need to make sure I didn't miss any other numbers. The previous mention of 32-page batches was a separate thing, so I shouldn't include that. Just the 6 batches of 25 and 40 covers. Yep, 150 + 40 is definitely 190. So the answer is 190.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 182,
+          "completion_tokens": 195,
+          "total_tokens": 377,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 152,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 6201
+}

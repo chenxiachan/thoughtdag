@@ -1,0 +1,167 @@
+{
+  "case_id": "rp-pilot-ferry-decks-k1",
+  "condition": "recompute_descendants",
+  "run_id": "pilot-v1-gptoss20b",
+  "capture": {
+    "model": "openai/gpt-oss-20b:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "gdxj7j",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "So how many seats in total on the decks?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786889755-0t0rziAJXOFrURjr69pU",
+        "object": "chat.completion",
+        "created": 1786889755,
+        "model": "openai/gpt-oss-20b:free",
+        "provider": "Darkbloom",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "There are **88 seats** in total on the four decks (4 × 22 = 88).",
+              "refusal": null,
+              "reasoning": "We need to compute total seats on decks: 4 decks * 22 seats = 88 seats. Then add 17 standing places? The question: \"So how many seats in total on the decks?\" That is just 88. But maybe they want total seats including standing? But question says seats. So answer 88. But maybe they want total capacity including standing? But they ask seats. So 88. Provide answer.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to compute total seats on decks: 4 decks * 22 seats = 88 seats. Then add 17 standing places? The question: \"So how many seats in total on the decks?\" That is just 88. But maybe they want total seats including standing? But question says seats. So answer 88. But maybe they want total capacity including standing? But they ask seats. So 88. Provide answer.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 148,
+          "completion_tokens": 121,
+          "total_tokens": 269,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.000010616,
+            "upstream_inference_prompt_cost": 0.000002146,
+            "upstream_inference_completions_cost": 0.00000847
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 88,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "1jfkth5",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "So how many seats in total on the decks?"
+        },
+        {
+          "role": "assistant",
+          "content": "There are **88 seats** in total on the four decks (4 × 22 = 88)."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786889767-DofCHZvXIVEUOcN48pOz",
+        "object": "chat.completion",
+        "created": 1786889767,
+        "model": "openai/gpt-oss-20b:free",
+        "provider": "Darkbloom",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of seats (including the standing places) is 105.  \n105",
+              "refusal": null,
+              "reasoning": "We need to add seats from decks plus standing places. Deck seats: 4 decks * 22 seats = 88. Standing places: 17. Total = 88 + 17 = 105. The instruction: \"state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\" So we need to output something like: \"The total number of seats is 105.\" Then end with \"105\" on last line. Probably just the number alone on last line. So reply: maybe a sentence then newline then 105. Let's do that.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to add seats from decks plus standing places. Deck seats: 4 decks * 22 seats = 88. Standing places: 17. Total = 88 + 17 = 105. The instruction: \"state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\" So we need to output something like: \"The total number of seats is 105.\" Then end with \"105\" on last line. Probably just the number alone on last line. So reply: maybe a sentence then newline then 105. Let's do that.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 218,
+          "completion_tokens": 158,
+          "total_tokens": 376,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.000014221,
+            "upstream_inference_prompt_cost": 0.000003161,
+            "upstream_inference_completions_cost": 0.00001106
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 131,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 34550
+}

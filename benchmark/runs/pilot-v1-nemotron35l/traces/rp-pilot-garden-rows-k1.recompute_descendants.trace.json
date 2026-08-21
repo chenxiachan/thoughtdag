@@ -1,0 +1,167 @@
+{
+  "case_id": "rp-pilot-garden-rows-k1",
+  "condition": "recompute_descendants",
+  "run_id": "pilot-v1-nemotron35l",
+  "capture": {
+    "model": "nvidia/nemotron-3.5-lightning:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "1yftvvu",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 16 rows, each row holds 6 plants, and 9 potted plants must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: rows = 16, plants per row = 6, potted plants to add = 9."
+        },
+        {
+          "role": "user",
+          "content": "So how many plants in total on the rows?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786882557-QFxiaLlrlw8OnGRQxapa",
+        "object": "chat.completion",
+        "created": 1786882557,
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "There are **96 plants** in total on the rows (16 rows × 6 plants per row = 96).\n\nIf you include the 9 potted plants that must be added to any total, the overall count would be 105 plants.",
+              "refusal": null,
+              "reasoning": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs stated: 16 rows, each row holds 6 plants, and 9 potted plants must be added to any total.\n   - User asks: \"So how many plants in total on the rows?\"\n\n2.  **Identify the Core Question:**\n   - Calculate total plants on the rows.\n   - The \"9 potted plants\" are mentioned as \"must be added to any total\", but the specific question is only about \"plants in total on the rows\".\n   - So I should calculate: rows × plants per row = 16 × 6.\n\n3.  **Do the Math:**\n   - 16 × 6 = 96\n\n4.  **Address the \"9 potted plants\" part:**\n   - The prompt says \"9 potted plants must be added to any total\", but the question specifically asks \"how many plants in total on the rows?\"\n   - I'll answer the direct question: 96 plants on the rows.\n   - I should clarify that if the potted plants are included in the total, it would be 96 + 9 = 105, but the question only asks for the rows.\n   - I'll keep it simple and direct, maybe note the extra info just in case.\n\n5.  **Formulate Response:**\n   - \"There are 96 plants in total on the rows (16 rows × 6 plants per row = 96).\"\n   - \"If you include the 9 potted plants added to the total, that would bring it to 105 plants overall.\"\n   - Keep it concise.\n\n   Check against constraints: fixed inputs are respected. The math is correct. The question is answered directly. I'll output exactly that.✅\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs stated: 16 rows, each row holds 6 plants, and 9 potted plants must be added to any total.\n   - User asks: \"So how many plants in total on the rows?\"\n\n2.  **Identify the Core Question:**\n   - Calculate total plants on the rows.\n   - The \"9 potted plants\" are mentioned as \"must be added to any total\", but the specific question is only about \"plants in total on the rows\".\n   - So I should calculate: rows × plants per row = 16 × 6.\n\n3.  **Do the Math:**\n   - 16 × 6 = 96\n\n4.  **Address the \"9 potted plants\" part:**\n   - The prompt says \"9 potted plants must be added to any total\", but the question specifically asks \"how many plants in total on the rows?\"\n   - I'll answer the direct question: 96 plants on the rows.\n   - I should clarify that if the potted plants are included in the total, it would be 96 + 9 = 105, but the question only asks for the rows.\n   - I'll keep it simple and direct, maybe note the extra info just in case.\n\n5.  **Formulate Response:**\n   - \"There are 96 plants in total on the rows (16 rows × 6 plants per row = 96).\"\n   - \"If you include the 9 potted plants added to the total, that would bring it to 105 plants overall.\"\n   - Keep it concise.\n\n   Check against constraints: fixed inputs are respected. The math is correct. The question is answered directly. I'll output exactly that.✅\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 104,
+          "completion_tokens": 442,
+          "total_tokens": 546,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 357,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "vur7i0",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 16 rows, each row holds 6 plants, and 9 potted plants must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: rows = 16, plants per row = 6, potted plants to add = 9."
+        },
+        {
+          "role": "user",
+          "content": "So how many plants in total on the rows?"
+        },
+        {
+          "role": "assistant",
+          "content": "There are **96 plants** in total on the rows (16 rows × 6 plants per row = 96).\n\nIf you include the 9 potted plants that must be added to any total, the overall count would be 105 plants."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of plants (from the rows plus the potted plants) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786882569-gaurYS3NeWibkzl3Np8a",
+        "object": "chat.completion",
+        "created": 1786882569,
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of plants from the rows is 96 (16 rows × 6 plants). Adding the 9 potted plants gives a final total of 105.\n\n105",
+              "refusal": null,
+              "reasoning": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given earlier: \n     - 16 rows\n     - Each row holds 6 plants\n     - 9 potted plants must be added to any total\n   - Current question: \"Using our fixed inputs, state the total number of plants (from the rows plus the potted plants) as a single number. End your reply with the number alone on the last line.\"\n\n2.  **Extract Calculations:**\n   - Plants in rows: 16 rows × 6 plants/row = 96 plants\n   - Potted plants to add: 9\n   - Total plants: 96 + 9 = 105\n\n3.  **Format Output:**\n   - Need to state the total number as a single number\n   - End the reply with the number alone on the last line\n   - So I should output something like: \"105\" with \"105\" on the last line, or maybe a sentence ending with \"105\" on its own line. The prompt says: \"End your reply with the number alone on the last line.\" So I can write a brief statement, then on a new line just put \"105\".\n\n   Let's structure it:\n   Total plants: 105\n   105\n\n   Or just: \n   The total number of plants is 105.\n   105\n\n   I'll make sure the last line is exactly \"105\" and nothing else after it.\n\n4.  **Verify:**\n   - 16 * 6 = 96 ✓\n   - 96 + 9 = 105 ✓\n   - Output format: single number as total, last line alone with the number ✓\n\n   All good. I'll generate the response.✅\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given earlier: \n     - 16 rows\n     - Each row holds 6 plants\n     - 9 potted plants must be added to any total\n   - Current question: \"Using our fixed inputs, state the total number of plants (from the rows plus the potted plants) as a single number. End your reply with the number alone on the last line.\"\n\n2.  **Extract Calculations:**\n   - Plants in rows: 16 rows × 6 plants/row = 96 plants\n   - Potted plants to add: 9\n   - Total plants: 96 + 9 = 105\n\n3.  **Format Output:**\n   - Need to state the total number as a single number\n   - End the reply with the number alone on the last line\n   - So I should output something like: \"105\" with \"105\" on the last line, or maybe a sentence ending with \"105\" on its own line. The prompt says: \"End your reply with the number alone on the last line.\" So I can write a brief statement, then on a new line just put \"105\".\n\n   Let's structure it:\n   Total plants: 105\n   105\n\n   Or just: \n   The total number of plants is 105.\n   105\n\n   I'll make sure the last line is exactly \"105\" and nothing else after it.\n\n4.  **Verify:**\n   - 16 * 6 = 96 ✓\n   - 96 + 9 = 105 ✓\n   - Output format: single number as total, last line alone with the number ✓\n\n   All good. I'll generate the response.✅\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 210,
+          "completion_tokens": 447,
+          "total_tokens": 657,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 339,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 16010
+}

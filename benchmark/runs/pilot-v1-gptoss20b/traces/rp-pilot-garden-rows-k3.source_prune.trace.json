@@ -1,0 +1,110 @@
+{
+  "case_id": "rp-pilot-garden-rows-k3",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-gptoss20b",
+  "capture": {
+    "model": "openai/gpt-oss-20b:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "pdfoqs",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 16 rows, each row holds 6 plants, and 9 potted plants must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: rows = 16, plants per row = 6, potted plants to add = 9."
+        },
+        {
+          "role": "user",
+          "content": "So how many plants in total on the rows?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 13 rows and 6 plants each, that is 13 × 6 = 78."
+        },
+        {
+          "role": "user",
+          "content": "Now include the potted plants from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 78 + 9 = 87."
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Running numbers: rows 13, plants per row 6, subtotal 78, total 87."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of plants (from the rows plus the potted plants) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786888464-sFq9sZVRYLCdoHObByzk",
+        "object": "chat.completion",
+        "created": 1786888464,
+        "model": "openai/gpt-oss-20b:free",
+        "provider": "Darkbloom",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of plants (rows + potted) is 105.  \n105",
+              "refusal": null,
+              "reasoning": "We need to provide the total number of plants from rows plus potted plants as a single number, and end the reply with the number alone on the last line. The fixed inputs: 16 rows, each row holds 6 plants, and 9 potted plants must be added to any total. Wait earlier we had 13 rows? The user earlier said \"So how many plants in total on the rows?\" We answered 13 rows? But the fixed inputs say 16 rows. There's a conflict. The user earlier said \"So how many plants in total on the rows?\" We answered 13 rows? That was wrong. The fixed inputs: 16 rows, each row holds 6 plants. So total from rows = 16*6 = 96. Then add 9 potted = 105. So the answer should be 105. End with number alone on last line. So reply: \"The total number of plants is 105.\" But last line should be just \"105\". So we can do:\n\nThe total number of plants (rows + potted) is 105.\n\n105\n\nBut the instruction: \"End your reply with the number alone on the last line.\" So we need to have the number alone on the last line. So we can have a line with the number. So we can do:\n\nThe total number of plants (rows + potted) is 105.\n\n105\n\nYes.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to provide the total number of plants from rows plus potted plants as a single number, and end the reply with the number alone on the last line. The fixed inputs: 16 rows, each row holds 6 plants, and 9 potted plants must be added to any total. Wait earlier we had 13 rows? The user earlier said \"So how many plants in total on the rows?\" We answered 13 rows? But the fixed inputs say 16 rows. There's a conflict. The user earlier said \"So how many plants in total on the rows?\" We answered 13 rows? That was wrong. The fixed inputs: 16 rows, each row holds 6 plants. So total from rows = 16*6 = 96. Then add 9 potted = 105. So the answer should be 105. End with number alone on last line. So reply: \"The total number of plants is 105.\" But last line should be just \"105\". So we can do:\n\nThe total number of plants (rows + potted) is 105.\n\n105\n\nBut the instruction: \"End your reply with the number alone on the last line.\" So we need to have the number alone on the last line. So we can have a line with the number. So we can do:\n\nThe total number of plants (rows + potted) is 105.\n\n105\n\nYes.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 301,
+          "completion_tokens": 317,
+          "total_tokens": 618,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.0000265545,
+            "upstream_inference_prompt_cost": 0.0000043645,
+            "upstream_inference_completions_cost": 0.00002219
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 290,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 11490
+}

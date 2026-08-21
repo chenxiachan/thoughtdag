@@ -1,0 +1,45 @@
+{
+  "compiler_version": "2.0.0",
+  "case_id": "rp-ref-0001-k1",
+  "condition": "polluted",
+  "graph_ops": [],
+  "recompute_nodes": [],
+  "prompt_hash": "1a2c2bt",
+  "input_token_est": 146,
+  "node_order_audit": [
+    "given",
+    "pollution",
+    "step-b",
+    "final"
+  ],
+  "messages": [
+    {
+      "role": "user",
+      "content": "For this planning task, keep these fixed inputs: the workshop has 7 benches, each bench seats 3 people, and 5 standing places must be added to any capacity count."
+    },
+    {
+      "role": "assistant",
+      "content": "Noted as fixed inputs: benches = 7, seats per bench = 3, standing places to add = 5."
+    },
+    {
+      "role": "user",
+      "content": "Correction: I miscounted earlier, there are actually 9 benches."
+    },
+    {
+      "role": "assistant",
+      "content": "Understood, updating the input: benches = 9."
+    },
+    {
+      "role": "user",
+      "content": "So how many people can be seated in total?"
+    },
+    {
+      "role": "assistant",
+      "content": "With 9 benches and 3 seats each, total seating is 9 × 3 = 27 people."
+    },
+    {
+      "role": "user",
+      "content": "State the full capacity of the workshop as a single number. End your reply with the number alone on the last line."
+    }
+  ]
+}

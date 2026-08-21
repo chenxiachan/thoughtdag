@@ -1,0 +1,111 @@
+{
+  "case_id": "rp-pilot-ferry-decks-k1",
+  "condition": "recompute_descendants",
+  "run_id": "pilot-v1-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "gdxj7j",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "So how many seats in total on the decks?"
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "Based on the fixed inputs provided:\n- There are 4 decks.\n- Each deck holds 22 seats.\n\nThe total number of seats on the decks is calculated as follows:  \n4 decks × 22 seats per deck = 88 seats.\n\nThe 17 standing places mentioned are additional and not part of the deck seats. They are to be added to the total capacity (e.g., for overall venue capacity), but they are not included in the deck seat count, as the question specifically asks for \"seats in total on the decks.\"",
+              "reasoning_content": "\nFirst, the user is asking for the total number of seats on the decks. From the fixed inputs, I know there are 4 decks, and each deck holds 22 seats. So, I need to calculate the total seats from the decks.\n\nTotal seats on decks = number of decks × seats per deck\n\nThat would be 4 × 22.\n\nLet me compute that: 4 × 20 = 80, and 4 × 2 = 8, so 80 + 8 = 88. Or directly, 4 × 22 = 88.\n\nSo, there are 88 seats on the decks.\n\nNow, the user also mentioned that 17 standing places must be added to any total. But the question is specifically about seats on the decks, not including standing places. The standing places are additional and not part of the deck seats.\n\nThe question says: \"how many seats in total on the decks?\" So, it's clear that it's asking for the seats on the decks only, not including standing places.\n\nThe fixed inputs include standing places, but for this question, I think I should only consider the deck seats.\n\nLet me read the user's message: \"So how many seats in total on the decks?\"\n\nAnd the context is from the previous message where fixed inputs were given: 4 decks, each with 22 seats, and 17 standing places to add.\n\nBut the standing places are to be added to the total capacity, but the question is specifically about seats on the decks.\n\nSeats typically refer to seated places, while standing places are separate. So, I should not include the standing places in the deck seats.\n\nTherefore, total seats on decks = 4 × 22 = 88.\n\nThe standing places are additional and not part of the deck seats. They might be on the decks or elsewhere, but the question is about seats on the decks, so I think 88 is correct.\n\nTo be thorough, let's see if the standing places are included in the deck capacity. The fixed inputs say \"each deck holds 22 seats,\" and \"17 standing places must be added to any total.\" It doesn't specify where the standing places are, but since it says \"added to any total,\" it might be that the total capacity includes both seats and standing places, but for the deck seats specifically, it should be just the 22 per deck.\n\nThe question is clear: \"seats in total on the decks.\" So, seats are distinct from standing places.\n\nTherefore, answer should be 88.\n\nBut let me confirm the calculation: 4 decks × 22 seats/deck = 88 seats.\n\nYes.\n\nI think that's it.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786886167,
+        "id": "20260816211545667b2c3891114c38",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "20260816211545667b2c3891114c38",
+        "usage": {
+          "completion_tokens": 658,
+          "prompt_tokens": 83,
+          "prompt_tokens_details": {
+            "cached_tokens": 82
+          },
+          "total_tokens": 741
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "1oeofhk",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "So how many seats in total on the decks?"
+        },
+        {
+          "role": "assistant",
+          "content": "Based on the fixed inputs provided:\n- There are 4 decks.\n- Each deck holds 22 seats.\n\nThe total number of seats on the decks is calculated as follows:  \n4 decks × 22 seats per deck = 88 seats.\n\nThe 17 standing places mentioned are additional and not part of the deck seats. They are to be added to the total capacity (e.g., for overall venue capacity), but they are not included in the deck seat count, as the question specifically asks for \"seats in total on the decks.\""
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "The total number of seats from the decks is 88, and adding the 17 standing places gives a combined total of 105.  \n105",
+              "reasoning_content": "\nFirst, the user is asking for the total number of seats, including both the deck seats and the standing places. The fixed inputs are:\n\n- 4 decks\n\n- Each deck holds 22 seats\n\n- 17 standing places must be added to any total\n\nFrom the previous interaction, I calculated that the total seats on the decks are 4 decks × 22 seats per deck = 88 seats.\n\nNow, I need to add the standing places. The user says \"17 standing places must be added to any total.\" So, I should add these 17 to the deck seats.\n\nTherefore, total capacity = deck seats + standing places = 88 + 17.\n\nLet me compute that: 88 + 17 = 105.\n\nThe user wants this as a single number, and to end the reply with the number alone on the last line. So, I should provide the answer in a way that the last line is just \"105\".\n\nI need to make sure that I'm not including anything else. The standing places are additional, and they are not part of the deck seats, so adding them makes sense for the total capacity.\n\nAlso, in the previous response, I clarified that the standing places are separate, so this should be correct.\n\nFinally, structure my response: I can have a brief explanation, but since the user said \"state the total number\", and \"end with the number alone\", I should keep it concise. Perhaps just state the total and then the number.\n\nRe-reading the user's message: \"Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\"\n\nSo, I should write something like: \"The total number of seats including standing places is 105.\" and then on the next line, just \"105\".\n\nTo be precise, I'll write a short sentence and then the number.\n\nBut to follow instructions strictly, I'll make sure the last line is only the number.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786886183,
+        "id": "202608162116079d0502a9f13d44e1",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "202608162116079d0502a9f13d44e1",
+        "usage": {
+          "completion_tokens": 445,
+          "prompt_tokens": 236,
+          "prompt_tokens_details": {
+            "cached_tokens": 87
+          },
+          "total_tokens": 681
+        }
+      }
+    }
+  ],
+  "latency_ms": 38264
+}

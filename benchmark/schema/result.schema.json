@@ -1,0 +1,151 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "thoughtdag-benchmark-result",
+  "type": "object",
+  "required": [
+    "case_id",
+    "condition",
+    "provider",
+    "model",
+    "reasoning_mode",
+    "temperature",
+    "answer_raw",
+    "answer_extracted",
+    "answer_correct",
+    "format_compliant",
+    "input_tokens",
+    "output_tokens",
+    "run_date",
+    "compiler_version",
+    "scorer_version",
+    "cache_key"
+  ],
+  "properties": {
+    "case_id": {
+      "type": "string"
+    },
+    "condition": {
+      "type": "string"
+    },
+    "provider": {
+      "type": "string"
+    },
+    "model": {
+      "type": "string"
+    },
+    "model_revision": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "reasoning_mode": {
+      "enum": [
+        "disabled",
+        "provider-default",
+        "minimal",
+        "fixed-medium"
+      ],
+      "description": "disabled ONLY when the request explicitly turned reasoning off; provider-default otherwise"
+    },
+    "temperature": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "answer_raw": {
+      "type": "string"
+    },
+    "answer_extracted": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "input_tokens": {
+      "type": "integer"
+    },
+    "output_tokens": {
+      "type": "integer"
+    },
+    "cached_tokens": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "cost": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "currency": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "latency_ms": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "run_date": {
+      "type": "string"
+    },
+    "compiler_version": {
+      "type": "string"
+    },
+    "scorer_version": {
+      "type": "string"
+    },
+    "cache_key": {
+      "type": "string"
+    },
+    "answer_correct": {
+      "type": "boolean",
+      "description": "The extracted final answer matches gold"
+    },
+    "format_compliant": {
+      "type": "boolean",
+      "description": "Answer obeyed the format instruction (answer-only)"
+    },
+    "adopted_stale_answer": {
+      "type": [
+        "boolean",
+        "null"
+      ],
+      "description": "Extracted final answer IS a stale/superseded value"
+    },
+    "adopted_distractor_answer": {
+      "type": [
+        "boolean",
+        "null"
+      ],
+      "description": "Extracted final answer IS a distractor/contaminated value"
+    },
+    "mentioned_stale_value": {
+      "type": [
+        "boolean",
+        "null"
+      ],
+      "description": "Stale value appears anywhere in the answer text (mention ≠ adoption)"
+    },
+    "mentioned_distractor_value": {
+      "type": [
+        "boolean",
+        "null"
+      ]
+    },
+    "reasoning_observed": {
+      "type": [
+        "boolean",
+        "null"
+      ],
+      "description": "Raw response carried non-empty reasoning content"
+    }
+  }
+}

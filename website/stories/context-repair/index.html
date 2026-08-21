@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Repairing LLM Context — ThoughtDAG</title>
-    <meta name="description" content="A four-model pilot on context errors that survive downstream, and what it takes to repair them." />
+    <meta name="description" content="A seven-model pilot on context errors that survive downstream, and what it takes to repair them." />
     <meta name="robots" content="index,follow,max-image-preview:large" />
     <meta name="theme-color" content="#f8f6fb" />
     <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg" />
@@ -15,19 +15,19 @@
     <link rel="stylesheet" href="../../assets/research-pages.css" />
     <meta property="og:type" content="article" />
     <meta property="og:title" content="Repairing LLM Context — ThoughtDAG" />
-    <meta property="og:description" content="A four-model pilot on context errors that survive downstream, and what it takes to repair them." />
+    <meta property="og:description" content="A seven-model pilot on context errors that survive downstream, and what it takes to repair them." />
     <meta property="og:url" content="https://chenxiachan.github.io/thoughtdag/stories/context-repair/" />
     <meta property="og:image" content="https://chenxiachan.github.io/thoughtdag/assets/context-repair-flagship.png" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Repairing LLM Context — ThoughtDAG" />
-    <meta name="twitter:description" content="A four-model pilot on errors that survive downstream." />
+    <meta name="twitter:description" content="A seven-model pilot on errors that survive downstream." />
     <meta name="twitter:image" content="https://chenxiachan.github.io/thoughtdag/assets/context-repair-flagship.png" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "Article",
         "headline": "Repairing LLM Context",
-        "description": "A four-model pilot on context errors that survive downstream, and what it takes to repair them.",
+        "description": "A seven-model pilot on context errors that survive downstream, and what it takes to repair them.",
         "datePublished": "2026-08-17",
         "author": { "@type": "Person", "name": "Xia Chen" },
         "publisher": { "@type": "Organization", "name": "ThoughtDAG" },
@@ -44,7 +44,7 @@
       </a>
       <div class="nav-links">
         <a class="nav-link" id="back-story-link" href="../../#research" data-en="Back to story" data-zh="返回产品故事">Back to story</a>
-        <a class="nav-link" href="../../research/context-repair-pilot-v1/" data-en="Full report" data-zh="完整报告">Full report</a>
+        <a class="nav-link" href="../../research/context-repair-pilot-v2/" data-en="Full report" data-zh="完整报告">Full report</a>
         <button class="nav-link" id="language-toggle" type="button" style="border:1px solid var(--line);background:#fff;cursor:pointer">中文</button>
         <a class="nav-link primary" href="https://github.com/chenxiachan/thoughtdag" target="_blank" rel="noreferrer">GitHub ↗</a>
       </div>
@@ -52,12 +52,12 @@
 
     <header class="case-hero">
       <div class="case-hero-inner">
-        <span class="eyebrow" data-en="CONTEXT ENGINEERING · PILOT V1" data-zh="上下文工程 · 首轮实验">CONTEXT ENGINEERING · PILOT V1</span>
+        <span class="eyebrow" data-en="CONTEXT ENGINEERING · PILOT V2" data-zh="上下文工程 · 第二轮实验">CONTEXT ENGINEERING · PILOT V2</span>
         <h1 data-en="Repairing LLM Context" data-zh="修复 LLM 上下文">Repairing LLM Context</h1>
-        <p class="case-hero-lede" data-en="A four-model pilot on errors that survive downstream." data-zh="一个错误被后续对话反复继承后，删掉源头还够不够？我们用四个模型做了首轮实验。">A four-model pilot on errors that survive downstream.</p>
+        <p class="case-hero-lede" data-en="A seven-model pilot on errors that survive downstream." data-zh="一个错误被后续对话反复继承后，删掉源头还够不够？七个模型的两轮实验。">A seven-model pilot on errors that survive downstream.</p>
         <div class="hero-actions">
           <a class="button primary" href="#case" data-en="See the case →" data-zh="查看案例 →">See the case →</a>
-          <a class="text-link" href="../../research/context-repair-pilot-v1/" data-en="Methods, data & results" data-zh="方法、数据与完整结果">Methods, data &amp; results</a>
+          <a class="text-link" href="../../research/context-repair-pilot-v2/" data-en="Methods, data & results" data-zh="方法、数据与完整结果">Methods, data &amp; results</a>
         </div>
       </div>
     </header>
@@ -124,13 +124,13 @@
         <h2 data-en="See exactly what the model sees. Then change it." data-zh="先看清模型会看到什么，再决定如何修改。">See exactly what the model sees. Then change it.</h2>
         <p data-en="ThoughtDAG is the open-source reference interface used to inspect and reproduce these graph interventions." data-zh="ThoughtDAG 是这组图式干预的开源参考界面，可用于检查、修改并复现实验中的上下文。">ThoughtDAG is the open-source reference interface used to inspect and reproduce these graph interventions.</p>
         <div class="hero-actions">
-          <a class="button primary" href="../../research/context-repair-pilot-v1/" data-en="Read the full report →" data-zh="阅读完整报告 →">Read the full report →</a>
+          <a class="button primary" href="../../research/context-repair-pilot-v2/" data-en="Read the full report →" data-zh="阅读完整报告 →">Read the full report →</a>
           <a class="text-link" href="https://github.com/chenxiachan/thoughtdag" target="_blank" rel="noreferrer">GitHub ↗</a>
         </div>
       </section>
     </main>
 
-    <footer class="page-footer">ThoughtDAG · Context Repair Pilot v1 · August 2026</footer>
+    <footer class="page-footer">ThoughtDAG · Context Repair Pilot v2 · August 2026</footer>
     <script>
       (() => {
         const toggle = document.getElementById("language-toggle");

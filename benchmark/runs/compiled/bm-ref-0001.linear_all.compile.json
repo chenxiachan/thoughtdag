@@ -1,0 +1,70 @@
+{
+  "compiler_version": "2.0.0",
+  "case_id": "bm-ref-0001",
+  "condition": "linear_all",
+  "graph_ops": [
+    {
+      "op": "add_edge",
+      "from": "branch-a",
+      "to": "final"
+    },
+    {
+      "op": "add_edge",
+      "from": "branch-b",
+      "to": "final"
+    },
+    {
+      "op": "add_edge",
+      "from": "branch-c",
+      "to": "final"
+    }
+  ],
+  "recompute_nodes": [],
+  "prompt_hash": "1fkubl4",
+  "input_token_est": 227,
+  "node_order_audit": [
+    "root",
+    "branch-a",
+    "branch-b",
+    "branch-c",
+    "final"
+  ],
+  "messages": [
+    {
+      "role": "user",
+      "content": "I'm researching the film 'Stillwater Hours' and its production circle. Help me across a few threads."
+    },
+    {
+      "role": "assistant",
+      "content": "Understood. I'll help you track the people involved. Ask thread by thread."
+    },
+    {
+      "role": "user",
+      "content": "Who directed 'Stillwater Hours'?"
+    },
+    {
+      "role": "assistant",
+      "content": "According to the production notes you shared, 'Stillwater Hours' was directed by Lena Varkonen, a director known for slow-cinema framing."
+    },
+    {
+      "role": "user",
+      "content": "Where was Lena Varkonen born?"
+    },
+    {
+      "role": "assistant",
+      "content": "The biography excerpt states Lena Varkonen was born in Wildenport, a harbor town she often references in interviews."
+    },
+    {
+      "role": "user",
+      "content": "Who composed the score for 'Stillwater Hours'?"
+    },
+    {
+      "role": "assistant",
+      "content": "The score was composed by Aurelio Brandt, recorded with a twelve-piece ensemble in Sarnitz. Brandt was born in Kellamoor and studied under the Ostrander school."
+    },
+    {
+      "role": "user",
+      "content": "Based only on what we established in this conversation: in which town was the director of 'Stillwater Hours' born? Answer with the town name only. End your reply with the town name alone on the last line."
+    }
+  ]
+}

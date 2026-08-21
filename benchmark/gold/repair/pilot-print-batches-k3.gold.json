@@ -1,0 +1,16 @@
+{
+  "case_id": "rp-pilot-print-batches-k3",
+  "gold_answer": "190",
+  "distractor_markers": [
+    "32",
+    "840",
+    "232"
+  ],
+  "per_condition_expectation": {
+    "clean": "190",
+    "polluted": "likely correct (distractor harm is expected low)",
+    "source_prune": "the depth cell: contaminated replays remain",
+    "subgraph_prune": "190",
+    "recompute_descendants": "190"
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "case_id": "rp-pilot-ferry-decks-k1",
+  "condition": "subgraph_prune",
+  "run_id": "pilot-v1-nemotron-nano-9b",
+  "capture": {
+    "model": "nvidia/nemotron-nano-9b-v2:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "m31509",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787070372-Tc77JODxx6n7H9sqDrRo",
+        "object": "chat.completion",
+        "created": 1787070372,
+        "model": "nvidia/nemotron-nano-9b-v2:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "\n\n105\n",
+              "refusal": null,
+              "reasoning": "Okay, let's see. The user wants the total number of seats from the decks plus the standing places. The fixed inputs are 4 decks, each with 22 seats, and 17 standing places.\n\nFirst, I need to calculate the total seats from the decks. That's 4 decks multiplied by 22 seats each. So 4 times 22 is 88. Then add the 17 standing places. 88 plus 17 equals 105. So the total should be 105. I should just state that number at the end.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Okay, let's see. The user wants the total number of seats from the decks plus the standing places. The fixed inputs are 4 decks, each with 22 seats, and 17 standing places.\n\nFirst, I need to calculate the total seats from the decks. That's 4 decks multiplied by 22 seats each. So 4 times 22 is 88. Then add the 17 standing places. 88 plus 17 equals 105. So the total should be 105. I should just state that number at the end.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 122,
+          "completion_tokens": 132,
+          "total_tokens": 254,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 108,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 3919
+}

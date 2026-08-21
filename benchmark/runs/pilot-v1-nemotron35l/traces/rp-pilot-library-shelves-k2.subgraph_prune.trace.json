@@ -1,0 +1,86 @@
+{
+  "case_id": "rp-pilot-library-shelves-k2",
+  "condition": "subgraph_prune",
+  "run_id": "pilot-v1-nemotron35l",
+  "capture": {
+    "model": "nvidia/nemotron-3.5-lightning:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "c69d6l",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: shelves = 9, books per shelf = 14, boxed books to add = 22."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of books (from the shelves plus the boxed books) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786882421-n05XIyuwfh9qlvxAWx3F",
+        "object": "chat.completion",
+        "created": 1786882421,
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of books from the shelves is 9 × 14 = 126. Adding the 22 boxed books gives 126 + 22 = 148.\n\n148",
+              "refusal": null,
+              "reasoning": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given:\n     - Number of shelves: 9\n     - Books per shelf: 14\n     - Boxed books to add: 22\n   - Task: Calculate total number of books (shelf books + boxed books)\n   - Output format: Single number at the end, alone on the last line\n\n2.  **Do the Math:**\n   - Shelf books = 9 shelves × 14 books/shelf = 126 books\n   - Boxed books = 22\n   - Total books = 126 + 22 = 148\n\n3.  **Check Output Format:**\n   - \"End your reply with the number alone on the last line.\"\n   - So I should provide some explanation or just the direct answer, but ensure the last line is just \"148\"\n   - The prompt says: \"state the total number of books (from the shelves plus the boxed books) as a single number. End your reply with the number alone on the last line.\"\n   - I'll output the reasoning/statement, then end with \"148\" on its own line.\n\n   Let's structure it:\n   - Calculate: 9 × 14 = 126\n   - Add: 126 + 22 = 148\n   - Final line: 148\n\n   I'll make sure the last line contains only the number 148.✅\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given:\n     - Number of shelves: 9\n     - Books per shelf: 14\n     - Boxed books to add: 22\n   - Task: Calculate total number of books (shelf books + boxed books)\n   - Output format: Single number at the end, alone on the last line\n\n2.  **Do the Math:**\n   - Shelf books = 9 shelves × 14 books/shelf = 126 books\n   - Boxed books = 22\n   - Total books = 126 + 22 = 148\n\n3.  **Check Output Format:**\n   - \"End your reply with the number alone on the last line.\"\n   - So I should provide some explanation or just the direct answer, but ensure the last line is just \"148\"\n   - The prompt says: \"state the total number of books (from the shelves plus the boxed books) as a single number. End your reply with the number alone on the last line.\"\n   - I'll output the reasoning/statement, then end with \"148\" on its own line.\n\n   Let's structure it:\n   - Calculate: 9 × 14 = 126\n   - Add: 126 + 22 = 148\n   - Final line: 148\n\n   I'll make sure the last line contains only the number 148.✅\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 134,
+          "completion_tokens": 379,
+          "total_tokens": 513,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 273,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 5507
+}

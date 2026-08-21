@@ -1,0 +1,82 @@
+{
+  "case_id": "rp-ref-0001-k3",
+  "condition": "clean",
+  "run_id": "gate-v2-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "15gcgz1",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: the workshop has 7 benches, each bench seats 3 people, and 5 standing places must be added to any capacity count."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: benches = 7, seats per bench = 3, standing places to add = 5."
+        },
+        {
+          "role": "user",
+          "content": "So how many people can be seated in total?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 7 benches and 3 seats each, total seating is 7 × 3 = 21 people."
+        },
+        {
+          "role": "user",
+          "content": "Now include the standing places from our fixed inputs. What is the full capacity?"
+        },
+        {
+          "role": "assistant",
+          "content": "Full capacity is seating plus standing: 21 + 5 = 26."
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Running numbers: benches 7, seats per bench 3, seated 21, full capacity 26."
+        },
+        {
+          "role": "user",
+          "content": "State the full capacity of the workshop as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "26",
+              "reasoning_content": "\nOkay, the user wants me to state the full capacity as a single number and end with just that number. Let me quickly recap the fixed inputs: 7 benches, each seating 3 people, plus 5 standing places. \n\nFirst, calculate seating: 7 benches × 3 seats = 21 seated people. Then add the 5 standing places: 21 + 5 = 26. \n\nThe user seems to be verifying calculations step by step, possibly for event planning or resource allocation. They're methodical - first asking for seated capacity, then full capacity, then a summary, and finally a clean numerical answer. \n\nHmm, they might be preparing documentation where only the final number matters. The instruction to end with just the number suggests they'll copy-paste it elsewhere. Better make it precise. \n\n*Double-checks math*: 7×3=21, 21+5=26. Correct. No tricks here - the standing places are fixed additions regardless of bench usage. \n\nFinal answer is 26. Will output exactly that on the last line as requested.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786879402,
+        "id": "202608161923159eeb5ebf58da4011",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "202608161923159eeb5ebf58da4011",
+        "usage": {
+          "completion_tokens": 226,
+          "prompt_tokens": 219,
+          "prompt_tokens_details": {
+            "cached_tokens": 153
+          },
+          "total_tokens": 445
+        }
+      }
+    }
+  ],
+  "latency_ms": 7535
+}

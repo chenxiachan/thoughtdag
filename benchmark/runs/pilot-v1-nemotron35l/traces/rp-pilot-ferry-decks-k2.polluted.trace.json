@@ -1,0 +1,110 @@
+{
+  "case_id": "rp-pilot-ferry-decks-k2",
+  "condition": "polluted",
+  "run_id": "pilot-v1-nemotron35l",
+  "capture": {
+    "model": "nvidia/nemotron-3.5-lightning:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1srkj9p",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "Side note before we continue: I visited the sister ferry yesterday. Interesting that they work with 5 there."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted, though the sister ferry's 5 decks is unrelated to our count."
+        },
+        {
+          "role": "user",
+          "content": "So how many seats in total on the decks?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 4 decks and 22 seats each, that is 4 × 22 = 88. (the sister ferry's 5 decks mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Now include the standing places from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 88 + 17 = 105. (the sister ferry's 5 decks mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786883365-wep2GvxWVf57oHcSNaHO",
+        "object": "chat.completion",
+        "created": 1786883365,
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "105",
+              "refusal": null,
+              "reasoning": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given earlier: 4 decks, each holds 22 seats, 17 standing places must be added to any total.\n   - User wants: total number of seats (from decks + standing places) as a single number.\n   - Constraint: End reply with the number alone on the last line.\n\n2.  **Extract Calculations:**\n   - Seats from decks: 4 decks × 22 seats/deck = 88 seats\n   - Standing places to add: 17\n   - Total: 88 + 17 = 105\n\n3.  **Formulate Response:**\n   - Need to state the total number as a single number.\n   - Must end with the number alone on the last line.\n   - Should probably just give the answer concisely, maybe with a brief explanation then the number on its own line, or just the number at the end as requested. The prompt says: \"state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\"\n   - I'll output something like: \"The total is 105.\" then on a new line \"105\". Or just \"105\" at the end. To be safe, I'll put a brief statement and then the number on its own line.\n\n   Let's read carefully: \"state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\"\n   This might mean the entire reply should just be the number, but it says \"state the total number... as a single number. End your reply with the number alone on the last line.\" I think it allows a sentence, but the last line must be the number alone. I'll do: \"105\" on its own line, maybe with a preceding line that states it, but the very last line must be just \"105\". To be precise, I'll output: \"The total number of seats and standing places is 105.\" then newline \"105\". Or just \"105\" alone? The instruction says \"End your reply with the number alone on the last line.\" So I can have text before, but the last line must be just the number. I'll do: \"105\" as the entire reply? That might satisfy \"End your reply with the number alone on the last line\" since the last (and only) line is the number. But to be safe, I'll put a brief prefix then the number on its own line. Actually, many such prompts expect just the number at the end, sometimes the whole reply is just the number. I'll just output \"105\" on its own line. That perfectly matches \"End your reply with the number alone on the last line.\" I'll do that.\n\n   Wait, let's re-read: \"state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\" It might mean: give the number, and make sure the last line of your response is that number by itself. I'll just output \"105\". That's simplest and compliant.\n\n   Let's calculate again: 4 * 22 = 88. 88 + 17 = 105. Correct.\n\n   Output: 105",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given earlier: 4 decks, each holds 22 seats, 17 standing places must be added to any total.\n   - User wants: total number of seats (from decks + standing places) as a single number.\n   - Constraint: End reply with the number alone on the last line.\n\n2.  **Extract Calculations:**\n   - Seats from decks: 4 decks × 22 seats/deck = 88 seats\n   - Standing places to add: 17\n   - Total: 88 + 17 = 105\n\n3.  **Formulate Response:**\n   - Need to state the total number as a single number.\n   - Must end with the number alone on the last line.\n   - Should probably just give the answer concisely, maybe with a brief explanation then the number on its own line, or just the number at the end as requested. The prompt says: \"state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\"\n   - I'll output something like: \"The total is 105.\" then on a new line \"105\". Or just \"105\" at the end. To be safe, I'll put a brief statement and then the number on its own line.\n\n   Let's read carefully: \"state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\"\n   This might mean the entire reply should just be the number, but it says \"state the total number... as a single number. End your reply with the number alone on the last line.\" I think it allows a sentence, but the last line must be the number alone. I'll do: \"105\" on its own line, maybe with a preceding line that states it, but the very last line must be just \"105\". To be precise, I'll output: \"The total number of seats and standing places is 105.\" then newline \"105\". Or just \"105\" alone? The instruction says \"End your reply with the number alone on the last line.\" So I can have text before, but the last line must be just the number. I'll do: \"105\" as the entire reply? That might satisfy \"End your reply with the number alone on the last line\" since the last (and only) line is the number. But to be safe, I'll put a brief prefix then the number on its own line. Actually, many such prompts expect just the number at the end, sometimes the whole reply is just the number. I'll just output \"105\" on its own line. That perfectly matches \"End your reply with the number alone on the last line.\" I'll do that.\n\n   Wait, let's re-read: \"state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line.\" It might mean: give the number, and make sure the last line of your response is that number by itself. I'll just output \"105\". That's simplest and compliant.\n\n   Let's calculate again: 4 * 22 = 88. 88 + 17 = 105. Correct.\n\n   Output: 105",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 305,
+          "completion_tokens": 747,
+          "total_tokens": 1052,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 713,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 3288
+}

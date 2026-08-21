@@ -1,0 +1,118 @@
+{
+  "case_id": "rp-pilot-print-batches-k3",
+  "condition": "polluted",
+  "run_id": "pilot-v1-gptoss20b",
+  "capture": {
+    "model": "openai/gpt-oss-20b:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1smh3gb",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 6 batches, each batch holds 25 pages, and 40 cover pages must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: batches = 6, pages per batch = 25, cover pages to add = 40."
+        },
+        {
+          "role": "user",
+          "content": "Side note before we continue: I visited the old printer yesterday. Interesting that they work with 32 there."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted, though the old printer's 32-page batches is unrelated to our count."
+        },
+        {
+          "role": "user",
+          "content": "So how many pages in total on the batches?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 6 batches and 25 pages each, that is 6 × 25 = 150. (the old printer's 32-page batches mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Now include the cover pages from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 150 + 40 = 190. (the old printer's 32-page batches mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Running numbers: batches 6, pages per batch 25, subtotal 150, total 190. (the old printer's 32-page batches mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of pages (from the batches plus the cover pages) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786889625-JzKTrhc7OabPg4xEFmWb",
+        "object": "chat.completion",
+        "created": 1786889625,
+        "model": "openai/gpt-oss-20b:free",
+        "provider": "Darkbloom",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Total pages: 190  \n190",
+              "refusal": null,
+              "reasoning": "We need to respond with the total number of pages from batches plus cover pages, as a single number, and end reply with the number alone on the last line. The total is 190. So we should output something like:\n\n\"Total pages: 190\" and then on the last line just \"190\". But the instruction: \"state the total number of pages (from the batches plus the cover pages) as a single number. End your reply with the number alone on the last line.\" So we need to give the total number as a single number, and end with that number alone on the last line. So we can write something like:\n\n\"190\" on the last line. But we might need to include some text before? The instruction: \"state the total number of pages ... as a single number. End your reply with the number alone on the last line.\" So we can give a short answer: \"190\" on the last line. But we might need to include some explanation earlier. But the instruction says \"state the total number of pages ... as a single number.\" That implies the answer should be the number. But then \"End your reply with the number alone on the last line.\" So we can do:\n\n\"190\" on the last line. But we might need to include some text before? The instruction is ambiguous. It says \"state the total number of pages ... as a single number.\" That could mean the answer should be just the number. But then \"End your reply with the number alone on the last line.\" That might mean we can have some explanation, but the last line must be the number alone. So we can do:\n\n\"Total pages: 190\" then a blank line then \"190\". But the last line must be the number alone. So we can do:\n\n\"Total pages: 190\" then \"190\" on the last line. That satisfies. Let's do that.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to respond with the total number of pages from batches plus cover pages, as a single number, and end reply with the number alone on the last line. The total is 190. So we should output something like:\n\n\"Total pages: 190\" and then on the last line just \"190\". But the instruction: \"state the total number of pages (from the batches plus the cover pages) as a single number. End your reply with the number alone on the last line.\" So we need to give the total number as a single number, and end with that number alone on the last line. So we can write something like:\n\n\"190\" on the last line. But we might need to include some text before? The instruction: \"state the total number of pages ... as a single number. End your reply with the number alone on the last line.\" So we can give a short answer: \"190\" on the last line. But we might need to include some explanation earlier. But the instruction says \"state the total number of pages ... as a single number.\" That implies the answer should be the number. But then \"End your reply with the number alone on the last line.\" So we can do:\n\n\"190\" on the last line. But we might need to include some text before? The instruction is ambiguous. It says \"state the total number of pages ... as a single number.\" That could mean the answer should be just the number. But then \"End your reply with the number alone on the last line.\" That might mean we can have some explanation, but the last line must be the number alone. So we can do:\n\n\"Total pages: 190\" then a blank line then \"190\". But the last line must be the number alone. So we can do:\n\n\"Total pages: 190\" then \"190\" on the last line. That satisfies. Let's do that.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 395,
+          "completion_tokens": 407,
+          "total_tokens": 802,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.0000342175,
+            "upstream_inference_prompt_cost": 0.0000057275,
+            "upstream_inference_completions_cost": 0.00002849
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 390,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 28602
+}

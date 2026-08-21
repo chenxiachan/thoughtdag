@@ -1,0 +1,110 @@
+{
+  "case_id": "rp-pilot-orchard-bins-k2",
+  "condition": "polluted",
+  "run_id": "pilot-v1-nemotron-nano-9b",
+  "capture": {
+    "model": "nvidia/nemotron-nano-9b-v2:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1o0xx51",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "Side note before we continue: I visited the neighboring orchard yesterday. Interesting that they work with 12 there."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted, though the neighboring orchard's 12 bins is unrelated to our count."
+        },
+        {
+          "role": "user",
+          "content": "So how many apples in total on the bins?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 7 bins and 13 apples each, that is 7 × 13 = 91. (the neighboring orchard's 12 bins mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Now include the windfall apples from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 91 + 18 = 109. (the neighboring orchard's 12 bins mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787070003-rV6j4igdhldzfQdyqiFm",
+        "object": "chat.completion",
+        "created": 1787070003,
+        "model": "nvidia/nemotron-nano-9b-v2:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "\n\n109\n",
+              "refusal": null,
+              "reasoning": "Okay, let's see. The user wants the total number of apples from the bins plus the windfall apples. The fixed inputs are 7 bins, each with 13 apples, and 18 windfall apples.\n\nFirst, calculate the apples in the bins: 7 multiplied by 13. Let me do that math. 7 times 10 is 70, and 7 times 3 is 21, so 70 + 21 = 91. That's 91 apples in the bins.\n\nThen add the windfall apples: 91 + 18. That should be 109. \n\nThe user mentioned to end with the number alone on the last line. So the answer is 109. I need to make sure there's no extra text, just the number. Let me double-check the calculations again. 7*13 is definitely 91, plus 18 is 109. Yep, that's correct.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Okay, let's see. The user wants the total number of apples from the bins plus the windfall apples. The fixed inputs are 7 bins, each with 13 apples, and 18 windfall apples.\n\nFirst, calculate the apples in the bins: 7 multiplied by 13. Let me do that math. 7 times 10 is 70, and 7 times 3 is 21, so 70 + 21 = 91. That's 91 apples in the bins.\n\nThen add the windfall apples: 91 + 18. That should be 109. \n\nThe user mentioned to end with the number alone on the last line. So the answer is 109. I need to make sure there's no extra text, just the number. Let me double-check the calculations again. 7*13 is definitely 91, plus 18 is 109. Yep, that's correct.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 293,
+          "completion_tokens": 221,
+          "total_tokens": 514,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 167,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 9787
+}

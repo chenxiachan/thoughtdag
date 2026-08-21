@@ -1,0 +1,45 @@
+{
+  "compiler_version": "2.0.0",
+  "case_id": "rp-ref-0001",
+  "condition": "subgraph_prune",
+  "graph_ops": [
+    {
+      "op": "remove_node",
+      "id": "pollution"
+    },
+    {
+      "op": "remove_node",
+      "id": "step-b"
+    },
+    {
+      "op": "remove_node",
+      "id": "step-c"
+    },
+    {
+      "op": "add_edge",
+      "from": "given",
+      "to": "final"
+    }
+  ],
+  "recompute_nodes": [],
+  "prompt_hash": "1m4oxhb",
+  "input_token_est": 91,
+  "node_order_audit": [
+    "given",
+    "final"
+  ],
+  "messages": [
+    {
+      "role": "user",
+      "content": "For this planning task, keep these fixed inputs: the workshop has 7 benches, each bench seats 3 people, and 5 standing places must be added to any capacity count."
+    },
+    {
+      "role": "assistant",
+      "content": "Noted as fixed inputs: benches = 7, seats per bench = 3, standing places to add = 5."
+    },
+    {
+      "role": "user",
+      "content": "State the full capacity of the workshop as a single number. End your reply with the number alone on the last line."
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "case_id": "rp-pilot-clinic-slots-k1",
+  "condition": "subgraph_prune",
+  "run_id": "pilot-v1-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1noywxh",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 5 days, each day holds 18 slots, and 6 walk-in slots must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: days = 5, slots per day = 18, walk-in slots to add = 6."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 18 slots per day was a counting error. The verified figure is 21. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 18 per day is retracted; verified figure is 21 slots per day."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of slots (from the days plus the walk-in slots) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "111",
+              "reasoning_content": "\nFirst, the user has given fixed inputs: there are 5 days, each day has 21 slots (since the correction was made from 18 to 21), and 6 walk-in slots must be added to any total.\n\nI need to calculate the total number of slots. This includes the slots from the days plus the walk-in slots.\n\nSo, slots from days: number of days times slots per day. That's 5 days * 21 slots/day.\n\nLet me compute that: 5 * 21 = 105.\n\nNow, add the walk-in slots: 6.\n\nSo, total slots = 105 + 6 = 111.\n\nThe user says \"as a single number\" and to end with the number alone on the last line. So, my response should just have the number 111 at the end.\n\nI should confirm the fixed inputs:\n\n- Days: 5\n\n- Slots per day: 21 (corrected from 18)\n\n- Walk-in slots: 6\n\nYes, that matches what was provided.\n\nThe calculation is straightforward: 5 * 21 = 105, plus 6 is 111.\n\nI think that's it. No need for any other text, just the number at the end.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786884157,
+        "id": "202608162042164fb8c609f60844a6",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "202608162042164fb8c609f60844a6",
+        "usage": {
+          "completion_tokens": 259,
+          "prompt_tokens": 170,
+          "prompt_tokens_details": {
+            "cached_tokens": 131
+          },
+          "total_tokens": 429
+        }
+      }
+    }
+  ],
+  "latency_ms": 21116
+}

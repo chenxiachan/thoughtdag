@@ -1,0 +1,12 @@
+{
+  "id": "smoke-v1",
+  "layer": "pipeline-check",
+  "purpose": "One case per track + the depth family. Run on any new model/provider before core.",
+  "cases": [
+    "branch-merge/ref-0001",
+    "condense/ref-0001",
+    "repair/ref-0001-k1",
+    "repair/ref-0001",
+    "repair/ref-0001-k3"
+  ]
+}

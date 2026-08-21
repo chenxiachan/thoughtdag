@@ -1,0 +1,110 @@
+{
+  "case_id": "rp-pilot-lab-samples-k1",
+  "condition": "polluted",
+  "run_id": "pilot-v1-gptoss20b",
+  "capture": {
+    "model": "openai/gpt-oss-20b:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1k0kxgm",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 3 batches, each batch holds 20 samples, and 8 control samples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: batches = 3, samples per batch = 20, control samples to add = 8."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 20 samples per batch was a counting error. The verified figure is 26. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 20 per batch is retracted; verified figure is 26 samples per batch."
+        },
+        {
+          "role": "user",
+          "content": "Actually, ignore that recount. I checked again and the original 20 per batch was right after all."
+        },
+        {
+          "role": "assistant",
+          "content": "Understood, reverting to 20 samples per batch."
+        },
+        {
+          "role": "user",
+          "content": "So how many samples in total on the batches?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 3 batches and 20 samples each, that is 3 × 20 = 60."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of samples (from the batches plus the control samples) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786888520-e0PclTRPxkXPCluW8hMo",
+        "object": "chat.completion",
+        "created": 1786888520,
+        "model": "openai/gpt-oss-20b:free",
+        "provider": "Darkbloom",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of samples is 68.\n\n68",
+              "refusal": null,
+              "reasoning": "We need to compute total number of samples from batches plus control samples. Batches: 3 batches, each holds 20 samples. So 3*20 = 60. Control samples: 8. Total = 60 + 8 = 68. The user wants the total number as a single number, end reply with the number alone on the last line. So we should output something like:\n\n\"Total samples: 68\" maybe? But they said \"state the total number of samples (from the batches plus the control samples) as a single number. End your reply with the number alone on the last line.\" So we can give a sentence and then the number alone on the last line. Eg:\n\nThe total number of samples is 68.\n\n68\n\nBut they said \"as a single number\" maybe they want just the number? But they also said \"state the total number of samples ... as a single number. End your reply with the number alone on the last line.\" So we can give a sentence and then the number alone. Let's do:\n\nThe total number of samples is 68.\n\n68\n\nThat satisfies.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "We need to compute total number of samples from batches plus control samples. Batches: 3 batches, each holds 20 samples. So 3*20 = 60. Control samples: 8. Total = 60 + 8 = 68. The user wants the total number as a single number, end reply with the number alone on the last line. So we should output something like:\n\n\"Total samples: 68\" maybe? But they said \"state the total number of samples (from the batches plus the control samples) as a single number. End your reply with the number alone on the last line.\" So we can give a sentence and then the number alone on the last line. Eg:\n\nThe total number of samples is 68.\n\n68\n\nBut they said \"as a single number\" maybe they want just the number? But they also said \"state the total number of samples ... as a single number. End your reply with the number alone on the last line.\" So we can give a sentence and then the number alone. Let's do:\n\nThe total number of samples is 68.\n\n68\n\nThat satisfies.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 318,
+          "completion_tokens": 250,
+          "total_tokens": 568,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.000022111,
+            "upstream_inference_prompt_cost": 0.000004611,
+            "upstream_inference_completions_cost": 0.0000175
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 230,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 10251
+}

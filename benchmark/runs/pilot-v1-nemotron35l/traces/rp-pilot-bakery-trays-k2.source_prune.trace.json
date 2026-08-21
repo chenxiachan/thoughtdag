@@ -1,0 +1,102 @@
+{
+  "case_id": "rp-pilot-bakery-trays-k2",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-nemotron35l",
+  "capture": {
+    "model": "nvidia/nemotron-3.5-lightning:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "kbjldd",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15."
+        },
+        {
+          "role": "user",
+          "content": "So how many rolls in total on the trays?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 15 trays and 8 rolls each, that is 15 × 8 = 120."
+        },
+        {
+          "role": "user",
+          "content": "Now include the loose rolls from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 120 + 15 = 135."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786882196-1hiogFrvZKEqBcd7pHsp",
+        "object": "chat.completion",
+        "created": 1786882196,
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Using the fixed inputs: 12 trays × 8 rolls = 96, plus 15 loose rolls = 111.  \n111",
+              "refusal": null,
+              "reasoning": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given earlier: \n     - 12 trays\n     - Each tray holds 8 rolls\n     - 15 loose rolls must be added to any total\n   - User asks: \"Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line.\"\n\n2.  **Verify Calculations:**\n   - Trays: 12\n   - Rolls per tray: 8\n   - Total from trays: 12 * 8 = 96\n   - Wait, earlier the model said \"15 trays\" in the response? Let me check the conversation history.\n   - User's first message: \"there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total.\"\n   - My first response: \"Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15.\"\n   - User's second message: \"So how many rolls in total on the trays?\"\n   - My second response: \"With 15 trays and 8 rolls each, that is 15 × 8 = 120.\" \n     - Wait, I made a mistake there! The user said 12 trays, but I wrote \"15 trays\". That was an error.\n   - User's third message: \"Now include the loose rolls from our fixed inputs. What is the running total?\"\n   - My third response: \"Running total is 120 + 15 = 135.\" \n     - Again, used 120, which came from the erroneous 15 trays.\n   - Now user wants the correct total using the actual fixed inputs: 12 trays, 8 rolls each, 15 loose rolls.\n\n3.  **Recalculate Correctly:**\n   - Trays: 12\n   - Rolls per tray: 8\n   - Total from trays: 12 * 8 = 96\n   - Loose rolls: 15\n   - Grand total: 96 + 15 = 111\n\n4.  **Formulate Response:**\n   - User says: \"Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line.\"\n   - I need to output the total, and end with the number alone on the last line.\n   - So I should probably explain the calculation briefly, then have the number 111 on its own line at the end.\n   - But the instruction: \"End your reply with the number alone on the last line.\" So the very last line should just be \"111\".\n   - I'll make sure the calculation is correct this time, referencing the fixed inputs: 12 trays × 8 rolls = 96, plus 15 loose = 111.\n\n   Output structure:\n   - [explanation or just the number?] \"Using the fixed inputs of 12 trays at 8 rolls each plus 15 loose rolls, the total is 111.\"\n   - Then last line: 111\n\n   Let me double-check: \"End your reply with the number alone on the last line.\" So I'll write a sentence, then a new line with 111. Or just the number? Usually it means the last line of the reply should be exactly the number. I'll provide a brief statement and then \"111\" on its own line.\n\n   Actually, to be safe, I'll output something like:\n   \"With 12 trays × 8 rolls = 96, plus 15 loose rolls, the total is 111.\"\n   111\n\n   That fits. I'll make sure no extra text after 111.✅\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs given earlier: \n     - 12 trays\n     - Each tray holds 8 rolls\n     - 15 loose rolls must be added to any total\n   - User asks: \"Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line.\"\n\n2.  **Verify Calculations:**\n   - Trays: 12\n   - Rolls per tray: 8\n   - Total from trays: 12 * 8 = 96\n   - Wait, earlier the model said \"15 trays\" in the response? Let me check the conversation history.\n   - User's first message: \"there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total.\"\n   - My first response: \"Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15.\"\n   - User's second message: \"So how many rolls in total on the trays?\"\n   - My second response: \"With 15 trays and 8 rolls each, that is 15 × 8 = 120.\" \n     - Wait, I made a mistake there! The user said 12 trays, but I wrote \"15 trays\". That was an error.\n   - User's third message: \"Now include the loose rolls from our fixed inputs. What is the running total?\"\n   - My third response: \"Running total is 120 + 15 = 135.\" \n     - Again, used 120, which came from the erroneous 15 trays.\n   - Now user wants the correct total using the actual fixed inputs: 12 trays, 8 rolls each, 15 loose rolls.\n\n3.  **Recalculate Correctly:**\n   - Trays: 12\n   - Rolls per tray: 8\n   - Total from trays: 12 * 8 = 96\n   - Loose rolls: 15\n   - Grand total: 96 + 15 = 111\n\n4.  **Formulate Response:**\n   - User says: \"Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line.\"\n   - I need to output the total, and end with the number alone on the last line.\n   - So I should probably explain the calculation briefly, then have the number 111 on its own line at the end.\n   - But the instruction: \"End your reply with the number alone on the last line.\" So the very last line should just be \"111\".\n   - I'll make sure the calculation is correct this time, referencing the fixed inputs: 12 trays × 8 rolls = 96, plus 15 loose = 111.\n\n   Output structure:\n   - [explanation or just the number?] \"Using the fixed inputs of 12 trays at 8 rolls each plus 15 loose rolls, the total is 111.\"\n   - Then last line: 111\n\n   Let me double-check: \"End your reply with the number alone on the last line.\" So I'll write a sentence, then a new line with 111. Or just the number? Usually it means the last line of the reply should be exactly the number. I'll provide a brief statement and then \"111\" on its own line.\n\n   Actually, to be safe, I'll output something like:\n   \"With 12 trays × 8 rolls = 96, plus 15 loose rolls, the total is 111.\"\n   111\n\n   That fits. I'll make sure no extra text after 111.✅\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 230,
+          "completion_tokens": 917,
+          "total_tokens": 1147,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 736,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 3590
+}

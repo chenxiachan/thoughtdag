@@ -1,0 +1,63 @@
+{
+  "compiler_version": "2.0.0",
+  "case_id": "rp-pilot-bakery-trays-k3",
+  "condition": "polluted",
+  "graph_ops": [],
+  "recompute_nodes": [],
+  "prompt_hash": "1j3org",
+  "input_token_est": 207,
+  "node_order_audit": [
+    "given",
+    "pollution",
+    "step-b",
+    "step-c",
+    "step-d",
+    "final"
+  ],
+  "messages": [
+    {
+      "role": "user",
+      "content": "For this planning task, keep these fixed inputs: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total."
+    },
+    {
+      "role": "assistant",
+      "content": "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15."
+    },
+    {
+      "role": "user",
+      "content": "Correction: I miscounted earlier, there are actually 15 trays."
+    },
+    {
+      "role": "assistant",
+      "content": "Understood, updating the input: trays = 15."
+    },
+    {
+      "role": "user",
+      "content": "So how many rolls in total on the trays?"
+    },
+    {
+      "role": "assistant",
+      "content": "With 15 trays and 8 rolls each, that is 15 × 8 = 120."
+    },
+    {
+      "role": "user",
+      "content": "Now include the loose rolls from our fixed inputs. What is the running total?"
+    },
+    {
+      "role": "assistant",
+      "content": "Running total is 120 + 15 = 135."
+    },
+    {
+      "role": "user",
+      "content": "Before we finish, restate our running numbers so far."
+    },
+    {
+      "role": "assistant",
+      "content": "Running numbers: trays 15, rolls per tray 8, subtotal 120, total 135."
+    },
+    {
+      "role": "user",
+      "content": "Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line."
+    }
+  ]
+}

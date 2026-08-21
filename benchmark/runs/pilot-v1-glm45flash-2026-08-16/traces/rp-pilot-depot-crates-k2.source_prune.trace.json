@@ -1,0 +1,82 @@
+{
+  "case_id": "rp-pilot-depot-crates-k2",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "9uytlv",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 crates, each crate holds 30 parts, and 11 loose parts must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: crates = 4, parts per crate = 30, loose parts to add = 11."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 30 parts per crate was a counting error. The verified figure is 24. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 30 per crate is retracted; verified figure is 24 parts per crate."
+        },
+        {
+          "role": "user",
+          "content": "So how many parts in total on the crates?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 4 crates and 30 parts each, that is 4 × 30 = 120."
+        },
+        {
+          "role": "user",
+          "content": "Now include the loose parts from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 120 + 11 = 131."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of parts (from the crates plus the loose parts) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "The total number of parts is calculated from the fixed inputs: 4 crates with 24 parts each, plus 11 loose parts.  \n4 × 24 = 96 parts from crates.  \n96 + 11 = 107 total parts.  \n107",
+              "reasoning_content": "\nFirst, the user is asking for the total number of parts from the crates plus the loose parts. I need to recall the fixed inputs.\n\nFrom the conversation:\n\n- There are 4 crates.\n\n- Each crate holds 24 parts (this was corrected from 30).\n\n- There are 11 loose parts to add.\n\nSo, total parts from crates: 4 crates × 24 parts/crate = 96 parts.\n\nThen, add the loose parts: 96 + 11 = 107 parts.\n\nThe user says \"state the total number of parts (from the crates plus the loose parts) as a single number.\" And end with the number alone on the last line.\n\nI should confirm the fixed inputs. The user mentioned \"our fixed inputs,\" which include:\n\n- Crates: 4\n\n- Parts per crate: 24 (corrected from 30)\n\n- Loose parts: 11\n\nIn the last exchange, I calculated 120 + 11 = 131, but that was with the old 30 parts per crate. Now it's corrected to 24.\n\nSo, with 24 parts per crate:\n\n4 × 24 = 96\n\n96 + 11 = 107\n\nThe user says \"using our fixed inputs,\" and I need to make sure I'm using the updated ones.\n\nAlso, in the initial setup, it was 30, but corrected to 24. So, yes.\n\nNow, the total is 107.\n\nI need to end with the number alone on the last line. So, my response should have some explanation, but the last line should be just \"107\".\n\nThe user said: \"End your reply with the number alone on the last line.\"\n\nSo, I can say something like: \"The total number of parts is 107.\" and then on the next line, just \"107\".\n\nTo be precise, I should have the answer as the last line.\n\nLet me structure it.\n\nFirst, state the calculation briefly.\n\nThen, end with the number.\n\nSo, something like:\n\nBased on the fixed inputs: 4 crates with 24 parts each, plus 11 loose parts.\n\nTotal from crates: 4 × 24 = 96\n\nTotal parts: 96 + 11 = 107\n\n107\n\nBut that might be redundant. I can just say:\n\nThe total number of parts is 107.\n\n107\n\nTo make it clear.\n\nSince the user asked to state it as a single number and end with it, I can have a short sentence and then the number.\n\nI think that's fine.\n\nNow, just to double-check:\n\n- Crates: 4\n\n- Parts per crate: 24 (corrected)\n\n- Loose parts: 11\n\n4 × 24 = 96\n\n96 + 11 = 107\n\nYes.\n\nIn the conversation, when I said \"running total is 120 + 11 = 131\", that was with the old figure, but now it's updated.\n\nThe user is referring to \"our fixed inputs\" which now include the correction.\n\nSo, I should use 24.\n\nAlso, the user said \"the verified figure is 24\", so it's clear.\n\nFinal answer: 107",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786883768,
+        "id": "202608162035397cb7c55c31374581",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "202608162035397cb7c55c31374581",
+        "usage": {
+          "completion_tokens": 706,
+          "prompt_tokens": 240,
+          "prompt_tokens_details": {
+            "cached_tokens": 167
+          },
+          "total_tokens": 946
+        }
+      }
+    }
+  ],
+  "latency_ms": 29899
+}

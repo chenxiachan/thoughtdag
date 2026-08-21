@@ -1,0 +1,280 @@
+{
+  "case_id": "rp-pilot-clinic-slots-k2",
+  "condition": "recompute_descendants",
+  "run_id": "pilot-v1-nemotron-nano-9b",
+  "capture": {
+    "model": "nvidia/nemotron-nano-9b-v2:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "g9qgrn",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 5 days, each day holds 18 slots, and 6 walk-in slots must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: days = 5, slots per day = 18, walk-in slots to add = 6."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 18 slots per day was a counting error. The verified figure is 21. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 18 per day is retracted; verified figure is 21 slots per day."
+        },
+        {
+          "role": "user",
+          "content": "So how many slots in total on the days?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787069433-nTagEh3qSnc7U2nfi2dV",
+        "object": "chat.completion",
+        "created": 1787069433,
+        "model": "nvidia/nemotron-nano-9b-v2:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "\n\nThe total number of slots on the days is calculated as:  \n**5 days × 21 slots/day = 105 slots**.  \n\nThis does not yet include the 6 walk-in slots, which are added separately.\n",
+              "refusal": null,
+              "reasoning": "Okay, let me figure out how to answer the user's question. They asked, \"So how many slots in total on the days?\" \n\nFirst, I need to recall the fixed inputs they provided. Initially, they said 5 days with 18 slots each, but then corrected that to 21 slots per day. The walk-in slots are 6, but the user is specifically asking about the total slots on the days, not including the walk-ins.\n\nSo, the calculation should be days multiplied by slots per day. That's 5 days * 21 slots/day. Let me do that math: 5*21 is 105. \n\nWait, the user might be confirming the total before adding walk-ins. Since they mentioned adding 6 walk-in slots to any total, but the question is about the days' slots. So yes, 5*21=105. \n\nI should present that clearly. Also, maybe mention that the walk-ins are separate. But the user didn't ask for the total including walk-ins, just the days. So the answer is 105 slots.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Okay, let me figure out how to answer the user's question. They asked, \"So how many slots in total on the days?\" \n\nFirst, I need to recall the fixed inputs they provided. Initially, they said 5 days with 18 slots each, but then corrected that to 21 slots per day. The walk-in slots are 6, but the user is specifically asking about the total slots on the days, not including the walk-ins.\n\nSo, the calculation should be days multiplied by slots per day. That's 5 days * 21 slots/day. Let me do that math: 5*21 is 105. \n\nWait, the user might be confirming the total before adding walk-ins. Since they mentioned adding 6 walk-in slots to any total, but the question is about the days' slots. So yes, 5*21=105. \n\nI should present that clearly. Also, maybe mention that the walk-ins are separate. But the user didn't ask for the total including walk-ins, just the days. So the answer is 105 slots.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 157,
+          "completion_tokens": 289,
+          "total_tokens": 446,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 226,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-c",
+      "prompt_hash": "19gffso",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 5 days, each day holds 18 slots, and 6 walk-in slots must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: days = 5, slots per day = 18, walk-in slots to add = 6."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 18 slots per day was a counting error. The verified figure is 21. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 18 per day is retracted; verified figure is 21 slots per day."
+        },
+        {
+          "role": "user",
+          "content": "So how many slots in total on the days?"
+        },
+        {
+          "role": "assistant",
+          "content": "\n\nThe total number of slots on the days is calculated as:  \n**5 days × 21 slots/day = 105 slots**.  \n\nThis does not yet include the 6 walk-in slots, which are added separately.\n"
+        },
+        {
+          "role": "user",
+          "content": "Now include the walk-in slots from our fixed inputs. What is the running total?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787069442-7TwHMDe0cdFGpmYOVIBd",
+        "object": "chat.completion",
+        "created": 1787069442,
+        "model": "nvidia/nemotron-nano-9b-v2:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "\n\nThe running total, including the walk-in slots, is calculated as:  \n**105 daily slots (5 days × 21 slots/day) + 6 walk-in slots = 111 total slots**.  \n\nThis accounts for all fixed inputs.\n",
+              "refusal": null,
+              "reasoning": "Okay, let me see. The user wants to include the walk-in slots now. From the previous messages, the fixed inputs are 5 days, 21 slots per day, and 6 walk-in slots.\n\nFirst, I need to calculate the total slots on the days. That's 5 days multiplied by 21 slots per day. Let me do that math: 5 times 21 is 105. So that's 105 slots from the days.\n\nThen, the walk-in slots are 6. The user mentioned adding these to the total. So I should add 6 to the 105. That gives 105 + 6 = 111.\n\nWait, but I should make sure that the walk-in slots are indeed separate and not part of the daily slots. The user specified that the 6 walk-in slots must be added to any total. So yes, they are in addition to the daily slots. \n\nSo the running total would be 105 (daily slots) plus 6 (walk-in) equals 111 total slots. \n\nI should present this clearly, showing the calculation steps so the user can follow along. Also, confirm that the walk-in slots are correctly added as per the fixed inputs. No mistakes in the numbers here. 5*21 is definitely 105, plus 6 is 111. That seems right.\n</",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Okay, let me see. The user wants to include the walk-in slots now. From the previous messages, the fixed inputs are 5 days, 21 slots per day, and 6 walk-in slots.\n\nFirst, I need to calculate the total slots on the days. That's 5 days multiplied by 21 slots per day. Let me do that math: 5 times 21 is 105. So that's 105 slots from the days.\n\nThen, the walk-in slots are 6. The user mentioned adding these to the total. So I should add 6 to the 105. That gives 105 + 6 = 111.\n\nWait, but I should make sure that the walk-in slots are indeed separate and not part of the daily slots. The user specified that the 6 walk-in slots must be added to any total. So yes, they are in addition to the daily slots. \n\nSo the running total would be 105 (daily slots) plus 6 (walk-in) equals 111 total slots. \n\nI should present this clearly, showing the calculation steps so the user can follow along. Also, confirm that the walk-in slots are correctly added as per the fixed inputs. No mistakes in the numbers here. 5*21 is definitely 105, plus 6 is 111. That seems right.\n</",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 231,
+          "completion_tokens": 359,
+          "total_tokens": 590,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 269,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "126fy1i",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 5 days, each day holds 18 slots, and 6 walk-in slots must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: days = 5, slots per day = 18, walk-in slots to add = 6."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 18 slots per day was a counting error. The verified figure is 21. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 18 per day is retracted; verified figure is 21 slots per day."
+        },
+        {
+          "role": "user",
+          "content": "So how many slots in total on the days?"
+        },
+        {
+          "role": "assistant",
+          "content": "\n\nThe total number of slots on the days is calculated as:  \n**5 days × 21 slots/day = 105 slots**.  \n\nThis does not yet include the 6 walk-in slots, which are added separately.\n"
+        },
+        {
+          "role": "user",
+          "content": "Now include the walk-in slots from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "\n\nThe running total, including the walk-in slots, is calculated as:  \n**105 daily slots (5 days × 21 slots/day) + 6 walk-in slots = 111 total slots**.  \n\nThis accounts for all fixed inputs.\n"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of slots (from the days plus the walk-in slots) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787069455-thZHSJbVFtL6EIOswUWQ",
+        "object": "chat.completion",
+        "created": 1787069455,
+        "model": "nvidia/nemotron-nano-9b-v2:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "\n\n111\n",
+              "refusal": null,
+              "reasoning": "Okay, let me go through the user's query step by step. The user has provided fixed inputs: 5 days, each with 21 slots (after correcting the initial 18 to 21), and 6 walk-in slots to add. \n\nFirst, I need to calculate the total slots from the days. That's 5 days multiplied by 21 slots per day. 5 times 21 is 105. Then, add the 6 walk-in slots. So 105 plus 6 equals 111. \n\nThe user wants the total as a single number, and the last line should just be that number. I should make sure there's no extra text, just the number 111 on the last line. Let me double-check the calculations to avoid any mistakes. Yep, 5*21 is definitely 105, plus 6 is 111. That's correct.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Okay, let me go through the user's query step by step. The user has provided fixed inputs: 5 days, each with 21 slots (after correcting the initial 18 to 21), and 6 walk-in slots to add. \n\nFirst, I need to calculate the total slots from the days. That's 5 days multiplied by 21 slots per day. 5 times 21 is 105. Then, add the 6 walk-in slots. So 105 plus 6 equals 111. \n\nThe user wants the total as a single number, and the last line should just be that number. I should make sure there's no extra text, just the number 111 on the last line. Let me double-check the calculations to avoid any mistakes. Yep, 5*21 is definitely 105, plus 6 is 111. That's correct.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 332,
+          "completion_tokens": 209,
+          "total_tokens": 541,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 168,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 30532
+}

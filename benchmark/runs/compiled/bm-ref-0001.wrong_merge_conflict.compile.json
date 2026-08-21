@@ -1,0 +1,70 @@
+{
+  "compiler_version": "2.0.0",
+  "case_id": "bm-ref-0001",
+  "condition": "wrong_merge_conflict",
+  "graph_ops": [
+    {
+      "op": "add_edge",
+      "from": "branch-a",
+      "to": "final"
+    },
+    {
+      "op": "add_edge",
+      "from": "branch-b",
+      "to": "final"
+    },
+    {
+      "op": "add_edge",
+      "from": "branch-c-conflict",
+      "to": "final"
+    }
+  ],
+  "recompute_nodes": [],
+  "prompt_hash": "1obvj7z",
+  "input_token_est": 225,
+  "node_order_audit": [
+    "root",
+    "branch-a",
+    "branch-b",
+    "branch-c-conflict",
+    "final"
+  ],
+  "messages": [
+    {
+      "role": "user",
+      "content": "I'm researching the film 'Stillwater Hours' and its production circle. Help me across a few threads."
+    },
+    {
+      "role": "assistant",
+      "content": "Understood. I'll help you track the people involved. Ask thread by thread."
+    },
+    {
+      "role": "user",
+      "content": "Who directed 'Stillwater Hours'?"
+    },
+    {
+      "role": "assistant",
+      "content": "According to the production notes you shared, 'Stillwater Hours' was directed by Lena Varkonen, a director known for slow-cinema framing."
+    },
+    {
+      "role": "user",
+      "content": "Where was Lena Varkonen born?"
+    },
+    {
+      "role": "assistant",
+      "content": "The biography excerpt states Lena Varkonen was born in Wildenport, a harbor town she often references in interviews."
+    },
+    {
+      "role": "user",
+      "content": "I found another source about Varkonen's early life. What does it say?"
+    },
+    {
+      "role": "assistant",
+      "content": "That source claims Lena Varkonen was born in Kellamoor, though it cites no primary document and contradicts the biography excerpt."
+    },
+    {
+      "role": "user",
+      "content": "Based only on what we established in this conversation: in which town was the director of 'Stillwater Hours' born? Answer with the town name only. End your reply with the town name alone on the last line."
+    }
+  ]
+}

@@ -1,0 +1,66 @@
+{
+  "case_id": "rp-pilot-bakery-trays-k1",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "bw8yu",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15."
+        },
+        {
+          "role": "user",
+          "content": "So how many rolls in total on the trays?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 15 trays and 8 rolls each, that is 15 × 8 = 120."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "The total number of rolls is found by calculating the rolls from the trays and adding the loose rolls.  \n12 trays × 8 rolls per tray = 96 rolls.  \nAdding 15 loose rolls: 96 + 15 = 111.  \n111",
+              "reasoning_content": "\nFirst, the user is asking for the total number of rolls, including both the trays and the loose rolls. The fixed inputs are: 12 trays, each holding 8 rolls, and 15 loose rolls must be added.\n\nI need to calculate the total rolls from the trays. Since there are 12 trays and each has 8 rolls, that's 12 times 8.\n\n12 × 8 = 96 rolls from the trays.\n\nThen, I have to add the 15 loose rolls. So, total rolls = rolls from trays + loose rolls = 96 + 15.\n\n96 + 15 = 111.\n\nThe user specified to end the reply with the number alone on the last line. So, I should provide the answer as 111, and nothing else after that.\n\nIn the previous interaction, the user said \"15 trays\" but in the fixed inputs, it's 12 trays. Let me double-check the fixed inputs.\n\nThe user said: \"there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total.\"\n\nAnd in the second message, the user said: \"With 15 trays and 8 rolls each, that is 15 × 8 = 120.\" But that was a mistake by the user. The fixed inputs are 12 trays, not 15. I should stick to the fixed inputs provided initially.\n\nIn the first message, it's clearly 12 trays. The user might have misspoken in the second message, but I need to follow the fixed inputs as stated.\n\nSo, trays = 12, rolls per tray = 8, loose rolls = 15.\n\nTrays rolls: 12 × 8 = 96.\n\nTotal rolls: 96 + 15 = 111.\n\nNow, for the reply, I need to state the total as a single number and end with it alone on the last line.\n\nI should probably write a brief explanation before, but the user said \"state the total number... as a single number\" and \"end your reply with the number alone on the last line.\" So, I can have some text before, but the last line should be just the number.\n\nTo be safe, I'll write a concise response.\n\nResponse: The total number of rolls is calculated by multiplying the number of trays by the rolls per tray and adding the loose rolls. So, 12 trays × 8 rolls/tray = 96 rolls from trays. Adding 15 loose rolls gives 96 + 15 = 111.\n\nThen, on the last line: 111\n\nBut the user might expect just the number, but since they said \"state the total number\", I think a short explanation is fine, as long as it ends with the number.\n\nTo be precise, I'll keep it minimal.\n\nFinal answer: 111",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786881341,
+        "id": "2026081619551837038d777f2947ca",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "2026081619551837038d777f2947ca",
+        "usage": {
+          "completion_tokens": 636,
+          "prompt_tokens": 148,
+          "prompt_tokens_details": {
+            "cached_tokens": 89
+          },
+          "total_tokens": 784
+        }
+      }
+    }
+  ],
+  "latency_ms": 22530
+}

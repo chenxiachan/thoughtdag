@@ -1,0 +1,66 @@
+{
+  "case_id": "rp-pilot-depot-crates-k2",
+  "condition": "subgraph_prune",
+  "run_id": "pilot-v1-glm45flash-2026-08-16",
+  "capture": {
+    "model": "glm-4.5-flash",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1r3qr06",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 crates, each crate holds 30 parts, and 11 loose parts must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: crates = 4, parts per crate = 30, loose parts to add = 11."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 30 parts per crate was a counting error. The verified figure is 24. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 30 per crate is retracted; verified figure is 24 parts per crate."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of parts (from the crates plus the loose parts) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "choices": [
+          {
+            "finish_reason": "stop",
+            "index": 0,
+            "message": {
+              "content": "The total number of parts is calculated by multiplying the number of crates by the parts per crate and then adding the loose parts.  \n4 crates × 24 parts per crate = 96 parts from crates.  \n96 parts + 11 loose parts = 107.  \n\n107",
+              "reasoning_content": "\nFirst, the fixed inputs are:\n\n- Number of crates: 4\n\n- Parts per crate: 24 (this was updated from 30)\n\n- Loose parts to add: 11\n\nI need to find the total number of parts, which includes the parts from the crates plus the loose parts.\n\nSo, parts from crates = number of crates × parts per crate\n\nThat would be 4 crates × 24 parts per crate.\n\nCalculating that: 4 × 24 = 96 parts from crates.\n\nNow, add the loose parts: 96 + 11.\n\n96 + 11 = 107.\n\nSo, total parts should be 107.\n\nThe user said \"state the total number of parts as a single number\" and \"end your reply with the number alone on the last line.\" So, I should just have the number at the end, but I need to make sure my response is clear. Probably, I should have a brief explanation and then the number.\n\nRe-reading the user's message: \"Using our fixed inputs, state the total number of parts (from the crates plus the loose parts) as a single number. End your reply with the number alone on the last line.\"\n\nSo, I can have some text before, but the last line must be just the number.\n\nAlso, in the context, the fixed inputs are clear: 4 crates, 24 parts per crate, 11 loose parts.\n\nI should confirm the calculation:\n\nCrates: 4\n\nParts per crate: 24\n\nTotal from crates: 4 × 24 = 96\n\nLoose parts: 11\n\nTotal: 96 + 11 = 107\n\nYes, that seems correct.\n\nNow, for the response, I'll write something like: \"The total number of parts is 107.\" and then on the next line, just \"107\".\n\nBut to be precise, since it says \"end your reply with the number alone on the last line,\" I should have the number as the last thing.\n\nPerhaps: \"Based on the fixed inputs, the total parts from crates and loose parts is 107.\" and then a new line with \"107\".\n\nBut to keep it simple, I can just state it directly.\n\nSince it's a planning task, but this seems straightforward.\n\nI think I'm overcomplicating. I'll provide the answer as requested.",
+              "role": "assistant"
+            }
+          }
+        ],
+        "created": 1786883794,
+        "id": "2026081620360917553a2d320c4949",
+        "model": "glm-4.5-flash",
+        "object": "chat.completion",
+        "request_id": "2026081620360917553a2d320c4949",
+        "usage": {
+          "completion_tokens": 542,
+          "prompt_tokens": 167,
+          "prompt_tokens_details": {
+            "cached_tokens": 166
+          },
+          "total_tokens": 709
+        }
+      }
+    }
+  ],
+  "latency_ms": 25475
+}

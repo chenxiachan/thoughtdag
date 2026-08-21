@@ -1,0 +1,183 @@
+{
+  "case_id": "rp-pilot-depot-crates-k1",
+  "condition": "recompute_descendants",
+  "run_id": "pilot-v1-nemotron35l",
+  "capture": {
+    "model": "nvidia/nemotron-3.5-lightning:free",
+    "temperature": 0,
+    "run_date": "2026-08-16",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "1yh4edc",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 crates, each crate holds 30 parts, and 11 loose parts must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: crates = 4, parts per crate = 30, loose parts to add = 11."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 30 parts per crate was a counting error. The verified figure is 24. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 30 per crate is retracted; verified figure is 24 parts per crate."
+        },
+        {
+          "role": "user",
+          "content": "So how many parts in total on the crates?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786882872-IxKd0MmTqGnA1AxO0MMr",
+        "object": "chat.completion",
+        "created": 1786882872,
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "4 crates × 24 parts = **96 parts on the crates**.\n\nIf you include the 11 loose parts that must be added to any total, the overall count is **107**.",
+              "refusal": null,
+              "reasoning": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs updated: 4 crates\n   - New parts per crate: 24 (replacing the erroneous 30)\n   - 11 loose parts must be added to any total\n   - User asks: \"So how many parts in total on the crates?\"\n\n2.  **Identify the Core Question:**\n   - \"how many parts in total on the crates?\" \n   - This could mean just the crates' contents, or total including loose parts. The phrasing \"on the crates\" suggests just the crate contents, but I should clarify or provide both to be safe, following the pattern of the previous prompts which mentioned \"must be added to any total\".\n\n3.  **Extract the Numbers:**\n   - Crates: 4\n   - Parts per crate: 24\n   - Loose parts: 11 (mentioned as \"must be added to any total\" in the first prompt, and context implies it's part of the overall total, but the question specifically says \"on the crates\")\n\n4.  **Calculate Parts on Crates Only:**\n   - 4 crates × 24 parts/crate = 96 parts\n\n5.  **Calculate Total Including Loose Parts (if needed):**\n   - 96 + 11 = 107\n\n6.  **Formulate Response:**\n   - The question asks \"how many parts in total on the crates?\"\n   - I'll compute the crate total: 4 × 24 = 96\n   - I'll also note the total including the 11 loose parts (107) since the original setup framed the 11 as \"must be added to any total\", but I'll make it clear.\n   - Keep it concise.\n\n   Draft: \"4 crates × 24 parts = 96 parts on the crates. Including the 11 loose parts, the overall total is 107.\"\n\n   Check against constraints: \n   - Fixed inputs: 4 crates, 24 per crate, 11 loose added to any total.\n   - Question: \"how many parts in total on the crates?\" \n   - Answer: 96. I'll add the total with loose parts for completeness but highlight the crate count.\n\n   All good. I'll respond directly.✅\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs updated: 4 crates\n   - New parts per crate: 24 (replacing the erroneous 30)\n   - 11 loose parts must be added to any total\n   - User asks: \"So how many parts in total on the crates?\"\n\n2.  **Identify the Core Question:**\n   - \"how many parts in total on the crates?\" \n   - This could mean just the crates' contents, or total including loose parts. The phrasing \"on the crates\" suggests just the crate contents, but I should clarify or provide both to be safe, following the pattern of the previous prompts which mentioned \"must be added to any total\".\n\n3.  **Extract the Numbers:**\n   - Crates: 4\n   - Parts per crate: 24\n   - Loose parts: 11 (mentioned as \"must be added to any total\" in the first prompt, and context implies it's part of the overall total, but the question specifically says \"on the crates\")\n\n4.  **Calculate Parts on Crates Only:**\n   - 4 crates × 24 parts/crate = 96 parts\n\n5.  **Calculate Total Including Loose Parts (if needed):**\n   - 96 + 11 = 107\n\n6.  **Formulate Response:**\n   - The question asks \"how many parts in total on the crates?\"\n   - I'll compute the crate total: 4 × 24 = 96\n   - I'll also note the total including the 11 loose parts (107) since the original setup framed the 11 as \"must be added to any total\", but I'll make it clear.\n   - Keep it concise.\n\n   Draft: \"4 crates × 24 parts = 96 parts on the crates. Including the 11 loose parts, the overall total is 107.\"\n\n   Check against constraints: \n   - Fixed inputs: 4 crates, 24 per crate, 11 loose added to any total.\n   - Question: \"how many parts in total on the crates?\" \n   - Answer: 96. I'll add the total with loose parts for completeness but highlight the crate count.\n\n   All good. I'll respond directly.✅\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 174,
+          "completion_tokens": 563,
+          "total_tokens": 737,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 457,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "l2p4el",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 crates, each crate holds 30 parts, and 11 loose parts must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: crates = 4, parts per crate = 30, loose parts to add = 11."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 30 parts per crate was a counting error. The verified figure is 24. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 30 per crate is retracted; verified figure is 24 parts per crate."
+        },
+        {
+          "role": "user",
+          "content": "So how many parts in total on the crates?"
+        },
+        {
+          "role": "assistant",
+          "content": "4 crates × 24 parts = **96 parts on the crates**.\n\nIf you include the 11 loose parts that must be added to any total, the overall count is **107**."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of parts (from the crates plus the loose parts) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1786882876-MOcmwDQ3DVhzUzYRS9mW",
+        "object": "chat.completion",
+        "created": 1786882876,
+        "model": "nvidia/nemotron-3.5-lightning:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of parts from the crates is 4 × 24 = 96. Adding the 11 loose parts gives a total of 107.\n\n107",
+              "refusal": null,
+              "reasoning": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs stated earlier:\n     - 4 crates\n     - Each crate holds 24 parts (updated from 30)\n     - 11 loose parts must be added to any total\n   - User asks: \"Using our fixed inputs, state the total number of parts (from the crates plus the loose parts) as a single number. End your reply with the number alone on the last line.\"\n\n2.  **Calculate:**\n   - Crates: 4\n   - Parts per crate: 24\n   - Total from crates: 4 * 24 = 96\n   - Loose parts: 11\n   - Total parts: 96 + 11 = 107\n\n3.  **Format Output:**\n   - User wants the total number stated as a single number.\n   - End the reply with the number alone on the last line.\n   - So I should output something like: \"107\" with the number on its own line at the end, or maybe a sentence followed by the number on its own line. The instruction says: \"End your reply with the number alone on the last line.\" I'll provide the answer, and ensure the last line is just \"107\".\n\n   Let's structure it:\n   - Total parts from crates: 96\n   - Adding loose parts: 11\n   - Total: 107\n   - Last line: 107\n\n   I'll make sure the very last line of my response is exactly \"107\".",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Here's a thinking process:\n\n1.  **Analyze User Input:**\n   - Fixed inputs stated earlier:\n     - 4 crates\n     - Each crate holds 24 parts (updated from 30)\n     - 11 loose parts must be added to any total\n   - User asks: \"Using our fixed inputs, state the total number of parts (from the crates plus the loose parts) as a single number. End your reply with the number alone on the last line.\"\n\n2.  **Calculate:**\n   - Crates: 4\n   - Parts per crate: 24\n   - Total from crates: 4 * 24 = 96\n   - Loose parts: 11\n   - Total parts: 96 + 11 = 107\n\n3.  **Format Output:**\n   - User wants the total number stated as a single number.\n   - End the reply with the number alone on the last line.\n   - So I should output something like: \"107\" with the number on its own line at the end, or maybe a sentence followed by the number on its own line. The instruction says: \"End your reply with the number alone on the last line.\" I'll provide the answer, and ensure the last line is just \"107\".\n\n   Let's structure it:\n   - Total parts from crates: 96\n   - Adding loose parts: 11\n   - Total: 107\n   - Last line: 107\n\n   I'll make sure the very last line of my response is exactly \"107\".",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 269,
+          "completion_tokens": 388,
+          "total_tokens": 657,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 300,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 5656
+}

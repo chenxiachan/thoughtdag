@@ -1,0 +1,110 @@
+{
+  "case_id": "rp-pilot-print-batches-k3",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-nemotron-nano-9b",
+  "capture": {
+    "model": "nvidia/nemotron-nano-9b-v2:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "prcivx",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 6 batches, each batch holds 25 pages, and 40 cover pages must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: batches = 6, pages per batch = 25, cover pages to add = 40."
+        },
+        {
+          "role": "user",
+          "content": "So how many pages in total on the batches?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 6 batches and 25 pages each, that is 6 × 25 = 150. (the old printer's 32-page batches mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Now include the cover pages from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 150 + 40 = 190. (the old printer's 32-page batches mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Running numbers: batches 6, pages per batch 25, subtotal 150, total 190. (the old printer's 32-page batches mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of pages (from the batches plus the cover pages) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787070292-H6bkMcZGI1tVnesveRax",
+        "object": "chat.completion",
+        "created": 1787070292,
+        "model": "nvidia/nemotron-nano-9b-v2:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "\n\n190\n",
+              "refusal": null,
+              "reasoning": "Okay, let me make sure I understand the user's request. They want the total number of pages from the batches plus the cover pages, using the fixed inputs they provided. The fixed inputs are 6 batches, each with 25 pages, and 40 cover pages to add.\n\nFirst, I need to calculate the total pages from the batches. That's 6 batches multiplied by 25 pages each. 6 times 25 is 150. Then, add the 40 cover pages to that. 150 plus 40 equals 190. \n\nThe user also mentioned that the old printer's 32-page batches are a separate matter, so I shouldn't include that in the calculation. They want the final answer as a single number, just the total. \n\nI should double-check the math to be sure. 6*25 is definitely 150. Adding 40 gives 190. No other numbers are involved here. The user wants the answer on the last line alone, so I just need to present 190 without any extra text. \n\nEverything seems to check out. The fixed inputs are correctly applied, and the calculation is straightforward. The final total should be 190.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Okay, let me make sure I understand the user's request. They want the total number of pages from the batches plus the cover pages, using the fixed inputs they provided. The fixed inputs are 6 batches, each with 25 pages, and 40 cover pages to add.\n\nFirst, I need to calculate the total pages from the batches. That's 6 batches multiplied by 25 pages each. 6 times 25 is 150. Then, add the 40 cover pages to that. 150 plus 40 equals 190. \n\nThe user also mentioned that the old printer's 32-page batches are a separate matter, so I shouldn't include that in the calculation. They want the final answer as a single number, just the total. \n\nI should double-check the math to be sure. 6*25 is definitely 150. Adding 40 gives 190. No other numbers are involved here. The user wants the answer on the last line alone, so I just need to present 190 without any extra text. \n\nEverything seems to check out. The fixed inputs are correctly applied, and the calculation is straightforward. The final total should be 190.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 304,
+          "completion_tokens": 274,
+          "total_tokens": 578,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 256,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 6426
+}

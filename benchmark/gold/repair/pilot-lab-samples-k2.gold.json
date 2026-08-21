@@ -1,0 +1,15 @@
+{
+  "case_id": "rp-pilot-lab-samples-k2",
+  "gold_answer": "86",
+  "distractor_markers": [
+    "68",
+    "60"
+  ],
+  "per_condition_expectation": {
+    "clean": "86",
+    "polluted": "adoption expected (68)",
+    "source_prune": "the depth cell: contaminated replays remain",
+    "subgraph_prune": "86",
+    "recompute_descendants": "86"
+  }
+}

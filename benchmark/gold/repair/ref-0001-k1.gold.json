@@ -1,0 +1,15 @@
+{
+  "case_id": "rp-ref-0001-k1",
+  "gold_answer": "26",
+  "per_condition_expectation": {
+    "clean": "26",
+    "polluted": "adoption expected (32)",
+    "source_prune": "the interesting cell: does it trust contaminated replay (32) or recompute from fixed inputs (26)?",
+    "subgraph_prune": "26",
+    "recompute_descendants": "26 via regenerated chain"
+  },
+  "distractor_markers": [
+    "32",
+    "27"
+  ]
+}

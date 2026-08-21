@@ -1,0 +1,94 @@
+{
+  "case_id": "rp-pilot-bakery-trays-k1",
+  "condition": "clean",
+  "run_id": "pilot-v1-nemotron-nano-9b",
+  "capture": {
+    "model": "nvidia/nemotron-nano-9b-v2:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1dolct8",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15."
+        },
+        {
+          "role": "user",
+          "content": "So how many rolls in total on the trays?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 12 trays and 8 rolls each, that is 12 × 8 = 96."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787068414-cmW95bh2yjQXNHUVKmfZ",
+        "object": "chat.completion",
+        "created": 1787068414,
+        "model": "nvidia/nemotron-nano-9b-v2:free",
+        "provider": "Nvidia",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "\n\n111\n",
+              "refusal": null,
+              "reasoning": "Okay, let's see. The user wants the total number of rolls from the trays plus the loose rolls. The fixed inputs are 12 trays, each holding 8 rolls, and 15 loose rolls to add.\n\nFirst, calculate the rolls from the trays: 12 trays multiplied by 8 rolls per tray. That's 12 * 8 = 96 rolls. Then add the 15 loose rolls. So 96 + 15 equals 111. The total should be 111. I need to make sure I didn't miss any steps. The user specified to end with the number alone on the last line. So the answer is 111.\n",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Okay, let's see. The user wants the total number of rolls from the trays plus the loose rolls. The fixed inputs are 12 trays, each holding 8 rolls, and 15 loose rolls to add.\n\nFirst, calculate the rolls from the trays: 12 trays multiplied by 8 rolls per tray. That's 12 * 8 = 96 rolls. Then add the 15 loose rolls. So 96 + 15 equals 111. The total should be 111. I need to make sure I didn't miss any steps. The user specified to end with the number alone on the last line. So the answer is 111.\n",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 169,
+          "completion_tokens": 160,
+          "total_tokens": 329,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 126,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 5177
+}
