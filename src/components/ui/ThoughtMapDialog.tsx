@@ -184,6 +184,7 @@ export default function ThoughtMapDialog() {
   const [showStats, setShowStats] = useState(true);
   const [timeInk, setTimeInk] = useState(false);
   const [showDate, setShowDate] = useState(true);
+  const [dateMode, setDateMode] = useState<'today' | 'span'>('span');
   const [title, setTitle] = useState('');
   const [subtitle, setSubtitle] = useState('');
   const [caption, setCaption] = useState('');
@@ -197,21 +198,17 @@ export default function ThoughtMapDialog() {
     () => (layout === 'tidy' ? tidyPositions(structure) : handPositions(structure)),
     [structure, layout],
   );
-  // the archival stamp: the exploration's real span, mined from node ids
+  // the archival stamp, compact (yy.mm.dd): today's date, or the
+  // exploration's real span mined from node ids
   const dateText = useMemo(() => {
     if (!showDate) return '';
+    const f = (d: Date) => `${String(d.getFullYear() % 100).padStart(2, '0')}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+    if (dateMode === 'today') return f(new Date());
     const stamps = structure.nodes.map((n) => n.ts).filter((x): x is number => x != null);
-    if (!stamps.length) return '';
+    if (!stamps.length) return f(new Date());
     const a = new Date(Math.min(...stamps)), b = new Date(Math.max(...stamps));
-    if (mapLang === 'zh') {
-      const f = (d: Date) => `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
-      return f(a) === f(b) ? f(a) : `${f(a)} 至 ${f(b)}`;
-    }
-    const f = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    const fy = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-    if (a.toDateString() === b.toDateString()) return fy(a);
-    return a.getFullYear() === b.getFullYear() ? `${f(a)} to ${fy(b)}` : `${fy(a)} to ${fy(b)}`;
-  }, [structure, mapLang, showDate]);
+    return f(a) === f(b) ? f(a) : `${f(a)}-${f(b)}`;
+  }, [structure, showDate, dateMode]);
 
   useEffect(() => {
     if (!open) return;
@@ -378,18 +375,22 @@ export default function ThoughtMapDialog() {
                 <div className="text-2xs text-ink-faint mb-1">{t('tmap.mapLang')}</div>
                 {seg([['zh', '中文'], ['en', 'EN']], mapLang, (v) => setMapLang(v as 'zh' | 'en'))}
               </div>
-              <div className="flex gap-2">
-                <div className="flex-1">
+              <div className="grid grid-cols-2 gap-x-3 gap-y-2.5">
+                <div>
                   <div className="text-2xs text-ink-faint mb-1">{t('tmap.statsLbl')}</div>
                   {seg([['on', t('tmap.show')], ['off', t('tmap.hide')]], showStats ? 'on' : 'off', (v) => setShowStats(v === 'on'))}
                 </div>
-                <div className="flex-1">
+                <div>
+                  <div className="text-2xs text-ink-faint mb-1">{t('tmap.timeInk')}</div>
+                  {seg([['off', t('tmap.hide')], ['on', t('tmap.show')]], timeInk ? 'on' : 'off', (v) => setTimeInk(v === 'on'))}
+                </div>
+                <div>
                   <div className="text-2xs text-ink-faint mb-1">{t('tmap.dateLbl')}</div>
                   {seg([['on', t('tmap.show')], ['off', t('tmap.hide')]], showDate ? 'on' : 'off', (v) => setShowDate(v === 'on'))}
                 </div>
-                <div className="flex-1">
-                  <div className="text-2xs text-ink-faint mb-1">{t('tmap.timeInk')}</div>
-                  {seg([['off', t('tmap.hide')], ['on', t('tmap.show')]], timeInk ? 'on' : 'off', (v) => setTimeInk(v === 'on'))}
+                <div className={showDate ? '' : 'opacity-40 pointer-events-none'}>
+                  <div className="text-2xs text-ink-faint mb-1">{t('tmap.dateMode')}</div>
+                  {seg([['span', t('tmap.dateSpan')], ['today', t('tmap.dateToday')]], dateMode, (v) => setDateMode(v as 'today' | 'span'))}
                 </div>
               </div>
               <div>
