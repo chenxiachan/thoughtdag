@@ -92,13 +92,21 @@ export default function ShareDialog() {
         <div className="border-t border-line pt-3">
           <div className="text-2xs font-semibold text-accent mb-1">{t('share.socialLane')}</div>
           <p className="text-xs text-ink-muted mb-2">{t('share.socialNote')}</p>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <button
+              onClick={() => { close(); useUiStore.getState().setThoughtMapOpen(true); }}
+              data-share-thought-map
+              className="text-xs px-3 py-1.5 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 transition-colors flex items-center gap-1.5 font-medium"
+            >
+              <ImageDown size={13} strokeWidth={1.75} />
+              {t('tmap.export')}
+            </button>
             <button
               onClick={() => { setExporting(true); void exportGedankengangPoster(lang).finally(() => setExporting(false)); }}
               disabled={exporting}
               data-share-poster
               title={t('tlov.exportPosterTitle')}
-              className="text-xs px-3 py-1.5 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 transition-colors flex items-center gap-1.5 disabled:opacity-50"
+              className="text-xs px-3 py-1.5 rounded-lg border border-line text-ink-muted hover:bg-wash hover:text-ink transition-colors flex items-center gap-1.5 disabled:opacity-50"
             >
               <ImageDown size={13} strokeWidth={1.75} />
               {exporting ? t('tlov.exportingPoster') : t('tlov.exportPoster')}

@@ -322,7 +322,11 @@ export async function startCondenseRun(picked: CondenseSegment[], lang: 'zh' | '
     const res = buildCondensedCopy(picked, distillates, lang);
     if (runCounter !== token) return;
     useUiStore.getState().setCondenseRun({ status: 'done', streaming: '', distillIds: res.distillIds });
-    toast('success', i18nT('condense.copyReady'));
+    // completion is when sharing intent peaks — one unobtrusive offer
+    toast('success', i18nT('condense.copyReady'), 8000, {
+      label: i18nT('tmap.export'),
+      run: () => useUiStore.getState().setThoughtMapOpen(true),
+    });
   } catch (err) {
     if (runCounter !== token) return;
     useUiStore.getState().setCondenseRun({ status: 'error', error: err instanceof Error ? err.message : String(err) });

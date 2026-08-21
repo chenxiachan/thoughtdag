@@ -16,7 +16,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import 'highlight.js/styles/github.css';
-import { BookOpen, Brain, CircleHelp, Download, Drama, Eye, FileText, Frame, GitBranch, Highlighter, KeyRound, LayoutGrid, Loader2, MessageCircleQuestion, MoreHorizontal, Paperclip, Redo2, Scissors, Search, Share2, SquareTerminal, Stethoscope, StickyNote, Trash2, Undo2, Workflow, X, ListRestart, FolderSync, Minimize2 } from 'lucide-react';
+import { BookOpen, Brain, CircleHelp, Download, Drama, Eye, FileText, Frame, GitBranch, Highlighter, ImageDown, KeyRound, LayoutGrid, Loader2, MessageCircleQuestion, MoreHorizontal, Paperclip, Redo2, Scissors, Search, Share2, SquareTerminal, Stethoscope, StickyNote, Trash2, Undo2, Workflow, X, ListRestart, FolderSync, Minimize2 } from 'lucide-react';
 import './index.css';
 import ThoughtNode from './components/ThoughtNode';
 import ParadigmNode from './components/ParadigmNode';
@@ -61,6 +61,7 @@ import MemoryManagerModal from './components/ui/MemoryManagerModal';
 import ApiKeyModal from './components/ui/ApiKeyModal';
 import ResponseViewer from './components/ui/ResponseViewer';
 import ShareDialog from './components/ui/ShareDialog';
+import ThoughtMapDialog from './components/ui/ThoughtMapDialog';
 import BackupDialog from './components/ui/BackupDialog';
 import CondenseDialog from './components/ui/CondenseDialog';
 import { backupSupported } from './lib/local-backup';
@@ -163,6 +164,7 @@ export default function App() {
       <ApiKeyModal />
       <ResponseViewer />
       <ShareDialog />
+      <ThoughtMapDialog />
       <BackupDialog />
       <ConfirmDialog />
       <Tutorial />
@@ -1042,6 +1044,7 @@ function Canvas() {
           <Background variant={BackgroundVariant.Dots} gap={24} size={1} color="var(--canvas-dot)" />
         )}
         <ZoomTierTag />
+        <ThoughtMapPill />
         <TimelineBar />
         <Controls position="bottom-left" />
         {nodes.length > 0 && <MiniMap
@@ -1842,6 +1845,25 @@ function Canvas() {
 // restyle global layers, and streams the live zoom into a CSS variable so
 // glyph seals and edges can counter-scale (POI style: world position,
 // fixed screen size — the icon map stays dense however far you zoom out).
+// The moment of looking at the shape IS the moment of wanting to share it:
+// the pill exists only in the map/glyph tiers, the working tier stays
+// silent. Must live inside <ReactFlow> to reach the flow store.
+function ThoughtMapPill() {
+  const tier = useZoomTier();
+  const t = useT();
+  const nodeCount = useStore((s) => s.nodes.length);
+  if (isViewerMode || tier === 'work' || nodeCount < 2) return null;
+  return (
+    <button
+      onClick={() => useUiStore.getState().setThoughtMapOpen(true)}
+      data-tmap-pill
+      className="absolute left-1/2 -translate-x-1/2 bottom-5 z-10 flex items-center gap-1.5 bg-card/95 backdrop-blur border border-line-strong rounded-full px-4 py-2 text-xs text-ink shadow-lg hover:border-accent/40 hover:text-accent transition-colors"
+    >
+      <ImageDown size={13} strokeWidth={1.75} /> {t('tmap.export')}
+    </button>
+  );
+}
+
 // Must live inside <ReactFlow> to reach the flow store.
 function ZoomTierTag() {
   const tier = useZoomTier();

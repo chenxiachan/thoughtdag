@@ -140,6 +140,9 @@ interface UiState {
   /** Share dialog: the freshly built read-only link (null = closed). */
   shareDialogUrl: string | null;
   setShareDialogUrl: (url: string | null) => void;
+  /** Thought-map export console (structure-only share image). */
+  thoughtMapOpen: boolean;
+  setThoughtMapOpen: (v: boolean) => void;
   /** Viewer boot failed to decode the #view= hash (truncated link). */
   viewerLoadError: boolean;
   setViewerLoadError: (v: boolean) => void;
@@ -268,6 +271,8 @@ export const useUiStore = create<UiState>((set, get) => ({
   setBackupDialogOpen: (v) => set({ backupDialogOpen: v }),
   shareDialogUrl: null,
   setShareDialogUrl: (url) => set({ shareDialogUrl: url }),
+  thoughtMapOpen: false,
+  setThoughtMapOpen: (v) => set({ thoughtMapOpen: v }),
   viewerLoadError: false,
   setViewerLoadError: (v) => set({ viewerLoadError: v }),
   readerNodeId: null,
