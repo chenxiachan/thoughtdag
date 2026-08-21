@@ -27,7 +27,7 @@
   --color-line-strong: #D4CFC7;  /* emphasized borders             */
   --color-ink: #1A1A1A;          /* primary text                   */
   --color-ink-muted: #6B6560;    /* secondary text                 */
-  --color-ink-faint: #B8B2A8;    /* placeholders, hints            */
+  --color-ink-faint: #968C77;    /* placeholders, hints — calibrated ≥3:1 on card */
   --color-accent: #6B5CE7;       /* primary actions, continue edges */
   --color-accent-strong: #5A4BD6;/* accent hover                   */
   --color-warm: #E08A3C;         /* explore branches               */
@@ -37,6 +37,80 @@
 
 :root {
   color-scheme: light;
+  /* canvas texture (React Flow Background strokes) */
+  --canvas-dot: #E8E5E0;
+  --canvas-grid-fine: rgba(84, 100, 128, 0.10);
+  --canvas-grid-major: rgba(84, 100, 128, 0.22);
+}
+
+/* ── appearance: light × dark is a full token remap; paper × grid is a
+   canvas texture plus a component dialect. Set by lib/appearance.ts. ── */
+
+/* the drafting board runs a touch cooler than reading paper (light only) */
+:root[data-paper='grid']:not([data-theme='dark']) {
+  --color-surface: #F7F6F2;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-surface: #24211B;
+  --color-card: #2C2822;
+  --color-wash: #343029;
+  --color-line: #453F34;
+  --color-line-strong: #574F40;
+  --color-ink: #EDE7DA;
+  --color-ink-muted: #B5AB97;
+  --color-ink-faint: #8B826D;
+  --color-accent: #A79FF4;
+  --color-accent-strong: #B9B2F7;
+  --color-warm: #E3A45E;
+  --color-trace: #D9A83E;
+  --color-watch: #E0796F;
+  --canvas-dot: #3B362C;
+  --canvas-grid-fine: rgba(237, 231, 218, 0.05);
+  --canvas-grid-major: rgba(237, 231, 218, 0.11);
+  /* the tailwind semantic slices the UI actually uses, recomposed for dark
+     (utilities compile to var(--color-*), so this remaps them globally) */
+  --color-red-50: #3A2723;
+  --color-red-100: #47302A;
+  --color-red-200: #5C3B33;
+  --color-red-500: #E0796F;
+  --color-red-600: #E88A80;
+  --color-red-700: #F0A29A;
+  --color-green-50: #2A3A30;
+  --color-green-200: #3F5A48;
+  --color-green-600: #7FBF8E;
+  --color-green-700: #93CCA0;
+  --color-amber-50: #3B3220;
+  --color-amber-100: #4A3E26;
+  --color-amber-200: #5E4E2C;
+  --color-amber-400: #D9A83E;
+  --color-amber-500: #D9A83E;
+  --color-amber-600: #E2B558;
+  --color-amber-700: #EAC272;
+  --color-amber-800: #F2D18C;
+}
+
+/* code highlighting flips with the theme (github.css is light-only) */
+:root[data-theme='dark'] .hljs { color: #D4CEC2; background: transparent; }
+:root[data-theme='dark'] .hljs-comment, :root[data-theme='dark'] .hljs-quote { color: #8A8170; }
+:root[data-theme='dark'] .hljs-keyword, :root[data-theme='dark'] .hljs-selector-tag, :root[data-theme='dark'] .hljs-subst { color: #C9A1F0; }
+:root[data-theme='dark'] .hljs-string, :root[data-theme='dark'] .hljs-regexp, :root[data-theme='dark'] .hljs-addition { color: #9FD0A5; }
+:root[data-theme='dark'] .hljs-number, :root[data-theme='dark'] .hljs-literal { color: #E3A45E; }
+:root[data-theme='dark'] .hljs-title, :root[data-theme='dark'] .hljs-name { color: #A7C7F2; }
+:root[data-theme='dark'] .hljs-attr, :root[data-theme='dark'] .hljs-attribute, :root[data-theme='dark'] .hljs-variable, :root[data-theme='dark'] .hljs-template-variable { color: #E0B070; }
+:root[data-theme='dark'] .hljs-built_in, :root[data-theme='dark'] .hljs-type { color: #7FBFB2; }
+:root[data-theme='dark'] .hljs-deletion { color: #E0796F; }
+
+/* draft dialect: on the drafting board cards sit like components —
+   smaller radius, flat shadow. The layout laws are untouched. */
+:root[data-paper='grid'] .thought-node,
+:root[data-paper='grid'] .content-card {
+  border-radius: 7px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+:root[data-paper='grid'] .thought-node::before {
+  border-radius: 0;
 }
 
 html, body, #root {

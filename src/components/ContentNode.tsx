@@ -125,7 +125,7 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
 
   return (
     <div
-      className={`w-full h-full min-w-[340px] flex flex-col rounded-xl shadow-sm border-2 animate-fade-in transition-colors duration-200 ${
+      className={`content-card w-full h-full min-w-[340px] flex flex-col rounded-xl shadow-sm border-2 animate-fade-in transition-colors duration-200 ${
         kind === 'note' ? 'bg-amber-50/90 border-amber-200' : 'bg-card border-line'
       } ${selectedNodeId === id ? 'ring-2 ring-accent selected-glow' : ''}`}
       onClick={() => setSelectedNodeId(id)}

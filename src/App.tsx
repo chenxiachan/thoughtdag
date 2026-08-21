@@ -20,6 +20,7 @@ import { BookOpen, Brain, CircleHelp, Download, Drama, Eye, FileText, Frame, Git
 import './index.css';
 import ThoughtNode from './components/ThoughtNode';
 import ParadigmNode from './components/ParadigmNode';
+import { useAppearance, edgePalette, LEGACY_EDGE_HEX } from './lib/appearance';
 import ContentNode from './components/ContentNode';
 import FrameNode from './components/FrameNode';
 import ThoughtEdgeView from './components/ThoughtEdgeView';
@@ -189,6 +190,25 @@ function Canvas() {
   const materialCount = useStore((s) => s.nodes.reduce((sum, n) =>
     sum + (n.data.attachments?.length ?? 0) + (['note', 'link'].includes(n.data.stepKind ?? '') ? 1 : 0), 0));
   const rfInstance = useRef<ReactFlowInstance<ThoughtNodeType, ThoughtEdge> | null>(null);
+  // Appearance: lighting swaps the token set, paper swaps the canvas texture
+  // (and turns the grid's snapping on). Edge colors resolve per theme.
+  const paperTexture = useAppearance((s) => s.paper);
+  const lightingChoice = useAppearance((s) => s.lighting);
+  const resolvedTheme = useAppearance((s) => s.resolved);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const themePalette = useMemo(() => edgePalette(), [resolvedTheme]);
+  // minimap colors resolve per theme too (its mask is the canvas surface)
+  const minimapColors = useMemo(() => {
+    const cs = getComputedStyle(document.documentElement);
+    const surface = (cs.getPropertyValue('--color-surface').trim() || '#FAF9F7').replace('#', '');
+    const [r, g, b] = [0, 2, 4].map((i) => parseInt(surface.slice(i, i + 2), 16));
+    return {
+      mask: `rgba(${r},${g},${b},0.7)`,
+      archived: cs.getPropertyValue('--color-wash').trim() || '#EFEDE9',
+      ordinary: resolvedTheme === 'dark' ? '#6E6759' : '#B9B3AB',
+    };
+   
+  }, [resolvedTheme]);
   const prevNodeCount = useRef(nodes.length);
   // Every "center on node" goes through here: when the focus panel is open
   // the visual center sits half the panel further left, so the target shifts
@@ -835,9 +855,23 @@ function Canvas() {
     // DASHED = bypass (references, watch). Explore branches are structural,
     // so legacy dashed-orange branch edges are normalized to solid here
     // (styles persist per edge; this fixes old canvases centrally).
-    const base = edges.map((e) => e.data?.isBranchFromSelection
-      ? { ...e, animated: false, style: { ...e.style, strokeDasharray: undefined } }
-      : e);
+    // Theme mapping happens here too: storage keeps the canonical light hex
+    // as the edge's semantic identity, the render layer resolves it against
+    // the active theme — old backups need no migration.
+    const base = edges.map((raw) => {
+      const e = raw.data?.isBranchFromSelection
+        ? { ...raw, animated: false, style: { ...raw.style, strokeDasharray: undefined } }
+        : raw;
+      const strokeSlot = typeof e.style?.stroke === 'string' ? LEGACY_EDGE_HEX[e.style.stroke.toUpperCase()] : undefined;
+      const marker = e.markerEnd && typeof e.markerEnd === 'object' ? e.markerEnd : undefined;
+      const markerSlot = typeof marker?.color === 'string' ? LEGACY_EDGE_HEX[marker.color.toUpperCase()] : undefined;
+      if (!strokeSlot && !markerSlot) return e;
+      return {
+        ...e,
+        ...(strokeSlot ? { style: { ...e.style, stroke: themePalette[strokeSlot] } } : {}),
+        ...(markerSlot && marker ? { markerEnd: { ...marker, color: themePalette[markerSlot] } } : {}),
+      };
+    });
     const activeIds = selectedNodeIds.length > 0 ? selectedNodeIds : (selectedNodeId ? [selectedNodeId] : []);
     if (activeIds.length === 0) return base;
 
@@ -848,8 +882,8 @@ function Canvas() {
       if (ancestorEdgeIds.has(e.id)) {
         return {
           ...e,
-          style: { ...e.style, stroke: COLORS.trace, strokeWidth: 3.5, opacity: 1 },
-          markerEnd: { type: 'arrowclosed' as const, ...((e.markerEnd && typeof e.markerEnd === 'object') ? e.markerEnd : {}), color: COLORS.trace },
+          style: { ...e.style, stroke: themePalette.trace, strokeWidth: 3.5, opacity: 1 },
+          markerEnd: { type: 'arrowclosed' as const, ...((e.markerEnd && typeof e.markerEnd === 'object') ? e.markerEnd : {}), color: themePalette.trace },
           zIndex: 10,
         };
       }
@@ -860,7 +894,7 @@ function Canvas() {
         zIndex: 0,
       };
     });
-  }, [nodes, edges, selectedNodeId, selectedNodeIds]);
+  }, [nodes, edges, selectedNodeId, selectedNodeIds, themePalette]);
 
   // The panel is an overlay — the canvas never resizes. When it opens (or
   // the selection moves while it is open) and the selected node would be
@@ -980,9 +1014,11 @@ function Canvas() {
         defaultEdgeOptions={{
           type: 'smoothstep',
           animated: false,
-          style: { stroke: COLORS.accent, strokeWidth: 2 },
-          markerEnd: { type: 'arrowclosed' as const, color: COLORS.accent, width: 18, height: 18 },
+          style: { stroke: themePalette.accent, strokeWidth: 2 },
+          markerEnd: { type: 'arrowclosed' as const, color: themePalette.accent, width: 18, height: 18 },
         }}
+        snapToGrid={paperTexture === 'grid'}
+        snapGrid={[22, 22]}
         proOptions={{ hideAttribution: true }}
         nodeDragThreshold={5}
         connectionRadius={40}
@@ -992,11 +1028,19 @@ function Canvas() {
         nodesConnectable={!isViewerMode}
         panOnDrag={isViewerMode ? true : [1, 2]}
         zoomOnDoubleClick={false}
-        connectionLineStyle={{ stroke: COLORS.accent, strokeDasharray: '8 4', strokeWidth: 2 }}
+        connectionLineStyle={{ stroke: themePalette.accent, strokeDasharray: '8 4', strokeWidth: 2 }}
         onSelectionChange={onSelectionChange}
         onPaneClick={() => { setSelectedNodeId(null); setSelectedNodeIds([]); setNodeMenu(null); }}
       >
-        <Background variant={BackgroundVariant.Dots} gap={24} size={1} color="#E8E5E0" />
+        {paperTexture === 'grid' ? (
+          <>
+            {/* the drafting board: fine grid + a major line every 5 cells */}
+            <Background id="grid-fine" variant={BackgroundVariant.Lines} gap={22} color="var(--canvas-grid-fine)" />
+            <Background id="grid-major" variant={BackgroundVariant.Lines} gap={110} color="var(--canvas-grid-major)" />
+          </>
+        ) : (
+          <Background variant={BackgroundVariant.Dots} gap={24} size={1} color="var(--canvas-dot)" />
+        )}
         <ZoomTierTag />
         <TimelineBar />
         <Controls position="bottom-left" />
@@ -1005,15 +1049,15 @@ function Canvas() {
             const data = node.data as Record<string, unknown>;
             // information density over decoration: type is color, archived
             // fades to paper, ordinary turns stay a readable mid-gray
-            if (data.archived) return '#EFEDE9';
+            if (data.archived) return minimapColors.archived;
             const sk = data.stepKind as string | undefined;
             if (sk === 'note') return '#D97706';
             if (sk === 'file' || sk === 'link') return '#64748B';
             if (Array.isArray(data.condensedFrom) && data.condensedFrom.length) return '#8B7CF0';
-            return data.isRoot ? COLORS.accent : data.isBranch ? COLORS.warm : '#B9B3AB';
+            return data.isRoot ? themePalette.accent : data.isBranch ? themePalette.warm : minimapColors.ordinary;
           }}
-          maskColor="rgba(250,249,247,0.7)"
-          style={{ background: COLORS.card, width: 200, height: 140 }}
+          maskColor={minimapColors.mask}
+          style={{ width: 200, height: 140 }}
           pannable
           zoomable
           position="bottom-right"
@@ -1637,6 +1681,37 @@ function Canvas() {
                 </button>
               )}
               {hasNodes && <div className="border-t border-line/60 my-1" />}
+              {/* appearance: two independent axes — lighting remaps the
+                  tokens, paper retextures the canvas (and arms snapping) */}
+              <div className="px-3 pt-2 pb-1" data-appearance-lighting>
+                <div className="text-2xs text-ink-faint mb-1.5">{t('appearance.lighting')}</div>
+                <div className="flex rounded-lg border border-line overflow-hidden text-2xs">
+                  {([['light', t('appearance.light')], ['dark', t('appearance.dark')], ['system', t('appearance.system')]] as const).map(([v, label], i) => (
+                    <button
+                      key={v}
+                      onClick={() => useAppearance.getState().setLighting(v)}
+                      className={`flex-1 px-1 py-1.5 transition-colors ${i > 0 ? 'border-l border-line' : ''} ${lightingChoice === v ? 'bg-accent/10 text-accent font-medium' : 'text-ink-muted hover:bg-wash'}`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="px-3 pt-1 pb-2" data-appearance-paper>
+                <div className="text-2xs text-ink-faint mb-1.5">{t('appearance.paper')}</div>
+                <div className="flex rounded-lg border border-line overflow-hidden text-2xs">
+                  {([['plain', t('appearance.plain')], ['grid', t('appearance.grid')]] as const).map(([v, label], i) => (
+                    <button
+                      key={v}
+                      onClick={() => useAppearance.getState().setPaper(v)}
+                      className={`flex-1 px-1 py-1.5 transition-colors ${i > 0 ? 'border-l border-line' : ''} ${paperTexture === v ? 'bg-accent/10 text-accent font-medium' : 'text-ink-muted hover:bg-wash'}`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="border-t border-line/60 my-1" />
               <button
                 onClick={() => { setMoreOpen(false); useUiStore.getState().setMemoryManagerOpen(true); }}
                 className="w-full text-left px-3 py-2 text-xs text-ink hover:bg-wash transition-colors flex items-center gap-2.5"

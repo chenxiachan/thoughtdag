@@ -5,6 +5,10 @@ import '@fontsource-variable/jetbrains-mono/index.css'
 import App from './App'
 import { bootProjects } from './store/projects'
 import { isViewerMode, bootViewer } from './lib/viewer'
+import { initAppearance } from './lib/appearance'
+
+// Theme attributes land on <html> before first paint — no wrong-theme flash
+initAppearance()
 
 // Resolve the active project and rehydrate the store before/while React
 // mounts — App's hydration gate opens when this finishes. A #view= link

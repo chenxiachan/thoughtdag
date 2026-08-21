@@ -29,15 +29,19 @@ export default function Toaster() {
             className={`flex items-start gap-2.5 border rounded-xl shadow-lg px-4 py-3 animate-fade-in ${KIND_STYLES[t.kind]}`}
           >
             <Icon size={16} strokeWidth={1.75} className="shrink-0 mt-0.5" />
-            <p className="text-xs leading-relaxed flex-1 break-words">{t.message}</p>
-            {t.action && (
-              <button
-                onClick={() => { t.action!.run(); dismissToast(t.id); }}
-                className="shrink-0 text-2xs font-medium bg-accent/10 text-accent hover:bg-accent/20 px-2.5 py-1 rounded-lg transition-colors"
-              >
-                {t.action.label}
-              </button>
-            )}
+            {/* message owns the full row; the action drops below it — a long
+                action label once crushed the message to two chars a line */}
+            <div className="flex-1 min-w-0">
+              <p className="text-xs leading-relaxed break-words">{t.message}</p>
+              {t.action && (
+                <button
+                  onClick={() => { t.action!.run(); dismissToast(t.id); }}
+                  className="mt-2 text-2xs font-medium bg-accent/10 text-accent hover:bg-accent/20 px-2.5 py-1 rounded-lg transition-colors"
+                >
+                  {t.action.label}
+                </button>
+              )}
+            </div>
             <button
               onClick={() => dismissToast(t.id)}
               className="shrink-0 opacity-50 hover:opacity-100 transition-opacity"
