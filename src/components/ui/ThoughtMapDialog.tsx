@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Copy, Download, Loader2, Sparkles, X } from 'lucide-react';
+import { ArrowLeft, Copy, Download, Loader2, Sparkles, X } from 'lucide-react';
 import { useStore } from '../../store';
 import { useUiStore, toast } from '../../lib/ui-store';
 import { useProjects } from '../../store/projects';
@@ -12,36 +12,43 @@ import {
 } from '../../lib/thought-map';
 import { llmCall } from '../../lib/api';
 
-// The export console for the thought map. The knobs ARE the feature: a
-// picture the user tuned is a picture they own — and share. Zero-content
-// principle: the artifact carries shape, counts, and the two lines the
-// user typed here; canvas text never enters it (or the caption prompt).
+// The thought-map console, two rooms with one door between them. Room one
+// edits the PICTURE: knobs left, live artifact centre, a feed-size
+// thumbnail as the honesty check — and a single exit, Download. Room two
+// edits the WORDS: the caption (attribution included, one editable body)
+// and the platform doors. Zero-content principle: the artifact and the
+// caption carry shape, counts, and hand-approved lines only. The AI draft
+// reads the canvas LOCALLY (root question + map plaques) exactly like
+// every other model feature; nothing ships until the user exports it.
 
 const LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44"><rect width="44" height="44" rx="10" fill="#FAF9F7"/><line x1="19" y1="10" x2="19" y2="18" stroke="#6B5CE7" stroke-width="2.5" stroke-linecap="round"/><line x1="19" y1="25" x2="19" y2="33" stroke="#6B5CE7" stroke-width="2.5" stroke-linecap="round"/><line x1="22.5" y1="23.5" x2="30" y2="28.5" stroke="#E08A3C" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="3 3"/><circle cx="19" cy="7" r="3.8" fill="#6B5CE7"/><circle cx="19" cy="21.5" r="3.8" fill="none" stroke="#6B5CE7" stroke-width="2.6"/><circle cx="19" cy="36.5" r="3.8" fill="#6B5CE7"/><circle cx="32.5" cy="30" r="3.4" fill="#E08A3C"/></svg>`;
 
-function Artifact({ structure, positions, stats, title, subtitle, lang, paper, ts, artRef }: {
+const KICKER = { zh: '一张思路地图', en: 'A THOUGHT MAP' };
+
+function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper, ts, artRef }: {
   structure: MapStructure;
   positions: Record<string, [number, number]>;
   stats: MapStats;
   title: string;
   subtitle: string;
-  lang: 'zh' | 'en';
+  mapLang: 'zh' | 'en';
   paper: 'light' | 'dark';
   ts: number;
-  artRef: React.RefObject<HTMLDivElement | null>;
+  artRef?: React.RefObject<HTMLDivElement | null>;
 }) {
-  const t = useT();
   const boxRef = useRef<HTMLDivElement>(null);
+  const selfRef = useRef<HTMLDivElement>(null);
   const bbox = useMemo(() => {
     const xs = Object.values(positions).map((p) => p[0]);
     const ys = Object.values(positions).map((p) => p[1]);
     return { w: Math.max(...xs) - Math.min(...xs) + 1, h: Math.max(...ys) - Math.min(...ys) + 1 };
   }, [positions]);
   const tpl = bbox.h / bbox.w >= 1.35 ? 'scroll' : 'cover';
-  const parts = statParts(stats, lang);
+  const parts = statParts(stats, mapLang);
 
   useEffect(() => {
-    const box = boxRef.current, art = artRef.current;
+    const box = boxRef.current;
+    const art = artRef?.current ?? selfRef.current;
     if (!box || !art) return;
     box.innerHTML = '';
     const bw = box.clientWidth, bh = box.clientHeight;
@@ -54,7 +61,6 @@ function Artifact({ structure, positions, stats, title, subtitle, lang, paper, t
     };
     const svg = S('svg', { width: '100%', height: '100%', viewBox: `0 0 ${bw} ${bh}` });
     box.appendChild(svg);
-    // orient the graph to the box, fit with a tight margin
     const rot = (bbox.h / bbox.w >= 1) !== (bh / bw >= 1);
     const P: Record<string, [number, number]> = {};
     Object.entries(positions).forEach(([id, [x, y]]) => { P[id] = rot ? [y, -x] : [x, y]; });
@@ -97,11 +103,11 @@ function Artifact({ structure, positions, stats, title, subtitle, lang, paper, t
     </div>
   );
   return (
-    <div ref={artRef} className={`tmap-art tmap-${paper} tmap-${tpl}`} style={{ ['--tmts' as string]: ts }} data-tmap-art>
+    <div ref={artRef ?? selfRef} className={`tmap-art tmap-${paper} tmap-${tpl}`} style={{ ['--tmts' as string]: ts }} data-tmap-art>
       {tpl === 'scroll' ? (
         <>
           <div className="tmap-head">
-            <div className="tmap-k">{t('tmap.kicker')}</div>
+            <div className="tmap-k">{KICKER[mapLang]}</div>
             <h4 className="tmap-t">{title}</h4>
             {subtitle && <div className="tmap-s">{subtitle}</div>}
             <div className="tmap-rule" />
@@ -116,7 +122,7 @@ function Artifact({ structure, positions, stats, title, subtitle, lang, paper, t
       ) : (
         <>
           <div className="tmap-head">
-            <div className="tmap-k">{t('tmap.kicker')}</div>
+            <div className="tmap-k">{KICKER[mapLang]}</div>
             <h4 className="tmap-t">{title}</h4>
             {subtitle && <div className="tmap-s">{subtitle}</div>}
           </div>
@@ -134,13 +140,15 @@ function Artifact({ structure, positions, stats, title, subtitle, lang, paper, t
 export default function ThoughtMapDialog() {
   const open = useUiStore((s) => s.thoughtMapOpen);
   const t = useT();
-  const lang = useI18n((s) => s.lang);
+  const uiLang = useI18n((s) => s.lang);
   const nodes = useStore((s) => s.nodes);
   const edges = useStore((s) => s.edges);
   const projectName = useProjects((s) => s.projects.find((p) => p.id === s.activeId)?.name ?? '');
 
+  const [step, setStep] = useState<'image' | 'share'>('image');
   const [layout, setLayout] = useState<'tidy' | 'hand'>('tidy');
   const [paper, setPaper] = useState<'light' | 'dark'>('light');
+  const [mapLang, setMapLang] = useState<'zh' | 'en'>('zh');
   const [ts, setTs] = useState(1.15);
   const [title, setTitle] = useState('');
   const [subtitle, setSubtitle] = useState('');
@@ -156,15 +164,23 @@ export default function ThoughtMapDialog() {
     [structure, layout],
   );
 
-  // opening seeds the hand-filled fields; the canvas name is a fair default
-  // for the PUBLIC title only because the user sees and can rewrite it here
   useEffect(() => {
     if (!open) return;
+    setStep('image');
+    setMapLang(uiLang);
     setTitle(projectName);
     setSubtitle('');
-    setCaption(fallbackCaption(lang, projectName || 'ThoughtDAG', stats));
+    setCaption(`${fallbackCaption(uiLang, projectName || 'ThoughtDAG', stats)}\n\n${attributionLine()}`);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
+
+  // the artifact language also rewrites the fallback caption (untouched drafts only)
+  const capTouched = useRef(false);
+  useEffect(() => {
+    if (!open || capTouched.current) return;
+    setCaption(`${fallbackCaption(mapLang, title || 'ThoughtDAG', stats)}\n\n${attributionLine()}`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mapLang]);
 
   useEffect(() => {
     if (!open) return;
@@ -174,136 +190,184 @@ export default function ThoughtMapDialog() {
   }, [open]);
 
   if (!open) return null;
-  const close = () => useUiStore.getState().setThoughtMapOpen(false);
-  const fullCaption = () => `${caption.trim()}\n\n${attributionLine()}`;
+  const close = () => { capTouched.current = false; useUiStore.getState().setThoughtMapOpen(false); };
 
-  const renderPng = async (): Promise<string> => {
-    const { toPng } = await import('html-to-image');
-    return toPng(artRef.current!, { pixelRatio: 1200 / 460 });
-  };
-  const downloadPng = async (): Promise<void> => {
+  const downloadPng = async (): Promise<boolean> => {
     setBusy(true);
     try {
-      const url = await renderPng();
+      const { toPng } = await import('html-to-image');
+      const url = await toPng(artRef.current!, { pixelRatio: 1200 / 460 });
       const a = document.createElement('a');
       a.download = `thought-map-${new Date().toISOString().slice(0, 10)}.png`;
       a.href = url;
       a.click();
+      return true;
     } catch {
       toast('error', t('tmap.exportFailed'));
+      return false;
     } finally { setBusy(false); }
   };
-  const saveAndCopy = async (): Promise<void> => {
-    await downloadPng();
-    await navigator.clipboard.writeText(fullCaption()).catch(() => {});
-    toast('success', t('tmap.savedCopied'));
-  };
+
+  // one draft, three fields: title, subtitle, caption — sourced from the
+  // root question and the map plaques (the already-distilled layer)
   const draft = async (): Promise<void> => {
     setDrafting(true);
     try {
-      const s = statParts(stats, lang).map(([n, l]) => `${n} ${l}`).join(', ');
-      const text = await llmCall([{
+      const root = nodes.find((n) => n.data.isRoot)?.data.question?.slice(0, 200) ?? '';
+      const plaques = nodes
+        .map((n) => { const ss = n.data.summaries; return Array.isArray(ss) ? (ss[n.data.responseIndex] ?? ss[0]) : undefined; })
+        .filter((x): x is string => !!x)
+        .slice(0, 24);
+      const s = statParts(stats, mapLang).map(([n, l]) => `${n} ${l}`).join(', ');
+      const langName = mapLang === 'zh' ? 'Chinese' : 'English';
+      const raw = await llmCall([{
         role: 'user',
-        content: `Write a short social media caption in ${lang === 'zh' ? 'Chinese' : 'English'} (2-3 sentences) about a "thought map" image: a picture of how someone explored one question, node by node. You know ONLY these public facts, use nothing else: title "${title}", ${subtitle ? `subtitle "${subtitle}", ` : ''}structure: ${s}. First person, calm and concrete, no hype, no hashtags, no emoji, and never use dash characters (—, –, -); use commas or periods instead. Do not mention any tool name. Output only the caption text.`,
+        content: `You are naming a share image called a "thought map": a picture of how someone explored one question, node by node. Sources:\nRoot question: ${root}\nStep takeaways: ${plaques.join(' / ')}\nStructure: ${s}\n\nWrite in ${langName}, output STRICT JSON only, no code fence:\n{"title":"...","subtitle":"...","caption":"..."}\ntitle: what this exploration was about, at most 24 characters, evocative but concrete, no tool names.\nsubtitle: one short line of context, at most 40 characters.\ncaption: 2 or 3 first-person sentences for a social post, calm and concrete, no hype, no hashtags, no emoji, no tool names.\nNever use dash characters anywhere; use commas or periods.`,
       }]);
-      if (text.trim()) setCaption(text.trim());
+      const m = raw.match(/\{[\s\S]*\}/);
+      if (m) {
+        const j = JSON.parse(m[0]) as { title?: string; subtitle?: string; caption?: string };
+        if (j.title) setTitle(j.title.slice(0, 24));
+        if (j.subtitle) setSubtitle(j.subtitle.slice(0, 40));
+        if (j.caption) { capTouched.current = true; setCaption(`${j.caption.trim()}\n\n${attributionLine()}`); }
+      } else {
+        toast('error', t('tmap.draftFailed'));
+      }
     } catch {
       toast('error', t('tmap.draftFailed'));
     } finally { setDrafting(false); }
   };
 
-  const seg = (val: string, cur: string, set: () => void, label: string, key: string) => (
-    <button key={key} onClick={set}
-      className={`flex-1 px-2 py-1.5 text-2xs transition-colors border-l border-line first:border-l-0 ${cur === val ? 'bg-accent/10 text-accent font-medium' : 'text-ink-muted hover:bg-wash'}`}>
-      {label}
-    </button>
+  const share = (kind: 'x' | 'linkedin' | 'save') => {
+    void navigator.clipboard.writeText(caption).catch(() => {});
+    if (kind === 'x') window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(caption)}`, '_blank');
+    else if (kind === 'linkedin') { window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(TMAP_SITE_URL)}`, '_blank'); toast('success', t('tmap.captionCopied')); }
+    else { void downloadPng(); toast('success', t('tmap.savedCopied')); }
+  };
+
+  const seg = (
+    entries: [string, string][],
+    cur: string,
+    set: (v: string) => void,
+  ) => (
+    <div className="flex rounded-lg border border-line overflow-hidden">
+      {entries.map(([v, label], i) => (
+        <button key={v} onClick={() => set(v)}
+          className={`flex-1 px-2 py-1.5 text-2xs whitespace-nowrap transition-colors ${i > 0 ? 'border-l border-line' : ''} ${cur === v ? 'bg-accent/10 text-accent font-medium' : 'text-ink-muted hover:bg-wash'}`}>
+          {label}
+        </button>
+      ))}
+    </div>
   );
 
   return createPortal((
     <div className="fixed inset-0 z-[85] bg-ink/25 backdrop-blur-[2px] flex items-center justify-center animate-fade-in" onClick={close} data-thought-map>
-      <div className="bg-surface rounded-2xl shadow-2xl border border-line w-[min(880px,95vw)] max-h-[94vh] overflow-y-auto p-5" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-start justify-between mb-1">
+      <div className="bg-surface rounded-2xl shadow-2xl border border-line w-[min(1040px,96vw)] max-h-[95vh] overflow-y-auto p-6" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-start justify-between mb-4">
           <div>
-            <div className="text-sm font-semibold text-ink">{t('tmap.title')}</div>
+            <div className="text-sm font-semibold text-ink">{t('tmap.title')}{step === 'share' ? ` · ${t('tmap.shareStep')}` : ''}</div>
             <div className="text-2xs text-ink-faint mt-0.5">{t('tmap.zeroContent')}</div>
           </div>
           <button onClick={close} className="w-7 h-7 rounded-lg text-ink-faint hover:bg-wash hover:text-ink flex items-center justify-center transition-colors">
             <X size={15} strokeWidth={1.75} />
           </button>
         </div>
-        <div className="flex gap-5 mt-3 flex-wrap">
-          {/* controls */}
-          <div className="w-[300px] flex flex-col gap-3 shrink-0">
-            <div>
-              <div className="text-2xs text-ink-faint mb-1">{t('tmap.publicTitle')} <span className="float-right font-mono">{title.length}/24</span></div>
-              <input value={title} maxLength={24} onChange={(e) => setTitle(e.target.value)} data-tmap-title
-                className="w-full border border-line rounded-lg px-3 py-1.5 text-xs bg-card text-ink focus:outline-none focus:ring-1 focus:ring-accent/40" />
-            </div>
-            <div>
-              <div className="text-2xs text-ink-faint mb-1">{t('tmap.subtitle')}</div>
-              <input value={subtitle} maxLength={40} onChange={(e) => setSubtitle(e.target.value)} placeholder={t('tmap.subtitlePh')}
-                className="w-full border border-line rounded-lg px-3 py-1.5 text-xs bg-card text-ink placeholder-ink-faint focus:outline-none focus:ring-1 focus:ring-accent/40" />
-            </div>
-            <div className="flex gap-3">
-              <div className="flex-1">
+
+        {step === 'image' ? (
+          <div className="flex gap-6 flex-wrap">
+            {/* knobs */}
+            <div className="w-[250px] flex flex-col gap-3.5 shrink-0">
+              <div>
+                <div className="text-2xs text-ink-faint mb-1 flex items-center justify-between">
+                  <span>{t('tmap.publicTitle')}</span>
+                  <button onClick={() => void draft()} disabled={drafting} data-tmap-draft
+                    className="flex items-center gap-1 text-2xs text-accent hover:bg-accent/10 rounded-md px-1.5 py-0.5 transition-colors disabled:opacity-50">
+                    {drafting ? <Loader2 size={11} className="animate-spin" /> : <Sparkles size={11} strokeWidth={1.75} />}
+                    {drafting ? t('tmap.drafting') : t('tmap.draft')}
+                  </button>
+                </div>
+                <input value={title} maxLength={24} onChange={(e) => setTitle(e.target.value)} data-tmap-title
+                  className="w-full border border-line rounded-lg px-3 py-1.5 text-xs bg-card text-ink focus:outline-none focus:ring-1 focus:ring-accent/40" />
+                <div className="text-2xs text-ink-faint font-mono text-right mt-0.5">{title.length}/24</div>
+              </div>
+              <div>
+                <div className="text-2xs text-ink-faint mb-1">{t('tmap.subtitle')}</div>
+                <input value={subtitle} maxLength={40} onChange={(e) => setSubtitle(e.target.value)} placeholder={t('tmap.subtitlePh')} data-tmap-subtitle
+                  className="w-full border border-line rounded-lg px-3 py-1.5 text-xs bg-card text-ink placeholder-ink-faint focus:outline-none focus:ring-1 focus:ring-accent/40" />
+              </div>
+              <div>
                 <div className="text-2xs text-ink-faint mb-1">{t('tmap.layout')}</div>
-                <div className="flex rounded-lg border border-line overflow-hidden">
-                  {seg('tidy', layout, () => setLayout('tidy'), t('tmap.tidy'), 'tidy')}
-                  {seg('hand', layout, () => setLayout('hand'), t('tmap.hand'), 'hand')}
-                </div>
+                {seg([['tidy', t('tmap.tidy')], ['hand', t('tmap.hand')]], layout, (v) => setLayout(v as 'tidy' | 'hand'))}
               </div>
-              <div className="flex-1">
+              <div>
                 <div className="text-2xs text-ink-faint mb-1">{t('tmap.paper')}</div>
-                <div className="flex rounded-lg border border-line overflow-hidden">
-                  {seg('light', paper, () => setPaper('light'), t('tmap.paperLight'), 'l')}
-                  {seg('dark', paper, () => setPaper('dark'), t('tmap.paperDark'), 'd')}
-                </div>
+                {seg([['light', t('tmap.paperLight')], ['dark', t('tmap.paperDark')]], paper, (v) => setPaper(v as 'light' | 'dark'))}
               </div>
-            </div>
-            <div>
-              <div className="text-2xs text-ink-faint mb-1">{t('tmap.size')} <span className="float-right font-mono">{ts.toFixed(2)}×</span></div>
-              <input type="range" min={0.85} max={1.45} step={0.05} value={ts} onChange={(e) => setTs(parseFloat(e.target.value))}
-                className="w-full accent-[color:var(--color-accent)]" />
-            </div>
-            <div>
-              <div className="text-2xs text-ink-faint mb-1 flex items-center justify-between">
-                <span>{t('tmap.caption')}</span>
-                <button onClick={() => void draft()} disabled={drafting}
-                  className="flex items-center gap-1 text-2xs text-accent hover:bg-accent/10 rounded-md px-1.5 py-0.5 transition-colors disabled:opacity-50">
-                  {drafting ? <Loader2 size={11} className="animate-spin" /> : <Sparkles size={11} strokeWidth={1.75} />}
-                  {drafting ? t('tmap.drafting') : t('tmap.draft')}
-                </button>
+              <div>
+                <div className="text-2xs text-ink-faint mb-1">{t('tmap.mapLang')}</div>
+                {seg([['zh', '中文'], ['en', 'EN']], mapLang, (v) => setMapLang(v as 'zh' | 'en'))}
               </div>
-              <textarea value={caption} onChange={(e) => setCaption(e.target.value)} rows={4}
-                className="w-full border border-line rounded-lg px-3 py-2 text-xs bg-card text-ink leading-relaxed resize-none focus:outline-none focus:ring-1 focus:ring-accent/40" />
-              <div className="text-2xs text-ink-faint font-mono mt-1 leading-snug">{attributionLine()}</div>
-            </div>
-            <div className="flex flex-wrap gap-2 pt-1">
-              <button onClick={() => void downloadPng()} disabled={busy} data-tmap-download
-                className="flex items-center gap-1.5 text-xs font-medium bg-accent/10 text-accent hover:bg-accent/20 border border-accent/30 rounded-lg px-3 py-2 transition-colors disabled:opacity-50">
+              <div>
+                <div className="text-2xs text-ink-faint mb-1">{t('tmap.size')} <span className="float-right font-mono">{ts.toFixed(2)}×</span></div>
+                <input type="range" min={0.85} max={1.45} step={0.05} value={ts} onChange={(e) => setTs(parseFloat(e.target.value))}
+                  className="w-full accent-[color:var(--color-accent)]" />
+              </div>
+              <div className="flex-1" />
+              <button onClick={() => { void downloadPng().then((ok) => { if (ok) setStep('share'); }); }} disabled={busy} data-tmap-download
+                className="flex items-center justify-center gap-1.5 text-xs font-semibold bg-accent text-white hover:bg-accent-strong rounded-lg px-3 py-2.5 transition-colors disabled:opacity-50">
                 {busy ? <Loader2 size={13} className="animate-spin" /> : <Download size={13} strokeWidth={1.75} />}
                 {t('tmap.download')}
               </button>
-              <button onClick={() => { void navigator.clipboard.writeText(fullCaption()); toast('success', t('tmap.captionCopied')); }}
-                className="flex items-center gap-1.5 text-xs border border-line text-ink-muted hover:bg-wash rounded-lg px-3 py-2 transition-colors">
-                <Copy size={13} strokeWidth={1.75} /> {t('tmap.copyCaption')}
-              </button>
-              <button onClick={() => { void navigator.clipboard.writeText(fullCaption()); window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(fullCaption())}`, '_blank'); }}
-                className="text-xs border border-line text-ink-muted hover:bg-wash rounded-lg px-3 py-2 transition-colors">X</button>
-              <button onClick={() => { void navigator.clipboard.writeText(fullCaption()); window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(TMAP_SITE_URL)}`, '_blank'); toast('success', t('tmap.captionCopied')); }}
-                className="text-xs border border-line text-ink-muted hover:bg-wash rounded-lg px-3 py-2 transition-colors">LinkedIn</button>
-              <button onClick={() => void saveAndCopy()}
-                className="text-xs border border-line text-ink-muted hover:bg-wash rounded-lg px-3 py-2 transition-colors">{lang === 'zh' ? '小红书' : 'Instagram'}</button>
             </div>
-          </div>
-          {/* preview at 0.78 scale; the full-size node is what rasterizes */}
-          <div className="shrink-0" style={{ width: 460 * 0.78, height: 575 * 0.78 }}>
-            <div style={{ transform: 'scale(0.78)', transformOrigin: 'top left' }} className="rounded-md shadow-xl">
+            {/* the artifact, full size */}
+            <div className="shrink-0 rounded-md shadow-xl overflow-hidden" style={{ width: 460, height: 575 }}>
               <Artifact structure={structure} positions={positions} stats={stats}
-                title={title || 'ThoughtDAG'} subtitle={subtitle} lang={lang} paper={paper} ts={ts} artRef={artRef} />
+                title={title || 'ThoughtDAG'} subtitle={subtitle} mapLang={mapLang} paper={paper} ts={ts} artRef={artRef} />
+            </div>
+            {/* the honesty check: the feed-size thumbnail */}
+            <div className="flex flex-col items-center gap-2 shrink-0">
+              <div className="rounded-sm shadow-lg overflow-hidden" style={{ width: 132, height: 165 }}>
+                <div style={{ transform: 'scale(0.28695)', transformOrigin: 'top left', width: 460, height: 575 }}>
+                  <Artifact structure={structure} positions={positions} stats={stats}
+                    title={title || 'ThoughtDAG'} subtitle={subtitle} mapLang={mapLang} paper={paper} ts={ts} />
+                </div>
+              </div>
+              <div className="text-2xs text-ink-faint">{t('tmap.thumbCap')}</div>
             </div>
           </div>
-        </div>
+        ) : (
+          <div className="flex gap-6 flex-wrap" data-tmap-share-step>
+            <div className="shrink-0 rounded-sm shadow-lg overflow-hidden" style={{ width: 184, height: 230 }}>
+              <div style={{ transform: 'scale(0.4)', transformOrigin: 'top left', width: 460, height: 575 }}>
+                <Artifact structure={structure} positions={positions} stats={stats}
+                  title={title || 'ThoughtDAG'} subtitle={subtitle} mapLang={mapLang} paper={paper} ts={ts} artRef={artRef} />
+              </div>
+            </div>
+            <div className="flex-1 min-w-[320px] flex flex-col gap-3">
+              <div>
+                <div className="text-2xs text-ink-faint mb-1">{t('tmap.caption')}</div>
+                <textarea value={caption} onChange={(e) => { capTouched.current = true; setCaption(e.target.value); }} rows={7} data-tmap-caption
+                  className="w-full border border-line rounded-lg px-3 py-2 text-xs bg-card text-ink leading-relaxed resize-none focus:outline-none focus:ring-1 focus:ring-accent/40" />
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button onClick={() => { void navigator.clipboard.writeText(caption); toast('success', t('tmap.captionCopied')); }}
+                  className="flex items-center gap-1.5 text-xs font-medium bg-accent/10 text-accent hover:bg-accent/20 border border-accent/30 rounded-lg px-3 py-2 transition-colors">
+                  <Copy size={13} strokeWidth={1.75} /> {t('tmap.copyCaption')}
+                </button>
+                <button onClick={() => share('x')} className="text-xs border border-line text-ink-muted hover:bg-wash rounded-lg px-3 py-2 transition-colors">X</button>
+                <button onClick={() => share('linkedin')} className="text-xs border border-line text-ink-muted hover:bg-wash rounded-lg px-3 py-2 transition-colors">LinkedIn</button>
+                <button onClick={() => share('save')} className="text-xs border border-line text-ink-muted hover:bg-wash rounded-lg px-3 py-2 transition-colors">{t('tmap.xhs')}</button>
+                <button onClick={() => share('save')} className="text-xs border border-line text-ink-muted hover:bg-wash rounded-lg px-3 py-2 transition-colors">Instagram</button>
+              </div>
+              <div className="text-2xs text-ink-faint leading-relaxed">{t('tmap.shareHint')}</div>
+              <div className="flex-1" />
+              <button onClick={() => setStep('image')} data-tmap-back
+                className="self-start flex items-center gap-1.5 text-xs border border-line text-ink-muted hover:bg-wash rounded-lg px-3 py-2 transition-colors">
+                <ArrowLeft size={13} strokeWidth={1.75} /> {t('tmap.backToImage')}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   ), document.body);

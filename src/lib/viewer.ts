@@ -60,7 +60,10 @@ export async function buildViewerLink(nodes: ThoughtNode[], edges: ThoughtEdge[]
   };
   const bytes = new TextEncoder().encode(JSON.stringify(clean));
   const packed = await pipe(bytes, new CompressionStream('deflate-raw'));
-  return `${window.location.origin}${window.location.pathname}#view=${b64url.encode(packed)}`;
+  // Always the PUBLIC viewer origin: a link minted on the desktop app or a
+  // dev server would otherwise point at localhost and open for nobody. The
+  // payload is self-contained, so any deployment of the app can render it.
+  return `https://app.thoughtdag.workers.dev/#view=${b64url.encode(packed)}`;
 }
 
 export async function decodeViewerHash(hash: string): Promise<ViewerPayload> {

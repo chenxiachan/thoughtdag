@@ -2,32 +2,18 @@ import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Check, Copy, Eye, ImageDown, X } from 'lucide-react';
 import { useUiStore } from '../../lib/ui-store';
-import { useI18n, useT } from '../../i18n';
-import { exportGedankengangPoster } from '../../lib/poster';
+import { useT } from '../../i18n';
 
 // Two jobs, two lanes. LANE 1: the read-only canvas link — it CARRIES the
-// whole graph, so it is long by design; the right channels are the ones
-// tolerant of long URLs (chat, mail, docs), and the right control is Copy.
-// LANE 2: posting to social feeds — share intents truncate long URLs, so
-// the buttons carry the REPO link (permanent, survives any domain move,
-// unfurls into a preview card) and sit beside the poster export: on a feed,
-// the picture does the talking and the link does the pointing. Platform
-// names are functional identifiers (each button opens that platform).
-
-// The link follows the UI language: a zh share lands the reader on the
-// Chinese README, an en share on the repo front page. GitHub's social
-// preview image covers both, so the unfurl card stays identical.
-const REPO_URL = {
-  en: 'https://github.com/chenxiachan/thoughtdag',
-  zh: 'https://github.com/chenxiachan/thoughtdag/blob/main/README_ZH.md',
-};
-
+// whole graph (minted against the public viewer origin, so a link made on
+// the desktop app opens for anyone); long by design, so the right channels
+// are the ones tolerant of long URLs (chat, mail, docs) and the right
+// control is Copy. LANE 2: one door — the thought-map console owns the
+// whole feed story (picture, caption, platform buttons) so entries stay few.
 export default function ShareDialog() {
   const url = useUiStore((s) => s.shareDialogUrl);
   const t = useT();
-  const lang = useI18n((s) => s.lang);
   const [copied, setCopied] = useState(false);
-  const [exporting, setExporting] = useState(false);
   const close = () => { setCopied(false); useUiStore.getState().setShareDialogUrl(null); };
 
   useEffect(() => {
@@ -46,13 +32,6 @@ export default function ShareDialog() {
     setCopied(true);
     setTimeout(() => setCopied(false), 1600);
   };
-
-  const socialText = lang === 'zh' ? 'ThoughtDAG — 思考值得一张地图' : 'ThoughtDAG — your thinking deserves a map';
-  const repo = REPO_URL[lang];
-  const targets = [
-    { name: 'X', href: `https://twitter.com/intent/tweet?text=${encodeURIComponent(socialText)}&url=${encodeURIComponent(repo)}` },
-    { name: 'LinkedIn', href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(repo)}` },
-  ];
 
   return createPortal((
     <div className="fixed inset-0 z-[80] bg-ink/25 backdrop-blur-[2px] flex items-center justify-center animate-fade-in" onClick={close} data-share-dialog>
@@ -92,7 +71,7 @@ export default function ShareDialog() {
         <div className="border-t border-line pt-3">
           <div className="text-2xs font-semibold text-accent mb-1">{t('share.socialLane')}</div>
           <p className="text-xs text-ink-muted mb-2">{t('share.socialNote')}</p>
-          <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-2">
             <button
               onClick={() => { close(); useUiStore.getState().setThoughtMapOpen(true); }}
               data-share-thought-map
@@ -101,27 +80,6 @@ export default function ShareDialog() {
               <ImageDown size={13} strokeWidth={1.75} />
               {t('tmap.export')}
             </button>
-            <button
-              onClick={() => { setExporting(true); void exportGedankengangPoster(lang).finally(() => setExporting(false)); }}
-              disabled={exporting}
-              data-share-poster
-              title={t('tlov.exportPosterTitle')}
-              className="text-xs px-3 py-1.5 rounded-lg border border-line text-ink-muted hover:bg-wash hover:text-ink transition-colors flex items-center gap-1.5 disabled:opacity-50"
-            >
-              <ImageDown size={13} strokeWidth={1.75} />
-              {exporting ? t('tlov.exportingPoster') : t('tlov.exportPoster')}
-            </button>
-            {targets.map((s) => (
-              <a
-                key={s.name}
-                href={s.href}
-                target="_blank"
-                rel="noreferrer"
-                className="text-xs px-3 py-1.5 rounded-lg border border-line text-ink-muted hover:bg-wash hover:text-ink transition-colors"
-              >
-                {s.name}
-              </a>
-            ))}
           </div>
         </div>
       </div>
