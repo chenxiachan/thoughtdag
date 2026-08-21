@@ -1857,9 +1857,9 @@ function ThoughtMapPill() {
     <button
       onClick={() => useUiStore.getState().setThoughtMapOpen(true)}
       data-tmap-pill
-      className="absolute left-1/2 -translate-x-1/2 bottom-5 z-10 flex items-center gap-1.5 bg-card/95 backdrop-blur border border-line-strong rounded-full px-4 py-2 text-xs text-ink shadow-lg hover:border-accent/40 hover:text-accent transition-colors"
+      className="absolute left-1/2 -translate-x-1/2 bottom-6 z-10 flex items-center gap-2 bg-card/95 backdrop-blur border border-line-strong rounded-full px-5 py-2.5 text-sm text-ink shadow-lg hover:border-accent/40 hover:text-accent transition-colors"
     >
-      <ImageDown size={13} strokeWidth={1.75} /> {t('tmap.export')}
+      <ImageDown size={16} strokeWidth={1.75} /> {t('tmap.export')}
     </button>
   );
 }
