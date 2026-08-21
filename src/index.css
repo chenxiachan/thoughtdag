@@ -114,9 +114,9 @@
 .tmap-art .tmap-graph { position: absolute; inset: 0; z-index: 0; }
 .tmap-art .tmap-head, .tmap-art .tmap-footrow { position: relative; z-index: 2; }
 .tmap-art.tmap-light { background: #F8F4EB; color: #1A1713;
-  --tm-ink: #1A1713; --tm-mut: #6B6355; --tm-faint: #8A8272; --tm-red: #C73E2E; --tm-edge: rgba(26, 23, 19, .5); }
+  --tm-ink: #1A1713; --tm-ink-min: #C9C1B1; --tm-mut: #6B6355; --tm-faint: #8A8272; --tm-red: #C73E2E; --tm-edge: rgba(26, 23, 19, .5); }
 .tmap-art.tmap-dark { background: #201D17; color: #EDE7DA;
-  --tm-ink: #EDE7DA; --tm-mut: #B5AB97; --tm-faint: #8F8570; --tm-red: #E06A50; --tm-edge: rgba(237, 231, 218, .42); }
+  --tm-ink: #EDE7DA; --tm-ink-min: #57503F; --tm-mut: #B5AB97; --tm-faint: #8F8570; --tm-red: #E06A50; --tm-edge: rgba(237, 231, 218, .42); }
 .tmap-art.tmap-scroll { flex-direction: row; }
 .tmap-art.tmap-scroll .tmap-head { width: 200px; padding: 26px 0 22px 24px; display: flex; flex-direction: column; height: 100%; }
 .tmap-art.tmap-cover .tmap-head { padding: 24px 26px 0; }

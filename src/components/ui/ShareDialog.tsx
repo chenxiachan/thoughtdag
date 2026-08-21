@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Check, Copy, Eye, ImageDown, X } from 'lucide-react';
+import { Check, Copy, Eye, FileJson, ImageDown, X } from 'lucide-react';
 import { useUiStore } from '../../lib/ui-store';
+import { exportActiveProjectJson } from '../../lib/export';
 import { useT } from '../../i18n';
 
 // Two jobs, two lanes. LANE 1: the read-only canvas link — it CARRIES the
@@ -14,6 +15,7 @@ export default function ShareDialog() {
   const url = useUiStore((s) => s.shareDialogUrl);
   const t = useT();
   const [copied, setCopied] = useState(false);
+  const [readonlyMark, setReadonlyMark] = useState(true);
   const close = () => { setCopied(false); useUiStore.getState().setShareDialogUrl(null); };
 
   useEffect(() => {
@@ -65,6 +67,26 @@ export default function ShareDialog() {
             {copied ? <Check size={13} strokeWidth={2} /> : <Copy size={13} strokeWidth={1.75} />}
             {copied ? t('viewer.copied') : t('viewer.copyLink')}
           </button>
+        </div>
+        {url.length > 30000 && (
+          <p className="text-2xs text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 leading-relaxed mb-3" data-share-toolong>
+            {t('share.linkTooLong')}
+          </p>
+        )}
+        <div className="flex items-center gap-3 mb-4">
+          <button
+            onClick={() => void exportActiveProjectJson({ sharedReadonly: readonlyMark })}
+            data-share-fullfile
+            className="text-xs px-3 py-1.5 rounded-lg border border-line text-ink-muted hover:bg-wash hover:text-ink transition-colors flex items-center gap-1.5"
+          >
+            <FileJson size={13} strokeWidth={1.75} />
+            {t('share.fullFile')}
+          </button>
+          <label className="flex items-center gap-1.5 text-2xs text-ink-muted cursor-pointer select-none">
+            <input type="checkbox" checked={readonlyMark} onChange={(e) => setReadonlyMark(e.target.checked)}
+              className="accent-[color:var(--color-accent)]" />
+            {t('share.readonlyMark')}
+          </label>
         </div>
 
         {/* Lane 2: post to a feed — picture + permanent repo link */}

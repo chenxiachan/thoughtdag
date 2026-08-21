@@ -12,6 +12,9 @@ export interface MapNode {
   material: boolean;
   root: boolean;
   marked: boolean; // decision / pivot / ruleout — the red dots
+  /** creation time in ms, mined from the id ('node-<ms>-<n>') — fuels the
+      time-ink gradient (early thoughts pale, late thoughts full ink) */
+  ts?: number;
 }
 export interface MapEdge { s: string; t: string; dashed: boolean }
 export interface MapStructure { nodes: MapNode[]; edges: MapEdge[] }
@@ -31,6 +34,7 @@ export function extractStructure(nodes: ThoughtNode[], edges: ThoughtEdge[]): Ma
     nodes: nodes.map((n) => {
       const st = n.data.summaryTypes;
       const tk = Array.isArray(st) ? (st[n.data.responseIndex] ?? st[0]) : undefined;
+      const tsMatch = n.id.match(/-(\d{13})-/);
       return {
         id: n.id,
         x: n.position.x,
@@ -38,6 +42,7 @@ export function extractStructure(nodes: ThoughtNode[], edges: ThoughtEdge[]): Ma
         material: MATERIAL_KINDS.has(n.data.stepKind ?? ''),
         root: !!n.data.isRoot,
         marked: tk === 'decision' || tk === 'pivot' || tk === 'ruleout',
+        ts: tsMatch ? Number(tsMatch[1]) : undefined,
       };
     }),
     edges: edges.map((e) => ({

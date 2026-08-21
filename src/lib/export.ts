@@ -6,7 +6,7 @@ import { detectFormat, listConversations, type ImportableConversation } from './
 import { isParadigmFile } from './paradigm';
 import { getContextPath } from './graph';
 import { countTokens } from '../utils';
-import { toast } from './ui-store';
+import { confirmDialog, toast } from './ui-store';
 import { inlineVaultedContent, internNodes } from './attachment-vault';
 import { t, fmt } from '../i18n';
 import type { ThoughtNode, ThoughtEdge } from '../types';
@@ -39,7 +39,7 @@ export function activeProjectName(): string {
 }
 
 // ─── Whole-canvas JSON backup ───────────────────────────────────
-export async function exportActiveProjectJson(): Promise<void> {
+export async function exportActiveProjectJson(opts?: { sharedReadonly?: boolean }): Promise<void> {
   localStorage.setItem('thoughtdag.lastBackupAt', String(Date.now()));
   const { nodes: rawNodes, edges, events } = useStore.getState();
   // A backup file must be self-contained: pull vaulted payloads back inline
@@ -53,6 +53,9 @@ export async function exportActiveProjectJson(): Promise<void> {
     // paradigm provenance lives in project meta, not the graph — without
     // this line a backup round-trip would silently drop it
     instantiatedFrom: projects.find((p) => p.id === activeId)?.instantiatedFrom,
+    // a courtesy flag, not a lock: the importing side asks before turning
+    // this into an editable copy (a file in someone's hands is theirs)
+    ...(opts?.sharedReadonly ? { sharedReadonly: true } : {}),
     nodes: stripTransient(nodes),
     edges,
     events,
@@ -168,7 +171,7 @@ async function reconcileImportedModels(nodes: ThoughtNode[]): Promise<ThoughtNod
 }
 
 export async function importProjectFromFile(file: File, pre?: unknown): Promise<boolean> {
-  let parsed: { name?: string; nodes?: ThoughtNode[]; edges?: ThoughtEdge[]; events?: unknown[]; instantiatedFrom?: ProjectMeta['instantiatedFrom'] };
+  let parsed: { name?: string; nodes?: ThoughtNode[]; edges?: ThoughtEdge[]; events?: unknown[]; instantiatedFrom?: ProjectMeta['instantiatedFrom']; sharedReadonly?: boolean };
   try {
     parsed = (pre ?? JSON.parse(await file.text())) as typeof parsed;
   } catch {
@@ -182,6 +185,14 @@ export async function importProjectFromFile(file: File, pre?: unknown): Promise<
   if (parsed.nodes.length > 0 && !looksLikeCanvasNodes(parsed.nodes)) {
     toast('error', t('toast.importFailedShape'), 9000);
     return false;
+  }
+  if (parsed.sharedReadonly) {
+    const ok = await confirmDialog({
+      title: t('import.readonlyTitle'),
+      message: t('import.readonlyConfirm'),
+      confirmLabel: t('common.confirm'),
+    });
+    if (!ok) return false;
   }
   const id = crypto.randomUUID();
   const reconciled = await internNodes(await reconcileImportedModels(parsed.nodes));

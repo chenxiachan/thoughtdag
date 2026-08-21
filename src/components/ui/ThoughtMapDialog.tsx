@@ -25,7 +25,7 @@ const LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44"><r
 
 const KICKER = { zh: '一张思路地图', en: 'A THOUGHT MAP' };
 
-function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper, ts, artRef }: {
+function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper, ts, showStats, timeInk, artRef }: {
   structure: MapStructure;
   positions: Record<string, [number, number]>;
   stats: MapStats;
@@ -34,6 +34,8 @@ function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper
   mapLang: 'zh' | 'en';
   paper: 'light' | 'dark';
   ts: number;
+  showStats: boolean;
+  timeInk: boolean;
   artRef?: React.RefObject<HTMLDivElement | null>;
 }) {
   const boxRef = useRef<HTMLDivElement>(null);
@@ -70,7 +72,7 @@ function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper
     // text zones, while the text layer stays free to run over the picture
     const pads = tpl === 'scroll'
       ? { l: 212, r: 28, t: 28, b: 28 }
-      : { l: 28, r: 28, t: subtitle ? 188 : 152, b: 90 };
+      : { l: 28, r: 28, t: 28 + (title ? 124 : 0) + (subtitle ? 36 : 0), b: showStats ? 90 : 64 };
     const gw2 = Math.max(...pxs) - mnx + 1, gh2 = Math.max(...pys) - mny + 1;
     const sc = Math.min((bw - pads.l - pads.r) / gw2, (bh - pads.t - pads.b) / gh2);
     const ox = pads.l + ((bw - pads.l - pads.r) - gw2 * sc) / 2;
@@ -79,8 +81,21 @@ function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper
     Object.entries(P).forEach(([id, [x, y]]) => { pt[id] = [(x - mnx) * sc + ox, (y - mny) * sc + oy]; });
     const cs = getComputedStyle(art);
     const inkC = cs.getPropertyValue('--tm-ink').trim();
+    const inkMinC = cs.getPropertyValue('--tm-ink-min').trim();
     const redC = cs.getPropertyValue('--tm-red').trim();
     const edgeC = cs.getPropertyValue('--tm-edge').trim();
+    const hexToRgb = (h: string): [number, number, number] => {
+      const c = h.replace('#', '');
+      return [0, 2, 4].map((i) => parseInt(c.slice(i, i + 2), 16)) as [number, number, number];
+    };
+    const lerpHex = (a: string, b: string, f: number): string => {
+      const A = hexToRgb(a), B = hexToRgb(b);
+      return '#' + A.map((v, i) => Math.round(v + (B[i] - v) * f).toString(16).padStart(2, '0')).join('');
+    };
+    // time rank per qa node: 0 = earliest (pale), 1 = latest (full ink)
+    const stamped = structure.nodes.filter((n) => !n.material && n.ts != null).sort((a, b) => a.ts! - b.ts!);
+    const rank: Record<string, number> = {};
+    stamped.forEach((n, i) => { rank[n.id] = stamped.length > 1 ? i / (stamped.length - 1) : 1; });
     const N = structure.nodes.length;
     const rBase = Math.max(1.7, Math.min(5.2, 5.6 * Math.sqrt(60 / N)));
     const ew = Math.max(0.5, Math.min(1.1, rBase * 0.26));
@@ -97,10 +112,11 @@ function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper
         const s2 = r + 0.8;
         svg.appendChild(S('rect', { x: p[0] - s2 / 1.45, y: p[1] - s2 / 1.45, width: s2 * 1.38, height: s2 * 1.38, fill: 'none', stroke: inkC, 'stroke-width': Math.max(0.8, ew + 0.2), transform: `rotate(45 ${p[0]} ${p[1]})` }));
       } else {
-        svg.appendChild(S('circle', { cx: p[0], cy: p[1], r, fill: n.marked ? redC : inkC }));
+        const base = timeInk ? lerpHex(inkMinC, inkC, rank[n.id] ?? 1) : inkC;
+        svg.appendChild(S('circle', { cx: p[0], cy: p[1], r, fill: n.marked ? redC : base }));
       }
     });
-  }, [structure, positions, bbox, paper, ts, tpl, subtitle, artRef]);
+  }, [structure, positions, bbox, paper, ts, tpl, title, subtitle, showStats, timeInk, artRef]);
 
   const brand = (
     <div className="tmap-brand">
@@ -114,12 +130,14 @@ function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper
         <>
           <div className="tmap-head">
             <div className="tmap-k">{KICKER[mapLang]}</div>
-            <h4 className="tmap-t">{title}</h4>
+            {title && <h4 className="tmap-t">{title}</h4>}
             {subtitle && <div className="tmap-s">{subtitle}</div>}
-            <div className="tmap-rule" />
-            <div className="tmap-stats">
-              {parts.map(([n, l], i) => (<span key={i}><b>{n}</b> {l}<br /></span>))}
-            </div>
+            {showStats && <>
+              <div className="tmap-rule" />
+              <div className="tmap-stats">
+                {parts.map(([n, l], i) => (<span key={i}><b>{n}</b> {l}<br /></span>))}
+              </div>
+            </>}
             <div className="tmap-spacer" />
             {brand}
           </div>
@@ -129,12 +147,14 @@ function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper
         <>
           <div className="tmap-head">
             <div className="tmap-k">{KICKER[mapLang]}</div>
-            <h4 className="tmap-t">{title}</h4>
+            {title && <h4 className="tmap-t">{title}</h4>}
             {subtitle && <div className="tmap-s">{subtitle}</div>}
           </div>
           <div className="tmap-graph" ref={boxRef} />
           <div className="tmap-footrow">
-            <div className="tmap-statline">{parts.map(([n, l], i) => (<span key={i}>{i > 0 && ' · '}<b>{n}</b> {l}</span>))}</div>
+            {showStats
+              ? <div className="tmap-statline">{parts.map(([n, l], i) => (<span key={i}>{i > 0 && ' · '}<b>{n}</b> {l}</span>))}</div>
+              : <div />}
             {brand}
           </div>
         </>
@@ -157,6 +177,8 @@ export default function ThoughtMapDialog() {
   const [mapLang, setMapLang] = useState<'zh' | 'en'>('zh');
   const [capLang, setCapLang] = useState<'zh' | 'en'>('zh');
   const [ts, setTs] = useState(1.15);
+  const [showStats, setShowStats] = useState(true);
+  const [timeInk, setTimeInk] = useState(false);
   const [title, setTitle] = useState('');
   const [subtitle, setSubtitle] = useState('');
   const [caption, setCaption] = useState('');
@@ -318,8 +340,8 @@ export default function ThoughtMapDialog() {
                     {drafting ? t('tmap.drafting') : t('tmap.draft')}
                   </button>
                 </div>
-                <input value={title} maxLength={24} onChange={(e) => setTitle(e.target.value)} data-tmap-title
-                  className="w-full border border-line rounded-lg px-3 py-1.5 text-xs bg-card text-ink focus:outline-none focus:ring-1 focus:ring-accent/40" />
+                <input value={title} maxLength={24} onChange={(e) => setTitle(e.target.value)} data-tmap-title placeholder={t('tmap.subtitlePh')}
+                  className="w-full border border-line rounded-lg px-3 py-1.5 text-xs bg-card text-ink placeholder-ink-faint focus:outline-none focus:ring-1 focus:ring-accent/40" />
                 <div className="text-2xs text-ink-faint font-mono text-right mt-0.5">{title.length}/24</div>
               </div>
               <div>
@@ -339,6 +361,16 @@ export default function ThoughtMapDialog() {
                 <div className="text-2xs text-ink-faint mb-1">{t('tmap.mapLang')}</div>
                 {seg([['zh', '中文'], ['en', 'EN']], mapLang, (v) => setMapLang(v as 'zh' | 'en'))}
               </div>
+              <div className="flex gap-3">
+                <div className="flex-1">
+                  <div className="text-2xs text-ink-faint mb-1">{t('tmap.statsLbl')}</div>
+                  {seg([['on', t('tmap.show')], ['off', t('tmap.hide')]], showStats ? 'on' : 'off', (v) => setShowStats(v === 'on'))}
+                </div>
+                <div className="flex-1">
+                  <div className="text-2xs text-ink-faint mb-1">{t('tmap.timeInk')}</div>
+                  {seg([['off', t('tmap.hide')], ['on', t('tmap.show')]], timeInk ? 'on' : 'off', (v) => setTimeInk(v === 'on'))}
+                </div>
+              </div>
               <div>
                 <div className="text-2xs text-ink-faint mb-1">{t('tmap.size')} <span className="float-right font-mono">{ts.toFixed(2)}×</span></div>
                 <input type="range" min={0.85} max={1.45} step={0.05} value={ts} onChange={(e) => setTs(parseFloat(e.target.value))}
@@ -354,14 +386,16 @@ export default function ThoughtMapDialog() {
             {/* the artifact, full size */}
             <div className="shrink-0 rounded-md shadow-xl overflow-hidden" style={{ width: 460, height: 575 }}>
               <Artifact structure={structure} positions={positions} stats={stats}
-                title={title || 'ThoughtDAG'} subtitle={subtitle} mapLang={mapLang} paper={paper} ts={ts} artRef={artRef} />
+                title={title} subtitle={subtitle} mapLang={mapLang} paper={paper} ts={ts}
+                showStats={showStats} timeInk={timeInk} artRef={artRef} />
             </div>
             {/* the honesty check: the feed-size thumbnail */}
             <div className="flex flex-col items-center gap-2 shrink-0">
               <div className="rounded-sm shadow-lg overflow-hidden" style={{ width: 132, height: 165 }}>
                 <div style={{ transform: 'scale(0.28695)', transformOrigin: 'top left', width: 460, height: 575 }}>
                   <Artifact structure={structure} positions={positions} stats={stats}
-                    title={title || 'ThoughtDAG'} subtitle={subtitle} mapLang={mapLang} paper={paper} ts={ts} />
+                    title={title} subtitle={subtitle} mapLang={mapLang} paper={paper} ts={ts}
+                    showStats={showStats} timeInk={timeInk} />
                 </div>
               </div>
               <div className="text-2xs text-ink-faint">{t('tmap.thumbCap')}</div>
@@ -372,7 +406,8 @@ export default function ThoughtMapDialog() {
             <div className="shrink-0 rounded-sm shadow-lg overflow-hidden" style={{ width: 184, height: 230 }}>
               <div style={{ transform: 'scale(0.4)', transformOrigin: 'top left', width: 460, height: 575 }}>
                 <Artifact structure={structure} positions={positions} stats={stats}
-                  title={title || 'ThoughtDAG'} subtitle={subtitle} mapLang={mapLang} paper={paper} ts={ts} artRef={artRef} />
+                  title={title} subtitle={subtitle} mapLang={mapLang} paper={paper} ts={ts}
+                  showStats={showStats} timeInk={timeInk} artRef={artRef} />
               </div>
             </div>
             <div className="flex-1 min-w-[320px] flex flex-col gap-3">
