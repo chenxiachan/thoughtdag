@@ -278,6 +278,7 @@ export const zh: Record<keyof typeof en, string> = {
   'tmap.xhs': '小红书',
   'tmap.weibo': '微博',
   'tmap.statsLbl': '统计',
+  'tmap.dateLbl': '日期',
   'tmap.timeInk': '时间墨色',
   'tmap.show': '显示',
   'tmap.hide': '隐藏',

@@ -278,6 +278,7 @@ export const en = {
   'tmap.xhs': 'Xiaohongshu',
   'tmap.weibo': 'Weibo',
   'tmap.statsLbl': 'Counts',
+  'tmap.dateLbl': 'Date',
   'tmap.timeInk': 'Time ink',
   'tmap.show': 'Show',
   'tmap.hide': 'Hide',

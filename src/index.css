@@ -124,6 +124,7 @@
 .tmap-art .tmap-graph { flex: 1; min-height: 0; }
 .tmap-art .tmap-footrow { display: flex; justify-content: space-between; align-items: flex-end; padding: 0 26px 18px; flex-shrink: 0; margin-top: auto; }
 .tmap-art .tmap-k { font-family: var(--font-mono); font-size: calc(11px * var(--tmts)); letter-spacing: .16em; color: var(--tm-faint); text-transform: uppercase; }
+.tmap-art .tmap-date { font-family: var(--font-mono); font-size: calc(10.5px * var(--tmts)); letter-spacing: .08em; color: var(--tm-faint); margin-top: 5px; }
 .tmap-art .tmap-t { font-size: min(calc(34px * var(--tmts)), 46px); line-height: 1.22; font-weight: 600; margin-top: 10px; letter-spacing: .01em;
                     display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
 .tmap-art.tmap-scroll .tmap-t { -webkit-line-clamp: 5; }

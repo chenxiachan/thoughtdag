@@ -25,7 +25,7 @@ const LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44"><r
 
 const KICKER = { zh: '一张思路地图', en: 'A THOUGHT MAP' };
 
-function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper, ts, showStats, timeInk, artRef }: {
+function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper, ts, showStats, timeInk, dateText, artRef }: {
   structure: MapStructure;
   positions: Record<string, [number, number]>;
   stats: MapStats;
@@ -36,6 +36,8 @@ function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper
   ts: number;
   showStats: boolean;
   timeInk: boolean;
+  /** the archival stamp — '' hides it */
+  dateText: string;
   artRef?: React.RefObject<HTMLDivElement | null>;
 }) {
   const boxRef = useRef<HTMLDivElement>(null);
@@ -130,6 +132,7 @@ function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper
         <>
           <div className="tmap-head">
             <div className="tmap-k">{KICKER[mapLang]}</div>
+            {dateText && <div className="tmap-date">{dateText}</div>}
             {title && <h4 className="tmap-t">{title}</h4>}
             {subtitle && <div className="tmap-s">{subtitle}</div>}
             {showStats && <>
@@ -147,6 +150,7 @@ function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper
         <>
           <div className="tmap-head">
             <div className="tmap-k">{KICKER[mapLang]}</div>
+            {dateText && <div className="tmap-date">{dateText}</div>}
             {title && <h4 className="tmap-t">{title}</h4>}
             {subtitle && <div className="tmap-s">{subtitle}</div>}
           </div>
@@ -179,6 +183,7 @@ export default function ThoughtMapDialog() {
   const [ts, setTs] = useState(1.15);
   const [showStats, setShowStats] = useState(true);
   const [timeInk, setTimeInk] = useState(false);
+  const [showDate, setShowDate] = useState(true);
   const [title, setTitle] = useState('');
   const [subtitle, setSubtitle] = useState('');
   const [caption, setCaption] = useState('');
@@ -192,6 +197,21 @@ export default function ThoughtMapDialog() {
     () => (layout === 'tidy' ? tidyPositions(structure) : handPositions(structure)),
     [structure, layout],
   );
+  // the archival stamp: the exploration's real span, mined from node ids
+  const dateText = useMemo(() => {
+    if (!showDate) return '';
+    const stamps = structure.nodes.map((n) => n.ts).filter((x): x is number => x != null);
+    if (!stamps.length) return '';
+    const a = new Date(Math.min(...stamps)), b = new Date(Math.max(...stamps));
+    if (mapLang === 'zh') {
+      const f = (d: Date) => `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+      return f(a) === f(b) ? f(a) : `${f(a)} 至 ${f(b)}`;
+    }
+    const f = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const fy = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    if (a.toDateString() === b.toDateString()) return fy(a);
+    return a.getFullYear() === b.getFullYear() ? `${f(a)} to ${fy(b)}` : `${fy(a)} to ${fy(b)}`;
+  }, [structure, mapLang, showDate]);
 
   useEffect(() => {
     if (!open) return;
@@ -358,10 +378,14 @@ export default function ThoughtMapDialog() {
                 <div className="text-2xs text-ink-faint mb-1">{t('tmap.mapLang')}</div>
                 {seg([['zh', '中文'], ['en', 'EN']], mapLang, (v) => setMapLang(v as 'zh' | 'en'))}
               </div>
-              <div className="flex gap-3">
+              <div className="flex gap-2">
                 <div className="flex-1">
                   <div className="text-2xs text-ink-faint mb-1">{t('tmap.statsLbl')}</div>
                   {seg([['on', t('tmap.show')], ['off', t('tmap.hide')]], showStats ? 'on' : 'off', (v) => setShowStats(v === 'on'))}
+                </div>
+                <div className="flex-1">
+                  <div className="text-2xs text-ink-faint mb-1">{t('tmap.dateLbl')}</div>
+                  {seg([['on', t('tmap.show')], ['off', t('tmap.hide')]], showDate ? 'on' : 'off', (v) => setShowDate(v === 'on'))}
                 </div>
                 <div className="flex-1">
                   <div className="text-2xs text-ink-faint mb-1">{t('tmap.timeInk')}</div>
@@ -384,7 +408,7 @@ export default function ThoughtMapDialog() {
             <div className="shrink-0 rounded-md shadow-xl overflow-hidden" style={{ width: 460, height: 575 }}>
               <Artifact structure={structure} positions={positions} stats={stats}
                 title={title} subtitle={subtitle} mapLang={mapLang} paper={paper} ts={ts}
-                showStats={showStats} timeInk={timeInk} artRef={artRef} />
+                showStats={showStats} timeInk={timeInk} dateText={dateText} artRef={artRef} />
             </div>
             {/* the honesty check: the feed-size thumbnail */}
             <div className="flex flex-col items-center gap-2 shrink-0">
@@ -392,7 +416,7 @@ export default function ThoughtMapDialog() {
                 <div style={{ transform: 'scale(0.28695)', transformOrigin: 'top left', width: 460, height: 575 }}>
                   <Artifact structure={structure} positions={positions} stats={stats}
                     title={title} subtitle={subtitle} mapLang={mapLang} paper={paper} ts={ts}
-                    showStats={showStats} timeInk={timeInk} />
+                    showStats={showStats} timeInk={timeInk} dateText={dateText} />
                 </div>
               </div>
               <div className="text-2xs text-ink-faint">{t('tmap.thumbCap')}</div>
@@ -404,7 +428,7 @@ export default function ThoughtMapDialog() {
               <div style={{ transform: 'scale(0.4)', transformOrigin: 'top left', width: 460, height: 575 }}>
                 <Artifact structure={structure} positions={positions} stats={stats}
                   title={title} subtitle={subtitle} mapLang={mapLang} paper={paper} ts={ts}
-                  showStats={showStats} timeInk={timeInk} artRef={artRef} />
+                  showStats={showStats} timeInk={timeInk} dateText={dateText} artRef={artRef} />
               </div>
             </div>
             <div className="flex-1 min-w-[320px] flex flex-col gap-3">
