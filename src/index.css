@@ -109,19 +109,23 @@
    the exported picture must look identical from any appearance. ── */
 .tmap-art { width: 460px; height: 575px; display: flex; flex-direction: column; position: relative;
             font-family: 'Georgia', 'Songti SC', 'STSong', serif; --tmts: 1; }
+/* the graph is the ground layer, full bleed; text floats above it —
+   long titles run over the picture instead of being cut at a column */
+.tmap-art .tmap-graph { position: absolute; inset: 0; z-index: 0; }
+.tmap-art .tmap-head, .tmap-art .tmap-footrow { position: relative; z-index: 2; }
 .tmap-art.tmap-light { background: #F8F4EB; color: #1A1713;
   --tm-ink: #1A1713; --tm-mut: #6B6355; --tm-faint: #8A8272; --tm-red: #C73E2E; --tm-edge: rgba(26, 23, 19, .5); }
 .tmap-art.tmap-dark { background: #201D17; color: #EDE7DA;
   --tm-ink: #EDE7DA; --tm-mut: #B5AB97; --tm-faint: #8F8570; --tm-red: #E06A50; --tm-edge: rgba(237, 231, 218, .42); }
 .tmap-art.tmap-scroll { flex-direction: row; }
-.tmap-art.tmap-scroll .tmap-head { width: 172px; padding: 26px 0 22px 24px; display: flex; flex-direction: column; }
+.tmap-art.tmap-scroll .tmap-head { width: 200px; padding: 26px 0 22px 24px; display: flex; flex-direction: column; height: 100%; }
 .tmap-art.tmap-cover .tmap-head { padding: 24px 26px 0; }
 .tmap-art .tmap-head { flex-shrink: 0; }
 .tmap-art .tmap-graph { flex: 1; min-height: 0; }
-.tmap-art .tmap-footrow { display: flex; justify-content: space-between; align-items: flex-end; padding: 0 26px 18px; flex-shrink: 0; }
+.tmap-art .tmap-footrow { display: flex; justify-content: space-between; align-items: flex-end; padding: 0 26px 18px; flex-shrink: 0; margin-top: auto; }
 .tmap-art .tmap-k { font-family: var(--font-mono); font-size: calc(11px * var(--tmts)); letter-spacing: .16em; color: var(--tm-faint); text-transform: uppercase; }
 .tmap-art .tmap-t { font-size: min(calc(34px * var(--tmts)), 46px); line-height: 1.22; font-weight: 600; margin-top: 10px; letter-spacing: .01em;
-                    display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; }
+                    display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
 .tmap-art.tmap-scroll .tmap-t { -webkit-line-clamp: 5; }
 .tmap-art.tmap-cover .tmap-t { -webkit-line-clamp: 2; }
 .tmap-art .tmap-s { font-size: min(calc(15px * var(--tmts)), 19px); color: var(--tm-mut); margin-top: 9px; line-height: 1.55;

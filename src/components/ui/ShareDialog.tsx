@@ -69,8 +69,6 @@ export default function ShareDialog() {
 
         {/* Lane 2: post to a feed — picture + permanent repo link */}
         <div className="border-t border-line pt-3">
-          <div className="text-2xs font-semibold text-accent mb-1">{t('share.socialLane')}</div>
-          <p className="text-xs text-ink-muted mb-2">{t('share.socialNote')}</p>
           <div className="flex items-center gap-2">
             <button
               onClick={() => { close(); useUiStore.getState().setThoughtMapOpen(true); }}

@@ -66,9 +66,15 @@ function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper
     Object.entries(positions).forEach(([id, [x, y]]) => { P[id] = rot ? [y, -x] : [x, y]; });
     const pxs = Object.values(P).map((p) => p[0]), pys = Object.values(P).map((p) => p[1]);
     const mnx = Math.min(...pxs), mny = Math.min(...pys);
-    const pad = 24;
-    const sc = Math.min((bw - 2 * pad) / (Math.max(...pxs) - mnx + 1), (bh - 2 * pad) / (Math.max(...pys) - mny + 1));
-    const ox = (bw - (Math.max(...pxs) - mnx) * sc) / 2, oy = (bh - (Math.max(...pys) - mny) * sc) / 2;
+    // the graph owns the whole sheet; the pads keep its mass out of the
+    // text zones, while the text layer stays free to run over the picture
+    const pads = tpl === 'scroll'
+      ? { l: 212, r: 28, t: 28, b: 28 }
+      : { l: 28, r: 28, t: subtitle ? 188 : 152, b: 90 };
+    const gw2 = Math.max(...pxs) - mnx + 1, gh2 = Math.max(...pys) - mny + 1;
+    const sc = Math.min((bw - pads.l - pads.r) / gw2, (bh - pads.t - pads.b) / gh2);
+    const ox = pads.l + ((bw - pads.l - pads.r) - gw2 * sc) / 2;
+    const oy = pads.t + ((bh - pads.t - pads.b) - gh2 * sc) / 2;
     const pt: Record<string, [number, number]> = {};
     Object.entries(P).forEach(([id, [x, y]]) => { pt[id] = [(x - mnx) * sc + ox, (y - mny) * sc + oy]; });
     const cs = getComputedStyle(art);
@@ -94,7 +100,7 @@ function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper
         svg.appendChild(S('circle', { cx: p[0], cy: p[1], r, fill: n.marked ? redC : inkC }));
       }
     });
-  }, [structure, positions, bbox, paper, ts, tpl, artRef]);
+  }, [structure, positions, bbox, paper, ts, tpl, subtitle, artRef]);
 
   const brand = (
     <div className="tmap-brand">
@@ -149,6 +155,7 @@ export default function ThoughtMapDialog() {
   const [layout, setLayout] = useState<'tidy' | 'hand'>('tidy');
   const [paper, setPaper] = useState<'light' | 'dark'>('light');
   const [mapLang, setMapLang] = useState<'zh' | 'en'>('zh');
+  const [capLang, setCapLang] = useState<'zh' | 'en'>('zh');
   const [ts, setTs] = useState(1.15);
   const [title, setTitle] = useState('');
   const [subtitle, setSubtitle] = useState('');
@@ -168,19 +175,20 @@ export default function ThoughtMapDialog() {
     if (!open) return;
     setStep('image');
     setMapLang(uiLang);
+    setCapLang(uiLang);
     setTitle(projectName);
     setSubtitle('');
     setCaption(`${fallbackCaption(uiLang, projectName || 'ThoughtDAG', stats)}\n\n${attributionLine()}`);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
-  // the artifact language also rewrites the fallback caption (untouched drafts only)
+  // the caption language rewrites the fallback text (untouched drafts only)
   const capTouched = useRef(false);
   useEffect(() => {
     if (!open || capTouched.current) return;
-    setCaption(`${fallbackCaption(mapLang, title || 'ThoughtDAG', stats)}\n\n${attributionLine()}`);
+    setCaption(`${fallbackCaption(capLang, title || 'ThoughtDAG', stats)}\n\n${attributionLine()}`);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mapLang]);
+  }, [capLang, mapLang]);
 
   useEffect(() => {
     if (!open) return;
@@ -219,10 +227,12 @@ export default function ThoughtMapDialog() {
         .filter((x): x is string => !!x)
         .slice(0, 24);
       const s = statParts(stats, mapLang).map(([n, l]) => `${n} ${l}`).join(', ');
+      const capStats = statParts(stats, capLang).map(([n, l]) => `${n} ${l}`).join(', ');
       const langName = mapLang === 'zh' ? 'Chinese' : 'English';
+      const capLangName = capLang === 'zh' ? 'Chinese' : 'English';
       const raw = await llmCall([{
         role: 'user',
-        content: `You are naming a share image called a "thought map": a picture of how someone explored one question, node by node. Sources:\nRoot question: ${root}\nStep takeaways: ${plaques.join(' / ')}\nStructure: ${s}\n\nWrite in ${langName}, output STRICT JSON only, no code fence:\n{"title":"...","subtitle":"...","caption":"..."}\ntitle: what this exploration was about, at most 24 characters, evocative but concrete, no tool names.\nsubtitle: one short line of context, at most 40 characters.\ncaption: 2 or 3 first-person sentences for a social post, calm and concrete, no hype, no hashtags, no emoji, no tool names.\nNever use dash characters anywhere; use commas or periods.`,
+        content: `You are naming a share image called a "thought map": a picture of how someone explored one question, node by node. Sources:\nRoot question: ${root}\nStep takeaways: ${plaques.join(' / ')}\nStructure: ${s}\n\nOutput STRICT JSON only, no code fence:\n{"title":"...","subtitle":"...","caption":"..."}\ntitle: in ${langName}, what this exploration was about, at most 24 characters, evocative but concrete, no tool names.\nsubtitle: in ${langName}, one short line of context, at most 40 characters.\ncaption: in ${capLangName}, 2 or 3 first-person sentences for a social post that WEAVE IN these numbers: ${capStats}. Calm and concrete, no hype, no hashtags, no emoji, no tool names.\nNever use dash characters anywhere; use commas or periods.`,
       }]);
       const m = raw.match(/\{[\s\S]*\}/);
       if (m) {
@@ -238,12 +248,34 @@ export default function ThoughtMapDialog() {
     } finally { setDrafting(false); }
   };
 
-  const share = (kind: 'x' | 'linkedin' | 'save') => {
+  // every button copies the caption first; 'save' platforms have no web
+  // posting door, so they save the image too and the user pastes in-app
+  const share = (kind: string, name: string) => {
     void navigator.clipboard.writeText(caption).catch(() => {});
-    if (kind === 'x') window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(caption)}`, '_blank');
-    else if (kind === 'linkedin') { window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(TMAP_SITE_URL)}`, '_blank'); toast('success', t('tmap.captionCopied')); }
-    else { void downloadPng(); toast('success', t('tmap.savedCopied')); }
+    const cap = encodeURIComponent(caption);
+    const site = encodeURIComponent(TMAP_SITE_URL);
+    const ttl = encodeURIComponent(title || 'ThoughtDAG');
+    const urls: Record<string, string> = {
+      x: `https://twitter.com/intent/tweet?text=${cap}`,
+      linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${site}`,
+      bluesky: `https://bsky.app/intent/compose?text=${cap}`,
+      threads: `https://www.threads.net/intent/post?text=${cap}`,
+      weibo: `https://service.weibo.com/share/share.php?url=${site}&title=${cap}`,
+      reddit: `https://www.reddit.com/submit?url=${site}&title=${ttl}`,
+      telegram: `https://t.me/share/url?url=${site}&text=${cap}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${site}`,
+    };
+    if (kind === 'save') { void downloadPng(); toast('success', t('tmap.savedCopied')); return; }
+    window.open(urls[kind], '_blank', 'noopener');
+    if (kind !== 'x' && kind !== 'bluesky' && kind !== 'threads') toast('success', t('tmap.captionCopied'));
+    void name;
   };
+
+  const PLATFORMS: [string, string][] = [
+    ['X', 'x'], ['LinkedIn', 'linkedin'], ['Bluesky', 'bluesky'], ['Threads', 'threads'],
+    [t('tmap.weibo'), 'weibo'], ['Reddit', 'reddit'], ['Telegram', 'telegram'], ['Facebook', 'facebook'],
+    [t('tmap.xhs'), 'save'], ['Instagram', 'save'],
+  ];
 
   const seg = (
     entries: [string, string][],
@@ -345,7 +377,24 @@ export default function ThoughtMapDialog() {
             </div>
             <div className="flex-1 min-w-[320px] flex flex-col gap-3">
               <div>
-                <div className="text-2xs text-ink-faint mb-1">{t('tmap.caption')}</div>
+                <div className="text-2xs text-ink-faint mb-1 flex items-center justify-between">
+                  <span>{t('tmap.caption')}</span>
+                  <span className="flex items-center gap-2">
+                    <span className="flex rounded-md border border-line overflow-hidden" data-tmap-caplang>
+                      {(['zh', 'en'] as const).map((v, i) => (
+                        <button key={v} onClick={() => { capTouched.current = false; setCapLang(v); }}
+                          className={`px-2 py-0.5 text-2xs transition-colors ${i > 0 ? 'border-l border-line' : ''} ${capLang === v ? 'bg-accent/10 text-accent font-medium' : 'text-ink-muted hover:bg-wash'}`}>
+                          {v === 'zh' ? '中文' : 'EN'}
+                        </button>
+                      ))}
+                    </span>
+                    <button onClick={() => void draft()} disabled={drafting}
+                      className="flex items-center gap-1 text-2xs text-accent hover:bg-accent/10 rounded-md px-1.5 py-0.5 transition-colors disabled:opacity-50">
+                      {drafting ? <Loader2 size={11} className="animate-spin" /> : <Sparkles size={11} strokeWidth={1.75} />}
+                      {drafting ? t('tmap.drafting') : t('tmap.draft')}
+                    </button>
+                  </span>
+                </div>
                 <textarea value={caption} onChange={(e) => { capTouched.current = true; setCaption(e.target.value); }} rows={7} data-tmap-caption
                   className="w-full border border-line rounded-lg px-3 py-2 text-xs bg-card text-ink leading-relaxed resize-none focus:outline-none focus:ring-1 focus:ring-accent/40" />
               </div>
@@ -354,12 +403,13 @@ export default function ThoughtMapDialog() {
                   className="flex items-center gap-1.5 text-xs font-medium bg-accent/10 text-accent hover:bg-accent/20 border border-accent/30 rounded-lg px-3 py-2 transition-colors">
                   <Copy size={13} strokeWidth={1.75} /> {t('tmap.copyCaption')}
                 </button>
-                <button onClick={() => share('x')} className="text-xs border border-line text-ink-muted hover:bg-wash rounded-lg px-3 py-2 transition-colors">X</button>
-                <button onClick={() => share('linkedin')} className="text-xs border border-line text-ink-muted hover:bg-wash rounded-lg px-3 py-2 transition-colors">LinkedIn</button>
-                <button onClick={() => share('save')} className="text-xs border border-line text-ink-muted hover:bg-wash rounded-lg px-3 py-2 transition-colors">{t('tmap.xhs')}</button>
-                <button onClick={() => share('save')} className="text-xs border border-line text-ink-muted hover:bg-wash rounded-lg px-3 py-2 transition-colors">Instagram</button>
+                {PLATFORMS.map(([name, kind]) => (
+                  <button key={name} onClick={() => share(kind, name)}
+                    className="text-xs border border-line text-ink-muted hover:bg-wash rounded-lg px-3 py-2 transition-colors">
+                    {name}
+                  </button>
+                ))}
               </div>
-              <div className="text-2xs text-ink-faint leading-relaxed">{t('tmap.shareHint')}</div>
               <div className="flex-1" />
               <button onClick={() => setStep('image')} data-tmap-back
                 className="self-start flex items-center gap-1.5 text-xs border border-line text-ink-muted hover:bg-wash rounded-lg px-3 py-2 transition-colors">
