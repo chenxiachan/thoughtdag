@@ -21,7 +21,7 @@ RUNS = [
     ("GLM 4.5 Flash", "GLM-Flash", ROOT / "benchmark/runs/pilot-v1-glm45flash-2026-08-16/results.json"),
     ("GPT-OSS 20B", "GPT-OSS", ROOT / "benchmark/runs/pilot-v1-gptoss20b/results.json"),
     ("Gemma 4 26B (MoE)", "Gemma-26B", ROOT / "benchmark/runs/pilot-v1-gemma4-26b/results.json"),
-    ("Nemotron-3 30B reasoning", "N3-30B-R", ROOT / "benchmark/runs/pilot-v1-nemotron3-nano30b-reasoning/results.json"),
+    ("Nemotron-3 30B Omni reasoning", "N3-30B-R", ROOT / "benchmark/runs/pilot-v1-nemotron3-nano30b-reasoning/results.json"),
     ("Nemotron-3 30B", "N3-30B", ROOT / "benchmark/runs/pilot-v1-nemotron3-nano30b/results.json"),
     ("Nemotron Nano 9B", "N-9B", ROOT / "benchmark/runs/pilot-v1-nemotron-nano-9b/results.json"),
 ]

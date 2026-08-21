@@ -2,7 +2,7 @@
 
 Graph-shaped context operations, measured. When wrong, outdated or irrelevant information propagates through a multi-turn conversation, how much answer quality do explicit pruning and recomputation recover — and how does that recovery decay with propagation depth?
 
-Start at `DESIGN.md` for the full experimental design; the published report lives at [chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v1](https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v1/). All numbers are **pilot / reference results**, never an authoritative leaderboard.
+Start at `DESIGN.md` for the full experimental design; the published report lives at [chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v2](https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v2/). All numbers are **pilot / reference results**, never an authoritative leaderboard.
 
 Two layers, two evidence duties: the **scientific core** (Repair: Pollute → Propagate → Prune, paired depth families) and the **scenario suite** (branch-merge, condense demos). Never one leaderboard.
 
@@ -40,11 +40,13 @@ node tools/validate.mjs && node tools/compile.mjs && node tools/equivalence.mjs
 BENCH_SUITE=pilot-v1 node tools/run-capture.mjs <run_id>
 ```
 
+Naming note: the task suite is the frozen `pilot-v1` set (9 families × 3 depths); "Pilot v2" names the second REPORT revision with the added endpoint wave. Suite ids never change once captured runs reference them.
+
 Requires the repo root's `node_modules` (the compiler is the product's own `buildContext`, bundled via esbuild) and, for new captures only, the key named by the envelope's `key_env` in `.env`.
 
 ## Status
 
 - Reference gate closed 2026-08-16 (five audit rounds); pilot approved and captured.
 - Wave 1 (2026-08-16): glm-4.5-flash, nemotron-3.5-lightning, gemma-4-26b, gpt-oss-20b — 540 conditions, 0 capture failures.
-- Wave 2 (2026-08-19, controlled pairs): nemotron-3-nano-30b ± reasoning, nemotron-nano-9b — 405 conditions, 0 capture failures. glm-5.2 and gemma-4-31b in capture (free-tier rate limits).
+- Wave 2 (2026-08-19): nemotron-3-nano-omni-30b-reasoning, nemotron-3-nano-30b, nemotron-nano-9b. 405 conditions, 0 capture failures. The two 30B endpoints are an EXPLORATORY comparison, not a reasoning ablation: they differ in modality stack and reasoning was provider-default on both. glm-5.2 and gemma-4-31b in capture (free-tier rate limits).
 - Registered predictions and their outcomes are recorded in `STATUS.md`.

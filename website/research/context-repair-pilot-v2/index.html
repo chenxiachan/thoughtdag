@@ -71,7 +71,7 @@
           <p>A false turn then restores 30. Three descendants propagate that mistake: <code>4 × 30 = 120</code>, then <code>120 + 11 = 131</code>, followed by a restatement of the stale working values. The final question always asks for one number using the fixed inputs.</p>
           <figure class="report-figure">
             <img src="../../assets/context-repair-flagship.png" alt="Five graph conditions and seven model outputs in the flagship depot-crates case" />
-            <figcaption>Five graph states, one unchanged final question. Three of seven endpoints — from three different vendors — still returned the identical wrong number 131 after the false source itself was removed.</figcaption>
+            <figcaption>Five graph states, one unchanged final question. Three of seven endpoints, from three different vendors, still returned the identical wrong number 131 after the false source itself was removed.</figcaption>
           </figure>
         </section>
 
@@ -94,7 +94,7 @@
 
         <section class="report-section" id="flagship">
           <h2>The flagship result</h2>
-          <p>Seven model endpoints were tested at temperature 0 with provider-default reasoning settings. On this one case, every model agrees on four of the five graph states — and splits on exactly one.</p>
+          <p>Seven model endpoints were tested at temperature 0 with provider-default reasoning settings. On this one case, every model agrees on four of the five graph states and splits on exactly one.</p>
           <div class="report-table-wrap">
             <table class="report-table">
               <thead><tr><th>Graph condition</th><th>Outcome across the seven endpoints</th></tr></thead>
@@ -113,14 +113,14 @@
         <section class="report-section" id="pilot">
           <h2>What happened across the full pilot</h2>
           <p>The pilot contains 9 task families at propagation depths 1, 2, and 3. Each model ran 135 conditions. Headline repair metrics are conditioned on cases answered correctly under clean context and incorrectly after pollution. Four endpoints were captured on August 16; three more joined on August 19 as controlled pairs (see the next section).</p>
-          <h3>Context sensitivity was consistent — seven for seven</h3>
+          <h3>Context sensitivity was consistent, seven for seven</h3>
           <ul>
             <li>Clean context: 27/27 correct for every model.</li>
             <li>Explicit misinformation: 9/9 caused a wrong answer for every model.</li>
             <li>False supersession of a verified update: 9/9 caused a wrong answer for every model.</li>
             <li>A numerically similar but irrelevant aside: 0/9 caused a wrong answer for every model.</li>
           </ul>
-          <p>Seven models from four vendors reproduce this three-way split cell for cell. Whether context derails a model is decided by the <em>type</em> of pollution — conflicting claims always land, irrelevant asides never do.</p>
+          <p>Seven endpoints from four vendors reproduce this three-way split cell for cell. Whether context derails a model is decided by the <em>type</em> of pollution: conflicting claims always land, and irrelevant asides never do.</p>
           <h3>Repair strategy mattered</h3>
           <div class="report-table-wrap">
             <table class="report-table">
@@ -136,7 +136,7 @@
             <img src="../../assets/context-repair-strategies.png" alt="Recovery rates for three context repair strategies" />
             <figcaption>Recovery among the 126 paired cases that were first derailed by conflicting context, across all seven endpoints.</figcaption>
           </figure>
-          <p>Nine of the ten source-prune failures occurred in false-supersession cases; Gemma showed the clearest depth pattern: 6/6 at depth 1, 5/6 at depth 2, and 4/6 at depth 3. Stale information that was once true is the stickiest pollution: with the false rollback deleted, its echoes in later turns read like ordinary history.</p>
+          <p>Nine of the ten source-prune failures occurred in false-supersession cases. Gemma showed the clearest depth pattern: 6/6 at depth 1, 5/6 at depth 2, and 4/6 at depth 3. Stale information that was once true is the stickiest pollution: with the false rollback deleted, its echoes in later turns read like ordinary history.</p>
           <figure class="report-figure">
             <img src="../../assets/context-repair-model-matrix.png" alt="Repair successes by model and strategy" />
             <figcaption>The pilot is a test of context intervention, not an authoritative model leaderboard.</figcaption>
@@ -145,7 +145,7 @@
 
         <section class="report-section" id="wave2">
           <h2>A second wave of controlled pairs</h2>
-          <p>Three further free endpoints were chosen not for coverage but as <em>pairs</em>, each isolating one variable. Two predictions were registered before running; both were refuted — which is the point of registering them.</p>
+          <p>Three further free endpoints joined as a second wave. Two predictions were registered before running. One was refuted by the data. The other, it turned out, could not be validly tested with the endpoints as captured; the correction is recorded below rather than papered over.</p>
           <div class="report-table-wrap">
             <table class="report-table">
               <thead><tr><th>Model</th><th>Source only</th><th>by depth (k1 / k2 / k3)</th><th>Subgraph</th><th>Recompute</th></tr></thead>
@@ -154,17 +154,18 @@
                 <tr><td>Nemotron 3.5 Lightning</td><td>18/18</td><td>6 / 6 / 6</td><td>18/18</td><td>18/18</td></tr>
                 <tr><td>Gemma 4 26B (MoE)</td><td>15/18</td><td>6 / 5 / 4</td><td>18/18</td><td>18/18</td></tr>
                 <tr><td>GPT-OSS 20B</td><td>17/18</td><td>6 / 6 / 5</td><td>18/18</td><td>18/18</td></tr>
-                <tr><td>Nemotron-3 Nano 30B <em>reasoning</em></td><td>14/18</td><td>4 / 6 / 4</td><td>18/18</td><td>18/18</td></tr>
+                <tr><td>Nemotron-3 Nano 30B Omni reasoning</td><td>14/18</td><td>4 / 6 / 4</td><td>18/18</td><td>18/18</td></tr>
                 <tr><td>Nemotron-3 Nano 30B</td><td>16/18</td><td>5 / 6 / 5</td><td>18/18</td><td>18/18</td></tr>
                 <tr><td>Nemotron Nano 9B</td><td>18/18</td><td>6 / 6 / 6</td><td>18/18</td><td>18/18</td></tr>
               </tbody>
             </table>
           </div>
-          <h3>Reasoning does not protect against residual context — it may amplify it</h3>
-          <p>The cleanest pair: two 30B models from the same vendor, same architecture, differing only in explicit reasoning. The registered prediction was that a reasoning model would "think through" the contaminated echoes and resist them. The opposite held: the reasoning variant recovered 14/18 under source-only pruning against its sibling's 16/18, and produced the only misinformation-type source-prune failure observed in any model. A plausible mechanism — recorded here as a hypothesis, not a finding — is that explicit reasoning revisits the contaminated echoes as evidence, giving the stale value more chances to be adopted rather than more chances to be doubted.</p>
+          <h3>An exploratory 30B comparison, and a correction</h3>
+          <p>The registered prediction was that an explicitly reasoning model would "think through" contaminated echoes and resist them better than a non-reasoning sibling. The comparison as captured does not test this, for two reasons. The endpoints are different models rather than one model with a switch: the reasoning endpoint is the Omni variant, which ships vision and speech encoders, while its sibling is text-only. And both were run with provider-default reasoning settings, so reasoning was never explicitly toggled on either side.</p>
+          <p>What remains is an exploratory observation between two same-vendor, similar-scale endpoints: the Omni reasoning endpoint recovered 14/18 under source-only pruning against the text-only sibling's 16/18, and produced the only misinformation-type source-prune failure observed in any endpoint. Because the endpoints differ and reasoning was provider-default, this comparison does not isolate the effect of reasoning. A controlled ablation takes one text-only model with reasoning explicitly toggled per request; that experiment is planned, and any claim about reasoning is withheld until it runs.</p>
           <h3>Repair robustness is not a function of scale</h3>
-          <p>The second registered prediction was that a 9B model would break the clean-accuracy ceiling and show weaker repair. It did neither: Nemotron Nano 9B answered 27/27 clean and recovered every derailed case under every strategy — a perfect score its own 30B siblings did not match. Across seven models, resistance to residual contamination does not track parameter count, vendor, or reasoning mode; it looks like an individual property of the training recipe.</p>
-          <p class="report-meta">Two further endpoints (GLM-5.2 as a same-vendor generation pair, Gemma 4 31B dense as an architecture pair) are still being captured through free-tier rate limits and will be added when complete.</p>
+          <p>The second registered prediction was that a 9B model would break the clean-accuracy ceiling and show weaker repair. It did neither: Nemotron Nano 9B answered 27/27 clean and recovered every derailed case under every strategy, a perfect score its own 30B siblings did not match. Across seven endpoints, resistance to residual contamination tracks neither parameter count nor vendor; it looks like an individual property of the training recipe.</p>
+          <p class="report-meta">Two further endpoints are still being captured through free-tier rate limits: GLM-5.2 as a same-vendor generation pair and Gemma 4 31B dense as an architecture pair. They will be added when complete.</p>
         </section>
 
         <section class="report-section" id="meaning">
@@ -182,8 +183,8 @@
         <section class="report-section" id="lengthrot">
           <h2>Interference, not capacity: where this sits next to context-length degradation</h2>
           <p>A separate line of work shows that input <em>length alone</em> hurts models: <a class="text-link" href="https://research.trychroma.com/context-rot" target="_blank" rel="noreferrer">Chroma's Context Rot study ↗</a> measured non-uniform accuracy drops across 18 frontier models well before their advertised windows, and <a class="text-link" href="https://arxiv.org/abs/2502.05167" target="_blank" rel="noreferrer">NoLiMa ↗</a> found 11 of 12 models falling below half their short-context performance by 32K tokens (<a class="text-link" href="https://arxiv.org/abs/2404.06654" target="_blank" rel="noreferrer">RULER ↗</a> makes the same claimed-vs-effective distinction with synthetic retrieval).</p>
-          <p>This pilot is designed to sit on the other side of that divide. Every serialized request here is under 1K tokens — below 1% of any tested model's window — so capacity pressure is excluded by construction. What derails these models is a single conflicting sentence in an otherwise short context: <strong>semantic interference, not length</strong>. The two failure modes are complementary, and conflating them is easy; a token-matched neutral-filler control (same length, no conflict) is the planned next addition to separate them within the same task families.</p>
-          <p>The taxonomies also map onto each other. Context-rot work distinguishes <em>poisoning</em> (errors reproducing through context), <em>distraction</em>, and <em>confusion</em>; our three pollution operators — explicit misinformation, false supersession, and the numerically similar aside — probe the same territory with exact-match scoring. Notably, our "distraction" analogue never landed (0/9 for all seven models at these lengths), consistent with the view that irrelevant content mainly hurts as contexts grow long.</p>
+          <p>This pilot is designed to sit on the other side of that divide. Every serialized request here is under 1K tokens, below 1% of any tested model's window, so capacity pressure is excluded by construction. What derails these models is a single conflicting sentence in an otherwise short context: <strong>semantic interference, not length</strong>. The two failure modes are complementary, and conflating them is easy; a token-matched neutral-filler control (same length, no conflict) is the planned next addition to separate them within the same task families.</p>
+          <p>The taxonomies also map onto each other. Context-rot work distinguishes <em>poisoning</em> (errors reproducing through context), <em>distraction</em>, and <em>confusion</em>; our three pollution operators (explicit misinformation, false supersession, and the numerically similar aside) probe the same territory with exact-match scoring. Notably, our "distraction" analogue never landed (0/9 for all seven models at these lengths), consistent with the view that irrelevant content mainly hurts as contexts grow long.</p>
         </section>
 
         <section class="report-section" id="limits">

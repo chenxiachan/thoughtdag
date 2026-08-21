@@ -1,6 +1,6 @@
 # Benchmark STATUS
 
-Last updated: 2026-08-16. Pilot / reference results only; never an authoritative leaderboard.
+Last updated: 2026-08-21. Pilot / reference results only; never an authoritative leaderboard. The benchmark and the v2 report are PUBLIC (repo + chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v2/).
 
 ## Pilot v1 cross-model comparison — COMPLETE (4 models × 135 conditions each, zero capture failures)
 
@@ -29,25 +29,29 @@ Two different vendors' models (gemma-4-26b, gpt-oss-20b) fail the same cell with
 Story canvas: `canvases/results/rp-pilot-depot-crates-k3.story.thoughtdag.json` (Gemma run). Result canvases for all 27 pilot cases generated from pilot-v1-gemma4-26b.
 
 
-## Wave 2 — controlled pairs (2026-08-19), 3 of 5 complete
+## Wave 2 (2026-08-19), 3 of 5 complete
 
-New free endpoints chosen as PAIRS (one variable each), 135 conditions apiece, zero capture failures:
-- nemotron-3-nano-30b-a3b-reasoning vs nemotron-3-nano-30b-a3b (reasoning on/off, same vendor+size+arch)
+New free endpoints, 135 conditions apiece, zero capture failures:
+- nemotron-3-nano-omni-30b-a3b-reasoning and nemotron-3-nano-30b-a3b (an EXPLORATORY same-vendor comparison; see the correction below)
 - nemotron-nano-9b-v2 (scale-down axis)
-- IN PROGRESS: z-ai/glm-5.2:free (generation pair vs glm-4.5-flash), google/gemma-4-31b-it:free (dense pair vs 26b MoE) — free-tier rate limits + one provider 400-bug (OpenRouter routing, "Unknown name labels"); detached grinder running.
+- IN PROGRESS: z-ai/glm-5.2:free (generation pair vs glm-4.5-flash), google/gemma-4-31b-it:free (dense pair vs 26b MoE). Free-tier rate limits plus one provider 400-bug (OpenRouter routing, "Unknown name labels"); detached grinder running.
 
-### Findings (seven models, 126 derailed cells)
-1. Harm three-way split now SEVEN for seven (mis 9/9, temp 9/9, dis 0/9 every model).
+### CORRECTION 2026-08-21: the 30B comparison is not a reasoning ablation
+The wave-2 design intended a reasoning on/off pair. A user audit caught two flaws before they hardened. First, the endpoints are different models, not one model with a switch: the reasoning endpoint is the OMNI variant (ships vision and speech encoders per the NVIDIA model card); its sibling is text-only. Second, both envelopes record provider-default reasoning, so reasoning was never explicitly toggled on either side. Every "reasoning twin / reasoning on-off / reasoning amplifies residual context" claim was therefore withdrawn from the report, READMEs and models.json on 2026-08-21. The observation itself stands as exploratory: 14/18 vs 16/18 source-only recovery, including the only mis-type source-prune failure seen in any endpoint. A true ablation needs one text-only model with reasoning explicitly toggled per request (e.g. enable_thinking true/false); planned as the next capture, requires a runner extension to send per-request reasoning parameters.
+
+### Findings (seven endpoints, 126 derailed cells)
+1. Harm three-way split now SEVEN for seven (mis 9/9, temp 9/9, dis 0/9 every endpoint).
 2. Aggregate repair: subgraph 126/126 · recompute 125/126 · source-only 116/126. 9 of 10 source-prune failures are temporal-supersession.
-3. REGISTERED PREDICTIONS BOTH REFUTED: (a) reasoning does NOT protect against residual contamination — reasoning twin 14/18 vs sibling 16/18, and produced the only mis-type source-prune failure ever observed; (b) 9B did NOT break the clean ceiling — 27/27 clean and perfect 54/54 repair. Repair robustness tracks neither scale, vendor, nor reasoning mode.
-4. depot-crates k1/k3 → 131 is now a cross-model attractor (4 models produce the identical wrong number).
+3. Registered predictions: (a) "reasoning protects against residual contamination" could NOT be validly tested (see correction above); (b) "9B breaks the clean ceiling and repairs worse" REFUTED: 27/27 clean and perfect 54/54 repair. Repair robustness tracks neither parameter count nor vendor.
+4. depot-crates k1/k3 → 131 is a cross-endpoint attractor (4 endpoints produce the identical wrong number).
 
-Report page updated locally (website/research/context-repair-pilot-v1/index.html) — NOT yet committed; user review pending.
+Report v2 published 2026-08-21 (website/research/context-repair-pilot-v2/; v1 kept as an archived snapshot).
 
-## Gates before anything public
-1. Human visual sign-off on story canvases (open in ThoughtDAG).
-2. benchmark/ into git; models.json VERIFY (ids checked, README numbers current).
-3. First article drafts from depot-crates k3; label all numbers "Pilot / reference results".
+## Remaining gates
+1. Human visual sign-off on story canvases (open in ThoughtDAG) — still pending.
+2. Complete glm-5.2 and gemma-4-31b captures; score; lift the report to nine endpoints.
+3. Controlled reasoning ablation (enable_thinking toggle on one text-only model).
+4. First standalone article from depot-crates k3; label all numbers "Pilot / reference results".
 
 ## Cost note
 Entire 4-model pilot ran at $0 (free tiers). Measured pilot usage ≈30K in / 94K out tokens per model (thinking-mode upper bound).

@@ -5,8 +5,8 @@
     { "run_id": "pilot-v1-nemotron35l", "provider": "openrouter/nvidia", "model": "nvidia/nemotron-3.5-lightning:free", "wave": 1 },
     { "run_id": "pilot-v1-gemma4-26b", "provider": "openrouter/google", "model": "google/gemma-4-26b-a4b-it:free", "wave": 1 },
     { "run_id": "pilot-v1-gptoss20b", "provider": "openrouter/openai", "model": "openai/gpt-oss-20b:free", "wave": 1 },
-    { "run_id": "pilot-v1-nemotron3-nano30b-reasoning", "provider": "openrouter/nvidia", "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free", "wave": 2, "pair": "reasoning-on" },
-    { "run_id": "pilot-v1-nemotron3-nano30b", "provider": "openrouter/nvidia", "model": "nvidia/nemotron-3-nano-30b-a3b:free", "wave": 2, "pair": "reasoning-off" },
+    { "run_id": "pilot-v1-nemotron3-nano30b-reasoning", "provider": "openrouter/nvidia", "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free", "wave": 2, "pair": "exploratory: omni-modal reasoning variant (NOT a controlled reasoning ablation; differs in modality stack, reasoning was provider-default)" },
+    { "run_id": "pilot-v1-nemotron3-nano30b", "provider": "openrouter/nvidia", "model": "nvidia/nemotron-3-nano-30b-a3b:free", "wave": 2, "pair": "exploratory: text-only sibling (see note on the reasoning variant)" },
     { "run_id": "pilot-v1-nemotron-nano-9b", "provider": "openrouter/nvidia", "model": "nvidia/nemotron-nano-9b-v2:free", "wave": 2, "pair": "scale-down" }
   ],
   "in_capture": [
