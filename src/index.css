@@ -108,7 +108,7 @@
    print design (its own light/dark), independent of the app theme —
    the exported picture must look identical from any appearance. ── */
 .tmap-art { width: 460px; height: 575px; display: flex; flex-direction: column; position: relative;
-            font-family: 'Georgia', 'Songti SC', 'STSong', serif; --tmts: 1; }
+            font-family: 'Georgia', 'Songti SC', 'STSong', serif; --tmt: 1.15; --tms: 1; --tmx: 1; }
 /* the graph is the ground layer, full bleed; text floats above it —
    long titles run over the picture instead of being cut at a column */
 .tmap-art .tmap-graph { position: absolute; inset: 0; z-index: 0; }
@@ -123,23 +123,25 @@
 .tmap-art .tmap-head { flex-shrink: 0; }
 .tmap-art .tmap-graph { flex: 1; min-height: 0; }
 .tmap-art .tmap-footrow { display: flex; justify-content: space-between; align-items: flex-end; padding: 0 26px 18px; flex-shrink: 0; margin-top: auto; }
-.tmap-art .tmap-k { font-family: var(--font-mono); font-size: calc(11px * var(--tmts)); letter-spacing: .16em; color: var(--tm-faint); text-transform: uppercase; }
-.tmap-art .tmap-date { font-family: var(--font-mono); font-size: calc(10.5px * var(--tmts)); letter-spacing: .08em; color: var(--tm-faint); margin-top: 5px; }
-.tmap-art .tmap-t { font-size: min(calc(34px * var(--tmts)), 46px); line-height: 1.22; font-weight: 600; margin-top: 10px; letter-spacing: .01em;
+.tmap-art .tmap-k { font-family: var(--font-mono); font-size: 11px; letter-spacing: .16em; color: var(--tm-faint); text-transform: uppercase; }
+.tmap-art .tmap-date { font-family: var(--font-mono); font-size: calc(10.5px * var(--tmx)); letter-spacing: .08em; color: var(--tm-faint); margin-top: 5px; }
+.tmap-art .tmap-t { font-size: min(calc(34px * var(--tmt)), 48px); line-height: 1.22; font-weight: 600; margin-top: 10px; letter-spacing: .01em;
                     display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
 .tmap-art.tmap-scroll .tmap-t { -webkit-line-clamp: 5; }
 .tmap-art.tmap-cover .tmap-t { -webkit-line-clamp: 2; }
-.tmap-art .tmap-s { font-size: min(calc(15px * var(--tmts)), 19px); color: var(--tm-mut); margin-top: 9px; line-height: 1.55;
+.tmap-art .tmap-s { font-size: min(calc(15px * var(--tms)), 20px); color: var(--tm-mut); margin-top: 9px; line-height: 1.55;
                     display: -webkit-box; -webkit-box-orient: vertical; overflow: hidden; -webkit-line-clamp: 2; }
+.tmap-art .tmap-sig-byline { font-style: italic; font-size: min(calc(13px * var(--tms)), 17px); color: var(--tm-mut); margin-top: 9px; }
+.tmap-art .tmap-sig-corner { position: absolute; right: 20px; bottom: 16px; z-index: 2; font-style: italic; font-size: 13.5px; color: var(--tm-mut); }
+.tmap-art.tmap-cover .tmap-sig-corner { bottom: 56px; }
 .tmap-art .tmap-rule { width: 30px; height: 2.5px; background: var(--tm-ink); margin: 16px 0 13px; }
-.tmap-art .tmap-stats { font-size: calc(14px * var(--tmts)); color: var(--tm-mut); line-height: 2.0; }
-.tmap-art .tmap-stats b { color: var(--tm-ink); font-weight: 600; font-family: var(--font-mono); font-size: calc(16px * var(--tmts)); margin-right: 2px; }
-.tmap-art .tmap-statline { font-size: calc(14px * var(--tmts)); color: var(--tm-mut); }
-.tmap-art .tmap-statline b { color: var(--tm-ink); font-family: var(--font-mono); font-size: calc(16px * var(--tmts)); font-weight: 600; }
+.tmap-art .tmap-stats { font-size: calc(14px * var(--tmx)); color: var(--tm-mut); line-height: 2.0; }
+.tmap-art .tmap-stats b { color: var(--tm-ink); font-weight: 600; font-family: var(--font-mono); font-size: calc(16px * var(--tmx)); margin-right: 2px; }
+.tmap-art .tmap-statline { font-size: calc(14px * var(--tmx)); color: var(--tm-mut); }
+.tmap-art .tmap-statline b { color: var(--tm-ink); font-family: var(--font-mono); font-size: calc(16px * var(--tmx)); font-weight: 600; }
 .tmap-art .tmap-spacer { flex: 1; }
 .tmap-art .tmap-brand { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-.tmap-art .tmap-brand svg { width: 22px; height: 22px; border-radius: 5px; flex-shrink: 0; }
-.tmap-art.tmap-dark .tmap-brand svg rect { fill: #2C2822; }
+.tmap-art .tmap-brand svg { width: auto; height: 21px; flex-shrink: 0; }
 .tmap-art .tmap-brand .tmap-bt { font-family: var(--font-mono); font-size: 10px; letter-spacing: .06em; color: var(--tm-faint); line-height: 1.55; }
 .tmap-art .tmap-brand .tmap-bt b { color: var(--tm-mut); font-weight: 600; letter-spacing: .09em; }
 

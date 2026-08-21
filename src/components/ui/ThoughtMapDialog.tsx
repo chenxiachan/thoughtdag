@@ -21,11 +21,11 @@ import { llmCall } from '../../lib/api';
 // reads the canvas LOCALLY (root question + map plaques) exactly like
 // every other model feature; nothing ships until the user exports it.
 
-const LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44"><rect width="44" height="44" rx="10" fill="#FAF9F7"/><line x1="19" y1="10" x2="19" y2="18" stroke="#6B5CE7" stroke-width="2.5" stroke-linecap="round"/><line x1="19" y1="25" x2="19" y2="33" stroke="#6B5CE7" stroke-width="2.5" stroke-linecap="round"/><line x1="22.5" y1="23.5" x2="30" y2="28.5" stroke="#E08A3C" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="3 3"/><circle cx="19" cy="7" r="3.8" fill="#6B5CE7"/><circle cx="19" cy="21.5" r="3.8" fill="none" stroke="#6B5CE7" stroke-width="2.6"/><circle cx="19" cy="36.5" r="3.8" fill="#6B5CE7"/><circle cx="32.5" cy="30" r="3.4" fill="#E08A3C"/></svg>`;
+const LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="14.5 2.5 22 39"><line x1="19" y1="10" x2="19" y2="18" stroke="#6B5CE7" stroke-width="2.5" stroke-linecap="round"/><line x1="19" y1="25" x2="19" y2="33" stroke="#6B5CE7" stroke-width="2.5" stroke-linecap="round"/><line x1="22.5" y1="23.5" x2="30" y2="28.5" stroke="#E08A3C" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="3 3"/><circle cx="19" cy="7" r="3.8" fill="#6B5CE7"/><circle cx="19" cy="21.5" r="3.8" fill="none" stroke="#6B5CE7" stroke-width="2.6"/><circle cx="19" cy="36.5" r="3.8" fill="#6B5CE7"/><circle cx="32.5" cy="30" r="3.4" fill="#E08A3C"/></svg>`;
 
 const KICKER = { zh: '一张思路地图', en: 'A THOUGHT MAP' };
 
-function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper, ts, showStats, timeInk, dateText, artRef }: {
+function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper, tst, tss, tsx, showStats, timeInk, dateText, sig, sigPos, artRef }: {
   structure: MapStructure;
   positions: Record<string, [number, number]>;
   stats: MapStats;
@@ -33,11 +33,15 @@ function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper
   subtitle: string;
   mapLang: 'zh' | 'en';
   paper: 'light' | 'dark';
-  ts: number;
+  tst: number;
+  tss: number;
+  tsx: number;
   showStats: boolean;
   timeInk: boolean;
   /** the archival stamp — '' hides it */
   dateText: string;
+  sig: string;
+  sigPos: 'byline' | 'corner';
   artRef?: React.RefObject<HTMLDivElement | null>;
 }) {
   const boxRef = useRef<HTMLDivElement>(null);
@@ -74,7 +78,7 @@ function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper
     // text zones, while the text layer stays free to run over the picture
     const pads = tpl === 'scroll'
       ? { l: 212, r: 28, t: 28, b: 28 }
-      : { l: 28, r: 28, t: 28 + (title ? 124 : 0) + (subtitle ? 36 : 0), b: showStats ? 90 : 64 };
+      : { l: 28, r: 28, t: 28 + (title ? 124 : 0) + (subtitle ? 36 : 0) + (sig && sigPos === 'byline' ? 26 : 0), b: showStats ? 90 : 64 };
     const gw2 = Math.max(...pxs) - mnx + 1, gh2 = Math.max(...pys) - mny + 1;
     const sc = Math.min((bw - pads.l - pads.r) / gw2, (bh - pads.t - pads.b) / gh2);
     const ox = pads.l + ((bw - pads.l - pads.r) - gw2 * sc) / 2;
@@ -118,7 +122,7 @@ function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper
         svg.appendChild(S('circle', { cx: p[0], cy: p[1], r, fill: n.marked ? redC : base }));
       }
     });
-  }, [structure, positions, bbox, paper, ts, tpl, title, subtitle, showStats, timeInk, artRef]);
+  }, [structure, positions, bbox, paper, tst, tss, tsx, tpl, title, subtitle, showStats, timeInk, sig, sigPos, artRef]);
 
   const brand = (
     <div className="tmap-brand">
@@ -127,7 +131,8 @@ function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper
     </div>
   );
   return (
-    <div ref={artRef ?? selfRef} className={`tmap-art tmap-${paper} tmap-${tpl}`} style={{ ['--tmts' as string]: ts }} data-tmap-art>
+    <div ref={artRef ?? selfRef} className={`tmap-art tmap-${paper} tmap-${tpl}`}
+      style={{ ['--tmt' as string]: tst, ['--tms' as string]: tss, ['--tmx' as string]: tsx }} data-tmap-art>
       {tpl === 'scroll' ? (
         <>
           <div className="tmap-head">
@@ -135,6 +140,7 @@ function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper
             {dateText && <div className="tmap-date">{dateText}</div>}
             {title && <h4 className="tmap-t">{title}</h4>}
             {subtitle && <div className="tmap-s">{subtitle}</div>}
+            {sig && sigPos === 'byline' && <div className="tmap-sig-byline">{sig}</div>}
             {showStats && <>
               <div className="tmap-rule" />
               <div className="tmap-stats">
@@ -145,6 +151,7 @@ function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper
             {brand}
           </div>
           <div className="tmap-graph" ref={boxRef} />
+          {sig && sigPos === 'corner' && <div className="tmap-sig-corner">{sig}</div>}
         </>
       ) : (
         <>
@@ -153,8 +160,10 @@ function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper
             {dateText && <div className="tmap-date">{dateText}</div>}
             {title && <h4 className="tmap-t">{title}</h4>}
             {subtitle && <div className="tmap-s">{subtitle}</div>}
+            {sig && sigPos === 'byline' && <div className="tmap-sig-byline">{sig}</div>}
           </div>
           <div className="tmap-graph" ref={boxRef} />
+          {sig && sigPos === 'corner' && <div className="tmap-sig-corner">{sig}</div>}
           <div className="tmap-footrow">
             {showStats
               ? <div className="tmap-statline">{parts.map(([n, l], i) => (<span key={i}>{i > 0 && ' · '}<b>{n}</b> {l}</span>))}</div>
@@ -180,7 +189,11 @@ export default function ThoughtMapDialog() {
   const [paper, setPaper] = useState<'light' | 'dark'>('light');
   const [mapLang, setMapLang] = useState<'zh' | 'en'>('zh');
   const [capLang, setCapLang] = useState<'zh' | 'en'>('zh');
-  const [ts, setTs] = useState(1.15);
+  const [tst, setTst] = useState(1.15);
+  const [tss, setTss] = useState(1);
+  const [tsx, setTsx] = useState(1);
+  const [sig, setSig] = useState('');
+  const [sigPos, setSigPos] = useState<'byline' | 'corner'>('byline');
   const [showStats, setShowStats] = useState(true);
   const [timeInk, setTimeInk] = useState(false);
   const [showDate, setShowDate] = useState(true);
@@ -215,6 +228,9 @@ export default function ThoughtMapDialog() {
     setStep('image');
     setMapLang(uiLang);
     setCapLang(uiLang);
+    // the signature is identity, not content: remembered, never AI-drafted
+    setSig(localStorage.getItem('thoughtdag.tmapSignature') ?? '');
+    setSigPos((localStorage.getItem('thoughtdag.tmapSigPos') as 'byline' | 'corner') || 'byline');
     setTitle(projectName);
     setSubtitle('');
     setCaption(`${fallbackCaption(uiLang, projectName || 'ThoughtDAG', stats)}\n\n${attributionLine()}`);
@@ -343,8 +359,9 @@ export default function ThoughtMapDialog() {
 
         {step === 'image' ? (
           <div className="flex gap-6 flex-wrap">
-            {/* knobs */}
-            <div className="w-[250px] flex flex-col gap-3.5 shrink-0">
+            {/* left: the words and the composition — where the hands live */}
+            <div className="w-[252px] shrink-0 flex flex-col gap-3" style={{ minHeight: 575 }}>
+              <div className="text-2xs font-mono tracking-[0.18em] uppercase text-ink-faint">{t('tmap.groupText')}</div>
               <div>
                 <div className="text-2xs text-ink-faint mb-1 flex items-center justify-between">
                   <span>{t('tmap.publicTitle')}</span>
@@ -364,40 +381,64 @@ export default function ThoughtMapDialog() {
                   className="w-full border border-line rounded-lg px-3 py-1.5 text-xs bg-card text-ink placeholder-ink-faint focus:outline-none focus:ring-1 focus:ring-accent/40" />
               </div>
               <div>
-                <div className="text-2xs text-ink-faint mb-1">{t('tmap.layout')}</div>
-                {seg([['tidy', t('tmap.tidy')], ['hand', t('tmap.hand')]], layout, (v) => setLayout(v as 'tidy' | 'hand'))}
+                <div className="text-2xs text-ink-faint mb-1">{t('tmap.sig')}</div>
+                <input value={sig} maxLength={24} placeholder={t('tmap.subtitlePh')} data-tmap-sig
+                  onChange={(e) => { setSig(e.target.value); localStorage.setItem('thoughtdag.tmapSignature', e.target.value); }}
+                  className="w-full border border-line rounded-lg px-3 py-1.5 text-xs bg-card text-ink placeholder-ink-faint focus:outline-none focus:ring-1 focus:ring-accent/40" />
               </div>
-              <div>
-                <div className="text-2xs text-ink-faint mb-1">{t('tmap.paper')}</div>
-                {seg([['light', t('tmap.paperLight')], ['dark', t('tmap.paperDark')]], paper, (v) => setPaper(v as 'light' | 'dark'))}
+              <div className="flex items-center gap-2">
+                <span className="text-2xs text-ink-faint w-[56px] shrink-0">{t('tmap.sigPos')}</span>
+                <div className="flex-1">{seg([['byline', t('tmap.sigByline')], ['corner', t('tmap.sigCorner')]], sigPos, (v) => { setSigPos(v as 'byline' | 'corner'); localStorage.setItem('thoughtdag.tmapSigPos', v); })}</div>
               </div>
-              <div>
-                <div className="text-2xs text-ink-faint mb-1">{t('tmap.mapLang')}</div>
-                {seg([['zh', '中文'], ['en', 'EN']], mapLang, (v) => setMapLang(v as 'zh' | 'en'))}
-              </div>
-              <div className="grid grid-cols-2 gap-x-3 gap-y-2.5">
-                <div>
-                  <div className="text-2xs text-ink-faint mb-1">{t('tmap.statsLbl')}</div>
-                  {seg([['on', t('tmap.show')], ['off', t('tmap.hide')]], showStats ? 'on' : 'off', (v) => setShowStats(v === 'on'))}
+              <div className="text-2xs font-mono tracking-[0.18em] uppercase text-ink-faint mt-1.5">{t('tmap.size')}</div>
+              {([[t('tmap.slTitle'), tst, setTst], [t('tmap.slSub'), tss, setTss], [t('tmap.statsLbl'), tsx, setTsx]] as [string, number, (v: number) => void][]).map(([label, val, set]) => (
+                <div key={label} className="flex items-center gap-2">
+                  <span className="text-2xs text-ink-faint w-[34px] shrink-0">{label}</span>
+                  <input type="range" min={0.85} max={1.45} step={0.05} value={val} onChange={(e) => set(parseFloat(e.target.value))}
+                    className="flex-1 accent-[color:var(--color-accent)]" />
+                  <span className="text-2xs text-ink-faint font-mono w-[34px] text-right">{val.toFixed(2)}</span>
                 </div>
-                <div>
-                  <div className="text-2xs text-ink-faint mb-1">{t('tmap.timeInk')}</div>
-                  {seg([['off', t('tmap.hide')], ['on', t('tmap.show')]], timeInk ? 'on' : 'off', (v) => setTimeInk(v === 'on'))}
+              ))}
+              <div className="text-2xs font-mono tracking-[0.18em] uppercase text-ink-faint mt-1.5">{t('tmap.groupStyle')}</div>
+              {([
+                [t('tmap.layout'), [['tidy', t('tmap.tidy')], ['hand', t('tmap.hand')]], layout, (v: string) => setLayout(v as 'tidy' | 'hand')],
+                [t('tmap.paper'), [['light', t('tmap.paperLight')], ['dark', t('tmap.paperDark')]], paper, (v: string) => setPaper(v as 'light' | 'dark')],
+                [t('tmap.mapLang'), [['zh', '中文'], ['en', 'EN']], mapLang, (v: string) => setMapLang(v as 'zh' | 'en')],
+              ] as [string, [string, string][], string, (v: string) => void][]).map(([label, entries, cur, set]) => (
+                <div key={label} className="flex items-center gap-2">
+                  <span className="text-2xs text-ink-faint w-[56px] shrink-0">{label}</span>
+                  <div className="flex-1">{seg(entries, cur, set)}</div>
                 </div>
-                <div>
-                  <div className="text-2xs text-ink-faint mb-1">{t('tmap.dateLbl')}</div>
-                  {seg([['on', t('tmap.show')], ['off', t('tmap.hide')]], showDate ? 'on' : 'off', (v) => setShowDate(v === 'on'))}
-                </div>
-                <div className={showDate ? '' : 'opacity-40 pointer-events-none'}>
-                  <div className="text-2xs text-ink-faint mb-1">{t('tmap.dateMode')}</div>
-                  {seg([['span', t('tmap.dateSpan')], ['today', t('tmap.dateToday')]], dateMode, (v) => setDateMode(v as 'today' | 'span'))}
+              ))}
+            </div>
+            {/* centre: the artifact, full size */}
+            <div className="shrink-0 rounded-md shadow-xl overflow-hidden" style={{ width: 460, height: 575 }}>
+              <Artifact structure={structure} positions={positions} stats={stats}
+                title={title} subtitle={subtitle} mapLang={mapLang} paper={paper} tst={tst} tss={tss} tsx={tsx}
+                showStats={showStats} timeInk={timeInk} dateText={dateText} sig={sig} sigPos={sigPos} artRef={artRef} />
+            </div>
+            {/* right: the honesty check on top, the marks below, the exit at the bottom */}
+            <div className="w-[198px] shrink-0 flex flex-col gap-2" style={{ height: 575 }}>
+              <div className="rounded-sm shadow-lg overflow-hidden self-center" style={{ width: 132, height: 165 }}>
+                <div style={{ transform: 'scale(0.28695)', transformOrigin: 'top left', width: 460, height: 575 }}>
+                  <Artifact structure={structure} positions={positions} stats={stats}
+                    title={title} subtitle={subtitle} mapLang={mapLang} paper={paper} tst={tst} tss={tss} tsx={tsx}
+                    showStats={showStats} timeInk={timeInk} dateText={dateText} sig={sig} sigPos={sigPos} />
                 </div>
               </div>
-              <div>
-                <div className="text-2xs text-ink-faint mb-1">{t('tmap.size')} <span className="float-right font-mono">{ts.toFixed(2)}×</span></div>
-                <input type="range" min={0.85} max={1.45} step={0.05} value={ts} onChange={(e) => setTs(parseFloat(e.target.value))}
-                  className="w-full accent-[color:var(--color-accent)]" />
-              </div>
+              <div className="text-2xs text-ink-faint text-center mb-1">{t('tmap.thumbCap')}</div>
+              <div className="text-2xs font-mono tracking-[0.18em] uppercase text-ink-faint">{t('tmap.groupMarks')}</div>
+              {([
+                [t('tmap.statsLbl'), [['on', t('tmap.show')], ['off', t('tmap.hide')]], showStats ? 'on' : 'off', (v: string) => setShowStats(v === 'on')],
+                [t('tmap.timeInk'), [['off', t('tmap.hide')], ['on', t('tmap.show')]], timeInk ? 'on' : 'off', (v: string) => setTimeInk(v === 'on')],
+                [t('tmap.dateLbl'), [['on', t('tmap.show')], ['off', t('tmap.hide')]], showDate ? 'on' : 'off', (v: string) => setShowDate(v === 'on')],
+                [t('tmap.dateMode'), [['span', t('tmap.dateSpan')], ['today', t('tmap.dateToday')]], dateMode, (v: string) => setDateMode(v as 'today' | 'span')],
+              ] as [string, [string, string][], string, (v: string) => void][]).map(([label, entries, cur, set], i) => (
+                <div key={label} className={`flex items-center gap-2 ${i === 3 && !showDate ? 'opacity-40 pointer-events-none' : ''}`}>
+                  <span className="text-2xs text-ink-faint w-[56px] shrink-0">{label}</span>
+                  <div className="flex-1">{seg(entries, cur, set)}</div>
+                </div>
+              ))}
               <div className="flex-1" />
               <button onClick={() => { void downloadPng().then((ok) => { if (ok) setStep('share'); }); }} disabled={busy} data-tmap-download
                 className="flex items-center justify-center gap-1.5 text-xs font-semibold bg-accent text-white hover:bg-accent-strong rounded-lg px-3 py-2.5 transition-colors disabled:opacity-50">
@@ -405,31 +446,14 @@ export default function ThoughtMapDialog() {
                 {t('tmap.download')}
               </button>
             </div>
-            {/* the artifact, full size */}
-            <div className="shrink-0 rounded-md shadow-xl overflow-hidden" style={{ width: 460, height: 575 }}>
-              <Artifact structure={structure} positions={positions} stats={stats}
-                title={title} subtitle={subtitle} mapLang={mapLang} paper={paper} ts={ts}
-                showStats={showStats} timeInk={timeInk} dateText={dateText} artRef={artRef} />
-            </div>
-            {/* the honesty check: the feed-size thumbnail */}
-            <div className="flex flex-col items-center gap-2 shrink-0">
-              <div className="rounded-sm shadow-lg overflow-hidden" style={{ width: 132, height: 165 }}>
-                <div style={{ transform: 'scale(0.28695)', transformOrigin: 'top left', width: 460, height: 575 }}>
-                  <Artifact structure={structure} positions={positions} stats={stats}
-                    title={title} subtitle={subtitle} mapLang={mapLang} paper={paper} ts={ts}
-                    showStats={showStats} timeInk={timeInk} dateText={dateText} />
-                </div>
-              </div>
-              <div className="text-2xs text-ink-faint">{t('tmap.thumbCap')}</div>
-            </div>
           </div>
         ) : (
           <div className="flex gap-6 flex-wrap" data-tmap-share-step>
             <div className="shrink-0 rounded-sm shadow-lg overflow-hidden" style={{ width: 184, height: 230 }}>
               <div style={{ transform: 'scale(0.4)', transformOrigin: 'top left', width: 460, height: 575 }}>
                 <Artifact structure={structure} positions={positions} stats={stats}
-                  title={title} subtitle={subtitle} mapLang={mapLang} paper={paper} ts={ts}
-                  showStats={showStats} timeInk={timeInk} dateText={dateText} artRef={artRef} />
+                  title={title} subtitle={subtitle} mapLang={mapLang} paper={paper} tst={tst} tss={tss} tsx={tsx}
+                  showStats={showStats} timeInk={timeInk} dateText={dateText} sig={sig} sigPos={sigPos} artRef={artRef} />
               </div>
             </div>
             <div className="flex-1 min-w-[320px] flex flex-col gap-3">
