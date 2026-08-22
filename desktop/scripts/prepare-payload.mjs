@@ -76,4 +76,14 @@ if (leftover) {
   console.error('native binaries slipped into the payload:\n' + leftover);
   process.exit(1);
 }
+
+// codesign --strict rejects any symlink that leaves the bundle. npm's
+// .bin shims are launcher symlinks the server never spawns — drop them —
+// and absolute or dangling links (npm sometimes writes absolute ones)
+// would point outside the .app, so they must not survive either.
+execSync('find node_modules -type d -name ".bin" -prune -exec rm -rf {} +', { cwd: payload });
+const badLinks = execSync('find node_modules -type l | while read l; do t=$(readlink "$l"); if [ ! -e "$l" ] || [ "${t#/}" != "$t" ]; then echo "$l"; rm "$l"; fi; done', { cwd: payload })
+  .toString()
+  .trim();
+if (badLinks) console.log('pruned unsafe symlinks:\n' + badLinks);
 console.log('payload ready:', payload);
