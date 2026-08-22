@@ -25,6 +25,17 @@ const LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="14.5 2.5 22 3
 
 const KICKER = { zh: '一张思路地图', en: 'A THOUGHT MAP' };
 
+// the mark ahead of each count, drawn as the sheet draws it
+function StatGlyph({ kind }: { kind: 'dot' | 'dia' | 'red' }) {
+  return (
+    <svg className="tmap-sg" viewBox="0 0 10 10" aria-hidden>
+      {kind === 'dia'
+        ? <rect x="2.4" y="2.4" width="5.2" height="5.2" transform="rotate(45 5 5)" className="tmap-sg-dia" />
+        : <circle cx="5" cy="5" r="3.6" className={kind === 'red' ? 'tmap-sg-red' : 'tmap-sg-ink'} />}
+    </svg>
+  );
+}
+
 // what the sheet can seat at default type size, both templates: the cover
 // title holds two lines, the scroll title five narrow ones — 40 weight
 // units (20 CJK / 40 latin); the subtitle rides three scroll lines: 56
@@ -109,6 +120,11 @@ function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper
     const stamped = structure.nodes.filter((n) => !n.material && n.ts != null).sort((a, b) => a.ts! - b.ts!);
     const rank: Record<string, number> = {};
     stamped.forEach((n, i) => { rank[n.id] = stamped.length > 1 ? i / (stamped.length - 1) : 1; });
+    // the terminus: departure is the big dot, arrival is the double circle —
+    // the last inked step, or the last step laid down when clocks are absent
+    const termId = stamped.length
+      ? stamped[stamped.length - 1].id
+      : [...structure.nodes].reverse().find((n) => !n.material)?.id ?? null;
     const N = structure.nodes.length;
     const rBase = Math.max(1.7, Math.min(5.2, 5.6 * Math.sqrt(60 / N)));
     const ew = Math.max(0.5, Math.min(1.1, rBase * 0.26));
@@ -127,6 +143,7 @@ function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper
       } else {
         const base = timeInk ? lerpHex(inkMinC, inkC, rank[n.id] ?? 1) : inkC;
         svg.appendChild(S('circle', { cx: p[0], cy: p[1], r, fill: n.marked ? redC : base }));
+        if (n.id === termId) svg.appendChild(S('circle', { cx: p[0], cy: p[1], r: r + 2.8, fill: 'none', stroke: inkC, 'stroke-width': Math.max(0.9, ew + 0.15) }));
       }
     });
   }, [structure, positions, bbox, paper, rot, tst, tss, tsx, tpl, title, subtitle, showStats, timeInk, sig, sigPos, artRef]);
@@ -151,7 +168,7 @@ function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper
             {showStats && <>
               <div className="tmap-rule" />
               <div className="tmap-stats">
-                {parts.map(([n, l], i) => (<span key={i}><b>{n}</b> {l}<br /></span>))}
+                {parts.map(([n, l, k], i) => (<span key={i}><StatGlyph kind={k} /><b>{n}</b> {l}<br /></span>))}
               </div>
             </>}
             <div className="tmap-spacer" />
@@ -174,7 +191,7 @@ function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper
           {sig && sigPos === 'corner' && <div className="tmap-sig-corner">{sig}</div>}
           <div className="tmap-footrow">
             {showStats
-              ? <div className="tmap-statline">{parts.map(([n, l], i) => (<span key={i}>{i > 0 && ' · '}<b>{n}</b> {l}</span>))}</div>
+              ? <div className="tmap-statline">{parts.map(([n, l, k], i) => (<span key={i}>{i > 0 && ' · '}<span className="tmap-si"><StatGlyph kind={k} /><b>{n}</b> {l}</span></span>))}</div>
               : <div />}
           </div>
         </>

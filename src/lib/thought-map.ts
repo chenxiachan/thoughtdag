@@ -108,15 +108,20 @@ export function handPositions(g: MapStructure): Record<string, [number, number]>
 
 export const TMAP_SITE_URL = 'https://chenxiachan.github.io/thoughtdag/';
 
-export function statParts(stats: MapStats, lang: 'zh' | 'en'): [number, string][] {
+/** The mark a stat item wears on the sheet: ink dot for steps, hollow
+ *  diamond for materials, red dot for the judgement family. The stats line
+ *  doubles as the legend — numbers and marks point at each other. */
+export type StatKind = 'dot' | 'dia' | 'red';
+
+export function statParts(stats: MapStats, lang: 'zh' | 'en'): [number, string, StatKind][] {
   const zh = lang === 'zh';
-  const parts: [number, string][] = [
-    [stats.steps, zh ? '步思考' : stats.steps === 1 ? 'step' : 'steps'],
+  const parts: [number, string, StatKind][] = [
+    [stats.steps, zh ? '步思考' : stats.steps === 1 ? 'step' : 'steps', 'dot'],
   ];
-  if (stats.materials) parts.push([stats.materials, zh ? '份材料' : stats.materials === 1 ? 'source' : 'sources']);
-  if (stats.decisions) parts.push([stats.decisions, zh ? '项决策' : stats.decisions === 1 ? 'decision' : 'decisions']);
-  if (stats.pivots) parts.push([stats.pivots, zh ? '次转向' : stats.pivots === 1 ? 'pivot' : 'pivots']);
-  if (stats.ruleouts) parts.push([stats.ruleouts, zh ? '次排除' : stats.ruleouts === 1 ? 'rule-out' : 'rule-outs']);
+  if (stats.materials) parts.push([stats.materials, zh ? '份材料' : stats.materials === 1 ? 'source' : 'sources', 'dia']);
+  if (stats.decisions) parts.push([stats.decisions, zh ? '项决策' : stats.decisions === 1 ? 'decision' : 'decisions', 'red']);
+  if (stats.pivots) parts.push([stats.pivots, zh ? '次转向' : stats.pivots === 1 ? 'pivot' : 'pivots', 'red']);
+  if (stats.ruleouts) parts.push([stats.ruleouts, zh ? '次排除' : stats.ruleouts === 1 ? 'rule-out' : 'rule-outs', 'red']);
   return parts;
 }
 

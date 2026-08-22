@@ -142,6 +142,11 @@
 .tmap-art .tmap-stats { font-size: calc(14px * var(--tmx)); color: var(--tm-mut); line-height: 2.0; }
 .tmap-art .tmap-stats b { color: var(--tm-ink); font-weight: 600; font-family: var(--tm-mono); font-size: calc(16px * var(--tmx)); margin-right: 2px; }
 .tmap-art .tmap-statline { font-size: calc(14px * var(--tmx)); color: var(--tm-mut); }
+.tmap-art .tmap-sg { display: inline-block; width: calc(9px * var(--tmx)); height: calc(9px * var(--tmx)); margin-right: 5px; vertical-align: calc(0.4px * var(--tmx)); }
+.tmap-art .tmap-sg-ink { fill: var(--tm-ink); }
+.tmap-art .tmap-sg-red { fill: var(--tm-red); }
+.tmap-art .tmap-sg-dia { fill: none; stroke: var(--tm-ink); stroke-width: 1.2; }
+.tmap-art .tmap-si { white-space: nowrap; }
 .tmap-art .tmap-statline b { color: var(--tm-ink); font-family: var(--tm-mono); font-size: calc(16px * var(--tmx)); font-weight: 600; }
 .tmap-art .tmap-spacer { flex: 1; }
 .tmap-art .tmap-brand { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
