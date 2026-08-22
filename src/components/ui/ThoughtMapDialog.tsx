@@ -25,7 +25,13 @@ const LOGO_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="14.5 2.5 22 3
 
 const KICKER = { zh: '一张思路地图', en: 'A THOUGHT MAP' };
 
-function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper, tst, tss, tsx, showStats, timeInk, dateText, sig, sigPos, artRef }: {
+// what the sheet can seat at default type size, both templates: the cover
+// title holds two lines, the scroll title five narrow ones — 40 weight
+// units (20 CJK / 40 latin); the subtitle rides three scroll lines: 56
+const TITLE_MAX = 40;
+const SUB_MAX = 56;
+
+function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper, rot, tst, tss, tsx, showStats, timeInk, dateText, sig, sigPos, artRef }: {
   structure: MapStructure;
   positions: Record<string, [number, number]>;
   stats: MapStats;
@@ -33,6 +39,8 @@ function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper
   subtitle: string;
   mapLang: 'zh' | 'en';
   paper: 'light' | 'dark';
+  /** turn the graph 90° — the arrangement (side/top text) follows the resulting orientation */
+  rot: boolean;
   tst: number;
   tss: number;
   tsx: number;
@@ -51,7 +59,7 @@ function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper
     const ys = Object.values(positions).map((p) => p[1]);
     return { w: Math.max(...xs) - Math.min(...xs) + 1, h: Math.max(...ys) - Math.min(...ys) + 1 };
   }, [positions]);
-  const tpl = bbox.h / bbox.w >= 1.35 ? 'scroll' : 'cover';
+  const tpl = (rot ? bbox.w / bbox.h : bbox.h / bbox.w) >= 1.35 ? 'scroll' : 'cover';
   const parts = statParts(stats, mapLang);
 
   useEffect(() => {
@@ -69,7 +77,6 @@ function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper
     };
     const svg = S('svg', { width: '100%', height: '100%', viewBox: `0 0 ${bw} ${bh}` });
     box.appendChild(svg);
-    const rot = (bbox.h / bbox.w >= 1) !== (bh / bw >= 1);
     const P: Record<string, [number, number]> = {};
     Object.entries(positions).forEach(([id, [x, y]]) => { P[id] = rot ? [y, -x] : [x, y]; });
     const pxs = Object.values(P).map((p) => p[0]), pys = Object.values(P).map((p) => p[1]);
@@ -78,7 +85,7 @@ function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper
     // text zones, while the text layer stays free to run over the picture
     const pads = tpl === 'scroll'
       ? { l: 212, r: 28, t: 28, b: 28 }
-      : { l: 28, r: 28, t: 28 + (title ? 124 : 0) + (subtitle ? 36 : 0) + (sig && sigPos === 'byline' ? 26 : 0), b: showStats ? 90 : 64 };
+      : { l: 28, r: 28, t: 28 + (title ? 124 : 0) + (subtitle ? 36 : 0) + (sig && sigPos === 'byline' ? 26 : 0), b: showStats ? 72 : 48 };
     const gw2 = Math.max(...pxs) - mnx + 1, gh2 = Math.max(...pys) - mny + 1;
     const sc = Math.min((bw - pads.l - pads.r) / gw2, (bh - pads.t - pads.b) / gh2);
     const ox = pads.l + ((bw - pads.l - pads.r) - gw2 * sc) / 2;
@@ -122,12 +129,12 @@ function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper
         svg.appendChild(S('circle', { cx: p[0], cy: p[1], r, fill: n.marked ? redC : base }));
       }
     });
-  }, [structure, positions, bbox, paper, tst, tss, tsx, tpl, title, subtitle, showStats, timeInk, sig, sigPos, artRef]);
+  }, [structure, positions, bbox, paper, rot, tst, tss, tsx, tpl, title, subtitle, showStats, timeInk, sig, sigPos, artRef]);
 
   const brand = (
     <div className="tmap-brand">
       <span dangerouslySetInnerHTML={{ __html: LOGO_SVG }} style={{ display: 'contents' }} />
-      <div className="tmap-bt"><b>ThoughtDAG</b><br />chenxiachan.github.io/thoughtdag</div>
+      <div className="tmap-bt"><b>ThoughtDAG</b></div>
     </div>
   );
   return (
@@ -162,13 +169,13 @@ function Artifact({ structure, positions, stats, title, subtitle, mapLang, paper
             {subtitle && <div className="tmap-s">{subtitle}</div>}
             {sig && sigPos === 'byline' && <div className="tmap-sig-byline">{sig}</div>}
           </div>
+          {brand}
           <div className="tmap-graph" ref={boxRef} />
           {sig && sigPos === 'corner' && <div className="tmap-sig-corner">{sig}</div>}
           <div className="tmap-footrow">
             {showStats
               ? <div className="tmap-statline">{parts.map(([n, l], i) => (<span key={i}>{i > 0 && ' · '}<b>{n}</b> {l}</span>))}</div>
               : <div />}
-            {brand}
           </div>
         </>
       )}
@@ -186,6 +193,7 @@ export default function ThoughtMapDialog() {
 
   const [step, setStep] = useState<'image' | 'share'>('image');
   const [layout, setLayout] = useState<'tidy' | 'hand'>('tidy');
+  const [rot, setRot] = useState(false);
   const [paper, setPaper] = useState<'light' | 'dark'>('light');
   const [mapLang, setMapLang] = useState<'zh' | 'en'>('zh');
   const [capLang, setCapLang] = useState<'zh' | 'en'>('zh');
@@ -231,7 +239,7 @@ export default function ThoughtMapDialog() {
     // the signature is identity, not content: remembered, never AI-drafted
     setSig(localStorage.getItem('thoughtdag.tmapSignature') ?? '');
     setSigPos((localStorage.getItem('thoughtdag.tmapSigPos') as 'byline' | 'corner') || 'byline');
-    setTitle(projectName);
+    setTitle(clampWeight(projectName, TITLE_MAX));
     setSubtitle('');
     setCaption(`${fallbackCaption(uiLang, projectName || 'ThoughtDAG', stats)}\n\n${attributionLine()}`);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -272,7 +280,10 @@ export default function ThoughtMapDialog() {
   };
 
   // one draft, three fields: title, subtitle, caption — sourced from the
-  // root question and the map plaques (the already-distilled layer)
+  // root question and the map plaques (the already-distilled layer). The
+  // model gets a budget UNDER the hard limits; the result is verified by
+  // weight and retried once. An overlong field is dropped with a toast,
+  // never truncated — a cut draft is no draft.
   const draft = async (): Promise<void> => {
     setDrafting(true);
     try {
@@ -285,19 +296,27 @@ export default function ThoughtMapDialog() {
       const capStats = statParts(stats, capLang).map(([n, l]) => `${n} ${l}`).join(', ');
       const langName = mapLang === 'zh' ? 'Chinese' : 'English';
       const capLangName = capLang === 'zh' ? 'Chinese' : 'English';
-      const raw = await llmCall([{
-        role: 'user',
-        content: `You are naming a share image called a "thought map": a picture of how someone explored one question, node by node. Sources:\nRoot question: ${root}\nStep takeaways: ${plaques.join(' / ')}\nStructure: ${s}\n\nOutput STRICT JSON only, no code fence:\n{"title":"...","subtitle":"...","caption":"..."}\ntitle: in ${langName}, what this exploration was about, at most 24 CJK characters or 48 latin characters, evocative but concrete, no tool names.\nsubtitle: in ${langName}, one short line of context, at most 40 CJK characters or 80 latin characters.\ncaption: in ${capLangName}, 2 or 3 first-person sentences for a social post that WEAVE IN these numbers: ${capStats}. Calm and concrete, no hype, no hashtags, no emoji, no tool names.\nNever use dash characters anywhere; use commas or periods.`,
-      }]);
-      const m = raw.match(/\{[\s\S]*\}/);
-      if (m) {
-        const j = JSON.parse(m[0]) as { title?: string; subtitle?: string; caption?: string };
-        if (j.title) setTitle(clampWeight(j.title, 48));
-        if (j.subtitle) setSubtitle(clampWeight(j.subtitle, 80));
-        if (j.caption) { capTouched.current = true; setCaption(`${j.caption.trim()}\n\n${attributionLine()}`); }
-      } else {
-        toast('error', t('tmap.draftFailed'));
+      const basePrompt = `You are naming a share image called a "thought map": a picture of how someone explored one question, node by node. Sources:\nRoot question: ${root}\nStep takeaways: ${plaques.join(' / ')}\nStructure: ${s}\n\nOutput STRICT JSON only, no code fence:\n{"title":"...","subtitle":"...","caption":"..."}\ntitle: in ${langName}, what this exploration was about, at most 16 CJK characters or 32 latin characters, evocative but concrete, no tool names.\nsubtitle: in ${langName}, one short line of context, at most 24 CJK characters or 48 latin characters.\ncaption: in ${capLangName}, 2 or 3 first-person sentences for a social post that WEAVE IN these numbers: ${capStats}. Calm and concrete, no hype, no hashtags, no emoji, no tool names.\nNever use dash characters anywhere; use commas or periods.`;
+      let best: { title?: string; subtitle?: string; caption?: string } | null = null;
+      for (let attempt = 0; attempt < 2; attempt++) {
+        const raw = await llmCall([{
+          role: 'user',
+          content: attempt === 0 ? basePrompt
+            : `${basePrompt}\nYour previous title or subtitle ran past the character budget. Cut deeper: title at most 12 CJK or 24 latin characters, subtitle at most 18 CJK or 36 latin characters.`,
+        }]);
+        const m = raw.match(/\{[\s\S]*\}/);
+        if (!m) continue;
+        try { best = JSON.parse(m[0]) as { title?: string; subtitle?: string; caption?: string }; } catch { continue; }
+        const tOk = !best.title || textWeight(best.title) <= TITLE_MAX;
+        const sOk = !best.subtitle || textWeight(best.subtitle) <= SUB_MAX;
+        if (tOk && sOk) break;
       }
+      if (!best) { toast('error', t('tmap.draftFailed')); return; }
+      let dropped = false;
+      if (best.title) { if (textWeight(best.title) <= TITLE_MAX) setTitle(best.title); else dropped = true; }
+      if (best.subtitle) { if (textWeight(best.subtitle) <= SUB_MAX) setSubtitle(best.subtitle); else dropped = true; }
+      if (best.caption) { capTouched.current = true; setCaption(`${best.caption.trim()}\n\n${attributionLine()}`); }
+      if (dropped) toast('error', t('tmap.draftLong'));
     } catch {
       toast('error', t('tmap.draftFailed'));
     } finally { setDrafting(false); }
@@ -348,8 +367,8 @@ export default function ThoughtMapDialog() {
   );
 
   return createPortal((
-    <div className="fixed inset-0 z-[85] bg-ink/25 backdrop-blur-[2px] flex items-center justify-center animate-fade-in" onClick={close} data-thought-map>
-      <div className="bg-surface rounded-2xl shadow-2xl border border-line w-[min(1040px,96vw)] max-h-[95vh] overflow-y-auto p-6" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-[85] bg-ink/25 backdrop-blur-[2px] flex items-center justify-center animate-fade-in" data-thought-map>
+      <div className="bg-surface rounded-2xl shadow-2xl border border-line w-[min(1128px,96vw)] max-h-[95vh] overflow-y-auto p-6" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-start justify-between mb-4">
           <div className="text-sm font-semibold text-ink">{t('tmap.title')}{step === 'share' ? ` · ${t('tmap.shareStep')}` : ''}</div>
           <button onClick={close} className="w-7 h-7 rounded-lg text-ink-faint hover:bg-wash hover:text-ink flex items-center justify-center transition-colors">
@@ -360,7 +379,7 @@ export default function ThoughtMapDialog() {
         {step === 'image' ? (
           <div className="flex gap-6 flex-wrap">
             {/* left: the words and the composition — where the hands live */}
-            <div className="w-[252px] shrink-0 flex flex-col gap-3" style={{ minHeight: 575 }}>
+            <div className="w-[252px] shrink-0 flex flex-col gap-3" style={{ minHeight: 690 }}>
               <div className="text-2xs font-mono tracking-[0.18em] uppercase text-ink-faint">{t('tmap.groupText')}</div>
               <div>
                 <div className="text-2xs text-ink-faint mb-1 flex items-center justify-between">
@@ -371,13 +390,13 @@ export default function ThoughtMapDialog() {
                     {drafting ? t('tmap.drafting') : t('tmap.draft')}
                   </button>
                 </div>
-                <input value={title} onChange={(e) => setTitle(clampWeight(e.target.value, 48))} data-tmap-title placeholder={t('tmap.subtitlePh')}
+                <input value={title} onChange={(e) => setTitle(clampWeight(e.target.value, TITLE_MAX))} data-tmap-title placeholder={t('tmap.subtitlePh')}
                   className="w-full border border-line rounded-lg px-3 py-1.5 text-xs bg-card text-ink placeholder-ink-faint focus:outline-none focus:ring-1 focus:ring-accent/40" />
-                <div className="text-2xs text-ink-faint font-mono text-right mt-0.5">{textWeight(title)}/48</div>
+                <div className="text-2xs text-ink-faint font-mono text-right mt-0.5">{textWeight(title)}/{TITLE_MAX}</div>
               </div>
               <div>
                 <div className="text-2xs text-ink-faint mb-1">{t('tmap.subtitle')}</div>
-                <input value={subtitle} onChange={(e) => setSubtitle(clampWeight(e.target.value, 80))} placeholder={t('tmap.subtitlePh')} data-tmap-subtitle
+                <input value={subtitle} onChange={(e) => setSubtitle(clampWeight(e.target.value, SUB_MAX))} placeholder={t('tmap.subtitlePh')} data-tmap-subtitle
                   className="w-full border border-line rounded-lg px-3 py-1.5 text-xs bg-card text-ink placeholder-ink-faint focus:outline-none focus:ring-1 focus:ring-accent/40" />
               </div>
               <div>
@@ -390,18 +409,19 @@ export default function ThoughtMapDialog() {
                 <span className="text-2xs text-ink-faint w-[56px] shrink-0">{t('tmap.sigPos')}</span>
                 <div className="flex-1">{seg([['byline', t('tmap.sigByline')], ['corner', t('tmap.sigCorner')]], sigPos, (v) => { setSigPos(v as 'byline' | 'corner'); localStorage.setItem('thoughtdag.tmapSigPos', v); })}</div>
               </div>
-              <div className="text-2xs font-mono tracking-[0.18em] uppercase text-ink-faint mt-1.5">{t('tmap.size')}</div>
+              <div className="text-2xs font-mono tracking-[0.18em] uppercase text-ink-faint mt-auto">{t('tmap.size')}</div>
               {([[t('tmap.slTitle'), tst, setTst], [t('tmap.slSub'), tss, setTss], [t('tmap.statsLbl'), tsx, setTsx]] as [string, number, (v: number) => void][]).map(([label, val, set]) => (
-                <div key={label} className="flex items-center gap-2">
-                  <span className="text-2xs text-ink-faint w-[34px] shrink-0">{label}</span>
+                <div key={label} className="flex items-center gap-3">
+                  <span className="text-2xs text-ink-faint w-[44px] shrink-0">{label}</span>
                   <input type="range" min={0.85} max={1.45} step={0.05} value={val} onChange={(e) => set(parseFloat(e.target.value))}
                     className="flex-1 accent-[color:var(--color-accent)]" />
                   <span className="text-2xs text-ink-faint font-mono w-[34px] text-right">{val.toFixed(2)}</span>
                 </div>
               ))}
-              <div className="text-2xs font-mono tracking-[0.18em] uppercase text-ink-faint mt-1.5">{t('tmap.groupStyle')}</div>
+              <div className="text-2xs font-mono tracking-[0.18em] uppercase text-ink-faint mt-auto">{t('tmap.groupStyle')}</div>
               {([
                 [t('tmap.layout'), [['tidy', t('tmap.tidy')], ['hand', t('tmap.hand')]], layout, (v: string) => setLayout(v as 'tidy' | 'hand')],
+                [t('tmap.rotate'), [['off', t('tmap.rotOff')], ['on', t('tmap.rotOn')]], rot ? 'on' : 'off', (v: string) => setRot(v === 'on')],
                 [t('tmap.paper'), [['light', t('tmap.paperLight')], ['dark', t('tmap.paperDark')]], paper, (v: string) => setPaper(v as 'light' | 'dark')],
                 [t('tmap.mapLang'), [['zh', '中文'], ['en', 'EN']], mapLang, (v: string) => setMapLang(v as 'zh' | 'en')],
               ] as [string, [string, string][], string, (v: string) => void][]).map(([label, entries, cur, set]) => (
@@ -411,18 +431,21 @@ export default function ThoughtMapDialog() {
                 </div>
               ))}
             </div>
-            {/* centre: the artifact, full size */}
-            <div className="shrink-0 rounded-md shadow-xl overflow-hidden" style={{ width: 460, height: 575 }}>
-              <Artifact structure={structure} positions={positions} stats={stats}
-                title={title} subtitle={subtitle} mapLang={mapLang} paper={paper} tst={tst} tss={tss} tsx={tsx}
-                showStats={showStats} timeInk={timeInk} dateText={dateText} sig={sig} sigPos={sigPos} artRef={artRef} />
+            {/* centre: the artifact, displayed at 1.2× (the design and the
+                export stay 460×575 underneath — the wrapper only magnifies) */}
+            <div className="shrink-0 rounded-md shadow-xl overflow-hidden" style={{ width: 552, height: 690 }}>
+              <div style={{ transform: 'scale(1.2)', transformOrigin: 'top left', width: 460, height: 575 }}>
+                <Artifact structure={structure} positions={positions} stats={stats}
+                  title={title} subtitle={subtitle} mapLang={mapLang} paper={paper} rot={rot} tst={tst} tss={tss} tsx={tsx}
+                  showStats={showStats} timeInk={timeInk} dateText={dateText} sig={sig} sigPos={sigPos} artRef={artRef} />
+              </div>
             </div>
             {/* right: the honesty check on top, the marks below, the exit at the bottom */}
-            <div className="w-[198px] shrink-0 flex flex-col gap-2" style={{ height: 575 }}>
+            <div className="w-[198px] shrink-0 flex flex-col gap-2" style={{ height: 690 }}>
               <div className="rounded-sm shadow-lg overflow-hidden self-center" style={{ width: 132, height: 165 }}>
                 <div style={{ transform: 'scale(0.28695)', transformOrigin: 'top left', width: 460, height: 575 }}>
                   <Artifact structure={structure} positions={positions} stats={stats}
-                    title={title} subtitle={subtitle} mapLang={mapLang} paper={paper} tst={tst} tss={tss} tsx={tsx}
+                    title={title} subtitle={subtitle} mapLang={mapLang} paper={paper} rot={rot} tst={tst} tss={tss} tsx={tsx}
                     showStats={showStats} timeInk={timeInk} dateText={dateText} sig={sig} sigPos={sigPos} />
                 </div>
               </div>
@@ -449,12 +472,18 @@ export default function ThoughtMapDialog() {
           </div>
         ) : (
           <div className="flex gap-6 flex-wrap" data-tmap-share-step>
-            <div className="shrink-0 rounded-sm shadow-lg overflow-hidden" style={{ width: 184, height: 230 }}>
-              <div style={{ transform: 'scale(0.4)', transformOrigin: 'top left', width: 460, height: 575 }}>
-                <Artifact structure={structure} positions={positions} stats={stats}
-                  title={title} subtitle={subtitle} mapLang={mapLang} paper={paper} tst={tst} tss={tss} tsx={tsx}
-                  showStats={showStats} timeInk={timeInk} dateText={dateText} sig={sig} sigPos={sigPos} artRef={artRef} />
+            <div className="shrink-0 flex flex-col gap-3" style={{ width: 184 }}>
+              <div className="rounded-sm shadow-lg overflow-hidden" style={{ width: 184, height: 230 }}>
+                <div style={{ transform: 'scale(0.4)', transformOrigin: 'top left', width: 460, height: 575 }}>
+                  <Artifact structure={structure} positions={positions} stats={stats}
+                    title={title} subtitle={subtitle} mapLang={mapLang} paper={paper} rot={rot} tst={tst} tss={tss} tsx={tsx}
+                    showStats={showStats} timeInk={timeInk} dateText={dateText} sig={sig} sigPos={sigPos} artRef={artRef} />
+                </div>
               </div>
+              <button onClick={() => setStep('image')} data-tmap-back
+                className="flex items-center justify-center gap-1.5 text-xs border border-line text-ink-muted hover:bg-wash rounded-lg px-3 py-2 transition-colors">
+                <ArrowLeft size={13} strokeWidth={1.75} /> {t('tmap.backToImage')}
+              </button>
             </div>
             <div className="flex-1 min-w-[320px] flex flex-col gap-3">
               <div>
@@ -491,11 +520,6 @@ export default function ThoughtMapDialog() {
                   </button>
                 ))}
               </div>
-              <div className="flex-1" />
-              <button onClick={() => setStep('image')} data-tmap-back
-                className="self-start flex items-center gap-1.5 text-xs border border-line text-ink-muted hover:bg-wash rounded-lg px-3 py-2 transition-colors">
-                <ArrowLeft size={13} strokeWidth={1.75} /> {t('tmap.backToImage')}
-              </button>
             </div>
           </div>
         )}
