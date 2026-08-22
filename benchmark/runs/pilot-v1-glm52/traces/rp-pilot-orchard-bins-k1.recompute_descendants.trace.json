@@ -1,0 +1,167 @@
+{
+  "case_id": "rp-pilot-orchard-bins-k1",
+  "condition": "recompute_descendants",
+  "run_id": "pilot-v1-glm52",
+  "capture": {
+    "model": "z-ai/glm-5.2:free",
+    "temperature": 0,
+    "run_date": "2026-08-20",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "1yehyek",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "So how many apples in total on the bins?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787216365-Yli76KRpVSIe3zqrlPou",
+        "object": "chat.completion",
+        "created": 1787216365,
+        "model": "z-ai/glm-5.2:free",
+        "provider": "Decart",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "To find the total number of apples, we first calculate the apples in the bins and then add the windfall apples as instructed.\n\n1. **Apples in the bins:** 7 bins × 13 apples/bin = 91 apples\n2. **Add windfall apples:** 91 apples + 18 windfall apples = 109 apples\n\nThere are **109** apples in total.",
+              "refusal": null,
+              "reasoning": "The user is asking for the total number of apples on the bins.\nFixed inputs:\n- Number of bins = 7\n- Apples per bin = 13\n- Windfall apples to add = 18\n\nWait, the question is \"how many apples in total on the bins?\"\nDoes \"on the bins\" mean just the apples in the bins, or the total including windfalls?\nUsually, \"total on the bins\" might just mean the bins themselves, but the prompt says \"18 windfall apples must be added to any total.\"\nSo any total should include the windfalls.\nLet's calculate:\nApples in bins = 7 * 13 = 91\nWindfall apples = 18\nTotal = 91 + 18 = 109.\n\nLet's double check the phrasing: \"18 windfall apples must be added to any total.\"\nSo the total is 7 * 13 + 18 = 91 + 18 = 109.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "The user is asking for the total number of apples on the bins.\nFixed inputs:\n- Number of bins = 7\n- Apples per bin = 13\n- Windfall apples to add = 18\n\nWait, the question is \"how many apples in total on the bins?\"\nDoes \"on the bins\" mean just the apples in the bins, or the total including windfalls?\nUsually, \"total on the bins\" might just mean the bins themselves, but the prompt says \"18 windfall apples must be added to any total.\"\nSo any total should include the windfalls.\nLet's calculate:\nApples in bins = 7 * 13 = 91\nWindfall apples = 18\nTotal = 91 + 18 = 109.\n\nLet's double check the phrasing: \"18 windfall apples must be added to any total.\"\nSo the total is 7 * 13 + 18 = 91 + 18 = 109.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 89,
+          "completion_tokens": 279,
+          "total_tokens": 368,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 198,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "1sinfgb",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "So how many apples in total on the bins?"
+        },
+        {
+          "role": "assistant",
+          "content": "To find the total number of apples, we first calculate the apples in the bins and then add the windfall apples as instructed.\n\n1. **Apples in the bins:** 7 bins × 13 apples/bin = 91 apples\n2. **Add windfall apples:** 91 apples + 18 windfall apples = 109 apples\n\nThere are **109** apples in total."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787216386-09Q5MZW46jUYFAYQCDfW",
+        "object": "chat.completion",
+        "created": 1787216386,
+        "model": "z-ai/glm-5.2:free",
+        "provider": "Decart",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "109",
+              "refusal": null,
+              "reasoning": "1.  **Analyze the Request:**\n    *   Fixed inputs: 7 bins, 13 apples/bin, 18 windfall apples.\n    *   Task: State the total number of apples (bins + windfall) as a single number.\n    *   Constraint: End the reply with the number alone on the last line.\n\n2.  **Calculate the Total:**\n    *   Apples in bins = 7 * 13 = 91\n    *   Total apples = 91 + 18 = 109\n\n3.  **Format the Output:**\n    *   The user wants the total stated, and the last line must be the number alone.\n    *   I can provide a brief sentence and then the number on the last line, or just the number. The prompt says \"state the total number of apples... as a single number. End your reply with the number alone on the last line.\"\n    *   Let's just output the number to be safe and perfectly compliant with \"as a single number\" and \"number alone on the last line\".\n\n4.  **Draft the response:**\n    109",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "1.  **Analyze the Request:**\n    *   Fixed inputs: 7 bins, 13 apples/bin, 18 windfall apples.\n    *   Task: State the total number of apples (bins + windfall) as a single number.\n    *   Constraint: End the reply with the number alone on the last line.\n\n2.  **Calculate the Total:**\n    *   Apples in bins = 7 * 13 = 91\n    *   Total apples = 91 + 18 = 109\n\n3.  **Format the Output:**\n    *   The user wants the total stated, and the last line must be the number alone.\n    *   I can provide a brief sentence and then the number on the last line, or just the number. The prompt says \"state the total number of apples... as a single number. End your reply with the number alone on the last line.\"\n    *   Let's just output the number to be safe and perfectly compliant with \"as a single number\" and \"number alone on the last line\".\n\n4.  **Draft the response:**\n    109",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 210,
+          "completion_tokens": 237,
+          "total_tokens": 447,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 234,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 30858
+}

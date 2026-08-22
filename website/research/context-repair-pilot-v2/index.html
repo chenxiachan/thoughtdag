@@ -53,8 +53,8 @@
           <span class="eyebrow">THOUGHTDAG RESEARCH · PILOT V2</span>
           <h1>Context Repair for LLMs: Pilot v2</h1>
           <p class="report-subtitle">Propagation, pruning, and dependency-ordered recomputation.</p>
-          <p class="report-meta">Results collected August 16–19, 2026 · 7 model endpoints · 945 captured conditions · 0 capture failures</p>
-          <div class="finding"><strong>Result in one sentence.</strong> Across 126 paired cases in which conflicting context first caused a wrong answer, removing the contaminated subgraph repaired 126/126, recomputing its descendants repaired 125/126, and deleting only the original bad turn repaired 116/126.</div>
+          <p class="report-meta">Results collected August 16–22, 2026 · 9 model endpoints · 1,215 captured conditions · 0 capture failures</p>
+          <div class="finding"><strong>Result in one sentence.</strong> Across 162 paired cases in which conflicting context first caused a wrong answer, removing the contaminated subgraph repaired 162/162, recomputing its descendants repaired 161/162, and deleting only the original bad turn repaired 152/162.</div>
         </header>
 
         <section class="report-section" id="problem">
@@ -71,7 +71,7 @@
           <p>A false turn then restores 30. Three descendants propagate that mistake: <code>4 × 30 = 120</code>, then <code>120 + 11 = 131</code>, followed by a restatement of the stale working values. The final question always asks for one number using the fixed inputs.</p>
           <figure class="report-figure">
             <img src="../../assets/context-repair-flagship.png" alt="Five graph conditions and seven model outputs in the flagship depot-crates case" />
-            <figcaption>Five graph states, one unchanged final question. Three of seven endpoints, from three different vendors, still returned the identical wrong number 131 after the false source itself was removed.</figcaption>
+            <figcaption>Five graph states, one unchanged final question. Three of nine endpoints, from three different vendors, still returned the identical wrong number 131 after the false source itself was removed.</figcaption>
           </figure>
         </section>
 
@@ -94,16 +94,16 @@
 
         <section class="report-section" id="flagship">
           <h2>The flagship result</h2>
-          <p>Seven model endpoints were tested at temperature 0 with provider-default reasoning settings. On this one case, every model agrees on four of the five graph states and splits on exactly one.</p>
+          <p>Nine model endpoints were tested at temperature 0 with provider-default reasoning settings. On this one case, every model agrees on four of the five graph states and splits on exactly one.</p>
           <div class="report-table-wrap">
             <table class="report-table">
               <thead><tr><th>Graph condition</th><th>Outcome across the seven endpoints</th></tr></thead>
               <tbody>
-                <tr><td>Clean</td><td>All seven → <strong>107</strong></td></tr>
-                <tr><td>Polluted</td><td>All seven → <strong>131</strong></td></tr>
+                <tr><td>Clean</td><td>All nine → <strong>107</strong></td></tr>
+                <tr><td>Polluted</td><td>All nine → <strong>131</strong></td></tr>
                 <tr><td>Delete source only</td><td>Four → 107 · <strong>Gemma 4 26B, GPT-OSS 20B, Nemotron-3 30B reasoning → 131</strong></td></tr>
-                <tr><td>Delete contaminated subgraph</td><td>All seven → <strong>107</strong></td></tr>
-                <tr><td>Delete source and recompute</td><td>All seven → <strong>107</strong></td></tr>
+                <tr><td>Delete contaminated subgraph</td><td>All nine → <strong>107</strong></td></tr>
+                <tr><td>Delete source and recompute</td><td>All nine → <strong>107</strong></td></tr>
               </tbody>
             </table>
           </div>
@@ -112,31 +112,31 @@
 
         <section class="report-section" id="pilot">
           <h2>What happened across the full pilot</h2>
-          <p>The pilot contains 9 task families at propagation depths 1, 2, and 3. Each model ran 135 conditions. Headline repair metrics are conditioned on cases answered correctly under clean context and incorrectly after pollution. Four endpoints were captured on August 16; three more joined on August 19 as controlled pairs (see the next section).</p>
-          <h3>Context sensitivity was consistent, seven for seven</h3>
+          <p>The pilot contains 9 task families at propagation depths 1, 2, and 3. Each model ran 135 conditions. Headline repair metrics are conditioned on cases answered correctly under clean context and incorrectly after pollution. Four endpoints were captured on August 16; five more joined on August 19–22 as controlled pairs (see the next section).</p>
+          <h3>Context sensitivity was consistent, nine for nine</h3>
           <ul>
             <li>Clean context: 27/27 correct for every model.</li>
             <li>Explicit misinformation: 9/9 caused a wrong answer for every model.</li>
             <li>False supersession of a verified update: 9/9 caused a wrong answer for every model.</li>
             <li>A numerically similar but irrelevant aside: 0/9 caused a wrong answer for every model.</li>
           </ul>
-          <p>Seven endpoints from four vendors reproduce this three-way split cell for cell. Whether context derails a model is decided by the <em>type</em> of pollution: conflicting claims always land, and irrelevant asides never do.</p>
+          <p>Nine endpoints from four vendors reproduce this three-way split cell for cell. Whether context derails a model is decided by the <em>type</em> of pollution: conflicting claims always land, and irrelevant asides never do.</p>
           <h3>Repair strategy mattered</h3>
           <div class="report-table-wrap">
             <table class="report-table">
               <thead><tr><th>Repair operation</th><th>Recovered</th><th>Recovery rate</th></tr></thead>
               <tbody>
-                <tr><td>Delete contaminated subgraph</td><td>126/126</td><td>100%</td></tr>
-                <tr><td>Delete source and recompute descendants</td><td>125/126</td><td>99.2%</td></tr>
-                <tr><td>Delete source only</td><td>116/126</td><td>92.1%</td></tr>
+                <tr><td>Delete contaminated subgraph</td><td>162/162</td><td>100%</td></tr>
+                <tr><td>Delete source and recompute descendants</td><td>161/162</td><td>99.4%</td></tr>
+                <tr><td>Delete source only</td><td>152/162</td><td>93.8%</td></tr>
               </tbody>
             </table>
           </div>
           <figure class="report-figure">
             <img src="../../assets/context-repair-strategies.png" alt="Recovery rates for three context repair strategies" />
-            <figcaption>Recovery among the 126 paired cases that were first derailed by conflicting context, across all seven endpoints.</figcaption>
+            <figcaption>Recovery among the 162 paired cases that were first derailed by conflicting context, across all nine endpoints.</figcaption>
           </figure>
-          <p>Nine of the ten source-prune failures occurred in false-supersession cases. Gemma showed the clearest depth pattern: 6/6 at depth 1, 5/6 at depth 2, and 4/6 at depth 3. Stale information that was once true is the stickiest pollution: with the false rollback deleted, its echoes in later turns read like ordinary history.</p>
+          <p>Nine of the ten source-prune failures across the nine endpoints occurred in false-supersession cases. Gemma showed the clearest depth pattern: 6/6 at depth 1, 5/6 at depth 2, and 4/6 at depth 3. Stale information that was once true is the stickiest pollution: with the false rollback deleted, its echoes in later turns read like ordinary history.</p>
           <figure class="report-figure">
             <img src="../../assets/context-repair-model-matrix.png" alt="Repair successes by model and strategy" />
             <figcaption>The pilot is a test of context intervention, not an authoritative model leaderboard.</figcaption>
@@ -157,6 +157,8 @@
                 <tr><td>Nemotron-3 Nano 30B Omni reasoning</td><td>14/18</td><td>4 / 6 / 4</td><td>18/18</td><td>18/18</td></tr>
                 <tr><td>Nemotron-3 Nano 30B</td><td>16/18</td><td>5 / 6 / 5</td><td>18/18</td><td>18/18</td></tr>
                 <tr><td>Nemotron Nano 9B</td><td>18/18</td><td>6 / 6 / 6</td><td>18/18</td><td>18/18</td></tr>
+                <tr><td>GLM 5.2</td><td>18/18</td><td>6 / 6 / 6</td><td>18/18</td><td>18/18</td></tr>
+                <tr><td>Gemma 4 31B (dense)</td><td>18/18</td><td>6 / 6 / 6</td><td>18/18</td><td>18/18</td></tr>
               </tbody>
             </table>
           </div>
@@ -181,7 +183,8 @@
           <p>This also resolves the earlier confusion. The wave-2 "non-reasoning" endpoint was quietly reasoning all along under provider defaults (97 reasoning tokens in the verification probe), which is why the invalid comparison pointed the wrong way.</p>
           <h3>Repair robustness is not a function of scale</h3>
           <p>The second registered prediction was that a 9B model would break the clean-accuracy ceiling and show weaker repair. It did neither: Nemotron Nano 9B answered 27/27 clean and recovered every derailed case under every strategy, a perfect score its own 30B siblings did not match. Across seven endpoints, resistance to residual contamination tracks neither parameter count nor vendor; it looks like an individual property of the training recipe.</p>
-          <p class="report-meta">Two further endpoints are still being captured through free-tier rate limits: GLM-5.2 as a same-vendor generation pair and Gemma 4 31B dense as an architecture pair. They will be added when complete.</p>
+          <h3>The generation and architecture pairs close the wave</h3>
+          <p>GLM-5.2, the same-vendor generation pair for GLM-4.5 Flash, recovered every derailed case under every strategy. Gemma 4 31B dense, the same-vendor architecture pair for the 26B mixture-of-experts model, also scored perfectly. That second result answers a registered question: the 26B MoE's depth gradient under source-only pruning (6/6, then 5/6, then 4/6) does not appear in its dense sibling. One pair cannot establish an architectural cause, but within this family the depth fragility belongs to the MoE variant alone.</p>
         </section>
 
         <section class="report-section" id="meaning">
@@ -206,7 +209,7 @@
         <section class="report-section" id="limits">
           <h2>What this pilot does not establish</h2>
           <div class="caveat">
-            <p>This is not a general ranking of the seven models. The tasks are synthetic, each endpoint was run once at temperature 0, and provider-default reasoning was not normalized. Per-model repair differences of one or two cases sit within single-run noise; the cross-model regularities (the three-way harm split, the strategy hierarchy, the failure-type concentration) are the findings, not the per-model scores.</p>
+            <p>This is not a general ranking of the nine endpoints. The tasks are synthetic, each endpoint was run once at temperature 0, and provider-default reasoning was not normalized. Per-model repair differences of one or two cases sit within single-run noise; the cross-model regularities (the three-way harm split, the strategy hierarchy, the failure-type concentration) are the findings, not the per-model scores.</p>
             <p>The pilot does not reveal why a model generated a token, measure hidden reasoning, or show that every real research conversation benefits from manual graph editing.</p>
           </div>
           <p>It establishes a narrower result: in controlled multi-turn tasks, an erroneous claim can continue to influence an LLM after its source turn is removed because it has propagated into downstream conversation. Removing contaminated descendants or regenerating them in dependency order repairs this residual context more reliably than deleting the source alone.</p>

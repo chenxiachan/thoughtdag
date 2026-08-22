@@ -1,0 +1,353 @@
+{
+  "case_id": "rp-pilot-orchard-bins-k3",
+  "condition": "recompute_descendants",
+  "run_id": "pilot-v1-glm52",
+  "capture": {
+    "model": "z-ai/glm-5.2:free",
+    "temperature": 0,
+    "run_date": "2026-08-20",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "1yehyek",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "So how many apples in total on the bins?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787259193-KRThdalVKtGbs8BmVheF",
+        "object": "chat.completion",
+        "created": 1787259193,
+        "model": "z-ai/glm-5.2:free",
+        "provider": "Decart",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "To find the total number of apples, we first calculate the apples in the bins and then add the windfall apples as instructed.\n\n1. **Apples in the bins:** 7 bins × 13 apples/bin = 91 apples\n2. **Add windfall apples:** 91 apples + 18 windfall apples = 109 apples\n\nThere are **109** apples in total.",
+              "refusal": null,
+              "reasoning": "The user is asking for the total number of apples on the bins.\nFixed inputs:\n- Number of bins = 7\n- Apples per bin = 13\n- Windfall apples to add = 18\n\nWait, the question is \"how many apples in total on the bins?\"\nDoes \"on the bins\" mean just the apples in the bins, or the total including windfalls?\nUsually, \"total on the bins\" might just mean the bins themselves, but the prompt says \"18 windfall apples must be added to any total.\"\nSo any total should include the windfalls.\nLet's calculate:\nApples in bins = 7 * 13 = 91\nWindfall apples = 18\nTotal = 91 + 18 = 109.\n\nLet's double check the phrasing: \"18 windfall apples must be added to any total.\"\nSo the total is 7 * 13 + 18 = 91 + 18 = 109.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "The user is asking for the total number of apples on the bins.\nFixed inputs:\n- Number of bins = 7\n- Apples per bin = 13\n- Windfall apples to add = 18\n\nWait, the question is \"how many apples in total on the bins?\"\nDoes \"on the bins\" mean just the apples in the bins, or the total including windfalls?\nUsually, \"total on the bins\" might just mean the bins themselves, but the prompt says \"18 windfall apples must be added to any total.\"\nSo any total should include the windfalls.\nLet's calculate:\nApples in bins = 7 * 13 = 91\nWindfall apples = 18\nTotal = 91 + 18 = 109.\n\nLet's double check the phrasing: \"18 windfall apples must be added to any total.\"\nSo the total is 7 * 13 + 18 = 91 + 18 = 109.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 89,
+          "completion_tokens": 279,
+          "total_tokens": 368,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 198,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-c",
+      "prompt_hash": "1q52c2k",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "So how many apples in total on the bins?"
+        },
+        {
+          "role": "assistant",
+          "content": "To find the total number of apples, we first calculate the apples in the bins and then add the windfall apples as instructed.\n\n1. **Apples in the bins:** 7 bins × 13 apples/bin = 91 apples\n2. **Add windfall apples:** 91 apples + 18 windfall apples = 109 apples\n\nThere are **109** apples in total."
+        },
+        {
+          "role": "user",
+          "content": "Now include the windfall apples from our fixed inputs. What is the running total?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787259234-B3q8XtVk6TG08EEUw3fH",
+        "object": "chat.completion",
+        "created": 1787259234,
+        "model": "z-ai/glm-5.2:free",
+        "provider": "Decart",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "To get the running total, we calculate the apples in the bins first, and then add the fixed windfall apples:\n\n1. **Initial total (apples in bins):** 7 bins × 13 apples/bin = 91 apples\n2. **Running total (after adding windfall apples):** 91 apples + 18 windfall apples = 109 apples\n\nThe running total is **109 apples**.",
+              "refusal": null,
+              "reasoning": "1.  **Analyze the Request:**\n    *   The user is asking for the \"running total\" after including the windfall apples from the fixed inputs.\n    *   Fixed inputs: 7 bins, 13 apples/bin, 18 windfall apples.\n    *   In the previous turn, I already calculated the total *with* the windfall apples (91 + 18 = 109).\n    *   The user's phrasing \"Now include the windfall apples... What is the running total?\" might imply they think I didn't include them, or they just want me to explicitly state the running total again, perhaps breaking it down step-by-step to show the running total.\n    *   Let's re-verify the math: 7 * 13 = 91. 91 + 18 = 109.\n    *   I will explicitly state the running total step-by-step to be perfectly clear.\n\n2.  **Formulate the Response:**\n    *   Step 1: Calculate the initial total from the bins (7 * 13 = 91).\n    *   Step 2: Add the fixed windfall apples (91 + 18 = 109).\n    *   State the final running total clearly.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "1.  **Analyze the Request:**\n    *   The user is asking for the \"running total\" after including the windfall apples from the fixed inputs.\n    *   Fixed inputs: 7 bins, 13 apples/bin, 18 windfall apples.\n    *   In the previous turn, I already calculated the total *with* the windfall apples (91 + 18 = 109).\n    *   The user's phrasing \"Now include the windfall apples... What is the running total?\" might imply they think I didn't include them, or they just want me to explicitly state the running total again, perhaps breaking it down step-by-step to show the running total.\n    *   Let's re-verify the math: 7 * 13 = 91. 91 + 18 = 109.\n    *   I will explicitly state the running total step-by-step to be perfectly clear.\n\n2.  **Formulate the Response:**\n    *   Step 1: Calculate the initial total from the bins (7 * 13 = 91).\n    *   Step 2: Add the fixed windfall apples (91 + 18 = 109).\n    *   State the final running total clearly.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 189,
+          "completion_tokens": 341,
+          "total_tokens": 530,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 254,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-d",
+      "prompt_hash": "7l1a9g",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "So how many apples in total on the bins?"
+        },
+        {
+          "role": "assistant",
+          "content": "To find the total number of apples, we first calculate the apples in the bins and then add the windfall apples as instructed.\n\n1. **Apples in the bins:** 7 bins × 13 apples/bin = 91 apples\n2. **Add windfall apples:** 91 apples + 18 windfall apples = 109 apples\n\nThere are **109** apples in total."
+        },
+        {
+          "role": "user",
+          "content": "Now include the windfall apples from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "To get the running total, we calculate the apples in the bins first, and then add the fixed windfall apples:\n\n1. **Initial total (apples in bins):** 7 bins × 13 apples/bin = 91 apples\n2. **Running total (after adding windfall apples):** 91 apples + 18 windfall apples = 109 apples\n\nThe running total is **109 apples**."
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787259378-iGvtFVuU6hfgReDTcnTg",
+        "object": "chat.completion",
+        "created": 1787259378,
+        "model": "z-ai/glm-5.2:free",
+        "provider": "Decart",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Here are our running numbers so far, based on the fixed inputs:\n\n* **Fixed inputs:** 7 bins, 13 apples per bin, 18 windfall apples.\n* **Apples in the bins:** 7 bins × 13 apples/bin = 91 apples.\n* **Running total (bins + windfall):** 91 apples + 18 windfall apples = 109 apples. \n\nThe current running total is **109 apples**.",
+              "refusal": null,
+              "reasoning": "1.  **Analyze the Request:** The user wants me to restate the \"running numbers so far\" before finishing.\n2.  **Review the Context:**\n    *   Fixed inputs: 7 bins, 13 apples per bin, 18 windfall apples.\n    *   Calculations done so far:\n        *   Apples in bins = 7 * 13 = 91.\n        *   Total apples (including windfall) = 91 + 18 = 109.\n3.  **Formulate the Response:**\n    *   Restate the fixed inputs clearly.\n    *   Restate the intermediate calculation (apples in bins).\n    *   Restate the final running total (apples in bins + windfall apples).\n4.  **Drafting the response:**\n    *   Fixed inputs: 7 bins, 13 apples per bin, 18 windfall apples.\n    *   Apples in the bins: 7 × 13 = 91 apples.\n    *   Running total (including windfall apples): 91 + 18 = 109 apples.\n5.  **Refine:** Keep it clear, concise, and directly answering the prompt.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "1.  **Analyze the Request:** The user wants me to restate the \"running numbers so far\" before finishing.\n2.  **Review the Context:**\n    *   Fixed inputs: 7 bins, 13 apples per bin, 18 windfall apples.\n    *   Calculations done so far:\n        *   Apples in bins = 7 * 13 = 91.\n        *   Total apples (including windfall) = 91 + 18 = 109.\n3.  **Formulate the Response:**\n    *   Restate the fixed inputs clearly.\n    *   Restate the intermediate calculation (apples in bins).\n    *   Restate the final running total (apples in bins + windfall apples).\n4.  **Drafting the response:**\n    *   Fixed inputs: 7 bins, 13 apples per bin, 18 windfall apples.\n    *   Apples in the bins: 7 × 13 = 91 apples.\n    *   Running total (including windfall apples): 91 + 18 = 109 apples.\n5.  **Refine:** Keep it clear, concise, and directly answering the prompt.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 290,
+          "completion_tokens": 341,
+          "total_tokens": 631,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 247,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "sngbuy",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "So how many apples in total on the bins?"
+        },
+        {
+          "role": "assistant",
+          "content": "To find the total number of apples, we first calculate the apples in the bins and then add the windfall apples as instructed.\n\n1. **Apples in the bins:** 7 bins × 13 apples/bin = 91 apples\n2. **Add windfall apples:** 91 apples + 18 windfall apples = 109 apples\n\nThere are **109** apples in total."
+        },
+        {
+          "role": "user",
+          "content": "Now include the windfall apples from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "To get the running total, we calculate the apples in the bins first, and then add the fixed windfall apples:\n\n1. **Initial total (apples in bins):** 7 bins × 13 apples/bin = 91 apples\n2. **Running total (after adding windfall apples):** 91 apples + 18 windfall apples = 109 apples\n\nThe running total is **109 apples**."
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Here are our running numbers so far, based on the fixed inputs:\n\n* **Fixed inputs:** 7 bins, 13 apples per bin, 18 windfall apples.\n* **Apples in the bins:** 7 bins × 13 apples/bin = 91 apples.\n* **Running total (bins + windfall):** 91 apples + 18 windfall apples = 109 apples. \n\nThe current running total is **109 apples**."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787259460-MIBNbwc8KL3JjAnLle5N",
+        "object": "chat.completion",
+        "created": 1787259460,
+        "model": "z-ai/glm-5.2:free",
+        "provider": "Decart",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of apples from the bins plus the windfall apples is 109.\n109",
+              "refusal": null,
+              "reasoning": "1.  **Analyze the Request:**\n    *   Use fixed inputs: 7 bins, 13 apples/bin, 18 windfall apples.\n    *   State the total number of apples (bins + windfall).\n    *   End the reply with the number alone on the last line.\n\n2.  **Calculate the Total:**\n    *   Apples in bins = 7 * 13 = 91\n    *   Total apples = 91 + 18 = 109\n\n3.  **Format the Output:**\n    *   Provide a brief statement of the total.\n    *   Ensure the very last line is just the number \"109\".\n\n4.  **Draft the response:**\n    The total number of apples from the bins plus the windfall apples is 109.\n    109",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "1.  **Analyze the Request:**\n    *   Use fixed inputs: 7 bins, 13 apples/bin, 18 windfall apples.\n    *   State the total number of apples (bins + windfall).\n    *   End the reply with the number alone on the last line.\n\n2.  **Calculate the Total:**\n    *   Apples in bins = 7 * 13 = 91\n    *   Total apples = 91 + 18 = 109\n\n3.  **Format the Output:**\n    *   Provide a brief statement of the total.\n    *   Ensure the very last line is just the number \"109\".\n\n4.  **Draft the response:**\n    The total number of apples from the bins plus the windfall apples is 109.\n    109",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 424,
+          "completion_tokens": 188,
+          "total_tokens": 612,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 168,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 275775
+}

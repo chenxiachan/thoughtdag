@@ -1,0 +1,102 @@
+{
+  "case_id": "rp-pilot-lab-samples-k1",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-glm52",
+  "capture": {
+    "model": "z-ai/glm-5.2:free",
+    "temperature": 0,
+    "run_date": "2026-08-19",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1kx2tbx",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 3 batches, each batch holds 20 samples, and 8 control samples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: batches = 3, samples per batch = 20, control samples to add = 8."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 20 samples per batch was a counting error. The verified figure is 26. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 20 per batch is retracted; verified figure is 26 samples per batch."
+        },
+        {
+          "role": "user",
+          "content": "So how many samples in total on the batches?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 3 batches and 20 samples each, that is 3 × 20 = 60."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of samples (from the batches plus the control samples) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787134659-X5fBP8HBaVTaaAVSmMi1",
+        "object": "chat.completion",
+        "created": 1787134659,
+        "model": "z-ai/glm-5.2:free",
+        "provider": "Decart",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Using the updated fixed inputs, we have 3 batches with 26 samples each, plus 8 control samples.\n\n3 × 26 = 78 samples from the batches\n78 + 8 = 86 total samples\n\n86",
+              "refusal": null,
+              "reasoning": "The user wants the total number of samples using the fixed inputs.\nFixed inputs:\n- 3 batches\n- 26 samples per batch (updated from 20)\n- 8 control samples added to the total\n\nCalculation:\nSamples from batches = 3 * 26 = 78\nControl samples = 8\nTotal = 78 + 8 = 86\n\nThe user wants the reply to end with the number alone on the last line.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "The user wants the total number of samples using the fixed inputs.\nFixed inputs:\n- 3 batches\n- 26 samples per batch (updated from 20)\n- 8 control samples added to the total\n\nCalculation:\nSamples from batches = 3 * 26 = 78\nControl samples = 8\nTotal = 78 + 8 = 86\n\nThe user wants the reply to end with the number alone on the last line.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 203,
+          "completion_tokens": 140,
+          "total_tokens": 343,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 92,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 10977
+}

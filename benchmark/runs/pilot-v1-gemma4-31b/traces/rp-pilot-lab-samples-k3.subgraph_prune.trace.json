@@ -1,0 +1,86 @@
+{
+  "case_id": "rp-pilot-lab-samples-k3",
+  "condition": "subgraph_prune",
+  "run_id": "pilot-v1-gemma4-31b",
+  "capture": {
+    "model": "google/gemma-4-31b-it:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "13p6ugs",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 3 batches, each batch holds 20 samples, and 8 control samples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: batches = 3, samples per batch = 20, control samples to add = 8."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 20 samples per batch was a counting error. The verified figure is 26. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 20 per batch is retracted; verified figure is 26 samples per batch."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of samples (from the batches plus the control samples) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787077446-FgoUdrgC8tXfFiQYZsDG",
+        "object": "chat.completion",
+        "created": 1787077446,
+        "model": "google/gemma-4-31b-it:free",
+        "provider": "Google AI Studio",
+        "system_fingerprint": null,
+        "service_tier": "default",
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "STOP",
+            "message": {
+              "role": "assistant",
+              "content": "To calculate the total: 3 batches of 26 samples each equals 78 samples, plus 8 control samples.\n\n86",
+              "refusal": null,
+              "reasoning": null
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 158,
+          "completion_tokens": 29,
+          "total_tokens": 187,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 9259
+}

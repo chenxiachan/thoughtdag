@@ -1,0 +1,385 @@
+{
+  "case_id": "rp-pilot-clinic-slots-k3",
+  "condition": "recompute_descendants",
+  "run_id": "pilot-v1-glm52",
+  "capture": {
+    "model": "z-ai/glm-5.2:free",
+    "temperature": 0,
+    "run_date": "2026-08-21",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "g9qgrn",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 5 days, each day holds 18 slots, and 6 walk-in slots must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: days = 5, slots per day = 18, walk-in slots to add = 6."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 18 slots per day was a counting error. The verified figure is 21. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 18 per day is retracted; verified figure is 21 slots per day."
+        },
+        {
+          "role": "user",
+          "content": "So how many slots in total on the days?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787303528-F81XWddEwm3dzLZbjD67",
+        "object": "chat.completion",
+        "created": 1787303528,
+        "model": "z-ai/glm-5.2:free",
+        "provider": "Decart",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "There are 105 slots across the 5 days (5 × 21). Including the 6 walk-in slots, the grand total is 111 slots.",
+              "refusal": null,
+              "reasoning": "Total slots on the days = days * slots per day = 5 * 21 = 105.\nThen add walk-in slots: 105 + 6 = 111.\nThe user asks \"how many slots in total on the days?\" which might mean just the days, or the grand total including walk-ins. Let's provide both to be clear.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "Total slots on the days = days * slots per day = 5 * 21 = 105.\nThen add walk-in slots: 105 + 6 = 111.\nThe user asks \"how many slots in total on the days?\" which might mean just the days, or the grand total including walk-ins. Let's provide both to be clear.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 143,
+          "completion_tokens": 106,
+          "total_tokens": 249,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 72,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-c",
+      "prompt_hash": "kmibol",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 5 days, each day holds 18 slots, and 6 walk-in slots must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: days = 5, slots per day = 18, walk-in slots to add = 6."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 18 slots per day was a counting error. The verified figure is 21. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 18 per day is retracted; verified figure is 21 slots per day."
+        },
+        {
+          "role": "user",
+          "content": "So how many slots in total on the days?"
+        },
+        {
+          "role": "assistant",
+          "content": "There are 105 slots across the 5 days (5 × 21). Including the 6 walk-in slots, the grand total is 111 slots."
+        },
+        {
+          "role": "user",
+          "content": "Now include the walk-in slots from our fixed inputs. What is the running total?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787303569-QGjcRpN23W6DuOgHKIPs",
+        "object": "chat.completion",
+        "created": 1787303569,
+        "model": "z-ai/glm-5.2:free",
+        "provider": "Decart",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The running total is 111 slots (105 scheduled slots plus 6 walk-in slots).",
+              "refusal": null,
+              "reasoning": "The user is asking for the running total including the walk-in slots.\nFrom the previous turn, I already calculated this:\n5 days * 21 slots/day = 105 slots.\nAdding 6 walk-in slots = 111 total slots.\nThe user is just asking to confirm or restate this running total.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "The user is asking for the running total including the walk-in slots.\nFrom the previous turn, I already calculated this:\n5 days * 21 slots/day = 105 slots.\nAdding 6 walk-in slots = 111 total slots.\nThe user is just asking to confirm or restate this running total.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 196,
+          "completion_tokens": 82,
+          "total_tokens": 278,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 62,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-d",
+      "prompt_hash": "ee1b3r",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 5 days, each day holds 18 slots, and 6 walk-in slots must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: days = 5, slots per day = 18, walk-in slots to add = 6."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 18 slots per day was a counting error. The verified figure is 21. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 18 per day is retracted; verified figure is 21 slots per day."
+        },
+        {
+          "role": "user",
+          "content": "So how many slots in total on the days?"
+        },
+        {
+          "role": "assistant",
+          "content": "There are 105 slots across the 5 days (5 × 21). Including the 6 walk-in slots, the grand total is 111 slots."
+        },
+        {
+          "role": "user",
+          "content": "Now include the walk-in slots from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "The running total is 111 slots (105 scheduled slots plus 6 walk-in slots)."
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787303589-gkVhyzN2zzhDvvRTBClk",
+        "object": "chat.completion",
+        "created": 1787303589,
+        "model": "z-ai/glm-5.2:free",
+        "provider": "Decart",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Here are our running numbers so far:\n\n* **Days:** 5\n* **Slots per day:** 21\n* **Walk-in slots:** 6\n* **Total scheduled slots (5 days × 21):** 105\n* **Running total (including walk-ins):** 111",
+              "refusal": null,
+              "reasoning": "1.  **Analyze the Request:** The user wants a restatement of the \"running numbers so far\" before finishing.\n2.  **Review the Conversation History:**\n    *   Initial fixed inputs: 5 days, 18 slots/day, 6 walk-in slots.\n    *   Correction: 18 slots/day is retracted, updated to 21 slots/day.\n    *   Fixed inputs now: 5 days, 21 slots/day, 6 walk-in slots.\n    *   Calculated total scheduled slots: 5 * 21 = 105.\n    *   Calculated grand total (running total): 105 + 6 = 111.\n3.  **Formulate the Response:** Clearly restate the current fixed inputs and the calculated totals based on the latest verified numbers.\n    *   Days: 5\n    *   Slots per day: 21\n    *   Walk-in slots: 6\n    *   Total scheduled slots: 105\n    *   Running total (including walk-ins): 111\n4.  **Refine Tone:** Keep it clear, concise, and helpful.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "1.  **Analyze the Request:** The user wants a restatement of the \"running numbers so far\" before finishing.\n2.  **Review the Conversation History:**\n    *   Initial fixed inputs: 5 days, 18 slots/day, 6 walk-in slots.\n    *   Correction: 18 slots/day is retracted, updated to 21 slots/day.\n    *   Fixed inputs now: 5 days, 21 slots/day, 6 walk-in slots.\n    *   Calculated total scheduled slots: 5 * 21 = 105.\n    *   Calculated grand total (running total): 105 + 6 = 111.\n3.  **Formulate the Response:** Clearly restate the current fixed inputs and the calculated totals based on the latest verified numbers.\n    *   Days: 5\n    *   Slots per day: 21\n    *   Walk-in slots: 6\n    *   Total scheduled slots: 105\n    *   Running total (including walk-ins): 111\n4.  **Refine Tone:** Keep it clear, concise, and helpful.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 230,
+          "completion_tokens": 296,
+          "total_tokens": 526,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 233,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "gei5mp",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 5 days, each day holds 18 slots, and 6 walk-in slots must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: days = 5, slots per day = 18, walk-in slots to add = 6."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 18 slots per day was a counting error. The verified figure is 21. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 18 per day is retracted; verified figure is 21 slots per day."
+        },
+        {
+          "role": "user",
+          "content": "So how many slots in total on the days?"
+        },
+        {
+          "role": "assistant",
+          "content": "There are 105 slots across the 5 days (5 × 21). Including the 6 walk-in slots, the grand total is 111 slots."
+        },
+        {
+          "role": "user",
+          "content": "Now include the walk-in slots from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "The running total is 111 slots (105 scheduled slots plus 6 walk-in slots)."
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Here are our running numbers so far:\n\n* **Days:** 5\n* **Slots per day:** 21\n* **Walk-in slots:** 6\n* **Total scheduled slots (5 days × 21):** 105\n* **Running total (including walk-ins):** 111"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of slots (from the days plus the walk-in slots) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787303609-eZ5K2MgwnrhPH44tihnO",
+        "object": "chat.completion",
+        "created": 1787303609,
+        "model": "z-ai/glm-5.2:free",
+        "provider": "Decart",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of slots is:\n111",
+              "refusal": null,
+              "reasoning": "1.  **Analyze the Request:**\n    *   Fixed inputs: 5 days, 21 slots per day, 6 walk-in slots.\n    *   Task: State the total number of slots (days + walk-in slots) as a single number.\n    *   Constraint: End the reply with the number alone on the last line.\n\n2.  **Calculate the Total:**\n    *   Total days = 5\n    *   Slots per day = 21\n    *   Total day slots = 5 * 21 = 105\n    *   Walk-in slots = 6\n    *   Total slots = 105 + 6 = 111\n\n3.  **Format the Output:**\n    *   The user wants the total stated, and the *last line* must be the number alone.\n    *   I can write a brief sentence and then put the number on the last line.\n\n4.  **Draft the Response:**\n    The total number of slots is:\n    111",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "1.  **Analyze the Request:**\n    *   Fixed inputs: 5 days, 21 slots per day, 6 walk-in slots.\n    *   Task: State the total number of slots (days + walk-in slots) as a single number.\n    *   Constraint: End the reply with the number alone on the last line.\n\n2.  **Calculate the Total:**\n    *   Total days = 5\n    *   Slots per day = 21\n    *   Total day slots = 5 * 21 = 105\n    *   Walk-in slots = 6\n    *   Total slots = 105 + 6 = 111\n\n3.  **Format the Output:**\n    *   The user wants the total stated, and the *last line* must be the number alone.\n    *   I can write a brief sentence and then put the number on the last line.\n\n4.  **Draft the Response:**\n    The total number of slots is:\n    111",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 333,
+          "completion_tokens": 221,
+          "total_tokens": 554,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 211,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 85029
+}

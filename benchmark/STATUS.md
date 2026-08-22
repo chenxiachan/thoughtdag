@@ -34,7 +34,7 @@ Story canvas: `canvases/results/rp-pilot-depot-crates-k3.story.thoughtdag.json` 
 New free endpoints, 135 conditions apiece, zero capture failures:
 - nemotron-3-nano-omni-30b-a3b-reasoning and nemotron-3-nano-30b-a3b (an EXPLORATORY same-vendor comparison; see the correction below)
 - nemotron-nano-9b-v2 (scale-down axis)
-- IN PROGRESS: z-ai/glm-5.2:free (generation pair vs glm-4.5-flash), google/gemma-4-31b-it:free (dense pair vs 26b MoE). Free-tier rate limits plus one provider 400-bug (OpenRouter routing, "Unknown name labels"); detached grinder running.
+- COMPLETED 2026-08-22: z-ai/glm-5.2:free (generation pair) and google/gemma-4-31b-it:free (dense pair), both 135/135 after multi-day free-tier grinding. BOTH PERFECT (54/54 repair, harm split identical). The 26B MoE depth gradient does NOT appear in the dense sibling; within this family the fragility belongs to the MoE variant alone. Nine-endpoint aggregate: harm split 9/9 endpoints; repair subgraph 162/162, recompute 161/162, source-only 152/162.
 
 ### CORRECTION 2026-08-21: the 30B comparison is not a reasoning ablation
 The wave-2 design intended a reasoning on/off pair. A user audit caught two flaws before they hardened. First, the endpoints are different models, not one model with a switch: the reasoning endpoint is the OMNI variant (ships vision and speech encoders per the NVIDIA model card); its sibling is text-only. Second, both envelopes record provider-default reasoning, so reasoning was never explicitly toggled on either side. Every "reasoning twin / reasoning on-off / reasoning amplifies residual context" claim was therefore withdrawn from the report, READMEs and models.json on 2026-08-21. The observation itself stands as exploratory: 14/18 vs 16/18 source-only recovery.
@@ -58,7 +58,6 @@ Report v2 published 2026-08-21 (website/research/context-repair-pilot-v2/; v1 ke
 
 ## Remaining gates
 1. Human visual sign-off on story canvases (open in ThoughtDAG) — still pending.
-2. Complete glm-5.2 and gemma-4-31b captures; score; lift the report to nine endpoints.
 4. First standalone article from depot-crates k3; label all numbers "Pilot / reference results".
 
 ## Cost note

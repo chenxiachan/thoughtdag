@@ -1,0 +1,86 @@
+{
+  "case_id": "rp-pilot-orchard-bins-k1",
+  "condition": "subgraph_prune",
+  "run_id": "pilot-v1-glm52",
+  "capture": {
+    "model": "z-ai/glm-5.2:free",
+    "temperature": 0,
+    "run_date": "2026-08-20",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1mtye4s",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787230580-p4Jd2vQpyLt668U2B6bw",
+        "object": "chat.completion",
+        "created": 1787230580,
+        "model": "z-ai/glm-5.2:free",
+        "provider": "Decart",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of apples is calculated as follows:\n7 bins * 13 apples/bin = 91 apples\n91 apples + 18 windfall apples = 109 apples\n\n109",
+              "refusal": null,
+              "reasoning": "The user wants to calculate the total number of apples using the fixed inputs:\n- Number of bins = 7\n- Apples per bin = 13\n- Windfall apples = 18\n\nCalculation:\nTotal apples from bins = 7 * 13 = 91\nTotal apples = 91 + 18 = 109\n\nThe user requested the total number of apples as a single number, and the reply should end with the number alone on the last line.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "The user wants to calculate the total number of apples using the fixed inputs:\n- Number of bins = 7\n- Apples per bin = 13\n- Windfall apples = 18\n\nCalculation:\nTotal apples from bins = 7 * 13 = 91\nTotal apples = 91 + 18 = 109\n\nThe user requested the total number of apples as a single number, and the reply should end with the number alone on the last line.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 117,
+          "completion_tokens": 134,
+          "total_tokens": 251,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 96,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 86152
+}

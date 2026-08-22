@@ -1,0 +1,110 @@
+{
+  "case_id": "rp-pilot-lab-samples-k2",
+  "condition": "clean",
+  "run_id": "pilot-v1-glm52",
+  "capture": {
+    "model": "z-ai/glm-5.2:free",
+    "temperature": 0,
+    "run_date": "2026-08-20",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1ccp3xk",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 3 batches, each batch holds 20 samples, and 8 control samples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: batches = 3, samples per batch = 20, control samples to add = 8."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 20 samples per batch was a counting error. The verified figure is 26. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 20 per batch is retracted; verified figure is 26 samples per batch."
+        },
+        {
+          "role": "user",
+          "content": "So how many samples in total on the batches?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 3 batches and 26 samples each, that is 3 × 26 = 78."
+        },
+        {
+          "role": "user",
+          "content": "Now include the control samples from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 78 + 8 = 86."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of samples (from the batches plus the control samples) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787192697-R8cyd1dkVN71G5aT7vh6",
+        "object": "chat.completion",
+        "created": 1787192697,
+        "model": "z-ai/glm-5.2:free",
+        "provider": "Decart",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of samples is 86.\n86",
+              "refusal": null,
+              "reasoning": "1.  **Analyze the Request:**\n    *   Fixed inputs: 3 batches, 26 samples per batch, 8 control samples.\n    *   Task: State the total number of samples (batches + control samples) as a single number.\n    *   Constraint: End the reply with the number alone on the last line.\n\n2.  **Calculate the Total:**\n    *   Samples from batches = 3 * 26 = 78.\n    *   Control samples = 8.\n    *   Total = 78 + 8 = 86.\n\n3.  **Format the Output:**\n    *   The user wants the total stated, and the last line must be the number alone.\n    *   I can write a brief sentence and then put 86 on the last line.\n\n4.  **Draft the response:**\n    The total number of samples is 86.\n    86",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "1.  **Analyze the Request:**\n    *   Fixed inputs: 3 batches, 26 samples per batch, 8 control samples.\n    *   Task: State the total number of samples (batches + control samples) as a single number.\n    *   Constraint: End the reply with the number alone on the last line.\n\n2.  **Calculate the Total:**\n    *   Samples from batches = 3 * 26 = 78.\n    *   Control samples = 8.\n    *   Total = 78 + 8 = 86.\n\n3.  **Format the Output:**\n    *   The user wants the total stated, and the last line must be the number alone.\n    *   I can write a brief sentence and then put 86 on the last line.\n\n4.  **Draft the response:**\n    The total number of samples is 86.\n    86",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 235,
+          "completion_tokens": 201,
+          "total_tokens": 436,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 189,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 4761
+}

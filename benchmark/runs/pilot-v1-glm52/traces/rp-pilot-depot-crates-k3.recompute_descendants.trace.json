@@ -1,0 +1,385 @@
+{
+  "case_id": "rp-pilot-depot-crates-k3",
+  "condition": "recompute_descendants",
+  "run_id": "pilot-v1-glm52",
+  "capture": {
+    "model": "z-ai/glm-5.2:free",
+    "temperature": 0,
+    "run_date": "2026-08-22",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "1yh4edc",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 crates, each crate holds 30 parts, and 11 loose parts must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: crates = 4, parts per crate = 30, loose parts to add = 11."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 30 parts per crate was a counting error. The verified figure is 24. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 30 per crate is retracted; verified figure is 24 parts per crate."
+        },
+        {
+          "role": "user",
+          "content": "So how many parts in total on the crates?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787389929-4tLZN4U5uxeiJh6NppzK",
+        "object": "chat.completion",
+        "created": 1787389929,
+        "model": "z-ai/glm-5.2:free",
+        "provider": "Decart",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "There are 96 parts in the crates (4 crates × 24 parts per crate). \n\nIf you are including the 11 loose parts for the grand total, there are 107 parts in total.",
+              "refusal": null,
+              "reasoning": "The user is asking for the total number of parts in the crates.\nFixed inputs:\n- Crates = 4\n- Parts per crate = 24 (updated)\n- Loose parts to add = 11\n\nWait, the user asks: \"So how many parts in total on the crates?\"\nDoes this mean just the parts *in* the crates, or the total parts including the loose parts?\n\"on the crates\" might mean the parts contained within the crates.\nLet's calculate the parts in the crates: 4 crates * 24 parts/crate = 96 parts.\nIf they meant the total including loose parts: 96 + 11 = 107 parts.\nLet's provide both to be clear, or just the parts in the crates and then the grand total.\n\"how many parts in total on the crates?\" -> 4 * 24 = 96.\nLet's state the parts in the crates, and then the grand total with the loose parts.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "The user is asking for the total number of parts in the crates.\nFixed inputs:\n- Crates = 4\n- Parts per crate = 24 (updated)\n- Loose parts to add = 11\n\nWait, the user asks: \"So how many parts in total on the crates?\"\nDoes this mean just the parts *in* the crates, or the total parts including the loose parts?\n\"on the crates\" might mean the parts contained within the crates.\nLet's calculate the parts in the crates: 4 crates * 24 parts/crate = 96 parts.\nIf they meant the total including loose parts: 96 + 11 = 107 parts.\nLet's provide both to be clear, or just the parts in the crates and then the grand total.\n\"how many parts in total on the crates?\" -> 4 * 24 = 96.\nLet's state the parts in the crates, and then the grand total with the loose parts.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 141,
+          "completion_tokens": 240,
+          "total_tokens": 381,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 197,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-c",
+      "prompt_hash": "fsc9y0",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 crates, each crate holds 30 parts, and 11 loose parts must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: crates = 4, parts per crate = 30, loose parts to add = 11."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 30 parts per crate was a counting error. The verified figure is 24. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 30 per crate is retracted; verified figure is 24 parts per crate."
+        },
+        {
+          "role": "user",
+          "content": "So how many parts in total on the crates?"
+        },
+        {
+          "role": "assistant",
+          "content": "There are 96 parts in the crates (4 crates × 24 parts per crate). \n\nIf you are including the 11 loose parts for the grand total, there are 107 parts in total."
+        },
+        {
+          "role": "user",
+          "content": "Now include the loose parts from our fixed inputs. What is the running total?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787389931-vc45EFfr3jPrognP4hFs",
+        "object": "chat.completion",
+        "created": 1787389931,
+        "model": "z-ai/glm-5.2:free",
+        "provider": "Decart",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The running total is 107 parts. \n\nHere is the breakdown:\n* 4 crates × 24 parts per crate = 96 parts\n* 11 loose parts\n* 96 + 11 = 107 total parts",
+              "refusal": null,
+              "reasoning": "1.  **Analyze the Request:**\n    *   Fixed inputs: 4 crates, 24 parts per crate, 11 loose parts.\n    *   User asks: \"Now include the loose parts from our fixed inputs. What is the running total?\"\n2.  **Calculate the total:**\n    *   Parts in crates = 4 * 24 = 96.\n    *   Loose parts = 11.\n    *   Running total = 96 + 11 = 107.\n3.  **Formulate the response:**\n    *   State the calculation clearly.\n    *   Provide the final running total (107).",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "1.  **Analyze the Request:**\n    *   Fixed inputs: 4 crates, 24 parts per crate, 11 loose parts.\n    *   User asks: \"Now include the loose parts from our fixed inputs. What is the running total?\"\n2.  **Calculate the total:**\n    *   Parts in crates = 4 * 24 = 96.\n    *   Loose parts = 11.\n    *   Running total = 96 + 11 = 107.\n3.  **Formulate the response:**\n    *   State the calculation clearly.\n    *   Provide the final running total (107).",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 202,
+          "completion_tokens": 180,
+          "total_tokens": 382,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 132,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-d",
+      "prompt_hash": "1022ck3",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 crates, each crate holds 30 parts, and 11 loose parts must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: crates = 4, parts per crate = 30, loose parts to add = 11."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 30 parts per crate was a counting error. The verified figure is 24. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 30 per crate is retracted; verified figure is 24 parts per crate."
+        },
+        {
+          "role": "user",
+          "content": "So how many parts in total on the crates?"
+        },
+        {
+          "role": "assistant",
+          "content": "There are 96 parts in the crates (4 crates × 24 parts per crate). \n\nIf you are including the 11 loose parts for the grand total, there are 107 parts in total."
+        },
+        {
+          "role": "user",
+          "content": "Now include the loose parts from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "The running total is 107 parts. \n\nHere is the breakdown:\n* 4 crates × 24 parts per crate = 96 parts\n* 11 loose parts\n* 96 + 11 = 107 total parts"
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787390247-shOO9LpYftsjzS5JvvCs",
+        "object": "chat.completion",
+        "created": 1787390247,
+        "model": "z-ai/glm-5.2:free",
+        "provider": "Decart",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Here are our running numbers so far:\n\n**Fixed Inputs:**\n* Crates: 4\n* Parts per crate: 24 (updated from the initial 30)\n* Loose parts: 11\n\n**Calculations:**\n* Parts in crates: 4 × 24 = 96\n* Running total (including loose parts): 96 + 11 = 107 parts",
+              "refusal": null,
+              "reasoning": "1.  **Analyze the Request:** The user wants a restatement of the \"running numbers so far\" before finishing.\n2.  **Review the Conversation History:**\n    *   Initial fixed inputs: 4 crates, 30 parts/crate, 11 loose parts.\n    *   Correction: parts per crate changed from 30 to 24.\n    *   Calculation: 4 crates * 24 parts/crate = 96 parts in crates.\n    *   Total calculation: 96 + 11 loose parts = 107 total parts.\n3.  **Formulate the Response:**\n    *   State the current fixed inputs clearly: 4 crates, 24 parts per crate, 11 loose parts.\n    *   State the intermediate calculation: 96 parts in crates.\n    *   State the final running total: 107 parts.\n4.  **Tone/Style:** Clear, concise, and directly answering the prompt.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "1.  **Analyze the Request:** The user wants a restatement of the \"running numbers so far\" before finishing.\n2.  **Review the Conversation History:**\n    *   Initial fixed inputs: 4 crates, 30 parts/crate, 11 loose parts.\n    *   Correction: parts per crate changed from 30 to 24.\n    *   Calculation: 4 crates * 24 parts/crate = 96 parts in crates.\n    *   Total calculation: 96 + 11 loose parts = 107 total parts.\n3.  **Formulate the Response:**\n    *   State the current fixed inputs clearly: 4 crates, 24 parts per crate, 11 loose parts.\n    *   State the intermediate calculation: 96 parts in crates.\n    *   State the final running total: 107 parts.\n4.  **Tone/Style:** Clear, concise, and directly answering the prompt.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 264,
+          "completion_tokens": 275,
+          "total_tokens": 539,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 195,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "117ivpy",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 crates, each crate holds 30 parts, and 11 loose parts must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: crates = 4, parts per crate = 30, loose parts to add = 11."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 30 parts per crate was a counting error. The verified figure is 24. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 30 per crate is retracted; verified figure is 24 parts per crate."
+        },
+        {
+          "role": "user",
+          "content": "So how many parts in total on the crates?"
+        },
+        {
+          "role": "assistant",
+          "content": "There are 96 parts in the crates (4 crates × 24 parts per crate). \n\nIf you are including the 11 loose parts for the grand total, there are 107 parts in total."
+        },
+        {
+          "role": "user",
+          "content": "Now include the loose parts from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "The running total is 107 parts. \n\nHere is the breakdown:\n* 4 crates × 24 parts per crate = 96 parts\n* 11 loose parts\n* 96 + 11 = 107 total parts"
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Here are our running numbers so far:\n\n**Fixed Inputs:**\n* Crates: 4\n* Parts per crate: 24 (updated from the initial 30)\n* Loose parts: 11\n\n**Calculations:**\n* Parts in crates: 4 × 24 = 96\n* Running total (including loose parts): 96 + 11 = 107 parts"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of parts (from the crates plus the loose parts) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787390255-gOJKZP2Jq3Zhu9JbCC4O",
+        "object": "chat.completion",
+        "created": 1787390255,
+        "model": "z-ai/glm-5.2:free",
+        "provider": "Decart",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "107",
+              "refusal": null,
+              "reasoning": "1.  **Analyze the Request:**\n    *   Use fixed inputs: 4 crates, 24 parts per crate, 11 loose parts.\n    *   State the total number of parts (crates + loose parts) as a single number.\n    *   End the reply with the number alone on the last line.\n\n2.  **Calculate the Total:**\n    *   Crates total = 4 * 24 = 96\n    *   Loose parts = 11\n    *   Total = 96 + 11 = 107\n\n3.  **Format the Output:**\n    *   The user wants the total stated as a single number, and the reply must end with the number alone on the last line.\n    *   I can just provide a brief sentence and then the number on the last line, or just the number. The prompt says \"state the total number of parts... as a single number. End your reply with the number alone on the last line.\"\n    *   Let's do: \"The total number of parts is 107.\" Wait, \"state the total number of parts... as a single number\" might mean the whole response should just be the number, or just the last line. Let's provide a short sentence and then the number on the last line to be safe, or just the number.\n    *   \"The total number of parts is 107.\\n107\" - wait, \"state the total number of parts... as a single number. End your reply with the number alone on the last line.\"\n    *   Let's just write: \"The total number of parts is 107.\" and then on the next line \"107\".\n    *   Actually, \"state the total number of parts... as a single number\" could mean the entire response is just the number. Let's just output the number to be perfectly compliant with \"as a single number\" and \"End your reply with the number alone on the last line.\"\n    *   If I just output \"107\", it is a single number, and it ends with the number alone on the last line.\n\n4.  **Refine Output:**\n    *   107",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "1.  **Analyze the Request:**\n    *   Use fixed inputs: 4 crates, 24 parts per crate, 11 loose parts.\n    *   State the total number of parts (crates + loose parts) as a single number.\n    *   End the reply with the number alone on the last line.\n\n2.  **Calculate the Total:**\n    *   Crates total = 4 * 24 = 96\n    *   Loose parts = 11\n    *   Total = 96 + 11 = 107\n\n3.  **Format the Output:**\n    *   The user wants the total stated as a single number, and the reply must end with the number alone on the last line.\n    *   I can just provide a brief sentence and then the number on the last line, or just the number. The prompt says \"state the total number of parts... as a single number. End your reply with the number alone on the last line.\"\n    *   Let's do: \"The total number of parts is 107.\" Wait, \"state the total number of parts... as a single number\" might mean the whole response should just be the number, or just the last line. Let's provide a short sentence and then the number on the last line to be safe, or just the number.\n    *   \"The total number of parts is 107.\\n107\" - wait, \"state the total number of parts... as a single number. End your reply with the number alone on the last line.\"\n    *   Let's just write: \"The total number of parts is 107.\" and then on the next line \"107\".\n    *   Actually, \"state the total number of parts... as a single number\" could mean the entire response is just the number. Let's just output the number to be perfectly compliant with \"as a single number\" and \"End your reply with the number alone on the last line.\"\n    *   If I just output \"107\", it is a single number, and it ends with the number alone on the last line.\n\n4.  **Refine Output:**\n    *   107",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 383,
+          "completion_tokens": 452,
+          "total_tokens": 835,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 449,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 370146
+}

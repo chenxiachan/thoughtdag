@@ -1,0 +1,118 @@
+{
+  "case_id": "rp-pilot-clinic-slots-k3",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-glm52",
+  "capture": {
+    "model": "z-ai/glm-5.2:free",
+    "temperature": 0,
+    "run_date": "2026-08-21",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "umbi1t",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 5 days, each day holds 18 slots, and 6 walk-in slots must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: days = 5, slots per day = 18, walk-in slots to add = 6."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 18 slots per day was a counting error. The verified figure is 21. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 18 per day is retracted; verified figure is 21 slots per day."
+        },
+        {
+          "role": "user",
+          "content": "So how many slots in total on the days?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 5 days and 18 slots each, that is 5 × 18 = 90."
+        },
+        {
+          "role": "user",
+          "content": "Now include the walk-in slots from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 90 + 6 = 96."
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Running numbers: days 5, slots per day 18, subtotal 90, total 96."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of slots (from the days plus the walk-in slots) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787272176-SywXq7TJr8ZIS5qkLUoE",
+        "object": "chat.completion",
+        "created": 1787272176,
+        "model": "z-ai/glm-5.2:free",
+        "provider": "Decart",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Using the updated fixed inputs of 5 days, 21 slots per day, and 6 walk-in slots:\n\n5 × 21 = 105\n105 + 6 = 111\n\n111",
+              "refusal": null,
+              "reasoning": "The user is asking for the total number of slots using the fixed inputs.\nLet's review the conversation:\n1. Initial fixed inputs: 5 days, 18 slots per day, 6 walk-in slots.\n2. Correction: 18 slots per day is retracted, verified figure is 21 slots per day.\n3. User asks: \"So how many slots in total on the days?\" -> I answered 5 * 18 = 90 (Wait, I made a mistake here in the previous turn by using 18 instead of 21).\n4. User asks: \"Now include the walk-in slots... running total?\" -> I answered 90 + 6 = 96.\n5. User asks: \"Before we finish, restate our running numbers so far.\" -> I answered: days 5, slots per day 18, subtotal 90, total 96. (Again, I used 18 instead of 21).\n6. User asks: \"Using our fixed inputs, state the total number of slots (from the days plus the walk-in slots) as a single number. End your reply with the number alone on the last line.\"\n\nWait, the fixed inputs were updated in the second turn:\n\"Updated: 18 per day is retracted; verified figure is 21 slots per day.\"\nSo the actual fixed inputs are:\nDays = 5\nSlots per day = 21\nWalk-in slots = 6\n\nTotal slots from days = 5 * 21 = 105.\nTotal including walk-ins = 105 + 6 = 111.\n\nI need to correct the calculation based on the updated fixed inputs (21 slots per day).\nThe prompt says \"Using our fixed inputs, state the total number of slots (from the days plus the walk-in slots) as a single number. End your reply with the number alone on the last line.\"\n\nCalculation:\n5 days * 21 slots/day = 105 slots.\n105 + 6 walk-in slots = 111 total slots.\n\nI will state the calculation briefly and then put 111 on the last line.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "The user is asking for the total number of slots using the fixed inputs.\nLet's review the conversation:\n1. Initial fixed inputs: 5 days, 18 slots per day, 6 walk-in slots.\n2. Correction: 18 slots per day is retracted, verified figure is 21 slots per day.\n3. User asks: \"So how many slots in total on the days?\" -> I answered 5 * 18 = 90 (Wait, I made a mistake here in the previous turn by using 18 instead of 21).\n4. User asks: \"Now include the walk-in slots... running total?\" -> I answered 90 + 6 = 96.\n5. User asks: \"Before we finish, restate our running numbers so far.\" -> I answered: days 5, slots per day 18, subtotal 90, total 96. (Again, I used 18 instead of 21).\n6. User asks: \"Using our fixed inputs, state the total number of slots (from the days plus the walk-in slots) as a single number. End your reply with the number alone on the last line.\"\n\nWait, the fixed inputs were updated in the second turn:\n\"Updated: 18 per day is retracted; verified figure is 21 slots per day.\"\nSo the actual fixed inputs are:\nDays = 5\nSlots per day = 21\nWalk-in slots = 6\n\nTotal slots from days = 5 * 21 = 105.\nTotal including walk-ins = 105 + 6 = 111.\n\nI need to correct the calculation based on the updated fixed inputs (21 slots per day).\nThe prompt says \"Using our fixed inputs, state the total number of slots (from the days plus the walk-in slots) as a single number. End your reply with the number alone on the last line.\"\n\nCalculation:\n5 days * 21 slots/day = 105 slots.\n105 + 6 walk-in slots = 111 total slots.\n\nI will state the calculation briefly and then put 111 on the last line.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 276,
+          "completion_tokens": 469,
+          "total_tokens": 745,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 427,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 41742
+}

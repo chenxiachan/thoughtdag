@@ -1,0 +1,102 @@
+{
+  "case_id": "rp-pilot-orchard-bins-k3",
+  "condition": "source_prune",
+  "run_id": "pilot-v1-gemma4-31b",
+  "capture": {
+    "model": "google/gemma-4-31b-it:free",
+    "temperature": 0,
+    "run_date": "2026-08-20",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1yzqu7",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 7 bins, each bin holds 13 apples, and 18 windfall apples must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: bins = 7, apples per bin = 13, windfall apples to add = 18."
+        },
+        {
+          "role": "user",
+          "content": "So how many apples in total on the bins?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 7 bins and 13 apples each, that is 7 × 13 = 91. (the neighboring orchard's 12 bins mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Now include the windfall apples from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 91 + 18 = 109. (the neighboring orchard's 12 bins mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Running numbers: bins 7, apples per bin 13, subtotal 91, total 109. (the neighboring orchard's 12 bins mentioned earlier is a separate matter.)"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of apples (from the bins plus the windfall apples) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787225105-FJAtcVldyObJkj1csMTw",
+        "object": "chat.completion",
+        "created": 1787225105,
+        "model": "google/gemma-4-31b-it:free",
+        "provider": "Google AI Studio",
+        "system_fingerprint": null,
+        "service_tier": "default",
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "STOP",
+            "message": {
+              "role": "assistant",
+              "content": "Based on the fixed inputs of 7 bins with 13 apples each (91) plus 18 windfall apples, the total is 109.\n\n109",
+              "refusal": null,
+              "reasoning": null
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 266,
+          "completion_tokens": 38,
+          "total_tokens": 304,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 0,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 41254
+}

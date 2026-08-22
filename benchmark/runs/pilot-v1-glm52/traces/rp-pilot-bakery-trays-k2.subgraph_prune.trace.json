@@ -1,0 +1,86 @@
+{
+  "case_id": "rp-pilot-bakery-trays-k2",
+  "condition": "subgraph_prune",
+  "run_id": "pilot-v1-glm52",
+  "capture": {
+    "model": "z-ai/glm-5.2:free",
+    "temperature": 0,
+    "run_date": "2026-08-19",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1kg5s5i",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787098506-e1i8d1POY8flkgq7JbYn",
+        "object": "chat.completion",
+        "created": 1787098506,
+        "model": "z-ai/glm-5.2:free",
+        "provider": "Decart",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "To find the total number of rolls, we calculate the rolls in the trays (12 trays × 8 rolls per tray = 96 rolls) and then add the 15 loose rolls (96 + 15 = 111).\n\n111",
+              "refusal": null,
+              "reasoning": "1.  **Analyze the Request:**\n    *   Fixed inputs: 12 trays, 8 rolls per tray, 15 loose rolls.\n    *   Task: Calculate the total number of rolls (trays * rolls per tray + loose rolls).\n    *   Constraint: End the reply with the number alone on the last line.\n\n2.  **Calculate the Total:**\n    *   Rolls in trays = 12 * 8 = 96\n    *   Loose rolls = 15\n    *   Total rolls = 96 + 15 = 111\n\n3.  **Format the Output:**\n    *   Provide a brief explanation (optional but good for context).\n    *   Ensure the very last line is just the number \"111\".\n\n4.  **Draft the Response:**\n    To find the total number of rolls, we first calculate the rolls in the trays (12 trays × 8 rolls per tray = 96 rolls) and then add the 15 loose rolls (96 + 15 = 111).\n    111",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "1.  **Analyze the Request:**\n    *   Fixed inputs: 12 trays, 8 rolls per tray, 15 loose rolls.\n    *   Task: Calculate the total number of rolls (trays * rolls per tray + loose rolls).\n    *   Constraint: End the reply with the number alone on the last line.\n\n2.  **Calculate the Total:**\n    *   Rolls in trays = 12 * 8 = 96\n    *   Loose rolls = 15\n    *   Total rolls = 96 + 15 = 111\n\n3.  **Format the Output:**\n    *   Provide a brief explanation (optional but good for context).\n    *   Ensure the very last line is just the number \"111\".\n\n4.  **Draft the Response:**\n    To find the total number of rolls, we first calculate the rolls in the trays (12 trays × 8 rolls per tray = 96 rolls) and then add the 15 loose rolls (96 + 15 = 111).\n    111",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 114,
+          "completion_tokens": 266,
+          "total_tokens": 380,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 217,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 11765
+}

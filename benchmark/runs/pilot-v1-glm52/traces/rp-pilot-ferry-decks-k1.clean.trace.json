@@ -1,0 +1,94 @@
+{
+  "case_id": "rp-pilot-ferry-decks-k1",
+  "condition": "clean",
+  "run_id": "pilot-v1-glm52",
+  "capture": {
+    "model": "z-ai/glm-5.2:free",
+    "temperature": 0,
+    "run_date": "2026-08-19",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1x3g0sg",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 4 decks, each deck holds 22 seats, and 17 standing places must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: decks = 4, seats per deck = 22, standing places to add = 17."
+        },
+        {
+          "role": "user",
+          "content": "So how many seats in total on the decks?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 4 decks and 22 seats each, that is 4 × 22 = 88."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of seats (from the decks plus the standing places) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787144768-jC0TZoptn7d8378xGIhE",
+        "object": "chat.completion",
+        "created": 1787144768,
+        "model": "z-ai/glm-5.2:free",
+        "provider": "Decart",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of seats from the decks is 88. Adding the 17 standing places gives a total of 105.\n\n105",
+              "refusal": null,
+              "reasoning": "The user wants the total number of seats (from the decks plus the standing places) using the fixed inputs.\nDecks = 4\nSeats per deck = 22\nStanding places = 17\n\nTotal seats from decks = 4 * 22 = 88\nTotal = 88 + 17 = 105\n\nThe user wants the reply to end with the number alone on the last line.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "The user wants the total number of seats (from the decks plus the standing places) using the fixed inputs.\nDecks = 4\nSeats per deck = 22\nStanding places = 17\n\nTotal seats from decks = 4 * 22 = 88\nTotal = 88 + 17 = 105\n\nThe user wants the reply to end with the number alone on the last line.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 149,
+          "completion_tokens": 110,
+          "total_tokens": 259,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 82,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 20762
+}

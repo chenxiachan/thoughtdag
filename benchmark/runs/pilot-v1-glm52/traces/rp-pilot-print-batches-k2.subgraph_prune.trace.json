@@ -1,0 +1,86 @@
+{
+  "case_id": "rp-pilot-print-batches-k2",
+  "condition": "subgraph_prune",
+  "run_id": "pilot-v1-glm52",
+  "capture": {
+    "model": "z-ai/glm-5.2:free",
+    "temperature": 0,
+    "run_date": "2026-08-20",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1sz5ixa",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 6 batches, each batch holds 25 pages, and 40 cover pages must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: batches = 6, pages per batch = 25, cover pages to add = 40."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of pages (from the batches plus the cover pages) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787217967-VKom8XkjTG4MIPFcFYh1",
+        "object": "chat.completion",
+        "created": 1787217967,
+        "model": "z-ai/glm-5.2:free",
+        "provider": "Decart",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "To find the total number of pages, we first calculate the pages from the batches (6 batches × 25 pages per batch = 150 pages) and then add the 40 cover pages (150 + 40 = 190 pages).\n\n190",
+              "refusal": null,
+              "reasoning": "The user wants to calculate the total number of pages using the fixed inputs:\n- 6 batches\n- 25 pages per batch\n- 40 cover pages added to the total\n\nCalculation:\nTotal pages from batches = 6 * 25 = 150\nTotal pages = 150 + 40 = 190\n\nThe user wants the reply to end with the number alone on the last line.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "The user wants to calculate the total number of pages using the fixed inputs:\n- 6 batches\n- 25 pages per batch\n- 40 cover pages added to the total\n\nCalculation:\nTotal pages from batches = 6 * 25 = 150\nTotal pages = 150 + 40 = 190\n\nThe user wants the reply to end with the number alone on the last line.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 114,
+          "completion_tokens": 133,
+          "total_tokens": 247,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 82,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 8455
+}

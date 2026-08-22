@@ -1,0 +1,102 @@
+{
+  "case_id": "rp-pilot-clinic-slots-k1",
+  "condition": "clean",
+  "run_id": "pilot-v1-glm52",
+  "capture": {
+    "model": "z-ai/glm-5.2:free",
+    "temperature": 0,
+    "run_date": "2026-08-20",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1qv8d22",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 5 days, each day holds 18 slots, and 6 walk-in slots must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: days = 5, slots per day = 18, walk-in slots to add = 6."
+        },
+        {
+          "role": "user",
+          "content": "Correction from the recount: the earlier figure of 18 slots per day was a counting error. The verified figure is 21. Update the fixed inputs."
+        },
+        {
+          "role": "assistant",
+          "content": "Updated: 18 per day is retracted; verified figure is 21 slots per day."
+        },
+        {
+          "role": "user",
+          "content": "So how many slots in total on the days?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 5 days and 21 slots each, that is 5 × 21 = 105."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of slots (from the days plus the walk-in slots) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787195317-4cH6v7S6K5Q37IB8OWq4",
+        "object": "chat.completion",
+        "created": 1787195317,
+        "model": "z-ai/glm-5.2:free",
+        "provider": "Decart",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Using the fixed inputs, we have 5 days with 21 slots each, giving 105 slots. Adding the 6 walk-in slots brings the total to 111.\n\n111",
+              "refusal": null,
+              "reasoning": "1.  **Analyze the Request:**\n    *   Fixed inputs: 5 days, 21 slots per day, 6 walk-in slots.\n    *   Calculate total slots: (days * slots per day) + walk-in slots.\n    *   Output format: State the total number, and end the reply with the number alone on the last line.\n\n2.  **Calculate:**\n    *   Days * slots per day = 5 * 21 = 105.\n    *   Walk-in slots = 6.\n    *   Total = 105 + 6 = 111.\n\n3.  **Format Output:**\n    *   Text explaining the calculation.\n    *   Last line must be the number alone.\n\n4.  **Drafting the response:**\n    Using the fixed inputs, we have 5 days with 21 slots each, giving 105 slots. Adding the 6 walk-in slots brings the total to 111.\n    111",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "1.  **Analyze the Request:**\n    *   Fixed inputs: 5 days, 21 slots per day, 6 walk-in slots.\n    *   Calculate total slots: (days * slots per day) + walk-in slots.\n    *   Output format: State the total number, and end the reply with the number alone on the last line.\n\n2.  **Calculate:**\n    *   Days * slots per day = 5 * 21 = 105.\n    *   Walk-in slots = 6.\n    *   Total = 105 + 6 = 111.\n\n3.  **Format Output:**\n    *   Text explaining the calculation.\n    *   Last line must be the number alone.\n\n4.  **Drafting the response:**\n    Using the fixed inputs, we have 5 days with 21 slots each, giving 105 slots. Adding the 6 walk-in slots brings the total to 111.\n    111",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 206,
+          "completion_tokens": 238,
+          "total_tokens": 444,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 200,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 146106
+}

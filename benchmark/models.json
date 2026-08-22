@@ -1,23 +1,94 @@
 {
-  "_note": "Registry of endpoints. 'tested' entries mirror each run's envelope.json (the authoritative identity record, incl. decoding and reasoning mode). 'candidates' are future panel ideas — VERIFY every id against the provider before running.",
+  "_note": "Registry of endpoints. 'tested' entries mirror each run's envelope.json (the authoritative identity record, incl. decoding and reasoning mode). 'candidates' are future panel ideas \u2014 VERIFY every id against the provider before running.",
   "tested": [
-    { "run_id": "pilot-v1-glm45flash-2026-08-16", "provider": "zhipu (direct)", "model": "glm-4.5-flash", "wave": 1 },
-    { "run_id": "pilot-v1-nemotron35l", "provider": "openrouter/nvidia", "model": "nvidia/nemotron-3.5-lightning:free", "wave": 1 },
-    { "run_id": "pilot-v1-gemma4-26b", "provider": "openrouter/google", "model": "google/gemma-4-26b-a4b-it:free", "wave": 1 },
-    { "run_id": "pilot-v1-gptoss20b", "provider": "openrouter/openai", "model": "openai/gpt-oss-20b:free", "wave": 1 },
-    { "run_id": "pilot-v1-nemotron3-nano30b-reasoning", "provider": "openrouter/nvidia", "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free", "wave": 2, "pair": "exploratory: omni-modal reasoning variant (NOT a controlled reasoning ablation; differs in modality stack, reasoning was provider-default)" },
-    { "run_id": "pilot-v1-nemotron3-nano30b", "provider": "openrouter/nvidia", "model": "nvidia/nemotron-3-nano-30b-a3b:free", "wave": 2, "pair": "exploratory: text-only sibling (see note on the reasoning variant)" },
-    { "run_id": "pilot-v1-nemotron-nano-9b", "provider": "openrouter/nvidia", "model": "nvidia/nemotron-nano-9b-v2:free", "wave": 2, "pair": "scale-down" }
+    {
+      "run_id": "pilot-v1-glm45flash-2026-08-16",
+      "provider": "zhipu (direct)",
+      "model": "glm-4.5-flash",
+      "wave": 1
+    },
+    {
+      "run_id": "pilot-v1-nemotron35l",
+      "provider": "openrouter/nvidia",
+      "model": "nvidia/nemotron-3.5-lightning:free",
+      "wave": 1
+    },
+    {
+      "run_id": "pilot-v1-gemma4-26b",
+      "provider": "openrouter/google",
+      "model": "google/gemma-4-26b-a4b-it:free",
+      "wave": 1
+    },
+    {
+      "run_id": "pilot-v1-gptoss20b",
+      "provider": "openrouter/openai",
+      "model": "openai/gpt-oss-20b:free",
+      "wave": 1
+    },
+    {
+      "run_id": "pilot-v1-nemotron3-nano30b-reasoning",
+      "provider": "openrouter/nvidia",
+      "model": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+      "wave": 2,
+      "pair": "exploratory: omni-modal reasoning variant (NOT a controlled reasoning ablation; differs in modality stack, reasoning was provider-default)"
+    },
+    {
+      "run_id": "pilot-v1-nemotron3-nano30b",
+      "provider": "openrouter/nvidia",
+      "model": "nvidia/nemotron-3-nano-30b-a3b:free",
+      "wave": 2,
+      "pair": "exploratory: text-only sibling (see note on the reasoning variant)"
+    },
+    {
+      "run_id": "pilot-v1-nemotron-nano-9b",
+      "provider": "openrouter/nvidia",
+      "model": "nvidia/nemotron-nano-9b-v2:free",
+      "wave": 2,
+      "pair": "scale-down"
+    },
+    {
+      "run_id": "pilot-v1-glm52",
+      "provider": "openrouter/z-ai",
+      "model": "z-ai/glm-5.2:free",
+      "wave": 2,
+      "pair": "generation (vs glm-4.5-flash)",
+      "note": "completed 2026-08-22"
+    },
+    {
+      "run_id": "pilot-v1-gemma4-31b",
+      "provider": "openrouter/google",
+      "model": "google/gemma-4-31b-it:free",
+      "wave": 2,
+      "pair": "dense (vs gemma-4-26b MoE)",
+      "note": "completed 2026-08-22"
+    }
   ],
-  "in_capture": [
-    { "run_id": "pilot-v1-glm52", "provider": "openrouter/z-ai", "model": "z-ai/glm-5.2:free", "wave": 2, "pair": "generation (vs glm-4.5-flash)" },
-    { "run_id": "pilot-v1-gemma4-31b", "provider": "openrouter/google", "model": "google/gemma-4-31b-it:free", "wave": 2, "pair": "dense (vs gemma-4-26b MoE)" }
-  ],
+  "in_capture": [],
   "candidates": [
-    { "provider": "openai", "model": "VERIFY:gpt-5.6", "lane": "paid flagship" },
-    { "provider": "anthropic", "model": "VERIFY:claude-sonnet-5", "lane": "paid flagship" },
-    { "provider": "google", "model": "VERIFY:gemini-3.1-pro", "lane": "paid flagship" },
-    { "provider": "deepseek", "model": "VERIFY:deepseek-v4-pro", "lane": "paid" },
-    { "provider": "local/ollama", "model": "VERIFY:qwen3:8b", "lane": "local track (HF community request)" }
+    {
+      "provider": "openai",
+      "model": "VERIFY:gpt-5.6",
+      "lane": "paid flagship"
+    },
+    {
+      "provider": "anthropic",
+      "model": "VERIFY:claude-sonnet-5",
+      "lane": "paid flagship"
+    },
+    {
+      "provider": "google",
+      "model": "VERIFY:gemini-3.1-pro",
+      "lane": "paid flagship"
+    },
+    {
+      "provider": "deepseek",
+      "model": "VERIFY:deepseek-v4-pro",
+      "lane": "paid"
+    },
+    {
+      "provider": "local/ollama",
+      "model": "VERIFY:qwen3:8b",
+      "lane": "local track (HF community request)"
+    }
   ]
 }

@@ -1,0 +1,353 @@
+{
+  "case_id": "rp-pilot-library-shelves-k3",
+  "condition": "recompute_descendants",
+  "run_id": "pilot-v1-glm52",
+  "capture": {
+    "model": "z-ai/glm-5.2:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "recompute",
+      "node": "step-b",
+      "prompt_hash": "5wtvyb",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: shelves = 9, books per shelf = 14, boxed books to add = 22."
+        },
+        {
+          "role": "user",
+          "content": "So how many books in total on the shelves?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787097255-evG9inKUFg2jEyLoA9Vh",
+        "object": "chat.completion",
+        "created": 1787097255,
+        "model": "z-ai/glm-5.2:free",
+        "provider": "Decart",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "There are **126** books on the shelves (9 shelves × 14 books per shelf). \n\nIf you are including the 22 boxed books for the grand total, there are **148** books in total.",
+              "refusal": null,
+              "reasoning": "The user is asking for the total number of books on the shelves.\nFixed inputs:\n- Number of shelves = 9\n- Books per shelf = 14\n- Boxed books to add = 22 (but the question specifically asks \"how many books in total on the shelves\", which usually means just the books on the shelves, not including the boxed books. However, sometimes \"total\" implies the grand total including the boxed books. Let's calculate both or clarify.)\n\nBooks on shelves = 9 shelves * 14 books/shelf = 126 books.\nIf including boxed books = 126 + 22 = 148 books.\n\nLet's provide the number of books on the shelves, and then the grand total including the boxed books just in case.\n\nBooks on shelves: 9 * 14 = 126.\nGrand total: 126 + 22 = 148.\n\nI will state both clearly.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "The user is asking for the total number of books on the shelves.\nFixed inputs:\n- Number of shelves = 9\n- Books per shelf = 14\n- Boxed books to add = 22 (but the question specifically asks \"how many books in total on the shelves\", which usually means just the books on the shelves, not including the boxed books. However, sometimes \"total\" implies the grand total including the boxed books. Let's calculate both or clarify.)\n\nBooks on shelves = 9 shelves * 14 books/shelf = 126 books.\nIf including boxed books = 126 + 22 = 148 books.\n\nLet's provide the number of books on the shelves, and then the grand total including the boxed books just in case.\n\nBooks on shelves: 9 * 14 = 126.\nGrand total: 126 + 22 = 148.\n\nI will state both clearly.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 87,
+          "completion_tokens": 229,
+          "total_tokens": 316,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 184,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-c",
+      "prompt_hash": "35t5vh",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: shelves = 9, books per shelf = 14, boxed books to add = 22."
+        },
+        {
+          "role": "user",
+          "content": "So how many books in total on the shelves?"
+        },
+        {
+          "role": "assistant",
+          "content": "There are **126** books on the shelves (9 shelves × 14 books per shelf). \n\nIf you are including the 22 boxed books for the grand total, there are **148** books in total."
+        },
+        {
+          "role": "user",
+          "content": "Now include the boxed books from our fixed inputs. What is the running total?"
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787097276-OaTCtEgXcLPknJ9HXpvg",
+        "object": "chat.completion",
+        "created": 1787097276,
+        "model": "z-ai/glm-5.2:free",
+        "provider": "Decart",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Including the 22 boxed books, the running total is **148** books. \n\n(126 books on the shelves + 22 boxed books = 148 total books)",
+              "refusal": null,
+              "reasoning": "1.  **Analyze the Request:**\n    *   Fixed inputs: 9 shelves, 14 books per shelf, 22 boxed books.\n    *   Previous calculation: 9 * 14 = 126 books on shelves.\n    *   Current request: Include the boxed books and provide the running total.\n\n2.  **Calculate:**\n    *   Books on shelves = 126\n    *   Boxed books = 22\n    *   Running total = 126 + 22 = 148\n\n3.  **Formulate Response:**\n    *   State the calculation clearly.\n    *   Provide the final running total.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "1.  **Analyze the Request:**\n    *   Fixed inputs: 9 shelves, 14 books per shelf, 22 boxed books.\n    *   Previous calculation: 9 * 14 = 126 books on shelves.\n    *   Current request: Include the boxed books and provide the running total.\n\n2.  **Calculate:**\n    *   Books on shelves = 126\n    *   Boxed books = 22\n    *   Running total = 126 + 22 = 148\n\n3.  **Formulate Response:**\n    *   State the calculation clearly.\n    *   Provide the final running total.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 150,
+          "completion_tokens": 169,
+          "total_tokens": 319,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 133,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "recompute",
+      "node": "step-d",
+      "prompt_hash": "q2r67c",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: shelves = 9, books per shelf = 14, boxed books to add = 22."
+        },
+        {
+          "role": "user",
+          "content": "So how many books in total on the shelves?"
+        },
+        {
+          "role": "assistant",
+          "content": "There are **126** books on the shelves (9 shelves × 14 books per shelf). \n\nIf you are including the 22 boxed books for the grand total, there are **148** books in total."
+        },
+        {
+          "role": "user",
+          "content": "Now include the boxed books from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Including the 22 boxed books, the running total is **148** books. \n\n(126 books on the shelves + 22 boxed books = 148 total books)"
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787097300-D5YY8ijvQh3EUrcVv5QH",
+        "object": "chat.completion",
+        "created": 1787097300,
+        "model": "z-ai/glm-5.2:free",
+        "provider": "Decart",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "Here are our running numbers so far:\n\n* **Shelves:** 9\n* **Books per shelf:** 14\n* **Books on the shelves:** 126 (9 × 14)\n* **Boxed books:** 22\n* **Running total:** 148 (126 + 22)",
+              "refusal": null,
+              "reasoning": "1.  **Analyze the Request:** The user wants me to restate the running numbers so far based on the previous conversation.\n2.  **Review the Conversation History:**\n    *   Fixed inputs established: 9 shelves, 14 books per shelf, 22 boxed books.\n    *   Books on shelves: 9 * 14 = 126.\n    *   Boxed books: 22.\n    *   Running total (shelves + boxed): 126 + 22 = 148.\n3.  **Formulate the Response:** Clearly list the components and the final running total as requested.\n    *   Shelves: 9\n    *   Books per shelf: 14\n    *   Books on shelves: 126\n    *   Boxed books: 22\n    *   Running total: 148\n4.  **Refine Tone:** Keep it clear, concise, and helpful.",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "1.  **Analyze the Request:** The user wants me to restate the running numbers so far based on the previous conversation.\n2.  **Review the Conversation History:**\n    *   Fixed inputs established: 9 shelves, 14 books per shelf, 22 boxed books.\n    *   Books on shelves: 9 * 14 = 126.\n    *   Boxed books: 22.\n    *   Running total (shelves + boxed): 126 + 22 = 148.\n3.  **Formulate the Response:** Clearly list the components and the final running total as requested.\n    *   Shelves: 9\n    *   Books per shelf: 14\n    *   Books on shelves: 126\n    *   Boxed books: 22\n    *   Running total: 148\n4.  **Refine Tone:** Keep it clear, concise, and helpful.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 200,
+          "completion_tokens": 255,
+          "total_tokens": 455,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 191,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    },
+    {
+      "kind": "final",
+      "prompt_hash": "1yov9oh",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 9 shelves, each shelf holds 14 books, and 22 boxed books must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: shelves = 9, books per shelf = 14, boxed books to add = 22."
+        },
+        {
+          "role": "user",
+          "content": "So how many books in total on the shelves?"
+        },
+        {
+          "role": "assistant",
+          "content": "There are **126** books on the shelves (9 shelves × 14 books per shelf). \n\nIf you are including the 22 boxed books for the grand total, there are **148** books in total."
+        },
+        {
+          "role": "user",
+          "content": "Now include the boxed books from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Including the 22 boxed books, the running total is **148** books. \n\n(126 books on the shelves + 22 boxed books = 148 total books)"
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Here are our running numbers so far:\n\n* **Shelves:** 9\n* **Books per shelf:** 14\n* **Books on the shelves:** 126 (9 × 14)\n* **Boxed books:** 22\n* **Running total:** 148 (126 + 22)"
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of books (from the shelves plus the boxed books) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787097343-JV4nJf0j6XifXdTgDlZR",
+        "object": "chat.completion",
+        "created": 1787097343,
+        "model": "z-ai/glm-5.2:free",
+        "provider": "Decart",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "148",
+              "refusal": null,
+              "reasoning": "1.  **Analyze the Request:**\n    *   Fixed inputs: 9 shelves, 14 books/shelf, 22 boxed books.\n    *   Task: State the total number of books (shelves + boxed) as a single number.\n    *   Constraint: End the reply with the number alone on the last line.\n\n2.  **Calculate the Total:**\n    *   Books on shelves = 9 * 14 = 126\n    *   Boxed books = 22\n    *   Total = 126 + 22 = 148\n\n3.  **Format the Output:**\n    *   The user wants the total stated, and the *last line* must be the number alone.\n    *   I can write a brief sentence and then put 148 on the last line, or just put 148. Let's provide a brief sentence and then the number on its own line to strictly satisfy \"End your reply with the number alone on the last line.\"\n\n    *Draft:*\n    The total number of books is 148.\n    148\n\n    Wait, \"End your reply with the number alone on the last line.\" Let's just make the whole reply the number, or a short sentence followed by the number.\n    \"The total number of books is:\n    148\"\n    Or simply:\n    148\n\n    Let's go with a simple sentence and then the number on the last line to be safe and perfectly compliant.\n    \"The total number of books is 148.\n    148\" -> No, that's redundant.\n    Let's just output:\n    148",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "1.  **Analyze the Request:**\n    *   Fixed inputs: 9 shelves, 14 books/shelf, 22 boxed books.\n    *   Task: State the total number of books (shelves + boxed) as a single number.\n    *   Constraint: End the reply with the number alone on the last line.\n\n2.  **Calculate the Total:**\n    *   Books on shelves = 9 * 14 = 126\n    *   Boxed books = 22\n    *   Total = 126 + 22 = 148\n\n3.  **Format the Output:**\n    *   The user wants the total stated, and the *last line* must be the number alone.\n    *   I can write a brief sentence and then put 148 on the last line, or just put 148. Let's provide a brief sentence and then the number on its own line to strictly satisfy \"End your reply with the number alone on the last line.\"\n\n    *Draft:*\n    The total number of books is 148.\n    148\n\n    Wait, \"End your reply with the number alone on the last line.\" Let's just make the whole reply the number, or a short sentence followed by the number.\n    \"The total number of books is:\n    148\"\n    Or simply:\n    148\n\n    Let's go with a simple sentence and then the number on the last line to be safe and perfectly compliant.\n    \"The total number of books is 148.\n    148\" -> No, that's redundant.\n    Let's just output:\n    148",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 303,
+          "completion_tokens": 337,
+          "total_tokens": 640,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 334,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 94127
+}

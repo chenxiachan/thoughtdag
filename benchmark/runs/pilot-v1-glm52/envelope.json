@@ -1,0 +1,22 @@
+{
+  "run_id": "pilot-v1-glm52",
+  "suite": "pilot-v1",
+  "tier": "pilot",
+  "provider": "openrouter/z-ai",
+  "model": "z-ai/glm-5.2:free",
+  "model_revision": null,
+  "endpoint": "https://openrouter.ai/api/v1/chat/completions",
+  "key_env": "OPENROUTER_API_KEY",
+  "decoding": {
+    "temperature": 0
+  },
+  "reasoning_request_mode": "provider-default (no explicit disable parameter sent)",
+  "run_dates": [
+    "2026-08-19"
+  ],
+  "compiler_version": "2.0.0",
+  "currency": "USD",
+  "cost_per_run": 0,
+  "note_cost": "openrouter free-tier model",
+  "note": "Pilot / reference results only. Extension wave 2 alternate: generation axis (glm-5.2 vs glm-4.5-flash, same vendor)."
+}

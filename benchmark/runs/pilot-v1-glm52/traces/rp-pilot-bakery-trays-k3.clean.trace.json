@@ -1,0 +1,110 @@
+{
+  "case_id": "rp-pilot-bakery-trays-k3",
+  "condition": "clean",
+  "run_id": "pilot-v1-glm52",
+  "capture": {
+    "model": "z-ai/glm-5.2:free",
+    "temperature": 0,
+    "run_date": "2026-08-18",
+    "compiler_version": "2.0.0"
+  },
+  "steps": [
+    {
+      "kind": "final",
+      "prompt_hash": "1778wg6",
+      "messages": [
+        {
+          "role": "user",
+          "content": "For this planning task, keep these fixed inputs: there are 12 trays, each tray holds 8 rolls, and 15 loose rolls must be added to any total."
+        },
+        {
+          "role": "assistant",
+          "content": "Noted as fixed inputs: trays = 12, rolls per tray = 8, loose rolls to add = 15."
+        },
+        {
+          "role": "user",
+          "content": "So how many rolls in total on the trays?"
+        },
+        {
+          "role": "assistant",
+          "content": "With 12 trays and 8 rolls each, that is 12 × 8 = 96."
+        },
+        {
+          "role": "user",
+          "content": "Now include the loose rolls from our fixed inputs. What is the running total?"
+        },
+        {
+          "role": "assistant",
+          "content": "Running total is 96 + 15 = 111."
+        },
+        {
+          "role": "user",
+          "content": "Before we finish, restate our running numbers so far."
+        },
+        {
+          "role": "assistant",
+          "content": "Running numbers: trays 12, rolls per tray 8, subtotal 96, total 111."
+        },
+        {
+          "role": "user",
+          "content": "Using our fixed inputs, state the total number of rolls (from the trays plus the loose rolls) as a single number. End your reply with the number alone on the last line."
+        }
+      ],
+      "raw_response": {
+        "id": "gen-1787096235-zhwkiH72qjECeFxzRnnL",
+        "object": "chat.completion",
+        "created": 1787096235,
+        "model": "z-ai/glm-5.2:free",
+        "provider": "Decart",
+        "system_fingerprint": null,
+        "service_tier": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "stop",
+            "native_finish_reason": "stop",
+            "message": {
+              "role": "assistant",
+              "content": "The total number of rolls is:\n111",
+              "refusal": null,
+              "reasoning": "1.  **Analyze the Request:**\n    *   Fixed inputs: 12 trays, 8 rolls per tray, 15 loose rolls.\n    *   Task: State the total number of rolls (trays + loose rolls) as a single number.\n    *   Constraint: End the reply with the number alone on the last line.\n\n2.  **Calculate the Total:**\n    *   Rolls on trays = 12 * 8 = 96\n    *   Loose rolls = 15\n    *   Total = 96 + 15 = 111\n\n3.  **Format the Output:**\n    *   The user wants the total stated, and the *last line* must be the number alone.\n    *   I can write a brief sentence and then put the number on the last line, or just provide the number. Let's provide a brief sentence and then the number on its own line to strictly satisfy \"End your reply with the number alone on the last line.\"\n\n4.  **Drafting the response:**\n    The total number of rolls is:\n    111",
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "1.  **Analyze the Request:**\n    *   Fixed inputs: 12 trays, 8 rolls per tray, 15 loose rolls.\n    *   Task: State the total number of rolls (trays + loose rolls) as a single number.\n    *   Constraint: End the reply with the number alone on the last line.\n\n2.  **Calculate the Total:**\n    *   Rolls on trays = 12 * 8 = 96\n    *   Loose rolls = 15\n    *   Total = 96 + 15 = 111\n\n3.  **Format the Output:**\n    *   The user wants the total stated, and the *last line* must be the number alone.\n    *   I can write a brief sentence and then put the number on the last line, or just provide the number. Let's provide a brief sentence and then the number on its own line to strictly satisfy \"End your reply with the number alone on the last line.\"\n\n4.  **Drafting the response:**\n    The total number of rolls is:\n    111",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 218,
+          "completion_tokens": 236,
+          "total_tokens": 454,
+          "cost": 0,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0,
+            "upstream_inference_prompt_cost": 0,
+            "upstream_inference_completions_cost": 0
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 226,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        }
+      }
+    }
+  ],
+  "latency_ms": 83828
+}

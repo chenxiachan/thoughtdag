@@ -24,6 +24,8 @@ RUNS = [
     ("Nemotron-3 30B Omni reasoning", "N3-30B-R", ROOT / "benchmark/runs/pilot-v1-nemotron3-nano30b-reasoning/results.json"),
     ("Nemotron-3 30B", "N3-30B", ROOT / "benchmark/runs/pilot-v1-nemotron3-nano30b/results.json"),
     ("Nemotron Nano 9B", "N-9B", ROOT / "benchmark/runs/pilot-v1-nemotron-nano-9b/results.json"),
+    ("GLM 5.2", "GLM-5.2", ROOT / "benchmark/runs/pilot-v1-glm52/results.json"),
+    ("Gemma 4 31B (dense)", "Gemma-31B", ROOT / "benchmark/runs/pilot-v1-gemma4-31b/results.json"),
 ]
 SHORT = {name: short for name, short, _ in RUNS}
 
@@ -175,12 +177,12 @@ def figure_flagship(answers: dict[str, dict[str, str]]) -> None:
         if len(unique) == 1:
             value = next(iter(unique))
             color = GREEN if value == "107" else RED
-            ax.text(11.0, y + 0.02, f"All seven  →  {value}", fontsize=13.2,
+            ax.text(11.0, y + 0.02, f"All nine  →  {value}", fontsize=13.2,
                     fontweight="bold", color=color, va="center")
         else:
             good = [SHORT[m] for m, v in output_values.items() if v == "107"]
             bad = [SHORT[m] for m, v in output_values.items() if v != "107"]
-            ax.text(11.0, y + 0.13, f"{len(good)} of 7  →  107", fontsize=10.5,
+            ax.text(11.0, y + 0.13, f"{len(good)} of 9  →  107", fontsize=10.5,
                     fontweight="bold", color=GREEN, va="center")
             ax.text(11.0, y - 0.17, f"{', '.join(bad)}  →  131", fontsize=9.0,
                     fontweight="bold", color=RED, va="center")
@@ -219,7 +221,7 @@ def figure_repair_rates(counts: dict[str, dict[str, tuple[int, int]]]) -> None:
     ax.set_xlabel("Recovery rate among cases first derailed by pollution (%)", labelpad=10)
     ax.set_title("Repairing the consequences mattered more than deleting the source", loc="left", fontsize=17, pad=21)
     total_eligible = sum(model["source_prune"][1] for model in counts.values())
-    ax.text(0, 1.025, f"{total_eligible} paired model-cases across seven endpoints", transform=ax.transAxes,
+    ax.text(0, 1.025, f"{total_eligible} paired model-cases across nine endpoints", transform=ax.transAxes,
             color=MUTED, fontsize=10.5)
     ax.xaxis.grid(True, color=GRID, linewidth=0.8)
     ax.set_axisbelow(True)
@@ -241,7 +243,7 @@ def figure_model_matrix(counts: dict[str, dict[str, tuple[int, int]]]) -> None:
     matrix = [[counts[model][strategy][0] for strategy in strategies] for model in models]
 
     cmap = LinearSegmentedColormap.from_list("repair", ["#FDE2E2", "#FFF3D6", "#DDF7E7", "#8DDFAC"])
-    fig, ax = plt.subplots(figsize=(9.7, 7.6))
+    fig, ax = plt.subplots(figsize=(9.7, 9.0))
     image = ax.imshow(matrix, cmap=cmap, vmin=14, vmax=18, aspect="auto")
     del image
     ax.set_xticks(range(len(labels)), labels, fontsize=11)
