@@ -6,7 +6,7 @@
 // (a notarization hazard). So the payload gets a minimal package.json
 // holding exactly what server.mjs imports, and installs that.
 import { execSync } from 'node:child_process';
-import { cpSync, rmSync, mkdirSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { cpSync, rmSync, mkdirSync, existsSync, readFileSync, writeFileSync, readdirSync, readlinkSync, statSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -78,12 +78,22 @@ if (leftover) {
 }
 
 // codesign --strict rejects any symlink that leaves the bundle. npm's
-// .bin shims are launcher symlinks the server never spawns — drop them —
-// and absolute or dangling links (npm sometimes writes absolute ones)
-// would point outside the .app, so they must not survive either.
-execSync('find node_modules -type d -name ".bin" -prune -exec rm -rf {} +', { cwd: payload });
-const badLinks = execSync('find node_modules -type l | while read l; do t=$(readlink "$l"); if [ ! -e "$l" ] || [ "${t#/}" != "$t" ]; then echo "$l"; rm "$l"; fi; done', { cwd: payload })
-  .toString()
-  .trim();
-if (badLinks) console.log('pruned unsafe symlinks:\n' + badLinks);
+// .bin shims are launchers the server never spawns — drop them — and
+// absolute or dangling links (npm sometimes writes absolute ones) would
+// point outside the .app, so they must not survive either. Plain fs
+// walking, because this also runs on the Windows builder.
+const pruneUnsafe = (dir) => {
+  for (const e of readdirSync(dir, { withFileTypes: true })) {
+    const fp = path.join(dir, e.name);
+    if (e.isSymbolicLink()) {
+      let ok = !path.isAbsolute(readlinkSync(fp));
+      if (ok) { try { statSync(fp); } catch { ok = false; } }
+      if (!ok) { rmSync(fp); console.log('pruned unsafe symlink:', fp); }
+    } else if (e.isDirectory()) {
+      if (e.name === '.bin') rmSync(fp, { recursive: true, force: true });
+      else pruneUnsafe(fp);
+    }
+  }
+};
+pruneUnsafe(path.join(payload, 'node_modules'));
 console.log('payload ready:', payload);
