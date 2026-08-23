@@ -19,7 +19,14 @@ for (const [track, name] of CASES) {
     const usageIn = trace.steps.reduce((a, s) => a + (s.raw_response.usage?.prompt_tokens ?? 0), 0);
     const usageOut = trace.steps.reduce((a, s) => a + (s.raw_response.usage?.completion_tokens ?? 0), 0);
     const cached = trace.steps.reduce((a, s) => a + (s.raw_response.usage?.prompt_tokens_details?.cached_tokens ?? 0), 0);
-    const reasoningObserved = trace.steps.some((s) => !!s.raw_response.choices?.[0]?.message?.reasoning_content);
+    // Reasoning provenance across provider dialects: message.reasoning_content
+    // (Zhipu), message.reasoning / message.reasoning_details (OpenRouter), and
+    // the normalized usage counter. Any positive signal counts as observed.
+    const reasoningObserved = trace.steps.some((s) => {
+      const m = s.raw_response.choices?.[0]?.message ?? {};
+      const rt = s.raw_response.usage?.completion_tokens_details?.reasoning_tokens ?? 0;
+      return !!m.reasoning_content || !!m.reasoning || (Array.isArray(m.reasoning_details) && m.reasoning_details.length > 0) || rt > 0;
+    });
     results.push({
       case_id: c.id, condition: cond,
       provider: env.provider, model: env.model, model_revision: env.model_revision,

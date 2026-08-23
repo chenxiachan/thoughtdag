@@ -48,5 +48,5 @@ Requires the repo root's `node_modules` (the compiler is the product's own `buil
 
 - Reference gate closed 2026-08-16 (five audit rounds); pilot approved and captured.
 - Wave 1 (2026-08-16): glm-4.5-flash, nemotron-3.5-lightning, gemma-4-26b, gpt-oss-20b — 540 conditions, 0 capture failures.
-- Wave 2 (2026-08-19): nemotron-3-nano-omni-30b-reasoning, nemotron-3-nano-30b, nemotron-nano-9b. 405 conditions, 0 capture failures. The two 30B endpoints are an EXPLORATORY comparison, not a reasoning ablation: they differ in modality stack and reasoning was provider-default on both. glm-5.2 and gemma-4-31b in capture (free-tier rate limits).
+- Wave 2 (2026-08-19): nemotron-3-nano-omni-30b-reasoning, nemotron-3-nano-30b, nemotron-nano-9b. 405 conditions, 0 capture failures. The two 30B endpoints are an EXPLORATORY comparison, not a reasoning ablation: they differ in modality stack and reasoning was provider-default on both. glm-5.2 and gemma-4-31b completed 2026-08-22 (both 135/135). A controlled reasoning ablation (one text-only endpoint, reasoning toggled per request, 270 runs) completed 2026-08-21.
 - Registered predictions and their outcomes are recorded in `STATUS.md`.

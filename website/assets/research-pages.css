@@ -189,3 +189,8 @@ a { color: inherit; text-decoration: none; }
   .report-section h2 { font-size: 29px; }
   .report-table th, .report-table td { padding: 12px; }
 }
+
+/* Highlights: conclusions first */
+.hl-list { margin: 0 0 26px; padding-left: 0; counter-reset: hl; list-style: none; }
+.hl-list li { position: relative; padding: 14px 18px 14px 58px; margin-bottom: 10px; background: var(--card, #fff); border: 1px solid var(--line, #e5e4ef); border-radius: 12px; counter-increment: hl; line-height: 1.65; }
+.hl-list li::before { content: counter(hl); position: absolute; left: 18px; top: 14px; width: 26px; height: 26px; border-radius: 999px; background: rgba(107, 92, 231, .12); color: #5a4bd6; font-weight: 700; font-size: 14px; display: flex; align-items: center; justify-content: center; }

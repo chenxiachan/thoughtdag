@@ -45,6 +45,9 @@ Runner extended (envelope.request_extra merges per-request body fields). One tex
 - source_prune: 16/18 ON vs 2/18 OFF. The registered prediction (reasoning protects against residual contamination) is SUPPORTED by the valid test.
 - subgraph_prune: 18/18 ON vs 15/18 OFF. The three OFF failures are bare-arithmetic slips in the clean-but-shorter C0-prime state (e.g. concatenating 96 and 9 into 969): deletion restores cleanliness, not the work.
 - recompute: 18/18 both sides. For a non-reasoning model the strategy hierarchy reorders: recompute > subgraph > source.
+- Statistics CORRECTED 2026-08-23 (user audit): the two sides share the same 18 cases, so the primary test is paired. Discordant pairs: 14 ON-only vs 0 OFF-only; exact two-sided McNemar p=1.22e-4. Family-level sign test 6/6, p=0.031 (unchanged). Subgraph 3 discordant one way, McNemar p=0.25, NOT significant, no claim. Earlier Fisher-exact framing treated paired outcomes as independent samples and was withdrawn.
+- Scorer provenance bug fixed 2026-08-23: reasoning_observed only checked message.reasoning_content and missed OpenRouter dialects (message.reasoning, reasoning_details, usage reasoning_tokens); all 11 runs rescored from immutable traces, zero API calls. Ablation ON now observes reasoning in 135/135, OFF in 0/135, consistent with the 28,187-vs-0 token audit.
+- Claim scoping 2026-08-23: single-endpoint ablation generalizations withdrawn ('reasoning is the repair engine' etc.); wording scoped to 'in one controlled endpoint'. Token claim corrected: max single request 719 provider-measured input tokens, max per-condition accumulation 1,659 estimated.
 - Wave-2 confusion explained: the "non-reasoning" endpoint reasons by default (97 tokens in the probe), so the invalid comparison pointed the wrong way.
 Runs: ablation-nano30b-think-on / ablation-nano30b-think-off.
 

@@ -115,11 +115,11 @@ Want a ten-second look before installing anything? The [hosted demo](https://app
 
 ### Context Intervention Benchmark · Pilot v2
 
-When misleading context enters an LLM conversation, how much of the affected path must be removed before the answer recovers?
+`9 models` · `1,485 test runs` · `$0 in free tiers` · `answers scored by exact match`
 
-> Across nine endpoints, **152/162** cases recovered after deleting only the misleading source. **162/162** recovered after removing the contaminated subgraph. In a controlled ablation, turning a model's reasoning off collapsed source-only repair from **16/18 to 2/18**; recomputing descendants stayed perfect on both sides.
+Context does not only fade as conversations grow longer. A wrong statement flows into the replies that come after it and undermines the truthfulness of every later conclusion. Our benchmark verified this across nine language models and found the effect to be widespread: deleting the message that introduced the error is often not enough, because the follow-up replies still carry it. Restoring correct answers required cleaning up the affected passage as a whole, or letting the model rewrite it. In one model whose step-by-step thinking we could switch on and off, the minimal cleanup only worked while thinking was on. Managing context, not just accumulating it, decides what a model gets right.
 
-This does not explain hidden model reasoning or rank models. It tests a narrower, observable claim: changing visible context changes the next answer.
+The full report explains the method, the numbers and their statistics, and what this does and does not establish. It does not rank models and does not explain their inner workings; it tests one observable claim: changing what a model sees changes what it answers next.
 
 📖 **[Read the first case study](https://chenxiachan.github.io/thoughtdag/stories/context-repair/)** · 📊 **[Methodology and results](https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v2/)** · 💬 **[Suggest a model for the next run](https://github.com/chenxiachan/thoughtdag/issues/new)**
 

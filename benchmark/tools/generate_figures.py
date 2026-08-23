@@ -268,6 +268,80 @@ def figure_model_matrix(counts: dict[str, dict[str, tuple[int, int]]]) -> None:
     save(fig, "model-repair-matrix.png")
 
 
+ABLATION_RUNS = [
+    ("Reasoning ON", ROOT / "benchmark/runs/ablation-nano30b-think-on/results.json"),
+    ("Reasoning OFF", ROOT / "benchmark/runs/ablation-nano30b-think-off/results.json"),
+]
+
+
+def figure_model_dotplot(counts: dict[str, dict[str, tuple[int, int]]]) -> None:
+    """Per-endpoint dot plot: three repair strategies on one row per model.
+    The separating dimension (source-only) stands out immediately."""
+    strategies = ["source_prune", "subgraph_prune", "recompute_descendants"]
+    strat_labels = ["Source only", "Whole subgraph", "Recompute"]
+    strat_colors = [ORANGE, GREEN, BLUE]
+    models = sorted(counts.keys(), key=lambda m: counts[m]["source_prune"][0])
+
+    fig, ax = plt.subplots(figsize=(10.6, 6.6))
+    for i, model in enumerate(models):
+        ax.axhline(i, color=GRID, linewidth=0.8, zorder=1)
+        for strategy, color in zip(strategies, strat_colors):
+            n, d = counts[model][strategy]
+            jitter = {"source_prune": -0.13, "subgraph_prune": 0.13, "recompute_descendants": 0.0}[strategy]
+            ax.scatter(n, i + jitter, s=130, color=color, zorder=3, edgecolors="white", linewidths=1.2)
+    ax.set_yticks(range(len(models)), models, fontsize=11)
+    ax.set_xlim(0, 18.9)
+    ax.set_xticks([0, 3, 6, 9, 12, 15, 18])
+    ax.set_xlabel("Repaired cases out of 18 first derailed", labelpad=10)
+    ax.set_title("Every endpoint, every strategy: only source-only pruning separates them", loc="left", fontsize=15.5, pad=30)
+    ax.text(0, 1.05, "Nine endpoints. Dots at 18 mean every derailed case recovered.", transform=ax.transAxes, color=MUTED, fontsize=10.5)
+    handles = [plt.Line2D([], [], marker="o", linestyle="", markersize=10, color=c, label=l) for l, c in zip(strat_labels, strat_colors)]
+    ax.legend(handles=handles, loc="lower left", frameon=False, fontsize=10)
+    ax.xaxis.grid(True, color=GRID, linewidth=0.8)
+    ax.set_axisbelow(True)
+    for spine in ["top", "right", "left"]:
+        ax.spines[spine].set_visible(False)
+    fig.text(0.91, 0.02, "Pilot / reference results. Exact-match scoring; no LLM judge.", ha="right", fontsize=9, color=MUTED)
+    fig.subplots_adjust(left=0.26, right=0.94, top=0.80, bottom=0.16)
+    save(fig, "model-strategy-dotplot.png")
+
+
+def figure_ablation_slope() -> None:
+    """Slope chart: the reasoning toggle on one text-only model.
+    Source-only repair collapses; recompute holds."""
+    results = {name: json.loads(path.read_text()) for name, path in ABLATION_RUNS}
+    counts = repair_counts(results)
+    strategies = ["recompute_descendants", "subgraph_prune", "source_prune"]
+    labels = ["Recompute", "Whole subgraph", "Source only"]
+    colors = [BLUE, GREEN, ORANGE]
+
+    fig, ax = plt.subplots(figsize=(8.6, 6.2))
+    # stagger left labels that share the same y (both perfect scores sit at 18)
+    left_offsets = {"recompute_descendants": 10, "subgraph_prune": -10, "source_prune": 0}
+    for strategy, label, color in zip(strategies, labels, colors):
+        on = counts["Reasoning ON"][strategy][0]
+        off = counts["Reasoning OFF"][strategy][0]
+        ax.plot([0, 1], [on, off], color=color, linewidth=2.6, marker="o", markersize=9, zorder=3)
+        ax.annotate(f"{label}  {on}/18", (0, on), textcoords="offset points",
+                    xytext=(-12, left_offsets[strategy]), ha="right", va="center",
+                    fontsize=11, fontweight="bold", color=color)
+        ax.annotate(f"{off}/18", (1, off), textcoords="offset points", xytext=(12, 0), ha="left", va="center", fontsize=11, fontweight="bold", color=color)
+    ax.set_xlim(-0.55, 1.35)
+    ax.set_ylim(-0.8, 19.2)
+    ax.set_xticks([0, 1], ["Reasoning ON", "Reasoning OFF"], fontsize=12)
+    ax.set_yticks([0, 6, 12, 18])
+    ax.set_ylabel("Repaired cases out of 18", labelpad=8)
+    ax.set_title("One model, one switch: without reasoning,\ndeleting the source stops working", loc="left", fontsize=15.5, pad=30)
+    ax.text(0, 1.04, "Nemotron-3 Nano 30B, reasoning toggled per request (28,187 vs 0 reasoning tokens)", transform=ax.transAxes, color=MUTED, fontsize=9.6)
+    ax.yaxis.grid(True, color=GRID, linewidth=0.8)
+    ax.set_axisbelow(True)
+    for spine in ["top", "right"]:
+        ax.spines[spine].set_visible(False)
+    fig.text(0.93, 0.02, "Harm was identical on both sides; only repair changed.", ha="right", fontsize=9.2, color=MUTED)
+    fig.subplots_adjust(left=0.26, right=0.85, top=0.78, bottom=0.12)
+    save(fig, "ablation-slope.png")
+
+
 def main() -> None:
     base_style()
     results = load_results()
@@ -275,6 +349,8 @@ def main() -> None:
     figure_flagship(flagship_answers(results))
     figure_repair_rates(counts)
     figure_model_matrix(counts)
+    figure_model_dotplot(counts)
+    figure_ablation_slope()
 
 
 if __name__ == "__main__":
