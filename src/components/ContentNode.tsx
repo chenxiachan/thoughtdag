@@ -208,7 +208,7 @@ export default function ContentNode({ id, data, selected }: NodeProps<ThoughtNod
               placeholder={t('content.notePlaceholder')}
               rows={5}
               autoFocus
-              className="w-full bg-transparent text-sm text-ink resize-y focus:outline-none placeholder-ink-faint leading-relaxed nopan nowheel"
+              className="w-full h-full min-h-[7rem] bg-transparent text-sm text-ink resize-none focus:outline-none placeholder-ink-faint leading-relaxed nopan nowheel"
             />
           ) : (
             <div

@@ -137,6 +137,9 @@ interface UiState {
       confirmation in the ApiKeyModal (consumed on pickup, never stored). */
   oauthMintedKey: string | null;
   setOauthMintedKey: (key: string | null) => void;
+  /** Node pulsing a beacon ripple (hovering "continue last thread"). */
+  beaconNodeId: string | null;
+  setBeaconNodeId: (id: string | null) => void;
   /** Share dialog: the freshly built read-only link (null = closed). */
   shareDialogUrl: string | null;
   setShareDialogUrl: (url: string | null) => void;
@@ -268,6 +271,8 @@ export const useUiStore = create<UiState>((set, get) => ({
   setApiKeyPresetHint: (id) => set({ apiKeyPresetHint: id }),
   oauthMintedKey: null,
   setOauthMintedKey: (key) => set({ oauthMintedKey: key }),
+  beaconNodeId: null,
+  setBeaconNodeId: (id) => set({ beaconNodeId: id }),
   setBackupDialogOpen: (v) => set({ backupDialogOpen: v }),
   shareDialogUrl: null,
   setShareDialogUrl: (url) => set({ shareDialogUrl: url }),

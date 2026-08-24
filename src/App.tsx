@@ -16,7 +16,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import 'highlight.js/styles/github.css';
-import { BookOpen, Brain, CircleHelp, Download, Drama, Eye, FileText, Frame, GitBranch, Highlighter, ImageDown, KeyRound, LayoutGrid, Loader2, MessageCircleQuestion, MoreHorizontal, Paperclip, Redo2, Scissors, Search, Share2, SquareTerminal, Stethoscope, StickyNote, Trash2, Undo2, Workflow, X, ListRestart, FolderSync, Minimize2 } from 'lucide-react';
+import { BookOpen, Brain, CircleHelp, Download, Drama, Eye, FileText, Frame, GitBranch, Highlighter, ImageDown, KeyRound, LayoutGrid, Loader2, MessageCircleQuestion, MoreHorizontal, Paperclip, Redo2, Scissors, Search, Share2, SquareTerminal, Stethoscope, StickyNote, Trash2, Undo2, Workflow, X, ListRestart, FolderSync, Minimize2, Rewind } from 'lucide-react';
 import './index.css';
 import ThoughtNode from './components/ThoughtNode';
 import ParadigmNode from './components/ParadigmNode';
@@ -40,6 +40,7 @@ import { set as idbSet } from 'idb-keyval';
 import { instantiateParadigm } from './lib/paradigm';
 import { isContentKind, spawnContentNode, ingestFiles, fetchLinkIntoNode, clipboardTextToMarkdown } from './lib/content';
 import { generateId, isImeComposing } from './utils';
+import { recapToNote, recapCamera } from './lib/recap';
 import type { Attachment, ThoughtNode as ThoughtNodeType, ThoughtEdge } from './types';
 import { processFile, FILE_INPUT_ACCEPT } from './lib/attachments';
 import { walkUpAncestors } from './lib/graph';
@@ -76,7 +77,7 @@ import { useModels } from './lib/use-models';
 import { useZoomTier } from './lib/use-map-mode';
 import { TimelineBar } from './components/ui/TimelineBar';
 import TimelineOverviewModal from './components/ui/TimelineOverviewModal';
-import { useStore as useRfStore } from '@xyflow/react';
+import { useStore as useRfStore, useReactFlow } from '@xyflow/react';
 
 // One node type key, three renderers: content nodes (notes / files) render
 // the same in every mode; otherwise the active project's kind decides
@@ -985,6 +986,7 @@ function Canvas() {
       <ReactFlow
         onInit={(instance) => {
           rfInstance.current = instance;
+          recapCamera.current = instance;
           // Debug: expose the flow instance for screenshot/e2e scripts (DEV only)
           if (import.meta.env.DEV) (window as unknown as { __rf?: typeof instance }).__rf = instance;
         }}
@@ -1851,16 +1853,72 @@ function Canvas() {
 function ThoughtMapPill() {
   const tier = useZoomTier();
   const t = useT();
+  const rf = useReactFlow();
   const nodeCount = useStore((s) => s.nodes.length);
+  const nodes = useStore((s) => s.nodes);
+  const panelOpenWidth = useUiStore((s) => (s.panelOpen ? s.panelWidth : 0));
+
+  // The flight destination: the thought node touched most recently.
+  // Content nodes (notes, files, links, frames) never count as "work".
+  const lastActive = useMemo(() => {
+    let best: (typeof nodes)[number] | null = null;
+    let bestAt = '';
+    for (const n of nodes) {
+      if (n.data.stepKind && n.data.stepKind !== 'human' && n.data.stepKind !== 'prompt') continue;
+      const at = [n.data.lastGeneratedAt, n.data.askedAt, n.data.createdAt,
+        ...(n.data.editedAts ?? [])].filter(Boolean).sort().pop() as string | undefined;
+      if (at && at > bestAt) { bestAt = at; best = n; }
+    }
+    return best ? { node: best, at: bestAt } : null;
+  }, [nodes]);
+
   if (isViewerMode || tier === 'work' || nodeCount < 2) return null;
+
+  const flyBack = () => {
+    if (!lastActive) return;
+    useUiStore.getState().setBeaconNodeId(null);
+    const { node } = lastActive;
+    rf.setCenter(node.position.x + 260, node.position.y + 110, { zoom: 1, duration: 1100 });
+    // three beats: flight → panel opens (recentered for its width) → recap toast
+    window.setTimeout(() => {
+      useStore.getState().setSelectedNodeId(node.id);
+      useUiStore.getState().setPanelOpen(true);
+      window.setTimeout(() => {
+        rf.setCenter(node.position.x + 260 + panelShift(node.id) / 2, node.position.y + 110, { zoom: 1, duration: 300 });
+      }, 60);
+    }, 1150);
+    window.setTimeout(() => {
+      toast('success', t('continue.arrived'), 12000,
+        { label: t('continue.summarize'), run: () => void recapToNote(node.id) });
+    }, 1550);
+  };
+
   return (
-    <button
-      onClick={() => useUiStore.getState().setThoughtMapOpen(true)}
-      data-tmap-pill
-      className="absolute left-1/2 -translate-x-1/2 bottom-6 z-10 flex items-center gap-2 bg-card/95 backdrop-blur border border-line-strong rounded-full px-5 py-2.5 text-sm text-ink shadow-lg hover:border-accent/40 hover:text-accent transition-colors"
+    <div
+      className="absolute bottom-6 z-10 flex items-center gap-2 -translate-x-1/2 transition-[left] duration-300"
+      style={{ left: `calc((100% - ${panelOpenWidth}px) / 2)` }}
+      data-map-dock
     >
-      <ImageDown size={16} strokeWidth={1.75} /> {t('tmap.export')}
-    </button>
+      <button
+        onClick={() => useUiStore.getState().setThoughtMapOpen(true)}
+        data-tmap-pill
+        className="flex items-center gap-2 bg-card/95 backdrop-blur border border-line-strong rounded-full px-5 py-2.5 text-sm text-ink shadow-lg hover:border-accent/40 hover:text-accent transition-colors"
+      >
+        <ImageDown size={16} strokeWidth={1.75} /> {t('tmap.export')}
+      </button>
+      {lastActive && (
+        <button
+          onClick={flyBack}
+          onMouseEnter={() => useUiStore.getState().setBeaconNodeId(lastActive.node.id)}
+          onMouseLeave={() => useUiStore.getState().setBeaconNodeId(null)}
+          title={t('continue.buttonTitle')}
+          data-continue-pill
+          className="flex items-center gap-2 bg-accent text-white rounded-full px-5 py-2.5 text-sm shadow-lg hover:bg-accent-strong transition-colors"
+        >
+          <Rewind size={16} strokeWidth={1.75} /> {t('continue.button')}
+        </button>
+      )}
+    </div>
   );
 }
 

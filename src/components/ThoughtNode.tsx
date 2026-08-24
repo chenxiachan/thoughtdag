@@ -5,7 +5,7 @@ import 'katex/dist/katex.min.css';
 import type { ThoughtNode as ThoughtNodeType } from '../types';
 import { useStore } from '../store';
 import { useZoomTier } from '../lib/use-map-mode';
-import { generateId, isImeComposing , activeSummary, activeTopic, awaitingInput } from '../utils';
+import { generateId, isImeComposing , activeSummary, activeTopic, awaitingInput, formatStamp } from '../utils';
 import { processFile } from '../lib/attachments';
 import { copyText } from '../lib/export';
 import { isRunLocked } from '../lib/paradigm';
@@ -327,14 +327,16 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   // Stale at glyph tier: the seal itself wears the amber ring — there is no
   // card corner left to pin the dot to
   const staleRing = isStale && glyphTier ? ' ring-4 ring-amber-400' : '';
+  // "Continue last thread" hover: this node is the flight destination
+  const isBeacon = useUiStore((s) => s.beaconNodeId === id);
   const showSummaryCard = !!versionSummary && data.response.length > 400 && !data.isLoading && !data.isEditingResponse;
 
   return (
     <div
       ref={nodeRef}
       className={glyphTier
-        ? `w-[520px] animate-fade-in transition-all duration-200 ${data.archived ? 'opacity-35 saturate-50 ' : ''}${selectedNodeId === id ? 'glyph-selected ' : ''}`
-        : `thought-node rounded-xl w-[520px] animate-fade-in transition-all duration-200 ${zoomedOut ? 'map-node ' : ''}${condenseLit ? 'condense-lit ' : ''}${data.archived ? 'opacity-35 saturate-50 ' : ''}${isWaitingUpstream ? 'opacity-60 ' : ''}${
+        ? `w-[520px] animate-fade-in transition-all duration-200 ${isBeacon ? 'beacon-node ' : ''}${data.archived ? 'opacity-35 saturate-50 ' : ''}${selectedNodeId === id ? 'glyph-selected ' : ''}`
+        : `thought-node rounded-xl w-[520px] animate-fade-in transition-all duration-200 ${isBeacon ? 'beacon-node ' : ''}${zoomedOut ? 'map-node ' : ''}${condenseLit ? 'condense-lit ' : ''}${data.archived ? 'opacity-35 saturate-50 ' : ''}${isWaitingUpstream ? 'opacity-60 ' : ''}${
         data.isEvaluator ? 'evaluator-node' : isHuman ? 'human-node' : isBranch ? 'orange-node' : isRoot ? 'root-node' : 'branch-node'
       } ${data.isLoading ? 'loading-border' : ''} ${selectedNodeId === id ? 'ring-2 ring-accent !border-accent selected-glow' : ''} ${isDropTarget ? 'ring-2 ring-accent/50 ring-dashed' : ''}`}
       onClick={() => setSelectedNodeId(id)}
@@ -809,6 +811,11 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
               {data.gatewaySearches?.[data.responseIndex] && (
                 <span className="text-2xs text-ink-faint ml-1 shrink-0" title={t('node.gatewaySearchedTitle')} data-gateway-searched>
                   🌐 {t('node.gatewaySearched')}
+                </span>
+              )}
+              {data.generatedAts?.[data.responseIndex] && (
+                <span className="text-2xs text-ink-faint font-mono ml-1 shrink-0" title={t('node.generatedAtTitle')} data-generated-at>
+                  {formatStamp(data.generatedAts[data.responseIndex]!)}
                 </span>
               )}
               {hasMultipleVersions && (

@@ -413,6 +413,10 @@ textarea:focus-visible {
   margin-bottom: 0.75em;
 }
 
+/* Tailwind preflight strips list markers globally; restore them here */
+.markdown-body ul { list-style: disc; }
+.markdown-body ol { list-style: decimal; }
+
 .markdown-body li {
   margin-bottom: 0.25em;
 }
@@ -616,3 +620,16 @@ body.tdag-connecting, body.tdag-connecting * {
 [data-searching] .react-flow__node { opacity: 0.16; transition: opacity 0.2s ease; }
 [data-searching] .react-flow__node.search-hit { opacity: 1; }
 [data-searching] .react-flow__edges { opacity: 0.18; transition: opacity 0.2s ease; }
+
+/* "Continue last thread" hover beacon: a loud steady halo (same language as
+   condense-lit) plus a wide ripple. The shadow follows the element's own
+   shape: full card, folded plaque (26px pill), or the glyph seal. */
+@keyframes tdag-beacon {
+  0% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-accent) 55%, transparent), 0 0 34px color-mix(in srgb, var(--color-accent) 45%, transparent); }
+  70% { box-shadow: 0 0 0 46px color-mix(in srgb, var(--color-accent) 0%, transparent), 0 0 34px color-mix(in srgb, var(--color-accent) 45%, transparent); }
+  100% { box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-accent) 55%, transparent), 0 0 34px color-mix(in srgb, var(--color-accent) 45%, transparent); }
+}
+.thought-node.beacon-node { animation: tdag-beacon 1.3s ease-out infinite; }
+/* glyph tier: the visible body is the seal span inside the counter-scaled
+   wrapper, not the wrapper or the 520px box — shadow hugs the icon itself */
+.beacon-node [data-glyph-node] > span { animation: tdag-beacon 1.3s ease-out infinite; }

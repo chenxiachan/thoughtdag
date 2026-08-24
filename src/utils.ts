@@ -42,3 +42,12 @@ export function activeSummary(data: { summaries?: (string | undefined | null)[];
 export function activeTopic(data: { summaryTopics?: (string | undefined | null)[]; responseIndex: number }): string | undefined {
   return data.summaryTopics?.[data.responseIndex] ?? undefined;
 }
+
+/** Absolute local timestamp for answer provenance: "2026-08-22 14:31".
+    No relative time by design (archival value beats immediacy here). */
+export function formatStamp(iso: string): string {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return '';
+  const p2 = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())} ${p2(d.getHours())}:${p2(d.getMinutes())}`;
+}

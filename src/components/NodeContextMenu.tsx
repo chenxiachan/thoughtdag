@@ -1,8 +1,9 @@
 import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Archive, ArchiveRestore, BookOpen, Copy, Files, GitFork, Maximize2, RefreshCw, Trash2 } from 'lucide-react';
+import { Archive, ArchiveRestore, BookOpen, Copy, Files, GitFork, Maximize2, RefreshCw, StickyNote, Trash2 } from 'lucide-react';
 import { useStore } from '../store';
 import { useUiStore, confirmDialog, toast } from '../lib/ui-store';
+import { recapToNote } from '../lib/recap';
 import { useT, fmt, t as ti } from '../i18n';
 
 // Right-click on a node: the app's own context menu (same visual language
@@ -38,7 +39,7 @@ export default function NodeContextMenu({ x, y, nodeId, onClose }: {
 
   // Keep the menu inside the viewport (it renders at the pointer)
   const MENU_W = 200;
-  const MENU_H = 300;
+  const MENU_H = 340;
   const left = Math.min(x, window.innerWidth - MENU_W - 8);
   const top = Math.min(y, window.innerHeight - MENU_H - 8);
 
@@ -67,6 +68,11 @@ export default function NodeContextMenu({ x, y, nodeId, onClose }: {
       {hasResponse && (
         <button className={item} title={ti('actions.regenBranchTitle')} onClick={run(() => { void useStore.getState().regenerate(nodeId); })}>
           <GitFork size={14} strokeWidth={1.75} className={icon} /> {t('ctx.regenBranch')}
+        </button>
+      )}
+      {hasResponse && (
+        <button className={item} onClick={run(() => { void recapToNote(nodeId); })}>
+          <StickyNote size={14} strokeWidth={1.75} className={icon} /> {t('continue.summarize')}
         </button>
       )}
       {copyText && (
