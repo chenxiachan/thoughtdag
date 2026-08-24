@@ -988,6 +988,9 @@
       .dl-card.recommended::before { content: attr(data-badge); position: absolute; top: -11px; left: 16px; background: var(--purple); color: #fff; font-size: 11.5px; border-radius: 999px; padding: 3px 10px; }
       .dl-os { font-weight: 700; font-size: 17px; }
       .dl-os small { font-weight: 400; color: var(--muted); font-size: 12.5px; margin-left: 6px; }
+      .dl-command { display: grid; gap: 5px; padding: 10px 12px; border: 1px solid #d4ccfb; border-radius: 10px; background: var(--purple-soft); }
+      .dl-command span { color: #5f51cf; font-size: 11px; font-weight: 750; }
+      .dl-command code { color: var(--ink); font-size: 12px; white-space: nowrap; }
       .dl-btn { display: block; text-align: center; background: var(--ink); color: #fff; border-radius: 10px; padding: 11px 14px; font-size: 14.5px; font-weight: 600; text-decoration: none; transition: background 0.15s ease; }
       .dl-btn:hover { background: var(--purple); }
       .dl-btn.secondary { background: transparent; color: var(--ink); border: 1px solid var(--line); font-weight: 500; }
@@ -2058,6 +2061,10 @@
       <div class="dl-grid" id="dl-grid">
         <div class="dl-card" data-os="mac" data-badge="Recommended for you">
           <div class="dl-os">macOS <small>Apple Silicon</small></div>
+          <div class="dl-command" aria-label="Homebrew install command">
+            <span data-en="Install with Homebrew" data-zh="通过 Homebrew 安装">Install with Homebrew</span>
+            <code>brew install --cask thoughtdag</code>
+          </div>
           <a class="dl-btn" id="dl-mac-arm" href="https://github.com/chenxiachan/thoughtdag/releases/download/v0.3.30/ThoughtDAG-0.3.30-arm64.dmg" data-en="Download .dmg" data-zh="下载 .dmg">Download .dmg</a>
           <div class="dl-size" id="dl-size-mac">≈143MB</div>
           <a class="dl-btn secondary" id="dl-mac-x64" href="https://github.com/chenxiachan/thoughtdag/releases/download/v0.3.30/ThoughtDAG-0.3.30.dmg" data-en="Intel Macs" data-zh="Intel 芯片版">Intel Macs</a>

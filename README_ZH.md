@@ -92,7 +92,13 @@ ThoughtDAG 是一张由人编辑的上下文图：连入节点的路径与显式
 
 ### 桌面版
 
-下载、打开、开始思考。[下载页](https://chenxiachan.github.io/thoughtdag/?lang=zh#download)会自动识别系统并给出对应安装包；全部构建可在 [Releases](https://github.com/chenxiachan/thoughtdag/releases/latest) 找到。macOS 版已签名与公证；Windows 版暂未签名，可能出现 SmartScreen 提示。
+macOS 用户可以通过 Homebrew 安装：
+
+```bash
+brew install --cask thoughtdag
+```
+
+也可以前往[下载页](https://chenxiachan.github.io/thoughtdag/?lang=zh#download)，页面会自动识别系统并给出对应安装包；全部构建可在 [Releases](https://github.com/chenxiachan/thoughtdag/releases/latest) 找到。macOS 版已签名与公证；Windows 版暂未签名，可能出现 SmartScreen 提示。
 
 ### 从源码运行
 

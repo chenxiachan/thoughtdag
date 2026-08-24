@@ -94,7 +94,13 @@ The export keeps the nodes, wires and high-level structural counts. Different qu
 
 ### Desktop app
 
-Download, open, think. The [download page](https://chenxiachan.github.io/thoughtdag/#download) detects your platform and gives you the right installer; [Releases](https://github.com/chenxiachan/thoughtdag/releases/latest) keeps every build. macOS builds are signed and notarized. Windows builds are not signed yet and may show a SmartScreen warning.
+On macOS, install with Homebrew:
+
+```bash
+brew install --cask thoughtdag
+```
+
+Or use the [download page](https://chenxiachan.github.io/thoughtdag/#download), which detects your platform and gives you the right installer; [Releases](https://github.com/chenxiachan/thoughtdag/releases/latest) keeps every build. macOS builds are signed and notarized. Windows builds are not signed yet and may show a SmartScreen warning.
 
 ### Run from source
 
