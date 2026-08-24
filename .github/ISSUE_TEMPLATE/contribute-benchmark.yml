@@ -1,0 +1,70 @@
+name: Contribute a benchmark run or case
+description: Submit an endpoint result or propose a new context-contamination case.
+title: "[Benchmark contribution]: "
+labels:
+  - benchmark
+  - benchmark contribution
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for contributing. This form starts a review; accepted results and cases must still pass the benchmark's provenance and validation checks before they enter the public dataset.
+
+  - type: dropdown
+    id: contribution-type
+    attributes:
+      label: Contribution type
+      options:
+        - Endpoint result
+        - New contamination case
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: Describe what you ran or the contamination pattern you want the benchmark to cover.
+      placeholder: |
+        Endpoint result: name the model, suite, and main result.
+        New case: describe the clean fact, false update, propagation path, and final question.
+    validations:
+      required: true
+
+  - type: textarea
+    id: provenance
+    attributes:
+      label: Provenance and configuration
+      description: Provide enough public information to reproduce or audit the contribution.
+      placeholder: |
+        For a run: source commit, run id, endpoint/model id, decoding settings, reasoning mode, and benchmark suite.
+        For a case: source or motivation, construction method, expected answer, and scoring rule.
+    validations:
+      required: true
+
+  - type: input
+    id: artifacts
+    attributes:
+      label: Public artifacts
+      description: Link to a public branch, fork, run envelope, trace bundle, case file, or minimal reproduction if available.
+      placeholder: "https://github.com/..."
+    validations:
+      required: false
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Limitations or review notes
+      description: Disclose known failures, routing ambiguity, licensing constraints, or other caveats.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: declaration
+    attributes:
+      label: Contribution declaration
+      options:
+        - label: I have not included API keys, credentials, private endpoint details, private conversation data, or other secrets.
+          required: true
+        - label: I have the right to share the submitted artifacts and understand that accepted repository contributions are licensed under the MIT License.
+          required: true

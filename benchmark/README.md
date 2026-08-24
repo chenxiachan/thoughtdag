@@ -44,6 +44,13 @@ Naming note: the task suite is the frozen `pilot-v1` set (9 families × 3 depths
 
 Requires the repo root's `node_modules` (the compiler is the product's own `buildContext`, bundled via esbuild) and, for new captures only, the key named by the envelope's `key_env` in `.env`.
 
+## Contribute
+
+- [Suggest the next model](https://github.com/chenxiachan/thoughtdag/issues/new?template=suggest-next-model.yml) if an endpoint would add a useful comparison to the panel.
+- [Contribute an endpoint result or contamination case](https://github.com/chenxiachan/thoughtdag/issues/new?template=contribute-benchmark.yml) to start a provenance and validation review.
+
+Do not include API keys, private endpoint details, private conversation data, or other secrets. Accepted results and cases must pass the benchmark's existing schema, provenance, compilation, equivalence, and scoring checks before they enter the public dataset.
+
 ## Status
 
 - Reference gate closed 2026-08-16 (five audit rounds); pilot approved and captured.

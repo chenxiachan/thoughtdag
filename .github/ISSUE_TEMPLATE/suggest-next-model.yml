@@ -1,0 +1,74 @@
+name: Suggest the next model
+description: Propose a model endpoint for a future Context Repair Benchmark run.
+title: "[Model request]: "
+labels:
+  - benchmark
+  - model request
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping choose the next model. Suggestions are reviewed for reproducibility, access, and how much they add to the existing panel.
+
+  - type: input
+    id: model
+    attributes:
+      label: Model and endpoint
+      description: Give the public model name and exact endpoint or model identifier, if known.
+      placeholder: "Example: organization/model-name"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: access
+    attributes:
+      label: Access route
+      description: How can this model be evaluated? Do not include credentials or private access details.
+      options:
+        - Public API
+        - Local or open weights
+        - Hosted access only
+        - Not sure
+    validations:
+      required: true
+
+  - type: dropdown
+    id: reasoning
+    attributes:
+      label: Reasoning control
+      description: Can reasoning be explicitly enabled or disabled for a controlled comparison?
+      options:
+        - Explicit on/off control
+        - Provider-default reasoning only
+        - No reasoning mode
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: rationale
+    attributes:
+      label: Why this model?
+      description: What comparison, capability, or open question would this model add?
+      placeholder: "Explain the specific reason this endpoint would strengthen the benchmark."
+    validations:
+      required: true
+
+  - type: dropdown
+    id: help
+    attributes:
+      label: Can you help run it?
+      options:
+        - I can run it and submit the artifacts
+        - I can help with access or usage credits
+        - Suggestion only
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Submission check
+      options:
+        - label: I have not included API keys, credentials, private endpoint details, or private conversation data.
+          required: true
