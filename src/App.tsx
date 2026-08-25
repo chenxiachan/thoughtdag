@@ -43,7 +43,7 @@ import { generateId, isImeComposing } from './utils';
 import { recapToNote, recapCamera } from './lib/recap';
 import type { Attachment, ThoughtNode as ThoughtNodeType, ThoughtEdge } from './types';
 import { processFile, FILE_INPUT_ACCEPT } from './lib/attachments';
-import { walkUpAncestors } from './lib/graph';
+import { walkUpAncestors, partitionContext } from './lib/graph';
 import { buildContext } from './store/context-builder';
 import { exportActiveParadigm, exportActiveProjectJson, exportEventLogCsv } from './lib/export';
 import { countTokens } from './utils';
@@ -832,6 +832,29 @@ function Canvas() {
   // material stays — it's part of the reasoning record). A filter over the
   // render, not a layer system: the semantic layering already lives in edges.
   const searchHitIds = useUiStore((s2) => s2.searchHitIds);
+  // Context Focus: single-selection lights up what the node actually
+  // receives (mainline + materials + reference sources, via the same
+  // partitionContext the prompt builder uses) and dims the rest. Read-only.
+  const focusSets = useMemo(() => {
+    if (!selectedNodeId || selectedNodeIds.length > 1) return null;
+    if (!nodes.some((n) => n.id === selectedNodeId)) return null;
+    const part = partitionContext(selectedNodeId, nodes, edges);
+    const ctx = new Set<string>();
+    for (const n of part.mainline) if (n.id !== selectedNodeId) ctx.add(n.id);
+    for (const n of part.materials) ctx.add(n.id);
+    for (const r of part.references) ctx.add(r.source.id);
+    const structural = edges.filter((e) => !e.data?.isCrossLink);
+    const pathEdgeIds = walkUpAncestors(selectedNodeId, nodes, structural).visitedEdgeIds;
+    const refEdgeIds = new Set(part.references.map((r) => r.edge.id));
+    const downOut = structural.filter((e) => e.source === selectedNodeId);
+    return {
+      ctx,
+      down: new Set(downOut.map((e) => e.target)),
+      pathEdgeIds, refEdgeIds,
+      downEdgeIds: new Set(downOut.map((e) => e.id)),
+    };
+  }, [selectedNodeId, selectedNodeIds, nodes, edges]);
+
   const displayNodes = useMemo((): typeof nodes => {
     let out = nodes;
     if (annotationsHidden) {
@@ -850,8 +873,22 @@ function Canvas() {
           : n.className === 'search-hit' ? { ...n, className: undefined } : n
       ));
     }
+    if (focusSets) {
+      out = out.map((n) => {
+        const role = n.id === selectedNodeId ? 'target'
+          : focusSets.ctx.has(n.id) ? 'ctx'
+          : focusSets.down.has(n.id) ? 'down'
+          : n.data.stepKind === 'frame' ? undefined : 'dim';
+        if (!role) return n;
+        return {
+          ...n,
+          className: [n.className, `focus-${role}`].filter(Boolean).join(' '),
+          ...(role !== 'dim' ? { data: { ...n.data, focusRole: role as 'target' | 'ctx' | 'down' } } : {}),
+        };
+      });
+    }
     return out;
-  }, [nodes, edges, annotationsHidden, searchHitIds]);
+  }, [nodes, edges, annotationsHidden, searchHitIds, focusSets, selectedNodeId]);
 
   const highlightedEdges = useMemo((): ThoughtEdge[] => {
     // Visual law: SOLID = structural (conversation, layout, cascade),
@@ -875,7 +912,37 @@ function Canvas() {
         ...(markerSlot && marker ? { markerEnd: { ...marker, color: themePalette[markerSlot] } } : {}),
       };
     });
-    const activeIds = selectedNodeIds.length > 0 ? selectedNodeIds : (selectedNodeId ? [selectedNodeId] : []);
+    if (focusSets) {
+      return base.map((e) => {
+        if (focusSets.pathEdgeIds.has(e.id)) {
+          return {
+            ...e,
+            className: 'focus-e-path',
+            style: { ...e.style, stroke: themePalette.accent, strokeWidth: 3.5, opacity: 1 },
+            markerEnd: { type: 'arrowclosed' as const, ...((e.markerEnd && typeof e.markerEnd === 'object') ? e.markerEnd : {}), color: themePalette.accent },
+            zIndex: 10,
+            data: { ...e.data, focusRole: 'path' as const },
+          };
+        }
+        if (focusSets.refEdgeIds.has(e.id)) {
+          // reference INTO the context: it feeds the model (as a fenced
+          // block), so it stays visible — dashed identity untouched
+          return { ...e, style: { ...e.style, opacity: 0.9 }, zIndex: 5, data: { ...e.data, focusRole: 'ref' as const } };
+        }
+        if (focusSets.downEdgeIds.has(e.id)) {
+          return {
+            ...e,
+            className: 'focus-e-down',
+            style: { ...e.style, strokeWidth: 2.5, opacity: 0.85 },
+            markerEnd: { type: 'arrowclosed' as const, ...((e.markerEnd && typeof e.markerEnd === 'object') ? e.markerEnd : {}) },
+            zIndex: 5,
+            data: { ...e.data, focusRole: 'down' as const },
+          };
+        }
+        return { ...e, style: { ...e.style, strokeWidth: 1.5, opacity: 0.2 }, zIndex: 0 };
+      });
+    }
+    const activeIds = selectedNodeIds.length > 1 ? selectedNodeIds : [];
     if (activeIds.length === 0) return base;
 
     // Walk up from each selected node, collect all ancestor edge ids
@@ -897,7 +964,7 @@ function Canvas() {
         zIndex: 0,
       };
     });
-  }, [nodes, edges, selectedNodeId, selectedNodeIds, themePalette]);
+  }, [nodes, edges, selectedNodeIds, themePalette, focusSets]);
 
   // The panel is an overlay — the canvas never resizes. When it opens (or
   // the selection moves while it is open) and the selected node would be

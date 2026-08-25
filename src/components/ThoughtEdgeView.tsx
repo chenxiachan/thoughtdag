@@ -73,6 +73,12 @@ export default function ThoughtEdgeView({
         markerStart={markerStart}
         interactionWidth={interactionWidth}
       />
+      {data?.focusRole === 'path' && (
+        // Context Focus feed line: bright dots gliding INSIDE the solid
+        // stroke (narrower than it, so the line never reads as dashed —
+        // dashed is taken: references)
+        <path d={path} className="tdag-flow-ov" fill="none" />
+      )}
       {selected && (
         <EdgeLabelRenderer>
           <div

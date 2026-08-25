@@ -161,6 +161,10 @@ export interface ThoughtData extends Record<string, unknown> {
   isEvaluator?: boolean;
   /** auto = re-critique whenever the watched subtree produces new content. */
   evaluatorTrigger?: 'auto' | 'manual';
+  /** Context Focus role, set ONLY by the render pipeline (displayNodes) —
+      never persisted. target = the focused node, ctx = feeds its context,
+      down = one structural step downstream (not in context). */
+  focusRole?: 'target' | 'ctx' | 'down';
 }
 
 export type ThoughtNode = Node<ThoughtData, 'thought'>;
@@ -183,6 +187,10 @@ export interface ThoughtEdge extends Edge {
         connect). Most edges are born with their target node — consumers
         should fall back to the target's createdAt. */
     createdAt?: string;
+    /** Context Focus role, set ONLY by the render pipeline — never persisted.
+        path = structural feed line, ref = reference into the context,
+        down = one step downstream. */
+    focusRole?: 'path' | 'ref' | 'down';
   };
 }
 

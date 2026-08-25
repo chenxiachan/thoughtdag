@@ -336,7 +336,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
       ref={nodeRef}
       className={glyphTier
         ? `w-[520px] animate-fade-in transition-all duration-200 ${isBeacon ? 'beacon-node ' : ''}${data.archived ? 'opacity-35 saturate-50 ' : ''}${selectedNodeId === id ? 'glyph-selected ' : ''}`
-        : `thought-node rounded-xl w-[520px] animate-fade-in transition-all duration-200 ${isBeacon ? 'beacon-node ' : ''}${zoomedOut ? 'map-node ' : ''}${condenseLit ? 'condense-lit ' : ''}${data.archived ? 'opacity-35 saturate-50 ' : ''}${isWaitingUpstream ? 'opacity-60 ' : ''}${
+        : `thought-node relative rounded-xl w-[520px] animate-fade-in transition-all duration-200 ${isBeacon ? 'beacon-node ' : ''}${zoomedOut ? 'map-node ' : ''}${condenseLit ? 'condense-lit ' : ''}${data.archived ? 'opacity-35 saturate-50 ' : ''}${isWaitingUpstream ? 'opacity-60 ' : ''}${
         data.isEvaluator ? 'evaluator-node' : isHuman ? 'human-node' : isBranch ? 'orange-node' : isRoot ? 'root-node' : 'branch-node'
       } ${data.isLoading ? 'loading-border' : ''} ${selectedNodeId === id ? 'ring-2 ring-accent !border-accent selected-glow' : ''} ${isDropTarget ? 'ring-2 ring-accent/50 ring-dashed' : ''}`}
       onClick={() => setSelectedNodeId(id)}
@@ -361,6 +361,13 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
       onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setIsDropTarget(true); }}
       onDragLeave={() => setIsDropTarget(false)}
     >
+      {data.focusRole === 'down' && !glyphTier && (
+        // Context Focus: floating corner tag — the card may have no meta
+        // row yet (unanswered follow-up), so it cannot live there
+        <span className="absolute -top-2.5 right-4 z-10 text-2xs text-accent/80 bg-card border border-line rounded-full px-2 py-px shadow-sm whitespace-nowrap" data-focus-down>
+          {t('focus.downstream')}
+        </span>
+      )}
       <Handle type="target" position={Position.Top} id="top" className={`!bg-accent !border-2 !border-white tdag-handle ${zoomedOut ? '!w-6 !h-6 tdag-handle-lg' : '!w-3.5 !h-3.5'}`} />
       {/* Side anchors: NOT interaction targets — the system routes dashed
           reference edges through them so cross-chain lines never cut across
@@ -799,6 +806,9 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
                 >
                   <Pencil size={13} strokeWidth={1.75} />
                 </button>
+              )}
+              {data.focusRole === 'ctx' && (
+                <span className="w-[7px] h-[7px] rounded-full bg-accent inline-block ml-1 shrink-0" title={t('focus.inContext')} data-focus-dot />
               )}
               {(data.generatedBy?.[data.responseIndex]) && (
                 <span

@@ -633,3 +633,35 @@ body.tdag-connecting, body.tdag-connecting * {
 /* glyph tier: the visible body is the seal span inside the counter-scaled
    wrapper, not the wrapper or the 520px box — shadow hugs the icon itself */
 .beacon-node [data-glyph-node] > span { animation: tdag-beacon 1.3s ease-out infinite; }
+
+/* ── Context Focus ─────────────────────────────────────────────────────
+   Single selection lights the node's REAL context (same partition the
+   prompt builder uses); everything else dims gently. Read-only. */
+.react-flow__node.focus-dim { opacity: 0.30; }
+.react-flow__node.focus-dim, .react-flow__node.focus-ctx,
+.react-flow__node.focus-target, .react-flow__node.focus-down { transition: opacity 0.25s ease; }
+.react-flow__node.focus-down .thought-node,
+.react-flow__node.focus-down .content-card { border-style: dashed; }
+/* the searchlight owns the stage while active */
+[data-searching] .react-flow__node.focus-dim { opacity: 0.16; }
+
+/* lit edges keep their SCREEN width when zoomed out: divide by the zoom
+   (clamped) so the feed line never thins into invisibility on the map */
+.react-flow__edge.focus-e-path .react-flow__edge-path {
+  stroke-width: calc(3.5px / clamp(0.15, var(--tdag-zoom, 1), 1)) !important;
+}
+.react-flow__edge.focus-e-down .react-flow__edge-path {
+  stroke-width: calc(2.5px / clamp(0.3, var(--tdag-zoom, 1), 1)) !important;
+}
+
+/* feed-line flow: bright dots gliding inside the solid accent stroke */
+.tdag-flow-ov {
+  stroke: #fff; stroke-linecap: round; opacity: 0.9; pointer-events: none;
+  stroke-width: calc(1.6px / clamp(0.15, var(--tdag-zoom, 1), 1));
+  stroke-dasharray: calc(5px / clamp(0.15, var(--tdag-zoom, 1), 1)) calc(26px / clamp(0.15, var(--tdag-zoom, 1), 1));
+  animation: tdag-flow 1.1s linear infinite;
+}
+@keyframes tdag-flow { to { stroke-dashoffset: calc(-31px / clamp(0.15, var(--tdag-zoom, 1), 1)); } }
+@media (prefers-reduced-motion: reduce) {
+  .tdag-flow-ov { animation: none; display: none; }
+}

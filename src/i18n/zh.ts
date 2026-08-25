@@ -302,6 +302,8 @@ export const zh: Record<keyof typeof en, string> = {
   'continue.summarize': '概括成便签',
   'continue.generating': '正在生成概括…',
   'continue.recapTag': '概括',
+  'focus.inContext': '在这个节点的上下文中',
+  'focus.downstream': '下一步 · 不进上下文',
   'continue.noteDropped': '概括便签已落到画布。未连线不进上下文，可编辑可删除。',
   'continue.genTrail': '[此前的思路轨迹]',
   'continue.genOpen': '[尚未解决的问题]',

@@ -302,6 +302,8 @@ export const en = {
   'continue.summarize': 'Summarize to a note',
   'continue.generating': 'Writing the recap…',
   'continue.recapTag': 'recap',
+  'focus.inContext': "In this node's context",
+  'focus.downstream': 'Next step · not in context',
   'continue.noteDropped': 'Recap note dropped on the canvas. Unwired, editable, deletable.',
   'continue.genTrail': '[Trail so far]',
   'continue.genOpen': '[Still unresolved]',
