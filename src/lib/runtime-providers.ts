@@ -138,6 +138,13 @@ export async function pushProviders(providers: RuntimeProvider[]): Promise<Model
 // unknown rather than false.
 const VISION_ID_HINT = /gemini|gpt-4o|gpt-4\.1|gpt-5|claude|glm-4v|qwen[\w.-]*-vl|qvq|llava|pixtral|minicpm-v|internvl|kimi-latest|-vision|vision-/i;
 
+/** The id-only vision guess, for models added outside a probe (recommended
+ *  ids a provider's /models route forgot to list). Same contract as the
+ *  hint: true or unknown, never false. */
+export function guessVision(id: string): true | undefined {
+  return VISION_ID_HINT.test(id) ? true : undefined;
+}
+
 /** Ask an endpoint what models it serves (the /models protocol standard). */
 export async function probeModels(baseURL: string, apiKey: string): Promise<RuntimeModel[]> {
   const res = await fetch(`${API_BASE}/api/probe-models`, {

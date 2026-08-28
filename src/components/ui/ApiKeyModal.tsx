@@ -6,7 +6,7 @@ import { useUiStore, toast } from '../../lib/ui-store';
 import { useModels, setModelsCache } from '../../lib/use-models';
 import {
   PROVIDER_PRESETS, type ProviderPreset, type RuntimeModel, type RuntimeProvider,
-  probeModels, pushProviders, saveProviders, storedProviders,
+  guessVision, probeModels, pushProviders, saveProviders, storedProviders,
 } from '../../lib/runtime-providers';
 import { useT, fmt, useI18n } from '../../i18n';
 import { API_BASE } from '../../lib/constants';
@@ -123,10 +123,25 @@ export default function ApiKeyModal() {
     setProbed(null);
     try {
       const baseURL = baseURLArg ?? (preset.id === 'custom' ? customURL.trim() : preset.baseURL);
+      // derived from the URL, not the preset state — the refresh flow calls
+      // in before its setPreset() has landed
+      const presetMeta = PROVIDER_PRESETS.find((x) => x.baseURL === baseURL);
       // fixed-catalog endpoints (no /models route) list from the preset
-      const fixed = PROVIDER_PRESETS.find((x) => x.baseURL === baseURL)?.fixedModels;
+      const fixed = presetMeta?.fixedModels;
       const models: RuntimeModel[] = fixed ? fixed.map((id) => ({ id })) : await probeModels(baseURL, (keyArg ?? key).trim());
       if (models.length === 0) throw new Error(t('provider.probeEmpty'));
+      // A /models route is not always the whole catalog (bigmodel omits
+      // glm-4v-flash, its own vision flash). Recommended ids join the
+      // browsable list, and already-picked models missing from it survive a
+      // refresh instead of silently vanishing.
+      if (!fixed) {
+        for (const id of presetMeta?.recommend ?? []) {
+          if (!models.some((m) => m.id === id)) models.push({ id, ...(guessVision(id) ? { vision: true } : {}) });
+        }
+      }
+      for (const m of keepPicked ?? []) {
+        if (!models.some((x) => x.id === m.id)) models.push({ ...m });
+      }
       const preselect = new Map<string, boolean>();
       const recHits = preferRecommend
         ? models.filter((m) => new Set(preset.recommend ?? []).has(m.id))
