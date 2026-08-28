@@ -97,6 +97,21 @@ version.
 export (`generate-json-schema`) makes drift detectable. `unknown` stays
 unknown until exercised live.
 
+## One-command entry (mirrors the Claude Code `/thoughtdag`)
+
+`thoughtdag.md` in this directory is a Codex custom prompt. Install:
+
+```bash
+mkdir -p ~/.codex/prompts && cp thoughtdag.md ~/.codex/prompts/
+```
+
+Then `/thoughtdag` inside Codex does the same dance as the Claude Code
+command: locate the current rollout (newest, cwd-matched) → read-only
+snapshot to Desktop → loopback bridge on :38017 → open the local canvas
+with `#import-url`. The frontend dispatcher recognizes both runners, and
+harvest mode (`/thoughtdag harvest`) works for Codex sessions too — the
+branch builder is runner-agnostic (`src/lib/adapters/shared.ts`).
+
 ## Environment notes (this machine)
 
 - `codex` CLI binary is NOT on PATH; sessions were produced by Codex

@@ -1,7 +1,8 @@
-import type { ThoughtNode, ThoughtEdge, Attachment } from '../../types';
+import type { ThoughtNode, ThoughtEdge } from '../../types';
 import { makeNode, type ImportableConversation } from '../import-chat';
 import { autoLayout } from '../layout';
 import { generateId } from '../../utils';
+import { turnsToBranch, seedPlaque, toolAttachments } from './shared';
 
 // Codex session importer — Tier 1 (read-only) of the second runner adapter.
 // A session lives as a rollout JSONL under ~/.codex/sessions/; each line is
@@ -135,11 +136,6 @@ function collectTurns(lines: RolloutLine[]): Turn[] {
   return turns;
 }
 
-function seedPlaque(node: ThoughtNode): void {
-  const first = node.data.response.split('\n').map((l) => l.trim()).find((l) => l && !/^[#>*`-]+$/.test(l));
-  if (first) node.data.summaries = [first.replace(/^[#>*`\s]+/, '').slice(0, 90)];
-}
-
 function buildGraph(session: { lines: RolloutLine[]; sessionId: string }): { nodes: ThoughtNode[]; edges: ThoughtEdge[] } {
   const all = collectTurns(session.lines);
   const turns = all.slice(-MAX_TURNS);
@@ -156,13 +152,7 @@ function buildGraph(session: { lines: RolloutLine[]; sessionId: string }): { nod
   for (const turn of turns) {
     const node = makeNode(turn.question || '(tool-only turn)', turn.response, prev === null);
     node.data.importSource = { runner: 'codex', sessionId: session.sessionId, itemIds: turn.itemIds };
-    node.data.attachments = turn.tools.map((tool): Attachment => ({
-      id: generateId(),
-      name: `tool: ${tool.name}${tool.truncated ? ' (truncated)' : ''}`,
-      type: 'text/plain',
-      size: tool.call.length + tool.result.length,
-      content: `[call] ${tool.call}\n[result]\n${tool.result}`,
-    }));
+    node.data.attachments = toolAttachments(turn);
     seedPlaque(node);
     nodes.push(node);
     if (prev) edges.push({ id: generateId(), source: prev.id, target: node.id, type: 'smoothstep' } as ThoughtEdge);
@@ -180,6 +170,17 @@ function buildGraph(session: { lines: RolloutLine[]; sessionId: string }): { nod
     if (next) n.position = { x: next.position.x - 520, y: next.position.y };
   }
   return { nodes: laid, edges };
+}
+
+/** Harvest: a short Codex experiment session hangs off the node it was
+ *  compiled from — same runner-agnostic branch builder as Claude Code. */
+export function codexSessionAsBranch(
+  text: string,
+  anchorNode: { id: string; x: number; y: number },
+): { nodes: ThoughtNode[]; edges: ThoughtEdge[]; turnCount: number } | null {
+  const session = parseCodexSession(text);
+  if (!session) return null;
+  return turnsToBranch(collectTurns(session.lines), session.sessionId, 'codex', anchorNode);
 }
 
 /** The importable-conversation wrapper the import modal consumes. */

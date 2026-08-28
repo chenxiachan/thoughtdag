@@ -11,3 +11,16 @@ export async function anyRunnerSessionConversation(text: string): Promise<Import
   const { codexSessionConversation } = await import('./codex-session');
   return codexSessionConversation(text);
 }
+
+/** Harvest dispatch: whichever adapter recognizes the session builds the
+ *  branch that hangs off the experiment's departure node. */
+export async function anyRunnerSessionAsBranch(
+  text: string,
+  anchorNode: { id: string; x: number; y: number },
+): Promise<{ nodes: import('../../types').ThoughtNode[]; edges: import('../../types').ThoughtEdge[]; turnCount: number } | null> {
+  const { claudeCodeSessionAsBranch } = await import('./claude-code-session');
+  const cc = claudeCodeSessionAsBranch(text, anchorNode);
+  if (cc) return cc;
+  const { codexSessionAsBranch } = await import('./codex-session');
+  return codexSessionAsBranch(text, anchorNode);
+}

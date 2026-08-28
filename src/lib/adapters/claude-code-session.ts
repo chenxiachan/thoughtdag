@@ -1,7 +1,8 @@
-import type { ThoughtNode, ThoughtEdge, Attachment } from '../../types';
+import type { ThoughtNode, ThoughtEdge } from '../../types';
 import { makeNode, type ImportableConversation } from '../import-chat';
 import { autoLayout } from '../layout';
 import { generateId } from '../../utils';
+import { turnsToBranch, seedPlaque, toolAttachments } from './shared';
 
 // Claude Code session importer — the continuity layer's READ direction for
 // one concrete runner. A session lives as JSONL under ~/.claude/projects/;
@@ -170,14 +171,6 @@ function collectTurns(lines: SessionLine[]): Turn[] {
   return turns;
 }
 
-/** Map-plaque seed for an imported turn: the response's first line stands
- *  in as the takeaway until (if ever) a judge writes a real one. Display
- *  layer only — context never reads summaries. */
-function seedPlaque(node: ThoughtNode): void {
-  const first = node.data.response.split('\n').map((l) => l.trim()).find((l) => l && !/^[#>*`-]+$/.test(l));
-  if (first) node.data.summaries = [first.replace(/^[#>*`\s]+/, '').slice(0, 90)];
-}
-
 function noteNode(text: string): ThoughtNode {
   // every canvas node is React Flow type 'thought'; stepKind dispatches
   const n = makeNode(text, '', false);
@@ -212,13 +205,7 @@ function buildGraph(session: { lines: SessionLine[]; sessionId: string }): { nod
     const node = makeNode(turn.question, turn.response, prev === null);
     node.data.importSource = { runner: 'claude-code', sessionId: session.sessionId, itemIds: turn.itemIds };
     seedPlaque(node);
-    node.data.attachments = turn.tools.map((tool): Attachment => ({
-      id: generateId(),
-      name: `tool: ${tool.name}${tool.truncated ? ' (truncated)' : ''}`,
-      type: 'text/plain',
-      size: tool.call.length + tool.result.length,
-      content: `[call] ${tool.call}\n[result]\n${tool.result}`,
-    }));
+    node.data.attachments = toolAttachments(turn);
     nodes.push(node);
     if (prev) link(prev, node);
     prev = node;
@@ -251,40 +238,10 @@ function buildGraph(session: { lines: SessionLine[]; sessionId: string }): { nod
 export function claudeCodeSessionAsBranch(
   text: string,
   anchorNode: { id: string; x: number; y: number },
-): { nodes: ThoughtNode[]; edges: ThoughtEdge[]; turnCount: number; anchorText: string | null } | null {
+): { nodes: ThoughtNode[]; edges: ThoughtEdge[]; turnCount: number } | null {
   const session = parseClaudeCodeSession(text);
   if (!session) return null;
-  const turns = collectTurns(session.lines);
-  if (turns.length === 0) return null;
-
-  const nodes: ThoughtNode[] = [];
-  const edges: ThoughtEdge[] = [];
-  let prev: { id: string } = { id: anchorNode.id };
-  for (const turn of turns) {
-    const node = makeNode(turn.question, turn.response, false);
-    node.data.importSource = { runner: 'claude-code', sessionId: session.sessionId, itemIds: turn.itemIds };
-    seedPlaque(node);
-    node.data.attachments = turn.tools.map((tool): Attachment => ({
-      id: generateId(),
-      name: `tool: ${tool.name}${tool.truncated ? ' (truncated)' : ''}`,
-      type: 'text/plain',
-      size: tool.call.length + tool.result.length,
-      content: `[call] ${tool.call}\n[result]\n${tool.result}`,
-    }));
-    if (nodes.length === 0) node.data.isBranch = true; // the experiment forks off sideways
-    nodes.push(node);
-    edges.push({ id: generateId(), source: prev.id, target: node.id, type: 'smoothstep' } as ThoughtEdge);
-    prev = node;
-  }
-  // lay the branch out in its own frame, then move it beside the anchor —
-  // the user's own arrangement is never touched
-  const laid = autoLayout(nodes, edges.filter((e) => e.source !== anchorNode.id));
-  const minX = Math.min(...laid.map((n) => n.position.x));
-  const minY = Math.min(...laid.map((n) => n.position.y));
-  for (const n of laid) {
-    n.position = { x: n.position.x - minX + anchorNode.x + 560, y: n.position.y - minY + anchorNode.y };
-  }
-  return { nodes: laid, edges, turnCount: turns.length, anchorText: turns[0].question };
+  return turnsToBranch(collectTurns(session.lines), session.sessionId, 'claude-code', anchorNode);
 }
 
 /** The importable-conversation wrapper the existing import modal consumes. */

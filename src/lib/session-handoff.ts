@@ -73,8 +73,8 @@ async function harvestIntoAnchor(text: string): Promise<boolean> {
     toast('info', t('handoff.anchorNodeGone'), 9000);
     return false;
   }
-  const { claudeCodeSessionAsBranch } = await import('./adapters/claude-code-session');
-  const branch = claudeCodeSessionAsBranch(text, {
+  const { anyRunnerSessionAsBranch } = await import('./adapters');
+  const branch = await anyRunnerSessionAsBranch(text, {
     id: anchorNode.id,
     x: anchorNode.position.x,
     y: anchorNode.position.y,
