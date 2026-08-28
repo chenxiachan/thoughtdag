@@ -442,6 +442,7 @@ export const zh: Record<keyof typeof en, string> = {
   'exp.clipboardFailed': '复制到剪贴板失败，请重试。',
   'exp.mdIntro': '以下是从我的思维图（ThoughtDAG）编译的既有上下文，作为本次会话的工作基础。请先完整读取，确认理解后等待我的实验指令。',
   'exp.mdRole': '角色约束：',
+  'insight.compTitle': '本轮构成：问题 {q} · 回答 {a} · 工具输出 {tool} tok（工具占 {pct}%）',
   'exp.mdOutro': '以上为全部既有上下文。末行的锚点用于实验结束后把本会话的收获挂回思维图，请保持原样即可（无需理会）。',
   'reader.stop': '停止',
   'content.digestPrompt': '把这份材料整理成一篇简短、直观的中文导读（不是逐段摘要）。开头用一句话说清它解决什么问题、为什么重要；然后用小标题组织：核心方法或论证、主要发现、局限与启发。凡是引用图表或具体段落，必须行内标注页码，格式严格为 (p.3)。公式用 $...$。长度 400～800 字。只输出导读的 Markdown 本身。',

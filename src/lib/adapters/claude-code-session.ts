@@ -170,6 +170,14 @@ function collectTurns(lines: SessionLine[]): Turn[] {
   return turns;
 }
 
+/** Map-plaque seed for an imported turn: the response's first line stands
+ *  in as the takeaway until (if ever) a judge writes a real one. Display
+ *  layer only — context never reads summaries. */
+function seedPlaque(node: ThoughtNode): void {
+  const first = node.data.response.split('\n').map((l) => l.trim()).find((l) => l && !/^[#>*`-]+$/.test(l));
+  if (first) node.data.summaries = [first.replace(/^[#>*`\s]+/, '').slice(0, 90)];
+}
+
 function noteNode(text: string): ThoughtNode {
   // every canvas node is React Flow type 'thought'; stepKind dispatches
   const n = makeNode(text, '', false);
@@ -203,6 +211,7 @@ function buildGraph(session: { lines: SessionLine[]; sessionId: string }): { nod
     }
     const node = makeNode(turn.question, turn.response, prev === null);
     node.data.importSource = { runner: 'claude-code', sessionId: session.sessionId, itemIds: turn.itemIds };
+    seedPlaque(node);
     node.data.attachments = turn.tools.map((tool): Attachment => ({
       id: generateId(),
       name: `tool: ${tool.name}${tool.truncated ? ' (truncated)' : ''}`,
@@ -215,7 +224,23 @@ function buildGraph(session: { lines: SessionLine[]; sessionId: string }): { nod
     prev = node;
   }
 
-  return { nodes: autoLayout(nodes, edges), edges };
+  const laid = autoLayout(nodes, edges);
+  // Layout law: content notes are user-arranged material and autoLayout
+  // never touches them — so the importer places its own notes by hand,
+  // slotted into the chain gap they narrate (compaction, imported tail).
+  for (let i = 0; i < laid.length; i++) {
+    const n = laid[i];
+    if (n.data.stepKind !== 'note') continue;
+    n.width = 460;
+    const next = laid.slice(i + 1).find((x) => x.data.stepKind !== 'note');
+    const before = laid.slice(0, i).reverse().find((x) => x.data.stepKind !== 'note');
+    // beside the chain, not inside it: a note is an annotation column —
+    // wedging it between two tall cards would just stack paper
+    if (before && next) n.position = { x: Math.min(before.position.x, next.position.x) - 520, y: (before.position.y + next.position.y) / 2 };
+    else if (next) n.position = { x: next.position.x - 520, y: next.position.y };
+    else if (before) n.position = { x: before.position.x - 520, y: before.position.y + 140 };
+  }
+  return { nodes: laid, edges };
 }
 
 /** The harvest half of the experiment loop: a SHORT experiment session
@@ -238,6 +263,7 @@ export function claudeCodeSessionAsBranch(
   for (const turn of turns) {
     const node = makeNode(turn.question, turn.response, false);
     node.data.importSource = { runner: 'claude-code', sessionId: session.sessionId, itemIds: turn.itemIds };
+    seedPlaque(node);
     node.data.attachments = turn.tools.map((tool): Attachment => ({
       id: generateId(),
       name: `tool: ${tool.name}${tool.truncated ? ' (truncated)' : ''}`,

@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import { toolFingerprint, turnComposition } from '../lib/turn-insight';
 import { Handle, Position, useReactFlow, useUpdateNodeInternals, type NodeProps } from '@xyflow/react';
 import { AlertTriangle, Archive, BookOpen, Check, ChevronDown, ChevronLeft, ChevronRight, Copy, Eye, GitBranch, Globe, Hourglass, Minimize2, Paperclip, RefreshCw, Send, Split, Square, Star, Trash2, UserRound, X, Pencil } from 'lucide-react';
 import 'katex/dist/katex.min.css';
@@ -299,6 +300,25 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
     setSelectedNodeId(childId);
     rf.setCenter(child.position.x + 260, child.position.y + 110, { zoom: rf.getZoom(), duration: 300 });
   };
+  // The self-explaining chain (imported turns): action fingerprint + token
+  // split, both computed from data the import already carries — free.
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on the exact fields read
+  const toolMarks = useMemo(() => toolFingerprint(data), [data.attachments]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on the exact fields read
+  const composition = useMemo(() => turnComposition(data), [data.question, data.response, data.attachments]);
+  const marksLine = toolMarks.map((m) => `${m.glyph}${m.count > 1 ? m.count : ''}`).join(' ');
+  const marksTitle = toolMarks.map((m) => `${m.name}×${m.count}`).join(' · ');
+  const compBar = composition && (
+    <span
+      className="inline-flex h-1.5 w-14 rounded-full overflow-hidden shrink-0 self-center"
+      title={fmt(t('insight.compTitle'), { q: composition.q, a: composition.a, tool: composition.tool, pct: Math.round(composition.toolShare * 100) })}
+      data-comp-bar
+    >
+      <span style={{ flex: Math.max(composition.q, 1) }} className="bg-accent/50" />
+      <span style={{ flex: Math.max(composition.a, 1) }} className="bg-ink/25" />
+      <span style={{ flex: Math.max(composition.tool, 1) }} className={composition.toolShare > 0.6 ? 'bg-amber-500' : 'bg-warm/60'} />
+    </span>
+  );
   // Map layer: the display summary for the ACTIVE version. Long answers wear
   // it instead of raw text; the full answer lives one double-click away.
   const versionSummary = activeSummary(data);
@@ -474,6 +494,9 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
               {data.question}
             </div>
           )}
+          {toolMarks.length > 0 && (
+            <div className="mt-1.5 text-lg text-ink-faint tracking-wide select-none" title={marksTitle} data-map-tool-marks>{marksLine}</div>
+          )}
         </div>
       ) : (
       <>
@@ -484,6 +507,10 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
             {data.isCollapsed ? <ChevronRight size={18} strokeWidth={1.75} /> : <ChevronDown size={18} strokeWidth={1.75} />}
           </button>
           <span className="text-xs text-ink-faint font-mono">{data.tokenCount} tok</span>
+          {toolMarks.length > 0 && (
+            <span className="text-2xs text-ink-muted shrink-0 select-none" title={marksTitle} data-tool-marks>{marksLine}</span>
+          )}
+          {compBar}
           {data.condensedFrom && data.condensedFrom.length > 0 && (
             <button
               onClick={(e) => {
@@ -936,6 +963,10 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
             {(data.references?.length ?? 0) > 0 && (
               <span className="text-2xs bg-wash text-ink-muted px-1.5 py-0.5 rounded-full shrink-0"><Globe size={12} strokeWidth={1.75} className="inline" /> {data.references!.length}</span>
             )}
+            {toolMarks.length > 0 && (
+              <span className="text-2xs text-ink-muted shrink-0 select-none" title={marksTitle}>{marksLine}</span>
+            )}
+            {compBar}
           </div>
           {versionSummary ? (
             <div className="text-xs text-ink-faint mt-1.5 leading-relaxed line-clamp-2">

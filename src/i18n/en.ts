@@ -442,6 +442,7 @@ export const en = {
   'exp.clipboardFailed': 'Copying to the clipboard failed — try again.',
   'exp.mdIntro': 'The following is existing context compiled from my thought graph (ThoughtDAG), the working basis for this session. Read it fully, confirm your understanding, then wait for my experiment instructions.',
   'exp.mdRole': 'Role constraint:',
+  'insight.compTitle': 'This turn: question {q} · answer {a} · tool output {tool} tok ({pct}% tools)',
   'exp.mdOutro': 'That is all existing context. The anchor line below carries this session\'s yield back to the thought graph afterwards — leave it as is (no action needed).',
   'reader.stop': 'Stop',
   'content.digestPrompt': 'Turn this material into ONE short, intuitive guided digest (not a section-by-section summary). Open with a single sentence saying what problem it solves and why it matters. Then use small headings to organize: the core method or argument, the main findings, and limitations plus what they imply. Whenever you draw on a figure, table or specific passage, cite its page inline in exactly this format: (p.3). Formulas as $...$. Length 300-600 words. Write in English. Output only the digest markdown.',
