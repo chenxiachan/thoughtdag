@@ -1,9 +1,35 @@
 # Codex Adapter Spike — 2026-08-28
 
-> Status: spike report. Tier 1 is implemented and verified live; Tier 2/3
-> capabilities are verified against the OFFICIAL repository documentation
-> (openai/codex, codex-rs/app-server/README.md) but not yet exercised
-> against a running app-server. Nothing here is a compatibility promise.
+> Status: spike report, LIVE-VERIFIED. Tier 1 is implemented and verified;
+> the Tier 2 surface was exercised against a running `codex app-server`
+> (codex-cli 0.150.1) on real stored threads. Nothing here is a
+> compatibility promise.
+
+## Live exercise results (codex-cli 0.150.1, 2026-08-28)
+
+7/8 checks passed against the user's real thread store:
+
+- `initialize` handshake ✓ (JSON-RPC over stdio, newline-delimited)
+- `thread/list` ✓ — NOTE: the result rides in `data`, not `threads`;
+  `archived: true` lists archived sessions; Desktop-era (0.130) rollouts
+  are visible to the 0.150 CLI store.
+- `thread/read` (includeTurns) ✓ — read-only, no resume.
+- `thread/fork { ephemeral: true }` ✓ — in-memory branch, `path: null`,
+  `forkedFromId` lineage recorded. THE safe mutation surface for spikes
+  and previews: stored history untouched.
+- `thread/fork { lastTurnId }` ✓ — boundary-exact fork accepted.
+- `thread/inject_items` ✓ accepted on the ephemeral fork (returns `{}`).
+  ⚠ Partial: the injected item did not surface via `thread/read`
+  (turn-view) and `thread/items/list` rejected the ephemeral thread —
+  model-visibility could not be confirmed without running a paid turn.
+  Next verification: `turn/start` on an ephemeral fork and observe
+  whether the model sees the injected context.
+- Notification stream observed: `thread/started`,
+  `thread/tokenUsage/updated`, `mcpServer/startupStatus/updated`.
+
+Drift sentinel: `schema.checksums.txt` (sha256 of the 40-file JSON schema
+exported by `codex app-server generate-json-schema`; the raw schema stays
+untracked — re-export and diff the checksums to detect protocol drift).
 
 ## Verdict: GO — Codex is the right first deep adapter
 
@@ -46,20 +72,20 @@ version.
 ```json
 {
   "adapter_id": "thoughtdag.codex",
-  "adapter_version": "0.1.0-tier1",
+  "adapter_version": "0.1.0-tier1", "runner_version_exercised": "codex-cli 0.150.1",
   "capabilities": {
     "read_session_files": "verified-live",
-    "read_current_surface": "verified-doc (thread/read)",
-    "read_branches": "verified-doc (thread.forkedFromId, parentThreadId filters)",
+    "read_current_surface": "verified-live (thread/read)",
+    "read_branches": "verified-live (forkedFromId on fork)",
     "native_resume": "verified-doc (thread/resume)",
-    "fork_at_boundary": "verified-doc (thread/fork lastTurnId|beforeTurnId)",
+    "fork_at_boundary": "verified-live (thread/fork lastTurnId)",
     "tail_rollback": "verified-doc (thread/revert)",
     "append_context": "verified-doc (turn/start)",
-    "inject_native_items": "verified-doc (thread/inject_items)",
+    "inject_native_items": "verified-live-accepted (visibility pending a paid turn)",
     "steer_inflight_turn": "verified-doc (turn/steer)",
     "interrupt_turn": "verified-doc (turn/interrupt)",
     "trigger_compaction": "verified-doc (thread/compact/start)",
-    "stream_events": "verified-doc (turn/item notifications)",
+    "stream_events": "verified-live (thread/tokenUsage etc. observed)",
     "observe_runtime": "unknown",
     "preserve_runtime": "unknown",
     "write_native_transcript": "never (by our contract)"
