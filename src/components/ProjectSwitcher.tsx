@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import { ChevronDown, Dna, FolderOpen, Loader2, Pencil, Plus, RefreshCw, Trash2, Upload } from 'lucide-react';
+import { ChevronDown, Dna, FolderOpen, Loader2, Map as MapIcon, Pencil, Plus, RefreshCw, Trash2, Upload } from 'lucide-react';
+import SessionAtlas from './SessionAtlas';
 import { useProjects, switchProject, createProject, renameProject, deleteProject } from '../store/projects';
 import { useI18n } from '../i18n';
 import { parseImportFile } from '../lib/export';
@@ -29,6 +30,7 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
   const activeIsParadigm = projects.find((p) => p.id === activeId)?.kind === 'paradigm';
   const [open, setOpen] = useState(false);
   const [chatImport, setChatImport] = useState<ImportableConversation[] | null>(null);
+  const [atlasOpen, setAtlasOpen] = useState(false);
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const importFileRef = useRef<HTMLInputElement>(null);
@@ -145,6 +147,15 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
             >
               <Upload size={15} strokeWidth={1.75} /> {t('switcher.importBackup')}
             </button>
+            {window.desktopSessions && (
+              <button
+                onClick={() => { setOpen(false); setAtlasOpen(true); }}
+                className="w-full text-left px-3 py-2 text-sm text-ink-muted hover:bg-wash transition-colors flex items-center gap-2"
+                data-open-atlas
+              >
+                <MapIcon size={15} strokeWidth={1.75} /> {t('switcher.sessionAtlas')}
+              </button>
+            )}
             {window.desktop && (
               <button
                 onClick={() => { setOpen(false); void window.desktop!.checkForUpdates(); }}
@@ -188,6 +199,7 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
           onDone={() => { setChatImport(null); onSwitched(); }}
         />
       )}
+      {atlasOpen && <SessionAtlas onClose={() => setAtlasOpen(false)} onSwitched={onSwitched} />}
     </div>
   );
 }

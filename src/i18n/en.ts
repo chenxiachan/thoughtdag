@@ -566,10 +566,27 @@ export const en = {
   'switcher.exportBackup': 'Export backup (.json)',
   'switcher.importBackup': 'Import backup',
   'switcher.rename': 'Rename',
+  'switcher.sessionAtlas': 'Session atlas',
   'switcher.justNow': 'just now',
   'switcher.minAgo': '{n}m ago',
   'switcher.hourAgo': '{n}h ago',
   'switcher.dayAgo': '{n}d ago',
+
+  // Session atlas
+  'atlas.title': 'Session atlas',
+  'atlas.subtitle': 'Your local CLI sessions, grouped by project folder — click one to import it as a canvas. Read-only: nothing you do on the canvas ever writes back to a session file.',
+  'atlas.refresh': 'Refresh',
+  'atlas.scanning': 'Scanning…',
+  'atlas.folders': 'Project folders',
+  'atlas.myCanvases': 'My canvases',
+  'atlas.unfiled': 'Unfiled',
+  'atlas.sessions': '{n} sessions',
+  'atlas.empty': 'No CLI sessions found. Conversations from CLI assistants on this machine will appear here.',
+  'atlas.import': 'Import as canvas',
+  'atlas.openCli': 'Open in CLI',
+  'atlas.cmdCopied': 'Resume command copied — paste it into a terminal to re-enter the session',
+  'atlas.parseFailed': 'Could not parse this session file: {msg}',
+  'atlas.opened': 'Session opened in your terminal',
 
   // Confirm dialogs
   'confirm.deleteNodesTitle': 'Delete nodes',

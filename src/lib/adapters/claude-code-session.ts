@@ -199,6 +199,7 @@ function buildGraph(session: { lines: SessionLine[]; sessionId: string }): { nod
     }
     const node = makeNode(turn.question, turn.response, prev === null);
     node.data.importSource = { runner: 'claude-code', sessionId: session.sessionId, itemIds: turn.itemIds };
+    node.data.source = { question: node.data.question, response: node.data.response };
     seedPlaque(node);
     node.data.attachments = toolAttachments(turn);
     nodes.push(node);

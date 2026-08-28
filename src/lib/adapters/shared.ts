@@ -57,6 +57,7 @@ export function turnsToBranch(
   for (const turn of turns) {
     const node = makeNode(turn.question || '(tool-only turn)', turn.response, false);
     node.data.importSource = { runner, sessionId, itemIds: turn.itemIds };
+    node.data.source = { question: node.data.question, response: node.data.response };
     node.data.attachments = toolAttachments(turn);
     seedPlaque(node);
     if (nodes.length === 0) node.data.isBranch = true; // the experiment forks off sideways

@@ -15,6 +15,16 @@ interface DesktopBridge {
   onUpdateEvent?: (cb: (e: DesktopUpdateEvent) => void) => void;
 }
 
+// Fenced read-only primitives over the runner session stores (main.js
+// SESSION_ROOTS). All runner knowledge lives in src/lib/atlas/.
+interface DesktopSessionsBridge {
+  list: (rootKey: string) => Promise<{ rel: string; size: number; mtime: number }[]>;
+  head: (rootKey: string, rel: string, bytes: number) => Promise<string>;
+  read: (rootKey: string, rel: string) => Promise<string>;
+  openInCli: (runner: string, cwd: string | null, sessionId: string) => Promise<{ opened: boolean; command: string }>;
+}
+
 interface Window {
   desktop?: DesktopBridge;
+  desktopSessions?: DesktopSessionsBridge;
 }

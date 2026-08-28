@@ -89,6 +89,12 @@ export interface ThoughtData extends Record<string, unknown> {
       continuity layer's read direction). Source sessions stay read-only;
       these ids let a future continuation point back at native items. */
   importSource?: { runner: string; sessionId: string; itemIds: string[] };
+  /** Frozen snapshot of the SOURCE projection at import time. The working
+      question/response fields are free to iterate; this never changes, so
+      "has this node diverged from its source?" is a field comparison, and
+      the mirror outlives runner-side cleanup (sessions are short-lived
+      upstream — the canvas is the archive). */
+  source?: { question: string; response: string };
   linkUrl?: string; // link node: the source URL
   linkTitle?: string; // link node: page title (or a ⚠-prefixed fetch error)
   linkFetchedAt?: string; // link node: ISO timestamp of the snapshot (web content drifts)

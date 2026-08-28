@@ -146,6 +146,7 @@ function buildGraph(session: { lines: RolloutLine[]; sessionId: string }): { nod
   for (const turn of turns) {
     const node = makeNode(turn.question || '(tool-only turn)', turn.response, prev === null);
     node.data.importSource = { runner: 'codex', sessionId: session.sessionId, itemIds: turn.itemIds };
+    node.data.source = { question: node.data.question, response: node.data.response };
     node.data.attachments = toolAttachments(turn);
     seedPlaque(node);
     nodes.push(node);

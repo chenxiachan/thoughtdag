@@ -11,3 +11,12 @@ contextBridge.exposeInMainWorld('desktop', {
   installUpdate: () => ipcRenderer.invoke('update:install'),
   onUpdateEvent: (cb) => { ipcRenderer.on('update:event', (_e, data) => cb(data)); },
 });
+
+// Session atlas: fenced read-only primitives over the runner session
+// stores (see main.js SESSION_ROOTS). Runner knowledge stays in the page.
+contextBridge.exposeInMainWorld('desktopSessions', {
+  list: (rootKey) => ipcRenderer.invoke('sessions:list', rootKey),
+  head: (rootKey, rel, bytes) => ipcRenderer.invoke('sessions:head', rootKey, rel, bytes),
+  read: (rootKey, rel) => ipcRenderer.invoke('sessions:read', rootKey, rel),
+  openInCli: (runner, cwd, sessionId) => ipcRenderer.invoke('sessions:open-in-cli', runner, cwd, sessionId),
+});

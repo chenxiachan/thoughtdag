@@ -5,6 +5,8 @@
 const { app, BrowserWindow, shell, utilityProcess, ipcMain } = require('electron');
 const path = require('path');
 const net = require('net');
+const os = require('os');
+const fsp = require('fs/promises');
 
 // Development: the repo root (live dist + server.mjs + root node_modules).
 // Packaged: a self-contained payload under Resources — same three files,
@@ -75,6 +77,91 @@ async function boot() {
   // ?dv= identifies the desktop build to the web layer; &su=1 tells it the
   // shell self-updates, so the in-page download nudge stays quiet.
   win.loadURL(`http://127.0.0.1:${port}/?dv=${encodeURIComponent(app.getVersion())}&su=1`);
+}
+
+// ─── Session atlas: read-only access to runner session stores ───────────
+// The shell exposes four fenced primitives; ALL runner knowledge (formats,
+// meta parsing, grouping) lives in the web layer's adapter code. The
+// renderer never passes absolute paths — only a whitelisted root key plus
+// a relative path that must resolve inside that root. Read-only by
+// contract: no primitive here can write, move, or delete a session file.
+const SESSION_ROOTS = {
+  'claude-projects': path.join(os.homedir(), '.claude', 'projects'),
+  'codex-sessions': path.join(os.homedir(), '.codex', 'sessions'),
+};
+
+function resolveInRoot(rootKey, rel) {
+  const root = SESSION_ROOTS[rootKey];
+  if (!root) throw new Error('unknown session root');
+  const abs = path.resolve(root, String(rel));
+  if (abs !== root && !abs.startsWith(root + path.sep)) throw new Error('path escapes session root');
+  return abs;
+}
+
+function setupSessionAtlas() {
+  ipcMain.handle('sessions:list', async (_e, rootKey) => {
+    const root = SESSION_ROOTS[rootKey];
+    if (!root) return [];
+    const out = [];
+    async function walk(dir, depth) {
+      if (depth > 4) return; // codex nests YYYY/MM/DD; nothing legit goes deeper
+      let entries;
+      try { entries = await fsp.readdir(dir, { withFileTypes: true }); } catch { return; }
+      for (const ent of entries) {
+        const p = path.join(dir, ent.name);
+        if (ent.isDirectory()) await walk(p, depth + 1);
+        else if (ent.isFile() && ent.name.endsWith('.jsonl')) {
+          try {
+            const st = await fsp.stat(p);
+            out.push({ rel: path.relative(root, p), size: st.size, mtime: st.mtimeMs });
+          } catch { /* raced deletion — a live store is allowed to move under us */ }
+        }
+      }
+    }
+    await walk(root, 0);
+    return out;
+  });
+
+  ipcMain.handle('sessions:head', async (_e, rootKey, rel, bytes) => {
+    const fh = await fsp.open(resolveInRoot(rootKey, rel), 'r');
+    try {
+      const n = Math.min(Math.max(1024, bytes | 0), 65536);
+      const buf = Buffer.alloc(n);
+      const { bytesRead } = await fh.read(buf, 0, n, 0);
+      return buf.subarray(0, bytesRead).toString('utf8');
+    } finally {
+      await fh.close();
+    }
+  });
+
+  ipcMain.handle('sessions:read', (_e, rootKey, rel) => fsp.readFile(resolveInRoot(rootKey, rel), 'utf8'));
+
+  // "Open in CLI": navigation, not orchestration — this walks the user to
+  // the session's door; the runner and every keystroke after are theirs.
+  // Structured args only (never a raw command string from the renderer);
+  // the command is assembled HERE against a runner whitelist.
+  const shq = (s) => `'${String(s).replace(/'/g, `'\\''`)}'`;
+  const RESUME = {
+    'claude-code': (cwd, id) => `cd ${shq(cwd)} && claude --resume ${shq(id)}`,
+    codex: (cwd, id) => `cd ${shq(cwd)} && codex resume ${shq(id)}`,
+  };
+  ipcMain.handle('sessions:open-in-cli', async (_e, runner, cwd, sessionId) => {
+    const build = RESUME[runner];
+    if (!build || !/^[\w.-]{4,}$/.test(String(sessionId))) return { opened: false, command: '' };
+    const cwdOk = typeof cwd === 'string' && path.isAbsolute(cwd)
+      && await fsp.stat(cwd).then((s) => s.isDirectory()).catch(() => false);
+    const command = build(cwdOk ? cwd : os.homedir(), sessionId);
+    if (process.platform === 'darwin') {
+      // .command file: the user's default terminal executes it in their own
+      // login shell — right PATH (GUI apps carry a bare one), zero
+      // automation permissions. Self-deletes after launching the runner.
+      const file = path.join(os.tmpdir(), `thoughtdag-resume-${Date.now()}.command`);
+      await fsp.writeFile(file, `#!/bin/zsh\nrm -- ${shq(file)}\n${command}\n`, { mode: 0o755 });
+      const err = await shell.openPath(file);
+      if (!err) return { opened: true, command };
+    }
+    return { opened: false, command }; // caller falls back to the clipboard
+  });
 }
 
 // Signed builds self-update through GitHub releases (latest*.yml), and every
@@ -165,6 +252,7 @@ if (!lock) {
   });
   app.whenReady().then(() => {
     void boot();
+    setupSessionAtlas();
     if (app.isPackaged) {
       setupAutoUpdate();
     } else {

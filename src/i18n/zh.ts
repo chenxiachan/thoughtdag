@@ -565,10 +565,27 @@ export const zh: Record<keyof typeof en, string> = {
   'switcher.exportBackup': '导出备份 (.json)',
   'switcher.importBackup': '导入备份',
   'switcher.rename': '重命名',
+  'switcher.sessionAtlas': 'CLI 会话地图',
   'switcher.justNow': '刚刚',
   'switcher.minAgo': '{n} 分钟前',
   'switcher.hourAgo': '{n} 小时前',
   'switcher.dayAgo': '{n} 天前',
+
+  // Session atlas
+  'atlas.title': 'CLI 会话地图',
+  'atlas.subtitle': '按项目文件夹聚合本机 CLI 会话，点击导入为画布。只读：画布上的任何修改都不会写回会话文件。',
+  'atlas.refresh': '刷新',
+  'atlas.scanning': '扫描中…',
+  'atlas.folders': '项目文件夹',
+  'atlas.myCanvases': '我的画布',
+  'atlas.unfiled': '未分类',
+  'atlas.sessions': '{n} 个会话',
+  'atlas.empty': '未发现 CLI 会话。本机 CLI 助手的对话记录会出现在这里。',
+  'atlas.import': '导入为画布',
+  'atlas.openCli': '在 CLI 中打开',
+  'atlas.cmdCopied': '恢复命令已复制，粘贴到终端即可回到该会话',
+  'atlas.parseFailed': '无法解析该会话文件：{msg}',
+  'atlas.opened': '已在终端打开该会话',
 
   // Confirm dialogs
   'confirm.deleteNodesTitle': '删除节点',
