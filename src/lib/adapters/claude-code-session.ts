@@ -2,7 +2,7 @@ import type { ThoughtNode, ThoughtEdge } from '../../types';
 import { makeNode, type ImportableConversation } from '../import-chat';
 import { autoLayout } from '../layout';
 import { generateId } from '../../utils';
-import { turnsToBranch, seedPlaque, toolAttachments } from './shared';
+import { turnsToBranch, seedPlaque, toolAttachments, dropSelfCommandTurns } from './shared';
 
 // Claude Code session importer — the continuity layer's READ direction for
 // one concrete runner. A session lives as JSONL under ~/.claude/projects/;
@@ -28,7 +28,6 @@ import { turnsToBranch, seedPlaque, toolAttachments } from './shared';
 //     MAX_TURNS import, and a [Note] node says so out loud.
 // The source session file is never written — read-only by contract.
 
-const MAX_TURNS = 200;
 const TOOL_RESULT_LIMIT = 4000;
 const TOOL_CALL_LIMIT = 800;
 
@@ -168,7 +167,7 @@ function collectTurns(lines: SessionLine[]): Turn[] {
     }
   }
   flush();
-  return turns;
+  return dropSelfCommandTurns(turns);
 }
 
 function noteNode(text: string): ThoughtNode {
@@ -179,8 +178,10 @@ function noteNode(text: string): ThoughtNode {
 }
 
 function buildGraph(session: { lines: SessionLine[]; sessionId: string }): { nodes: ThoughtNode[]; edges: ThoughtEdge[] } {
-  const all = collectTurns(session.lines);
-  const turns = all.slice(-MAX_TURNS);
+  // faithful projection: EVERY turn imports — no tail cap. Long sessions
+  // stay navigable through the zoom tiers (map plaques, glyphs), and
+  // pruning is the user's decision on the canvas, never the importer's.
+  const turns = collectTurns(session.lines);
   const nodes: ThoughtNode[] = [];
   const edges: ThoughtEdge[] = [];
   let prev: ThoughtNode | null = null;
@@ -188,12 +189,6 @@ function buildGraph(session: { lines: SessionLine[]; sessionId: string }): { nod
   const link = (source: ThoughtNode, target: ThoughtNode) => {
     edges.push({ id: generateId(), source: source.id, target: target.id, type: 'smoothstep' } as ThoughtEdge);
   };
-
-  if (all.length > turns.length) {
-    const note = noteNode(`[Imported tail] This session holds ${all.length} turns; the most recent ${turns.length} were imported. The source file keeps everything.`);
-    nodes.push(note);
-    prev = note;
-  }
 
   for (const turn of turns) {
     if (turn.compactionBefore) {

@@ -1,5 +1,6 @@
 ---
-description: 把当前 Codex 会话直接打开到 ThoughtDAG 画布（本地桥接，数据不出本机）
+name: thoughtdag
+description: 把当前 Codex 会话打开到 ThoughtDAG 画布（本地桥接，数据不出本机）。当用户说「送进/打开 thoughtdag」「把会话变成图/画布」「查看上下文地图」，或要求「收获实验/harvest 回图」时触发。与会话可视化无关的任务不要触发。
 ---
 
 [[thoughtdag:command]]（此标记供画布导入器识别并剥除本命令轮，保持原样）
@@ -14,7 +15,7 @@ for f in $(find ~/.codex/sessions -name 'rollout-*.jsonl' -mtime -3 -print0 | xa
 done
 ```
 
-若无命中（目录改过名等），退为全局最新的 rollout 并明确告知用户选的是哪个。参数 `$ARGUMENTS` 为 `list` 时改为列出最近 5 个 rollout（文件名、cwd、大小、修改时间）等用户挑选；为某会话 id 前缀时选中文件名匹配的 rollout；为 `harvest` 时仍取当前会话，但第 4 步打开的 URL 额外带 `&mode=harvest` —— 画布会读取会话首条消息里的实验锚点，把这次实验作为支线**挂回它出发的节点**（收获模式；锚点缺失时自动退为普通导入）。
+若无命中（目录改过名等），退为全局最新的 rollout 并明确告知用户选的是哪个。用户要求「列出会话」时改为列出最近 5 个 rollout（文件名、cwd、大小、修改时间）等用户挑选；用户给出某会话 id 前缀时选中文件名匹配的 rollout；用户要求**收获实验（harvest）**时仍取当前会话，但第 4 步打开的 URL 额外带 `&mode=harvest` —— 画布会读取会话首条消息里的实验锚点，把这次实验作为支线**挂回它出发的节点**（锚点缺失时自动退为普通导入）。
 
 2. **只读快照**：把选中的 rollout **复制**到 `~/Desktop/thoughtdag-codex-session-$(date +%Y%m%d-%H%M).jsonl`。绝不修改、移动或删除源文件。（正在写入的文件可安全复制，导入器容忍尾部截断行。）
 
@@ -42,7 +43,7 @@ srv.serve_forever()
 桥只绑 127.0.0.1、只回这一个文件、CORS 只回显 ThoughtDAG 的来源，两分钟后自毁。若沙箱拦截绑定端口或 `open`，按权限升级流程请求放行——这两步只读快照文件、只绑本机回环。
 
 4. **打开本地 ThoughtDAG**：探测 `curl -s -o /dev/null -w "%{http_code}" http://localhost:5173`：
-   - **5173 在跑** → `open "http://localhost:5173/#import-url=http://127.0.0.1:38017/session.jsonl"`（harvest 模式在末尾追加 `&mode=harvest`），画布会自动识别 Codex rollout 并导入（每轮问答一个节点、工具调用成可单独排除的附件、全部轮次忠实导入，视角落在最新几轮）。
-   - **不在跑** → 告诉用户三选一：① 在 ThoughtDAG 目录 `npm run dev` 起本地版后重新运行本命令；② 打开线上版（数据同样不出本机，桥只认本机来源）：`open "https://app.thoughtdag.workers.dev/#import-url=http://127.0.0.1:38017/session.jsonl"`（桥两分钟内有效）；③ 手动把桌面上的快照文件从画布切换器 → 导入拖入。
+   - **5173 在跑** → `open "http://localhost:5173/#import-url=http://127.0.0.1:38017/session.jsonl"`（harvest 时在末尾追加 `&mode=harvest`），画布会自动识别 Codex rollout 并导入（每轮问答一个节点、工具调用成可单独排除的附件、全部轮次忠实导入，视角落在最新几轮）。
+   - **不在跑** → 告诉用户三选一：① 在 ThoughtDAG 目录 `npm run dev` 起本地版后重新运行；② 打开线上版（数据同样不出本机，桥只认本机来源）：`open "https://app.thoughtdag.workers.dev/#import-url=http://127.0.0.1:38017/session.jsonl"`（桥两分钟内有效）；③ 手动把桌面上的快照文件从画布切换器 → 导入拖入。
 
 5. **收尾告知**：快照路径 + 已打开的地址 + 一句「导入的画布暂存浏览器本地，提示条里可一键开启自动备份落成文件」。不要打印或总结会话内容本身——那是 ThoughtDAG 的工作。

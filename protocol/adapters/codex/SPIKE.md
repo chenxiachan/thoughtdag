@@ -99,11 +99,20 @@ unknown until exercised live.
 
 ## One-command entry (mirrors the Claude Code `/thoughtdag`)
 
-`thoughtdag.md` in this directory is a Codex custom prompt. Install:
+Two install flavors, same content (custom prompts are deprecated upstream
+in favor of skills; we ship both while the transition runs):
 
 ```bash
+# skill (recommended): $thoughtdag mention or natural language triggers it
+mkdir -p ~/.codex/skills && cp -r skills/thoughtdag ~/.codex/skills/
+# custom prompt (legacy): /prompts:thoughtdag
 mkdir -p ~/.codex/prompts && cp thoughtdag.md ~/.codex/prompts/
 ```
+
+Both carry the `[[thoughtdag:command]]` sentinel on their first body line:
+the importer prunes the self-referential command turn so the canvas never
+shows "send me to ThoughtDAG" as content (Claude Code needs no sentinel —
+its JSONL marks command turns structurally via `<command-name>`).
 
 Then `/thoughtdag` inside Codex does the same dance as the Claude Code
 command: locate the current rollout (newest, cwd-matched) → read-only

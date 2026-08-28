@@ -32,7 +32,7 @@ srv.serve_forever()
 桥只绑 127.0.0.1、只回这一个文件、CORS 只回显 ThoughtDAG 的来源，两分钟后自毁。
 
 4. **打开本地 ThoughtDAG**：探测 `curl -s -o /dev/null -w "%{http_code}" http://localhost:5173`：
-   - **5173 在跑** → `open "http://localhost:5173/#import-url=http://127.0.0.1:38017/session.jsonl"`（harvest 模式在末尾追加 `&mode=harvest`），画布会自动拉取并导入（每轮问答一个节点、工具调用成可单独排除的附件、compaction 边界显式标注、默认最近 200 轮，视角落在最新几轮）。
+   - **5173 在跑** → `open "http://localhost:5173/#import-url=http://127.0.0.1:38017/session.jsonl"`（harvest 模式在末尾追加 `&mode=harvest`），画布会自动拉取并导入（每轮问答一个节点、工具调用成可单独排除的附件、compaction 边界显式标注、全部轮次忠实导入，视角落在最新几轮）。
    - **不在跑** → 告诉用户三选一：① `npm run dev` 起本地版后重新运行本命令；② 打开线上版（数据同样不出本机，桥只认本机来源）：`open "https://app.thoughtdag.workers.dev/#import-url=http://127.0.0.1:38017/session.jsonl"`（桥两分钟内有效）；③ 手动把桌面上的快照文件从画布切换器 → 导入拖入。
 
 5. **收尾告知**：快照路径 + 已打开的地址 + 一句「导入的画布暂存浏览器本地，提示条里可一键开启自动备份落成文件」。不要打印或总结会话内容本身——那是 ThoughtDAG 的工作。

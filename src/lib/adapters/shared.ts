@@ -14,6 +14,18 @@ export interface RunnerTurn {
   tools: { name: string; call: string; result: string; truncated: boolean }[];
 }
 
+// The one turn we do NOT project faithfully: ThoughtDAG's own entry command.
+// A turn that says "send this session to ThoughtDAG" is self-referential
+// noise on the canvas, not conversation. Claude Code marks command turns
+// structurally; the Codex prompt/skill text carries our sentinel line.
+// Every OTHER slash command stays — faithful projection is the rule,
+// self-reference is the only exception.
+const SELF_MARKS = ['<command-name>/thoughtdag</command-name>', '[[thoughtdag:command]]'];
+
+export function dropSelfCommandTurns<T extends { question: string }>(turns: T[]): T[] {
+  return turns.filter((t) => !SELF_MARKS.some((m) => t.question.includes(m)));
+}
+
 export function seedPlaque(node: ThoughtNode): void {
   const first = node.data.response.split('\n').map((l) => l.trim()).find((l) => l && !/^[#>*`-]+$/.test(l));
   if (first) node.data.summaries = [first.replace(/^[#>*`\s]+/, '').slice(0, 90)];

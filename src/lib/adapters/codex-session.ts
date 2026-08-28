@@ -2,7 +2,7 @@ import type { ThoughtNode, ThoughtEdge } from '../../types';
 import { makeNode, type ImportableConversation } from '../import-chat';
 import { autoLayout } from '../layout';
 import { generateId } from '../../utils';
-import { turnsToBranch, seedPlaque, toolAttachments } from './shared';
+import { turnsToBranch, seedPlaque, toolAttachments, dropSelfCommandTurns } from './shared';
 
 // Codex session importer — Tier 1 (read-only) of the second runner adapter.
 // A session lives as a rollout JSONL under ~/.codex/sessions/; each line is
@@ -26,7 +26,6 @@ import { turnsToBranch, seedPlaque, toolAttachments } from './shared';
 //     own mechanisms not visible in the rollout — nothing to mark yet).
 // The source rollout is never written — read-only by contract.
 
-const MAX_TURNS = 200;
 const TOOL_RESULT_LIMIT = 4000;
 const TOOL_CALL_LIMIT = 800;
 
@@ -133,22 +132,17 @@ function collectTurns(lines: RolloutLine[]): Turn[] {
     }
   }
   flush();
-  return turns;
+  return dropSelfCommandTurns(turns);
 }
 
 function buildGraph(session: { lines: RolloutLine[]; sessionId: string }): { nodes: ThoughtNode[]; edges: ThoughtEdge[] } {
-  const all = collectTurns(session.lines);
-  const turns = all.slice(-MAX_TURNS);
+  // faithful projection: EVERY turn imports — no tail cap (see the Claude
+  // Code adapter for the rationale; the rule is runner-agnostic).
+  const turns = collectTurns(session.lines);
   const nodes: ThoughtNode[] = [];
   const edges: ThoughtEdge[] = [];
   let prev: ThoughtNode | null = null;
 
-  if (all.length > turns.length) {
-    const note = makeNode(`[Imported tail] This session holds ${all.length} turns; the most recent ${turns.length} were imported. The source file keeps everything.`, '', false);
-    note.data.stepKind = 'note';
-    nodes.push(note);
-    prev = note;
-  }
   for (const turn of turns) {
     const node = makeNode(turn.question || '(tool-only turn)', turn.response, prev === null);
     node.data.importSource = { runner: 'codex', sessionId: session.sessionId, itemIds: turn.itemIds };
@@ -159,17 +153,7 @@ function buildGraph(session: { lines: RolloutLine[]; sessionId: string }): { nod
     prev = node;
   }
 
-  const laid = autoLayout(nodes, edges);
-  // importer-owned notes sit beside the chain (layout law: content nodes
-  // are never moved by autoLayout)
-  for (let i = 0; i < laid.length; i++) {
-    const n = laid[i];
-    if (n.data.stepKind !== 'note') continue;
-    n.width = 460;
-    const next = laid.slice(i + 1).find((x) => x.data.stepKind !== 'note');
-    if (next) n.position = { x: next.position.x - 520, y: next.position.y };
-  }
-  return { nodes: laid, edges };
+  return { nodes: autoLayout(nodes, edges), edges };
 }
 
 /** Harvest: a short Codex experiment session hangs off the node it was
