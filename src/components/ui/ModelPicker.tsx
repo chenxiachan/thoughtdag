@@ -49,9 +49,10 @@ export default function ModelPicker({ value, onChange, compact }: PickerProps) {
 
   const models = data?.models ?? [];
   // Node mode: with one model there is nothing to pin. The GLOBAL picker
-  // stays even then — it also carries the capability report, and a sparse
-  // install is exactly when the hints matter.
-  if (models.length < 2 && (nodeMode || !data)) return null;
+  // stays even when the list fetch failed outright (proxy not running) —
+  // its empty state IS the connect-a-model door, and a vanished picker
+  // would leave the canvas with no way into model setup at all.
+  if (nodeMode && models.length < 2) return null;
 
   // Empty install: the picker IS the call to action. A grey "no model"
   // label reads as a dead control; a keyed accent button reads as the door.
