@@ -1,0 +1,181 @@
+{
+  "format": "thoughtdag.context-bundle",
+  "version": 0,
+  "graph": {
+    "project_id": null,
+    "snapshot_hash": "sha256:e4611b9e4e15ea30bb71661b1e90a6e1887cceeb958e5f01040b996372336038",
+    "target_node_id": "node-main-2"
+  },
+  "intent": {
+    "task": "Design the first-open screen from this evidence.",
+    "language": null
+  },
+  "context": {
+    "messages": [
+      {
+        "id": "item_001",
+        "kind": "message",
+        "role": "user",
+        "content": [
+          {
+            "type": "text",
+            "text": "[File: reading-log.txt]\nday 1: skimmed abstract only\nday 2: figures first, then discussion\nday 3: full pass"
+          }
+        ],
+        "source": {
+          "layer": "material",
+          "part": "attachment",
+          "node_id": "node-file",
+          "attachment_id": "att-notes-txt"
+        },
+        "selection": {
+          "mode": "full",
+          "reason": "structural-material"
+        }
+      },
+      {
+        "id": "item_002",
+        "kind": "message",
+        "role": "user",
+        "content": [
+          {
+            "type": "text",
+            "text": "[Note]\nField note: participants skim in the first pass and only anchor on figures."
+          }
+        ],
+        "source": {
+          "layer": "material",
+          "part": "question",
+          "node_id": "node-note"
+        },
+        "selection": {
+          "mode": "full",
+          "reason": "structural-material"
+        }
+      },
+      {
+        "id": "item_003",
+        "kind": "message",
+        "role": "user",
+        "content": [
+          {
+            "type": "text",
+            "text": "[Reference: What does eye-tracking research say about reading order?]\nQ: What does eye-tracking research say about reading order?\nA: Readers of scientific papers fixate on figures and captions before committing to linear text."
+          }
+        ],
+        "source": {
+          "layer": "reference",
+          "part": "reference",
+          "node_id": "node-side-1"
+        },
+        "selection": {
+          "mode": "full",
+          "reason": "structural-reference"
+        }
+      },
+      {
+        "id": "item_004",
+        "kind": "message",
+        "role": "user",
+        "content": [
+          {
+            "type": "text",
+            "text": "How should a reading tool present a paper first?"
+          }
+        ],
+        "source": {
+          "layer": "chain",
+          "part": "question",
+          "node_id": "node-main-1"
+        },
+        "selection": {
+          "mode": "full",
+          "reason": "structural-chain"
+        }
+      },
+      {
+        "id": "item_005",
+        "kind": "message",
+        "role": "assistant",
+        "content": [
+          {
+            "type": "text",
+            "text": "Lead with the figures and let text unfold on demand."
+          }
+        ],
+        "source": {
+          "layer": "chain",
+          "part": "response",
+          "node_id": "node-main-1"
+        },
+        "selection": {
+          "mode": "full",
+          "reason": "structural-chain"
+        }
+      },
+      {
+        "id": "item_006",
+        "kind": "message",
+        "role": "user",
+        "content": [
+          {
+            "type": "text",
+            "text": "Design the first-open screen from this evidence."
+          }
+        ],
+        "source": {
+          "layer": "chain",
+          "part": "question",
+          "node_id": "node-main-2"
+        },
+        "selection": {
+          "mode": "full",
+          "reason": "structural-chain"
+        }
+      }
+    ],
+    "materials": [
+      {
+        "id": "att-notes-txt",
+        "kind": "document",
+        "name": "reading-log.txt",
+        "mime_type": "text/plain",
+        "size": 84,
+        "fingerprint": "reading-log.txt|84|day 1: skimmed abstract only\nday 2: figures first, then discussion\nday 3: full pass",
+        "model_projection": {
+          "mode": "extracted_text"
+        },
+        "source": {
+          "node_id": "node-file"
+        }
+      }
+    ],
+    "references": [
+      {
+        "source_node_id": "node-side-1"
+      }
+    ]
+  },
+  "execution_hints": {
+    "preferred_model": null,
+    "required_tools": [],
+    "required_mcp_servers": []
+  },
+  "budget": {
+    "estimated_tokens": 142,
+    "limit": null,
+    "truncation": "none"
+  },
+  "id": "cb_995c53f1d7a8bdc4",
+  "created_at": "2026-01-01T00:00:00Z",
+  "provenance": {
+    "source_runs": [],
+    "compiler": {
+      "name": "thoughtdag",
+      "adapter_id": null
+    }
+  },
+  "integrity": {
+    "content_hash": "sha256:995c53f1d7a8bdc46da0ff5b9e7588a43b5b31e240e6b8259873e9ff21962105"
+  }
+}

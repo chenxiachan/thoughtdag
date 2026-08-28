@@ -15,11 +15,28 @@ import type { ContextMessage, ImageAttachment } from '../lib/api';
 // NODES (collapse+summary, highlight filter, archive) — edges only decide
 // identity. This ordering is deliberately independent of edge creation
 // history: the same graph always produces the same prompt.
+/** Where one context message came from — parallel to `messages`. The
+ *  bundle compiler turns these into per-item provenance; nothing else
+ *  needs them, so they ride as a separate array instead of widening the
+ *  wire format. */
+export interface MessageSource {
+  layer: 'system' | 'material' | 'reference' | 'chain' | 'branch';
+  nodeId?: string;
+  attachmentId?: string;
+  /** reference blocks: the referenced (dashed-edge source) node */
+  refSourceId?: string;
+  part?: 'role' | 'attachment' | 'question' | 'response' | 'reference' | 'passage';
+}
+
 interface BuildContextResult {
   messages: ContextMessage[];
   images: ImageAttachment[];
   /** Token weight per layer — lets the preview show composition honestly. */
   layerTokens: { material: number; reference: number; chain: number };
+  /** Provenance, parallel to `messages` (same length, same order). */
+  sources: MessageSource[];
+  /** Provenance, parallel to `images`. */
+  imageSources: { nodeId: string; attachmentId: string }[];
 }
 
 /** One-line handle for a node inside block headers and trails. */
@@ -177,6 +194,8 @@ export function buildContext(
 ): BuildContextResult {
   const messages: ContextMessage[] = [];
   const images: ImageAttachment[] = [];
+  const sources: MessageSource[] = [];
+  const imageSources: { nodeId: string; attachmentId: string }[] = [];
   const layerTokens = { material: 0, reference: 0, chain: 0 };
   let layerStart = 0;
   const closeLayer = (layer: keyof typeof layerTokens) => {
@@ -196,7 +215,8 @@ export function buildContext(
   }
   const seenAttachmentFingerprints = new Set<string>();
 
-  const pushAttachments = (node: ThoughtNode) => {
+  const pushAttachments = (node: ThoughtNode, layer: 'material' | 'chain') => {
+    const attSource = (att: { id: string }): MessageSource => ({ layer, nodeId: node.id, attachmentId: att.id, part: 'attachment' });
     for (const att of node.data.attachments || []) {
       if (excludeSet.has(att.id)) continue;
       const fp = attachmentFingerprint(att);
@@ -208,9 +228,11 @@ export function buildContext(
         // itself still flows unless the user switched it to text-only
         if (att.extractedText) {
           messages.push({ role: 'user', content: `[Image: ${att.name}]\n${att.extractedText}` });
+          sources.push(attSource(att));
         }
         if (att.renderMode !== 'text-only') {
           images.push({ data: att.content, mimeType: att.type, ...(att.extractedText?.trim() ? { hasCompanion: true } : {}) });
+          imageSources.push({ nodeId: node.id, attachmentId: att.id });
         }
       } else if (att.type === 'application/pdf') {
         // PDF: the extracted text IS the model channel. Page images never
@@ -222,6 +244,7 @@ export function buildContext(
         } else {
           messages.push({ role: 'user', content: `[PDF: ${att.name} — no extracted text yet (scanned or still extracting). The reader's Recognize can turn its pages into readable text.]` });
         }
+        sources.push(attSource(att));
       } else if (att.type === 'text/html') {
         // HTML: the extracted Markdown IS the model channel — raw source
         // (tags, styles, boilerplate) never enters context
@@ -232,8 +255,10 @@ export function buildContext(
             ? `[File: ${att.name}]\n${body}`
             : `[File: ${att.name} — HTML with no extractable text yet]`,
         });
+        sources.push(attSource(att));
       } else {
         messages.push({ role: 'user', content: `[File: ${att.name}]\n${att.content}` });
+        sources.push(attSource(att));
       }
     }
   };
@@ -243,7 +268,7 @@ export function buildContext(
   // text is an injection surface — keep it clearly fenced).
   for (const node of materials) {
     if (node.data.archived) continue;
-    pushAttachments(node);
+    pushAttachments(node, 'material');
     if (node.data.question) {
       const content = node.data.stepKind === 'note'
         ? `[Note]\n${node.data.question}`
@@ -251,6 +276,7 @@ export function buildContext(
           ? `[Link snapshot: ${node.data.linkUrl ?? ''} @ ${(node.data.linkFetchedAt ?? '').slice(0, 10)}]\n${node.data.question}`
           : node.data.question;
       messages.push({ role: 'user', content });
+      sources.push({ layer: 'material', nodeId: node.id, part: 'question' });
     }
   }
 
@@ -260,6 +286,7 @@ export function buildContext(
   for (const ref of references) {
     if (ref.source.data.archived) continue;
     messages.push({ role: 'user', content: referenceBlockContent(ref) });
+    sources.push({ layer: 'reference', refSourceId: ref.source.id, part: 'reference' });
   }
 
   closeLayer('reference');
@@ -272,19 +299,22 @@ export function buildContext(
     // Archived = pruned-but-kept: contributes NOTHING to context (the walk
     // itself already passed through it, so descendants keep their ancestry)
     if (node.data.archived) continue;
-    pushAttachments(node);
+    pushAttachments(node, 'chain');
     if (node.data.question) {
       messages.push({ role: 'user', content: node.data.question });
+      sources.push({ layer: 'chain', nodeId: node.id, part: 'question' });
     }
     if (node.data.response) {
       const rendered = renderResponse(node);
       messages.push({ role: 'assistant', content: staleSet.has(node.id) ? `${STALE_MARK}\n${rendered}` : rendered });
+      sources.push({ layer: 'chain', nodeId: node.id, part: 'response' });
     }
   }
 
   // If this is a branch from selection, add the selected text
   if (branchContext) {
     messages.push({ role: 'user', content: `[Regarding this passage: "${branchContext}"]` });
+    sources.push({ layer: 'branch', nodeId, part: 'passage' });
   }
 
   closeLayer('chain');
@@ -294,9 +324,10 @@ export function buildContext(
   const resolvedRole = resolveRoleFromMainline(mainline, nodes);
   if (resolvedRole) {
     messages.unshift({ role: 'system', content: resolvedRole });
+    sources.unshift({ layer: 'system', part: 'role' });
   }
 
-  return { messages, images, layerTokens };
+  return { messages, images, layerTokens, sources, imageSources };
 }
 
 // Explicit role for a freshly created node (addQuestion / regenerate),

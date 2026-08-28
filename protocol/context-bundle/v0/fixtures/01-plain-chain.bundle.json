@@ -1,0 +1,101 @@
+{
+  "format": "thoughtdag.context-bundle",
+  "version": 0,
+  "graph": {
+    "project_id": null,
+    "snapshot_hash": "sha256:14cfc919393f211e87510edb085854d1345f8c79a86264dcecb8daee43546f39",
+    "target_node_id": "node-root-2"
+  },
+  "intent": {
+    "task": "So what single habit would break that fallacy?",
+    "language": "en"
+  },
+  "context": {
+    "messages": [
+      {
+        "id": "item_001",
+        "kind": "message",
+        "role": "user",
+        "content": [
+          {
+            "type": "text",
+            "text": "Why do saved articles stay unread?"
+          }
+        ],
+        "source": {
+          "layer": "chain",
+          "part": "question",
+          "node_id": "node-root-1"
+        },
+        "selection": {
+          "mode": "full",
+          "reason": "structural-chain"
+        }
+      },
+      {
+        "id": "item_002",
+        "kind": "message",
+        "role": "assistant",
+        "content": [
+          {
+            "type": "text",
+            "text": "Because saving costs nothing while reading costs attention — the collector's fallacy mistakes acquisition for progress."
+          }
+        ],
+        "source": {
+          "layer": "chain",
+          "part": "response",
+          "node_id": "node-root-1"
+        },
+        "selection": {
+          "mode": "full",
+          "reason": "structural-chain"
+        }
+      },
+      {
+        "id": "item_003",
+        "kind": "message",
+        "role": "user",
+        "content": [
+          {
+            "type": "text",
+            "text": "So what single habit would break that fallacy?"
+          }
+        ],
+        "source": {
+          "layer": "chain",
+          "part": "question",
+          "node_id": "node-root-2"
+        },
+        "selection": {
+          "mode": "full",
+          "reason": "structural-chain"
+        }
+      }
+    ],
+    "materials": [],
+    "references": []
+  },
+  "execution_hints": {
+    "preferred_model": null,
+    "required_tools": [],
+    "required_mcp_servers": []
+  },
+  "budget": {
+    "estimated_tokens": 51,
+    "limit": null,
+    "truncation": "none"
+  },
+  "id": "cb_505f75150b29fda1",
+  "created_at": "2026-01-01T00:00:00Z",
+  "provenance": {
+    "source_runs": [],
+    "compiler": {
+      "name": "thoughtdag",
+      "adapter_id": null
+    }
+  },
+  "integrity": {
+    "content_hash": "sha256:505f75150b29fda1debe8f240a72c8e33a312d24c4d78fcb06c3270a268669be"
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "description": "The editing story: an archived (pruned) turn contributes nothing, a stale answer enters with its mark, a highlight filter narrows one response, and the compile carries a branch passage. Tests exclusion, honesty marks and the branch layer.",
+  "target": "node-c4",
+  "options": {
+    "now": "2026-01-01T00:00:00Z",
+    "staleIds": ["node-c3"],
+    "branchContext": "only anchor on figures"
+  },
+  "nodes": [
+    {
+      "id": "node-c1",
+      "position": { "x": 0, "y": 0 },
+      "data": {
+        "question": "Summarize the pilot feedback.",
+        "response": "Three findings: onboarding confuses, the map view delights, participants skim in the first pass and only anchor on figures.",
+        "responses": ["Three findings: onboarding confuses, the map view delights, participants skim in the first pass and only anchor on figures."],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 12,
+        "highlights": [{ "id": "h1", "text": "participants skim in the first pass and only anchor on figures" }],
+        "highlightMode": "filter"
+      }
+    },
+    {
+      "id": "node-c2",
+      "position": { "x": 0, "y": 300 },
+      "data": {
+        "question": "Draft a fix for the onboarding confusion.",
+        "response": "Replace the tour with a single interactive example.",
+        "responses": ["Replace the tour with a single interactive example."],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 8,
+        "highlights": [],
+        "highlightMode": "off",
+        "archived": true
+      }
+    },
+    {
+      "id": "node-c3",
+      "position": { "x": 0, "y": 600 },
+      "data": {
+        "question": "What should the first release prioritize?",
+        "response": "Prioritize the map view polish over onboarding changes.",
+        "responses": ["Prioritize the map view polish over onboarding changes."],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 9,
+        "highlights": [],
+        "highlightMode": "off"
+      }
+    },
+    {
+      "id": "node-c4",
+      "position": { "x": 0, "y": 900 },
+      "data": {
+        "question": "Turn that priority into a two-week plan.",
+        "response": "",
+        "responses": [],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 8,
+        "highlights": [],
+        "highlightMode": "off"
+      }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "source": "node-c1", "target": "node-c2" },
+    { "id": "e2", "source": "node-c2", "target": "node-c3" },
+    { "id": "e3", "source": "node-c3", "target": "node-c4" }
+  ]
+}

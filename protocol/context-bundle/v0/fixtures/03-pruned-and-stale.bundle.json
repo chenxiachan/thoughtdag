@@ -1,0 +1,161 @@
+{
+  "format": "thoughtdag.context-bundle",
+  "version": 0,
+  "graph": {
+    "project_id": null,
+    "snapshot_hash": "sha256:ed70b29cb35a2612a95fe2f4fe48a00fceb23cdf79069934acc65d5de0056934",
+    "target_node_id": "node-c4"
+  },
+  "intent": {
+    "task": "Turn that priority into a two-week plan.",
+    "language": null
+  },
+  "context": {
+    "messages": [
+      {
+        "id": "item_001",
+        "kind": "message",
+        "role": "user",
+        "content": [
+          {
+            "type": "text",
+            "text": "Summarize the pilot feedback."
+          }
+        ],
+        "source": {
+          "layer": "chain",
+          "part": "question",
+          "node_id": "node-c1"
+        },
+        "selection": {
+          "mode": "full",
+          "reason": "structural-chain"
+        }
+      },
+      {
+        "id": "item_002",
+        "kind": "message",
+        "role": "assistant",
+        "content": [
+          {
+            "type": "text",
+            "text": "participants skim in the first pass and only anchor on figures"
+          }
+        ],
+        "source": {
+          "layer": "chain",
+          "part": "response",
+          "node_id": "node-c1"
+        },
+        "selection": {
+          "mode": "full",
+          "reason": "structural-chain"
+        }
+      },
+      {
+        "id": "item_003",
+        "kind": "message",
+        "role": "user",
+        "content": [
+          {
+            "type": "text",
+            "text": "What should the first release prioritize?"
+          }
+        ],
+        "source": {
+          "layer": "chain",
+          "part": "question",
+          "node_id": "node-c3"
+        },
+        "selection": {
+          "mode": "full",
+          "reason": "structural-chain"
+        }
+      },
+      {
+        "id": "item_004",
+        "kind": "message",
+        "role": "assistant",
+        "content": [
+          {
+            "type": "text",
+            "text": "[Stale: this answer was written against an earlier version of its upstream]\nPrioritize the map view polish over onboarding changes."
+          }
+        ],
+        "source": {
+          "layer": "chain",
+          "part": "response",
+          "node_id": "node-c3"
+        },
+        "selection": {
+          "mode": "full",
+          "reason": "structural-chain"
+        }
+      },
+      {
+        "id": "item_005",
+        "kind": "message",
+        "role": "user",
+        "content": [
+          {
+            "type": "text",
+            "text": "Turn that priority into a two-week plan."
+          }
+        ],
+        "source": {
+          "layer": "chain",
+          "part": "question",
+          "node_id": "node-c4"
+        },
+        "selection": {
+          "mode": "full",
+          "reason": "structural-chain"
+        }
+      },
+      {
+        "id": "item_006",
+        "kind": "message",
+        "role": "user",
+        "content": [
+          {
+            "type": "text",
+            "text": "[Regarding this passage: \"only anchor on figures\"]"
+          }
+        ],
+        "source": {
+          "layer": "branch",
+          "part": "passage",
+          "node_id": "node-c4"
+        },
+        "selection": {
+          "mode": "full",
+          "reason": "structural-branch"
+        }
+      }
+    ],
+    "materials": [],
+    "references": []
+  },
+  "execution_hints": {
+    "preferred_model": null,
+    "required_tools": [],
+    "required_mcp_servers": []
+  },
+  "budget": {
+    "estimated_tokens": 91,
+    "limit": null,
+    "truncation": "none"
+  },
+  "id": "cb_8cbbdbd654b2ef8d",
+  "created_at": "2026-01-01T00:00:00Z",
+  "provenance": {
+    "source_runs": [],
+    "compiler": {
+      "name": "thoughtdag",
+      "adapter_id": null
+    }
+  },
+  "integrity": {
+    "content_hash": "sha256:8cbbdbd654b2ef8d3643ef2050fd890e354b56113c5e6e9393c3686a23c83620"
+  }
+}

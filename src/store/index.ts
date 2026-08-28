@@ -94,4 +94,8 @@ useStore.subscribe((s, prev) => {
 // Debug: expose store for testing (DEV only)
 if (import.meta.env.DEV && typeof window !== 'undefined') {
   Object.assign(window, { __store: useStore, __buildContext: buildContext });
+  // the bundle compiler rides along for protocol fixture tests
+  void import('../lib/context-bundle').then((m) => {
+    Object.assign(window, { __compileBundle: m.compileContextBundle, __graphSnapshotHash: m.graphSnapshotHash });
+  });
 }

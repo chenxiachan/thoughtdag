@@ -1,0 +1,109 @@
+{
+  "description": "The layer order in one graph: a note material and a text-file attachment feed the chain, a side conversation arrives as a dashed quote reference. Tests material identity prefixes, the materials inventory, reference blocks and layer provenance.",
+  "target": "node-main-2",
+  "options": { "now": "2026-01-01T00:00:00Z" },
+  "nodes": [
+    {
+      "id": "node-note",
+      "position": { "x": -300, "y": 0 },
+      "data": {
+        "stepKind": "note",
+        "question": "Field note: participants skim in the first pass and only anchor on figures.",
+        "response": "",
+        "responses": [],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 14,
+        "highlights": [],
+        "highlightMode": "off"
+      }
+    },
+    {
+      "id": "node-file",
+      "position": { "x": -300, "y": 200 },
+      "data": {
+        "stepKind": "file",
+        "question": "",
+        "response": "",
+        "responses": [],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 0,
+        "highlights": [],
+        "highlightMode": "off",
+        "attachments": [
+          {
+            "id": "att-notes-txt",
+            "name": "reading-log.txt",
+            "type": "text/plain",
+            "size": 84,
+            "content": "day 1: skimmed abstract only\nday 2: figures first, then discussion\nday 3: full pass"
+          }
+        ]
+      }
+    },
+    {
+      "id": "node-side-1",
+      "position": { "x": 400, "y": 0 },
+      "data": {
+        "question": "What does eye-tracking research say about reading order?",
+        "response": "Readers of scientific papers fixate on figures and captions before committing to linear text.",
+        "responses": ["Readers of scientific papers fixate on figures and captions before committing to linear text."],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 9,
+        "highlights": [],
+        "highlightMode": "off"
+      }
+    },
+    {
+      "id": "node-main-1",
+      "position": { "x": 0, "y": 0 },
+      "data": {
+        "question": "How should a reading tool present a paper first?",
+        "response": "Lead with the figures and let text unfold on demand.",
+        "responses": ["Lead with the figures and let text unfold on demand."],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 10,
+        "highlights": [],
+        "highlightMode": "off"
+      }
+    },
+    {
+      "id": "node-main-2",
+      "position": { "x": 0, "y": 300 },
+      "data": {
+        "question": "Design the first-open screen from this evidence.",
+        "response": "",
+        "responses": [],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 8,
+        "highlights": [],
+        "highlightMode": "off"
+      }
+    }
+  ],
+  "edges": [
+    { "id": "e-note", "source": "node-note", "target": "node-main-1" },
+    { "id": "e-file", "source": "node-file", "target": "node-main-2" },
+    { "id": "e-main", "source": "node-main-1", "target": "node-main-2" },
+    { "id": "e-ref", "source": "node-side-1", "target": "node-main-2", "data": { "isCrossLink": true } }
+  ]
+}

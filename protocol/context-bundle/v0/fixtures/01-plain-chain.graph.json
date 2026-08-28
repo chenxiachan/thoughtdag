@@ -1,0 +1,44 @@
+{
+  "description": "The smallest real conversation: a root Q/A and a follow-up. Tests chain ordering (root question, root answer, target question) and per-item provenance.",
+  "target": "node-root-2",
+  "options": { "now": "2026-01-01T00:00:00Z", "language": "en" },
+  "nodes": [
+    {
+      "id": "node-root-1",
+      "position": { "x": 0, "y": 0 },
+      "data": {
+        "question": "Why do saved articles stay unread?",
+        "response": "Because saving costs nothing while reading costs attention — the collector's fallacy mistakes acquisition for progress.",
+        "responses": ["Because saving costs nothing while reading costs attention — the collector's fallacy mistakes acquisition for progress."],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 12,
+        "highlights": [],
+        "highlightMode": "off"
+      }
+    },
+    {
+      "id": "node-root-2",
+      "position": { "x": 0, "y": 300 },
+      "data": {
+        "question": "So what single habit would break that fallacy?",
+        "response": "",
+        "responses": [],
+        "responseIndex": 0,
+        "isCollapsed": false,
+        "isEditing": false,
+        "isEditingResponse": false,
+        "isLoading": false,
+        "tokenCount": 10,
+        "highlights": [],
+        "highlightMode": "off"
+      }
+    }
+  ],
+  "edges": [
+    { "id": "e1", "source": "node-root-1", "target": "node-root-2" }
+  ]
+}
