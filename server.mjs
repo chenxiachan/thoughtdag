@@ -197,7 +197,10 @@ function resolveModel(modelId, hasImages, reqProviders) {
   // Vision reroute is never silent: the caller gets who actually answers
   // (reroutedFrom), streams it to the client, and can fall back to the
   // original model with companion text if the vision stand-in blows up.
-  if (hasImages && !entry.vision) {
+  // Only a DECLARED text-only model reroutes; unknown vision ships the
+  // images optimistically (the first real request is the probe — the
+  // client records the verdict and the next run takes the right lane).
+  if (hasImages && entry.vision === false) {
     if (entry.visionFallback && reg[entry.visionFallback]) {
       return { entry: reg[entry.visionFallback], id: entry.visionFallback, reroutedFrom: pickedId };
     }
@@ -764,7 +767,10 @@ function providerEntries(providers) {
       const shortId = m.id.includes('/') ? m.id.split('/').slice(1).join('/') : m.id;
       out[m.id] = {
         name: `${shortId} (${name})`, provider: name,
-        vision: m.vision ?? (openRouterCaps?.get(m.id)?.includes('image') ?? false),
+        // three states, kept honest: true = send images, false = reroute,
+        // undefined = nobody knows — send optimistically and let the
+        // client's lazy capability learning record the verdict
+        vision: m.vision ?? (openRouterCaps?.has(m.id) ? openRouterCaps.get(m.id).includes('image') : undefined),
         model: () => make(m.id), ...extra,
         ...(isOpenRouter(baseURL) ? { online: () => make(`${m.id}:online`) } : {}),
       };

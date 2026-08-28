@@ -41,7 +41,9 @@ function providerEntries(providers) {
       if (out[m.id]) continue;
       const shortId = m.id.includes('/') ? m.id.split('/').slice(1).join('/') : m.id;
       out[m.id] = {
-        name: `${shortId} (${name})`, provider: name, vision: !!m.vision,
+        // three states (mirror of server.mjs): false reroutes, undefined
+        // ships images optimistically for the client's capability learning
+        name: `${shortId} (${name})`, provider: name, vision: m.vision,
         model: () => make(m.id), ...extra,
         // OpenRouter's :online variant makes the GATEWAY search the web —
         // same key, no extra configuration
@@ -57,8 +59,9 @@ function resolveModel(modelId, hasImages, providers) {
   const pickedId = reg[modelId] ? modelId : Object.keys(reg)[0];
   const entry = reg[pickedId];
   if (!entry) return null;
-  // vision reroute carries its provenance (mirror of server.mjs)
-  if (hasImages && !entry.vision) {
+  // vision reroute carries its provenance (mirror of server.mjs) — only a
+  // DECLARED text-only model reroutes; unknown ships images optimistically
+  if (hasImages && entry.vision === false) {
     const found = Object.entries(reg).find(([, m]) => m.vision);
     if (found) return { entry: found[1], id: found[0], reroutedFrom: pickedId };
   }

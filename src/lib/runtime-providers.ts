@@ -111,6 +111,34 @@ export function saveProviders(providers: RuntimeProvider[]): void {
   localStorage.setItem(LS_KEY, JSON.stringify(providers));
 }
 
+/** The stored (user-side) vision state of a model: true/false when declared
+ *  by metadata, hint or hand, undefined when nobody knows. The merged
+ *  catalog cannot answer this — the proxy registers unknown as true. */
+export function storedVision(modelId: string): boolean | undefined {
+  for (const p of storedProviders()) {
+    const m = p.models.find((x) => x.id === modelId);
+    if (m) return m.vision;
+  }
+  return undefined;
+}
+
+/** Lazy capability learning: the first real image request IS the probe, and
+ *  its verdict is written back here. Returns true when a stored model
+ *  actually changed. */
+export function learnVision(modelId: string, vision: boolean): boolean {
+  const providers = storedProviders();
+  let hit = false;
+  for (const p of providers) {
+    const m = p.models.find((x) => x.id === modelId);
+    if (m && m.vision !== vision) {
+      m.vision = vision;
+      hit = true;
+    }
+  }
+  if (hit) saveProviders(providers);
+  return hit;
+}
+
 /** Register the full provider set on the proxy; returns the refreshed model list. */
 export async function pushProviders(providers: RuntimeProvider[]): Promise<ModelData> {
   // read the AnySearch key straight from storage (no ui-store import — this

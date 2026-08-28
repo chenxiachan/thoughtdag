@@ -2,7 +2,8 @@ import { API_BASE } from './constants';
 import { toast, useUiStore } from './ui-store';
 import { getModelsOnce } from './use-models';
 import { t, fmt } from '../i18n';
-import { storedProviders } from './runtime-providers';
+import { storedProviders, storedVision, learnVision, pushProviders } from './runtime-providers';
+import { setModelsCache } from './use-models';
 import { directProvider, directLlmStream, directLlmCall } from './direct-llm';
 import { errorText } from './error-text';
 
@@ -101,7 +102,9 @@ async function imagesForModel(modelId: string | undefined, images?: ImageAttachm
   // no explicit choice = the catalog default answers (mirror of the proxy)
   const effective = modelId ?? data?.default ?? undefined;
   const info = effective ? data?.models.find((m) => m.id === effective) : undefined;
-  if (info && !info.vision && images.every((i) => i.hasCompanion)) return undefined;
+  // explicit false only: unknown vision keeps the pixels so the first real
+  // request can serve as the capability probe
+  if (info && info.vision === false && images.every((i) => i.hasCompanion)) return undefined;
   return images;
 }
 
@@ -114,7 +117,7 @@ async function guardDirectVision(modelId: string | undefined, images?: ImageAtta
   const data = await getModelsOnce();
   const effective = modelId ?? data?.default ?? undefined;
   const info = effective ? data?.models.find((m) => m.id === effective) : undefined;
-  if (info && !info.vision) throw new Error(t('error.textOnlyModelImages'));
+  if (info && info.vision === false) throw new Error(t('error.textOnlyModelImages'));
 }
 
 // Non-streaming call (used for background summaries)
@@ -189,18 +192,71 @@ export async function llmCallStream(
   // thinking models, and the key staying local is a feature in itself.
   const modelId = modelOverride || useUiStore.getState().selectedModel || undefined;
   images = await imagesForModel(modelId, images);
-  const direct = directProvider(modelId);
-  if (direct && modelId) {
-    await guardDirectVision(modelId, images);
-    return directLlmStream(direct, modelId, contextMessages, onChunk, signal, images, callbacks, toolPrefs?.web);
+
+  // The proxy substituting a vision stand-in is a verdict on the model's
+  // OWN eyes — a run that got rerouted must not teach vision:true below.
+  let rerouted = false;
+  const cbs: StreamCallbacks = {
+    ...callbacks,
+    onRerouted: (from, to) => { rerouted = true; callbacks?.onRerouted?.(from, to); },
+  };
+
+  // One pass through whichever lane this deployment uses (browser-direct on
+  // Workers, the local proxy everywhere else — including the desktop app).
+  const sendOnce = async (imgs: ImageAttachment[] | undefined, chunkCb: typeof onChunk): Promise<string> => {
+    const direct = directProvider(modelId);
+    if (direct && modelId) {
+      await guardDirectVision(modelId, imgs);
+      return directLlmStream(direct, modelId, contextMessages, chunkCb, signal, imgs, cbs, toolPrefs?.web);
+    }
+    return proxyStream(imgs, chunkCb);
+  };
+
+  // ── Lazy capability learning ──
+  // Providers don't publish vision metadata (only OpenRouter does), so for
+  // a browser-configured model nobody has declared, the first real image
+  // request IS the probe. Success writes vision:true back; a pre-stream
+  // failure gets one pixel-free retry, and only THAT retry succeeding pins
+  // the blame on the images (differential diagnosis — a transient error
+  // never mislabels). Server-.env and gateway models keep their own paths.
+  const declared = modelId ? storedVision(modelId) : undefined;
+  const isStored = !!modelId && storedProviders().some((p) => p.models.some((m) => m.id === modelId));
+  if (images?.length && modelId && isStored && declared !== false) {
+    const short = modelId.split('/').pop() ?? modelId;
+    const learn = (vision: boolean, toastKey: 'toast.visionLearnedTrue' | 'toast.visionLearnedFalse') => {
+      if (!learnVision(modelId, vision)) return;
+      void pushProviders(storedProviders()).then(setModelsCache).catch(() => {});
+      toast('info', fmt(t(toastKey), { m: short }));
+    };
+    let emitted = false;
+    try {
+      const text = await sendOnce(images, (chunk, full) => { emitted = true; onChunk(chunk, full); });
+      if (declared === undefined && !rerouted && text.trim()) learn(true, 'toast.visionLearnedTrue');
+      return text;
+    } catch (err) {
+      if (err instanceof DOMException && err.name === 'AbortError') throw err;
+      if (emitted || rerouted) throw err; // mid-stream failures are not capability verdicts
+      if (declared === true) {
+        // a hand-declared vision mark failed on images: keep the failure,
+        // point at the switch that can fix it
+        const msg = err instanceof Error ? err.message : String(err);
+        throw new Error(`${msg} ${t('error.visionDeclaredHint')}`);
+      }
+      const text = await sendOnce(undefined, onChunk);
+      if (text.trim()) learn(false, 'toast.visionLearnedFalse');
+      return text;
+    }
   }
+  return sendOnce(images, onChunk);
+
+  async function proxyStream(imgs: ImageAttachment[] | undefined, chunkCb: typeof onChunk): Promise<string> {
   try {
     const res = await fetch(STREAM_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         messages: contextMessages,
-        images: images?.length ? images : undefined,
+        images: imgs?.length ? imgs : undefined,
         webSearch: toolPrefs?.web,
         scholarSearch: toolPrefs?.scholar,
         mcpTools: toolPrefs?.mcp,
@@ -243,29 +299,29 @@ export async function llmCallStream(
           if (parsed.error) throw new Error(errorText(parsed.error, 'Upstream stream error'));
           if (parsed.text) {
             full += parsed.text;
-            onChunk(parsed.text, full);
+            chunkCb(parsed.text, full);
           }
           if (parsed.reasoning) {
             reasoningFull += parsed.reasoning;
-            callbacks?.onReasoning?.(parsed.reasoning, reasoningFull);
+            cbs.onReasoning?.(parsed.reasoning, reasoningFull);
           }
           if (parsed.tool?.query) {
-            callbacks?.onToolCall?.(parsed.tool.name, parsed.tool.query);
+            cbs.onToolCall?.(parsed.tool.name, parsed.tool.query);
           }
           if (parsed.gatewaySearch) {
-            callbacks?.onGatewaySearch?.();
+            cbs.onGatewaySearch?.();
           }
           if (Array.isArray(parsed.sources)) {
-            callbacks?.onSources?.(parsed.sources);
+            cbs.onSources?.(parsed.sources);
           }
           // model substitution is never silent: say who answers, and why
           if (parsed.rerouted?.to) {
             toast('info', fmt(t('toast.visionRerouted'), { from: parsed.rerouted.from, to: parsed.rerouted.to }), 7000);
-            callbacks?.onRerouted?.(parsed.rerouted.from, parsed.rerouted.to);
+            cbs.onRerouted?.(parsed.rerouted.from, parsed.rerouted.to);
           }
           if (parsed.imageFallback?.model) {
             toast('info', fmt(t('toast.imagesAsText'), { model: parsed.imageFallback.model }), 9000);
-            callbacks?.onImageFallback?.(parsed.imageFallback.model);
+            cbs.onImageFallback?.(parsed.imageFallback.model);
           }
         } catch (e) {
           if (e instanceof Error && e.message !== data) throw e;
@@ -280,5 +336,6 @@ export async function llmCallStream(
   } catch (err: unknown) {
     // AbortError passes through untouched for stop-generation handling
     throw wrapError(err);
+  }
   }
 }
