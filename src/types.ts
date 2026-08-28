@@ -85,6 +85,10 @@ export interface ThoughtData extends Record<string, unknown> {
   // 'frame' = a labeled background region (spatial annotation) — no handles,
   // never in context, ignored by layout; the wayfinding primitive.
   stepKind?: 'human' | 'prompt' | 'note' | 'file' | 'link' | 'frame' | 'step' | 'fanout' | 'review' | 'synthesis';
+  /** Provenance of a node imported from an external runner session (the
+      continuity layer's read direction). Source sessions stay read-only;
+      these ids let a future continuation point back at native items. */
+  importSource?: { runner: string; sessionId: string; itemIds: string[] };
   linkUrl?: string; // link node: the source URL
   linkTitle?: string; // link node: page title (or a ⚠-prefixed fetch error)
   linkFetchedAt?: string; // link node: ISO timestamp of the snapshot (web content drifts)

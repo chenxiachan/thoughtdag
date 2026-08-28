@@ -12,7 +12,7 @@ import { autoLayout } from './layout';
 export interface ImportableConversation {
   title: string;
   messageCount: number;
-  source: 'chatgpt' | 'claude';
+  source: 'chatgpt' | 'claude' | 'claude-code';
   build: () => { nodes: ThoughtNode[]; edges: ThoughtEdge[] };
 }
 
@@ -33,7 +33,7 @@ export function detectFormat(parsed: unknown): DetectedFormat {
 
 // ─── shared node factory ────────────────────────────────────────
 
-function makeNode(question: string, response: string, isRoot: boolean): ThoughtNode {
+export function makeNode(question: string, response: string, isRoot: boolean): ThoughtNode {
   return {
     id: generateId(),
     type: 'thought',

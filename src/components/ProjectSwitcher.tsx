@@ -161,7 +161,7 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
             <input
               ref={importFileRef}
               type="file"
-              accept=".json,application/json"
+              accept=".json,.jsonl,application/json"
               className="hidden"
               onChange={(e) => {
                 const f = e.target.files?.[0];

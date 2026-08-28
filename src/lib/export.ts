@@ -80,10 +80,16 @@ export function exportActiveParadigm(): void {
 export async function parseImportFile(file: File): Promise<
   { kind: 'own'; ok: boolean } | { kind: 'chat'; conversations: ImportableConversation[] } | { kind: 'error' }
 > {
+  const text = await file.text();
   let parsed: unknown;
   try {
-    parsed = JSON.parse(await file.text());
+    parsed = JSON.parse(text);
   } catch {
+    // Not one JSON document — maybe a runner session (JSONL, one event per
+    // line). Claude Code sessions import read-only through the same modal.
+    const { claudeCodeSessionConversation } = await import('./adapters/claude-code-session');
+    const session = claudeCodeSessionConversation(text);
+    if (session) return { kind: 'chat', conversations: [session] };
     toast('error', t('toast.importFailedJson'));
     return { kind: 'error' };
   }
