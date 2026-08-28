@@ -76,11 +76,15 @@ if (ZHIPU_KEY) {
   const zhipuCompat = createOpenAICompatible({
     name: 'zhipu', apiKey: ZHIPU_KEY, baseURL: 'https://open.bigmodel.cn/api/paas/v4',
   });
-  modelRegistry['glm-4.5-flash'] = {
-    name: 'GLM-4.5 Flash · free', provider: 'Zhipu', vision: false, visionFallback: 'glm-4v-flash',
-    model: () => zhipu('glm-4.5-flash'),
-    // GLM-4.5 defaults to hidden "thinking" — disable for fast first tokens
-    providerOptions: { zhipu: { thinking: { type: 'disabled' } } },
+  // glm-4.5-flash was HALF-RETIRED upstream (2026-08-28): requests hang
+  // with zero bytes and no error, and the id vanished from /models — the
+  // worst possible way for a free tier to die. glm-5.3-flash is its live
+  // successor: still free, natively multimodal (verified with real image
+  // requests), an always-thinking model whose reasoning streams through
+  // the existing thinking channel.
+  modelRegistry['glm-5.3-flash'] = {
+    name: 'GLM-5.3 Flash · free', provider: 'Zhipu', vision: true,
+    model: () => zhipuCompat('glm-5.3-flash'),
   };
   modelRegistry['glm-4v-flash'] = {
     name: 'GLM-4V Flash · free vision', provider: 'Zhipu', vision: true, model: () => zhipuCompat('glm-4v-flash'),
@@ -182,7 +186,7 @@ if (Object.keys(modelRegistry).length === 0) {
   );
 }
 
-let DEFAULT_MODEL = ZHIPU_KEY ? 'glm-4.5-flash' : Object.keys(modelRegistry)[0];
+let DEFAULT_MODEL = ZHIPU_KEY ? 'glm-5.3-flash' : Object.keys(modelRegistry)[0];
 
 // Choose model entry: if images are attached and the model is text-only,
 // switch to its provider's vision counterpart — or, failing that, any

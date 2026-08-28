@@ -45,8 +45,10 @@ export const PROVIDER_PRESETS: ProviderPreset[] = [
     keyUrl: 'https://openrouter.ai/keys',
     recommend: ['openrouter/auto', 'anthropic/claude-sonnet-5', 'openai/gpt-5.5', 'google/gemini-3.1-pro-preview', 'deepseek/deepseek-v4-pro', 'z-ai/glm-5', 'qwen/qwen3.7-max', 'moonshotai/kimi-k2.6'],
   },
-  { id: 'zai', name: 'Z.ai GLM', region: 'en', baseURL: 'https://api.z.ai/api/paas/v4', keyUrl: 'https://z.ai', recommend: ['glm-4.5-flash', 'glm-5'] },
-  { id: 'zhipu', name: '智谱 GLM', region: 'zh', baseURL: 'https://open.bigmodel.cn/api/paas/v4', keyUrl: 'https://open.bigmodel.cn', recommend: ['glm-4.5-flash', 'glm-4v-flash', 'glm-5'] },
+  // glm-4.5-flash retired upstream 2026-08 (hangs, delisted) — 5.3-flash
+  // is the live free tier, natively multimodal
+  { id: 'zai', name: 'Z.ai GLM', region: 'en', baseURL: 'https://api.z.ai/api/paas/v4', keyUrl: 'https://z.ai', recommend: ['glm-5.3-flash', 'glm-5'] },
+  { id: 'zhipu', name: '智谱 GLM', region: 'zh', baseURL: 'https://open.bigmodel.cn/api/paas/v4', keyUrl: 'https://open.bigmodel.cn', recommend: ['glm-5.3-flash', 'glm-4v-flash', 'glm-5'] },
   // GLM Coding Plan: the subscription issues keys against a DEDICATED
   // endpoint (/api/coding/paas/v4) — NOT interchangeable with the metered
   // /api/paas/v4 above. Region twins mirror the zhipu/zai pair.
