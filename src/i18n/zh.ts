@@ -609,6 +609,7 @@ export const zh: Record<keyof typeof en, string> = {
   'takeaway.pivot': '转向',
   'takeaway.open': '待解',
   'node.generatedByTitle': '生成这个版本的模型。生成时记录，之后切换全局模型也不会混淆答案的出处。',
+  'node.pinnedModel': '已固定模型：{m}（下次生成使用）',
   'node.gatewaySearching': '联网搜索中…',
   'node.gatewaySearched': '已联网搜索',
   'node.gatewaySearchedTitle': '这个版本的回答由模型网关联网搜索后生成。',

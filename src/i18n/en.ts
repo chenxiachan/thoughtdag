@@ -610,6 +610,7 @@ export const en = {
   'takeaway.pivot': 'Pivot',
   'takeaway.open': 'Open question',
   'node.generatedByTitle': 'The model that generated this version. Recorded at generation time, so changing the global model never obscures where an answer came from.',
+  'node.pinnedModel': 'Pinned model: {m} (used for the next generation)',
   'node.gatewaySearching': 'Searching the web…',
   'node.gatewaySearched': 'Web-searched',
   'node.gatewaySearchedTitle': 'This version was answered with the model gateway\'s built-in web search.',

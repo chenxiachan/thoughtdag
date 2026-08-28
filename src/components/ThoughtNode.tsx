@@ -537,11 +537,24 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
               {data.appliedRole.slice(0, 20)}{data.appliedRole.length > 20 ? '…' : ''}
             </span>
           )}
-          {data.model && (
-            <span className="text-2xs bg-wash text-ink-muted px-1.5 py-0.5 rounded-md font-mono truncate max-w-[130px]" title={data.model}>
-              {data.model}
-            </span>
-          )}
+          {(() => {
+            // The chip answers "who wrote THIS answer" — the actual model
+            // recorded at generation time, following version paging. The
+            // per-node pin (data.model) is only the fallback before any
+            // answer exists; when both are known and differ, the tooltip
+            // names the pin so the next generation holds no surprise.
+            const gen = data.generatedBy?.[data.responseIndex] ?? undefined;
+            const label = gen ?? data.model;
+            if (!label) return null;
+            const pinNote = gen && data.model && data.model !== gen
+              ? `\n${fmt(t('node.pinnedModel'), { m: data.model })}`
+              : '';
+            return (
+              <span className="text-2xs bg-wash text-ink-muted px-1.5 py-0.5 rounded-md font-mono truncate max-w-[130px]" title={`${label}${pinNote}`}>
+                {label.split('/').pop()}
+              </span>
+            );
+          })()}
         </div>
         <div className="flex items-center gap-0.5">
           {data.isLoading && (
