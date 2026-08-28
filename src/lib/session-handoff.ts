@@ -31,8 +31,8 @@ export async function consumeSessionHandoff(): Promise<void> {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const text = await res.text();
     if (harvest && (await harvestIntoAnchor(text))) return;
-    const { claudeCodeSessionConversation } = await import('./adapters/claude-code-session');
-    const conv = claudeCodeSessionConversation(text);
+    const { anyRunnerSessionConversation } = await import('./adapters');
+    const conv = await anyRunnerSessionConversation(text);
     if (!conv) throw new Error(t('handoff.notASession'));
     const { importChatConversations } = await import('./export');
     await importChatConversations([conv]);

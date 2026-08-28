@@ -12,7 +12,7 @@ import { autoLayout } from './layout';
 export interface ImportableConversation {
   title: string;
   messageCount: number;
-  source: 'chatgpt' | 'claude' | 'claude-code';
+  source: 'chatgpt' | 'claude' | 'claude-code' | 'codex';
   build: () => { nodes: ThoughtNode[]; edges: ThoughtEdge[] };
 }
 
