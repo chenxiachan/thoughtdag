@@ -218,6 +218,49 @@ function buildGraph(session: { lines: SessionLine[]; sessionId: string }): { nod
   return { nodes: autoLayout(nodes, edges), edges };
 }
 
+/** The harvest half of the experiment loop: a SHORT experiment session
+ *  becomes a branch hanging off the node it was compiled from. The anchor
+ *  line traveled inside the session's first user message; the caller has
+ *  already resolved it to a live node. Returns the branch subgraph, laid
+ *  out beside the anchor (never re-laying the user's canvas). */
+export function claudeCodeSessionAsBranch(
+  text: string,
+  anchorNode: { id: string; x: number; y: number },
+): { nodes: ThoughtNode[]; edges: ThoughtEdge[]; turnCount: number; anchorText: string | null } | null {
+  const session = parseClaudeCodeSession(text);
+  if (!session) return null;
+  const turns = collectTurns(session.lines);
+  if (turns.length === 0) return null;
+
+  const nodes: ThoughtNode[] = [];
+  const edges: ThoughtEdge[] = [];
+  let prev: { id: string } = { id: anchorNode.id };
+  for (const turn of turns) {
+    const node = makeNode(turn.question, turn.response, false);
+    node.data.importSource = { runner: 'claude-code', sessionId: session.sessionId, itemIds: turn.itemIds };
+    node.data.attachments = turn.tools.map((tool): Attachment => ({
+      id: generateId(),
+      name: `tool: ${tool.name}${tool.truncated ? ' (truncated)' : ''}`,
+      type: 'text/plain',
+      size: tool.call.length + tool.result.length,
+      content: `[call] ${tool.call}\n[result]\n${tool.result}`,
+    }));
+    if (nodes.length === 0) node.data.isBranch = true; // the experiment forks off sideways
+    nodes.push(node);
+    edges.push({ id: generateId(), source: prev.id, target: node.id, type: 'smoothstep' } as ThoughtEdge);
+    prev = node;
+  }
+  // lay the branch out in its own frame, then move it beside the anchor —
+  // the user's own arrangement is never touched
+  const laid = autoLayout(nodes, edges.filter((e) => e.source !== anchorNode.id));
+  const minX = Math.min(...laid.map((n) => n.position.x));
+  const minY = Math.min(...laid.map((n) => n.position.y));
+  for (const n of laid) {
+    n.position = { x: n.position.x - minX + anchorNode.x + 560, y: n.position.y - minY + anchorNode.y };
+  }
+  return { nodes: laid, edges, turnCount: turns.length, anchorText: turns[0].question };
+}
+
 /** The importable-conversation wrapper the existing import modal consumes. */
 export function claudeCodeSessionConversation(text: string): ImportableConversation | null {
   const session = parseClaudeCodeSession(text);

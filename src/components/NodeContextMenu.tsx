@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { Archive, ArchiveRestore, BookOpen, Copy, Files, GitFork, Maximize2, RefreshCw, StickyNote, Trash2 } from 'lucide-react';
+import { Archive, ArchiveRestore, BookOpen, Copy, Files, FlaskConical, GitFork, Maximize2, RefreshCw, StickyNote, Trash2 } from 'lucide-react';
 import { useStore } from '../store';
 import { useUiStore, confirmDialog, toast } from '../lib/ui-store';
 import { recapToNote } from '../lib/recap';
@@ -80,6 +80,13 @@ export default function NodeContextMenu({ x, y, nodeId, onClose }: {
           void navigator.clipboard.writeText(copyText).then(() => toast('success', ti('ctx.copied')));
         })}>
           <Copy size={14} strokeWidth={1.75} className={icon} /> {t('ctx.copyContent')}
+        </button>
+      )}
+      {!isContent && (
+        <button className={item} title={ti('exp.takeTitle')} onClick={run(() => {
+          void import('../lib/experiment-loop').then((m) => m.takeToExperiment(nodeId));
+        })} data-take-to-experiment>
+          <FlaskConical size={14} strokeWidth={1.75} className={icon} /> {t('exp.take')}
         </button>
       )}
       <button className={item} onClick={run(() => useStore.getState().duplicateNode(nodeId))}>

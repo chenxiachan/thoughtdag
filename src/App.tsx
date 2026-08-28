@@ -200,6 +200,18 @@ function Canvas() {
   const materialCount = useStore((s) => s.nodes.reduce((sum, n) =>
     sum + (n.data.attachments?.length ?? 0) + (['note', 'link'].includes(n.data.stepKind ?? '') ? 1 : 0), 0));
   const rfInstance = useRef<ReactFlowInstance<ThoughtNodeType, ThoughtEdge> | null>(null);
+  // Arrival focus, runtime lane: a harvest appends to the LIVE canvas (no
+  // remount, so onInit never fires) — consume the one-shot here instead.
+  const arrivalFocus = useUiStore((s) => s.arrivalFocusNodeId);
+  useEffect(() => {
+    if (!arrivalFocus) return;
+    const n = useStore.getState().nodes.find((x) => x.id === arrivalFocus);
+    if (!n) return;
+    useUiStore.getState().setArrivalFocusNodeId(null);
+    window.setTimeout(() => {
+      rfInstance.current?.setCenter(n.position.x + 260, n.position.y + 140, { zoom: 0.9, duration: 400 });
+    }, 150);
+  }, [arrivalFocus]);
   // Appearance: lighting swaps the token set, paper swaps the canvas texture
   // (and turns the grid's snapping on). Edge colors resolve per theme.
   const paperTexture = useAppearance((s) => s.paper);

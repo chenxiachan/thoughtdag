@@ -4,7 +4,7 @@ description: 把当前 Claude Code 会话直接打开到 ThoughtDAG 画布（本
 
 把当前 Claude Code 会话送进 ThoughtDAG：导出只读快照 → 起一个短命的本机桥 → 打开本地 ThoughtDAG，画布自动完成导入。规则与步骤：
 
-1. **定位会话文件**：当前项目的会话 JSONL 在 `~/.claude/projects/<项目路径 slug>/` 下（slug = 项目绝对路径把 `/` 和 `.` 替换为 `-`）。用 `ls -t` 取该目录**最近修改**的 `.jsonl` 即当前会话。参数 `$ARGUMENTS` 为 `list` 时改为列出最近 5 个会话（文件名、大小、修改时间）等用户挑选；为某会话 id 前缀时选中匹配文件。
+1. **定位会话文件**：当前项目的会话 JSONL 在 `~/.claude/projects/<项目路径 slug>/` 下（slug = 项目绝对路径把 `/` 和 `.` 替换为 `-`）。用 `ls -t` 取该目录**最近修改**的 `.jsonl` 即当前会话。参数 `$ARGUMENTS` 为 `list` 时改为列出最近 5 个会话（文件名、大小、修改时间）等用户挑选；为某会话 id 前缀时选中匹配文件；为 `harvest` 时仍取当前会话，但第 4 步打开的 URL 额外带 `&mode=harvest` —— 画布会读取会话首条消息里的实验锚点，把这次实验作为支线**挂回它出发的节点**（收获模式；锚点缺失时自动退为普通导入）。
 
 2. **只读快照**：把选中的 JSONL **复制**到 `~/Desktop/thoughtdag-session-$(date +%Y%m%d-%H%M).jsonl`。绝不修改、移动或删除源文件。（正在写入的文件可安全复制，导入器容忍尾部截断行。）
 
@@ -32,7 +32,7 @@ srv.serve_forever()
 桥只绑 127.0.0.1、只回这一个文件、CORS 只回显 ThoughtDAG 的来源，两分钟后自毁。
 
 4. **打开本地 ThoughtDAG**：探测 `curl -s -o /dev/null -w "%{http_code}" http://localhost:5173`：
-   - **5173 在跑** → `open "http://localhost:5173/#import-url=http://127.0.0.1:38017/session.jsonl"`，画布会自动拉取并导入（每轮问答一个节点、工具调用成可单独排除的附件、compaction 边界显式标注、默认最近 200 轮，视角落在最新几轮）。
+   - **5173 在跑** → `open "http://localhost:5173/#import-url=http://127.0.0.1:38017/session.jsonl"`（harvest 模式在末尾追加 `&mode=harvest`），画布会自动拉取并导入（每轮问答一个节点、工具调用成可单独排除的附件、compaction 边界显式标注、默认最近 200 轮，视角落在最新几轮）。
    - **不在跑** → 告诉用户三选一：① `npm run dev` 起本地版后重新运行本命令；② 打开线上版（数据同样不出本机，桥只认本机来源）：`open "https://app.thoughtdag.workers.dev/#import-url=http://127.0.0.1:38017/session.jsonl"`（桥两分钟内有效）；③ 手动把桌面上的快照文件从画布切换器 → 导入拖入。
 
 5. **收尾告知**：快照路径 + 已打开的地址 + 一句「导入的画布暂存浏览器本地，提示条里可一键开启自动备份落成文件」。不要打印或总结会话内容本身——那是 ThoughtDAG 的工作。
