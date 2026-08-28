@@ -113,6 +113,11 @@ interface UiState {
   setLastAutoBackupAt: (t: number | null) => void;
   backupDialogOpen: boolean;
   setBackupDialogOpen: (v: boolean) => void;
+  /** One-shot arrival viewport: after an import lands, the canvas centers
+      on this node (the working tail) instead of fitting 200 turns into one
+      unreadable column. Consumed by the canvas on init. */
+  arrivalFocusNodeId: string | null;
+  setArrivalFocusNodeId: (id: string | null) => void;
   condenseDialogOpen: boolean;
   setCondenseDialogOpen: (v: boolean) => void;
   condenseHighlightIds: string[];
@@ -259,6 +264,8 @@ export const useUiStore = create<UiState>((set, get) => ({
   lastAutoBackupAt: null,
   setLastAutoBackupAt: (t) => set({ lastAutoBackupAt: t }),
   backupDialogOpen: false,
+  arrivalFocusNodeId: null,
+  setArrivalFocusNodeId: (id) => set({ arrivalFocusNodeId: id }),
   condenseDialogOpen: false,
   setCondenseDialogOpen: (v) => set({ condenseDialogOpen: v, ...(v ? {} : { condenseHighlightIds: [] }) }),
   condenseHighlightIds: [],

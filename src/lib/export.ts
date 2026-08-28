@@ -138,6 +138,12 @@ export async function importChatConversations(convs: ImportableConversation[]): 
   for (const conv of convs) {
     const { nodes, edges } = conv.build();
     if (nodes.length === 0) continue;
+    // Arrive at the working tail, not a bird's-eye column of 200 turns —
+    // the canvas consumes this once on its next mount.
+    if (firstId === null) {
+      const { useUiStore } = await import('./ui-store');
+      useUiStore.getState().setArrivalFocusNodeId(nodes[nodes.length - 1].id);
+    }
     const id = crypto.randomUUID();
     await idbSet(projectStorageKey(id), JSON.stringify({
       state: { nodes: stripTransient(nodes), edges },

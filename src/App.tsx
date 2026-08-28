@@ -143,6 +143,13 @@ export default function App() {
   // A pending Sign-in-with-OpenRouter callback (?code=) resolves here: the
   // exchange runs entirely in the browser, then the ApiKeyModal opens on
   // the model-picking view for the user to confirm what to enable.
+  // /thoughtdag handoff: #import-url=<loopback> imports a runner session
+  // straight onto a fresh canvas (validation + one-shot in the consumer)
+  useEffect(() => {
+    if (isViewerMode) return;
+    void import('./lib/session-handoff').then((m) => m.consumeSessionHandoff());
+  }, []);
+
   useEffect(() => {
     if (isViewerMode) return;
     void consumeOpenRouterCallback().then((r) => {
@@ -1056,6 +1063,18 @@ function Canvas() {
           recapCamera.current = instance;
           // Debug: expose the flow instance for screenshot/e2e scripts (DEV only)
           if (import.meta.env.DEV) (window as unknown as { __rf?: typeof instance }).__rf = instance;
+          // A freshly imported session arrives at its working tail, not a
+          // bird's-eye column (one-shot, set by the importer)
+          const focusId = useUiStore.getState().arrivalFocusNodeId;
+          if (focusId) {
+            useUiStore.getState().setArrivalFocusNodeId(null);
+            const n = useStore.getState().nodes.find((x) => x.id === focusId);
+            if (n) {
+              window.setTimeout(() => {
+                instance.setCenter(n.position.x + 260, n.position.y + 140, { zoom: 0.9, duration: 400 });
+              }, 150);
+            }
+          }
         }}
         nodes={displayNodes}
         edges={highlightedEdges}
