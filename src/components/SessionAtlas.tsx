@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Folder, FolderOpen, Loader2, RefreshCw, SquareTerminal, Import, X, Inbox } from 'lucide-react';
 import { scanSessions, groupByCwd, type SessionCard, type AtlasGroup } from '../lib/atlas/discover';
 import { useProjects, switchProject } from '../store/projects';
@@ -60,7 +61,10 @@ export default function SessionAtlas({ onClose, onSwitched }: { onClose: () => v
     }
   };
 
-  return (
+  // Portal to body: the switcher that opens us lives in a z-20 stacking
+  // context, which would clamp this overlay UNDER the focus panel — the
+  // atlas must veil the whole canvas, side panel included.
+  return createPortal(
     <div className="fixed inset-0 z-50 bg-ink/30 backdrop-blur-sm flex items-center justify-center p-6" data-session-atlas>
       <div className="bg-surface border border-line rounded-2xl shadow-2xl w-full max-w-[980px] h-[min(680px,90vh)] flex flex-col overflow-hidden">
         <div className="flex items-start gap-3 px-5 pt-4 pb-3 border-b border-line">
@@ -181,6 +185,7 @@ export default function SessionAtlas({ onClose, onSwitched }: { onClose: () => v
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
