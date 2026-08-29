@@ -212,13 +212,14 @@ function buildGraphFromTurns(turns: Turn[], sessionId: string): { nodes: Thought
   let prev: ThoughtNode | null = null;
 
   for (const turn of turns) {
+    // annotation, not chain link — see the Claude Code adapter's note
+    let noteToWire: ThoughtNode | null = null;
     if (turn.compactionBefore) {
       const note = makeNode(turn.compactionBefore, '', false);
       note.data.stepKind = 'note';
       note.data.importSource = { runner: 'codex', sessionId, itemIds: [] };
       nodes.push(note);
-      if (prev) edges.push({ id: generateId(), source: prev.id, target: note.id, type: 'smoothstep' } as ThoughtEdge);
-      prev = note;
+      noteToWire = note;
     }
     const node = makeNode(turn.question || '(tool-only turn)', turn.response, prev === null);
     node.data.importSource = { runner: 'codex', sessionId, itemIds: turn.itemIds };
@@ -227,6 +228,7 @@ function buildGraphFromTurns(turns: Turn[], sessionId: string): { nodes: Thought
     seedPlaque(node);
     nodes.push(node);
     if (prev) edges.push({ id: generateId(), source: prev.id, target: node.id, type: 'smoothstep' } as ThoughtEdge);
+    if (noteToWire) edges.push({ id: generateId(), source: noteToWire.id, target: node.id, type: 'smoothstep' } as ThoughtEdge);
     prev = node;
   }
 

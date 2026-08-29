@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ReactFlow,
   Background,
@@ -82,15 +82,17 @@ import { useStore as useRfStore, useReactFlow } from '@xyflow/react';
 // One node type key, three renderers: content nodes (notes / files) render
 // the same in every mode; otherwise the active project's kind decides
 // whether a node is a conversation card or an orchestration step card.
-function NodeDispatch(props: Parameters<typeof ThoughtNode>[0]) {
+// memo matters at scale: a 555-node canvas re-rendering every visible card
+// on each React Flow store tick is the difference between smooth and stuck
+const NodeDispatch = memo(function NodeDispatch(props: Parameters<typeof ThoughtNode>[0]) {
   const isParadigm = useProjects((s) => s.projects.find((p) => p.id === s.activeId)?.kind === 'paradigm');
   if (props.data?.stepKind === 'frame') return <FrameNode {...props} />;
   if (isContentKind(props.data?.stepKind)) return <ContentNode {...props} />;
   return isParadigm ? <ParadigmNode {...props} /> : <ThoughtNode {...props} />;
-}
+});
 const nodeTypes = { thought: NodeDispatch };
 // Overrides the built-in smoothstep so persisted edges need no migration
-const edgeTypes = { smoothstep: ThoughtEdgeView };
+const edgeTypes = { smoothstep: memo(ThoughtEdgeView) };
 
 // Gate on rehydration: the store loads asynchronously from IndexedDB, and
 // mounting the canvas only after hydration lets ReactFlow's fitView see the

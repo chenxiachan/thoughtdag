@@ -25,6 +25,11 @@ export const LAYOUT_V_GAP = 72;
 
 // Collapsed node card height, used by layout estimation and collapse shifting.
 export const COLLAPSED_NODE_HEIGHT = 80;
+// Layout footprint of a collapsed node. NOT the 80px work-tier strip: at
+// map zoom the same node renders as a takeaway plaque (eyebrow + headline
+// + tool marks ≈ 230px world height), and laying out by the strip made
+// every imported chain overlap the moment the user zoomed to the map.
+export const COLLAPSED_LAYOUT_HEIGHT = 240;
 
 // JS mirror of the @theme design tokens in src/index.css — for ReactFlow
 // edge styles / markers / minimap, which take literal color values.

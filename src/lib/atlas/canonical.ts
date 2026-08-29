@@ -89,8 +89,19 @@ export async function importOrAppendConversation(conv: import('../import-chat').
   let moved: ThoughtNode[];
   const extraEdges: ThoughtEdge[] = [...innerEdges];
   if (anchor) {
+    // collision floor: the appendix must clear EVERYTHING already living
+    // in this column band (harvest branches, user notes, earlier
+    // appendices) — hanging straight under the anchor stacks on them
+    const bandLeft = anchor.position.x - 40;
+    const bandRight = anchor.position.x + 580;
+    const floor = store.nodes.reduce((acc, n) => {
+      const w = n.width ?? n.measured?.width ?? 540;
+      if (n.position.x + w < bandLeft || n.position.x > bandRight) return acc;
+      const h = n.height ?? n.measured?.height ?? 300;
+      return Math.max(acc, n.position.y + h);
+    }, anchor.position.y + (anchor.height ?? 140));
     const dx = anchor.position.x - appendix[0].position.x;
-    const dy = anchor.position.y + (anchor.height ?? 140) + APPEND_GAP - appendix[0].position.y;
+    const dy = floor + APPEND_GAP - appendix[0].position.y;
     moved = appendix.map((n): ThoughtNode => ({ ...n, position: { x: n.position.x + dx, y: n.position.y + dy } }));
     extraEdges.unshift({ id: generateId(), source: anchor.id, target: moved[0].id, type: 'smoothstep' } as ThoughtEdge);
   } else {

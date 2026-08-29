@@ -218,14 +218,19 @@ function buildGraphFromTurns(turns: Turn[], sessionId: string): { nodes: Thought
   };
 
   for (const turn of turns) {
+    // A compaction note ANNOTATES the chain, never joins it: layout skips
+    // content nodes and their edges, so a note wired INTO the chain would
+    // sever it — the second half restarts at the top and overlaps the
+    // first. The main line stays turn→turn; the note points at the turn
+    // it narrates from the side.
+    let noteToWire: ThoughtNode | null = null;
     if (turn.compactionBefore) {
       const note = noteNode(turn.compactionBefore);
       // importer-owned notes carry provenance too, so "node without
       // importSource" strictly means "the user made this by hand"
       note.data.importSource = { runner: 'claude-code', sessionId, itemIds: [] };
       nodes.push(note);
-      if (prev) link(prev, note);
-      prev = note;
+      noteToWire = note;
     }
     const node = makeNode(turn.question, turn.response, prev === null);
     node.data.importSource = { runner: 'claude-code', sessionId, itemIds: turn.itemIds };
@@ -234,6 +239,7 @@ function buildGraphFromTurns(turns: Turn[], sessionId: string): { nodes: Thought
     node.data.attachments = toolAttachments(turn);
     nodes.push(node);
     if (prev) link(prev, node);
+    if (noteToWire) link(noteToWire, node);
     prev = node;
   }
 

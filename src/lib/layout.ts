@@ -1,6 +1,6 @@
 import type { ThoughtNode, ThoughtEdge } from '../types';
 import { getDescendantIds } from './graph';
-import { COLLAPSED_NODE_HEIGHT, LAYOUT_COL_WIDTH, LAYOUT_H_GAP, LAYOUT_V_GAP } from './constants';
+import { COLLAPSED_LAYOUT_HEIGHT, LAYOUT_COL_WIDTH, LAYOUT_H_GAP, LAYOUT_V_GAP } from './constants';
 
 // Estimated rendered height of a node — fallback when React Flow hasn't
 // measured the DOM yet (fresh nodes) and for collapse shifting. Every
@@ -9,7 +9,7 @@ import { COLLAPSED_NODE_HEIGHT, LAYOUT_COL_WIDTH, LAYOUT_H_GAP, LAYOUT_V_GAP } f
 // — an uncapped formula here would keep spreading nodes for content the
 // card no longer grows for.
 export function estimateNodeHeight(node: ThoughtNode): number {
-  if (node.data.isCollapsed) return COLLAPSED_NODE_HEIGHT;
+  if (node.data.isCollapsed) return COLLAPSED_LAYOUT_HEIGHT;
   // Calibrated against measured DOM heights (2026-08): CJK markdown renders
   // ~1px per char at card width before the 400px CSS cap, chrome (header +
   // takeaway line + follow-up input + paddings) runs ~215px, and each
@@ -18,8 +18,11 @@ export function estimateNodeHeight(node: ThoughtNode): number {
   const questionH = Math.min(180, 40 + (node.data.question || '').length / 1.2);
   const responseH = Math.min(400, (node.data.response || '').length / 1.05);
   const highlightsH = (node.data.highlights?.length ?? 0) * 26;
-  const estimated = 215 + questionH + responseH + highlightsH;
-  return Math.max(260, Math.min(900, estimated));
+  // tool fingerprints + composition bar render an extra header row on
+  // imported turns — un-counted, tool-heavy codex cards overlapped
+  const insightH = (node.data.attachments?.length ?? 0) > 0 ? 30 : 0;
+  const estimated = 215 + questionH + responseH + highlightsH + insightH;
+  return Math.max(260, Math.min(930, estimated));
 }
 
 // Height used for layout: the larger of the measured DOM height (React
