@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { Archive, ArchiveRestore, ClipboardCopy, Copy, Ellipsis, FileDown, GitFork, RefreshCw, Split, Square, Trash2 } from 'lucide-react';
+import { Archive, ArchiveRestore, ClipboardCopy, Copy, Ellipsis, FileDown, GitFork, RefreshCw, Split, Square, Trash2, Undo2 } from 'lucide-react';
 import { useStore } from '../../store';
 import { contextChainMarkdown, downloadMarkdown, copyText } from '../../lib/export';
 import ModelPicker from '../ui/ModelPicker';
 import FanOutModal from '../FanOutModal';
+import { toast } from '../../lib/ui-store';
 import { useT } from '../../i18n';
 
 // Compact action strip: the two actions you actually reach for (regenerate,
@@ -22,7 +23,25 @@ export default function HeaderActions({ nodeId, isLoading }: { nodeId: string; i
   const setArchived = useStore((s) => s.setArchived);
   const isArchived = useStore((s) => !!s.nodes.find((n) => n.id === nodeId)?.data.archived);
   const nodeQuestion = useStore((s) => s.nodes.find((n) => n.id === nodeId)?.data.question ?? '');
+  // fine tier of recoverability: a mirror node that drifted from its
+  // frozen source snapshot can be put back — text only, never structure
+  const diverged = useStore((s) => {
+    const n = s.nodes.find((x) => x.id === nodeId);
+    return !!n?.data.source && (n.data.question !== n.data.source.question || n.data.response !== n.data.source.response);
+  });
   const t = useT();
+
+  const revertToSource = () => {
+    const s = useStore.getState();
+    const node = s.nodes.find((x) => x.id === nodeId);
+    if (!node?.data.source) return;
+    s.pushHistory();
+    useStore.setState((st) => ({
+      nodes: st.nodes.map((n) => (n.id === nodeId
+        ? { ...n, data: { ...n.data, question: n.data.source!.question, response: n.data.source!.response } } : n)),
+    }));
+    toast('success', t('panel.reverted'));
+  };
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [fanOutOpen, setFanOutOpen] = useState(false);
@@ -90,6 +109,11 @@ export default function HeaderActions({ nodeId, isLoading }: { nodeId: string; i
             <button className={menuItem} onClick={() => { setMenuOpen(false); void copyText(contextChainMarkdown(nodeId)); }} title={t('actions.copyTitle')}>
               <ClipboardCopy size={15} strokeWidth={1.75} /> {t('actions.copyMd')}
             </button>
+            {diverged && (
+              <button className={menuItem} onClick={() => { setMenuOpen(false); revertToSource(); }} data-revert-source>
+                <Undo2 size={15} strokeWidth={1.75} /> {t('panel.revertToSource')}
+              </button>
+            )}
             <div className="border-t border-line my-1" />
             <button
               className="w-full text-left px-3 py-2 text-xs text-red-500 hover:bg-red-50 transition-colors flex items-center gap-2"

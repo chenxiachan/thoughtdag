@@ -31,13 +31,16 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
   const [open, setOpen] = useState(false);
   const [chatImport, setChatImport] = useState<ImportableConversation[] | null>(null);
   const [atlasOpen, setAtlasOpen] = useState(false);
+  const [atlasFocus, setAtlasFocus] = useState<string | undefined>(undefined);
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
   const importFileRef = useRef<HTMLInputElement>(null);
   const rootRef = useRef<HTMLDivElement>(null);
 
   const active = projects.find((p) => p.id === activeId);
-  const sorted = [...projects].sort((a, b) => b.updatedAt - a.updatedAt);
+  // the dropdown is a time machine, not a library: recent few only, the
+  // atlas owns browsing and management
+  const sorted = [...projects].sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 7);
 
   // Close on outside click
   useEffect(() => {
@@ -59,19 +62,33 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
     // z-20: the open dropdown must cover the content palette below (both
     // live on the left edge; the palette is z-10)
     <div ref={rootRef} className="absolute top-4 left-4 z-20">
-      <button
-        onClick={() => setOpen(!open)}
-        disabled={switching}
-        className="bg-card/90 backdrop-blur border border-line rounded-xl px-3.5 py-2 shadow-sm hover:bg-wash transition-colors flex items-center gap-2 text-sm text-ink max-w-[240px] disabled:opacity-60"
-      >
-        {switching
-          ? <Loader2 size={16} strokeWidth={1.75} className="animate-spin shrink-0 text-accent" />
-          : activeIsParadigm
-            ? <Dna size={16} strokeWidth={1.75} className="shrink-0 text-accent" />
-            : <FolderOpen size={16} strokeWidth={1.75} className="shrink-0 text-ink-muted" />}
-        <span className="truncate font-medium">{active?.name ?? '…'}</span>
-        <ChevronDown size={14} strokeWidth={1.75} className="shrink-0 text-ink-faint" />
-      </button>
+      <div className="flex items-center gap-1.5">
+        <button
+          onClick={() => setOpen(!open)}
+          disabled={switching}
+          className="bg-card/90 backdrop-blur border border-line rounded-xl px-3.5 py-2 shadow-sm hover:bg-wash transition-colors flex items-center gap-2 text-sm text-ink max-w-[240px] disabled:opacity-60"
+        >
+          {switching
+            ? <Loader2 size={16} strokeWidth={1.75} className="animate-spin shrink-0 text-accent" />
+            : activeIsParadigm
+              ? <Dna size={16} strokeWidth={1.75} className="shrink-0 text-accent" />
+              : <FolderOpen size={16} strokeWidth={1.75} className="shrink-0 text-ink-muted" />}
+          <span className="truncate font-medium">{active?.name ?? '…'}</span>
+          <ChevronDown size={14} strokeWidth={1.75} className="shrink-0 text-ink-faint" />
+        </button>
+        {/* the twin badge: this canvas is one face of a session — the
+            other face is one click away on the map */}
+        {active?.sourceSession && (
+          <button
+            title={fmt(ti('switcher.mirrorBadge'), { runner: active.sourceSession.runner })}
+            onClick={() => { setAtlasFocus(active.sourceSession!.sessionId); setAtlasOpen(true); }}
+            className="bg-card/90 backdrop-blur border border-line rounded-xl px-2 py-2 shadow-sm hover:bg-wash hover:text-accent transition-colors text-2xs font-mono text-ink-faint flex items-center gap-1"
+            data-twin-badge
+          >
+            ⇄ {active.sourceSession.runner}
+          </button>
+        )}
+      </div>
 
       {open && (
         <div className="mt-1.5 bg-card border border-line rounded-xl shadow-lg py-1.5 w-[280px] animate-fade-in">
@@ -101,8 +118,13 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
                 ) : (
                   <>
                     <div className="flex-1 min-w-0">
-                      <div className={`text-sm truncate ${p.id === activeId ? 'text-accent font-medium' : 'text-ink'}`}>
-                        {p.name}
+                      <div className={`text-sm truncate flex items-center gap-1.5 ${p.id === activeId ? 'text-accent font-medium' : 'text-ink'}`}>
+                        <span className="truncate">{p.name}</span>
+                        {p.sourceSession && (
+                          <span className="text-2xs font-mono border border-line rounded px-1 py-px shrink-0 text-ink-faint font-normal" data-mirror-mark>
+                            {p.sourceSession.runner}
+                          </span>
+                        )}
                       </div>
                       <div className="text-2xs text-ink-faint">{relativeTime(p.updatedAt)}</div>
                     </div>
@@ -147,15 +169,13 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
             >
               <Upload size={15} strokeWidth={1.75} /> {t('switcher.importBackup')}
             </button>
-            {window.desktopSessions && (
-              <button
-                onClick={() => { setOpen(false); setAtlasOpen(true); }}
-                className="w-full text-left px-3 py-2 text-sm text-ink-muted hover:bg-wash transition-colors flex items-center gap-2"
-                data-open-atlas
-              >
-                <MapIcon size={15} strokeWidth={1.75} /> {t('switcher.sessionAtlas')}
-              </button>
-            )}
+            <button
+              onClick={() => { setOpen(false); setAtlasOpen(true); }}
+              className="w-full text-left px-3 py-2 text-sm text-ink-muted hover:bg-wash transition-colors flex items-center gap-2"
+              data-open-atlas
+            >
+              <MapIcon size={15} strokeWidth={1.75} /> {t('switcher.allCanvases')}
+            </button>
             {window.desktop && (
               <button
                 onClick={() => { setOpen(false); void window.desktop!.checkForUpdates(); }}
@@ -199,7 +219,7 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
           onDone={() => { setChatImport(null); onSwitched(); }}
         />
       )}
-      {atlasOpen && <SessionAtlas onClose={() => setAtlasOpen(false)} onSwitched={onSwitched} />}
+      {atlasOpen && <SessionAtlas onClose={() => { setAtlasOpen(false); setAtlasFocus(undefined); }} onSwitched={onSwitched} focusSessionId={atlasFocus} />}
     </div>
   );
 }

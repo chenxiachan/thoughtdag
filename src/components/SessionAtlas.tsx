@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { AppWindow, ArrowDownUp, Folder, FolderOpen, Loader2, Plug, RefreshCw, Search, SquareTerminal, Import, Trash2, X, Inbox } from 'lucide-react';
+import { AppWindow, ArrowDownUp, Folder, FolderOpen, Loader2, Plug, RefreshCw, RotateCcw, Search, SquareTerminal, Import, Trash2, X, Inbox } from 'lucide-react';
 import { scanSessions, groupByCwd, disabledRoots, setRootDisabled, type SessionCard, type AtlasGroup } from '../lib/atlas/discover';
 import { diffAgainstWatermark, markSeen, markAllSeen, changeKeyOf, type CardChange } from '../lib/atlas/watermark';
 import { useProjects, switchProject } from '../store/projects';
@@ -100,13 +100,16 @@ function SourcesDialog({ roots, counts, onChanged, onClose }: {
   );
 }
 
-export default function SessionAtlas({ onClose, onSwitched }: { onClose: () => void; onSwitched: () => void }) {
+export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { onClose: () => void; onSwitched: () => void; focusSessionId?: string }) {
   const t = useT();
   const projects = useProjects((s) => s.projects);
+  const isDesktop = !!window.desktopSessions;
   const [cards, setCards] = useState<SessionCard[] | null>(null);
   const [roots, setRoots] = useState<SessionRoot[]>([]);
   const [scanning, setScanning] = useState(false);
-  const [selected, setSelected] = useState<string | 'canvases' | null>(null); // group cwd key, or the native region
+  // group cwd key, or the native region; the web build (no fs bridge)
+  // starts — and mostly lives — on the native side
+  const [selected, setSelected] = useState<string | 'canvases' | null>(window.desktopSessions ? null : 'canvases');
   const [busyRel, setBusyRel] = useState<string | null>(null);
   const [sourcesOpen, setSourcesOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -125,6 +128,12 @@ export default function SessionAtlas({ onClose, onSwitched }: { onClose: () => v
       const scanned = await scanSessions();
       setCards(scanned);
       setChanges(diffAgainstWatermark(scanned));
+      // twin-badge arrival: land on the folder that holds the session
+      // this canvas mirrors
+      if (focusSessionId) {
+        const hit = scanned.find((c) => c.sessionId === focusSessionId);
+        if (hit) setSelected(hit.cwd ?? '');
+      }
     } finally { setScanning(false); }
   };
   useEffect(() => { void refresh(); }, []);
@@ -161,6 +170,38 @@ export default function SessionAtlas({ onClose, onSwitched }: { onClose: () => v
       if (result.kind === 'appended') toast('success', fmt(ti('atlas.appended'), { n: result.turns }), 9000);
       else if (result.kind === 'opened') toast('info', ti('atlas.upToDate'), 6000);
       else toast('success', fmt(ti('toast.importedChats'), { n: 1, m: result.nodeCount }), 9000);
+      onClose();
+      onSwitched();
+    } catch (err) {
+      toast('error', fmt(ti('atlas.parseFailed'), { msg: err instanceof Error ? err.message : String(err) }));
+    } finally {
+      setBusyRel(null);
+    }
+  };
+
+  // Re-mirror: the coarse tier of recoverability. The read-only source is
+  // a permanent undo floor — delete the twin canvas (edits and all, after
+  // an explicit confirm) and rebuild the full mirror from the file.
+  const recast = async (card: SessionCard) => {
+    const twin = useProjects.getState().projects.find((p) => p.sourceSession?.sessionId === card.sessionId);
+    if (!twin || busyRel) return;
+    const { confirmDialog } = await import('../lib/ui-store');
+    const ok = await confirmDialog({
+      title: ti('confirm.recastTitle'),
+      message: fmt(ti('confirm.recast'), { name: twin.name }),
+      confirmLabel: ti('confirm.recastTitle'),
+      danger: true,
+    });
+    if (!ok) return;
+    setBusyRel(card.rel);
+    try {
+      const text = await window.desktopSessions!.read(card.rootKey, card.rel);
+      const { deleteProject } = await import('../store/projects');
+      await deleteProject(twin.id);
+      const { importOrAppendSession } = await import('../lib/atlas/canonical');
+      const result = await importOrAppendSession(text);
+      if (!result) throw new Error(ti('handoff.notASession'));
+      toast('success', ti('atlas.recastDone'), 8000);
       onClose();
       onSwitched();
     } catch (err) {
@@ -213,7 +254,7 @@ export default function SessionAtlas({ onClose, onSwitched }: { onClose: () => v
               </div>
             )}
           </div>
-          {targets && targets.terminals.length > 0 && (
+          {isDesktop && targets && targets.terminals.length > 0 && (
             <label className="flex items-center gap-1.5 text-sm text-ink-muted border border-line rounded-lg px-2.5 py-1.5 cursor-pointer" title={t('atlas.terminalChoice')}>
               <SquareTerminal size={14} strokeWidth={1.75} />
               <select
@@ -236,6 +277,7 @@ export default function SessionAtlas({ onClose, onSwitched }: { onClose: () => v
               </select>
             </label>
           )}
+          {isDesktop && (
           <button
             onClick={() => setSourcesOpen(true)}
             className="flex items-center gap-1.5 text-sm text-ink-muted hover:text-ink border border-line rounded-lg px-2.5 py-1.5 hover:bg-wash transition-colors"
@@ -243,6 +285,8 @@ export default function SessionAtlas({ onClose, onSwitched }: { onClose: () => v
           >
             <Plug size={14} strokeWidth={1.75} /> {t('atlas.sources')}
           </button>
+          )}
+          {isDesktop && (
           <button
             onClick={() => void refresh()}
             disabled={scanning}
@@ -252,19 +296,38 @@ export default function SessionAtlas({ onClose, onSwitched }: { onClose: () => v
             {scanning ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} strokeWidth={1.75} />}
             {scanning ? t('atlas.scanning') : t('atlas.refresh')}
           </button>
+          )}
           <button onClick={onClose} className="text-ink-faint hover:text-ink p-1.5 rounded-lg hover:bg-wash transition-colors" data-atlas-close>
             <X size={18} strokeWidth={1.75} />
           </button>
         </div>
 
         <div className="flex-1 flex min-h-0">
-          {/* left: folders + the native region */}
+          {/* left: recent work first (the "where was I" answer), then the
+              external world's folders, then the native region */}
           <div className="w-[260px] border-r border-line overflow-y-auto py-2 shrink-0">
-            <div className="px-4 py-1 text-2xs uppercase tracking-wide text-ink-faint">{t('atlas.folders')}</div>
-            {cards === null && (
+            <div className="px-4 py-1 text-2xs uppercase tracking-wide text-ink-faint">{t('atlas.recent')}</div>
+            {[...projects].sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 6).map((p) => (
+              <button
+                key={p.id}
+                onClick={() => { onClose(); void switchProject(p.id).then(onSwitched); }}
+                className="w-full text-left px-4 py-1.5 flex items-center gap-2 text-ink hover:bg-wash transition-colors"
+                data-atlas-recent={p.id}
+              >
+                {p.sourceSession
+                  ? <span className="text-2xs font-mono border border-line rounded px-1 py-px shrink-0 text-ink-faint">{p.sourceSession.runner}</span>
+                  : <Inbox size={13} strokeWidth={1.75} className="shrink-0 text-ink-faint" />}
+                <span className="flex-1 truncate text-sm">{p.name}</span>
+              </button>
+            ))}
+            <div className="border-t border-line mt-2 pt-2 px-4 py-1 text-2xs uppercase tracking-wide text-ink-faint">{t('atlas.folders')}</div>
+            {!isDesktop && (
+              <div className="px-4 py-2 text-xs text-ink-faint">{t('atlas.webNoScan')}</div>
+            )}
+            {isDesktop && cards === null && (
               <div className="px-4 py-2 text-sm text-ink-faint flex items-center gap-2"><Loader2 size={14} className="animate-spin" /> {t('atlas.scanning')}</div>
             )}
-            {cards !== null && groups.length === 0 && (
+            {isDesktop && cards !== null && groups.length === 0 && (
               <div className="px-4 py-2 text-xs text-ink-faint">{t('atlas.empty')}</div>
             )}
             {groups.map((g) => {
@@ -404,6 +467,16 @@ export default function SessionAtlas({ onClose, onSwitched }: { onClose: () => v
                           // canvas, host app (when one is installed), terminal
                           <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 shrink-0">
                             <span title={t('atlas.import')} className="text-ink-faint hover:text-accent p-1.5"><Import size={16} strokeWidth={1.75} /></span>
+                            {projects.some((p) => p.sourceSession?.sessionId === card.sessionId) && (
+                              <button
+                                title={t('atlas.recast')}
+                                className="text-ink-faint hover:text-red-500 p-1.5 rounded transition-colors"
+                                onClick={(e) => { e.stopPropagation(); void recast(card); }}
+                                data-atlas-recast
+                              >
+                                <RotateCcw size={16} strokeWidth={1.75} />
+                              </button>
+                            )}
                             {appHosts.has(card.runner) && (
                               <button
                                 title={fmt(t('atlas.openApp'), { name: appHosts.get(card.runner)! })}

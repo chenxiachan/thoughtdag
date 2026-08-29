@@ -1,4 +1,5 @@
 import { set as idbSet } from 'idb-keyval';
+import { makeNode } from '../import-chat';
 import { useStore, stripTransient } from '../../store';
 import { useProjects, switchProject, adoptImportedProject, updateSourceSession, projectStorageKey } from '../../store/projects';
 import { useUiStore } from '../ui-store';
@@ -46,8 +47,17 @@ export async function importOrAppendSession(text: string): Promise<CanonicalResu
 
   await switchProject(existing.id);
   const ledger = existing.sourceSession!;
+  const store = useStore.getState();
+  // Anchor resolution, three tiers — deletion is the user's prerogative
+  // (removed mirror nodes NEVER come back), so the recorded tail may be
+  // gone: ① the ledger's tail if it survives; ② the last surviving
+  // mirror node of this session (array order = import order); ③ nothing
+  // left — the appendix lands free-floating with an honest note.
+  const survivors = store.nodes.filter((n) => n.data.importSource?.sessionId === conv.sessionId);
+  const anchor = store.nodes.find((n) => n.id === ledger.tailNodeId) ?? survivors.at(-1) ?? null;
+
   if (qa.length <= ledger.importedCount) {
-    useUiStore.getState().setArrivalFocusNodeId(ledger.tailNodeId);
+    useUiStore.getState().setArrivalFocusNodeId(anchor?.id ?? null);
     return { kind: 'opened' };
   }
 
@@ -58,17 +68,40 @@ export async function importOrAppendSession(text: string): Promise<CanonicalResu
   const inSet = new Set(appendix.map((n) => n.id));
   const innerEdges = built.edges.filter((e) => inSet.has(e.source) && inSet.has(e.target));
 
-  const store = useStore.getState();
-  const tail = store.nodes.find((n) => n.id === ledger.tailNodeId) ?? store.nodes.at(-1);
-  if (!tail) return { kind: 'opened' }; // canvas was emptied by hand — nothing to hang from
-  const dx = tail.position.x - appendix[0].position.x;
-  const dy = tail.position.y + (tail.height ?? 140) + APPEND_GAP - appendix[0].position.y;
-  const moved = appendix.map((n): ThoughtNode => ({ ...n, position: { x: n.position.x + dx, y: n.position.y + dy } }));
-  const bridge = { id: generateId(), source: tail.id, target: moved[0].id, type: 'smoothstep' } as ThoughtEdge;
+  let moved: ThoughtNode[];
+  const extraEdges: ThoughtEdge[] = [...innerEdges];
+  if (anchor) {
+    const dx = anchor.position.x - appendix[0].position.x;
+    const dy = anchor.position.y + (anchor.height ?? 140) + APPEND_GAP - appendix[0].position.y;
+    moved = appendix.map((n): ThoughtNode => ({ ...n, position: { x: n.position.x + dx, y: n.position.y + dy } }));
+    extraEdges.unshift({ id: generateId(), source: anchor.id, target: moved[0].id, type: 'smoothstep' } as ThoughtEdge);
+  } else {
+    // every earlier mirror node was removed by hand: land beside the
+    // canvas, say so, and do not pretend to continue anything
+    const maxX = store.nodes.length ? Math.max(...store.nodes.map((n) => n.position.x)) : 0;
+    const dx = maxX + 560 - appendix[0].position.x;
+    const dy = -appendix[0].position.y;
+    moved = appendix.map((n): ThoughtNode => ({ ...n, position: { x: n.position.x + dx, y: n.position.y + dy } }));
+    const note = makeNote(orphanNoteText(qa.length - ledger.importedCount), moved[0]);
+    moved = [note, ...moved];
+    extraEdges.unshift({ id: generateId(), source: note.id, target: moved[1].id, type: 'smoothstep' } as ThoughtEdge);
+  }
 
   store.pushHistory();
-  useStore.setState((s) => ({ nodes: [...s.nodes, ...moved], edges: [...s.edges, bridge, ...innerEdges] }));
+  useStore.setState((s) => ({ nodes: [...s.nodes, ...moved], edges: [...s.edges, ...extraEdges] }));
   await updateSourceSession(existing.id, { importedCount: qa.length, tailNodeId: tailQaId });
-  useUiStore.getState().setArrivalFocusNodeId(moved[0].id);
+  useUiStore.getState().setArrivalFocusNodeId(moved[anchor ? 0 : 1].id);
   return { kind: 'appended', turns: qa.length - ledger.importedCount };
+}
+
+function orphanNoteText(n: number): string {
+  return `[Mirror] The source session grew by ${n} turn(s); the earlier mirrored turns were removed from this canvas by hand, so the new turns land here on their own.`;
+}
+
+function makeNote(text: string, beside: ThoughtNode): ThoughtNode {
+  const note = makeNode(text, '', false);
+  note.data.stepKind = 'note';
+  note.width = 460;
+  note.position = { x: beside.position.x - 520, y: beside.position.y };
+  return note;
 }
