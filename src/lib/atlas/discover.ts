@@ -34,22 +34,28 @@ const HEAD_BYTES = 16384;
 
 // A session file may hold megabytes; a card needs only identity + a title.
 // Both runners put identity in the first lines, so a bounded head suffices.
+// Identity comes ONLY from top-level fields of parsed lines — never from a
+// regex over raw text: sessions that DISCUSS session formats quote strings
+// like "cwd":"..." in their content, and a text match mis-files them.
 function cardFromHead(rootKey: SessionCard['rootKey'], rel: string, head: string, mtime: number, size: number): SessionCard | null {
-  if (rootKey === 'codex-sessions') {
-    if (!head.includes('"session_meta"')) return null;
-    const id = head.match(/"id":\s*"([\w-]+)"/)?.[1];
-    if (!id) return null;
-    const cwd = head.match(/"cwd":\s*"((?:[^"\\]|\\.)*)"/)?.[1] ?? null;
-    return { runner: 'codex', rootKey, rel, sessionId: id, cwd: cwd ? JSON.parse(`"${cwd}"`) : null, title: firstUserLine(head) ?? `session ${id.slice(0, 8)}`, mtime, size };
+  const lines: Record<string, unknown>[] = [];
+  for (const raw of head.split('\n')) {
+    try { lines.push(JSON.parse(raw) as Record<string, unknown>); } catch { /* truncated tail of the head */ }
   }
-  // claude-code: every event line carries sessionId + cwd; a leading
-  // summary line (continued sessions) makes the best title.
-  const id = head.match(/"sessionId":\s*"([\w-]+)"/)?.[1];
+  if (rootKey === 'codex-sessions') {
+    const meta = lines.find((l) => l.type === 'session_meta') as { payload?: { id?: string; cwd?: string } } | undefined;
+    const id = meta?.payload?.id;
+    if (!id) return null;
+    return { runner: 'codex', rootKey, rel, sessionId: id, cwd: meta?.payload?.cwd ?? null, title: firstUserLine(head) ?? `session ${id.slice(0, 8)}`, mtime, size };
+  }
+  // claude-code: every event line carries top-level sessionId + cwd; a
+  // leading summary line (continued sessions) makes the best title.
+  const marker = lines.find((l) => typeof l.sessionId === 'string' && (l.type === 'user' || l.type === 'assistant' || typeof l.cwd === 'string')) as { sessionId?: string; cwd?: string } | undefined;
+  const id = marker?.sessionId;
   if (!id) return null;
-  const cwdRaw = head.match(/"cwd":\s*"((?:[^"\\]|\\.)*)"/)?.[1] ?? null;
-  const summary = head.match(/"type":\s*"summary"[^\n]*?"summary":\s*"((?:[^"\\]|\\.)*)"/)?.[1];
-  const title = (summary ? JSON.parse(`"${summary}"`) : null) ?? firstUserLine(head) ?? `session ${id.slice(0, 8)}`;
-  return { runner: 'claude-code', rootKey, rel, sessionId: id, cwd: cwdRaw ? JSON.parse(`"${cwdRaw}"`) : null, title, mtime, size };
+  const summary = (lines.find((l) => l.type === 'summary' && typeof l.summary === 'string') as { summary?: string } | undefined)?.summary;
+  const title = summary ?? firstUserLine(head) ?? `session ${id.slice(0, 8)}`;
+  return { runner: 'claude-code', rootKey, rel, sessionId: id, cwd: marker?.cwd ?? null, title, mtime, size };
 }
 
 /** First human-authored user text in the head, clipped to a card title. */
