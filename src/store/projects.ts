@@ -32,6 +32,24 @@ export interface ProjectMeta {
       condensations accumulate here and are never orphaned into a fresh
       snapshot. tailNodeId is where the next appendix attaches. */
   sourceSession?: { sessionId: string; runner: string; importedCount: number; tailNodeId: string };
+  /** Archived = hidden from the dropdown and Recent work, data untouched.
+      Tidying and destroying are different verbs. */
+  archived?: boolean;
+}
+
+/** Archive/restore a canvas. Archiving the ACTIVE canvas switches away
+ *  first — to the newest unarchived one, or a fresh canvas. */
+export async function setProjectArchived(id: string, archived: boolean): Promise<void> {
+  const { projects, activeId } = useProjects.getState();
+  if (archived && id === activeId) {
+    const rest = projects.filter((p) => p.id !== id && !p.archived).sort((a, b) => b.updatedAt - a.updatedAt);
+    if (rest.length > 0) await switchProject(rest[0].id);
+    else await createProject('My Canvas');
+  }
+  useProjects.setState((s) => ({
+    projects: s.projects.map((p) => (p.id === id ? { ...p, archived } : p)),
+  }));
+  await saveMeta();
 }
 
 /** Update the canonical-canvas ledger after an appendix lands. */

@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { AppWindow, ArrowDownUp, Folder, FolderOpen, Loader2, Plug, RefreshCw, RotateCcw, Search, SquareTerminal, Import, Trash2, X, Inbox } from 'lucide-react';
+import { AppWindow, Archive, ArrowDownUp, Folder, FolderOpen, Loader2, Plug, RefreshCw, RotateCcw, Search, SquareTerminal, Import, Trash2, X, Inbox } from 'lucide-react';
 import { scanSessions, groupByCwd, disabledRoots, setRootDisabled, type SessionCard, type AtlasGroup } from '../lib/atlas/discover';
 import { diffAgainstWatermark, markSeen, markAllSeen, changeKeyOf, type CardChange } from '../lib/atlas/watermark';
-import { useProjects, switchProject } from '../store/projects';
+import { useProjects, switchProject, setProjectArchived } from '../store/projects';
 import { useT, t as ti, fmt } from '../i18n';
 import { toast } from '../lib/ui-store';
 
@@ -307,7 +307,7 @@ export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { 
               external world's folders, then the native region */}
           <div className="w-[260px] border-r border-line overflow-y-auto py-2 shrink-0">
             <div className="px-4 py-1 text-2xs uppercase tracking-wide text-ink-faint">{t('atlas.recent')}</div>
-            {[...projects].sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 6).map((p) => (
+            {projects.filter((p) => !p.archived).sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 6).map((p) => (
               <button
                 key={p.id}
                 onClick={() => { onClose(); void switchProject(p.id).then(onSwitched); }}
@@ -367,16 +367,50 @@ export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { 
           <div className="flex-1 overflow-y-auto p-4">
             {selected === 'canvases' ? (
               <div className="space-y-1.5">
-                {[...projects].sort((a, b) => b.updatedAt - a.updatedAt).map((p) => (
-                  <button
-                    key={p.id}
-                    onClick={() => { onClose(); void switchProject(p.id).then(onSwitched); }}
-                    className="w-full text-left border border-line rounded-xl px-4 py-3 hover:bg-wash transition-colors"
-                  >
-                    <div className="text-sm text-ink font-medium truncate">{p.name}</div>
-                    <div className="text-2xs text-ink-faint mt-0.5">{dateLabel(p.updatedAt)}</div>
-                  </button>
+                {projects.filter((p) => !p.archived).sort((a, b) => b.updatedAt - a.updatedAt).map((p) => (
+                  <div key={p.id} className="group flex items-center gap-2 border border-line rounded-xl px-4 py-3 hover:bg-wash transition-colors cursor-pointer"
+                    onClick={() => { onClose(); void switchProject(p.id).then(onSwitched); }}>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm text-ink font-medium truncate flex items-center gap-1.5">
+                        <span className="truncate">{p.name}</span>
+                        {p.sourceSession && <span className="text-2xs font-mono border border-line rounded px-1 py-px shrink-0 text-ink-faint font-normal">{p.sourceSession.runner}</span>}
+                      </div>
+                      <div className="text-2xs text-ink-faint mt-0.5">{dateLabel(p.updatedAt)}</div>
+                    </div>
+                    <button
+                      title={t('switcher.archive')}
+                      className="opacity-0 group-hover:opacity-100 text-ink-faint hover:text-amber-600 p-1.5 rounded transition-all shrink-0"
+                      onClick={(e) => { e.stopPropagation(); void setProjectArchived(p.id, true); }}
+                      data-atlas-archive
+                    >
+                      <Archive size={15} strokeWidth={1.75} />
+                    </button>
+                  </div>
                 ))}
+                {projects.some((p) => p.archived) && (
+                  <details className="pt-2" data-atlas-archived-group>
+                    <summary className="text-2xs uppercase tracking-wide text-ink-faint cursor-pointer px-1 py-1">
+                      {fmt(t('atlas.archivedGroup'), { n: projects.filter((p) => p.archived).length })}
+                    </summary>
+                    <div className="space-y-1.5 mt-1.5">
+                      {projects.filter((p) => p.archived).sort((a, b) => b.updatedAt - a.updatedAt).map((p) => (
+                        <button
+                          key={p.id}
+                          title={t('atlas.restoreOpen')}
+                          onClick={() => { void setProjectArchived(p.id, false).then(() => { onClose(); void switchProject(p.id).then(onSwitched); }); }}
+                          className="w-full text-left border border-dashed border-line rounded-xl px-4 py-2.5 hover:bg-wash transition-colors opacity-70 hover:opacity-100"
+                          data-atlas-archived-item
+                        >
+                          <div className="text-sm text-ink truncate flex items-center gap-1.5">
+                            <span className="truncate">{p.name}</span>
+                            {p.sourceSession && <span className="text-2xs font-mono border border-line rounded px-1 py-px shrink-0 text-ink-faint">{p.sourceSession.runner}</span>}
+                          </div>
+                          <div className="text-2xs text-ink-faint mt-0.5">{dateLabel(p.updatedAt)}</div>
+                        </button>
+                      ))}
+                    </div>
+                  </details>
+                )}
               </div>
             ) : (
               <>

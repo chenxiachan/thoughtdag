@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { ChevronDown, Dna, FolderOpen, Loader2, Map as MapIcon, Pencil, Plus, RefreshCw, Trash2, Upload } from 'lucide-react';
+import { Archive, ChevronDown, Dna, FolderOpen, Loader2, Map as MapIcon, Pencil, Plus, RefreshCw, Trash2, Upload } from 'lucide-react';
 import SessionAtlas from './SessionAtlas';
-import { useProjects, switchProject, createProject, renameProject, deleteProject } from '../store/projects';
+import { useProjects, switchProject, createProject, renameProject, deleteProject, setProjectArchived } from '../store/projects';
 import { useI18n } from '../i18n';
 import { parseImportFile } from '../lib/export';
 import ImportChatModal from './ImportChatModal';
@@ -38,9 +38,24 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
   const rootRef = useRef<HTMLDivElement>(null);
 
   const active = projects.find((p) => p.id === activeId);
-  // the dropdown is a time machine, not a library: recent few only, the
-  // atlas owns browsing and management
-  const sorted = [...projects].sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 7);
+  // the dropdown is a time machine, not a library: recent few only,
+  // archived canvases invisible, the atlas owns browsing and management
+  const sorted = projects.filter((p) => !p.archived).sort((a, b) => b.updatedAt - a.updatedAt).slice(0, 7);
+
+  // tidy vs destroy are different verbs — and the delete confirm is a
+  // uniqueness detector: it says exactly what would be lost
+  const confirmDelete = async (p: (typeof projects)[number]) => {
+    const { canvasUniqueness } = await import('../lib/atlas/canonical');
+    const u = await canvasUniqueness(p.id);
+    const msgKey = u === 'native' ? 'confirm.deleteNative' : u === 'diverged-mirror' ? 'confirm.deleteDiverged' : 'confirm.deletePristine';
+    const ok = await confirmDialog({
+      title: ti('confirm.deleteCanvasTitle'),
+      message: fmt(ti(msgKey), { name: p.name }),
+      confirmLabel: ti('common.delete'),
+      danger: u !== 'pristine-mirror',
+    });
+    if (ok) void deleteProject(p.id).then(onSwitched);
+  };
 
   // Close on outside click
   useEffect(() => {
@@ -136,17 +151,17 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
                       <Pencil size={14} strokeWidth={1.75} />
                     </button>
                     <button
+                      title={t('switcher.archive')}
+                      className="opacity-0 group-hover:opacity-100 text-ink-faint hover:text-amber-600 p-1 rounded transition-all shrink-0"
+                      onClick={(e) => { e.stopPropagation(); void setProjectArchived(p.id, true).then(onSwitched); }}
+                      data-archive-canvas
+                    >
+                      <Archive size={14} strokeWidth={1.75} />
+                    </button>
+                    <button
                       title={t('common.delete')}
                       className="opacity-0 group-hover:opacity-100 text-ink-faint hover:text-red-500 p-1 rounded transition-all shrink-0"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        void confirmDialog({
-                          title: ti('confirm.deleteCanvasTitle'),
-                          message: fmt(ti('confirm.deleteCanvas'), { name: p.name }),
-                          confirmLabel: ti('common.delete'),
-                          danger: true,
-                        }).then((ok) => { if (ok) void deleteProject(p.id).then(onSwitched); });
-                      }}
+                      onClick={(e) => { e.stopPropagation(); void confirmDelete(p); }}
                     >
                       <Trash2 size={14} strokeWidth={1.75} />
                     </button>

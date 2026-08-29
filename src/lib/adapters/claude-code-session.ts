@@ -193,6 +193,9 @@ function buildGraph(session: { lines: SessionLine[]; sessionId: string }): { nod
   for (const turn of turns) {
     if (turn.compactionBefore) {
       const note = noteNode(turn.compactionBefore);
+      // importer-owned notes carry provenance too, so "node without
+      // importSource" strictly means "the user made this by hand"
+      note.data.importSource = { runner: 'claude-code', sessionId: session.sessionId, itemIds: [] };
       nodes.push(note);
       if (prev) link(prev, note);
       prev = note;

@@ -101,7 +101,42 @@ function orphanNoteText(n: number): string {
 function makeNote(text: string, beside: ThoughtNode): ThoughtNode {
   const note = makeNode(text, '', false);
   note.data.stepKind = 'note';
+  // mirror-owned, not hand-made: provenance rides along (see the
+  // uniqueness check — nodes WITHOUT importSource are the user's own)
+  note.data.importSource = beside.data.importSource
+    ? { ...beside.data.importSource, itemIds: [] }
+    : undefined;
   note.width = 460;
   note.position = { x: beside.position.x - 520, y: beside.position.y };
   return note;
+}
+
+/** How much of this canvas is one of a kind? Drives the delete confirm:
+ *  a pristine mirror deletes losslessly (rebuild from source any time); a
+ *  diverged mirror loses the user's value layer; a native canvas loses
+ *  everything. Conservative on purpose — any hand-made node, any drifted
+ *  text, any pruned mirror turn counts as diverged. */
+export type CanvasUniqueness = 'native' | 'pristine-mirror' | 'diverged-mirror';
+
+export async function canvasUniqueness(projectId: string): Promise<CanvasUniqueness> {
+  const { projects, activeId } = useProjects.getState();
+  const meta = projects.find((p) => p.id === projectId);
+  if (!meta?.sourceSession) return 'native';
+  let nodes: ThoughtNode[];
+  if (projectId === activeId) {
+    nodes = useStore.getState().nodes;
+  } else {
+    const { get: idbGet } = await import('idb-keyval');
+    const raw = await idbGet(projectStorageKey(projectId));
+    try {
+      const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+      nodes = (parsed?.state?.nodes ?? []) as ThoughtNode[];
+    } catch { return 'diverged-mirror'; } // unreadable — warn high, never low
+  }
+  const mirror = nodes.filter((n) => n.data.importSource);
+  const diverged =
+    nodes.some((n) => !n.data.importSource)
+    || mirror.filter((n) => n.data.source).length < meta.sourceSession.importedCount
+    || mirror.some((n) => n.data.source && (n.data.question !== n.data.source.question || n.data.response !== n.data.source.response));
+  return diverged ? 'diverged-mirror' : 'pristine-mirror';
 }
