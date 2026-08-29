@@ -144,7 +144,13 @@ export async function switchProject(id: string): Promise<void> {
     useStore.persist.setOptions({ name: projectStorageKey(id) });
     await useStore.persist.rehydrate();
     useStore.setState({ selectedNodeId: null, selectedNodeIds: [] });
-    useProjects.setState({ activeId: id });
+    // opening IS unarchiving: archived means "hidden from the lists", and
+    // a canvas the user just switched to is back in the working set —
+    // whatever road led here (atlas card, archived group, canonical open)
+    useProjects.setState((s) => ({
+      activeId: id,
+      projects: s.projects.map((p) => (p.id === id && p.archived ? { ...p, archived: false } : p)),
+    }));
     await saveMeta();
   } finally {
     suppressTouch = false;
