@@ -385,11 +385,11 @@ export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { 
                   <div key={p.id} className="group flex items-center gap-2 border border-line rounded-xl px-4 py-3 hover:bg-wash transition-colors cursor-pointer"
                     onClick={() => { onClose(); void switchProject(p.id).then(onSwitched); }}>
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm text-ink font-medium truncate flex items-center gap-1.5">
-                        <span className="truncate">{p.name}</span>
-                        {p.sourceSession && <span className="text-2xs font-mono border border-line rounded px-1 py-px shrink-0 text-ink-faint font-normal">{p.sourceSession.runner}</span>}
+                      <div className="text-sm text-ink font-medium truncate">{p.name}</div>
+                      <div className="text-2xs text-ink-faint mt-0.5 flex items-center gap-1.5">
+                        <span>{dateLabel(p.updatedAt)}</span>
+                        {p.sourceSession && <span className="font-mono border border-line rounded px-1 py-px">{p.sourceSession.runner}</span>}
                       </div>
-                      <div className="text-2xs text-ink-faint mt-0.5">{dateLabel(p.updatedAt)}</div>
                     </div>
                     <button
                       title={t('switcher.archive')}

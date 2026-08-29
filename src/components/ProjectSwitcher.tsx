@@ -106,7 +106,7 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
       </div>
 
       {open && (
-        <div className="mt-1.5 bg-card border border-line rounded-xl shadow-lg py-1.5 w-[280px] animate-fade-in">
+        <div className="mt-1.5 bg-card border border-line rounded-xl shadow-lg py-1.5 w-[320px] animate-fade-in">
           <div className="max-h-[320px] overflow-y-auto">
             {sorted.map((p) => (
               <div
@@ -133,15 +133,18 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
                 ) : (
                   <>
                     <div className="flex-1 min-w-0">
-                      <div className={`text-sm truncate flex items-center gap-1.5 ${p.id === activeId ? 'text-accent font-medium' : 'text-ink'}`}>
-                        <span className="truncate">{p.name}</span>
+                      {/* the name owns its line; provenance rides below with the time */}
+                      <div className={`text-sm truncate ${p.id === activeId ? 'text-accent font-medium' : 'text-ink'}`}>
+                        {p.name}
+                      </div>
+                      <div className="text-2xs text-ink-faint flex items-center gap-1.5">
+                        <span>{relativeTime(p.updatedAt)}</span>
                         {p.sourceSession && (
-                          <span className="text-2xs font-mono border border-line rounded px-1 py-px shrink-0 text-ink-faint font-normal" data-mirror-mark>
+                          <span className="font-mono border border-line rounded px-1 py-px" data-mirror-mark>
                             {p.sourceSession.runner}
                           </span>
                         )}
                       </div>
-                      <div className="text-2xs text-ink-faint">{relativeTime(p.updatedAt)}</div>
                     </div>
                     <button
                       title={t('switcher.rename')}
