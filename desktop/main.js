@@ -2,7 +2,7 @@
 // the bundled server.mjs runs as a child, serves the built dist on a
 // local port, and this window points at it. No second stack: everything
 // the web app is, the desktop app is.
-const { app, BrowserWindow, shell, utilityProcess, ipcMain } = require('electron');
+const { app, BrowserWindow, shell, utilityProcess, ipcMain, dialog } = require('electron');
 const path = require('path');
 const net = require('net');
 const os = require('os');
@@ -85,13 +85,22 @@ async function boot() {
 // renderer never passes absolute paths — only a whitelisted root key plus
 // a relative path that must resolve inside that root. Read-only by
 // contract: no primitive here can write, move, or delete a session file.
-const SESSION_ROOTS = {
+const BUILTIN_ROOTS = {
   'claude-projects': path.join(os.homedir(), '.claude', 'projects'),
   'codex-sessions': path.join(os.homedir(), '.codex', 'sessions'),
 };
+// Custom roots join the whitelist ONLY through the native directory picker
+// (sessions:add-root) — the page can never name a path in a string. They
+// persist under userData, owned by the shell, out of the page's reach.
+let customRoots = {};
+const rootsFile = () => path.join(app.getPath('userData'), 'atlas-roots.json');
+async function loadCustomRoots() {
+  try { customRoots = JSON.parse(await fsp.readFile(rootsFile(), 'utf8')); } catch { customRoots = {}; }
+}
+const allRoots = () => ({ ...BUILTIN_ROOTS, ...customRoots });
 
 function resolveInRoot(rootKey, rel) {
-  const root = SESSION_ROOTS[rootKey];
+  const root = allRoots()[rootKey];
   if (!root) throw new Error('unknown session root');
   const abs = path.resolve(root, String(rel));
   if (abs !== root && !abs.startsWith(root + path.sep)) throw new Error('path escapes session root');
@@ -99,8 +108,38 @@ function resolveInRoot(rootKey, rel) {
 }
 
 function setupSessionAtlas() {
+  void loadCustomRoots();
+
+  ipcMain.handle('sessions:roots', async () => {
+    const out = [];
+    for (const [key, p] of Object.entries(allRoots())) {
+      const exists = await fsp.stat(p).then((s) => s.isDirectory()).catch(() => false);
+      out.push({ key, path: p, builtin: key in BUILTIN_ROOTS, exists });
+    }
+    return out;
+  });
+
+  ipcMain.handle('sessions:add-root', async () => {
+    const r = await dialog.showOpenDialog(win, { properties: ['openDirectory'] });
+    const p = r.canceled ? null : r.filePaths[0];
+    if (!p) return null;
+    const existing = Object.entries(allRoots()).find(([, v]) => v === p);
+    if (existing) return { key: existing[0], path: p, builtin: existing[0] in BUILTIN_ROOTS, exists: true };
+    const key = `custom-${Date.now().toString(36)}`;
+    customRoots[key] = p;
+    await fsp.writeFile(rootsFile(), JSON.stringify(customRoots, null, 2));
+    return { key, path: p, builtin: false, exists: true };
+  });
+
+  ipcMain.handle('sessions:remove-root', async (_e, key) => {
+    if (key in customRoots) {
+      delete customRoots[key];
+      await fsp.writeFile(rootsFile(), JSON.stringify(customRoots, null, 2));
+    }
+  });
+
   ipcMain.handle('sessions:list', async (_e, rootKey) => {
-    const root = SESSION_ROOTS[rootKey];
+    const root = allRoots()[rootKey];
     if (!root) return [];
     const out = [];
     async function walk(dir, depth) {

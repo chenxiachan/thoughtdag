@@ -586,6 +586,18 @@ export const zh: Record<keyof typeof en, string> = {
   'atlas.cmdCopied': '恢复命令已复制，粘贴到终端即可回到该会话',
   'atlas.parseFailed': '无法解析该会话文件：{msg}',
   'atlas.opened': '已在终端打开该会话',
+  'atlas.sources': '接入',
+  'atlas.sourcesTitle': '会话来源',
+  'atlas.sourcesHint': '内置来源自动探测标准路径。自定义目录经系统选择器授权后加入，一律只读。',
+  'atlas.autoDetect': '重新探测',
+  'atlas.addDir': '添加目录…',
+  'atlas.parserSoon': '解析器开发中',
+  'atlas.rootMissing': '未找到',
+  'atlas.filterTitle': '过滤标题…',
+  'atlas.sortTime': '时间',
+  'atlas.sortName': '名称',
+  'atlas.sortSize': '大小',
+  'atlas.sortRunner': 'CLI',
 
   // Confirm dialogs
   'confirm.deleteNodesTitle': '删除节点',

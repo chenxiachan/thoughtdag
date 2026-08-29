@@ -587,6 +587,18 @@ export const en = {
   'atlas.cmdCopied': 'Resume command copied — paste it into a terminal to re-enter the session',
   'atlas.parseFailed': 'Could not parse this session file: {msg}',
   'atlas.opened': 'Session opened in your terminal',
+  'atlas.sources': 'Sources',
+  'atlas.sourcesTitle': 'Session sources',
+  'atlas.sourcesHint': 'Built-in sources probe their standard paths. Custom directories join through the system picker — always read-only.',
+  'atlas.autoDetect': 'Re-detect',
+  'atlas.addDir': 'Add directory…',
+  'atlas.parserSoon': 'parser in progress',
+  'atlas.rootMissing': 'not found',
+  'atlas.filterTitle': 'Filter titles…',
+  'atlas.sortTime': 'Time',
+  'atlas.sortName': 'Name',
+  'atlas.sortSize': 'Size',
+  'atlas.sortRunner': 'CLI',
 
   // Confirm dialogs
   'confirm.deleteNodesTitle': 'Delete nodes',

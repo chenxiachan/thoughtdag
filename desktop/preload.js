@@ -15,6 +15,9 @@ contextBridge.exposeInMainWorld('desktop', {
 // Session atlas: fenced read-only primitives over the runner session
 // stores (see main.js SESSION_ROOTS). Runner knowledge stays in the page.
 contextBridge.exposeInMainWorld('desktopSessions', {
+  roots: () => ipcRenderer.invoke('sessions:roots'),
+  addRoot: () => ipcRenderer.invoke('sessions:add-root'),
+  removeRoot: (key) => ipcRenderer.invoke('sessions:remove-root', key),
   list: (rootKey) => ipcRenderer.invoke('sessions:list', rootKey),
   head: (rootKey, rel, bytes) => ipcRenderer.invoke('sessions:head', rootKey, rel, bytes),
   read: (rootKey, rel) => ipcRenderer.invoke('sessions:read', rootKey, rel),

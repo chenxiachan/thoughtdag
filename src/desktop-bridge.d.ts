@@ -17,7 +17,18 @@ interface DesktopBridge {
 
 // Fenced read-only primitives over the runner session stores (main.js
 // SESSION_ROOTS). All runner knowledge lives in src/lib/atlas/.
+interface SessionRoot {
+  key: string;
+  path: string;
+  builtin: boolean;
+  exists: boolean;
+}
+
 interface DesktopSessionsBridge {
+  roots: () => Promise<SessionRoot[]>;
+  /** Native directory picker — the ONLY door into the whitelist. */
+  addRoot: () => Promise<SessionRoot | null>;
+  removeRoot: (key: string) => Promise<void>;
   list: (rootKey: string) => Promise<{ rel: string; size: number; mtime: number }[]>;
   head: (rootKey: string, rel: string, bytes: number) => Promise<string>;
   read: (rootKey: string, rel: string) => Promise<string>;

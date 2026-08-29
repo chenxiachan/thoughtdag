@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Folder, FolderOpen, Loader2, RefreshCw, SquareTerminal, Import, X, Inbox } from 'lucide-react';
-import { scanSessions, groupByCwd, type SessionCard, type AtlasGroup } from '../lib/atlas/discover';
+import { ArrowDownUp, Folder, FolderOpen, Loader2, Plug, RefreshCw, Search, SquareTerminal, Import, Trash2, X, Inbox } from 'lucide-react';
+import { scanSessions, groupByCwd, disabledRoots, setRootDisabled, type SessionCard, type AtlasGroup } from '../lib/atlas/discover';
 import { useProjects, switchProject } from '../store/projects';
 import { useT, t as ti, fmt } from '../i18n';
 import { toast } from '../lib/ui-store';
@@ -16,22 +16,122 @@ import { toast } from '../lib/ui-store';
 const dateLabel = (ms: number) => new Date(ms).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 const sizeLabel = (b: number) => (b > 1e6 ? `${(b / 1e6).toFixed(1)} MB` : `${Math.max(1, Math.round(b / 1024))} KB`);
 
+type SortKey = 'time' | 'name' | 'size' | 'runner';
+const SORTERS: Record<SortKey, (a: SessionCard, b: SessionCard) => number> = {
+  time: (a, b) => b.mtime - a.mtime,
+  name: (a, b) => a.title.localeCompare(b.title),
+  size: (a, b) => b.size - a.size,
+  runner: (a, b) => a.runner.localeCompare(b.runner) || b.mtime - a.mtime,
+};
+
+// The intake dialog: built-in sources probe their standard paths; runners
+// whose parser isn't ready yet stand as honest placeholders; custom
+// directories enter ONLY through the native picker (shell-side whitelist).
+function SourcesDialog({ roots, counts, onChanged, onClose }: {
+  roots: SessionRoot[];
+  counts: Map<string, number>;
+  onChanged: () => void;
+  onClose: () => void;
+}) {
+  const t = useT();
+  const off = disabledRoots();
+  const builtinLabel: Record<string, string> = { 'claude-projects': 'Claude Code', 'codex-sessions': 'Codex' };
+  const row = (root: SessionRoot) => (
+    <div key={root.key} className="flex items-center gap-3 px-4 py-2.5 border-b border-line last:border-b-0" data-atlas-source={root.key}>
+      <input
+        type="checkbox"
+        checked={!off.has(root.key)}
+        disabled={!root.exists}
+        onChange={(e) => { setRootDisabled(root.key, !e.target.checked); onChanged(); }}
+        className="shrink-0"
+      />
+      <div className="flex-1 min-w-0">
+        <div className="text-sm text-ink">{builtinLabel[root.key] ?? root.path.split('/').filter(Boolean).pop()}</div>
+        <div className="text-2xs text-ink-faint truncate">{root.path}</div>
+      </div>
+      <span className="text-2xs text-ink-faint shrink-0">
+        {root.exists ? (counts.get(root.key) ?? 0) : t('atlas.rootMissing')}
+      </span>
+      {!root.builtin && (
+        <button
+          className="text-ink-faint hover:text-red-500 p-1 rounded transition-colors shrink-0"
+          onClick={() => { void window.desktopSessions!.removeRoot(root.key).then(onChanged); }}
+        >
+          <Trash2 size={14} strokeWidth={1.75} />
+        </button>
+      )}
+    </div>
+  );
+  return (
+    <div className="absolute inset-0 z-10 bg-ink/20 flex items-center justify-center" onClick={onClose}>
+      <div className="bg-surface border border-line rounded-2xl shadow-xl w-[440px] max-h-[80%] overflow-y-auto" onClick={(e) => e.stopPropagation()} data-atlas-sources-dialog>
+        <div className="px-4 pt-3.5 pb-2.5 border-b border-line">
+          <div className="text-sm font-semibold text-ink">{t('atlas.sourcesTitle')}</div>
+          <div className="text-2xs text-ink-muted mt-0.5">{t('atlas.sourcesHint')}</div>
+        </div>
+        {roots.filter((r) => r.builtin).map(row)}
+        {['Pi', 'DeepSeek Harness'].map((name) => (
+          <div key={name} className="flex items-center gap-3 px-4 py-2.5 border-b border-line opacity-50">
+            <input type="checkbox" disabled className="shrink-0" />
+            <div className="flex-1 text-sm text-ink">{name}</div>
+            <span className="text-2xs text-ink-faint">{t('atlas.parserSoon')}</span>
+          </div>
+        ))}
+        {roots.filter((r) => !r.builtin).map(row)}
+        <div className="flex items-center gap-2 px-4 py-3">
+          <button
+            onClick={onChanged}
+            className="flex items-center gap-1.5 text-sm text-ink-muted hover:text-ink border border-line rounded-lg px-2.5 py-1.5 hover:bg-wash transition-colors"
+          >
+            <RefreshCw size={13} strokeWidth={1.75} /> {t('atlas.autoDetect')}
+          </button>
+          <button
+            onClick={() => { void window.desktopSessions!.addRoot().then((r) => { if (r) onChanged(); }); }}
+            className="flex items-center gap-1.5 text-sm text-accent border border-line rounded-lg px-2.5 py-1.5 hover:bg-wash transition-colors"
+            data-atlas-add-dir
+          >
+            <Plug size={13} strokeWidth={1.75} /> {t('atlas.addDir')}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function SessionAtlas({ onClose, onSwitched }: { onClose: () => void; onSwitched: () => void }) {
   const t = useT();
   const projects = useProjects((s) => s.projects);
   const [cards, setCards] = useState<SessionCard[] | null>(null);
+  const [roots, setRoots] = useState<SessionRoot[]>([]);
   const [scanning, setScanning] = useState(false);
   const [selected, setSelected] = useState<string | 'canvases' | null>(null); // group cwd key, or the native region
   const [busyRel, setBusyRel] = useState<string | null>(null);
+  const [sourcesOpen, setSourcesOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  const [runnerOff, setRunnerOff] = useState<Set<string>>(new Set());
+  const [sortKey, setSortKey] = useState<SortKey>('time');
 
   const refresh = async () => {
     setScanning(true);
-    try { setCards(await scanSessions()); } finally { setScanning(false); }
+    try {
+      setRoots(await window.desktopSessions?.roots().catch(() => []) ?? []);
+      setCards(await scanSessions());
+    } finally { setScanning(false); }
   };
   useEffect(() => { void refresh(); }, []);
 
-  const groups = useMemo(() => groupByCwd(cards ?? []), [cards]);
+  // filters shape the whole atlas: folder counts follow them too
+  const visible = useMemo(() => (cards ?? []).filter((c) =>
+    !runnerOff.has(c.runner) && (!query.trim() || c.title.toLowerCase().includes(query.trim().toLowerCase()))), [cards, runnerOff, query]);
+  const groups = useMemo(() => groupByCwd(visible), [visible]);
+  const runners = useMemo(() => [...new Set((cards ?? []).map((c) => c.runner))].sort(), [cards]);
+  const rootCounts = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const c of cards ?? []) m.set(c.rootKey, (m.get(c.rootKey) ?? 0) + 1);
+    return m;
+  }, [cards]);
   const activeGroup: AtlasGroup | null = selected === 'canvases' ? null : groups.find((g) => (g.cwd ?? '') === (selected ?? groups[0]?.cwd ?? '')) ?? groups[0] ?? null;
+  const shownCards = useMemo(() => activeGroup ? [...activeGroup.cards].sort(SORTERS[sortKey]) : [], [activeGroup, sortKey]);
 
   const importCard = async (card: SessionCard) => {
     if (busyRel) return;
@@ -72,6 +172,13 @@ export default function SessionAtlas({ onClose, onSwitched }: { onClose: () => v
             <div className="text-base font-semibold text-ink">{t('atlas.title')}</div>
             <div className="text-xs text-ink-muted mt-0.5">{t('atlas.subtitle')}</div>
           </div>
+          <button
+            onClick={() => setSourcesOpen(true)}
+            className="flex items-center gap-1.5 text-sm text-ink-muted hover:text-ink border border-line rounded-lg px-2.5 py-1.5 hover:bg-wash transition-colors"
+            data-atlas-sources
+          >
+            <Plug size={14} strokeWidth={1.75} /> {t('atlas.sources')}
+          </button>
           <button
             onClick={() => void refresh()}
             disabled={scanning}
@@ -142,9 +249,39 @@ export default function SessionAtlas({ onClose, onSwitched }: { onClose: () => v
               </div>
             ) : activeGroup ? (
               <>
+                <div className="flex items-center gap-2 mb-3 flex-wrap">
+                  <div className="flex items-center gap-1.5 border border-line rounded-lg px-2 py-1 bg-card">
+                    <Search size={13} strokeWidth={1.75} className="text-ink-faint shrink-0" />
+                    <input
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      placeholder={t('atlas.filterTitle')}
+                      className="text-sm bg-transparent focus:outline-none w-[150px] text-ink placeholder:text-ink-faint"
+                      data-atlas-filter
+                    />
+                  </div>
+                  {runners.map((r) => (
+                    <button
+                      key={r}
+                      onClick={() => setRunnerOff((s) => { const n = new Set(s); if (n.has(r)) n.delete(r); else n.add(r); return n; })}
+                      className={`text-2xs font-mono border rounded-lg px-2 py-1 transition-colors ${runnerOff.has(r) ? 'border-line text-ink-faint line-through' : 'border-accent/40 text-accent bg-accent/5'}`}
+                      data-atlas-runner-toggle={r}
+                    >
+                      {r}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => setSortKey((k) => (({ time: 'name', name: 'size', size: 'runner', runner: 'time' } as const)[k]))}
+                    className="ml-auto flex items-center gap-1.5 text-2xs text-ink-muted hover:text-ink border border-line rounded-lg px-2 py-1 hover:bg-wash transition-colors"
+                    data-atlas-sort
+                  >
+                    <ArrowDownUp size={12} strokeWidth={1.75} />
+                    {t(`atlas.sort${sortKey[0].toUpperCase()}${sortKey.slice(1)}` as 'atlas.sortTime')}
+                  </button>
+                </div>
                 {activeGroup.cwd && <div className="text-2xs text-ink-faint mb-3 truncate">{activeGroup.cwd} · {fmt(t('atlas.sessions'), { n: activeGroup.cards.length })}</div>}
                 <div className="space-y-1.5">
-                  {activeGroup.cards.map((card) => (
+                  {shownCards.map((card) => (
                     <div
                       key={card.rel}
                       className="group border border-line rounded-xl px-4 py-3 hover:bg-wash transition-colors cursor-pointer flex items-center gap-3"
@@ -184,6 +321,14 @@ export default function SessionAtlas({ onClose, onSwitched }: { onClose: () => v
             )}
           </div>
         </div>
+        {sourcesOpen && (
+          <SourcesDialog
+            roots={roots}
+            counts={rootCounts}
+            onChanged={() => void refresh()}
+            onClose={() => setSourcesOpen(false)}
+          />
+        )}
       </div>
     </div>,
     document.body,

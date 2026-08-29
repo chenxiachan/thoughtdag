@@ -13,7 +13,7 @@
 
 export interface SessionCard {
   runner: 'claude-code' | 'codex';
-  rootKey: 'claude-projects' | 'codex-sessions';
+  rootKey: string;
   rel: string;
   sessionId: string;
   cwd: string | null;
@@ -37,16 +37,18 @@ const HEAD_BYTES = 16384;
 // Identity comes ONLY from top-level fields of parsed lines — never from a
 // regex over raw text: sessions that DISCUSS session formats quote strings
 // like "cwd":"..." in their content, and a text match mis-files them.
-function cardFromHead(rootKey: SessionCard['rootKey'], rel: string, head: string, mtime: number, size: number): SessionCard | null {
+// The runner is detected from CONTENT, not from which root the file came
+// from — a custom directory can hold any mix of formats, and a file no
+// signature claims is skipped, never guessed at.
+function cardFromHead(rootKey: string, rel: string, head: string, mtime: number, size: number): SessionCard | null {
   const lines: Record<string, unknown>[] = [];
   for (const raw of head.split('\n')) {
     try { lines.push(JSON.parse(raw) as Record<string, unknown>); } catch { /* truncated tail of the head */ }
   }
-  if (rootKey === 'codex-sessions') {
-    const meta = lines.find((l) => l.type === 'session_meta') as { payload?: { id?: string; cwd?: string } } | undefined;
-    const id = meta?.payload?.id;
-    if (!id) return null;
-    return { runner: 'codex', rootKey, rel, sessionId: id, cwd: meta?.payload?.cwd ?? null, title: firstUserLine(head) ?? `session ${id.slice(0, 8)}`, mtime, size };
+  const meta = lines.find((l) => l.type === 'session_meta') as { payload?: { id?: string; cwd?: string } } | undefined;
+  if (meta?.payload?.id) {
+    const id = meta.payload.id;
+    return { runner: 'codex', rootKey, rel, sessionId: id, cwd: meta.payload.cwd ?? null, title: firstUserLine(head) ?? `session ${id.slice(0, 8)}`, mtime, size };
   }
   // claude-code: every event line carries top-level sessionId + cwd; a
   // leading summary line (continued sessions) makes the best title.
@@ -77,10 +79,23 @@ function firstUserLine(head: string): string | null {
   return null;
 }
 
+// Which roots the user has toggled off — a renderer preference; the
+// shell's whitelist itself is not affected.
+const DISABLED_KEY = 'thoughtdag.atlas.disabledRoots';
+export const disabledRoots = (): Set<string> => {
+  try { return new Set(JSON.parse(localStorage.getItem(DISABLED_KEY) ?? '[]') as string[]); } catch { return new Set(); }
+};
+export function setRootDisabled(key: string, disabled: boolean): void {
+  const set = disabledRoots();
+  if (disabled) set.add(key); else set.delete(key);
+  localStorage.setItem(DISABLED_KEY, JSON.stringify([...set]));
+}
+
 export async function scanSessions(): Promise<SessionCard[]> {
   const bridge = window.desktopSessions;
   if (!bridge) return [];
-  const roots: SessionCard['rootKey'][] = ['claude-projects', 'codex-sessions'];
+  const off = disabledRoots();
+  const roots = (await bridge.roots().catch(() => [])).filter((r) => r.exists && !off.has(r.key)).map((r) => r.key);
   const cards: SessionCard[] = [];
   for (const rootKey of roots) {
     const files = await bridge.list(rootKey).catch(() => []);
