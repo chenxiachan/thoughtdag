@@ -83,6 +83,13 @@ export function autoLayout(allNodes: ThoughtNode[], allEdges: ThoughtEdge[]): Th
   const targetIds = new Set(structuralEdges.map((e) => e.target));
   const roots = nodes.filter((n) => !targetIds.has(n.id));
 
+  const structuralParents = new Map<string, string[]>();
+  for (const e of structuralEdges) {
+    const list = structuralParents.get(e.target) || [];
+    list.push(e.source);
+    structuralParents.set(e.target, list);
+  }
+
   // ── Material anchors ──
   // Layout never moves content nodes, but chains GROWN FROM them must obey
   // the arrow grammar: the child starts BELOW its material, roughly under
@@ -96,12 +103,21 @@ export function autoLayout(allNodes: ThoughtNode[], allEdges: ThoughtEdge[]): Th
       .map((e) => allNodes.find((n) => n.id === e.source))
       .filter((m): m is ThoughtNode => !!m);
     if (mats.length === 0) continue;
+    // Two different questions, so two different materials answer them. The
+    // chain must start below the LOWEST material, or it collides with the one
+    // that hangs furthest down — that is a vertical question. But it should
+    // start in the MIDDLE of them horizontally, which the lowest material
+    // cannot answer: read a row of papers and the lowest is whichever card
+    // happens to hang furthest down, telling us nothing about left or right.
+    // Taking x from it parked the synthesis under one arbitrary document with
+    // the rest of its reading reaching across the canvas.
     const lowest = mats.reduce((a, b) =>
       a.position.y + nodeHeight(a) > b.position.y + nodeHeight(b) ? a : b);
+    const midX = mats.reduce((t, m) => t + m.position.x, 0) / mats.length;
     const k = perMaterialCount.get(lowest.id) ?? 0;
     perMaterialCount.set(lowest.id, k + 1);
     materialAnchors.set(root.id, {
-      x: lowest.position.x - 60 + k * (LAYOUT_COL_WIDTH + LAYOUT_H_GAP),
+      x: midX - 60 + k * (LAYOUT_COL_WIDTH + LAYOUT_H_GAP),
       y: lowest.position.y + nodeHeight(lowest) + LAYOUT_V_GAP,
     });
   }
@@ -113,22 +129,32 @@ export function autoLayout(allNodes: ThoughtNode[], allEdges: ThoughtEdge[]): Th
     childrenMap.set(edge.source, list);
   }
 
+  // Being explored out is a property of the EDGE, not of the node: a node can
+  // be explored out of one parent and continue plainly from another, and to
+  // that second parent it is an ordinary continuation.
+  const edgeKey = (parent: string, child: string) => `${parent}\u0000${child}`;
+  const exploreEdges = new Set(
+    edges
+      .filter((e) => e.data?.isBranchFromSelection)
+      .map((e) => edgeKey(e.source, e.target))
+  );
+
   // Classify children into 3 types:
   // 1. Continuation — first non-explore child, inherits parent column
   // 2. Regenerate siblings — other non-explore children, columns adjacent to parent
-  // 3. Explore branches — isBranchFromSelection, columns further out
-  const exploreTargets = new Set(
-    edges.filter((e) => e.data?.isBranchFromSelection).map((e) => e.target)
-  );
-
-  function classifyChildren(parentId: string): {
+  // 3. Explore branches — explored out of THIS parent, columns further out
+  function classifyChildren(parentId: string, claimant: Map<string, string>): {
     continuation: string | null;
     regenerates: string[];
     explores: string[];
   } {
-    const children = childrenMap.get(parentId) || [];
-    const nonExplore = children.filter((c) => !exploreTargets.has(c));
-    const explores = children.filter((c) => exploreTargets.has(c));
+    // A merge is laid out by one parent only; the others still draw their
+    // arrow to it, they just no longer decide where it sits.
+    const children = (childrenMap.get(parentId) || []).filter(
+      (c) => (claimant.get(c) ?? parentId) === parentId
+    );
+    const nonExplore = children.filter((c) => !exploreEdges.has(edgeKey(parentId, c)));
+    const explores = children.filter((c) => exploreEdges.has(edgeKey(parentId, c)));
     return {
       continuation: nonExplore[0] ?? null,
       regenerates: nonExplore.slice(1),
@@ -137,72 +163,130 @@ export function autoLayout(allNodes: ThoughtNode[], allEdges: ThoughtEdge[]): Th
   }
 
   // --- Pass 1: Assign columns ---
-  const nodeColumn = new Map<string, number>();
-  let nextColumn = 0;
   // Anchored chains live in VIRTUAL columns pinned to their material's x —
   // the grid formula never sees them, collision grouping still does.
   const VIRT_BASE = 100000;
-  let nextVirt = VIRT_BASE;
-  const colXOverride = new Map<number, number>();
-  const colX = (col: number) => colXOverride.get(col) ?? col * (NODE_WIDTH + H_GAP);
 
-  function assignColumns(nodeId: string, col: number) {
-    if (nodeColumn.has(nodeId)) return;
-    nodeColumn.set(nodeId, col);
+  function assignAllColumns(claimant: Map<string, string>) {
+    const nodeColumn = new Map<string, number>();
+    let nextColumn = 0;
+    let nextVirt = VIRT_BASE;
+    const colXOverride = new Map<number, number>();
+    const colX = (col: number) => colXOverride.get(col) ?? col * (NODE_WIDTH + H_GAP);
 
-    const { continuation, regenerates, explores } = classifyChildren(nodeId);
+    function assignColumns(nodeId: string, col: number) {
+      if (nodeColumn.has(nodeId)) return;
+      nodeColumn.set(nodeId, col);
 
-    // Continuation inherits same column
-    if (continuation) {
-      assignColumns(continuation, col);
-    }
+      const { continuation, regenerates, explores } = classifyChildren(nodeId, claimant);
 
-    // Regenerate siblings: columns immediately adjacent (col+1, col+2, ...).
-    // On an ANCHORED chain (virtual column) the sibling must take a fresh
-    // virtual column pinned beside the chain — arithmetic on a virtual
-    // column id would land in the grid formula at x ≈ 62 million, and
-    // feeding it into nextColumn would catapult every later root after it.
-    for (let i = 0; i < regenerates.length; i++) {
-      let regenCol: number;
-      if (col >= VIRT_BASE) {
-        regenCol = nextVirt++;
-        colXOverride.set(regenCol, colX(col) + (i + 1) * (NODE_WIDTH + H_GAP));
-      } else {
-        regenCol = col + 1 + i;
-        nextColumn = Math.max(nextColumn, regenCol + 1);
+      if (continuation) assignColumns(continuation, col);
+
+      // Regenerate siblings: columns immediately adjacent (col+1, col+2, ...).
+      // On an ANCHORED chain (virtual column) the sibling must take a fresh
+      // virtual column pinned beside the chain — arithmetic on a virtual
+      // column id would land in the grid formula at x ≈ 62 million, and
+      // feeding it into nextColumn would catapult every later root after it.
+      for (let i = 0; i < regenerates.length; i++) {
+        let regenCol: number;
+        if (col >= VIRT_BASE) {
+          regenCol = nextVirt++;
+          colXOverride.set(regenCol, colX(col) + (i + 1) * (NODE_WIDTH + H_GAP));
+        } else {
+          regenCol = col + 1 + i;
+          nextColumn = Math.max(nextColumn, regenCol + 1);
+        }
+        assignColumns(regenerates[i], regenCol);
       }
-      assignColumns(regenerates[i], regenCol);
+
+      // Explore branches: after all regenerate columns (anchored chains keep
+      // them beside the chain too, past the sibling columns)
+      let exploreOffset = 0;
+      for (const ec of explores) {
+        let exploreCol: number;
+        if (col >= VIRT_BASE) {
+          exploreCol = nextVirt++;
+          colXOverride.set(exploreCol, colX(col) + (regenerates.length + 1 + exploreOffset) * (NODE_WIDTH + H_GAP));
+          exploreOffset++;
+        } else {
+          exploreCol = nextColumn;
+          nextColumn++;
+        }
+        assignColumns(ec, exploreCol);
+      }
     }
 
-    // Explore branches: after all regenerate columns (anchored chains keep
-    // them beside the chain too, past the sibling columns)
-    let exploreOffset = 0;
-    for (const ec of explores) {
-      let exploreCol: number;
-      if (col >= VIRT_BASE) {
-        exploreCol = nextVirt++;
-        colXOverride.set(exploreCol, colX(col) + (regenerates.length + 1 + exploreOffset) * (NODE_WIDTH + H_GAP));
-        exploreOffset++;
+    for (const root of roots) {
+      const anchor = materialAnchors.get(root.id);
+      if (anchor) {
+        const virtCol = nextVirt++;
+        colXOverride.set(virtCol, anchor.x);
+        assignColumns(root.id, virtCol);
       } else {
-        exploreCol = nextColumn;
+        const rootCol = nextColumn;
         nextColumn++;
+        assignColumns(root.id, rootCol);
       }
-      assignColumns(ec, exploreCol);
     }
+
+    // A claimant sitting on a chain the walk never reaches would strand the
+    // merge with no column at all. Fall back to the median parent that DID get
+    // one, and repeat: placing one merge can unlock another below it.
+    for (let guard = 0; guard < nodes.length; guard++) {
+      let progressed = false;
+      for (const node of nodes) {
+        if (nodeColumn.has(node.id)) continue;
+        const cols = (structuralParents.get(node.id) || [])
+          .map((p) => nodeColumn.get(p))
+          .filter((c): c is number => c !== undefined)
+          .sort((a, b) => a - b);
+        if (!cols.length) continue;
+        assignColumns(node.id, cols[Math.floor((cols.length - 1) / 2)]);
+        progressed = true;
+      }
+      if (!progressed) break;
+    }
+
+    return { nodeColumn, colX };
   }
 
-  for (const root of roots) {
-    const anchor = materialAnchors.get(root.id);
-    if (anchor) {
-      const virtCol = nextVirt++;
-      colXOverride.set(virtCol, anchor.x);
-      assignColumns(root.id, virtCol);
-    } else {
-      const rootCol = nextColumn;
-      nextColumn++;
-      assignColumns(root.id, rootCol);
-    }
+  // ── Which parent owns a merge ──
+  // A node with several parents used to inherit the column of whichever parent
+  // the walk reached first, so the synthesis landed under one arbitrary source
+  // while the rest of its reading reached across the canvas.
+  //
+  // The middle parent should own it instead — but "middle" means middle COLUMN,
+  // and columns are what this pass is computing. So compute them once with
+  // nobody claiming anything, read the answer off that provisional run, and
+  // lay out again. Deriving the claimant from a node's position in the input
+  // array instead would be cheaper and wrong: the same graph handed over in a
+  // different order would lay out differently, which is the very instability
+  // this is meant to remove.
+  const provisional = assignAllColumns(new Map());
+  const claimant = new Map<string, string>();
+  for (const [child, ps] of structuralParents) {
+    if (ps.length < 2) continue;
+    const known = ps.filter((p) => provisional.nodeColumn.has(p));
+    // Only a parent this node CONTINUES from can own its column; one that
+    // explored it out is meant to stand beside it, and handing it the claim
+    // would drag the node out of the chain it actually continues. Explore
+    // parents are candidates only when there is no plain one.
+    const continued = known.filter((p) => !exploreEdges.has(edgeKey(p, child)));
+    const pool = continued.length ? continued : known;
+    if (!pool.length) continue;
+    // Rank by where a column SITS, never by its id. A chain grown from
+    // material is pinned to the document it came from and gets its id handed
+    // out in traversal order, so the ids carry no left-to-right meaning at
+    // all; only colX knows where the parent really is.
+    const ranked = [...pool].sort(
+      (a, b) =>
+        provisional.colX(provisional.nodeColumn.get(a)!) -
+          provisional.colX(provisional.nodeColumn.get(b)!) ||
+        (a < b ? -1 : a > b ? 1 : 0)
+    );
+    claimant.set(child, ranked[Math.floor((ranked.length - 1) / 2)]);
   }
+  const { nodeColumn, colX } = assignAllColumns(claimant);
 
   // --- Pass 2: Vertical positioning ---
   const nodeHeightMap = new Map<string, number>();
@@ -229,7 +313,7 @@ export function autoLayout(allNodes: ThoughtNode[], allEdges: ThoughtEdge[]): Th
     const parentPos = positioned.get(current)!;
     const parentHeight = nodeHeightMap.get(current) || 220;
 
-    const { continuation, regenerates, explores } = classifyChildren(current);
+    const { continuation, regenerates, explores } = classifyChildren(current, claimant);
 
     if (continuation && !visited.has(continuation)) {
       visited.add(continuation);
@@ -267,11 +351,74 @@ export function autoLayout(allNodes: ThoughtNode[], allEdges: ThoughtEdge[]): Th
     }
   }
 
+  // Same story for y: a merge reached only through its claimant may still be
+  // unplaced. Sit it below the lowest parent that was placed, so the arrow
+  // keeps pointing downward instead of the node collapsing to the origin.
+  for (let guard = 0; guard < nodes.length; guard++) {
+    let progressed = false;
+    for (const node of nodes) {
+      if (positioned.has(node.id)) continue;
+      const ps = (structuralParents.get(node.id) || []).filter((p) => positioned.has(p));
+      if (!ps.length) continue;
+      const bottom = Math.max(
+        ...ps.map((p) => positioned.get(p)!.y + (nodeHeightMap.get(p) || 220))
+      );
+      positioned.set(node.id, { x: colX(nodeColumn.get(node.id) ?? 0), y: bottom + V_GAP });
+      progressed = true;
+    }
+    if (!progressed) break;
+  }
+
   // Handle any orphan nodes (shouldn't happen, but safety)
   for (const node of nodes) {
     if (!positioned.has(node.id)) {
       positioned.set(node.id, { x: 0, y: 0 });
     }
+  }
+
+  // ── A merge clears every parent it reads ──
+  // Pass 2 hands a node its y from the single parent that walked to it, so a
+  // synthesis could sit level with — or above — the other sources feeding it
+  // and the arrow pointed back up the canvas. Whichever parent is chosen, the
+  // node belongs below the LOWEST one. Only merges need this (a single-parent
+  // chain is already correct by construction), and explore branches are
+  // exempt: they are meant to sit alongside their parent, not beneath it.
+  for (let pass = 0; pass < 5; pass++) {
+    let moved = false;
+    for (const node of nodes) {
+      const pos = positioned.get(node.id);
+      if (!pos) continue;
+      const all = (structuralParents.get(node.id) || []).filter((p) => positioned.has(p));
+      if (all.length < 2) continue;
+      // Two rules, one for each kind of arrow into this node. A parent it
+      // CONTINUES from must be cleared entirely. A parent that EXPLORED it out
+      // is meant to stand beside it — no clearance owed, but the child must
+      // still never float above that parent's top edge.
+      const continued = all.filter((p) => !exploreEdges.has(`${p}\u0000${node.id}`));
+      const explored = all.filter((p) => exploreEdges.has(`${p}\u0000${node.id}`));
+      let floor = -Infinity;
+      for (const p of continued) {
+        floor = Math.max(floor, positioned.get(p)!.y + (nodeHeightMap.get(p) || 220) + V_GAP);
+      }
+      for (const p of explored) {
+        floor = Math.max(floor, positioned.get(p)!.y);
+      }
+      if (floor > -Infinity && pos.y < floor) {
+        const delta = floor - pos.y;
+        pos.y = floor;
+        // The whole subtree travels with it, not only the part sharing this
+        // column. An explore branch is given a column of its own, so a
+        // column-restricted shift left it where it was and the child came to
+        // rest above the parent that spawned it. Dedupe first: a descendant
+        // reachable by two paths must not be moved twice.
+        for (const dId of new Set(getDescendantIds(node.id, structuralEdges))) {
+          const dPos = positioned.get(dId);
+          if (dPos) dPos.y += delta;
+        }
+        moved = true;
+      }
+    }
+    if (!moved) break;
   }
 
   // --- Pass 3: Collision resolution ---
@@ -304,13 +451,13 @@ export function autoLayout(allNodes: ThoughtNode[], allEdges: ThoughtEdge[]): Th
           currPos.y = minY;
           moved = true;
 
-          // Push all descendants down too (within same column)
-          const descIds = getDescendantIds(currId, structuralEdges);
-          for (const dId of descIds) {
+          // Push all descendants down too. Not only the ones sharing this
+          // column: an explore branch is given a column of its own, and
+          // leaving it behind stranded a child above the parent it came from.
+          // Dedupe — a descendant reachable by two paths moves once.
+          for (const dId of new Set(getDescendantIds(currId, structuralEdges))) {
             const dPos = positioned.get(dId);
-            if (dPos && nodeColumn.get(dId) === nodeColumn.get(currId)) {
-              dPos.y += delta;
-            }
+            if (dPos) dPos.y += delta;
           }
         }
       }
