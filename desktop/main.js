@@ -321,6 +321,34 @@ function setupSessionAtlas() {
 
   ipcMain.handle('sessions:read', (_e, rootKey, rel) => fsp.readFile(resolveInRoot(rootKey, rel), 'utf8'));
 
+  // Chunked read for sessions beyond what one V8 string can hold (a 619MB
+  // rollout is a real file on this machine). Chunks cut on line boundaries
+  // so every returned piece parses cleanly; a single line longer than the
+  // chunk (never observed — the worst line seen is 49KB) is dropped whole
+  // rather than split into two corrupt halves.
+  ipcMain.handle('sessions:read-range', async (_e, rootKey, rel, start, length) => {
+    const fh = await fsp.open(resolveInRoot(rootKey, rel), 'r');
+    try {
+      const st = await fh.stat();
+      const from = Math.max(0, Number(start) || 0);
+      const want = Math.min(Math.max(65536, Number(length) || 0), 32 * 1024 * 1024);
+      const size = Math.min(want, Math.max(0, st.size - from));
+      if (size === 0) return { text: '', nextStart: from, eof: true };
+      const buf = Buffer.alloc(size);
+      const { bytesRead } = await fh.read(buf, 0, size, from);
+      let slice = buf.subarray(0, bytesRead);
+      const eof = from + bytesRead >= st.size;
+      if (!eof) {
+        const lastNl = slice.lastIndexOf(0x0a);
+        if (lastNl >= 0) slice = slice.subarray(0, lastNl + 1);
+        else return { text: '', nextStart: from + bytesRead, eof: false };
+      }
+      return { text: slice.toString('utf8'), nextStart: from + slice.length, eof };
+    } finally {
+      await fh.close();
+    }
+  });
+
   // ─── The listener: the stores announce their own changes ───────────
   // One recursive fs.watch per live root; .jsonl events debounce per file
   // and reach the page as {rootKey, rel}. Observation only — the mirror

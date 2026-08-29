@@ -84,44 +84,49 @@ function resultText(content: string | Array<{ type?: string; text?: string }> | 
 const clip = (s: string, limit: number): { text: string; truncated: boolean } =>
   s.length > limit ? { text: `${s.slice(0, limit)}\n…[truncated, ${s.length} chars total]`, truncated: true } : { text: s, truncated: false };
 
-/** Parse JSONL text into lines; null when this is not a Claude Code session. */
-export function parseClaudeCodeSession(text: string): { lines: SessionLine[]; sessionId: string; title: string } | null {
-  const lines: SessionLine[] = [];
-  for (const raw of text.split('\n')) {
-    const t = raw.trim();
-    if (!t) continue;
-    try { lines.push(JSON.parse(t) as SessionLine); } catch { /* non-JSON line: skip */ }
-  }
-  const marker = lines.find((l) => (l.type === 'user' || l.type === 'assistant') && l.uuid && l.sessionId);
-  if (!marker) return null;
-  const title = [...lines].reverse().find((l) => l.type === 'custom-title' && l.customTitle)?.customTitle
-    ?? lines.find((l) => l.slug)?.slug
-    ?? `session ${marker.sessionId!.slice(0, 8)}`;
-  return { lines, sessionId: marker.sessionId!, title };
-}
-
-function collectTurns(lines: SessionLine[]): Turn[] {
-  const turns: Turn[] = [];
+/** Streaming turn collector — mirror of the Codex one: lines in one at a
+ *  time (no path may hold a whole multi-hundred-MB session as text),
+ *  turns accumulate small. String entry points below are thin wrappers. */
+export class ClaudeSessionCollector {
+  private turns: Turn[] = [];
   // tool_use id → registration, so results pair up even across lines
-  const pendingTools = new Map<string, { name: string; call: string }>();
-  let current: Turn | null = null;
-  let pendingCompaction: string | undefined;
+  private pendingTools = new Map<string, { name: string; call: string }>();
+  private current: Turn | null = null;
+  private pendingCompaction: string | undefined;
+  private sessionId: string | null = null;
+  private customTitle: string | null = null;
+  private slug: string | null = null;
 
-  const flush = () => {
-    if (current && (current.question || current.response || current.tools.length)) turns.push(current);
-    current = null;
-  };
+  feedLine(raw: string): void {
+    const t = raw.trim();
+    if (!t) return;
+    let line: SessionLine;
+    try { line = JSON.parse(t) as SessionLine; } catch { return; }
+    this.feed(line);
+  }
 
-  for (const line of lines) {
-    if (line.isSidechain) continue;
+  private flush(): void {
+    const c = this.current;
+    if (c && (c.question || c.response || c.tools.length)) this.turns.push(c);
+    this.current = null;
+  }
+
+  private feed(line: SessionLine): void {
+    if (line.type === 'custom-title' && line.customTitle) this.customTitle = line.customTitle;
+    if (line.slug && !this.slug) this.slug = line.slug;
+    if (line.isSidechain) return;
 
     if (line.type === 'system' && line.subtype === 'compact_boundary') {
-      flush();
+      this.flush();
       const m = line.compactMetadata;
-      pendingCompaction = `[Compaction] The source runner compacted its history here${
+      this.pendingCompaction = `[Compaction] The source runner compacted its history here${
         m?.preTokens ? ` (${m.preTokens} → ${m.postTokens ?? '?'} tokens)` : ''
       }. Everything above this point reached later turns only as a summary.`;
-      continue;
+      return;
+    }
+
+    if ((line.type === 'user' || line.type === 'assistant') && line.uuid && line.sessionId && !this.sessionId) {
+      this.sessionId = line.sessionId;
     }
 
     if (line.type === 'user') {
@@ -130,44 +135,67 @@ function collectTurns(lines: SessionLine[]): Turn[] {
       if (Array.isArray(content)) {
         for (const p of content) {
           if (p.type === 'tool_result' && p.tool_use_id) {
-            const reg = pendingTools.get(p.tool_use_id);
-            if (reg && current) {
+            const reg = this.pendingTools.get(p.tool_use_id);
+            if (reg && this.current) {
               const res = clip(resultText(p.content), TOOL_RESULT_LIMIT);
-              current.tools.push({ name: reg.name, call: reg.call, result: res.text, truncated: res.truncated });
-              pendingTools.delete(p.tool_use_id);
+              this.current.tools.push({ name: reg.name, call: reg.call, result: res.text, truncated: res.truncated });
+              this.pendingTools.delete(p.tool_use_id);
             }
           }
         }
       }
       const text = textParts(content);
       if (text.trim()) {
-        flush();
-        current = { question: text, response: '', itemIds: line.uuid ? [line.uuid] : [], tools: [] };
-        if (pendingCompaction) {
-          current.compactionBefore = pendingCompaction;
-          pendingCompaction = undefined;
+        this.flush();
+        this.current = { question: text, response: '', itemIds: line.uuid ? [line.uuid] : [], tools: [] };
+        if (this.pendingCompaction) {
+          this.current.compactionBefore = this.pendingCompaction;
+          this.pendingCompaction = undefined;
         }
       }
-      continue;
+      return;
     }
 
-    if (line.type === 'assistant' && current) {
-      if (line.uuid) current.itemIds.push(line.uuid);
+    if (line.type === 'assistant' && this.current) {
+      if (line.uuid) this.current.itemIds.push(line.uuid);
       const content = line.message?.content;
       const text = textParts(content);
-      if (text.trim()) current.response = current.response ? `${current.response}\n\n${text}` : text;
+      if (text.trim()) this.current.response = this.current.response ? `${this.current.response}\n\n${text}` : text;
       if (Array.isArray(content)) {
         for (const p of content) {
           if (p.type === 'tool_use' && p.id && p.name) {
             const call = clip(JSON.stringify(p.input ?? {}), TOOL_CALL_LIMIT);
-            pendingTools.set(p.id, { name: p.name, call: call.text });
+            this.pendingTools.set(p.id, { name: p.name, call: call.text });
           }
         }
       }
     }
   }
-  flush();
-  return dropSelfCommandTurns(turns);
+
+  finish(): { sessionId: string; title: string; turns: Turn[] } | null {
+    this.flush();
+    if (!this.sessionId) return null;
+    const title = this.customTitle ?? this.slug ?? `session ${this.sessionId.slice(0, 8)}`;
+    return { sessionId: this.sessionId, title, turns: dropSelfCommandTurns(this.turns) };
+  }
+
+  toConversation(): ImportableConversation | null {
+    const s = this.finish();
+    if (!s || s.turns.length === 0) return null;
+    return {
+      title: s.title,
+      messageCount: s.turns.length,
+      source: 'claude-code',
+      sessionId: s.sessionId,
+      build: () => buildGraphFromTurns(s.turns, s.sessionId),
+    };
+  }
+}
+
+function collectFromText(text: string): ClaudeSessionCollector {
+  const c = new ClaudeSessionCollector();
+  for (const raw of text.split('\n')) c.feedLine(raw);
+  return c;
 }
 
 function noteNode(text: string): ThoughtNode {
@@ -177,11 +205,10 @@ function noteNode(text: string): ThoughtNode {
   return n;
 }
 
-function buildGraph(session: { lines: SessionLine[]; sessionId: string }): { nodes: ThoughtNode[]; edges: ThoughtEdge[] } {
+function buildGraphFromTurns(turns: Turn[], sessionId: string): { nodes: ThoughtNode[]; edges: ThoughtEdge[] } {
   // faithful projection: EVERY turn imports — no tail cap. Long sessions
   // stay navigable through the zoom tiers (map plaques, glyphs), and
   // pruning is the user's decision on the canvas, never the importer's.
-  const turns = collectTurns(session.lines);
   const nodes: ThoughtNode[] = [];
   const edges: ThoughtEdge[] = [];
   let prev: ThoughtNode | null = null;
@@ -195,13 +222,13 @@ function buildGraph(session: { lines: SessionLine[]; sessionId: string }): { nod
       const note = noteNode(turn.compactionBefore);
       // importer-owned notes carry provenance too, so "node without
       // importSource" strictly means "the user made this by hand"
-      note.data.importSource = { runner: 'claude-code', sessionId: session.sessionId, itemIds: [] };
+      note.data.importSource = { runner: 'claude-code', sessionId, itemIds: [] };
       nodes.push(note);
       if (prev) link(prev, note);
       prev = note;
     }
     const node = makeNode(turn.question, turn.response, prev === null);
-    node.data.importSource = { runner: 'claude-code', sessionId: session.sessionId, itemIds: turn.itemIds };
+    node.data.importSource = { runner: 'claude-code', sessionId, itemIds: turn.itemIds };
     node.data.source = { question: node.data.question, response: node.data.response };
     seedPlaque(node);
     node.data.attachments = toolAttachments(turn);
@@ -238,22 +265,12 @@ export function claudeCodeSessionAsBranch(
   text: string,
   anchorNode: { id: string; x: number; y: number },
 ): { nodes: ThoughtNode[]; edges: ThoughtEdge[]; turnCount: number } | null {
-  const session = parseClaudeCodeSession(text);
-  if (!session) return null;
-  return turnsToBranch(collectTurns(session.lines), session.sessionId, 'claude-code', anchorNode);
+  const s = collectFromText(text).finish();
+  if (!s) return null;
+  return turnsToBranch(s.turns, s.sessionId, 'claude-code', anchorNode);
 }
 
 /** The importable-conversation wrapper the existing import modal consumes. */
 export function claudeCodeSessionConversation(text: string): ImportableConversation | null {
-  const session = parseClaudeCodeSession(text);
-  if (!session) return null;
-  const turnCount = collectTurns(session.lines).length;
-  if (turnCount === 0) return null;
-  return {
-    title: session.title,
-    messageCount: turnCount,
-    source: 'claude-code',
-    sessionId: session.sessionId,
-    build: () => buildGraph(session),
-  };
+  return collectFromText(text).toConversation();
 }

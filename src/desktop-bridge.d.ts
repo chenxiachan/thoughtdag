@@ -32,6 +32,8 @@ interface DesktopSessionsBridge {
   list: (rootKey: string) => Promise<{ rel: string; size: number; mtime: number }[]>;
   head: (rootKey: string, rel: string, bytes: number) => Promise<string>;
   read: (rootKey: string, rel: string) => Promise<string>;
+  /** Line-aligned chunked read — the road for sessions too big for one string. */
+  readRange: (rootKey: string, rel: string, start: number, length: number) => Promise<{ text: string; nextStart: number; eof: boolean }>;
   openInCli: (runner: string, cwd: string | null, sessionId: string, mode: 'app' | 'terminal') => Promise<{ opened: boolean; via: 'app' | 'terminal' | ''; command: string }>;
   openTargets: () => Promise<{
     terminals: { id: string; name: string; custom: boolean }[];

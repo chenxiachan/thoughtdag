@@ -43,10 +43,10 @@ export function startLiveMirror(): void {
       if (!ledger) return;
       const head = await bridge.head(ev.rootKey, ev.rel, 262144).catch(() => '');
       if (!head || sessionIdFromHead(head) !== ledger.sessionId) return;
-      const text = await bridge.read(ev.rootKey, ev.rel).catch(() => '');
-      if (!text) return;
-      const { importOrAppendSession } = await import('./canonical');
-      const result = await importOrAppendSession(text);
+      const { streamRunnerConversation } = await import('../adapters');
+      const { importOrAppendConversation, shellSessionReader } = await import('./canonical');
+      const conv = await streamRunnerConversation(shellSessionReader(ev.rootKey, ev.rel)).catch(() => null);
+      const result = await importOrAppendConversation(conv);
       if (result?.kind === 'appended') {
         toast('success', fmt(t('atlas.liveAppended'), { n: result.turns }), 8000);
       }

@@ -86,97 +86,127 @@ const outputText = (output: unknown): string => {
   return output == null ? '' : JSON.stringify(output);
 };
 
-/** Parse rollout JSONL; null when this is not a Codex session. */
-export function parseCodexSession(text: string): { lines: RolloutLine[]; sessionId: string; title: string } | null {
-  const lines: RolloutLine[] = [];
-  for (const raw of text.split('\n')) {
+/** Streaming turn collector: lines go in one at a time (a 619MB rollout
+ *  is a real file — no path may hold the whole text), turns accumulate
+ *  small (tool results clipped on entry). The whole adapter runs on this;
+ *  the string-based entry points below are thin wrappers. */
+export class CodexSessionCollector {
+  private turns: Turn[] = [];
+  private pendingCalls = new Map<string, { name: string; call: string }>();
+  private current: Turn | null = null;
+  private pendingCompaction: string | undefined;
+  private sessionId: string | null = null;
+  private cwd = '';
+  private day = '';
+  private sawItems = false;
+
+  feedLine(raw: string): void {
     const t = raw.trim();
-    if (!t) continue;
-    try { lines.push(JSON.parse(t) as RolloutLine); } catch { /* skip */ }
+    if (!t) return;
+    let line: RolloutLine;
+    try { line = JSON.parse(t) as RolloutLine; } catch { return; }
+    this.feed(line);
   }
-  const meta = lines.find((l) => l.type === 'session_meta' && l.payload?.id);
-  const hasItems = lines.some((l) => l.type === 'response_item' || l.type === 'event_msg');
-  if (!meta || !hasItems) return null;
-  const cwd = meta.payload?.cwd ?? '';
-  const dir = cwd.split('/').filter(Boolean).pop();
-  const day = (meta.payload as { timestamp?: string } | undefined)?.timestamp?.slice(0, 10) ?? '';
-  const title = ['codex', dir, day].filter(Boolean).join(' · ');
-  return { lines, sessionId: meta.payload!.id!, title };
-}
 
-function collectTurns(lines: RolloutLine[]): Turn[] {
-  const turns: Turn[] = [];
-  const pendingCalls = new Map<string, { name: string; call: string }>();
-  let current: Turn | null = null;
-  let pendingCompaction: string | undefined;
+  private flush(): void {
+    const c = this.current;
+    if (c && (c.question || c.response || c.tools.length)) this.turns.push(c);
+    this.current = null;
+  }
 
-  const flush = () => {
-    if (current && (current.question || current.response || current.tools.length)) turns.push(current);
-    current = null;
-  };
-  const ensure = (): Turn => {
-    if (!current) {
-      current = { question: '', response: '', itemIds: [], tools: [] };
-      if (pendingCompaction) {
-        current.compactionBefore = pendingCompaction;
-        pendingCompaction = undefined;
+  private ensure(): Turn {
+    if (!this.current) {
+      this.current = { question: '', response: '', itemIds: [], tools: [] };
+      if (this.pendingCompaction) {
+        this.current.compactionBefore = this.pendingCompaction;
+        this.pendingCompaction = undefined;
       }
     }
-    return current;
-  };
+    return this.current;
+  }
 
-  for (const line of lines) {
+  private feed(line: RolloutLine): void {
     const p = line.payload ?? {};
+    if (line.type === 'session_meta' && p.id && !this.sessionId) {
+      this.sessionId = p.id;
+      this.cwd = p.cwd ?? '';
+      this.day = (p as { timestamp?: string }).timestamp?.slice(0, 10) ?? '';
+      return;
+    }
+    if (line.type === 'response_item' || line.type === 'event_msg') this.sawItems = true;
     if (line.type === 'compacted') {
       // the runner replaced its live history with a summary here — an
       // honest projection keeps that boundary visible
-      flush();
-      pendingCompaction = '[Compaction] The source runner compacted its history here. Everything above this point reached later turns only as a summary.';
-      continue;
+      this.flush();
+      this.pendingCompaction = '[Compaction] The source runner compacted its history here. Everything above this point reached later turns only as a summary.';
+      return;
     }
     if (line.type === 'turn_context' || (line.type === 'event_msg' && p.type === 'task_started')) {
-      flush();
-      const t = ensure();
+      this.flush();
+      const t = this.ensure();
       if (p.turn_id) t.itemIds.push(p.turn_id);
-      continue;
+      return;
     }
-    if (line.type !== 'response_item') continue;
+    if (line.type !== 'response_item') return;
     if (p.type === 'message') {
       if (p.role === 'user') {
         const text = userPartText(p.content); // injected <tag> blocks dropped
         if (text.trim()) {
-          const t = ensure();
+          const t = this.ensure();
           t.question = t.question ? `${t.question}\n\n${text}` : text;
         }
       } else if (p.role === 'assistant') {
         const text = partText(p.content);
         if (text.trim()) {
-          const t = ensure();
+          const t = this.ensure();
           t.response = t.response ? `${t.response}\n\n${text}` : text;
         }
       }
       // role=developer: runner boilerplate, dropped
     } else if ((p.type === 'function_call' || p.type === 'custom_tool_call') && p.call_id && p.name) {
       const call = clip(String(p.arguments ?? p.input ?? ''), TOOL_CALL_LIMIT);
-      pendingCalls.set(p.call_id, { name: p.name, call: call.text });
+      this.pendingCalls.set(p.call_id, { name: p.name, call: call.text });
     } else if ((p.type === 'function_call_output' || p.type === 'custom_tool_call_output') && p.call_id) {
-      const reg = pendingCalls.get(p.call_id);
+      const reg = this.pendingCalls.get(p.call_id);
       if (reg) {
-        const t = ensure();
+        const t = this.ensure();
         const res = clip(outputText(p.output), TOOL_RESULT_LIMIT);
         t.tools.push({ name: reg.name, call: reg.call, result: res.text, truncated: res.truncated });
-        pendingCalls.delete(p.call_id);
+        this.pendingCalls.delete(p.call_id);
       }
     }
   }
-  flush();
-  return dropSelfCommandTurns(turns);
+
+  finish(): { sessionId: string; title: string; turns: Turn[] } | null {
+    this.flush();
+    if (!this.sessionId || !this.sawItems) return null;
+    const dir = this.cwd.split('/').filter(Boolean).pop();
+    const title = ['codex', dir, this.day].filter(Boolean).join(' · ');
+    return { sessionId: this.sessionId, title, turns: dropSelfCommandTurns(this.turns) };
+  }
+
+  toConversation(): ImportableConversation | null {
+    const s = this.finish();
+    if (!s || s.turns.length === 0) return null;
+    return {
+      title: s.title,
+      messageCount: s.turns.length,
+      source: 'codex',
+      sessionId: s.sessionId,
+      build: () => buildGraphFromTurns(s.turns, s.sessionId),
+    };
+  }
 }
 
-function buildGraph(session: { lines: RolloutLine[]; sessionId: string }): { nodes: ThoughtNode[]; edges: ThoughtEdge[] } {
+function collectFromText(text: string): CodexSessionCollector {
+  const c = new CodexSessionCollector();
+  for (const raw of text.split('\n')) c.feedLine(raw);
+  return c;
+}
+
+function buildGraphFromTurns(turns: Turn[], sessionId: string): { nodes: ThoughtNode[]; edges: ThoughtEdge[] } {
   // faithful projection: EVERY turn imports — no tail cap (see the Claude
   // Code adapter for the rationale; the rule is runner-agnostic).
-  const turns = collectTurns(session.lines);
   const nodes: ThoughtNode[] = [];
   const edges: ThoughtEdge[] = [];
   let prev: ThoughtNode | null = null;
@@ -185,13 +215,13 @@ function buildGraph(session: { lines: RolloutLine[]; sessionId: string }): { nod
     if (turn.compactionBefore) {
       const note = makeNode(turn.compactionBefore, '', false);
       note.data.stepKind = 'note';
-      note.data.importSource = { runner: 'codex', sessionId: session.sessionId, itemIds: [] };
+      note.data.importSource = { runner: 'codex', sessionId, itemIds: [] };
       nodes.push(note);
       if (prev) edges.push({ id: generateId(), source: prev.id, target: note.id, type: 'smoothstep' } as ThoughtEdge);
       prev = note;
     }
     const node = makeNode(turn.question || '(tool-only turn)', turn.response, prev === null);
-    node.data.importSource = { runner: 'codex', sessionId: session.sessionId, itemIds: turn.itemIds };
+    node.data.importSource = { runner: 'codex', sessionId, itemIds: turn.itemIds };
     node.data.source = { question: node.data.question, response: node.data.response };
     node.data.attachments = toolAttachments(turn);
     seedPlaque(node);
@@ -222,22 +252,12 @@ export function codexSessionAsBranch(
   text: string,
   anchorNode: { id: string; x: number; y: number },
 ): { nodes: ThoughtNode[]; edges: ThoughtEdge[]; turnCount: number } | null {
-  const session = parseCodexSession(text);
-  if (!session) return null;
-  return turnsToBranch(collectTurns(session.lines), session.sessionId, 'codex', anchorNode);
+  const s = collectFromText(text).finish();
+  if (!s) return null;
+  return turnsToBranch(s.turns, s.sessionId, 'codex', anchorNode);
 }
 
 /** The importable-conversation wrapper the import modal consumes. */
 export function codexSessionConversation(text: string): ImportableConversation | null {
-  const session = parseCodexSession(text);
-  if (!session) return null;
-  const turnCount = collectTurns(session.lines).length;
-  if (turnCount === 0) return null;
-  return {
-    title: session.title,
-    messageCount: turnCount,
-    source: 'codex',
-    sessionId: session.sessionId,
-    build: () => buildGraph(session),
-  };
+  return collectFromText(text).toConversation();
 }

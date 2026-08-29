@@ -177,9 +177,12 @@ export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { 
     setBusyRel(card.rel);
     seen(card); // opening a card IS looking at it, whatever import does next
     try {
-      const text = await window.desktopSessions!.read(card.rootKey, card.rel);
-      const { importOrAppendSession } = await import('../lib/atlas/canonical');
-      const result = await importOrAppendSession(text);
+      // streamed end to end: a session bigger than one V8 string can hold
+      // (600MB+ rollouts exist) must never be read whole
+      const { streamRunnerConversation } = await import('../lib/adapters');
+      const { importOrAppendConversation, shellSessionReader } = await import('../lib/atlas/canonical');
+      const conv = await streamRunnerConversation(shellSessionReader(card.rootKey, card.rel));
+      const result = await importOrAppendConversation(conv);
       if (!result) throw new Error(ti('handoff.notASession'));
       if (result.kind === 'appended') toast('success', fmt(ti('atlas.appended'), { n: result.turns }), 9000);
       else if (result.kind === 'opened') toast('info', ti('atlas.upToDate'), 6000);
@@ -209,11 +212,13 @@ export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { 
     if (!ok) return;
     setBusyRel(card.rel);
     try {
-      const text = await window.desktopSessions!.read(card.rootKey, card.rel);
+      const { streamRunnerConversation } = await import('../lib/adapters');
+      const { importOrAppendConversation, shellSessionReader } = await import('../lib/atlas/canonical');
+      const conv = await streamRunnerConversation(shellSessionReader(card.rootKey, card.rel));
+      if (!conv) throw new Error(ti('handoff.notASession'));
       const { deleteProject } = await import('../store/projects');
       await deleteProject(twin.id);
-      const { importOrAppendSession } = await import('../lib/atlas/canonical');
-      const result = await importOrAppendSession(text);
+      const result = await importOrAppendConversation(conv);
       if (!result) throw new Error(ti('handoff.notASession'));
       toast('success', ti('atlas.recastDone'), 8000);
       onClose();

@@ -24,6 +24,24 @@ export type CanonicalResult =
 export async function importOrAppendSession(text: string): Promise<CanonicalResult> {
   const { anyRunnerSessionConversation } = await import('../adapters');
   const conv = await anyRunnerSessionConversation(text);
+  return importOrAppendConversation(conv);
+}
+
+/** Chunked reader over the shell's readRange — the road for any size. */
+export function shellSessionReader(rootKey: string, rel: string): () => Promise<string | null> {
+  const CHUNK = 8 * 1024 * 1024;
+  let start = 0;
+  let done = false;
+  return async () => {
+    if (done) return null;
+    const r = await window.desktopSessions!.readRange(rootKey, rel, start, CHUNK);
+    start = r.nextStart;
+    if (r.eof) done = true;
+    return r.text;
+  };
+}
+
+export async function importOrAppendConversation(conv: import('../import-chat').ImportableConversation | null): Promise<CanonicalResult> {
   if (!conv) return null;
 
   const existing = conv.sessionId
