@@ -594,6 +594,7 @@ export const zh: Record<keyof typeof en, string> = {
   'atlas.parserSoon': '解析器开发中',
   'atlas.rootMissing': '未找到',
   'atlas.filterTitle': '过滤标题…',
+  'atlas.filteredOut': '当前筛选没有匹配的会话，调整上方筛选条件即可恢复。',
   'atlas.sortTime': '时间',
   'atlas.sortName': '名称',
   'atlas.sortSize': '大小',

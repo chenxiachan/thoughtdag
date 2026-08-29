@@ -1,14 +1,14 @@
 ---
-description: 把当前 Claude Code 会话直接打开到 ThoughtDAG 画布（本地桥接，数据不出本机）
+description: Open the current Claude Code session in ThoughtDAG (local bridge — data never leaves this machine)
 ---
 
-把当前 Claude Code 会话送进 ThoughtDAG：导出只读快照 → 起一个短命的本机桥 → 打开本地 ThoughtDAG，画布自动完成导入。规则与步骤：
+Send the current Claude Code session into ThoughtDAG: export a read-only snapshot → start a short-lived loopback bridge → open the local ThoughtDAG, where the canvas imports it automatically. Communicate with the user in THEIR language (the one they have been using); these instructions being English does not make English the reply language. Rules and steps:
 
-1. **定位会话文件**：当前项目的会话 JSONL 在 `~/.claude/projects/<项目路径 slug>/` 下（slug = 项目绝对路径把 `/` 和 `.` 替换为 `-`）。用 `ls -t` 取该目录**最近修改**的 `.jsonl` 即当前会话。参数 `$ARGUMENTS` 为 `list` 时改为列出最近 5 个会话（文件名、大小、修改时间）等用户挑选；为某会话 id 前缀时选中匹配文件；为 `harvest` 时仍取当前会话，但第 4 步打开的 URL 额外带 `&mode=harvest` —— 画布会读取会话首条消息里的实验锚点，把这次实验作为支线**挂回它出发的节点**（收获模式；锚点缺失时自动退为普通导入）。
+1. **Locate the session file**: this project's session JSONL files live under `~/.claude/projects/<project-path slug>/` (slug = the absolute project path with `/` and `.` replaced by `-`). The **most recently modified** `.jsonl` there (`ls -t`) is the current session. If the argument `$ARGUMENTS` is `list`, instead list the 5 most recent sessions (filename, size, mtime) for the user to pick; if it is a session-id prefix, select the matching file; if it is `harvest`, still take the current session but append `&mode=harvest` to the URL opened in step 4 — the canvas reads the experiment anchor in the session's first message and hangs this experiment as a branch **back onto the node it departed from** (harvest mode; a missing anchor falls back to a plain import automatically).
 
-2. **只读快照**：把选中的 JSONL **复制**到 `~/Desktop/thoughtdag-session-$(date +%Y%m%d-%H%M).jsonl`。绝不修改、移动或删除源文件。（正在写入的文件可安全复制，导入器容忍尾部截断行。）
+2. **Read-only snapshot**: **copy** the selected JSONL to `~/Desktop/thoughtdag-session-$(date +%Y%m%d-%H%M).jsonl`. Never modify, move, or delete the source file. (A file still being written is safe to copy — the importer tolerates a truncated tail line.)
 
-3. **起本机桥**（serve 这一个快照文件，120 秒后自动退出）。先清残留：`lsof -ti :38017 | xargs kill 2>/dev/null`，然后以快照路径为 `TD_SNAP` 环境变量，后台运行下面的脚本（`nohup … >/dev/null 2>&1 &`）：
+3. **Start the loopback bridge** (serves this one snapshot, self-destructs after 120 seconds). Clear leftovers first: `lsof -ti :38017 | xargs kill 2>/dev/null`, then run the script below in the background (`nohup … >/dev/null 2>&1 &`) with the snapshot path in the `TD_SNAP` environment variable:
 
 ```python
 import http.server, socketserver, os, threading, re
@@ -29,10 +29,10 @@ threading.Timer(120, lambda: os._exit(0)).start()
 srv.serve_forever()
 ```
 
-桥只绑 127.0.0.1、只回这一个文件、CORS 只回显 ThoughtDAG 的来源，两分钟后自毁。
+The bridge binds 127.0.0.1 only, serves this one file only, echoes CORS only for ThoughtDAG's origins, and self-destructs in two minutes.
 
-4. **打开本地 ThoughtDAG**：探测 `curl -s -o /dev/null -w "%{http_code}" http://localhost:5173`：
-   - **5173 在跑** → `open "http://localhost:5173/#import-url=http://127.0.0.1:38017/session.jsonl"`（harvest 模式在末尾追加 `&mode=harvest`），画布会自动拉取并导入（每轮问答一个节点、工具调用成可单独排除的附件、compaction 边界显式标注、全部轮次忠实导入，视角落在最新几轮）。
-   - **不在跑** → 告诉用户三选一：① `npm run dev` 起本地版后重新运行本命令；② 打开线上版（数据同样不出本机，桥只认本机来源）：`open "https://app.thoughtdag.workers.dev/#import-url=http://127.0.0.1:38017/session.jsonl"`（桥两分钟内有效）；③ 手动把桌面上的快照文件从画布切换器 → 导入拖入。
+4. **Open the local ThoughtDAG**: probe with `curl -s -o /dev/null -w "%{http_code}" http://localhost:5173`:
+   - **5173 is up** → `open "http://localhost:5173/#import-url=http://127.0.0.1:38017/session.jsonl"` (append `&mode=harvest` in harvest mode). The canvas fetches and imports automatically (one node per Q/A turn, tool calls as individually excludable attachments, compaction boundaries marked explicitly, every turn imported faithfully, the view landing on the newest turns).
+   - **Not up** → offer the user three roads: ① run `npm run dev` in the ThoughtDAG directory, then rerun this command; ② open the hosted app (data still never leaves the machine — the bridge only answers local origins): `open "https://app.thoughtdag.workers.dev/#import-url=http://127.0.0.1:38017/session.jsonl"` (the bridge stays alive for two minutes); ③ drag the Desktop snapshot into the canvas switcher → import.
 
-5. **收尾告知**：快照路径 + 已打开的地址 + 一句「导入的画布暂存浏览器本地，提示条里可一键开启自动备份落成文件」。不要打印或总结会话内容本身——那是 ThoughtDAG 的工作。
+5. **Wrap up**: report the snapshot path + the opened address + one line noting that the imported canvas lives in browser-local storage and the toast bar offers one-click automatic backups to a file. Do NOT print or summarize the session content itself — that is ThoughtDAG's job.

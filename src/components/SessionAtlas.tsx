@@ -247,8 +247,11 @@ export default function SessionAtlas({ onClose, onSwitched }: { onClose: () => v
                   </button>
                 ))}
               </div>
-            ) : activeGroup ? (
+            ) : (
               <>
+                {/* the toolbar stands OUTSIDE the group view: filters that
+                    empty the atlas must stay reachable to be undone */}
+                {(cards?.length ?? 0) > 0 && (
                 <div className="flex items-center gap-2 mb-3 flex-wrap">
                   <div className="flex items-center gap-1.5 border border-line rounded-lg px-2 py-1 bg-card">
                     <Search size={13} strokeWidth={1.75} className="text-ink-faint shrink-0" />
@@ -279,6 +282,13 @@ export default function SessionAtlas({ onClose, onSwitched }: { onClose: () => v
                     {t(`atlas.sort${sortKey[0].toUpperCase()}${sortKey.slice(1)}` as 'atlas.sortTime')}
                   </button>
                 </div>
+                )}
+                {!activeGroup ? (
+                  <div className="py-16 text-center text-sm text-ink-faint">
+                    {cards === null ? t('atlas.scanning') : (cards.length > 0 ? t('atlas.filteredOut') : t('atlas.empty'))}
+                  </div>
+                ) : (
+                <>
                 {activeGroup.cwd && <div className="text-2xs text-ink-faint mb-3 truncate">{activeGroup.cwd} · {fmt(t('atlas.sessions'), { n: activeGroup.cards.length })}</div>}
                 <div className="space-y-1.5">
                   {shownCards.map((card) => (
@@ -315,9 +325,9 @@ export default function SessionAtlas({ onClose, onSwitched }: { onClose: () => v
                     </div>
                   ))}
                 </div>
+                </>
+                )}
               </>
-            ) : (
-              <div className="h-full flex items-center justify-center text-sm text-ink-faint">{cards === null ? t('atlas.scanning') : t('atlas.empty')}</div>
             )}
           </div>
         </div>

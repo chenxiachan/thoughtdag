@@ -595,6 +595,7 @@ export const en = {
   'atlas.parserSoon': 'parser in progress',
   'atlas.rootMissing': 'not found',
   'atlas.filterTitle': 'Filter titles…',
+  'atlas.filteredOut': 'No sessions match the current filters — adjust them above to bring the list back.',
   'atlas.sortTime': 'Time',
   'atlas.sortName': 'Name',
   'atlas.sortSize': 'Size',
