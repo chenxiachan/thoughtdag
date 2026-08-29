@@ -41,7 +41,7 @@ export function startLiveMirror(): void {
       const { activeId, projects } = useProjects.getState();
       const ledger = projects.find((p) => p.id === activeId)?.sourceSession;
       if (!ledger) return;
-      const head = await bridge.head(ev.rootKey, ev.rel, 16384).catch(() => '');
+      const head = await bridge.head(ev.rootKey, ev.rel, 262144).catch(() => '');
       if (!head || sessionIdFromHead(head) !== ledger.sessionId) return;
       const text = await bridge.read(ev.rootKey, ev.rel).catch(() => '');
       if (!text) return;

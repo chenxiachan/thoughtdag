@@ -308,7 +308,9 @@ function setupSessionAtlas() {
   ipcMain.handle('sessions:head', async (_e, rootKey, rel, bytes) => {
     const fh = await fsp.open(resolveInRoot(rootKey, rel), 'r');
     try {
-      const n = Math.min(Math.max(1024, bytes | 0), 65536);
+      // upper bound generous on purpose: a codex session_meta line carries
+      // the full instructions blob and can exceed 48KB on its own
+      const n = Math.min(Math.max(1024, bytes | 0), 524288);
       const buf = Buffer.alloc(n);
       const { bytesRead } = await fh.read(buf, 0, n, 0);
       return buf.subarray(0, bytesRead).toString('utf8');

@@ -31,6 +31,7 @@ export interface AtlasGroup {
 }
 
 const HEAD_BYTES = 16384;
+const HEAD_RETRY_BYTES = 262144;
 
 // A session file may hold megabytes; a card needs only identity + a title.
 // Both runners put identity in the first lines, so a bounded head suffices.
@@ -106,7 +107,13 @@ export async function scanSessions(): Promise<SessionCard[]> {
     for (let i = 0; i < sorted.length; i += BATCH) {
       const batch = await Promise.all(sorted.slice(i, i + BATCH).map(async (f) => {
         const head = await bridge.head(rootKey, f.rel, HEAD_BYTES).catch(() => '');
-        return head ? cardFromHead(rootKey, f.rel, head, f.mtime, f.size) : null;
+        if (!head) return null;
+        const card = cardFromHead(rootKey, f.rel, head, f.mtime, f.size);
+        if (card) return card;
+        // a codex session_meta first line can be 48KB+ of instructions —
+        // one generous retry before giving a file up as unrecognized
+        const bigHead = await bridge.head(rootKey, f.rel, HEAD_RETRY_BYTES).catch(() => '');
+        return bigHead.length > head.length ? cardFromHead(rootKey, f.rel, bigHead, f.mtime, f.size) : null;
       }));
       for (const c of batch) if (c) cards.push(c);
     }
