@@ -26,28 +26,10 @@ export function dropSelfCommandTurns<T extends { question: string }>(turns: T[])
   return turns.filter((t) => !SELF_MARKS.some((m) => t.question.includes(m)));
 }
 
-/** Importer-owned notes sit beside the chain gap they narrate — except
- *  where serpentine folding leaves no gutter (the side slot would land on
- *  the previous column): there the note stands ABOVE the turn it
- *  introduces, a chapter heading at the top of its column. */
-export function placeImporterNotes(laid: ThoughtNode[]): void {
-  const solid = laid.filter((n) => n.data.stepKind !== 'note');
-  const occupied = (x: number, y: number, w: number, h: number) =>
-    solid.some((n) => x < n.position.x + 520 && x + w > n.position.x && y < n.position.y + 240 && y + h > n.position.y);
-  for (let i = 0; i < laid.length; i++) {
-    const n = laid[i];
-    if (n.data.stepKind !== 'note') continue;
-    n.width = 460;
-    const next = laid.slice(i + 1).find((x) => x.data.stepKind !== 'note');
-    const before = laid.slice(0, i).reverse().find((x) => x.data.stepKind !== 'note');
-    let x: number; let y: number;
-    if (before && next) { x = Math.min(before.position.x, next.position.x) - 520; y = (before.position.y + next.position.y) / 2; }
-    else if (next) { x = next.position.x - 520; y = next.position.y; }
-    else if (before) { x = before.position.x - 520; y = before.position.y + 140; }
-    else continue;
-    if (next && occupied(x, y, 460, 120)) { x = next.position.x; y = next.position.y - 170; }
-    n.position = { x, y };
-  }
+/** Importer-owned notes are placed by autoLayout itself (Pass 5) — the
+ *  one width hint they need travels on the node. */
+export function markImporterNote(note: ThoughtNode): void {
+  note.width = 460;
 }
 
 export function seedPlaque(node: ThoughtNode): void {

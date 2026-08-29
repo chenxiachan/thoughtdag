@@ -331,7 +331,17 @@ export function autoLayout(allNodes: ThoughtNode[], allEdges: ThoughtEdge[]): Th
   // zoom-to-fit sees a page instead of a hair. Folding only happens when
   // nothing else occupies the space to the right — a canvas with branches
   // or side material keeps its tall single line rather than colliding.
+  // Fold points PREFER chapter boundaries: past 60% of the column budget,
+  // a turn annotated by an importer note (compaction) starts a new column,
+  // so chapters and columns tend to coincide.
   const FOLD_HEIGHT = 8000;
+  const FOLD_COL_GAP = 180; // folded columns breathe wider than branch columns
+  // importer-owned notes (provenance-stamped) annotate turns via an edge;
+  // those targets are the preferred fold points
+  const importerNotes = allNodes.filter((n) => n.data.stepKind === 'note' && n.data.importSource);
+  const noteTargets = new Set(
+    allEdges.filter((e) => importerNotes.some((n) => n.id === e.source)).map((e) => e.target)
+  );
   for (const root of roots) {
     const chain: string[] = [];
     let cur: string | undefined = root.id;
@@ -354,12 +364,49 @@ export function autoLayout(allNodes: ThoughtNode[], allEdges: ThoughtEdge[]): Th
     let y = first.y;
     for (const id of chain) {
       const h = nodeHeightMap.get(id) || 220;
-      if (y + h - first.y > FOLD_HEIGHT && y !== first.y) { foldCol++; y = first.y; }
+      const used = y - first.y;
+      const mustFold = used + h > FOLD_HEIGHT;
+      const chapterFold = noteTargets.has(id) && used > FOLD_HEIGHT * 0.6;
+      if ((mustFold || chapterFold) && y !== first.y) { foldCol++; y = first.y; }
       const p = positioned.get(id)!;
-      p.x = first.x + foldCol * (NODE_WIDTH + H_GAP);
+      p.x = first.x + foldCol * (NODE_WIDTH + FOLD_COL_GAP);
       p.y = y;
       y += h + V_GAP;
     }
+  }
+
+  // --- Pass 5: Importer-note placement ---
+  // The layout law, refined: USER content (notes, files, frames the user
+  // arranged) is never moved — but importer-OWNED notes (provenance-
+  // stamped) are the mirror's own annotations, and the mirror may re-seat
+  // them on every relayout. Preference order: the gutter left of the turn
+  // they annotate → directly above it (a chapter heading when the turn
+  // opens a folded column) → stacked above the column top.
+  const solidRects = nodes.map((n) => {
+    const p = positioned.get(n.id)!;
+    return { x: p.x, y: p.y, w: NODE_WIDTH, h: nodeHeightMap.get(n.id) || 220 };
+  });
+  const NOTE_W = 460;
+  const NOTE_H = 130;
+  const collides = (x: number, y: number) =>
+    solidRects.some((r) => x < r.x + r.w && x + NOTE_W > r.x && y < r.y + r.h && y + NOTE_H > r.y);
+  const colTopStacks = new Map<number, number>();
+  for (const note of importerNotes) {
+    const targetId = allEdges.find((e) => e.source === note.id)?.target;
+    const tp = targetId ? positioned.get(targetId) : undefined;
+    if (!tp) continue;
+    let x = tp.x - 520;
+    let y = tp.y;
+    if (collides(x, y)) { x = tp.x; y = tp.y - NOTE_H - 40; }
+    if (collides(x, y)) {
+      const colKey = Math.round(tp.x);
+      const colMinY = Math.min(...nodes.filter((n) => Math.round(positioned.get(n.id)!.x) === colKey).map((n) => positioned.get(n.id)!.y));
+      const k = colTopStacks.get(colKey) ?? 0;
+      colTopStacks.set(colKey, k + 1);
+      x = tp.x;
+      y = colMinY - NOTE_H - 40 - k * (NOTE_H + 30);
+    }
+    positioned.set(note.id, { x, y });
   }
 
   return allNodes.map((node) => {

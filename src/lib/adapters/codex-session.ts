@@ -2,7 +2,7 @@ import type { ThoughtNode, ThoughtEdge } from '../../types';
 import { makeNode, type ImportableConversation } from '../import-chat';
 import { autoLayout } from '../layout';
 import { generateId } from '../../utils';
-import { turnsToBranch, seedPlaque, toolAttachments, dropSelfCommandTurns, placeImporterNotes } from './shared';
+import { turnsToBranch, seedPlaque, toolAttachments, dropSelfCommandTurns, markImporterNote } from './shared';
 
 // Codex session importer — Tier 1 (read-only) of the second runner adapter.
 // A session lives as a rollout JSONL under ~/.codex/sessions/; each line is
@@ -228,6 +228,7 @@ function buildGraphFromTurns(turns: Turn[], sessionId: string): { nodes: Thought
       const note = makeNode(turn.compactionBefore, '', false);
       note.data.stepKind = 'note';
       note.data.importSource = { runner: 'codex', sessionId, itemIds: [] };
+      markImporterNote(note);
       nodes.push(note);
       noteToWire = note;
     }
@@ -242,9 +243,7 @@ function buildGraphFromTurns(turns: Turn[], sessionId: string): { nodes: Thought
     prev = node;
   }
 
-  const laid = autoLayout(nodes, edges);
-  placeImporterNotes(laid);
-  return { nodes: laid, edges };
+  return { nodes: autoLayout(nodes, edges), edges };
 }
 
 /** Harvest: a short Codex experiment session hangs off the node it was

@@ -2,7 +2,7 @@ import type { ThoughtNode, ThoughtEdge } from '../../types';
 import { makeNode, type ImportableConversation } from '../import-chat';
 import { autoLayout } from '../layout';
 import { generateId } from '../../utils';
-import { turnsToBranch, seedPlaque, toolAttachments, dropSelfCommandTurns, placeImporterNotes } from './shared';
+import { turnsToBranch, seedPlaque, toolAttachments, dropSelfCommandTurns, markImporterNote } from './shared';
 
 // Claude Code session importer — the continuity layer's READ direction for
 // one concrete runner. A session lives as JSONL under ~/.claude/projects/;
@@ -202,6 +202,7 @@ function noteNode(text: string): ThoughtNode {
   // every canvas node is React Flow type 'thought'; stepKind dispatches
   const n = makeNode(text, '', false);
   n.data.stepKind = 'note';
+  markImporterNote(n);
   return n;
 }
 
@@ -243,11 +244,7 @@ function buildGraphFromTurns(turns: Turn[], sessionId: string): { nodes: Thought
     prev = node;
   }
 
-  const laid = autoLayout(nodes, edges);
-  // Layout law: content notes are user-arranged material and autoLayout
-  // never touches them — the importer places its own (shared rules).
-  placeImporterNotes(laid);
-  return { nodes: laid, edges };
+  return { nodes: autoLayout(nodes, edges), edges };
 }
 
 /** The harvest half of the experiment loop: a SHORT experiment session
