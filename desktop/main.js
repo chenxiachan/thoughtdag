@@ -85,10 +85,12 @@ async function boot() {
 // renderer never passes absolute paths — only a whitelisted root key plus
 // a relative path that must resolve inside that root. Read-only by
 // contract: no primitive here can write, move, or delete a session file.
-const BUILTIN_ROOTS = {
-  'claude-projects': path.join(os.homedir(), '.claude', 'projects'),
-  'codex-sessions': path.join(os.homedir(), '.codex', 'sessions'),
-};
+const BUILTIN_ROOTS = process.env.TD_SESSION_ROOTS
+  ? JSON.parse(process.env.TD_SESSION_ROOTS) // test harness only: point the atlas at fixture stores
+  : {
+    'claude-projects': path.join(os.homedir(), '.claude', 'projects'),
+    'codex-sessions': path.join(os.homedir(), '.codex', 'sessions'),
+  };
 // Custom roots join the whitelist ONLY through the native directory picker
 // (sessions:add-root) — the page can never name a path in a string. They
 // persist under userData, owned by the shell, out of the page's reach.
@@ -316,6 +318,33 @@ function setupSessionAtlas() {
   });
 
   ipcMain.handle('sessions:read', (_e, rootKey, rel) => fsp.readFile(resolveInRoot(rootKey, rel), 'utf8'));
+
+  // ─── The listener: the stores announce their own changes ───────────
+  // One recursive fs.watch per live root; .jsonl events debounce per file
+  // and reach the page as {rootKey, rel}. Observation only — the mirror
+  // decides what (if anything) to do with each event.
+  const watchers = [];
+  const pending = new Map(); // rootKey:rel → timer
+  ipcMain.handle('sessions:watch-start', async () => {
+    if (watchers.length) return true;
+    const fs = require('fs');
+    for (const [rootKey, root] of Object.entries(allRoots())) {
+      if (!await dirExists(root)) continue;
+      try {
+        const w = fs.watch(root, { recursive: true }, (_event, filename) => {
+          if (!filename || !String(filename).endsWith('.jsonl')) return;
+          const key = `${rootKey}:${filename}`;
+          clearTimeout(pending.get(key));
+          pending.set(key, setTimeout(() => {
+            pending.delete(key);
+            if (win && !win.isDestroyed()) win.webContents.send('sessions:changed', { rootKey, rel: String(filename) });
+          }, 400));
+        });
+        watchers.push(w);
+      } catch { /* a root that refuses to be watched simply stays quiet */ }
+    }
+    return watchers.length > 0;
+  });
 
   // "Open in CLI": navigation, not orchestration — this walks the user to
   // the session's door; the runner and every keystroke after are theirs.

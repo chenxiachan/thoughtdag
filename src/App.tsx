@@ -148,6 +148,9 @@ export default function App() {
   useEffect(() => {
     if (isViewerMode) return;
     void import('./lib/session-handoff').then((m) => m.consumeSessionHandoff());
+    // desktop only: the live mirror — the active canvas follows its
+    // session file on its own (idempotent append via the ledger)
+    void import('./lib/atlas/live-mirror').then((m) => m.startLiveMirror());
   }, []);
 
   useEffect(() => {

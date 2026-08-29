@@ -138,6 +138,20 @@ export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { 
   };
   useEffect(() => { void refresh(); }, []);
 
+  // live freshness: the watcher (live-mirror) broadcasts store changes;
+  // an open atlas rescans, throttled — badges and counts stay current
+  useEffect(() => {
+    let cooling = false;
+    const onChanged = () => {
+      if (cooling || scanning) return;
+      cooling = true;
+      setTimeout(() => { cooling = false; void refresh(); }, 2000);
+    };
+    window.addEventListener('td:sessions-changed', onChanged);
+    return () => window.removeEventListener('td:sessions-changed', onChanged);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scanning]);
+
   // filters shape the whole atlas: folder counts follow them too
   const visible = useMemo(() => (cards ?? []).filter((c) =>
     !runnerOff.has(c.runner)

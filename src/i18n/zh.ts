@@ -601,6 +601,7 @@ export const zh: Record<keyof typeof en, string> = {
   'atlas.badgeNew': '新',
   'atlas.appended': '+{n} 轮已追加到该会话的画布尾部',
   'atlas.upToDate': '画布已是该会话的最新镜像',
+  'atlas.liveAppended': '会话有新内容：+{n} 轮已自动同步',
   'atlas.onCanvas': '已在画布',
   'atlas.terminalChoice': '在终端打开时使用的终端',
   'atlas.otherTerminal': '其他 App…',

@@ -602,6 +602,7 @@ export const en = {
   'atlas.badgeNew': 'NEW',
   'atlas.appended': '+{n} turns appended to this session’s canvas',
   'atlas.upToDate': 'The canvas already mirrors this session in full',
+  'atlas.liveAppended': 'Session grew: +{n} turns synced automatically',
   'atlas.onCanvas': 'on canvas',
   'atlas.terminalChoice': 'Terminal used by "open in terminal"',
   'atlas.otherTerminal': 'Other app…',
