@@ -598,6 +598,7 @@ export const zh: Record<keyof typeof en, string> = {
   'atlas.changesSummary': '相比上次查看：{n} 个新会话 · {m} 个有更新',
   'atlas.markAllSeen': '全部标读',
   'atlas.onlyChanged': '仅看变化',
+  'atlas.showSub': '子线程',
   'atlas.badgeNew': '新',
   'atlas.appended': '+{n} 轮已追加到该会话的画布尾部',
   'atlas.upToDate': '画布已是该会话的最新镜像',

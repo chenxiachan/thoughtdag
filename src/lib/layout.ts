@@ -322,6 +322,46 @@ export function autoLayout(allNodes: ThoughtNode[], allEdges: ThoughtEdge[]): Th
     if (!moved) break;
   }
 
+  // --- Pass 4: Serpentine fold ---
+  // A pure PATH component (every node ≤1 structural child — the shape of
+  // an imported session chain) taller than FOLD_HEIGHT wraps into
+  // newspaper columns: within a column order and vertical alignment hold
+  // (the layout law, extended, not broken — folding a line is not
+  // shuffling its words), columns advance in reading order, and
+  // zoom-to-fit sees a page instead of a hair. Folding only happens when
+  // nothing else occupies the space to the right — a canvas with branches
+  // or side material keeps its tall single line rather than colliding.
+  const FOLD_HEIGHT = 8000;
+  for (const root of roots) {
+    const chain: string[] = [];
+    let cur: string | undefined = root.id;
+    let pure = true;
+    while (cur) {
+      chain.push(cur);
+      const kids: string[] = childrenMap.get(cur) || [];
+      if (kids.length > 1) { pure = false; break; }
+      cur = kids[0];
+    }
+    if (!pure || chain.length < 8) continue;
+    const chainSet = new Set(chain);
+    const first = positioned.get(chain[0])!;
+    const lastId = chain[chain.length - 1];
+    const totalH = positioned.get(lastId)!.y + (nodeHeightMap.get(lastId) || 220) - first.y;
+    if (totalH <= FOLD_HEIGHT) continue;
+    const rightOccupied = nodes.some((n) => !chainSet.has(n.id) && positioned.get(n.id)!.x > first.x + NODE_WIDTH / 2);
+    if (rightOccupied) continue;
+    let foldCol = 0;
+    let y = first.y;
+    for (const id of chain) {
+      const h = nodeHeightMap.get(id) || 220;
+      if (y + h - first.y > FOLD_HEIGHT && y !== first.y) { foldCol++; y = first.y; }
+      const p = positioned.get(id)!;
+      p.x = first.x + foldCol * (NODE_WIDTH + H_GAP);
+      p.y = y;
+      y += h + V_GAP;
+    }
+  }
+
   return allNodes.map((node) => {
     const pos = positioned.get(node.id);
     return pos ? { ...node, position: pos } : node;

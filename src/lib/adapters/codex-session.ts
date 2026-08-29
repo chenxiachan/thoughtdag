@@ -2,7 +2,7 @@ import type { ThoughtNode, ThoughtEdge } from '../../types';
 import { makeNode, type ImportableConversation } from '../import-chat';
 import { autoLayout } from '../layout';
 import { generateId } from '../../utils';
-import { turnsToBranch, seedPlaque, toolAttachments, dropSelfCommandTurns } from './shared';
+import { turnsToBranch, seedPlaque, toolAttachments, dropSelfCommandTurns, placeImporterNotes } from './shared';
 
 // Codex session importer — Tier 1 (read-only) of the second runner adapter.
 // A session lives as a rollout JSONL under ~/.codex/sessions/; each line is
@@ -74,8 +74,10 @@ const partText = (content: Array<{ type?: string; text?: string }> | undefined):
 // opening with an XML-ish tag is vanishingly rare; erring here costs one
 // prompt's first block, erring the other way floods the canvas.
 const INJECTED = /^\s*<\/?[a-zA-Z_][\w-]*[^>]*>/;
+const isInjectedUserText = (text: string): boolean =>
+  INJECTED.test(text) || text.trimStart().startsWith('# AGENTS.md instructions for ');
 const userPartText = (content: Array<{ type?: string; text?: string }> | undefined): string =>
-  (content ?? []).filter((p) => p.text && (p.type === 'input_text' || p.type === 'text') && !INJECTED.test(p.text))
+  (content ?? []).filter((p) => p.text && (p.type === 'input_text' || p.type === 'text') && !isInjectedUserText(p.text))
     .map((p) => p.text).join('\n');
 
 // custom_tool_call_output.output arrives as parts; function_call_output
@@ -99,6 +101,8 @@ export class CodexSessionCollector {
   private cwd = '';
   private day = '';
   private sawItems = false;
+  private firstQuestion: string | null = null;
+  private parentThreadId: string | null = null;
 
   feedLine(raw: string): void {
     const t = raw.trim();
@@ -131,6 +135,7 @@ export class CodexSessionCollector {
       this.sessionId = p.id;
       this.cwd = p.cwd ?? '';
       this.day = (p as { timestamp?: string }).timestamp?.slice(0, 10) ?? '';
+      this.parentThreadId = (p as { parent_thread_id?: string }).parent_thread_id ?? null;
       return;
     }
     if (line.type === 'response_item' || line.type === 'event_msg') this.sawItems = true;
@@ -150,8 +155,9 @@ export class CodexSessionCollector {
     if (line.type !== 'response_item') return;
     if (p.type === 'message') {
       if (p.role === 'user') {
-        const text = userPartText(p.content); // injected <tag> blocks dropped
+        const text = userPartText(p.content); // injected <tag> / AGENTS.md blocks dropped
         if (text.trim()) {
+          if (!this.firstQuestion) this.firstQuestion = text.trim();
           const t = this.ensure();
           t.question = t.question ? `${t.question}\n\n${text}` : text;
         }
@@ -177,12 +183,16 @@ export class CodexSessionCollector {
     }
   }
 
-  finish(): { sessionId: string; title: string; turns: Turn[] } | null {
+  finish(): { sessionId: string; title: string; turns: Turn[]; subagent: boolean } | null {
     this.flush();
     if (!this.sessionId || !this.sawItems) return null;
+    // the rollout file does NOT carry the thread's display name (that
+    // lives in the app-server thread store) — the first real user prompt
+    // is the closest honest stand-in
     const dir = this.cwd.split('/').filter(Boolean).pop();
-    const title = ['codex', dir, this.day].filter(Boolean).join(' · ');
-    return { sessionId: this.sessionId, title, turns: dropSelfCommandTurns(this.turns) };
+    const title = this.firstQuestion?.split('\n')[0].slice(0, 60)
+      || ['codex', dir, this.day].filter(Boolean).join(' · ');
+    return { sessionId: this.sessionId, title, turns: dropSelfCommandTurns(this.turns), subagent: !!this.parentThreadId };
   }
 
   toConversation(): ImportableConversation | null {
@@ -233,18 +243,7 @@ function buildGraphFromTurns(turns: Turn[], sessionId: string): { nodes: Thought
   }
 
   const laid = autoLayout(nodes, edges);
-  // layout law: content notes are user territory to autoLayout — the
-  // importer slots its own notes beside the chain gap they narrate
-  for (let i = 0; i < laid.length; i++) {
-    const n = laid[i];
-    if (n.data.stepKind !== 'note') continue;
-    n.width = 460;
-    const next = laid.slice(i + 1).find((x) => x.data.stepKind !== 'note');
-    const before = laid.slice(0, i).reverse().find((x) => x.data.stepKind !== 'note');
-    if (before && next) n.position = { x: Math.min(before.position.x, next.position.x) - 520, y: (before.position.y + next.position.y) / 2 };
-    else if (next) n.position = { x: next.position.x - 520, y: next.position.y };
-    else if (before) n.position = { x: before.position.x - 520, y: before.position.y + 140 };
-  }
+  placeImporterNotes(laid);
   return { nodes: laid, edges };
 }
 

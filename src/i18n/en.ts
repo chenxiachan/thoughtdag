@@ -599,6 +599,7 @@ export const en = {
   'atlas.changesSummary': 'Since your last look: {n} new · {m} updated',
   'atlas.markAllSeen': 'Mark all seen',
   'atlas.onlyChanged': 'Changed only',
+  'atlas.showSub': 'Subthreads',
   'atlas.badgeNew': 'NEW',
   'atlas.appended': '+{n} turns appended to this session’s canvas',
   'atlas.upToDate': 'The canvas already mirrors this session in full',

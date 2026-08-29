@@ -2,7 +2,7 @@ import type { ThoughtNode, ThoughtEdge } from '../../types';
 import { makeNode, type ImportableConversation } from '../import-chat';
 import { autoLayout } from '../layout';
 import { generateId } from '../../utils';
-import { turnsToBranch, seedPlaque, toolAttachments, dropSelfCommandTurns } from './shared';
+import { turnsToBranch, seedPlaque, toolAttachments, dropSelfCommandTurns, placeImporterNotes } from './shared';
 
 // Claude Code session importer — the continuity layer's READ direction for
 // one concrete runner. A session lives as JSONL under ~/.claude/projects/;
@@ -245,20 +245,8 @@ function buildGraphFromTurns(turns: Turn[], sessionId: string): { nodes: Thought
 
   const laid = autoLayout(nodes, edges);
   // Layout law: content notes are user-arranged material and autoLayout
-  // never touches them — so the importer places its own notes by hand,
-  // slotted into the chain gap they narrate (compaction, imported tail).
-  for (let i = 0; i < laid.length; i++) {
-    const n = laid[i];
-    if (n.data.stepKind !== 'note') continue;
-    n.width = 460;
-    const next = laid.slice(i + 1).find((x) => x.data.stepKind !== 'note');
-    const before = laid.slice(0, i).reverse().find((x) => x.data.stepKind !== 'note');
-    // beside the chain, not inside it: a note is an annotation column —
-    // wedging it between two tall cards would just stack paper
-    if (before && next) n.position = { x: Math.min(before.position.x, next.position.x) - 520, y: (before.position.y + next.position.y) / 2 };
-    else if (next) n.position = { x: next.position.x - 520, y: next.position.y };
-    else if (before) n.position = { x: before.position.x - 520, y: before.position.y + 140 };
-  }
+  // never touches them — the importer places its own (shared rules).
+  placeImporterNotes(laid);
   return { nodes: laid, edges };
 }
 

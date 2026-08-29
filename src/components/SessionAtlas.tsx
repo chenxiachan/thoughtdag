@@ -116,6 +116,7 @@ export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { 
   const [runnerOff, setRunnerOff] = useState<Set<string>>(new Set());
   const [sortKey, setSortKey] = useState<SortKey>('time');
   const [onlyChanged, setOnlyChanged] = useState(false);
+  const [showSubagents, setShowSubagents] = useState(false);
   const [changes, setChanges] = useState<Map<string, CardChange>>(new Map());
   const [targets, setTargets] = useState<Awaited<ReturnType<NonNullable<Window['desktopSessions']>['openTargets']>> | null>(null);
   useEffect(() => { void window.desktopSessions?.openTargets().then(setTargets).catch(() => {}); }, []);
@@ -155,8 +156,9 @@ export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { 
   // filters shape the whole atlas: folder counts follow them too
   const visible = useMemo(() => (cards ?? []).filter((c) =>
     !runnerOff.has(c.runner)
+    && (showSubagents || !c.subagent)
     && (!onlyChanged || changes.has(changeKeyOf(c)))
-    && (!query.trim() || c.title.toLowerCase().includes(query.trim().toLowerCase()))), [cards, runnerOff, query, onlyChanged, changes]);
+    && (!query.trim() || c.title.toLowerCase().includes(query.trim().toLowerCase()))), [cards, runnerOff, query, onlyChanged, changes, showSubagents]);
   const groups = useMemo(() => groupByCwd(visible), [visible]);
   const runners = useMemo(() => [...new Set((cards ?? []).map((c) => c.runner))].sort(), [cards]);
   const rootCounts = useMemo(() => {
@@ -464,6 +466,15 @@ export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { 
                       data-atlas-only-changed
                     >
                       {t('atlas.onlyChanged')}
+                    </button>
+                  )}
+                  {(cards ?? []).some((c) => c.subagent) && (
+                    <button
+                      onClick={() => setShowSubagents((v) => !v)}
+                      className={`text-2xs border rounded-lg px-2 py-1 transition-colors ${showSubagents ? 'border-accent text-accent bg-accent/5' : 'border-line text-ink-faint hover:text-ink'}`}
+                      data-atlas-show-sub
+                    >
+                      {t('atlas.showSub')}
                     </button>
                   )}
                   <button

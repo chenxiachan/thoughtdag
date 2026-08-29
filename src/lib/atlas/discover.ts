@@ -20,6 +20,9 @@ export interface SessionCard {
   title: string;
   mtime: number;
   size: number;
+  /** A spawned subagent thread (codex parent_thread_id) — machinery, not
+      a conversation the user held; hidden unless asked for. */
+  subagent?: boolean;
 }
 
 export interface AtlasGroup {
@@ -46,10 +49,14 @@ function cardFromHead(rootKey: string, rel: string, head: string, mtime: number,
   for (const raw of head.split('\n')) {
     try { lines.push(JSON.parse(raw) as Record<string, unknown>); } catch { /* truncated tail of the head */ }
   }
-  const meta = lines.find((l) => l.type === 'session_meta') as { payload?: { id?: string; cwd?: string } } | undefined;
+  const meta = lines.find((l) => l.type === 'session_meta') as { payload?: { id?: string; cwd?: string; parent_thread_id?: string } } | undefined;
   if (meta?.payload?.id) {
     const id = meta.payload.id;
-    return { runner: 'codex', rootKey, rel, sessionId: id, cwd: meta.payload.cwd ?? null, title: firstUserLine(head) ?? `session ${id.slice(0, 8)}`, mtime, size };
+    return {
+      runner: 'codex', rootKey, rel, sessionId: id, cwd: meta.payload.cwd ?? null,
+      title: firstUserLine(head) ?? `session ${id.slice(0, 8)}`, mtime, size,
+      subagent: !!meta.payload.parent_thread_id,
+    };
   }
   // claude-code: every event line carries top-level sessionId + cwd; a
   // leading summary line (continued sessions) makes the best title.
@@ -72,7 +79,7 @@ function firstUserLine(head: string): string | null {
       else if (line.type === 'response_item' && line.payload?.type === 'message' && line.payload.role === 'user') {
         text = (line.payload.content ?? []).find((p) => p.type === 'input_text' && p.text)?.text ?? null;
       }
-      if (text && text.trim() && !text.startsWith('<')) {
+      if (text && text.trim() && !text.startsWith('<') && !text.startsWith('# AGENTS.md instructions for ')) {
         return text.trim().split('\n')[0].slice(0, 80);
       }
     } catch { /* truncated tail line of the head — fine */ }
