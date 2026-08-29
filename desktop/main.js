@@ -137,11 +137,8 @@ function setupSessionAtlas() {
   }));
 
   ipcMain.handle('sessions:set-open-prefs', async (_e, p) => {
-    if (p && typeof p === 'object') {
-      if (typeof p.terminal === 'string' && TERMINALS.some((t) => t.id === p.terminal)) atlasPrefs.terminal = p.terminal;
-      if (p.openApp && typeof p.openApp === 'object') {
-        atlasPrefs.openApp = Object.fromEntries(Object.entries(p.openApp).filter(([k, v]) => k in APP_TARGETS && typeof v === 'boolean'));
-      }
+    if (p && typeof p === 'object' && typeof p.terminal === 'string' && TERMINALS.some((t) => t.id === p.terminal)) {
+      atlasPrefs.terminal = p.terminal;
       await fsp.writeFile(prefsFile(), JSON.stringify(atlasPrefs, null, 2)).catch(() => {});
     }
     return atlasPrefs;
@@ -221,19 +218,23 @@ function setupSessionAtlas() {
     'claude-code': (cwd, id) => `cd ${shq(cwd)} && claude --resume ${shq(id)}`,
     codex: (cwd, id) => `cd ${shq(cwd)} && codex resume ${shq(id)}`,
   };
-  ipcMain.handle('sessions:open-in-cli', async (_e, runner, cwd, sessionId) => {
+  // mode is the user's explicit per-click choice ('app' | 'terminal') —
+  // no stored preference decides between the two roads.
+  ipcMain.handle('sessions:open-in-cli', async (_e, runner, cwd, sessionId, mode) => {
     const build = RESUME[runner];
     if (!build || !/^[\w.-]{4,}$/.test(String(sessionId))) return { opened: false, via: '', command: '' };
     const cwdOk = typeof cwd === 'string' && path.isAbsolute(cwd) && await dirExists(cwd);
     const command = build(cwdOk ? cwd : os.homedir(), sessionId);
 
-    // preferred road: wake the runner's host APP (scheme launch)
-    const appTarget = APP_TARGETS[runner];
-    if (atlasPrefs.openApp[runner] && appTarget && await dirExists(appTarget.app)) {
-      try {
-        await shell.openExternal(appTarget.scheme);
-        return { opened: true, via: 'app', command };
-      } catch { /* fall through to the terminal road */ }
+    if (mode === 'app') {
+      const appTarget = APP_TARGETS[runner];
+      if (appTarget && await dirExists(appTarget.app)) {
+        try {
+          await shell.openExternal(appTarget.scheme);
+          return { opened: true, via: 'app', command };
+        } catch { /* fall through to the clipboard road */ }
+      }
+      return { opened: false, via: '', command };
     }
 
     if (process.platform === 'darwin') {

@@ -32,13 +32,13 @@ interface DesktopSessionsBridge {
   list: (rootKey: string) => Promise<{ rel: string; size: number; mtime: number }[]>;
   head: (rootKey: string, rel: string, bytes: number) => Promise<string>;
   read: (rootKey: string, rel: string) => Promise<string>;
-  openInCli: (runner: string, cwd: string | null, sessionId: string) => Promise<{ opened: boolean; via: 'app' | 'terminal' | ''; command: string }>;
+  openInCli: (runner: string, cwd: string | null, sessionId: string, mode: 'app' | 'terminal') => Promise<{ opened: boolean; via: 'app' | 'terminal' | ''; command: string }>;
   openTargets: () => Promise<{
     terminals: { id: string; name: string }[];
     apps: { runner: string; name: string }[];
-    prefs: { terminal: string; openApp: Record<string, boolean> };
+    prefs: { terminal: string };
   }>;
-  setOpenPrefs: (prefs: { terminal?: string; openApp?: Record<string, boolean> }) => Promise<{ terminal: string; openApp: Record<string, boolean> }>;
+  setOpenPrefs: (prefs: { terminal: string }) => Promise<{ terminal: string }>;
 }
 
 interface Window {

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { ArrowDownUp, Folder, FolderOpen, Loader2, Plug, RefreshCw, Search, SquareTerminal, Import, Trash2, X, Inbox } from 'lucide-react';
+import { AppWindow, ArrowDownUp, Folder, FolderOpen, Loader2, Plug, RefreshCw, Search, SquareTerminal, Import, Trash2, X, Inbox } from 'lucide-react';
 import { scanSessions, groupByCwd, disabledRoots, setRootDisabled, type SessionCard, type AtlasGroup } from '../lib/atlas/discover';
 import { diffAgainstWatermark, markSeen, markAllSeen, changeKeyOf, type CardChange } from '../lib/atlas/watermark';
 import { useProjects, switchProject } from '../store/projects';
@@ -36,11 +36,6 @@ function SourcesDialog({ roots, counts, onChanged, onClose }: {
 }) {
   const t = useT();
   const off = disabledRoots();
-  const [targets, setTargets] = useState<Awaited<ReturnType<NonNullable<Window['desktopSessions']>['openTargets']>> | null>(null);
-  useEffect(() => { void window.desktopSessions?.openTargets().then(setTargets).catch(() => {}); }, []);
-  const setPref = (prefs: { terminal?: string; openApp?: Record<string, boolean> }) => {
-    void window.desktopSessions?.setOpenPrefs(prefs).then((p) => setTargets((tg) => (tg ? { ...tg, prefs: p } : tg)));
-  };
   const builtinLabel: Record<string, string> = { 'claude-projects': 'Claude Code', 'codex-sessions': 'Codex' };
   const row = (root: SessionRoot) => (
     <div key={root.key} className="flex items-center gap-3 px-4 py-2.5 border-b border-line last:border-b-0" data-atlas-source={root.key}>
@@ -100,35 +95,6 @@ function SourcesDialog({ roots, counts, onChanged, onClose }: {
           </button>
         </div>
 
-        {targets && (
-          <div className="border-t border-line px-4 py-3" data-atlas-open-with>
-            <div className="text-xs font-medium text-ink mb-2">{t('atlas.openWith')}</div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-2xs text-ink-faint">{t('atlas.terminalChoice')}</span>
-              {targets.terminals.map((term) => (
-                <button
-                  key={term.id}
-                  onClick={() => setPref({ terminal: term.id })}
-                  className={`text-2xs border rounded-lg px-2 py-1 transition-colors ${targets.prefs.terminal === term.id ? 'border-accent text-accent bg-accent/5' : 'border-line text-ink-muted hover:text-ink'}`}
-                  data-atlas-terminal={term.id}
-                >
-                  {term.name}
-                </button>
-              ))}
-            </div>
-            {targets.apps.map((a) => (
-              <label key={a.runner} className="flex items-center gap-2 mt-2 text-2xs text-ink-muted cursor-pointer" data-atlas-prefer-app={a.runner}>
-                <input
-                  type="checkbox"
-                  checked={!!targets.prefs.openApp[a.runner]}
-                  onChange={(e) => setPref({ openApp: { ...targets.prefs.openApp, [a.runner]: e.target.checked } })}
-                  className="shrink-0"
-                />
-                {fmt(t('atlas.preferApp'), { runner: a.runner, name: a.name })}
-              </label>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );
@@ -148,6 +114,9 @@ export default function SessionAtlas({ onClose, onSwitched }: { onClose: () => v
   const [sortKey, setSortKey] = useState<SortKey>('time');
   const [onlyChanged, setOnlyChanged] = useState(false);
   const [changes, setChanges] = useState<Map<string, CardChange>>(new Map());
+  const [targets, setTargets] = useState<Awaited<ReturnType<NonNullable<Window['desktopSessions']>['openTargets']>> | null>(null);
+  useEffect(() => { void window.desktopSessions?.openTargets().then(setTargets).catch(() => {}); }, []);
+  const appHosts = useMemo(() => new Map((targets?.apps ?? []).map((a) => [a.runner, a.name])), [targets]);
 
   const refresh = async () => {
     setScanning(true);
@@ -201,8 +170,8 @@ export default function SessionAtlas({ onClose, onSwitched }: { onClose: () => v
     }
   };
 
-  const openInCli = async (card: SessionCard) => {
-    const r = await window.desktopSessions!.openInCli(card.runner, card.cwd, card.sessionId)
+  const openInCli = async (card: SessionCard, mode: 'app' | 'terminal') => {
+    const r = await window.desktopSessions!.openInCli(card.runner, card.cwd, card.sessionId, mode)
       .catch(() => ({ opened: false, via: '' as const, command: '' }));
     if (r.opened && r.via === 'app') {
       // no documented deep link to a specific session yet — hand the user
@@ -244,6 +213,22 @@ export default function SessionAtlas({ onClose, onSwitched }: { onClose: () => v
               </div>
             )}
           </div>
+          {targets && targets.terminals.length > 0 && (
+            <label className="flex items-center gap-1.5 text-sm text-ink-muted border border-line rounded-lg px-2.5 py-1.5 cursor-pointer" title={t('atlas.terminalChoice')}>
+              <SquareTerminal size={14} strokeWidth={1.75} />
+              <select
+                value={targets.prefs.terminal}
+                onChange={(e) => {
+                  const terminal = e.target.value;
+                  void window.desktopSessions?.setOpenPrefs({ terminal }).then((p) => setTargets((tg) => (tg ? { ...tg, prefs: p } : tg)));
+                }}
+                className="bg-transparent focus:outline-none text-sm text-ink cursor-pointer"
+                data-atlas-terminal-select
+              >
+                {targets.terminals.map((term) => <option key={term.id} value={term.id}>{term.name}</option>)}
+              </select>
+            </label>
+          )}
           <button
             onClick={() => setSourcesOpen(true)}
             className="flex items-center gap-1.5 text-sm text-ink-muted hover:text-ink border border-line rounded-lg px-2.5 py-1.5 hover:bg-wash transition-colors"
@@ -408,12 +393,24 @@ export default function SessionAtlas({ onClose, onSwitched }: { onClose: () => v
                       {busyRel === card.rel
                         ? <Loader2 size={16} className="animate-spin text-accent shrink-0" />
                         : (
+                          // three doors per session, each an explicit choice:
+                          // canvas, host app (when one is installed), terminal
                           <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 shrink-0">
                             <span title={t('atlas.import')} className="text-ink-faint hover:text-accent p-1.5"><Import size={16} strokeWidth={1.75} /></span>
+                            {appHosts.has(card.runner) && (
+                              <button
+                                title={fmt(t('atlas.openApp'), { name: appHosts.get(card.runner)! })}
+                                className="text-ink-faint hover:text-accent p-1.5 rounded transition-colors"
+                                onClick={(e) => { e.stopPropagation(); void openInCli(card, 'app'); }}
+                                data-atlas-open-app
+                              >
+                                <AppWindow size={16} strokeWidth={1.75} />
+                              </button>
+                            )}
                             <button
-                              title={t('atlas.openCli')}
+                              title={t('atlas.openTerminal')}
                               className="text-ink-faint hover:text-accent p-1.5 rounded transition-colors"
-                              onClick={(e) => { e.stopPropagation(); void openInCli(card); }}
+                              onClick={(e) => { e.stopPropagation(); void openInCli(card, 'terminal'); }}
                               data-atlas-open-cli
                             >
                               <SquareTerminal size={16} strokeWidth={1.75} />
