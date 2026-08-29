@@ -605,6 +605,7 @@ export const en = {
   'atlas.upToDate': 'The canvas already mirrors this session in full',
   'atlas.liveAppended': 'Session grew: +{n} turns synced automatically',
   'atlas.onCanvas': 'on canvas',
+  'atlas.currentOpen': 'open now',
   'atlas.terminalChoice': 'Terminal used by "open in terminal"',
   'atlas.otherTerminal': 'Other app…',
   'atlas.recent': 'Recent work',

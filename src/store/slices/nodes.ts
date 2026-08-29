@@ -2,7 +2,7 @@ import type { StateCreator } from 'zustand';
 import type { ThoughtNode, ThoughtEdge } from '../../types';
 import { generateId, countTokens } from '../../utils';
 import { COLORS } from '../../lib/constants';
-import { autoLayout, estimateNodeHeight, nodeHeight } from '../../lib/layout';
+import { healLegacyNoteEdges, autoLayout, estimateNodeHeight, nodeHeight } from '../../lib/layout';
 import { getDescendantIds, walkUpAncestors } from '../../lib/graph';
 import { referenceBlockContent, upstreamFingerprint, buildContext } from '../context-builder';
 import { pruneHighlights } from '../../lib/highlight-match';
@@ -373,7 +373,13 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
   relayout: () => {
     if (condenseGuard()) return;
     get().pushHistory();
-    set((state) => ({ nodes: autoLayout(state.nodes, state.edges) }));
+    set((state) => {
+      // one-click relayout also heals legacy mirror wiring (notes once
+      // sat INSIDE the chain) — otherwise no relayout could ever fix
+      // those canvases and the button would look broken
+      const edges = healLegacyNoteEdges(state.nodes, state.edges);
+      return { nodes: autoLayout(state.nodes, edges), edges };
+    });
     get().pushHistory();
   },
 

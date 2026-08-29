@@ -604,6 +604,7 @@ export const zh: Record<keyof typeof en, string> = {
   'atlas.upToDate': '画布已是该会话的最新镜像',
   'atlas.liveAppended': '会话有新内容：+{n} 轮已自动同步',
   'atlas.onCanvas': '已在画布',
+  'atlas.currentOpen': '当前打开',
   'atlas.terminalChoice': '在终端打开时使用的终端',
   'atlas.otherTerminal': '其他 App…',
   'atlas.recent': '最近工作',

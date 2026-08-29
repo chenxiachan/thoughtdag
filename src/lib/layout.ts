@@ -53,6 +53,31 @@ export function nodeHeight(node: ThoughtNode): number {
  *   - Any overlap (bbox intersection + padding) pushes the lower node down.
  *   - Iterates until stable (max 5 passes).
  */
+/** Legacy mirrors (imported before importer notes became annotations)
+ *  wired notes INTO the chain — prev→note→turn — which severs the chain
+ *  for layout and no relayout can fix it. Heal the wiring: incoming
+ *  edges of a provenance-stamped note re-aim at the turn it annotates,
+ *  the note keeps only its outgoing annotation edge. Idempotent; user
+ *  notes (no provenance) are untouched. */
+export function healLegacyNoteEdges(nodes: ThoughtNode[], edges: ThoughtEdge[]): ThoughtEdge[] {
+  const legacy = nodes.filter((n) => n.data.stepKind === 'note' && n.data.importSource
+    && edges.some((e) => e.target === n.id));
+  if (legacy.length === 0) return edges;
+  let out = [...edges];
+  for (const note of legacy) {
+    const incoming = out.filter((e) => e.target === note.id);
+    const onward = out.find((e) => e.source === note.id);
+    out = out.filter((e) => e.target !== note.id);
+    if (!onward) continue;
+    for (const inc of incoming) {
+      if (!out.some((e) => e.source === inc.source && e.target === onward.target)) {
+        out.push({ ...inc, target: onward.target });
+      }
+    }
+  }
+  return out;
+}
+
 export function autoLayout(allNodes: ThoughtNode[], allEdges: ThoughtEdge[]): ThoughtNode[] {
   if (allNodes.length === 0) return allNodes;
   // Content nodes (notes / files) are user-arranged material: layout never

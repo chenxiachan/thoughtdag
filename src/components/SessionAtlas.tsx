@@ -103,6 +103,7 @@ function SourcesDialog({ roots, counts, onChanged, onClose }: {
 export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { onClose: () => void; onSwitched: () => void; focusSessionId?: string }) {
   const t = useT();
   const projects = useProjects((s) => s.projects);
+  const activeSessionId = useProjects((s) => s.projects.find((p) => p.id === s.activeId)?.sourceSession?.sessionId);
   const isDesktop = !!window.desktopSessions;
   const [cards, setCards] = useState<SessionCard[] | null>(null);
   const [roots, setRoots] = useState<SessionRoot[]>([]);
@@ -513,7 +514,9 @@ export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { 
                               +{sizeLabel(changes.get(changeKeyOf(card))!.deltaSize)}
                             </span>
                           )}
-                          {projects.some((p) => p.sourceSession?.sessionId === card.sessionId) && (
+                          {card.sessionId === activeSessionId ? (
+                            <span className="text-2xs text-white bg-ink rounded px-1 py-px shrink-0" data-atlas-badge="current">{t('atlas.currentOpen')}</span>
+                          ) : projects.some((p) => p.sourceSession?.sessionId === card.sessionId) && (
                             <span className="text-2xs text-ink-faint border border-line rounded px-1 py-px shrink-0" data-atlas-badge="canvas">{t('atlas.onCanvas')}</span>
                           )}
                         </div>
