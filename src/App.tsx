@@ -1144,7 +1144,7 @@ function Canvas() {
           <Background variant={BackgroundVariant.Dots} gap={24} size={1} color="var(--canvas-dot)" />
         )}
         <ZoomTierTag />
-        <ThoughtMapPill />
+        <ThoughtMapPill panelShiftWidth={panelOpen ? livePanelWidth : 0} />
         <TimelineBar />
         <Controls position="bottom-left" />
         {nodes.length > 0 && <MiniMap
@@ -1948,13 +1948,15 @@ function Canvas() {
 // The moment of looking at the shape IS the moment of wanting to share it:
 // the pill exists only in the map/glyph tiers, the working tier stays
 // silent. Must live inside <ReactFlow> to reach the flow store.
-function ThoughtMapPill() {
+// panelShiftWidth comes from the App's COMPOSITE panel-visible signal —
+// reading the raw ui-store panelOpen here desyncs the dock when the panel
+// closes via a pane click (which clears the selection, not the flag).
+function ThoughtMapPill({ panelShiftWidth }: { panelShiftWidth: number }) {
   const tier = useZoomTier();
   const t = useT();
   const rf = useReactFlow();
   const nodeCount = useStore((s) => s.nodes.length);
   const nodes = useStore((s) => s.nodes);
-  const panelOpenWidth = useUiStore((s) => (s.panelOpen ? s.panelWidth : 0));
 
   // The flight destination: the thought node touched most recently.
   // Content nodes (notes, files, links, frames) never count as "work".
@@ -1994,7 +1996,7 @@ function ThoughtMapPill() {
   return (
     <div
       className="absolute bottom-6 z-10 flex items-center gap-2 -translate-x-1/2 transition-[left] duration-300"
-      style={{ left: `calc((100% - ${panelOpenWidth}px) / 2)` }}
+      style={{ left: `calc((100% - ${panelShiftWidth}px) / 2)` }}
       data-map-dock
     >
       <button
