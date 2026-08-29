@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ArrowDownUp, Folder, FolderOpen, Loader2, Plug, RefreshCw, Search, SquareTerminal, Import, Trash2, X, Inbox } from 'lucide-react';
 import { scanSessions, groupByCwd, disabledRoots, setRootDisabled, type SessionCard, type AtlasGroup } from '../lib/atlas/discover';
+import { diffAgainstWatermark, markSeen, markAllSeen, changeKeyOf, type CardChange } from '../lib/atlas/watermark';
 import { useProjects, switchProject } from '../store/projects';
 import { useT, t as ti, fmt } from '../i18n';
 import { toast } from '../lib/ui-store';
@@ -110,19 +111,25 @@ export default function SessionAtlas({ onClose, onSwitched }: { onClose: () => v
   const [query, setQuery] = useState('');
   const [runnerOff, setRunnerOff] = useState<Set<string>>(new Set());
   const [sortKey, setSortKey] = useState<SortKey>('time');
+  const [onlyChanged, setOnlyChanged] = useState(false);
+  const [changes, setChanges] = useState<Map<string, CardChange>>(new Map());
 
   const refresh = async () => {
     setScanning(true);
     try {
       setRoots(await window.desktopSessions?.roots().catch(() => []) ?? []);
-      setCards(await scanSessions());
+      const scanned = await scanSessions();
+      setCards(scanned);
+      setChanges(diffAgainstWatermark(scanned));
     } finally { setScanning(false); }
   };
   useEffect(() => { void refresh(); }, []);
 
   // filters shape the whole atlas: folder counts follow them too
   const visible = useMemo(() => (cards ?? []).filter((c) =>
-    !runnerOff.has(c.runner) && (!query.trim() || c.title.toLowerCase().includes(query.trim().toLowerCase()))), [cards, runnerOff, query]);
+    !runnerOff.has(c.runner)
+    && (!onlyChanged || changes.has(changeKeyOf(c)))
+    && (!query.trim() || c.title.toLowerCase().includes(query.trim().toLowerCase()))), [cards, runnerOff, query, onlyChanged, changes]);
   const groups = useMemo(() => groupByCwd(visible), [visible]);
   const runners = useMemo(() => [...new Set((cards ?? []).map((c) => c.runner))].sort(), [cards]);
   const rootCounts = useMemo(() => {
@@ -133,9 +140,15 @@ export default function SessionAtlas({ onClose, onSwitched }: { onClose: () => v
   const activeGroup: AtlasGroup | null = selected === 'canvases' ? null : groups.find((g) => (g.cwd ?? '') === (selected ?? groups[0]?.cwd ?? '')) ?? groups[0] ?? null;
   const shownCards = useMemo(() => activeGroup ? [...activeGroup.cards].sort(SORTERS[sortKey]) : [], [activeGroup, sortKey]);
 
+  const seen = (card: SessionCard) => {
+    markSeen(card);
+    setChanges((m) => { const n = new Map(m); n.delete(changeKeyOf(card)); return n; });
+  };
+
   const importCard = async (card: SessionCard) => {
     if (busyRel) return;
     setBusyRel(card.rel);
+    seen(card); // opening a card IS looking at it, whatever import does next
     try {
       const text = await window.desktopSessions!.read(card.rootKey, card.rel);
       const { anyRunnerSessionConversation } = await import('../lib/adapters');
@@ -171,6 +184,23 @@ export default function SessionAtlas({ onClose, onSwitched }: { onClose: () => v
           <div className="flex-1 min-w-0">
             <div className="text-base font-semibold text-ink">{t('atlas.title')}</div>
             <div className="text-xs text-ink-muted mt-0.5">{t('atlas.subtitle')}</div>
+            {changes.size > 0 && (
+              <div className="text-xs mt-1 flex items-center gap-2" data-atlas-changes>
+                <span className="text-accent">
+                  {fmt(t('atlas.changesSummary'), {
+                    n: [...changes.values()].filter((c) => c.kind === 'new').length,
+                    m: [...changes.values()].filter((c) => c.kind === 'updated').length,
+                  })}
+                </span>
+                <button
+                  className="text-ink-faint hover:text-ink underline decoration-dotted transition-colors"
+                  onClick={() => { markAllSeen(cards ?? []); setChanges(new Map()); }}
+                  data-atlas-mark-all
+                >
+                  {t('atlas.markAllSeen')}
+                </button>
+              </div>
+            )}
           </div>
           <button
             onClick={() => setSourcesOpen(true)}
@@ -215,6 +245,10 @@ export default function SessionAtlas({ onClose, onSwitched }: { onClose: () => v
                 >
                   {isActive ? <FolderOpen size={15} strokeWidth={1.75} className="shrink-0" /> : <Folder size={15} strokeWidth={1.75} className="shrink-0 text-ink-faint" />}
                   <span className="flex-1 truncate text-sm">{g.name || t('atlas.unfiled')}</span>
+                  {(() => {
+                    const n = g.cards.filter((c) => changes.has(changeKeyOf(c))).length;
+                    return n > 0 ? <span className="text-2xs text-accent shrink-0" data-atlas-folder-changes>+{n}</span> : null;
+                  })()}
                   <span className="text-2xs text-ink-faint shrink-0">{g.cards.length}</span>
                 </button>
               );
@@ -273,6 +307,15 @@ export default function SessionAtlas({ onClose, onSwitched }: { onClose: () => v
                       {r}
                     </button>
                   ))}
+                  {changes.size > 0 && (
+                    <button
+                      onClick={() => setOnlyChanged((v) => !v)}
+                      className={`text-2xs border rounded-lg px-2 py-1 transition-colors ${onlyChanged ? 'border-accent text-white bg-accent' : 'border-line text-ink-muted hover:text-ink'}`}
+                      data-atlas-only-changed
+                    >
+                      {t('atlas.onlyChanged')}
+                    </button>
+                  )}
                   <button
                     onClick={() => setSortKey((k) => (({ time: 'name', name: 'size', size: 'runner', runner: 'time' } as const)[k]))}
                     className="ml-auto flex items-center gap-1.5 text-2xs text-ink-muted hover:text-ink border border-line rounded-lg px-2 py-1 hover:bg-wash transition-colors"
@@ -299,7 +342,17 @@ export default function SessionAtlas({ onClose, onSwitched }: { onClose: () => v
                       data-atlas-session={card.sessionId}
                     >
                       <div className="flex-1 min-w-0">
-                        <div className="text-sm text-ink truncate">{card.title}</div>
+                        <div className="text-sm text-ink truncate flex items-center gap-1.5">
+                          <span className="truncate">{card.title}</span>
+                          {changes.get(changeKeyOf(card))?.kind === 'new' && (
+                            <span className="text-2xs text-white bg-accent rounded px-1 py-px shrink-0" data-atlas-badge="new">{t('atlas.badgeNew')}</span>
+                          )}
+                          {changes.get(changeKeyOf(card))?.kind === 'updated' && (
+                            <span className="text-2xs text-accent border border-accent/40 rounded px-1 py-px shrink-0" data-atlas-badge="updated">
+                              +{sizeLabel(changes.get(changeKeyOf(card))!.deltaSize)}
+                            </span>
+                          )}
+                        </div>
                         <div className="text-2xs text-ink-faint mt-0.5 flex items-center gap-2">
                           {/* runner identity is functional provenance, not promotion */}
                           <span className="border border-line rounded px-1 py-px font-mono">{card.runner}</span>
