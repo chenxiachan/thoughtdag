@@ -37,9 +37,21 @@ export async function backupActiveProject(): Promise<string | null> {
   if (!handle) return null;
   const { nodes: rawNodes, edges, events } = useStore.getState();
   if (rawNodes.length === 0) return null;
-  const nodes = await inlineVaultedContent(rawNodes);
   const { projects, activeId } = useProjects.getState();
-  const name = activeProjectName().replace(/[\\/:*?"<>|]/g, '_') || 'canvas';
+  const activeMeta = projects.find((p) => p.id === activeId);
+  // Unique data must reach disk; rebuildable data must not occupy it.
+  // A canvas fully covered by its session subscription (pristine mirror)
+  // has the source file as its backup — writing a second copy is noise.
+  // The moment the user's value layer appears, backups begin.
+  if (activeMeta?.sourceSession && activeId) {
+    const { canvasUniqueness } = await import('./atlas/canonical');
+    if ((await canvasUniqueness(activeId)) === 'pristine-mirror') return null;
+  }
+  const nodes = await inlineVaultedContent(rawNodes);
+  const base = (activeProjectName().replace(/[\\/:*?"<>|]/g, '_') || 'canvas').slice(0, 48);
+  // mirror canvases are named after their first prompt — suffix the
+  // session id so long/similar prompts can't collide on disk
+  const name = activeMeta?.sourceSession ? `${base}-${activeMeta.sourceSession.sessionId.slice(0, 8)}` : base;
   const payload = JSON.stringify({
     version: EXPORT_FORMAT_VERSION,
     name: activeProjectName(),

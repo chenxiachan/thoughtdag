@@ -162,9 +162,16 @@ export async function canvasUniqueness(projectId: string): Promise<CanvasUniquen
       nodes = (parsed?.state?.nodes ?? []) as ThoughtNode[];
     } catch { return 'diverged-mirror'; } // unreadable — warn high, never low
   }
-  const mirror = nodes.filter((n) => n.data.importSource);
+  // Coverage is a RELATIONSHIP question, not a type question: only nodes
+  // whose provenance matches the canvas's SUBSCRIBED session are
+  // rebuildable from source. Foreign-provenance nodes (pasted in from
+  // another session's mirror) are reference material — unique here, since
+  // this canvas holds no subscription that would bring them back.
+  const sid = meta.sourceSession.sessionId;
+  const mirror = nodes.filter((n) => n.data.importSource?.sessionId === sid);
   const diverged =
     nodes.some((n) => !n.data.importSource)
+    || nodes.some((n) => n.data.importSource && n.data.importSource.sessionId !== sid)
     || mirror.filter((n) => n.data.source).length < meta.sourceSession.importedCount
     || mirror.some((n) => n.data.source && (n.data.question !== n.data.source.question || n.data.response !== n.data.source.response));
   return diverged ? 'diverged-mirror' : 'pristine-mirror';
