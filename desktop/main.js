@@ -107,41 +107,149 @@ function resolveInRoot(rootKey, rel) {
   return abs;
 }
 
-// How "open in CLI" leaves the shell. Terminals are probed, never assumed;
-// a runner can prefer its host APP (scheme launch) over a terminal. All of
-// it macOS-first — other platforms fall back to the clipboard road.
-const TERMINALS = [
-  { id: 'terminal', name: 'Terminal', app: '/System/Applications/Utilities/Terminal.app', mode: 'command-file' },
-  { id: 'iterm', name: 'iTerm2', app: '/Applications/iTerm.app', mode: 'command-file' },
-  { id: 'ghostty', name: 'Ghostty', app: '/Applications/Ghostty.app', mode: 'exec-args' },
-];
+// ─── Terminal registry ─────────────────────────────────────────────────
+// One entry per terminal the shell knows how to drive:
+//   { id, name, probe(): Promise<bool>, launch(cwd, program): Promise<bool> }
+// program is the bare runner command ('claude --resume <id>'); every
+// launcher owns its platform's way of "open a terminal at cwd, run this,
+// keep the window". Probed, never assumed — the picker lists only what
+// this machine actually has. macOS entries are live-verified; Windows and
+// Linux entries follow each terminal's documented CLI and await a real
+// machine. Any terminal the registry can't drive (or a launch that fails)
+// falls back to the clipboard road — never a broken window.
+const { spawn } = require('child_process');
+const dirExists = (p) => fsp.stat(p).then((s) => s.isDirectory()).catch(() => false);
+const fileExists = (p) => fsp.access(p).then(() => true, () => false);
+const shq = (s) => `'${String(s).replace(/'/g, `'\\''`)}'`;
+
+const run = (bin, args) => new Promise((resolve) => {
+  const c = spawn(bin, args, { stdio: 'ignore', detached: process.platform === 'linux' });
+  c.on('error', () => resolve(false));
+  c.on('exit', (code) => resolve(code === 0));
+  if (process.platform === 'linux') c.unref();
+});
+
+async function binOnPath(name) {
+  for (const d of (process.env.PATH || '').split(path.delimiter)) {
+    if (d && await fileExists(path.join(d, name))) return true;
+  }
+  return false;
+}
+
+// macOS: a .command file runs in the user's default shell (right PATH,
+// zero automation permissions) inside any terminal app that accepts it.
+async function launchCommandFile(appPath, cwd, program) {
+  const file = path.join(os.tmpdir(), `thoughtdag-resume-${Date.now()}.command`);
+  try {
+    await fsp.writeFile(file, `#!/bin/zsh\nrm -- ${shq(file)}\ncd ${shq(cwd)}\n${program}\n`, { mode: 0o755 });
+  } catch { return false; }
+  return run('open', ['-a', appPath, file]);
+}
+const launchOpenArgs = (appPath, argv) => run('open', ['-na', appPath, '--args', ...argv]);
+const posix = (cwd, program) => ['-lc', `cd ${shq(cwd)} && ${program}`];
+
+function buildTerminalRegistry() {
+  if (process.platform === 'darwin') {
+    const appEntry = (id, name, appPath, launch) => ({ id, name, probe: () => dirExists(appPath), launch });
+    return [
+      appEntry('terminal', 'Terminal', '/System/Applications/Utilities/Terminal.app', (cwd, p) => launchCommandFile('/System/Applications/Utilities/Terminal.app', cwd, p)),
+      appEntry('iterm', 'iTerm2', '/Applications/iTerm.app', (cwd, p) => launchCommandFile('/Applications/iTerm.app', cwd, p)),
+      appEntry('ghostty', 'Ghostty', '/Applications/Ghostty.app', (cwd, p) => launchOpenArgs('/Applications/Ghostty.app', ['-e', 'zsh', ...posix(cwd, p)])),
+      appEntry('warp', 'Warp', '/Applications/Warp.app', (cwd, p) => launchCommandFile('/Applications/Warp.app', cwd, p)),
+      appEntry('alacritty', 'Alacritty', '/Applications/Alacritty.app', (cwd, p) => launchOpenArgs('/Applications/Alacritty.app', ['-e', 'zsh', ...posix(cwd, p)])),
+      appEntry('kitty', 'kitty', '/Applications/kitty.app', (cwd, p) => launchOpenArgs('/Applications/kitty.app', ['zsh', ...posix(cwd, p)])),
+      appEntry('wezterm', 'WezTerm', '/Applications/WezTerm.app', (cwd, p) => launchOpenArgs('/Applications/WezTerm.app', ['start', '--', 'zsh', ...posix(cwd, p)])),
+      // user-picked terminal apps ride the .command road — the one macOS
+      // mechanism that needs nothing from the app but "opens shell scripts"
+      ...atlasPrefs.customTerminals.map((c) => ({
+        id: c.id, name: c.name, custom: true,
+        probe: () => dirExists(c.app),
+        launch: (cwd, p) => launchCommandFile(c.app, cwd, p),
+      })),
+    ];
+  }
+  if (process.platform === 'win32') {
+    const wtPath = path.join(process.env.LOCALAPPDATA ?? '', 'Microsoft', 'WindowsApps', 'wt.exe');
+    return [
+      { id: 'wt', name: 'Windows Terminal', probe: async () => (await fileExists(wtPath)) || binOnPath('wt.exe'),
+        launch: (cwd, p) => run('wt.exe', ['-d', cwd, 'cmd', '/k', p]) },
+      { id: 'powershell', name: 'PowerShell', probe: async () => true,
+        launch: (cwd, p) => run('cmd', ['/c', 'start', '', 'powershell', '-NoExit', '-Command', `Set-Location -LiteralPath '${cwd.replace(/'/g, "''")}'; ${p}`]) },
+      { id: 'cmd', name: 'Command Prompt', probe: async () => true,
+        launch: (cwd, p) => run('cmd', ['/c', 'start', '', 'cmd', '/k', `cd /d "${cwd}" && ${p}`]) },
+    ];
+  }
+  // linux: binaries on PATH, each with its documented cwd/exec flags
+  const bin = (id, name, argv) => ({ id, name, probe: () => binOnPath(id), launch: (cwd, p) => run(id, argv(cwd, p)) });
+  return [
+    bin('gnome-terminal', 'GNOME Terminal', (cwd, p) => ['--working-directory', cwd, '--', 'bash', ...posix(cwd, p)]),
+    bin('konsole', 'Konsole', (cwd, p) => ['--workdir', cwd, '-e', 'bash', ...posix(cwd, p)]),
+    bin('xfce4-terminal', 'Xfce Terminal', (cwd, p) => [`--working-directory=${cwd}`, '-x', 'bash', ...posix(cwd, p)]),
+    bin('ghostty', 'Ghostty', (cwd, p) => ['-e', 'bash', ...posix(cwd, p)]),
+    bin('alacritty', 'Alacritty', (cwd, p) => ['--working-directory', cwd, '-e', 'bash', ...posix(cwd, p)]),
+    bin('kitty', 'kitty', (cwd, p) => ['--directory', cwd, 'bash', ...posix(cwd, p)]),
+    bin('wezterm', 'WezTerm', (cwd, p) => ['start', '--cwd', cwd, '--', 'bash', ...posix(cwd, p)]),
+    bin('x-terminal-emulator', 'System terminal', (cwd, p) => ['-e', `bash -lc ${shq(`cd ${shq(cwd)} && ${p}`)}`]),
+  ];
+}
+
 const APP_TARGETS = {
   codex: { app: '/Applications/ChatGPT.app', scheme: 'codex://', name: 'ChatGPT (Codex)' },
   'claude-code': { app: '/Applications/Claude.app', scheme: 'claude://', name: 'Claude' },
 };
-let atlasPrefs = { terminal: 'terminal', openApp: {} };
+let atlasPrefs = { terminal: 'terminal', customTerminals: [] };
 const prefsFile = () => path.join(app.getPath('userData'), 'atlas-prefs.json');
-const dirExists = (p) => fsp.stat(p).then((s) => s.isDirectory()).catch(() => false);
 
 function setupSessionAtlas() {
   void loadCustomRoots();
   void fsp.readFile(prefsFile(), 'utf8').then((s) => {
     const p = JSON.parse(s);
-    atlasPrefs = { terminal: typeof p.terminal === 'string' ? p.terminal : 'terminal', openApp: p.openApp && typeof p.openApp === 'object' ? p.openApp : {} };
+    atlasPrefs = {
+      terminal: typeof p.terminal === 'string' ? p.terminal : 'terminal',
+      customTerminals: Array.isArray(p.customTerminals)
+        ? p.customTerminals.filter((c) => c && typeof c.id === 'string' && typeof c.app === 'string' && typeof c.name === 'string')
+        : [],
+    };
   }).catch(() => {});
+  const savePrefs = () => fsp.writeFile(prefsFile(), JSON.stringify(atlasPrefs, null, 2)).catch(() => {});
+  const probedTerminals = async () => {
+    const reg = buildTerminalRegistry();
+    const alive = await Promise.all(reg.map(async (t) => (await t.probe()) ? t : null));
+    return alive.filter(Boolean);
+  };
 
   ipcMain.handle('sessions:open-targets', async () => ({
-    terminals: (await Promise.all(TERMINALS.map(async (t) => (await dirExists(t.app)) ? { id: t.id, name: t.name } : null))).filter(Boolean),
+    terminals: (await probedTerminals()).map((t) => ({ id: t.id, name: t.name, custom: !!t.custom })),
     apps: (await Promise.all(Object.entries(APP_TARGETS).map(async ([runner, a]) => (await dirExists(a.app)) ? { runner, name: a.name } : null))).filter(Boolean),
-    prefs: atlasPrefs,
+    prefs: { terminal: atlasPrefs.terminal },
+    canAddCustom: process.platform === 'darwin',
   }));
 
   ipcMain.handle('sessions:set-open-prefs', async (_e, p) => {
-    if (p && typeof p === 'object' && typeof p.terminal === 'string' && TERMINALS.some((t) => t.id === p.terminal)) {
+    if (p && typeof p === 'object' && typeof p.terminal === 'string' && buildTerminalRegistry().some((t) => t.id === p.terminal)) {
       atlasPrefs.terminal = p.terminal;
-      await fsp.writeFile(prefsFile(), JSON.stringify(atlasPrefs, null, 2)).catch(() => {});
+      await savePrefs();
     }
-    return atlasPrefs;
+    return { terminal: atlasPrefs.terminal };
+  });
+
+  // "pick another terminal app": the native picker again — the page never
+  // names an app path. The chosen app rides the .command road.
+  ipcMain.handle('sessions:add-terminal', async () => {
+    if (process.platform !== 'darwin') return null;
+    const r = await dialog.showOpenDialog(win, {
+      properties: ['openApplication'],
+      defaultPath: '/Applications',
+      filters: [{ name: 'Applications', extensions: ['app'] }],
+    });
+    const p = r.canceled ? null : r.filePaths[0];
+    if (!p || !p.endsWith('.app')) return null;
+    const dup = atlasPrefs.customTerminals.find((c) => c.app === p);
+    const entry = dup ?? { id: `custom-term-${Date.now().toString(36)}`, name: path.basename(p, '.app'), app: p };
+    if (!dup) atlasPrefs.customTerminals.push(entry);
+    atlasPrefs.terminal = entry.id;
+    await savePrefs();
+    return { id: entry.id, name: entry.name };
   });
 
   ipcMain.handle('sessions:roots', async () => {
@@ -213,18 +321,19 @@ function setupSessionAtlas() {
   // the session's door; the runner and every keystroke after are theirs.
   // Structured args only (never a raw command string from the renderer);
   // the command is assembled HERE against a runner whitelist.
-  const shq = (s) => `'${String(s).replace(/'/g, `'\\''`)}'`;
-  const RESUME = {
-    'claude-code': (cwd, id) => `cd ${shq(cwd)} && claude --resume ${shq(id)}`,
-    codex: (cwd, id) => `cd ${shq(cwd)} && codex resume ${shq(id)}`,
+  const PROGRAMS = {
+    'claude-code': (id) => `claude --resume ${shq(id)}`,
+    codex: (id) => `codex resume ${shq(id)}`,
   };
   // mode is the user's explicit per-click choice ('app' | 'terminal') —
   // no stored preference decides between the two roads.
   ipcMain.handle('sessions:open-in-cli', async (_e, runner, cwd, sessionId, mode) => {
-    const build = RESUME[runner];
-    if (!build || !/^[\w.-]{4,}$/.test(String(sessionId))) return { opened: false, via: '', command: '' };
+    const buildProgram = PROGRAMS[runner];
+    if (!buildProgram || !/^[\w.-]{4,}$/.test(String(sessionId))) return { opened: false, via: '', command: '' };
     const cwdOk = typeof cwd === 'string' && path.isAbsolute(cwd) && await dirExists(cwd);
-    const command = build(cwdOk ? cwd : os.homedir(), sessionId);
+    const dir = cwdOk ? cwd : os.homedir();
+    const program = buildProgram(sessionId);
+    const command = `cd ${shq(dir)} && ${program}`; // the clipboard form
 
     if (mode === 'app') {
       const appTarget = APP_TARGETS[runner];
@@ -237,33 +346,14 @@ function setupSessionAtlas() {
       return { opened: false, via: '', command };
     }
 
-    if (process.platform === 'darwin') {
-      const term = (await dirExists((TERMINALS.find((t) => t.id === atlasPrefs.terminal) ?? TERMINALS[0]).app))
-        ? (TERMINALS.find((t) => t.id === atlasPrefs.terminal) ?? TERMINALS[0])
-        : TERMINALS[0];
-      const { spawn } = require('child_process');
-      const opened = await new Promise((resolve) => {
-        let child;
-        if (term.mode === 'exec-args') {
-          // Ghostty-style: -e runs the command inside the emulator; zsh -lc
-          // gives it the user's login PATH
-          child = spawn('open', ['-na', term.app, '--args', '-e', 'zsh', '-lc', command], { stdio: 'ignore' });
-        } else {
-          // .command file: the terminal executes it in the user's own login
-          // shell — right PATH (GUI apps carry a bare one), zero automation
-          // permissions. Self-deletes after launching the runner.
-          const file = path.join(os.tmpdir(), `thoughtdag-resume-${Date.now()}.command`);
-          try {
-            require('fs').writeFileSync(file, `#!/bin/zsh\nrm -- ${shq(file)}\n${command}\n`, { mode: 0o755 });
-          } catch { resolve(false); return; }
-          child = spawn('open', ['-a', term.app, file], { stdio: 'ignore' });
-        }
-        child.on('exit', (code) => resolve(code === 0));
-        child.on('error', () => resolve(false));
-      });
-      if (opened) return { opened: true, via: 'terminal', command };
+    // the chosen terminal first, then any other live one — a launch that
+    // fails hands the command to the clipboard road, never a broken window
+    const alive = await probedTerminals();
+    const ordered = [...alive.filter((t) => t.id === atlasPrefs.terminal), ...alive.filter((t) => t.id !== atlasPrefs.terminal)];
+    for (const term of ordered.slice(0, 2)) {
+      if (await term.launch(dir, program)) return { opened: true, via: 'terminal', command };
     }
-    return { opened: false, via: '', command }; // caller falls back to the clipboard
+    return { opened: false, via: '', command };
   });
 }
 

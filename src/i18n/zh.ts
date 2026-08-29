@@ -603,6 +603,7 @@ export const zh: Record<keyof typeof en, string> = {
   'atlas.upToDate': '画布已是该会话的最新镜像',
   'atlas.onCanvas': '已在画布',
   'atlas.terminalChoice': '在终端打开时使用的终端',
+  'atlas.otherTerminal': '其他 App…',
   'atlas.openApp': '在 App 中打开（{name}）',
   'atlas.openTerminal': '在终端打开',
   'atlas.appOpened': '已唤起 App，会话 id 已复制，可在 App 内搜索定位',

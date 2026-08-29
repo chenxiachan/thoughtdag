@@ -24,4 +24,5 @@ contextBridge.exposeInMainWorld('desktopSessions', {
   openInCli: (runner, cwd, sessionId, mode) => ipcRenderer.invoke('sessions:open-in-cli', runner, cwd, sessionId, mode),
   openTargets: () => ipcRenderer.invoke('sessions:open-targets'),
   setOpenPrefs: (prefs) => ipcRenderer.invoke('sessions:set-open-prefs', prefs),
+  addTerminal: () => ipcRenderer.invoke('sessions:add-terminal'),
 });

@@ -604,6 +604,7 @@ export const en = {
   'atlas.upToDate': 'The canvas already mirrors this session in full',
   'atlas.onCanvas': 'on canvas',
   'atlas.terminalChoice': 'Terminal used by "open in terminal"',
+  'atlas.otherTerminal': 'Other app…',
   'atlas.openApp': 'Open in app ({name})',
   'atlas.openTerminal': 'Open in terminal',
   'atlas.appOpened': 'App activated — session id copied; search for it inside the app',

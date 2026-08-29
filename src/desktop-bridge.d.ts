@@ -34,11 +34,14 @@ interface DesktopSessionsBridge {
   read: (rootKey: string, rel: string) => Promise<string>;
   openInCli: (runner: string, cwd: string | null, sessionId: string, mode: 'app' | 'terminal') => Promise<{ opened: boolean; via: 'app' | 'terminal' | ''; command: string }>;
   openTargets: () => Promise<{
-    terminals: { id: string; name: string }[];
+    terminals: { id: string; name: string; custom: boolean }[];
     apps: { runner: string; name: string }[];
     prefs: { terminal: string };
+    canAddCustom: boolean;
   }>;
   setOpenPrefs: (prefs: { terminal: string }) => Promise<{ terminal: string }>;
+  /** Native app picker (macOS) — a user-chosen terminal app joins the registry. */
+  addTerminal: () => Promise<{ id: string; name: string } | null>;
 }
 
 interface Window {

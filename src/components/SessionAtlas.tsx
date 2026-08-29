@@ -220,12 +220,19 @@ export default function SessionAtlas({ onClose, onSwitched }: { onClose: () => v
                 value={targets.prefs.terminal}
                 onChange={(e) => {
                   const terminal = e.target.value;
+                  if (terminal === '__add__') {
+                    // native app picker; the chosen app becomes the selection
+                    void window.desktopSessions?.addTerminal().then(() =>
+                      window.desktopSessions?.openTargets().then(setTargets));
+                    return;
+                  }
                   void window.desktopSessions?.setOpenPrefs({ terminal }).then((p) => setTargets((tg) => (tg ? { ...tg, prefs: p } : tg)));
                 }}
                 className="bg-transparent focus:outline-none text-sm text-ink cursor-pointer"
                 data-atlas-terminal-select
               >
                 {targets.terminals.map((term) => <option key={term.id} value={term.id}>{term.name}</option>)}
+                {targets.canAddCustom && <option value="__add__">{t('atlas.otherTerminal')}</option>}
               </select>
             </label>
           )}
