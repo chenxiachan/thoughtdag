@@ -26,12 +26,19 @@ export interface ProjectMeta {
   kind?: 'chat' | 'paradigm';
   /** Provenance: which paradigm this run canvas was instantiated from. */
   instantiatedFrom?: { name: string; at: string };
-  /** The CANONICAL-canvas contract: this canvas mirrors one runner
-      session. Re-importing that session opens THIS canvas and appends
-      only the turns past importedCount — the user's edits, branches, and
-      condensations accumulate here and are never orphaned into a fresh
-      snapshot. tailNodeId is where the next appendix attaches. */
-  sourceSession?: { sessionId: string; runner: string; importedCount: number; tailNodeId: string };
+  /** The CANONICAL-canvas contract, chapter edition: this canvas
+      SUBSCRIBES to a sequence of runner sessions. The main entry is the
+      first chapter; `chapters` are later sessions CONTINUING the same
+      line of thought (context surgery, then onward — mounted at the main
+      line's tail); `branches` are experiment sessions mounted at an
+      anchor node. Every entry appends idempotently past its own
+      importedCount. One canvas = one line of thought; sessions are its
+      physical chapters. */
+  sourceSession?: {
+    sessionId: string; runner: string; importedCount: number; tailNodeId: string;
+    chapters?: { sessionId: string; runner: string; importedCount: number; tailNodeId: string }[];
+    branches?: { sessionId: string; runner: string; importedCount: number; tailNodeId: string; anchorNodeId: string }[];
+  };
   /** Archived = hidden from the dropdown and Recent work, data untouched.
       Tidying and destroying are different verbs. */
   archived?: boolean;
@@ -59,6 +66,57 @@ export async function updateSourceSession(projectId: string, patch: Partial<NonN
       ? { ...p, sourceSession: { ...p.sourceSession, ...patch } } : p)),
   }));
   await saveMeta();
+}
+
+type LedgerEntryPatch = { importedCount?: number; tailNodeId?: string };
+
+/** Patch whichever ledger entry (main / chapter / branch) holds this
+ *  session — the append path doesn't care which kind it landed in. */
+export async function patchLedgerEntry(projectId: string, sessionId: string, patch: LedgerEntryPatch): Promise<void> {
+  useProjects.setState((s) => ({
+    projects: s.projects.map((p) => {
+      if (p.id !== projectId || !p.sourceSession) return p;
+      const ss = p.sourceSession;
+      if (ss.sessionId === sessionId) return { ...p, sourceSession: { ...ss, ...patch } };
+      return {
+        ...p,
+        sourceSession: {
+          ...ss,
+          chapters: ss.chapters?.map((c) => (c.sessionId === sessionId ? { ...c, ...patch } : c)),
+          branches: ss.branches?.map((b) => (b.sessionId === sessionId ? { ...b, ...patch } : b)),
+        },
+      };
+    }),
+  }));
+  await saveMeta();
+}
+
+/** Register a newly mounted session in the chapter or branch ledger. */
+export async function registerLedgerEntry(
+  projectId: string,
+  kind: 'chapter' | 'branch',
+  entry: { sessionId: string; runner: string; importedCount: number; tailNodeId: string; anchorNodeId?: string },
+): Promise<void> {
+  useProjects.setState((s) => ({
+    projects: s.projects.map((p) => {
+      if (p.id !== projectId) return p;
+      // a NATIVE canvas can host mounted sessions too: the ledger gains
+      // an empty main entry — a container, not a subscription
+      const ss = p.sourceSession ?? { sessionId: '', runner: '', importedCount: 0, tailNodeId: '' };
+      if (kind === 'chapter') {
+        return { ...p, sourceSession: { ...ss, chapters: [...(ss.chapters ?? []), { sessionId: entry.sessionId, runner: entry.runner, importedCount: entry.importedCount, tailNodeId: entry.tailNodeId }] } };
+      }
+      return { ...p, sourceSession: { ...ss, branches: [...(ss.branches ?? []), { ...entry, anchorNodeId: entry.anchorNodeId ?? '' }] } };
+    }),
+  }));
+  await saveMeta();
+}
+
+/** Every session id a canvas subscribes to, across all ledger kinds. */
+export function subscribedSessionIds(meta: ProjectMeta): string[] {
+  const ss = meta.sourceSession;
+  if (!ss) return [];
+  return [ss.sessionId, ...(ss.chapters ?? []).map((c) => c.sessionId), ...(ss.branches ?? []).map((b) => b.sessionId)].filter(Boolean);
 }
 
 /** Stamp paradigm provenance on a project (persisted with the meta list). */

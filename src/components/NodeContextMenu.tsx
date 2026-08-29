@@ -84,9 +84,16 @@ export default function NodeContextMenu({ x, y, nodeId, onClose }: {
       )}
       {!isContent && (
         <button className={item} title={ti('exp.takeTitle')} onClick={run(() => {
-          void import('../lib/experiment-loop').then((m) => m.takeToExperiment(nodeId));
+          void import('../lib/experiment-loop').then((m) => m.takeToExperiment(nodeId, 'branch'));
         })} data-take-to-experiment>
           <FlaskConical size={14} strokeWidth={1.75} className={icon} /> {t('exp.take')}
+        </button>
+      )}
+      {!isContent && (
+        <button className={item} title={ti('exp.continueTitle')} onClick={run(() => {
+          void import('../lib/experiment-loop').then((m) => m.takeToExperiment(nodeId, 'continue'));
+        })} data-take-to-continue>
+          <BookOpen size={14} strokeWidth={1.75} className={icon} /> {t('exp.continue')}
         </button>
       )}
       <button className={item} onClick={run(() => useStore.getState().duplicateNode(nodeId))}>

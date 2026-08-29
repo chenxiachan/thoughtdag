@@ -21,13 +21,17 @@ export interface ExperimentAnchor {
   project: string;
   node: string;
   bundle: string;
+  /** branch = a side experiment mounted AT the node; continue = the next
+      CHAPTER of the main line (context surgery, then onward). Explicit by
+      the user's choice of door — never inferred. */
+  mode: 'branch' | 'continue';
 }
 
-const ANCHOR_RE = /\[ThoughtDAG anchor: project=([\w-]+) node=([\w-]+) bundle=([\w-]+)\]/;
+const ANCHOR_RE = /\[ThoughtDAG anchor: project=([\w-]+) node=([\w-]+) bundle=([\w-]+)(?: mode=(branch|continue))?\]/;
 
 export function parseAnchor(text: string): ExperimentAnchor | null {
   const m = text.match(ANCHOR_RE);
-  return m ? { project: m[1], node: m[2], bundle: m[3] } : null;
+  return m ? { project: m[1], node: m[2], bundle: m[3], mode: m[4] === 'continue' ? 'continue' : 'branch' } : null;
 }
 
 /** The bundle's Markdown projection — what a fresh CLI session reads as its
@@ -55,13 +59,15 @@ export function renderHandoffMarkdown(bundle: ContextBundle, anchor: ExperimentA
   out.push('---');
   out.push(t('exp.mdOutro'));
   out.push('');
-  out.push(`[ThoughtDAG anchor: project=${anchor.project} node=${anchor.node} bundle=${anchor.bundle}]`);
+  out.push(`[ThoughtDAG anchor: project=${anchor.project} node=${anchor.node} bundle=${anchor.bundle}${anchor.mode === 'continue' ? ' mode=continue' : ''}]`);
   return out.join('\n');
 }
 
 /** Outbound: compile the node's context and put the opening message on the
- *  clipboard. Zero extra selection — the node IS the selection. */
-export async function takeToExperiment(nodeId: string): Promise<boolean> {
+ *  clipboard. Zero extra selection — the node IS the selection. mode
+ *  travels in the anchor so the return trip knows which door was used:
+ *  branch mounts sideways, continue extends the main line as a chapter. */
+export async function takeToExperiment(nodeId: string, mode: 'branch' | 'continue' = 'branch'): Promise<boolean> {
   const st = useStore.getState();
   const project = useProjects.getState().activeId ?? 'default';
   const bundle = await compileContextBundle(nodeId, st.nodes as ThoughtNode[], st.edges as ThoughtEdge[], {
@@ -69,7 +75,7 @@ export async function takeToExperiment(nodeId: string): Promise<boolean> {
     projectId: project,
     staleIds: st.staleIds,
   });
-  const anchor: ExperimentAnchor = { project, node: nodeId, bundle: bundle.id };
+  const anchor: ExperimentAnchor = { project, node: nodeId, bundle: bundle.id, mode };
   const md = renderHandoffMarkdown(bundle, anchor);
   try {
     await navigator.clipboard.writeText(md);

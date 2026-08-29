@@ -93,7 +93,7 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
         </button>
         {/* the twin badge: this canvas is one face of a session — the
             other face is one click away on the map */}
-        {active?.sourceSession && (
+        {!!active?.sourceSession?.sessionId && (
           <button
             title={fmt(ti('switcher.mirrorBadge'), { runner: active.sourceSession.runner })}
             onClick={() => { setAtlasFocus(active.sourceSession!.sessionId); setAtlasOpen(true); }}
@@ -139,7 +139,7 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
                       </div>
                       <div className="text-2xs text-ink-faint flex items-center gap-1.5">
                         <span>{relativeTime(p.updatedAt)}</span>
-                        {p.sourceSession && (
+                        {!!p.sourceSession?.sessionId && (
                           <span className="font-mono border border-line rounded px-1 py-px" data-mirror-mark>
                             {p.sourceSession.runner}
                           </span>

@@ -37,18 +37,42 @@ export function startLiveMirror(): void {
     try {
       // anyone listening for atlas-level freshness (badges, folder counts)
       window.dispatchEvent(new CustomEvent('td:sessions-changed'));
-      const { useProjects } = await import('../../store/projects');
+      const { useProjects, subscribedSessionIds } = await import('../../store/projects');
       const { activeId, projects } = useProjects.getState();
-      const ledger = projects.find((p) => p.id === activeId)?.sourceSession;
-      if (!ledger) return;
+      const activeMeta = projects.find((p) => p.id === activeId);
       const head = await bridge.head(ev.rootKey, ev.rel, 262144).catch(() => '');
-      if (!head || sessionIdFromHead(head) !== ledger.sessionId) return;
+      if (!head) return;
+      const sid = sessionIdFromHead(head);
+      if (!sid) return;
+
+      const subscribedHere = !!activeMeta && subscribedSessionIds(activeMeta).includes(sid);
+      let anchorProject: string | null = null;
+      if (!subscribedHere) {
+        // a NEW session: if its opening carries a live anchor, the mount
+        // is automatic — the harvest command's job, command-free. Only
+        // the ACTIVE canvas mounts eagerly; other targets get a hint
+        // (opening that canvas or clicking the card mounts it then,
+        // through the same anchor-first canonical path).
+        const anyRegistered = projects.some((p) => subscribedSessionIds(p).includes(sid));
+        if (anyRegistered) return; // another canvas's session; not ours to touch
+        const { parseAnchor } = await import('../experiment-loop');
+        const anchor = parseAnchor(head);
+        if (!anchor || !projects.some((p) => p.id === anchor.project)) return;
+        anchorProject = anchor.project;
+        if (anchorProject !== activeId) {
+          toast('info', t('atlas.mountPending'), 9000);
+          return;
+        }
+      }
+
       const { streamRunnerConversation } = await import('../adapters');
       const { importOrAppendConversation, shellSessionReader } = await import('./canonical');
       const conv = await streamRunnerConversation(shellSessionReader(ev.rootKey, ev.rel)).catch(() => null);
       const result = await importOrAppendConversation(conv);
       if (result?.kind === 'appended') {
         toast('success', fmt(t('atlas.liveAppended'), { n: result.turns }), 8000);
+      } else if (result?.kind === 'mounted') {
+        toast('success', fmt(t(result.mode === 'continue' ? 'atlas.mountedChapter' : 'atlas.mountedBranch'), { n: result.turns }), 9000);
       }
     } finally {
       busy = false;

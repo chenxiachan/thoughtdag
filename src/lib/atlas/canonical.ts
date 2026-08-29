@@ -1,17 +1,25 @@
 import { set as idbSet } from 'idb-keyval';
 import { makeNode } from '../import-chat';
 import { useStore, stripTransient } from '../../store';
-import { useProjects, switchProject, adoptImportedProject, updateSourceSession, projectStorageKey } from '../../store/projects';
+import {
+  useProjects, switchProject, adoptImportedProject, projectStorageKey,
+  patchLedgerEntry, registerLedgerEntry, subscribedSessionIds, type ProjectMeta,
+} from '../../store/projects';
 import { useUiStore } from '../ui-store';
 import { generateId } from '../../utils';
 import type { ThoughtNode, ThoughtEdge } from '../../types';
 
-// The canonical-canvas contract: ONE canvas per runner session. The first
-// import creates it; every later import of the same session OPENS it and
-// appends only the turns past the ledger — the user's pruning, branches,
-// and condensations live on that canvas and are never orphaned into a
-// fresh snapshot. Appending never moves an existing node: the appendix
-// hangs under the recorded tail, wherever the user has dragged it.
+// The canonical-canvas contract, chapter edition. One canvas = one line
+// of thought; sessions are its physical chapters. Routing order:
+//   1. SUBSCRIBED session (main / chapter / branch ledger) → open the
+//      canvas, append only the turns past that entry's ledger.
+//   2. UNREGISTERED session whose opening carries a live anchor → MOUNT
+//      it: mode=branch hangs sideways at the anchor node (a side
+//      experiment), mode=continue extends the main line below it (the
+//      next chapter after context surgery) — and register it, which is
+//      what makes every later arrival idempotent.
+//   3. Otherwise → a fresh canvas subscribing to this session.
+// Appending and mounting never move an existing node.
 
 const APPEND_GAP = 190;
 
@@ -19,6 +27,7 @@ export type CanonicalResult =
   | { kind: 'imported'; nodeCount: number }
   | { kind: 'opened' } // already mirrored, nothing new
   | { kind: 'appended'; turns: number }
+  | { kind: 'mounted'; mode: 'branch' | 'continue'; turns: number }
   | null; // not a runner session
 
 export async function importOrAppendSession(text: string): Promise<CanonicalResult> {
@@ -41,69 +50,149 @@ export function shellSessionReader(rootKey: string, rel: string): () => Promise<
   };
 }
 
+interface LedgerHit {
+  project: ProjectMeta;
+  entry: { sessionId: string; importedCount: number; tailNodeId: string };
+}
+
+function findSubscription(sessionId: string | undefined): LedgerHit | null {
+  if (!sessionId) return null;
+  for (const p of useProjects.getState().projects) {
+    const ss = p.sourceSession;
+    if (!ss) continue;
+    if (ss.sessionId === sessionId) return { project: p, entry: ss };
+    const ch = ss.chapters?.find((c) => c.sessionId === sessionId);
+    if (ch) return { project: p, entry: ch };
+    const br = ss.branches?.find((b) => b.sessionId === sessionId);
+    if (br) return { project: p, entry: br };
+  }
+  return null;
+}
+
+/** Place a segment of freshly built nodes under/beside an anchor, above
+ *  the collision floor of its column band. Never moves existing nodes. */
+function placeSegment(
+  store: { nodes: ThoughtNode[] },
+  nodes: ThoughtNode[],
+  innerEdges: ThoughtEdge[],
+  anchorNode: ThoughtNode,
+  sideways: boolean,
+): { moved: ThoughtNode[]; edges: ThoughtEdge[] } {
+  const baseX = anchorNode.position.x + (sideways ? 560 : 0);
+  const bandLeft = baseX - 40;
+  const bandRight = baseX + 580;
+  const floor = store.nodes.reduce((acc, n) => {
+    const w = n.width ?? n.measured?.width ?? 540;
+    if (n.position.x + w < bandLeft || n.position.x > bandRight) return acc;
+    const h = n.height ?? n.measured?.height ?? 300;
+    return Math.max(acc, n.position.y + h);
+  }, sideways ? anchorNode.position.y - 300 : anchorNode.position.y + (anchorNode.height ?? 140));
+  const dx = baseX - nodes[0].position.x;
+  const dy = Math.max(floor + APPEND_GAP, sideways ? anchorNode.position.y : -Infinity) - nodes[0].position.y;
+  const moved = nodes.map((n): ThoughtNode => ({ ...n, position: { x: n.position.x + dx, y: n.position.y + dy } }));
+  const edges: ThoughtEdge[] = [
+    { id: generateId(), source: anchorNode.id, target: moved[0].id, type: 'smoothstep' } as ThoughtEdge,
+    ...innerEdges,
+  ];
+  return { moved, edges };
+}
+
 export async function importOrAppendConversation(conv: import('../import-chat').ImportableConversation | null): Promise<CanonicalResult> {
   if (!conv) return null;
-
-  const existing = conv.sessionId
-    ? useProjects.getState().projects.find((p) => p.sourceSession?.sessionId === conv.sessionId)
-    : undefined;
 
   const built = conv.build();
   const qa = built.nodes.filter((n) => n.data.importSource);
   const tailQaId = qa.at(-1)?.id ?? built.nodes.at(-1)?.id ?? '';
+  if (built.nodes.length === 0) return null;
 
-  if (!existing) {
-    if (built.nodes.length === 0) return null;
-    const id = crypto.randomUUID();
-    await idbSet(projectStorageKey(id), JSON.stringify({ state: { nodes: stripTransient(built.nodes), edges: built.edges }, version: 1 }));
-    useUiStore.getState().setArrivalFocusNodeId(built.nodes[built.nodes.length - 1].id);
-    await adoptImportedProject(id, conv.title.slice(0, 60), 'chat', conv.sessionId ? {
-      sourceSession: { sessionId: conv.sessionId, runner: conv.source, importedCount: qa.length, tailNodeId: tailQaId },
-    } : undefined);
-    return { kind: 'imported', nodeCount: built.nodes.length };
+  // ── 1. subscribed somewhere? open + idempotent append ──
+  const hit = findSubscription(conv.sessionId);
+  if (hit) return appendPastLedger(conv, built, qa, tailQaId, hit);
+
+  // ── 2. anchor-first mounting: the return half of the experiment loop,
+  //       command-free — the anchor travels in the opening message ──
+  if (conv.sessionId && qa.length > 0) {
+    const { parseAnchor } = await import('../experiment-loop');
+    const anchor = parseAnchor(qa[0].data.question ?? '');
+    if (anchor && useProjects.getState().projects.some((p) => p.id === anchor.project)) {
+      await switchProject(anchor.project);
+      const store = useStore.getState();
+      const meta = useProjects.getState().projects.find((p) => p.id === anchor.project)!;
+      let anchorNode = store.nodes.find((n) => n.id === anchor.node) ?? null;
+      if (!anchorNode && anchor.mode === 'continue' && meta.sourceSession?.sessionId) {
+        // a chapter continues the MAIN line: fall back to its living tail
+        const ss = meta.sourceSession;
+        anchorNode = store.nodes.find((n) => n.id === ss.tailNodeId)
+          ?? store.nodes.filter((n) => n.data.importSource?.sessionId === ss.sessionId).at(-1) ?? null;
+      }
+      // native canvases mount too — the ledger grows an empty-main
+      // container on registration; no subscription is required to host
+      if (anchorNode) {
+        const inSet = new Set(built.nodes.map((n) => n.id));
+        const innerEdges = built.edges.filter((e) => inSet.has(e.source) && inSet.has(e.target));
+        const sideways = anchor.mode !== 'continue';
+        const seg = placeSegment(store, built.nodes, innerEdges, anchorNode, sideways);
+        if (sideways) {
+          const firstQa = seg.moved.find((n) => n.data.importSource && n.data.stepKind !== 'note');
+          if (firstQa) firstQa.data = { ...firstQa.data, isBranch: true };
+        }
+        store.pushHistory();
+        useStore.setState((s) => ({ nodes: [...s.nodes, ...seg.moved], edges: [...s.edges, ...seg.edges] }));
+        await registerLedgerEntry(anchor.project, sideways ? 'branch' : 'chapter', {
+          sessionId: conv.sessionId, runner: conv.source, importedCount: qa.length,
+          tailNodeId: tailQaId, anchorNodeId: anchorNode.id,
+        });
+        useUiStore.getState().setArrivalFocusNodeId(seg.moved[seg.moved.length - 1].id);
+        return { kind: 'mounted', mode: sideways ? 'branch' : 'continue', turns: qa.length };
+      }
+      // anchor target unreachable — fall through to an honest plain import
+    }
   }
 
-  await switchProject(existing.id);
-  const ledger = existing.sourceSession!;
+  // ── 3. a fresh canvas subscribing to this session ──
+  const id = crypto.randomUUID();
+  await idbSet(projectStorageKey(id), JSON.stringify({ state: { nodes: stripTransient(built.nodes), edges: built.edges }, version: 1 }));
+  useUiStore.getState().setArrivalFocusNodeId(built.nodes[built.nodes.length - 1].id);
+  await adoptImportedProject(id, conv.title.slice(0, 60), 'chat', conv.sessionId ? {
+    sourceSession: { sessionId: conv.sessionId, runner: conv.source, importedCount: qa.length, tailNodeId: tailQaId },
+  } : undefined);
+  return { kind: 'imported', nodeCount: built.nodes.length };
+}
+
+async function appendPastLedger(
+  conv: import('../import-chat').ImportableConversation,
+  built: { nodes: ThoughtNode[]; edges: ThoughtEdge[] },
+  qa: ThoughtNode[],
+  tailQaId: string,
+  hit: LedgerHit,
+): Promise<CanonicalResult> {
+  await switchProject(hit.project.id);
   const store = useStore.getState();
   // Anchor resolution, three tiers — deletion is the user's prerogative
   // (removed mirror nodes NEVER come back), so the recorded tail may be
-  // gone: ① the ledger's tail if it survives; ② the last surviving
-  // mirror node of this session (array order = import order); ③ nothing
-  // left — the appendix lands free-floating with an honest note.
+  // gone: ① the entry's tail if it survives; ② the last surviving mirror
+  // node of THIS session; ③ nothing left — the appendix lands
+  // free-floating with an honest note.
   const survivors = store.nodes.filter((n) => n.data.importSource?.sessionId === conv.sessionId);
-  const anchor = store.nodes.find((n) => n.id === ledger.tailNodeId) ?? survivors.at(-1) ?? null;
+  const anchor = store.nodes.find((n) => n.id === hit.entry.tailNodeId) ?? survivors.at(-1) ?? null;
 
-  if (qa.length <= ledger.importedCount) {
+  if (qa.length <= hit.entry.importedCount) {
     useUiStore.getState().setArrivalFocusNodeId(anchor?.id ?? null);
     return { kind: 'opened' };
   }
 
-  // the appendix: everything from the first unseen turn onward
-  const firstNew = qa[ledger.importedCount];
+  const firstNew = qa[hit.entry.importedCount];
   const from = built.nodes.findIndex((n) => n.id === firstNew.id);
   const appendix = built.nodes.slice(from);
   const inSet = new Set(appendix.map((n) => n.id));
   const innerEdges = built.edges.filter((e) => inSet.has(e.source) && inSet.has(e.target));
 
   let moved: ThoughtNode[];
-  const extraEdges: ThoughtEdge[] = [...innerEdges];
+  let extraEdges: ThoughtEdge[];
   if (anchor) {
-    // collision floor: the appendix must clear EVERYTHING already living
-    // in this column band (harvest branches, user notes, earlier
-    // appendices) — hanging straight under the anchor stacks on them
-    const bandLeft = anchor.position.x - 40;
-    const bandRight = anchor.position.x + 580;
-    const floor = store.nodes.reduce((acc, n) => {
-      const w = n.width ?? n.measured?.width ?? 540;
-      if (n.position.x + w < bandLeft || n.position.x > bandRight) return acc;
-      const h = n.height ?? n.measured?.height ?? 300;
-      return Math.max(acc, n.position.y + h);
-    }, anchor.position.y + (anchor.height ?? 140));
-    const dx = anchor.position.x - appendix[0].position.x;
-    const dy = floor + APPEND_GAP - appendix[0].position.y;
-    moved = appendix.map((n): ThoughtNode => ({ ...n, position: { x: n.position.x + dx, y: n.position.y + dy } }));
-    extraEdges.unshift({ id: generateId(), source: anchor.id, target: moved[0].id, type: 'smoothstep' } as ThoughtEdge);
+    const seg = placeSegment(store, appendix, innerEdges, anchor, false);
+    moved = seg.moved;
+    extraEdges = seg.edges;
   } else {
     // every earlier mirror node was removed by hand: land beside the
     // canvas, say so, and do not pretend to continue anything
@@ -111,16 +200,19 @@ export async function importOrAppendConversation(conv: import('../import-chat').
     const dx = maxX + 560 - appendix[0].position.x;
     const dy = -appendix[0].position.y;
     moved = appendix.map((n): ThoughtNode => ({ ...n, position: { x: n.position.x + dx, y: n.position.y + dy } }));
-    const note = makeNote(orphanNoteText(qa.length - ledger.importedCount), moved[0]);
+    const note = makeNote(orphanNoteText(qa.length - hit.entry.importedCount), moved[0]);
     moved = [note, ...moved];
-    extraEdges.unshift({ id: generateId(), source: note.id, target: moved[1].id, type: 'smoothstep' } as ThoughtEdge);
+    extraEdges = [
+      { id: generateId(), source: note.id, target: moved[1].id, type: 'smoothstep' } as ThoughtEdge,
+      ...innerEdges,
+    ];
   }
 
   store.pushHistory();
   useStore.setState((s) => ({ nodes: [...s.nodes, ...moved], edges: [...s.edges, ...extraEdges] }));
-  await updateSourceSession(existing.id, { importedCount: qa.length, tailNodeId: tailQaId });
+  await patchLedgerEntry(hit.project.id, conv.sessionId!, { importedCount: qa.length, tailNodeId: tailQaId });
   useUiStore.getState().setArrivalFocusNodeId(moved[anchor ? 0 : 1].id);
-  return { kind: 'appended', turns: qa.length - ledger.importedCount };
+  return { kind: 'appended', turns: qa.length - hit.entry.importedCount };
 }
 
 function orphanNoteText(n: number): string {
@@ -140,17 +232,20 @@ function makeNote(text: string, beside: ThoughtNode): ThoughtNode {
   return note;
 }
 
-/** How much of this canvas is one of a kind? Drives the delete confirm:
- *  a pristine mirror deletes losslessly (rebuild from source any time); a
- *  diverged mirror loses the user's value layer; a native canvas loses
- *  everything. Conservative on purpose — any hand-made node, any drifted
- *  text, any pruned mirror turn counts as diverged. */
+/** How much of this canvas is one of a kind? Coverage is a RELATIONSHIP
+ *  question: only nodes whose provenance matches the MAIN subscribed
+ *  session count as rebuildable (recast rebuilds the main line only).
+ *  Chapters, branches, foreign-provenance pastes, hand-made nodes and
+ *  drifted text are all unique here — conservative on purpose. */
 export type CanvasUniqueness = 'native' | 'pristine-mirror' | 'diverged-mirror';
 
 export async function canvasUniqueness(projectId: string): Promise<CanvasUniqueness> {
   const { projects, activeId } = useProjects.getState();
   const meta = projects.find((p) => p.id === projectId);
   if (!meta?.sourceSession) return 'native';
+  if ((meta.sourceSession.chapters?.length ?? 0) > 0 || (meta.sourceSession.branches?.length ?? 0) > 0) {
+    return 'diverged-mirror'; // a multi-session composition is always unique
+  }
   let nodes: ThoughtNode[];
   if (projectId === activeId) {
     nodes = useStore.getState().nodes;
@@ -162,11 +257,6 @@ export async function canvasUniqueness(projectId: string): Promise<CanvasUniquen
       nodes = (parsed?.state?.nodes ?? []) as ThoughtNode[];
     } catch { return 'diverged-mirror'; } // unreadable — warn high, never low
   }
-  // Coverage is a RELATIONSHIP question, not a type question: only nodes
-  // whose provenance matches the canvas's SUBSCRIBED session are
-  // rebuildable from source. Foreign-provenance nodes (pasted in from
-  // another session's mirror) are reference material — unique here, since
-  // this canvas holds no subscription that would bring them back.
   const sid = meta.sourceSession.sessionId;
   const mirror = nodes.filter((n) => n.data.importSource?.sessionId === sid);
   const diverged =
@@ -176,3 +266,5 @@ export async function canvasUniqueness(projectId: string): Promise<CanvasUniquen
     || mirror.some((n) => n.data.source && (n.data.question !== n.data.source.question || n.data.response !== n.data.source.response));
   return diverged ? 'diverged-mirror' : 'pristine-mirror';
 }
+
+export { subscribedSessionIds };

@@ -188,6 +188,7 @@ export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { 
       const result = await importOrAppendConversation(conv);
       if (!result) throw new Error(ti('handoff.notASession'));
       if (result.kind === 'appended') toast('success', fmt(ti('atlas.appended'), { n: result.turns }), 9000);
+      else if (result.kind === 'mounted') toast('success', fmt(ti(result.mode === 'continue' ? 'atlas.mountedChapter' : 'atlas.mountedBranch'), { n: result.turns }), 9000);
       else if (result.kind === 'opened') toast('info', ti('atlas.upToDate'), 6000);
       else toast('success', fmt(ti('toast.importedChats'), { n: 1, m: result.nodeCount }), 9000);
       onClose();
@@ -336,7 +337,7 @@ export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { 
                 className="w-full text-left px-4 py-1.5 flex items-center gap-2 text-ink hover:bg-wash transition-colors"
                 data-atlas-recent={p.id}
               >
-                {p.sourceSession
+                {p.sourceSession?.sessionId
                   ? <span className="text-2xs font-mono border border-line rounded px-1 py-px shrink-0 text-ink-faint">{p.sourceSession.runner}</span>
                   : <Inbox size={13} strokeWidth={1.75} className="shrink-0 text-ink-faint" />}
                 <span className="flex-1 truncate text-sm">{p.name}</span>
@@ -396,7 +397,7 @@ export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { 
                       <div className="text-sm text-ink font-medium truncate">{p.name}</div>
                       <div className="text-2xs text-ink-faint mt-0.5 flex items-center gap-1.5">
                         <span>{dateLabel(p.updatedAt)}</span>
-                        {p.sourceSession && <span className="font-mono border border-line rounded px-1 py-px">{p.sourceSession.runner}</span>}
+                        {!!p.sourceSession?.sessionId && <span className="font-mono border border-line rounded px-1 py-px">{p.sourceSession.runner}</span>}
                       </div>
                     </div>
                     <button
@@ -425,7 +426,7 @@ export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { 
                         >
                           <div className="text-sm text-ink truncate flex items-center gap-1.5">
                             <span className="truncate">{p.name}</span>
-                            {p.sourceSession && <span className="text-2xs font-mono border border-line rounded px-1 py-px shrink-0 text-ink-faint">{p.sourceSession.runner}</span>}
+                            {!!p.sourceSession?.sessionId && <span className="text-2xs font-mono border border-line rounded px-1 py-px shrink-0 text-ink-faint">{p.sourceSession.runner}</span>}
                           </div>
                           <div className="text-2xs text-ink-faint mt-0.5">{dateLabel(p.updatedAt)}</div>
                         </button>
