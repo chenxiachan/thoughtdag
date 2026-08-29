@@ -22,4 +22,6 @@ contextBridge.exposeInMainWorld('desktopSessions', {
   head: (rootKey, rel, bytes) => ipcRenderer.invoke('sessions:head', rootKey, rel, bytes),
   read: (rootKey, rel) => ipcRenderer.invoke('sessions:read', rootKey, rel),
   openInCli: (runner, cwd, sessionId) => ipcRenderer.invoke('sessions:open-in-cli', runner, cwd, sessionId),
+  openTargets: () => ipcRenderer.invoke('sessions:open-targets'),
+  setOpenPrefs: (prefs) => ipcRenderer.invoke('sessions:set-open-prefs', prefs),
 });

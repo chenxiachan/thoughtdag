@@ -178,6 +178,7 @@ export function codexSessionConversation(text: string): ImportableConversation |
     title: session.title,
     messageCount: turnCount,
     source: 'codex',
+    sessionId: session.sessionId,
     build: () => buildGraph(session),
   };
 }

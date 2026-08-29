@@ -31,17 +31,23 @@ export async function consumeSessionHandoff(): Promise<void> {
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const text = await res.text();
     if (harvest && (await harvestIntoAnchor(text))) return;
-    const { anyRunnerSessionConversation } = await import('./adapters');
-    const conv = await anyRunnerSessionConversation(text);
-    if (!conv) throw new Error(t('handoff.notASession'));
-    const { importChatConversations } = await import('./export');
-    await importChatConversations([conv]);
-    // the canvas is real but browser-local; the backup dialog is the path
-    // to a file on disk — offer it right here
-    toast('info', fmt(t('handoff.saved'), { n: conv.messageCount }), 12000, {
-      label: t('handoff.backupAction'),
-      run: () => useUiStore.getState().setBackupDialogOpen(true),
-    });
+    // canonical contract: a session already on a canvas OPENS that canvas
+    // (appending only what's new) instead of minting another snapshot
+    const { importOrAppendSession } = await import('./atlas/canonical');
+    const result = await importOrAppendSession(text);
+    if (!result) throw new Error(t('handoff.notASession'));
+    if (result.kind === 'appended') {
+      toast('success', fmt(t('atlas.appended'), { n: result.turns }), 9000);
+    } else if (result.kind === 'opened') {
+      toast('info', t('atlas.upToDate'), 6000);
+    } else {
+      // the canvas is real but browser-local; the backup dialog is the path
+      // to a file on disk — offer it right here
+      toast('info', fmt(t('handoff.saved'), { n: result.nodeCount }), 12000, {
+        label: t('handoff.backupAction'),
+        run: () => useUiStore.getState().setBackupDialogOpen(true),
+      });
+    }
   } catch (err) {
     // the bridge is short-lived by design: point at the manual road instead
     toast('error', fmt(t('handoff.failed'), { msg: err instanceof Error ? err.message : String(err) }), 12000);

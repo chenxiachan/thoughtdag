@@ -36,6 +36,11 @@ function SourcesDialog({ roots, counts, onChanged, onClose }: {
 }) {
   const t = useT();
   const off = disabledRoots();
+  const [targets, setTargets] = useState<Awaited<ReturnType<NonNullable<Window['desktopSessions']>['openTargets']>> | null>(null);
+  useEffect(() => { void window.desktopSessions?.openTargets().then(setTargets).catch(() => {}); }, []);
+  const setPref = (prefs: { terminal?: string; openApp?: Record<string, boolean> }) => {
+    void window.desktopSessions?.setOpenPrefs(prefs).then((p) => setTargets((tg) => (tg ? { ...tg, prefs: p } : tg)));
+  };
   const builtinLabel: Record<string, string> = { 'claude-projects': 'Claude Code', 'codex-sessions': 'Codex' };
   const row = (root: SessionRoot) => (
     <div key={root.key} className="flex items-center gap-3 px-4 py-2.5 border-b border-line last:border-b-0" data-atlas-source={root.key}>
@@ -94,6 +99,36 @@ function SourcesDialog({ roots, counts, onChanged, onClose }: {
             <Plug size={13} strokeWidth={1.75} /> {t('atlas.addDir')}
           </button>
         </div>
+
+        {targets && (
+          <div className="border-t border-line px-4 py-3" data-atlas-open-with>
+            <div className="text-xs font-medium text-ink mb-2">{t('atlas.openWith')}</div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-2xs text-ink-faint">{t('atlas.terminalChoice')}</span>
+              {targets.terminals.map((term) => (
+                <button
+                  key={term.id}
+                  onClick={() => setPref({ terminal: term.id })}
+                  className={`text-2xs border rounded-lg px-2 py-1 transition-colors ${targets.prefs.terminal === term.id ? 'border-accent text-accent bg-accent/5' : 'border-line text-ink-muted hover:text-ink'}`}
+                  data-atlas-terminal={term.id}
+                >
+                  {term.name}
+                </button>
+              ))}
+            </div>
+            {targets.apps.map((a) => (
+              <label key={a.runner} className="flex items-center gap-2 mt-2 text-2xs text-ink-muted cursor-pointer" data-atlas-prefer-app={a.runner}>
+                <input
+                  type="checkbox"
+                  checked={!!targets.prefs.openApp[a.runner]}
+                  onChange={(e) => setPref({ openApp: { ...targets.prefs.openApp, [a.runner]: e.target.checked } })}
+                  className="shrink-0"
+                />
+                {fmt(t('atlas.preferApp'), { runner: a.runner, name: a.name })}
+              </label>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -151,11 +186,12 @@ export default function SessionAtlas({ onClose, onSwitched }: { onClose: () => v
     seen(card); // opening a card IS looking at it, whatever import does next
     try {
       const text = await window.desktopSessions!.read(card.rootKey, card.rel);
-      const { anyRunnerSessionConversation } = await import('../lib/adapters');
-      const conv = await anyRunnerSessionConversation(text);
-      if (!conv) throw new Error(ti('handoff.notASession'));
-      const { importChatConversations } = await import('../lib/export');
-      await importChatConversations([conv]);
+      const { importOrAppendSession } = await import('../lib/atlas/canonical');
+      const result = await importOrAppendSession(text);
+      if (!result) throw new Error(ti('handoff.notASession'));
+      if (result.kind === 'appended') toast('success', fmt(ti('atlas.appended'), { n: result.turns }), 9000);
+      else if (result.kind === 'opened') toast('info', ti('atlas.upToDate'), 6000);
+      else toast('success', fmt(ti('toast.importedChats'), { n: 1, m: result.nodeCount }), 9000);
       onClose();
       onSwitched();
     } catch (err) {
@@ -166,8 +202,14 @@ export default function SessionAtlas({ onClose, onSwitched }: { onClose: () => v
   };
 
   const openInCli = async (card: SessionCard) => {
-    const r = await window.desktopSessions!.openInCli(card.runner, card.cwd, card.sessionId).catch(() => ({ opened: false, command: '' }));
-    if (r.opened) toast('success', ti('atlas.opened'));
+    const r = await window.desktopSessions!.openInCli(card.runner, card.cwd, card.sessionId)
+      .catch(() => ({ opened: false, via: '' as const, command: '' }));
+    if (r.opened && r.via === 'app') {
+      // no documented deep link to a specific session yet — hand the user
+      // the id so the app's own search can land on it
+      await navigator.clipboard.writeText(card.sessionId).catch(() => {});
+      toast('success', ti('atlas.appOpened'), 9000);
+    } else if (r.opened) toast('success', ti('atlas.opened'));
     else if (r.command) {
       await navigator.clipboard.writeText(r.command).catch(() => {});
       toast('info', ti('atlas.cmdCopied'), 9000);
@@ -351,6 +393,9 @@ export default function SessionAtlas({ onClose, onSwitched }: { onClose: () => v
                             <span className="text-2xs text-accent border border-accent/40 rounded px-1 py-px shrink-0" data-atlas-badge="updated">
                               +{sizeLabel(changes.get(changeKeyOf(card))!.deltaSize)}
                             </span>
+                          )}
+                          {projects.some((p) => p.sourceSession?.sessionId === card.sessionId) && (
+                            <span className="text-2xs text-ink-faint border border-line rounded px-1 py-px shrink-0" data-atlas-badge="canvas">{t('atlas.onCanvas')}</span>
                           )}
                         </div>
                         <div className="text-2xs text-ink-faint mt-0.5 flex items-center gap-2">

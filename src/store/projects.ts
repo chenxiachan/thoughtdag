@@ -26,6 +26,21 @@ export interface ProjectMeta {
   kind?: 'chat' | 'paradigm';
   /** Provenance: which paradigm this run canvas was instantiated from. */
   instantiatedFrom?: { name: string; at: string };
+  /** The CANONICAL-canvas contract: this canvas mirrors one runner
+      session. Re-importing that session opens THIS canvas and appends
+      only the turns past importedCount — the user's edits, branches, and
+      condensations accumulate here and are never orphaned into a fresh
+      snapshot. tailNodeId is where the next appendix attaches. */
+  sourceSession?: { sessionId: string; runner: string; importedCount: number; tailNodeId: string };
+}
+
+/** Update the canonical-canvas ledger after an appendix lands. */
+export async function updateSourceSession(projectId: string, patch: Partial<NonNullable<ProjectMeta['sourceSession']>>): Promise<void> {
+  useProjects.setState((s) => ({
+    projects: s.projects.map((p) => (p.id === projectId && p.sourceSession
+      ? { ...p, sourceSession: { ...p.sourceSession, ...patch } } : p)),
+  }));
+  await saveMeta();
 }
 
 /** Stamp paradigm provenance on a project (persisted with the meta list). */
@@ -156,7 +171,7 @@ export async function adoptImportedProject(
   id: string,
   name: string,
   kind: 'chat' | 'paradigm' = 'chat',
-  extras?: Partial<Pick<ProjectMeta, 'instantiatedFrom'>>,
+  extras?: Partial<Pick<ProjectMeta, 'instantiatedFrom' | 'sourceSession'>>,
 ): Promise<void> {
   const now = Date.now();
   useProjects.setState((s) => ({

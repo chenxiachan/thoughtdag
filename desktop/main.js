@@ -107,8 +107,45 @@ function resolveInRoot(rootKey, rel) {
   return abs;
 }
 
+// How "open in CLI" leaves the shell. Terminals are probed, never assumed;
+// a runner can prefer its host APP (scheme launch) over a terminal. All of
+// it macOS-first — other platforms fall back to the clipboard road.
+const TERMINALS = [
+  { id: 'terminal', name: 'Terminal', app: '/System/Applications/Utilities/Terminal.app', mode: 'command-file' },
+  { id: 'iterm', name: 'iTerm2', app: '/Applications/iTerm.app', mode: 'command-file' },
+  { id: 'ghostty', name: 'Ghostty', app: '/Applications/Ghostty.app', mode: 'exec-args' },
+];
+const APP_TARGETS = {
+  codex: { app: '/Applications/ChatGPT.app', scheme: 'codex://', name: 'ChatGPT (Codex)' },
+  'claude-code': { app: '/Applications/Claude.app', scheme: 'claude://', name: 'Claude' },
+};
+let atlasPrefs = { terminal: 'terminal', openApp: {} };
+const prefsFile = () => path.join(app.getPath('userData'), 'atlas-prefs.json');
+const dirExists = (p) => fsp.stat(p).then((s) => s.isDirectory()).catch(() => false);
+
 function setupSessionAtlas() {
   void loadCustomRoots();
+  void fsp.readFile(prefsFile(), 'utf8').then((s) => {
+    const p = JSON.parse(s);
+    atlasPrefs = { terminal: typeof p.terminal === 'string' ? p.terminal : 'terminal', openApp: p.openApp && typeof p.openApp === 'object' ? p.openApp : {} };
+  }).catch(() => {});
+
+  ipcMain.handle('sessions:open-targets', async () => ({
+    terminals: (await Promise.all(TERMINALS.map(async (t) => (await dirExists(t.app)) ? { id: t.id, name: t.name } : null))).filter(Boolean),
+    apps: (await Promise.all(Object.entries(APP_TARGETS).map(async ([runner, a]) => (await dirExists(a.app)) ? { runner, name: a.name } : null))).filter(Boolean),
+    prefs: atlasPrefs,
+  }));
+
+  ipcMain.handle('sessions:set-open-prefs', async (_e, p) => {
+    if (p && typeof p === 'object') {
+      if (typeof p.terminal === 'string' && TERMINALS.some((t) => t.id === p.terminal)) atlasPrefs.terminal = p.terminal;
+      if (p.openApp && typeof p.openApp === 'object') {
+        atlasPrefs.openApp = Object.fromEntries(Object.entries(p.openApp).filter(([k, v]) => k in APP_TARGETS && typeof v === 'boolean'));
+      }
+      await fsp.writeFile(prefsFile(), JSON.stringify(atlasPrefs, null, 2)).catch(() => {});
+    }
+    return atlasPrefs;
+  });
 
   ipcMain.handle('sessions:roots', async () => {
     const out = [];
@@ -186,20 +223,46 @@ function setupSessionAtlas() {
   };
   ipcMain.handle('sessions:open-in-cli', async (_e, runner, cwd, sessionId) => {
     const build = RESUME[runner];
-    if (!build || !/^[\w.-]{4,}$/.test(String(sessionId))) return { opened: false, command: '' };
-    const cwdOk = typeof cwd === 'string' && path.isAbsolute(cwd)
-      && await fsp.stat(cwd).then((s) => s.isDirectory()).catch(() => false);
+    if (!build || !/^[\w.-]{4,}$/.test(String(sessionId))) return { opened: false, via: '', command: '' };
+    const cwdOk = typeof cwd === 'string' && path.isAbsolute(cwd) && await dirExists(cwd);
     const command = build(cwdOk ? cwd : os.homedir(), sessionId);
-    if (process.platform === 'darwin') {
-      // .command file: the user's default terminal executes it in their own
-      // login shell — right PATH (GUI apps carry a bare one), zero
-      // automation permissions. Self-deletes after launching the runner.
-      const file = path.join(os.tmpdir(), `thoughtdag-resume-${Date.now()}.command`);
-      await fsp.writeFile(file, `#!/bin/zsh\nrm -- ${shq(file)}\n${command}\n`, { mode: 0o755 });
-      const err = await shell.openPath(file);
-      if (!err) return { opened: true, command };
+
+    // preferred road: wake the runner's host APP (scheme launch)
+    const appTarget = APP_TARGETS[runner];
+    if (atlasPrefs.openApp[runner] && appTarget && await dirExists(appTarget.app)) {
+      try {
+        await shell.openExternal(appTarget.scheme);
+        return { opened: true, via: 'app', command };
+      } catch { /* fall through to the terminal road */ }
     }
-    return { opened: false, command }; // caller falls back to the clipboard
+
+    if (process.platform === 'darwin') {
+      const term = (await dirExists((TERMINALS.find((t) => t.id === atlasPrefs.terminal) ?? TERMINALS[0]).app))
+        ? (TERMINALS.find((t) => t.id === atlasPrefs.terminal) ?? TERMINALS[0])
+        : TERMINALS[0];
+      const { spawn } = require('child_process');
+      const opened = await new Promise((resolve) => {
+        let child;
+        if (term.mode === 'exec-args') {
+          // Ghostty-style: -e runs the command inside the emulator; zsh -lc
+          // gives it the user's login PATH
+          child = spawn('open', ['-na', term.app, '--args', '-e', 'zsh', '-lc', command], { stdio: 'ignore' });
+        } else {
+          // .command file: the terminal executes it in the user's own login
+          // shell — right PATH (GUI apps carry a bare one), zero automation
+          // permissions. Self-deletes after launching the runner.
+          const file = path.join(os.tmpdir(), `thoughtdag-resume-${Date.now()}.command`);
+          try {
+            require('fs').writeFileSync(file, `#!/bin/zsh\nrm -- ${shq(file)}\n${command}\n`, { mode: 0o755 });
+          } catch { resolve(false); return; }
+          child = spawn('open', ['-a', term.app, file], { stdio: 'ignore' });
+        }
+        child.on('exit', (code) => resolve(code === 0));
+        child.on('error', () => resolve(false));
+      });
+      if (opened) return { opened: true, via: 'terminal', command };
+    }
+    return { opened: false, via: '', command }; // caller falls back to the clipboard
   });
 }
 

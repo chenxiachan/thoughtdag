@@ -250,6 +250,7 @@ export function claudeCodeSessionConversation(text: string): ImportableConversat
     title: session.title,
     messageCount: turnCount,
     source: 'claude-code',
+    sessionId: session.sessionId,
     build: () => buildGraph(session),
   };
 }
