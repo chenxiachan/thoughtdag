@@ -154,6 +154,12 @@ Connect a local Ollama or any OpenAI-compatible endpoint. Built-in presets, subs
 - **PDFs never leave your machine**; only extracted text travels when you ask
 - **The backup format stays backward compatible**; Markdown export is the permanent escape hatch
 
+## Contributors
+
+<a href="https://github.com/KehanLiu" title="@KehanLiu"><img src="https://github.com/KehanLiu.png?size=80" width="40" height="40" alt="@KehanLiu" /></a>
+
+Contributions are welcome — start with [CONTRIBUTING.md](./CONTRIBUTING.md).
+
 ## Supporters
 
 With gratitude to **@andreilaiter**, ThoughtDAG's first supporter, and to everyone helping this independent open-source project grow.

@@ -152,6 +152,12 @@ npm run dev       # → localhost:5173
 - **PDF 不离机**，只有提取文本随提问发出
 - **备份格式向后兼容**；Markdown 导出是永久逃生门
 
+## 贡献者
+
+<a href="https://github.com/KehanLiu" title="@KehanLiu"><img src="https://github.com/KehanLiu.png?size=80" width="40" height="40" alt="@KehanLiu" /></a>
+
+欢迎参与贡献，从 [CONTRIBUTING_ZH.md](./CONTRIBUTING_ZH.md) 开始。
+
 ## 支持者
 
 感谢首位支持者 **@andreilaiter**，也感谢每一位帮助这个独立开源项目继续成长的人。
