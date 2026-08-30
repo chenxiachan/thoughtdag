@@ -112,6 +112,31 @@ export async function registerLedgerEntry(
   await saveMeta();
 }
 
+/** Deletion IS unsubscription: drop whichever ledger entry (main /
+ *  chapter / branch) holds this session. The main entry degrades to an
+ *  empty container while chapters or branches remain; when the last
+ *  entry goes, sourceSession goes with it and the canvas is native
+ *  again. Reopening the session from the atlas resubscribes. */
+export async function removeLedgerEntry(projectId: string, sessionId: string): Promise<void> {
+  useProjects.setState((s) => ({
+    projects: s.projects.map((p) => {
+      if (p.id !== projectId || !p.sourceSession) return p;
+      const ss = p.sourceSession;
+      const chapters = (ss.chapters ?? []).filter((c) => c.sessionId !== sessionId);
+      const branches = (ss.branches ?? []).filter((b) => b.sessionId !== sessionId);
+      const next = { ...ss, chapters: chapters.length ? chapters : undefined, branches: branches.length ? branches : undefined };
+      if (next.sessionId === sessionId) {
+        next.sessionId = ''; next.runner = ''; next.importedCount = 0; next.tailNodeId = '';
+      }
+      if (!next.sessionId && chapters.length === 0 && branches.length === 0) {
+        return { ...p, sourceSession: undefined };
+      }
+      return { ...p, sourceSession: next };
+    }),
+  }));
+  await saveMeta();
+}
+
 /** Every session id a canvas subscribes to, across all ledger kinds. */
 export function subscribedSessionIds(meta: ProjectMeta): string[] {
   const ss = meta.sourceSession;

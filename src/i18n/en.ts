@@ -635,6 +635,7 @@ export const en = {
   'switcher.mirrorBadge': 'This canvas subscribes to a {runner} session — click to see it on the map',
   'switcher.mirrorBadgeGone': 'Source session not found on this machine — the mirror runs as an archive; listening resumes when the source appears',
   'toast.importAlreadySubscribed': 'Session already has canvas “{name}” — opened it for you (one session, one canvas)',
+  'toast.unsubscribed': 'Stopped listening to {n} conversation(s): no mirror nodes left on this canvas. Reopen it from the agent conversation atlas to resubscribe.',
   'panel.revertToSource': 'Revert to source text',
   'panel.ctxOrder': 'Merge order (first → last)',
   'panel.ctxOrderUp': 'Move block earlier',

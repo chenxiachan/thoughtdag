@@ -34,6 +34,8 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
       edges: state.edges.filter((e) => !removeIds.has(e.source) && !removeIds.has(e.target)),
     }));
     get().pushHistory();
+    // deletion IS unsubscription — see canonical.unsubscribeOrphanedSessions
+    void import('../../lib/atlas/canonical').then((m) => m.unsubscribeOrphanedSessions());
   },
 
   deleteEdges: (edgeIds: string[]) => {
@@ -459,6 +461,8 @@ export const createNodeSlice: StateCreator<StoreState, [], [], NodeSlice> = (set
       selectedNodeIds: [],
     }));
     get().pushHistory();
+    // deletion IS unsubscription — see canonical.unsubscribeOrphanedSessions
+    void import('../../lib/atlas/canonical').then((m) => m.unsubscribeOrphanedSessions());
   },
 
   duplicateSelection: (nodeIds: string[]) => {

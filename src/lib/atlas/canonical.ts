@@ -3,10 +3,10 @@ import { makeNode } from '../import-chat';
 import { useStore, stripTransient } from '../../store';
 import {
   useProjects, switchProject, adoptImportedProject, projectStorageKey,
-  patchLedgerEntry, registerLedgerEntry, subscribedSessionIds, type ProjectMeta,
+  patchLedgerEntry, registerLedgerEntry, removeLedgerEntry, subscribedSessionIds, type ProjectMeta,
 } from '../../store/projects';
-import { useUiStore } from '../ui-store';
-import { t } from '../../i18n';
+import { useUiStore, toast } from '../ui-store';
+import { t, fmt } from '../../i18n';
 import { generateId } from '../../utils';
 import type { ThoughtNode, ThoughtEdge } from '../../types';
 
@@ -313,3 +313,25 @@ export async function canvasUniqueness(projectId: string): Promise<CanvasUniquen
 }
 
 export { subscribedSessionIds };
+
+/** Deletion IS unsubscription. After nodes are removed, any subscribed
+ *  session with no surviving mirror node on the ACTIVE canvas loses its
+ *  ledger entry: listening stops, nothing regrows from a canvas the
+ *  user just weeded. (Undo restores the nodes but not the entry — the
+ *  toast points at the atlas, where reopening resubscribes.) */
+export async function unsubscribeOrphanedSessions(): Promise<void> {
+  const { projects, activeId } = useProjects.getState();
+  const meta = projects.find((p) => p.id === activeId);
+  if (!meta?.sourceSession) return;
+  const subscribed = subscribedSessionIds(meta);
+  if (subscribed.length === 0) return;
+  const alive = new Set<string>();
+  for (const n of useStore.getState().nodes) {
+    const sid = n.data.importSource?.sessionId;
+    if (sid) alive.add(sid);
+  }
+  const orphaned = subscribed.filter((sid) => !alive.has(sid));
+  if (orphaned.length === 0) return;
+  for (const sid of orphaned) await removeLedgerEntry(meta.id, sid);
+  toast('info', fmt(t('toast.unsubscribed'), { n: orphaned.length }), 8000);
+}

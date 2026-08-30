@@ -634,6 +634,7 @@ export const zh: Record<keyof typeof en, string> = {
   'switcher.mirrorBadge': '此画布订阅 {runner} 会话的更新，点击在地图中查看',
   'switcher.mirrorBadgeGone': '源会话未在本机发现——镜像以档案模式运行，源出现后自动恢复监听',
   'toast.importAlreadySubscribed': '该会话已有画布「{name}」，已为你打开（一个会话一张画布）',
+  'toast.unsubscribed': '已停止监听 {n} 个对话：它在画布上的镜像已全部删除。要重新连接，在 Agent 对话地图里再次打开即可。',
   'panel.revertToSource': '还原为源文本',
   'panel.ctxOrder': '汇入顺序（先 → 后）',
   'panel.ctxOrderUp': '整块提前',
