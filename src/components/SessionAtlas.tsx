@@ -179,12 +179,18 @@ export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [scanning]);
 
+  // ONE identity per card — display, search and sort must agree: the
+  // REAL thread name when the store lends one, the parsed title
+  // otherwise. Search or sort on a different string than the one on
+  // screen reads as a broken atlas.
+  const displayTitle = (c: SessionCard): string => threadNames.get(c.sessionId) ?? c.title;
+
   // filters shape the whole atlas: folder counts follow them too
   const visible = useMemo(() => (cards ?? []).filter((c) =>
     !runnerOff.has(c.runner)
     && (showSubagents || !c.subagent)
     && (!onlyChanged || changes.has(changeKeyOf(c)))
-    && (!query.trim() || c.title.toLowerCase().includes(query.trim().toLowerCase()))), [cards, runnerOff, query, onlyChanged, changes, showSubagents]);
+    && (!query.trim() || displayTitle(c).toLowerCase().includes(query.trim().toLowerCase()))), [cards, runnerOff, query, onlyChanged, changes, showSubagents, threadNames]);
   const groups = useMemo(() => groupByCwd(visible), [visible]);
   const runners = useMemo(() => [...new Set((cards ?? []).map((c) => c.runner))].sort(), [cards]);
   const rootCounts = useMemo(() => {
@@ -193,7 +199,13 @@ export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { 
     return m;
   }, [cards]);
   const activeGroup: AtlasGroup | null = selected === 'canvases' ? null : groups.find((g) => (g.cwd ?? '') === (selected ?? groups[0]?.cwd ?? '')) ?? groups[0] ?? null;
-  const shownCards = useMemo(() => activeGroup ? [...activeGroup.cards].sort(SORTERS[sortKey]) : [], [activeGroup, sortKey]);
+  const shownCards = useMemo(() => {
+    if (!activeGroup) return [];
+    const sorter = sortKey === 'name'
+      ? (a: SessionCard, b: SessionCard) => displayTitle(a).localeCompare(displayTitle(b))
+      : SORTERS[sortKey];
+    return [...activeGroup.cards].sort(sorter);
+  }, [activeGroup, sortKey, threadNames]);
 
   const seen = (card: SessionCard) => {
     markSeen(card);
@@ -571,7 +583,7 @@ export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { 
                     >
                       <div className="flex-1 min-w-0">
                         <div className="text-sm text-ink truncate flex items-center gap-1.5">
-                          <span className="truncate">{threadNames.get(card.sessionId) ?? card.title}</span>
+                          <span className="truncate">{displayTitle(card)}</span>
                           {threadForks.has(card.sessionId) && (
                             <span className="text-2xs text-ink-faint border border-line rounded px-1 py-px shrink-0 font-mono" title={`⑂ ${threadForks.get(card.sessionId)}`} data-atlas-fork>⑂</span>
                           )}
