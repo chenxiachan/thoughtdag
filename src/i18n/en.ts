@@ -642,6 +642,7 @@ export const en = {
   'sensitive.more': '…and {n} more',
   'sensitive.hint': 'Continuing lets this content leave your machine. Consider deleting or editing those nodes first.',
   'sensitive.proceed': 'Proceed anyway',
+  'handoff.deeplinkMiss': 'Could not find this session in the connected folders. Check the folder list under the map\'s connect button.',
   'atlas.mergedName': 'Collection · {title} +{n}',
   'atlas.mergeSelected': '{n} conversations picked',
   'atlas.mergeNew': 'Merge into a new canvas',

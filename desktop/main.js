@@ -499,8 +499,34 @@ const lock = app.requestSingleInstanceLock();
 if (!lock) {
   app.quit();
 } else {
-  app.on('second-instance', () => {
+  // Deep link: thoughtdag://open?session=<id> — the /thoughtdag
+  // command's front door. The packaged app registers via the builder
+  // protocols block; dev shells register the electron binary so the
+  // loop is testable before release. macOS delivers via open-url;
+  // win/linux via argv (cold start) or second-instance (running).
+  if (process.defaultApp && process.argv.length >= 2) {
+    app.setAsDefaultProtocolClient('thoughtdag', process.execPath, [path.resolve(process.argv[1])]);
+  } else {
+    app.setAsDefaultProtocolClient('thoughtdag');
+  }
+  let pendingDeepLink = process.argv.find((a) => typeof a === 'string' && a.startsWith('thoughtdag://')) ?? null;
+  const deliverDeepLink = (url) => {
+    if (typeof url !== 'string' || !url.startsWith('thoughtdag://')) return;
+    if (win && !win.isDestroyed()) {
+      win.webContents.send('sessions:deeplink', url);
+      if (win.isMinimized()) win.restore();
+      win.show();
+      win.focus();
+    } else {
+      pendingDeepLink = url; // the renderer pulls it once it is ready
+    }
+  };
+  app.on('open-url', (e, url) => { e.preventDefault(); deliverDeepLink(url); });
+  ipcMain.handle('sessions:pending-deeplink', () => { const l = pendingDeepLink; pendingDeepLink = null; return l; });
+  app.on('second-instance', (_e, argv) => {
     if (win) { if (win.isMinimized()) win.restore(); win.focus(); }
+    const link = argv.find((a) => typeof a === 'string' && a.startsWith('thoughtdag://'));
+    if (link) deliverDeepLink(link);
   });
   app.whenReady().then(() => {
     void boot();

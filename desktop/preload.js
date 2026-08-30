@@ -28,4 +28,6 @@ contextBridge.exposeInMainWorld('desktopSessions', {
   addTerminal: () => ipcRenderer.invoke('sessions:add-terminal'),
   watchStart: () => ipcRenderer.invoke('sessions:watch-start'),
   onSessionsChanged: (cb) => { ipcRenderer.on('sessions:changed', (_e, data) => cb(data)); },
+  onDeepLink: (cb) => { ipcRenderer.on('sessions:deeplink', (_e, url) => cb(url)); },
+  pendingDeepLink: () => ipcRenderer.invoke('sessions:pending-deeplink'),
 });

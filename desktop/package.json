@@ -18,6 +18,9 @@
   "build": {
     "appId": "io.github.chenxiachan.thoughtdag",
     "productName": "ThoughtDAG",
+    "protocols": [
+      { "name": "ThoughtDAG", "schemes": ["thoughtdag"] }
+    ],
     "icon": "build/icon.png",
     "directories": {
       "output": "out"

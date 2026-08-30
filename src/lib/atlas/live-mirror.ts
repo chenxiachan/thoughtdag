@@ -98,6 +98,50 @@ export function startLiveMirror(): void {
 
   bridge.onSessionsChanged((ev) => { void handle(ev); });
 
+  // thoughtdag://open?session=<id> — the /thoughtdag command's front
+  // door. Locate the file (filename fast path: cc files are named by
+  // sessionId, codex rollouts embed it; head-scan fallback), then hand
+  // it to the canonical router: resubscribe, adopt, mount or mint.
+  const openDeepLink = async (url: string): Promise<void> => {
+    let sid = '';
+    try { sid = new URL(url).searchParams.get('session') ?? ''; } catch { return; }
+    if (!/^[A-Za-z0-9_-]{8,}$/.test(sid)) return;
+    const roots = await bridge.roots().catch(() => []);
+    let target: { rootKey: string; rel: string } | null = null;
+    for (const r of roots) {
+      const ls = await bridge.list(r.key).catch(() => []);
+      const byName = ls.find((f) => f.rel.includes(sid));
+      if (byName) { target = { rootKey: r.key, rel: byName.rel }; break; }
+    }
+    if (!target) {
+      const files: { rootKey: string; rel: string; mtime: number }[] = [];
+      for (const r of roots) {
+        for (const f of await bridge.list(r.key).catch(() => [])) files.push({ rootKey: r.key, rel: f.rel, mtime: f.mtime });
+      }
+      files.sort((a, b) => b.mtime - a.mtime);
+      for (const f of files.slice(0, 40)) {
+        const head = await bridge.head(f.rootKey, f.rel, 262144).catch(() => '');
+        if (head && sessionIdFromHead(head) === sid) { target = f; break; }
+      }
+    }
+    if (!target) { toast('error', t('handoff.deeplinkMiss')); return; }
+    const { streamRunnerConversation } = await import('../adapters');
+    const { importOrAppendConversation, shellSessionReader } = await import('./canonical');
+    const conv = await streamRunnerConversation(shellSessionReader(target.rootKey, target.rel)).catch(() => null);
+    const result = await importOrAppendConversation(conv);
+    if (!result) toast('error', t('handoff.notASession'));
+    else if (result.kind === 'appended') toast('success', fmt(t('atlas.liveAppended'), { n: result.turns }), 8000);
+    else if (result.kind === 'mounted') toast('success', fmt(t(result.mode === 'continue' ? 'atlas.mountedChapter' : 'atlas.mountedBranch'), { n: result.turns }), 9000);
+    else if (result.kind === 'imported') toast('success', fmt(t('toast.importedChats'), { n: 1, m: result.nodeCount }), 8000);
+  };
+  bridge.onDeepLink?.((url) => { void openDeepLink(url); });
+  void (async () => {
+    const { bootProjects } = await import('../../store/projects');
+    await bootProjects();
+    const url = await bridge.pendingDeepLink?.().catch(() => null);
+    if (url) void openDeepLink(url);
+  })();
+
   // Catch-up: the offline gap. Files that changed while the app was
   // closed fired no watch events — sweep them through the same
   // idempotent pipeline once the store is hydrated. Its own watermark

@@ -44,6 +44,9 @@ interface DesktopSessionsBridge {
   setOpenPrefs: (prefs: { terminal: string }) => Promise<{ terminal: string }>;
   /** Native app picker (macOS) — a user-chosen terminal app joins the registry. */
   addTerminal: () => Promise<{ id: string; name: string } | null>;
+  /** thoughtdag:// deep links: push while running, pull once at startup. */
+  onDeepLink?: (cb: (url: string) => void) => void;
+  pendingDeepLink?: () => Promise<string | null>;
   /** Start watching all live roots; events arrive via onSessionsChanged. */
   watchStart: () => Promise<boolean>;
   onSessionsChanged: (cb: (e: { rootKey: string; rel: string }) => void) => void;

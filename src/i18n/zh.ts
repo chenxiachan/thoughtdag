@@ -641,6 +641,7 @@ export const zh: Record<keyof typeof en, string> = {
   'sensitive.more': '…及另外 {n} 处',
   'sensitive.hint': '继续操作会让这些内容离开本机。建议先删除或编辑相关节点。',
   'sensitive.proceed': '仍要继续',
+  'handoff.deeplinkMiss': '没有在已接入的目录里找到这个会话。检查会话地图右上角「接入」的目录列表。',
   'atlas.mergedName': '合集 · {title} 等 {n} 个对话',
   'atlas.mergeSelected': '已选 {n} 个对话',
   'atlas.mergeNew': '合并为新画布',
