@@ -1,7 +1,7 @@
 {
   "name": "thoughtdag-desktop",
   "private": true,
-  "version": "0.3.33",
+  "version": "0.4.1",
   "description": "Desktop shell for ThoughtDAG — same app, same server, one window",
   "main": "main.js",
   "scripts": {
