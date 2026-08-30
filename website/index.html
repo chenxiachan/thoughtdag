@@ -1183,6 +1183,26 @@
         line-height: 1.35;
       }
 
+      /* Step two under the download grid: one light pointer, no shell
+         commands on the landing page (install anxiety is real). */
+      .connect-step {
+        max-width: 560px;
+        margin: -28px auto 72px;
+        text-align: center;
+        padding: 0 24px;
+      }
+      .connect-eyebrow {
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        font-weight: 650;
+        color: #8b7fd4;
+        margin: 0 0 8px;
+      }
+      .connect-step h3 { font-size: 20px; margin: 0 0 10px; }
+      .connect-step p { font-size: 14.5px; line-height: 1.75; color: #6f6a7c; margin: 0 0 12px; }
+      .connect-step a { font-size: 14px; font-weight: 600; color: #6b5ce7; text-decoration: none; }
+      .connect-step a:hover { text-decoration: underline; }
+
       /* 0.4 Session Atlas: a product chapter distinct from the research evidence below. */
       .session-teaser {
         position: relative;
@@ -2430,6 +2450,19 @@
         <span data-en="All versions and history live on " data-zh="全部版本与历史在 ">All versions and history live on </span><a href="https://github.com/chenxiachan/thoughtdag/releases">GitHub Releases</a><span data-en="." data-zh="。">.</span>
       </p>
     
+    </section>
+
+    <section class="connect-step" aria-label="Connect your agents">
+      <p class="connect-eyebrow" data-en="STEP TWO · OPTIONAL" data-zh="第二步 · 可选">STEP TWO · OPTIONAL</p>
+      <h3 data-en="Connect your agents" data-zh="连接你的 Agent">Connect your agents</h3>
+      <p
+        data-en="Install one local command to send the current session into ThoughtDAG from inside Codex or Claude Code. It reads local sessions only, opens the desktop app, and never modifies or uploads a conversation. Without it, Session Atlas still discovers every local session on its own."
+        data-zh="安装一个本地命令，即可在 Codex 或 Claude Code 内把当前会话直接带进 ThoughtDAG。它只读取本机会话并打开桌面应用，不修改源文件，也不上传任何内容。不安装也没关系：Agent 对话地图本来就能自动发现本机全部会话。"
+      >Install one local command to send the current session into ThoughtDAG from inside Codex or Claude Code. It reads local sessions only, opens the desktop app, and never modifies or uploads a conversation. Without it, Session Atlas still discovers every local session on its own.</p>
+      <a href="https://github.com/chenxiachan/thoughtdag/blob/main/docs/setup.md#connect-your-agent"
+        data-en="Enable it in Session Atlas → Sources · manual install guide"
+        data-zh="在 Agent 对话地图 → 接入 里一键启用 · 手动安装指南"
+      >Enable it in Session Atlas → Sources · manual install guide</a>
     </section>
 
     <footer class="finale">

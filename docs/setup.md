@@ -92,3 +92,23 @@ Browser (localhost:5173)
 ```
 
 </details>
+
+## Connect your agent
+
+Session Atlas discovers local Claude Code and Codex sessions with **no setup at all**. The optional local command adds one thing: sending the current session into ThoughtDAG from inside the agent — and it doubles as the recovery door when an automatic mount ever misses.
+
+**Desktop app: Session Atlas → Sources → Enable** installs it with one click. The manual way, for setups without the desktop app:
+
+**Claude Code** (`/thoughtdag`):
+
+```bash
+mkdir -p ~/.claude/commands && curl -fsSL https://raw.githubusercontent.com/chenxiachan/thoughtdag/main/protocol/adapters/claude-code/thoughtdag.md -o ~/.claude/commands/thoughtdag.md
+```
+
+**Codex** (`$thoughtdag`):
+
+```bash
+mkdir -p ~/.codex/skills/thoughtdag && curl -fsSL https://raw.githubusercontent.com/chenxiachan/thoughtdag/main/protocol/adapters/codex/skills/thoughtdag/SKILL.md -o ~/.codex/skills/thoughtdag/SKILL.md
+```
+
+Both files are plain instructions you can read before installing. They locate the current session file, open it in the ThoughtDAG desktop app (falling back to a two-minute loopback bridge for the web app), and never write to the source conversation. Remove the file to uninstall.

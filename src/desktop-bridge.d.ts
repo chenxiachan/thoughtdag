@@ -44,6 +44,12 @@ interface DesktopSessionsBridge {
   setOpenPrefs: (prefs: { terminal: string }) => Promise<{ terminal: string }>;
   /** Native app picker (macOS) — a user-chosen terminal app joins the registry. */
   addTerminal: () => Promise<{ id: string; name: string } | null>;
+  /** One-command handoff installer: ships /thoughtdag ($thoughtdag)
+      into the agent's own commands directory, with content-compare
+      status and clean removal. */
+  commandsStatus?: () => Promise<Record<string, { state: 'installed' | 'outdated' | 'absent' | 'unavailable'; dest: string; invoke: string }>>;
+  commandsInstall?: (runner: string) => Promise<{ ok: boolean; dest?: string; error?: string }>;
+  commandsRemove?: (runner: string) => Promise<{ ok: boolean; error?: string }>;
   /** Codex app-server read path (Tier 2): real thread names, fork
       lineage, full turns. null whenever the codex CLI is absent. */
   codexThreads?: () => Promise<{

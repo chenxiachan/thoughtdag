@@ -54,6 +54,10 @@ for (const name of SERVER_DEPS) {
 rmSync(payload, { recursive: true, force: true });
 mkdirSync(payload, { recursive: true });
 cpSync(path.join(root, 'server.mjs'), path.join(payload, 'server.mjs'));
+// the one-command handoff files the app can install into agents
+mkdirSync(path.join(payload, 'commands'), { recursive: true });
+cpSync(path.join(root, 'protocol', 'adapters', 'claude-code', 'thoughtdag.md'), path.join(payload, 'commands', 'claude-code-thoughtdag.md'));
+cpSync(path.join(root, 'protocol', 'adapters', 'codex', 'skills', 'thoughtdag', 'SKILL.md'), path.join(payload, 'commands', 'codex-thoughtdag-SKILL.md'));
 cpSync(path.join(root, 'dist'), path.join(payload, 'dist'), { recursive: true });
 writeFileSync(
   path.join(payload, 'package.json'),

@@ -92,3 +92,23 @@ npm run dev            # → http://localhost:5173
 ```
 
 </details>
+
+## 连接你的 Agent
+
+Agent 对话地图**无需任何配置**即可发现本机的 Claude Code 与 Codex 会话。可选的本地命令只增加一件事：在 Agent 内部把当前会话直接送进 ThoughtDAG；它同时是自动挂回偶尔失手时的恢复入口。
+
+**桌面版：Agent 对话地图 → 接入 → 启用**，一键完成。以下是手动方式（未装桌面版时用）：
+
+**Claude Code**（`/thoughtdag`）：
+
+```bash
+mkdir -p ~/.claude/commands && curl -fsSL https://raw.githubusercontent.com/chenxiachan/thoughtdag/main/protocol/adapters/claude-code/thoughtdag.md -o ~/.claude/commands/thoughtdag.md
+```
+
+**Codex**（`$thoughtdag`）：
+
+```bash
+mkdir -p ~/.codex/skills/thoughtdag && curl -fsSL https://raw.githubusercontent.com/chenxiachan/thoughtdag/main/protocol/adapters/codex/skills/thoughtdag/SKILL.md -o ~/.codex/skills/thoughtdag/SKILL.md
+```
+
+两个文件都是可读的纯文本指令，安装前可以先看内容。它们只定位当前会话文件并在 ThoughtDAG 桌面版打开（未装桌面版时回退到两分钟自毁的本机桥送去 web 版），绝不写入源对话。删除文件即卸载。

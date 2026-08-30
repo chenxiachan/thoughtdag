@@ -495,6 +495,65 @@ function setupAutoUpdate() {
   });
 }
 
+// ─── One-command handoff installer ───────────────────────────────
+// The /thoughtdag (Claude Code) and $thoughtdag (Codex) commands are
+// shipped INSIDE the app (payload/commands in a packaged build, the
+// protocol/ tree in dev). Install copies one readable text file into
+// the agent's own commands directory — the only two paths this door
+// can ever write — after the renderer has shown the user exactly
+// where. Content comparison drives the status: never a silent
+// overwrite, removal is just deleting the file.
+const fsSync = require('fs');
+const COMMAND_ASSETS = {
+  'claude-code': {
+    srcs: [path.join(ROOT, 'commands', 'claude-code-thoughtdag.md'), path.join(ROOT, 'protocol', 'adapters', 'claude-code', 'thoughtdag.md')],
+    dest: path.join(os.homedir(), '.claude', 'commands', 'thoughtdag.md'),
+    invoke: '/thoughtdag',
+  },
+  codex: {
+    srcs: [path.join(ROOT, 'commands', 'codex-thoughtdag-SKILL.md'), path.join(ROOT, 'protocol', 'adapters', 'codex', 'skills', 'thoughtdag', 'SKILL.md')],
+    dest: path.join(os.homedir(), '.codex', 'skills', 'thoughtdag', 'SKILL.md'),
+    invoke: '$thoughtdag',
+  },
+};
+const commandSource = (asset) => {
+  for (const p2 of asset.srcs) {
+    try { return fsSync.readFileSync(p2, 'utf8'); } catch { /* next */ }
+  }
+  return null;
+};
+ipcMain.handle('commands:status', () => {
+  const out = {};
+  for (const [runner, asset] of Object.entries(COMMAND_ASSETS)) {
+    const src = commandSource(asset);
+    let state = 'unavailable';
+    if (src) {
+      try {
+        const cur = fsSync.readFileSync(asset.dest, 'utf8');
+        state = cur === src ? 'installed' : 'outdated';
+      } catch { state = 'absent'; }
+    }
+    out[runner] = { state, dest: asset.dest, invoke: asset.invoke };
+  }
+  return out;
+});
+ipcMain.handle('commands:install', (_e, runner) => {
+  const asset = COMMAND_ASSETS[runner];
+  if (!asset) return { ok: false };
+  const src = commandSource(asset);
+  if (!src) return { ok: false };
+  try {
+    fsSync.mkdirSync(path.dirname(asset.dest), { recursive: true });
+    fsSync.writeFileSync(asset.dest, src, 'utf8');
+    return { ok: true, dest: asset.dest };
+  } catch (e) { return { ok: false, error: String(e) }; }
+});
+ipcMain.handle('commands:remove', (_e, runner) => {
+  const asset = COMMAND_ASSETS[runner];
+  if (!asset) return { ok: false };
+  try { fsSync.unlinkSync(asset.dest); return { ok: true }; } catch (e) { return { ok: false, error: String(e) }; }
+});
+
 // ─── Codex app-server (Tier 2, READ path) ────────────────────────
 // Lazy singleton over `codex app-server` (JSON-RPC over stdio): the
 // thread store's front door — real names, fork lineage, paged turns.

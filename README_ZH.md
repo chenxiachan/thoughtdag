@@ -115,6 +115,10 @@ brew install --cask thoughtdag
 
 也可以前往[下载页](https://chenxiachan.github.io/thoughtdag/?lang=zh#download)，页面会自动识别系统并给出对应安装包；全部构建可在 [Releases](https://github.com/chenxiachan/thoughtdag/releases/latest) 找到。macOS 版已签名与公证；Windows 版暂未签名，可能出现 SmartScreen 提示。
 
+### 连接 Codex 或 Claude Code · 可选
+
+Agent 对话地图无需任何配置即可发现并打开本机会话；画布打开后会持续跟随对话自动生长。如果还想直接在 Agent 内把当前会话带进来（Claude Code 里输 `/thoughtdag`，Codex 里输 `$thoughtdag`），在 **Agent 对话地图 → 接入** 里一键启用即可：应用会安装一个可读的本地命令文件，绝不改动源对话，随时可移除。手动安装 → [安装指南](docs/setup_ZH.md#连接你的-agent)。
+
 ### 从源码运行
 
 ```bash

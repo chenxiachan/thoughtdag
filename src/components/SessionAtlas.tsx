@@ -37,6 +37,12 @@ function SourcesDialog({ roots, counts, onChanged, onClose }: {
   const t = useT();
   const off = disabledRoots();
   const builtinLabel: Record<string, string> = { 'claude-projects': 'Claude Code', 'codex-sessions': 'Codex' };
+  // one-command handoff: install /thoughtdag ($thoughtdag) into the
+  // agent's own commands directory, content-compare driving the state
+  const [cmds, setCmds] = useState<Record<string, { state: string; dest: string; invoke: string }> | null>(null);
+  const refreshCmds = () => { void window.desktopSessions?.commandsStatus?.().then(setCmds).catch(() => {}); };
+  useEffect(refreshCmds, []);
+  const runnerLabel: Record<string, string> = { 'claude-code': 'Claude Code', codex: 'Codex' };
   const row = (root: SessionRoot) => (
     <div key={root.key} className="flex items-center gap-3 px-4 py-2.5 border-b border-line last:border-b-0" data-atlas-source={root.key}>
       <input
@@ -71,6 +77,55 @@ function SourcesDialog({ roots, counts, onChanged, onClose }: {
           <div className="text-2xs text-ink-muted mt-0.5">{t('atlas.sourcesHint')}</div>
         </div>
         {roots.filter((r) => r.builtin).map(row)}
+        {cmds && Object.values(cmds).some((c) => c.state !== 'unavailable') && (
+          <>
+            <div className="px-4 pt-3 pb-1.5 text-2xs uppercase tracking-wide text-ink-faint">{t('atlas.handoffTitle')}</div>
+            {Object.entries(cmds).filter(([, c]) => c.state !== 'unavailable').map(([runner, c]) => (
+              <div key={runner} className="flex items-center gap-3 px-4 py-2.5 border-b border-line" data-atlas-handoff={runner} data-handoff-state={c.state}>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm text-ink flex items-center gap-2">
+                    {runnerLabel[runner] ?? runner}
+                    <code className="text-2xs bg-wash border border-line rounded px-1.5 py-px font-mono">{c.invoke}</code>
+                  </div>
+                  <div className="text-2xs text-ink-faint truncate">
+                    {t(c.state === 'installed' ? 'atlas.handoffOn' : c.state === 'outdated' ? 'atlas.handoffOutdated' : 'atlas.handoffOff')}
+                  </div>
+                </div>
+                {c.state !== 'installed' && (
+                  <button
+                    className="text-2xs bg-accent/10 text-accent hover:bg-accent/20 font-medium px-2.5 py-1 rounded-lg transition-colors shrink-0"
+                    data-handoff-install
+                    onClick={() => void (async () => {
+                      const { confirmDialog } = await import('../lib/ui-store');
+                      const ok = await confirmDialog({
+                        title: ti('atlas.handoffEnableTitle'),
+                        message: fmt(ti('confirm.installCommand'), { path: c.dest }),
+                        confirmLabel: ti(c.state === 'outdated' ? 'atlas.handoffUpdate' : 'atlas.handoffEnable'),
+                      });
+                      if (!ok) return;
+                      const r = await window.desktopSessions!.commandsInstall!(runner);
+                      if (r.ok) toast('success', fmt(ti('atlas.handoffInstalled'), { cmd: c.invoke }), 8000);
+                      else toast('error', r.error ?? 'install failed');
+                      refreshCmds();
+                    })()}
+                  >
+                    {t(c.state === 'outdated' ? 'atlas.handoffUpdate' : 'atlas.handoffEnable')}
+                  </button>
+                )}
+                {(c.state === 'installed' || c.state === 'outdated') && (
+                  <button
+                    className="text-ink-faint hover:text-red-500 p-1 rounded transition-colors shrink-0"
+                    title={t('atlas.handoffRemove')}
+                    data-handoff-remove
+                    onClick={() => void window.desktopSessions!.commandsRemove!(runner).then(refreshCmds)}
+                  >
+                    <Trash2 size={14} strokeWidth={1.75} />
+                  </button>
+                )}
+              </div>
+            ))}
+          </>
+        )}
         {['Pi', 'DeepSeek Harness'].map((name) => (
           <div key={name} className="flex items-center gap-3 px-4 py-2.5 border-b border-line opacity-50">
             <input type="checkbox" disabled className="shrink-0" />
