@@ -1783,6 +1783,10 @@ function Canvas() {
                     setMoreOpen(false);
                     void (async () => {
                       const { nodes: ns, edges: es } = useStore.getState();
+                      // exit gate: a mirrored canvas can carry CLI tool
+                      // output — keys, tokens — and a share link IS a copy
+                      const { confirmIfSensitive } = await import('./lib/sensitive-scan');
+                      if (!await confirmIfSensitive(ns)) return;
                       const url = await buildViewerLink(ns, es);
                       await navigator.clipboard.writeText(url).catch(() => {});
                       useUiStore.getState().setShareDialogUrl(url);

@@ -241,6 +241,10 @@ async function findProvenanceClaim(sessionId: string): Promise<{ projectId: stri
   const { projects, activeId } = useProjects.getState();
   const ordered = [...projects].sort((a, b) => (a.id === activeId ? -1 : b.id === activeId ? 1 : b.updatedAt - a.updatedAt));
   for (const p of ordered) {
+    // the meta fingerprint answers "not here" without parsing the
+    // stored graph; a legacy meta (no fingerprint) takes the slow path
+    // once and gets its fingerprint backfilled below
+    if (p.id !== activeId && p.provenanceSessions && !p.provenanceSessions.includes(sessionId)) continue;
     let nodes: ThoughtNode[];
     if (p.id === activeId) {
       nodes = useStore.getState().nodes;
@@ -251,6 +255,12 @@ async function findProvenanceClaim(sessionId: string): Promise<{ projectId: stri
         const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
         nodes = (parsed?.state?.nodes ?? []) as ThoughtNode[];
       } catch { continue; }
+    }
+    if (p.id !== activeId && !p.provenanceSessions) {
+      const sids = [...new Set(nodes.map((n) => n.data.importSource?.sessionId).filter((x): x is string => !!x))];
+      useProjects.setState((s) => ({
+        projects: s.projects.map((q) => (q.id === p.id ? { ...q, provenanceSessions: sids } : q)),
+      }));
     }
     const byFirstId = new Map<string, string>();
     for (const n of nodes) {

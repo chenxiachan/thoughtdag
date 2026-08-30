@@ -40,6 +40,11 @@ export function activeProjectName(): string {
 
 // ─── Whole-canvas JSON backup ───────────────────────────────────
 export async function exportActiveProjectJson(opts?: { sharedReadonly?: boolean }): Promise<void> {
+  const { nodes: gateNodes } = useStore.getState();
+  // exit gate — an exported file travels; local AUTO backups skip this
+  // (they never leave the machine and must never be interrupted)
+  const { confirmIfSensitive } = await import('./sensitive-scan');
+  if (!await confirmIfSensitive(gateNodes)) return;
   localStorage.setItem('thoughtdag.lastBackupAt', String(Date.now()));
   const { nodes: rawNodes, edges, events } = useStore.getState();
   // A backup file must be self-contained: pull vaulted payloads back inline

@@ -42,6 +42,12 @@ export interface ProjectMeta {
   /** Archived = hidden from the dropdown and Recent work, data untouched.
       Tidying and destroying are different verbs. */
   archived?: boolean;
+  /** DERIVED index: which sessions' provenance this canvas holds
+      (importSource sessionIds, deduped). Recomputed from the graph on
+      every debounced touch — never written by hand, so it cannot drift.
+      Lets provenance adoption skip canvases without parsing their
+      stored graphs. Absent on legacy metas → slow path fills it in. */
+  provenanceSessions?: string[];
 }
 
 /** Archive/restore a canvas. Archiving the ACTIVE canvas switches away
@@ -310,8 +316,13 @@ useStore.subscribe((state, prev) => {
   touchTimer = setTimeout(() => {
     const { activeId } = useProjects.getState();
     if (!activeId) return;
+    // the provenance fingerprint rides the same debounce: derived from
+    // the live graph each time, so it can never drift from the truth
+    const sids = [...new Set(useStore.getState().nodes
+      .map((n) => n.data.importSource?.sessionId)
+      .filter((x): x is string => !!x))];
     useProjects.setState((s) => ({
-      projects: s.projects.map((p) => (p.id === activeId ? { ...p, updatedAt: Date.now() } : p)),
+      projects: s.projects.map((p) => (p.id === activeId ? { ...p, updatedAt: Date.now(), provenanceSessions: sids } : p)),
     }));
     void saveMeta();
   }, 1000);

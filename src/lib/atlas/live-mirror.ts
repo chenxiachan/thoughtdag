@@ -99,21 +99,35 @@ export function startLiveMirror(): void {
   bridge.onSessionsChanged((ev) => { void handle(ev); });
 
   // Catch-up: the offline gap. Files that changed while the app was
-  // closed fired no watch events — sweep the freshest files through the
-  // same idempotent pipeline once the store is hydrated, so the active
-  // canvas's mirror settles on arrival instead of waiting for the next
-  // keystroke in the CLI.
+  // closed fired no watch events — sweep them through the same
+  // idempotent pipeline once the store is hydrated. Its own watermark
+  // (last processed mtime+size per file — NOT the atlas badge
+  // watermark, which records what the user has SEEN) keeps every run
+  // cheap: listing is stat-only, and only files that actually changed
+  // since the last sweep get their heads read. First run (no watermark
+  // yet) processes the freshest 30 as a baseline and marks the rest.
+  const MARK_KEY = 'thoughtdag.atlas.sweepmark';
   sweep = async () => {
     const { bootProjects } = await import('../../store/projects');
     await bootProjects();
     const roots = await bridge.roots().catch(() => []);
-    const files: { rootKey: string; rel: string; mtime: number }[] = [];
+    const files: { rootKey: string; rel: string; mtime: number; size: number }[] = [];
     for (const r of roots) {
       const ls = await bridge.list(r.key).catch(() => []);
-      for (const f of ls) files.push({ rootKey: r.key, rel: f.rel, mtime: f.mtime });
+      for (const f of ls) files.push({ rootKey: r.key, rel: f.rel, mtime: f.mtime, size: f.size });
     }
+    let mark: Record<string, string> = {};
+    try { mark = JSON.parse(localStorage.getItem(MARK_KEY) ?? '{}') as Record<string, string>; } catch { /* fresh */ }
+    const firstRun = Object.keys(mark).length === 0;
     files.sort((a, b) => b.mtime - a.mtime);
-    for (const f of files.slice(0, 30)) await handle({ rootKey: f.rootKey, rel: f.rel });
+    const todo = files.filter((f, i) => {
+      const stamp = `${f.mtime}|${f.size}`;
+      if (mark[`${f.rootKey}|${f.rel}`] === stamp) return false;
+      return firstRun ? i < 30 : true;
+    });
+    for (const f of todo) await handle({ rootKey: f.rootKey, rel: f.rel });
+    for (const f of files) mark[`${f.rootKey}|${f.rel}`] = `${f.mtime}|${f.size}`;
+    localStorage.setItem(MARK_KEY, JSON.stringify(mark));
   };
   void sweep();
 }
