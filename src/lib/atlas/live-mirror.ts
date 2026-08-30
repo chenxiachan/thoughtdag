@@ -21,6 +21,15 @@ function sessionIdFromHead(head: string): string | null {
 }
 
 let started = false;
+let sweep: (() => Promise<void>) | null = null;
+
+/** Sweep the freshest session files through the idempotent pipeline —
+ *  the offline/inactive gap closer. Called at startup and on every
+ *  canvas arrival (the live watcher only serves the ACTIVE canvas, so
+ *  a canvas you switch TO may have missed its sessions' growth). */
+export function sweepRecentSessions(): void {
+  void sweep?.();
+}
 
 export function startLiveMirror(): void {
   const bridge = window.desktopSessions;
@@ -55,13 +64,20 @@ export function startLiveMirror(): void {
         // through the same anchor-first canonical path).
         const anyRegistered = projects.some((p) => subscribedSessionIds(p).includes(sid));
         if (anyRegistered) return; // another canvas's session; not ours to touch
-        const { parseAnchor } = await import('../experiment-loop');
-        const anchor = parseAnchor(head);
-        if (!anchor || !projects.some((p) => p.id === anchor.project)) return;
-        anchorProject = anchor.project;
-        if (anchorProject !== activeId) {
-          toast('info', t('atlas.mountPending'), 9000);
-          return;
+        // the ACTIVE canvas may hold this session's mirror nodes without
+        // a ledger entry (a healed-away subscription): let the canonical
+        // router adopt it at the break point instead of ignoring it
+        const { useStore } = await import('../../store');
+        const activeHasProvenance = useStore.getState().nodes.some((n) => n.data.importSource?.sessionId === sid);
+        if (!activeHasProvenance) {
+          const { parseAnchor } = await import('../experiment-loop');
+          const anchor = parseAnchor(head);
+          if (!anchor || !projects.some((p) => p.id === anchor.project)) return;
+          anchorProject = anchor.project;
+          if (anchorProject !== activeId) {
+            toast('info', t('atlas.mountPending'), 9000);
+            return;
+          }
         }
       }
 
@@ -81,4 +97,23 @@ export function startLiveMirror(): void {
   };
 
   bridge.onSessionsChanged((ev) => { void handle(ev); });
+
+  // Catch-up: the offline gap. Files that changed while the app was
+  // closed fired no watch events — sweep the freshest files through the
+  // same idempotent pipeline once the store is hydrated, so the active
+  // canvas's mirror settles on arrival instead of waiting for the next
+  // keystroke in the CLI.
+  sweep = async () => {
+    const { bootProjects } = await import('../../store/projects');
+    await bootProjects();
+    const roots = await bridge.roots().catch(() => []);
+    const files: { rootKey: string; rel: string; mtime: number }[] = [];
+    for (const r of roots) {
+      const ls = await bridge.list(r.key).catch(() => []);
+      for (const f of ls) files.push({ rootKey: r.key, rel: f.rel, mtime: f.mtime });
+    }
+    files.sort((a, b) => b.mtime - a.mtime);
+    for (const f of files.slice(0, 30)) await handle({ rootKey: f.rootKey, rel: f.rel });
+  };
+  void sweep();
 }

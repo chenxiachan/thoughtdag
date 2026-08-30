@@ -110,6 +110,35 @@ export async function importOrAppendConversation(conv: import('../import-chat').
   const hit = findSubscription(conv.sessionId);
   if (hit) return appendPastLedger(conv, built, qa, tailQaId, hit);
 
+  // ── 1a. provenance adoption: a canvas that still HOLDS this
+  //       session's mirror nodes but lost its ledger entry (a healed
+  //       or legacy subscription) is the session's home. Re-register at
+  //       the exact break point — the LAST surviving mirrored turn — so
+  //       reopening continues there instead of splitting the mirror
+  //       across a second canvas. Turns pruned BEFORE the break point
+  //       stay pruned (importedCount covers them); a pruned TAIL does
+  //       come back — the rebuilt ledger cannot know it once reached
+  //       further, and a split canvas would be the worse failure. ──
+  if (conv.sessionId) {
+    const claim = await findProvenanceClaim(conv.sessionId);
+    if (claim) {
+      let lastIdx = -1;
+      let tailNode = '';
+      qa.forEach((n, i) => {
+        const k = n.data.importSource?.itemIds?.[0];
+        const nid = k ? claim.byFirstId.get(k) : undefined;
+        if (nid) { lastIdx = i; tailNode = nid; }
+      });
+      if (lastIdx >= 0) {
+        await registerLedgerEntry(claim.projectId, 'chapter', {
+          sessionId: conv.sessionId, runner: conv.source, importedCount: lastIdx + 1, tailNodeId: tailNode,
+        });
+        const adopted = findSubscription(conv.sessionId);
+        if (adopted) return appendPastLedger(conv, built, qa, tailQaId, adopted);
+      }
+    }
+  }
+
   // ── 2. anchor-first mounting: the return half of the experiment loop,
   //       command-free — the anchor travels in the opening message ──
   if (conv.sessionId && qa.length > 0) {
@@ -202,6 +231,37 @@ export async function mountConversationToProject(
   });
   useUiStore.getState().setArrivalFocusNodeId(seg.moved[seg.moved.length - 1].id);
   return { kind: 'mounted', mode: 'continue', turns: qa.length };
+}
+
+/** Which canvas still holds mirror nodes of this session? Active canvas
+ *  first (it is in memory and the user's likely target), then the rest
+ *  by recency from their stored graphs. Returns the mirrored turns'
+ *  first item ids mapped to node ids — the break-point evidence. */
+async function findProvenanceClaim(sessionId: string): Promise<{ projectId: string; byFirstId: Map<string, string> } | null> {
+  const { projects, activeId } = useProjects.getState();
+  const ordered = [...projects].sort((a, b) => (a.id === activeId ? -1 : b.id === activeId ? 1 : b.updatedAt - a.updatedAt));
+  for (const p of ordered) {
+    let nodes: ThoughtNode[];
+    if (p.id === activeId) {
+      nodes = useStore.getState().nodes;
+    } else {
+      try {
+        const { get: idbGet } = await import('idb-keyval');
+        const raw = await idbGet(projectStorageKey(p.id));
+        const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+        nodes = (parsed?.state?.nodes ?? []) as ThoughtNode[];
+      } catch { continue; }
+    }
+    const byFirstId = new Map<string, string>();
+    for (const n of nodes) {
+      if (n.data.importSource?.sessionId === sessionId && n.data.stepKind !== 'note') {
+        const k = n.data.importSource.itemIds?.[0];
+        if (k) byFirstId.set(k, n.id);
+      }
+    }
+    if (byFirstId.size > 0) return { projectId: p.id, byFirstId };
+  }
+  return null;
 }
 
 async function appendPastLedger(
@@ -354,6 +414,12 @@ export { subscribedSessionIds };
  *  user just weeded. (Undo restores the nodes but not the entry — the
  *  toast points at the atlas, where reopening resubscribes.) */
 export async function unsubscribeOrphanedSessions(): Promise<void> {
+  // never judge a ledger before its canvas exists: boot hydration races
+  // this call on startup, and an un-hydrated store reads as "zero
+  // mirror nodes" — which once mass-unsubscribed healthy canvases.
+  // After the await, an empty canvas is the truth, not an artifact.
+  const { bootProjects } = await import('../../store/projects');
+  await bootProjects();
   const { projects, activeId } = useProjects.getState();
   const meta = projects.find((p) => p.id === activeId);
   if (!meta?.sourceSession) return;

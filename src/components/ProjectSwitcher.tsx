@@ -72,8 +72,11 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
     setOpen(false);
     await switchProject(id);
     onSwitched();
-    // ledger self-heal on manual arrival (no import flow is running here)
+    // arrival reconciliation: heal the ledger, then close the mirror gap
+    // (the live watcher only follows the ACTIVE canvas — this one may
+    // have missed its sessions' growth while another was open)
     void import('../lib/atlas/canonical').then((m) => m.unsubscribeOrphanedSessions());
+    void import('../lib/atlas/live-mirror').then((m) => m.sweepRecentSessions());
   };
 
   return (
