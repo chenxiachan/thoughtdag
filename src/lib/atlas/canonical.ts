@@ -335,13 +335,48 @@ async function appendPastLedger(
   const appendix = built.nodes.slice(from);
   const inSet = new Set(appendix.map((n) => n.id));
   const innerEdges = built.edges.filter((e) => inSet.has(e.source) && inSet.has(e.target));
+  // Tree-aware re-attachment: a session is a TREE (Esc-rewind forks it),
+  // so an appendix turn's real parent may be an ALREADY-IMPORTED turn.
+  // Map those cross-boundary edges onto the surviving canvas nodes (by
+  // the turn's first item id); an appendix root left parentless falls
+  // back to the anchor, exactly the old linear behavior.
+  const canvasByFirstId = new Map<string, string>();
+  for (const n of survivors) {
+    const k = n.data.importSource?.itemIds?.[0];
+    if (k) canvasByFirstId.set(k, n.id);
+  }
+  const builtFirstId = new Map<string, string>();
+  for (const n of built.nodes) {
+    const k = n.data.importSource?.itemIds?.[0];
+    if (k && !inSet.has(n.id)) builtFirstId.set(n.id, k);
+  }
+  const crossEdges: ThoughtEdge[] = [];
+  for (const e of built.edges) {
+    if (!inSet.has(e.target) || inSet.has(e.source)) continue;
+    const k = builtFirstId.get(e.source);
+    const canvasId = k ? canvasByFirstId.get(k) : undefined;
+    if (canvasId) crossEdges.push({ ...e, id: generateId(), source: canvasId });
+  }
+  const crossTargets = new Set(crossEdges.map((e) => e.target));
 
   let moved: ThoughtNode[];
   let extraEdges: ThoughtEdge[];
   if (anchor) {
     const seg = placeSegment(store, appendix, innerEdges, anchor, false);
     moved = seg.moved;
-    extraEdges = seg.edges;
+    // placeSegment's automatic anchor edge is the LINEAR fallback: drop
+    // it when the appendix head found its real parent among the
+    // survivors, and give every other parentless appendix root the same
+    // anchor fallback the head gets.
+    const hasInner = new Set(innerEdges.map((e) => e.target));
+    extraEdges = seg.edges.filter((e) => !(e.source === anchor.id && crossTargets.has(e.target)));
+    for (const n of moved) {
+      if (n.id === moved[0].id) continue;
+      if (!hasInner.has(n.id) && !crossTargets.has(n.id) && n.data.stepKind !== 'note') {
+        extraEdges.push({ id: generateId(), source: anchor.id, target: n.id, type: 'smoothstep' } as ThoughtEdge);
+      }
+    }
+    extraEdges = [...extraEdges, ...crossEdges];
   } else {
     // every earlier mirror node was removed by hand: land beside the
     // canvas, say so, and do not pretend to continue anything

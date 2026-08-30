@@ -46,6 +46,7 @@ interface SessionLine {
   type?: string;
   subtype?: string;
   uuid?: string;
+  parentUuid?: string | null;
   sessionId?: string;
   isSidechain?: boolean;
   customTitle?: string;
@@ -62,6 +63,11 @@ interface Turn {
   question: string;
   response: string;
   itemIds: string[];
+  /** parentUuid of the turn's opening user message. CC sessions are a
+      TREE (Esc-rewind forks them); this anchor lets the graph builder
+      hang the turn off its REAL parent turn instead of whatever came
+      before it in the file. */
+  parentItemId?: string;
   tools: { name: string; call: string; result: string; truncated: boolean }[];
   compactionBefore?: string; // note text for a compaction boundary preceding this turn
 }
@@ -147,7 +153,10 @@ export class ClaudeSessionCollector {
       const text = textParts(content);
       if (text.trim()) {
         this.flush();
-        this.current = { question: text, response: '', itemIds: line.uuid ? [line.uuid] : [], tools: [] };
+        this.current = {
+          question: text, response: '', itemIds: line.uuid ? [line.uuid] : [], tools: [],
+          parentItemId: line.parentUuid ?? undefined,
+        };
         if (this.pendingCompaction) {
           this.current.compactionBefore = this.pendingCompaction;
           this.pendingCompaction = undefined;
@@ -213,6 +222,8 @@ function buildGraphFromTurns(turns: Turn[], sessionId: string): { nodes: Thought
   const nodes: ThoughtNode[] = [];
   const edges: ThoughtEdge[] = [];
   let prev: ThoughtNode | null = null;
+  // message uuid → the turn node that carries it: the tree's address book
+  const byItem = new Map<string, ThoughtNode>();
 
   const link = (source: ThoughtNode, target: ThoughtNode) => {
     edges.push({ id: generateId(), source: source.id, target: target.id, type: 'smoothstep' } as ThoughtEdge);
@@ -239,8 +250,15 @@ function buildGraphFromTurns(turns: Turn[], sessionId: string): { nodes: Thought
     seedPlaque(node);
     node.data.attachments = toolAttachments(turn);
     nodes.push(node);
-    if (prev) link(prev, node);
+    // the REAL parent first (Esc-rewind forks the session tree; the
+    // wire must fork with it — a line to the abandoned turn would put
+    // dead context into the compiler). Fall back to file order when the
+    // parent is unknown: a compaction summary, a sidechain, the root.
+    const parent = turn.parentItemId ? byItem.get(turn.parentItemId) : undefined;
+    if (parent) link(parent, node);
+    else if (prev) link(prev, node);
     if (noteToWire) link(noteToWire, node);
+    for (const id of turn.itemIds) byItem.set(id, node);
     prev = node;
   }
 
