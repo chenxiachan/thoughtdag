@@ -154,6 +154,9 @@ export default function App() {
     // desktop only: the live mirror — the active canvas follows its
     // session file on its own (idempotent append via the ledger)
     void import('./lib/atlas/live-mirror').then((m) => m.startLiveMirror());
+    // ledger self-heal: canvases weeded before deletion-as-unsubscription
+    // existed may still carry dead subscriptions — clear them on arrival
+    void import('./lib/atlas/canonical').then((m) => m.unsubscribeOrphanedSessions());
   }, []);
 
   useEffect(() => {

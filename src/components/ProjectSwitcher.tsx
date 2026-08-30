@@ -72,6 +72,8 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
     setOpen(false);
     await switchProject(id);
     onSwitched();
+    // ledger self-heal on manual arrival (no import flow is running here)
+    void import('../lib/atlas/canonical').then((m) => m.unsubscribeOrphanedSessions());
   };
 
   return (

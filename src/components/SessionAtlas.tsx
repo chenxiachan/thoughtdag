@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { AppWindow, Archive, ArrowDownUp, Link2, Folder, FolderOpen, Loader2, Plug, RefreshCw, RotateCcw, Search, SquareTerminal, Import, Trash2, X, Inbox } from 'lucide-react';
+import { AppWindow, Archive, ArrowDownUp, Link2, Folder, FolderOpen, Loader2, Plug, RefreshCw, RotateCcw, Search, Square, SquareCheckBig, SquareTerminal, Import, Trash2, X, Inbox } from 'lucide-react';
 import { scanSessions, groupByCwd, disabledRoots, setRootDisabled, type SessionCard, type AtlasGroup } from '../lib/atlas/discover';
 import { diffAgainstWatermark, markSeen, markAllSeen, changeKeyOf, type CardChange } from '../lib/atlas/watermark';
 import { useProjects, switchProject, setProjectArchived, subscribedSessionIds } from '../store/projects';
@@ -114,6 +114,16 @@ export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { 
   const [busyRel, setBusyRel] = useState<string | null>(null);
   const [sourcesOpen, setSourcesOpen] = useState(false);
   const [mountPick, setMountPick] = useState<SessionCard | null>(null);
+  // curation picks: sessions selected for a side-by-side merge
+  const [picked, setPicked] = useState<Map<string, SessionCard>>(new Map());
+  const [mergePick, setMergePick] = useState(false);
+  const pickKey = (card: SessionCard) => `${card.rootKey}|${card.rel}`;
+  const togglePick = (card: SessionCard) => setPicked((prev) => {
+    const next = new Map(prev);
+    const k = pickKey(card);
+    if (next.has(k)) next.delete(k); else next.set(k, card);
+    return next;
+  });
   // which canvas (if any) subscribes to a session — main, chapter or branch alike
   const canvasOf = (sessionId: string) => projects.find((p) => subscribedSessionIds(p).includes(sessionId));
   const [query, setQuery] = useState('');
@@ -194,6 +204,31 @@ export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { 
       else if (result.kind === 'mounted') toast('success', fmt(ti(result.mode === 'continue' ? 'atlas.mountedChapter' : 'atlas.mountedBranch'), { n: result.turns }), 9000);
       else if (result.kind === 'opened') toast('info', ti('atlas.upToDate'), 6000);
       else toast('success', fmt(ti('toast.importedChats'), { n: 1, m: result.nodeCount }), 9000);
+      onClose();
+      onSwitched();
+    } catch (err) {
+      toast('error', fmt(ti('atlas.parseFailed'), { msg: err instanceof Error ? err.message : String(err) }));
+    } finally {
+      setBusyRel(null);
+    }
+  };
+
+  const mergeRun = async (projectId?: string) => {
+    if (busyRel || picked.size < 2) return;
+    setBusyRel('__merge__');
+    try {
+      const { streamRunnerConversation } = await import('../lib/adapters');
+      const { mergeSessionsIntoProject, shellSessionReader } = await import('../lib/atlas/canonical');
+      const convs = [];
+      for (const card of picked.values()) {
+        convs.push(await streamRunnerConversation(shellSessionReader(card.rootKey, card.rel)));
+        seen(card);
+      }
+      const result = await mergeSessionsIntoProject(convs, projectId);
+      if (!result) throw new Error(ti('handoff.notASession'));
+      toast('success', fmt(ti('atlas.merged'), { n: result.mounted }), 10000);
+      if (result.skipped > 0) toast('info', fmt(ti('atlas.mergeSkippedInfo'), { n: result.skipped }), 8000);
+      setPicked(new Map());
       onClose();
       onSwitched();
     } catch (err) {
@@ -518,7 +553,7 @@ export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { 
                   {shownCards.map((card) => (
                     <div
                       key={card.rel}
-                      className="group border border-line rounded-xl px-4 py-3 hover:bg-wash transition-colors cursor-pointer flex items-center gap-3"
+                      className={`group border rounded-xl px-4 py-3 hover:bg-wash transition-colors cursor-pointer flex items-center gap-3 ${picked.has(pickKey(card)) ? 'border-accent/60 bg-accent/5' : 'border-line'}`}
                       onClick={() => void importCard(card)}
                       data-atlas-session={card.sessionId}
                     >
@@ -554,7 +589,17 @@ export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { 
                         : (
                           // three doors per session, each an explicit choice:
                           // canvas, host app (when one is installed), terminal
-                          <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 shrink-0">
+                          <div className={`${picked.has(pickKey(card)) ? '' : 'opacity-0 group-hover:opacity-100'} transition-opacity flex items-center gap-1 shrink-0`}>
+                            {!canvasOf(card.sessionId) && !!card.sessionId && (
+                              <button
+                                title={t('atlas.pickForMerge')}
+                                className={`p-1.5 rounded transition-colors ${picked.has(pickKey(card)) ? 'text-accent' : 'text-ink-faint hover:text-accent'}`}
+                                onClick={(e) => { e.stopPropagation(); togglePick(card); }}
+                                data-atlas-pick={picked.has(pickKey(card)) ? 'on' : 'off'}
+                              >
+                                {picked.has(pickKey(card)) ? <SquareCheckBig size={16} strokeWidth={1.75} /> : <Square size={16} strokeWidth={1.75} />}
+                              </button>
+                            )}
                             <span title={t('atlas.import')} className="text-ink-faint hover:text-accent p-1.5"><Import size={16} strokeWidth={1.75} /></span>
                             {projects.some((p) => p.sourceSession?.sessionId === card.sessionId) && (
                               <button
@@ -605,19 +650,48 @@ export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { 
             )}
           </div>
         </div>
-        {mountPick && (
-          <div className="absolute inset-0 z-10 bg-ink/20 flex items-center justify-center" onClick={() => setMountPick(null)}>
+        {picked.size >= 2 && !mergePick && (
+          <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-10 bg-surface border border-line rounded-xl shadow-lg px-4 py-2.5 flex items-center gap-3" data-atlas-merge-bar>
+            <span className="text-xs text-ink-muted whitespace-nowrap">{fmt(t('atlas.mergeSelected'), { n: picked.size })}</span>
+            {busyRel === '__merge__'
+              ? <Loader2 size={15} className="animate-spin text-accent" />
+              : (
+                <>
+                  <button
+                    className="text-xs bg-accent hover:bg-accent-strong text-white font-medium px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
+                    onClick={() => void mergeRun()}
+                    data-atlas-merge-new
+                  >
+                    {t('atlas.mergeNew')}
+                  </button>
+                  <button
+                    className="text-xs text-ink-muted hover:text-ink hover:bg-wash font-medium px-3 py-1.5 rounded-lg transition-colors whitespace-nowrap"
+                    onClick={() => setMergePick(true)}
+                    data-atlas-merge-into
+                  >
+                    {t('atlas.mergeInto')}
+                  </button>
+                </>
+              )}
+            <button className="text-ink-faint hover:text-ink p-1" onClick={() => setPicked(new Map())} title={t('common.cancel')}>
+              <X size={14} strokeWidth={1.75} />
+            </button>
+          </div>
+        )}
+        {(mountPick || mergePick) && (
+          <div className="absolute inset-0 z-10 bg-ink/20 flex items-center justify-center" onClick={() => { setMountPick(null); setMergePick(false); }}>
             <div className="bg-surface border border-line rounded-2xl shadow-xl w-[400px] max-h-[70%] overflow-y-auto" onClick={(e) => e.stopPropagation()} data-atlas-mount-picker>
               <div className="px-4 pt-3.5 pb-2.5 border-b border-line">
-                <div className="text-sm font-semibold text-ink">{t('atlas.mountTo')}</div>
-                <div className="text-2xs text-ink-muted mt-0.5">{t('atlas.mountHint')}</div>
+                <div className="text-sm font-semibold text-ink">{t(mergePick ? 'atlas.mergeInto' : 'atlas.mountTo')}</div>
+                <div className="text-2xs text-ink-muted mt-0.5">{t(mergePick ? 'atlas.mergeSelected' : 'atlas.mountHint').replace('{n}', String(picked.size))}</div>
               </div>
               {projects.filter((p) => !p.archived && p.kind !== 'paradigm').sort((a, b) => b.updatedAt - a.updatedAt).map((p) => (
                 <button
                   key={p.id}
                   className="w-full text-left px-4 py-2.5 text-sm text-ink hover:bg-wash transition-colors border-b border-line last:border-b-0"
                   onClick={() => {
-                    const card = mountPick;
+                    if (mergePick) { setMergePick(false); void mergeRun(p.id); return; }
+                    const card = mountPick!;
                     setMountPick(null);
                     void (async () => {
                       setBusyRel(card.rel);

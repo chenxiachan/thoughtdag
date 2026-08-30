@@ -2,7 +2,7 @@ import { set as idbSet } from 'idb-keyval';
 import { makeNode } from '../import-chat';
 import { useStore, stripTransient } from '../../store';
 import {
-  useProjects, switchProject, adoptImportedProject, projectStorageKey,
+  useProjects, switchProject, adoptImportedProject, createProject, projectStorageKey,
   patchLedgerEntry, registerLedgerEntry, removeLedgerEntry, subscribedSessionIds, type ProjectMeta,
 } from '../../store/projects';
 import { useUiStore, toast } from '../ui-store';
@@ -333,5 +333,56 @@ export async function unsubscribeOrphanedSessions(): Promise<void> {
   const orphaned = subscribed.filter((sid) => !alive.has(sid));
   if (orphaned.length === 0) return;
   for (const sid of orphaned) await removeLedgerEntry(meta.id, sid);
-  toast('info', fmt(t('toast.unsubscribed'), { n: orphaned.length }), 8000);
+  // identity is announced, not implied: when the last subscription goes,
+  // the canvas says out loud that it is native again
+  const after = useProjects.getState().projects.find((p) => p.id === meta.id);
+  const key = after?.sourceSession ? 'toast.unsubscribed' : 'toast.unsubscribedNative';
+  toast('info', fmt(t(key), { n: orphaned.length }), 8000);
+}
+
+/** Curate several sessions onto ONE canvas. Every session mounts as an
+ *  EQUAL chapter (empty-main container, no main line), laid out as
+ *  side-by-side columns with NO cross-links: the sessions share no
+ *  context, and a wire is context, so drawing one would be a lie — the
+ *  joins are the curator's to wire. Each chapter keeps its own ledger
+ *  entry, so every session listens and appends independently. Sessions
+ *  already subscribed elsewhere are skipped (one session, one canvas). */
+export async function mergeSessionsIntoProject(
+  convs: (import('../import-chat').ImportableConversation | null)[],
+  projectId?: string,
+): Promise<{ mounted: number; skipped: number; projectId: string } | null> {
+  const real = convs.filter((c): c is NonNullable<(typeof convs)[number]> => !!c && !!c.sessionId);
+  if (real.length === 0) return null;
+  const pid = projectId
+    ?? await createProject(fmt(t('atlas.mergedName'), { title: real[0].title.slice(0, 24), n: real.length }));
+  await switchProject(pid);
+  useStore.getState().pushHistory();
+  let mounted = 0, skipped = 0;
+  for (const conv of real) {
+    const sid = conv.sessionId!; // narrowed by the filter above
+    if (findSubscription(sid)) { skipped++; continue; }
+    const built = conv.build();
+    if (built.nodes.length === 0) { skipped++; continue; }
+    const qa = built.nodes.filter((n) => n.data.importSource);
+    const cur = useStore.getState().nodes;
+    const rightEdge = cur.reduce((acc, n) => Math.max(acc, n.position.x + (n.width ?? n.measured?.width ?? 540)), -Infinity);
+    const topEdge = cur.reduce((acc, n) => Math.min(acc, n.position.y), Infinity);
+    const chainLeft = Math.min(...built.nodes.map((n) => n.position.x));
+    const chainTop = Math.min(...built.nodes.map((n) => n.position.y));
+    const dx = (Number.isFinite(rightEdge) ? rightEdge + 180 : 0) - chainLeft;
+    const dy = (Number.isFinite(topEdge) ? topEdge : 0) - chainTop;
+    const moved = built.nodes.map((n): ThoughtNode => ({ ...n, position: { x: n.position.x + dx, y: n.position.y + dy } }));
+    const inSet = new Set(moved.map((n) => n.id));
+    const innerEdges = built.edges.filter((e) => inSet.has(e.source) && inSet.has(e.target));
+    useStore.setState((st) => ({ nodes: [...st.nodes, ...moved], edges: [...st.edges, ...innerEdges] }));
+    await registerLedgerEntry(pid, 'chapter', {
+      sessionId: sid, runner: conv.source, importedCount: qa.length,
+      tailNodeId: qa.at(-1)?.id ?? moved[moved.length - 1].id,
+    });
+    mounted++;
+  }
+  useStore.getState().pushHistory();
+  const last = useStore.getState().nodes.at(-1);
+  if (mounted > 0 && last) useUiStore.getState().setArrivalFocusNodeId(last.id);
+  return { mounted, skipped, projectId: pid };
 }
