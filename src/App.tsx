@@ -16,7 +16,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import 'highlight.js/styles/github.css';
-import { BookOpen, Brain, CircleHelp, Download, Drama, Eye, FileText, Frame, GitBranch, Highlighter, ImageDown, KeyRound, LayoutGrid, Loader2, MessageCircleQuestion, MoreHorizontal, Paperclip, Redo2, Scissors, Search, Share2, SquareTerminal, Stethoscope, StickyNote, Trash2, Undo2, Workflow, X, ListRestart, FolderSync, Minimize2, Rewind } from 'lucide-react';
+import { ArrowRight, BookOpen, Bot, Brain, CircleHelp, Download, Drama, Eye, FileText, Frame, GitBranch, Highlighter, ImageDown, KeyRound, LayoutGrid, Loader2, MessageCircleQuestion, MoreHorizontal, Paperclip, Redo2, Scissors, Search, Share2, SquareTerminal, Stethoscope, StickyNote, Trash2, Undo2, Workflow, X, ListRestart, FolderSync, Minimize2, Rewind } from 'lucide-react';
 import './index.css';
 import ThoughtNode from './components/ThoughtNode';
 import ParadigmNode from './components/ParadigmNode';
@@ -33,6 +33,7 @@ import SearchBar from './components/SearchBar';
 import DiagnosticsPanel from './components/DiagnosticsPanel';
 import MaterialReader from './components/MaterialReader';
 import ProjectSwitcher from './components/ProjectSwitcher';
+import SessionAtlas from './components/SessionAtlas';
 import { useStore } from './store';
 import { useProjects, adoptImportedProject, markInstantiatedFrom } from './store/projects';
 import { projectStorageKey } from './store/projects';
@@ -195,6 +196,7 @@ function Canvas() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [rootRole, setRootRole] = useState('');
   const [showRootRole, setShowRootRole] = useState(false);
+  const [landingAtlas, setLandingAtlas] = useState(false);
   const [pendingAttachments, setPendingAttachments] = useState<Attachment[]>([]);
   const [isDraggingLanding, setIsDraggingLanding] = useState(false);
   const landingFileRef = useRef<HTMLInputElement>(null);
@@ -1355,6 +1357,26 @@ function Canvas() {
               <p className="text-2xs text-ink-faint mt-1.5">{t('landing.docFormats')}</p>
               <p className="text-2xs text-ink-faint mt-0.5">{t('landing.docPrivacy')}</p>
             </div>
+            {/* Agent conversations, desktop only — one click turns them
+                into graphs, and LOOKING needs no model key: the one
+                zero-config start. Dressed in the SAME uniform as the
+                document card (shared ground, centered two-line layout);
+                the one distinction left is the border — dashed means
+                "drop here", solid means "click me". */}
+            {!!window.desktopSessions && (
+              <button
+                onClick={() => setLandingAtlas(true)}
+                className="w-full mt-3 bg-card/60 backdrop-blur border border-line rounded-xl px-5 py-3.5 hover:border-accent/40 hover:bg-accent/5 transition-all text-center"
+                data-landing-atlas
+              >
+                <div className="flex items-center justify-center gap-2 text-sm text-ink-muted font-medium">
+                  <Bot size={15} strokeWidth={1.75} className="text-accent shrink-0" />
+                  <span>{t('landing.atlasStart')}</span>
+                  <ArrowRight size={13} strokeWidth={1.75} className="text-accent shrink-0" />
+                </div>
+                <p className="text-2xs text-ink-faint mt-1.5">{t('landing.atlasDesc')}</p>
+              </button>
+            )}
             <input
               ref={docFileRef}
               type="file"
@@ -1363,21 +1385,9 @@ function Canvas() {
               className="hidden"
               onChange={(e) => { startFromDocuments(e.target.files || []); e.target.value = ''; }}
             />
-
-            {/* What makes this different — three quiet cards */}
-            <div className="grid grid-cols-3 gap-3 mt-6">
-              {([
-                { icon: GitBranch, title: 'landing.feature1.title', desc: 'landing.feature1.desc' },
-                { icon: Workflow, title: 'landing.feature2.title', desc: 'landing.feature2.desc' },
-                { icon: Scissors, title: 'landing.feature3.title', desc: 'landing.feature3.desc' },
-              ] as const).map(({ icon: Icon, title, desc }) => (
-                <div key={title} className="bg-card/70 backdrop-blur border border-line/70 rounded-xl px-4 py-3.5 hover:border-line-strong hover:-translate-y-0.5 transition-all">
-                  <Icon size={16} strokeWidth={1.75} className="text-accent mb-2" />
-                  <h3 className="text-xs font-semibold text-ink mb-1">{t(title)}</h3>
-                  <p className="text-2xs text-ink-faint leading-relaxed">{t(desc)}</p>
-                </div>
-              ))}
-            </div>
+            {landingAtlas && (
+              <SessionAtlas onClose={() => setLandingAtlas(false)} onSwitched={() => { setLandingAtlas(false); afterProjectSwitch(); }} />
+            )}
 
             {/* Quick connect: the no-model landing offers the two free doors
                 side by side — GLM's free tier (zh only) and the one-click
@@ -1385,15 +1395,12 @@ function Canvas() {
                 this browser) — plus one quiet line for subscription owners.
                 Gone once any model exists. */}
             {(!modelData || (modelData.models?.length ?? 0) === 0) && (
-              <div className="mt-3 bg-card/70 backdrop-blur border border-line/70 rounded-xl px-4 py-3 hover:border-line-strong transition-colors" data-quick-connect>
-                <div className="flex items-start gap-3">
-                  <KeyRound size={16} strokeWidth={1.75} className="text-accent shrink-0 mt-0.5" />
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-xs font-semibold text-ink mb-0.5">{t('landing.quickTitle')}</h3>
-                    <p className="text-2xs text-ink-faint leading-relaxed">{t('landing.quickDesc')}</p>
-                  </div>
+              <div className="mt-3 bg-card/60 backdrop-blur border border-line rounded-xl px-5 py-3.5 text-center" data-quick-connect>
+                <div className="flex items-center justify-center gap-2 text-sm text-ink-muted font-medium">
+                  <KeyRound size={15} strokeWidth={1.75} className="text-accent shrink-0" /> {t('landing.quickTitle')}
                 </div>
-                <div className="mt-2.5 pl-7 flex items-center flex-wrap gap-2">
+                <p className="text-2xs text-ink-faint mt-1.5">{t('landing.quickDesc')}</p>
+                <div className="mt-2.5 flex items-center justify-center flex-wrap gap-2">
                   {lang === 'zh' && (
                     <button
                       onClick={() => { useUiStore.getState().setApiKeyPresetHint('zhipu'); useUiStore.getState().setApiKeyModalOpen(true); }}
@@ -1419,7 +1426,7 @@ function Canvas() {
                 </div>
                 <button
                   onClick={() => useUiStore.getState().setApiKeyModalOpen(true)}
-                  className="mt-2 pl-7 text-2xs text-ink-faint hover:text-accent transition-colors block text-left"
+                  className="mt-2 mx-auto text-2xs text-ink-faint hover:text-accent transition-colors block"
                   data-quick-subs
                 >
                   {t('landing.quickSubs')}
@@ -1427,7 +1434,22 @@ function Canvas() {
               </div>
             )}
 
-            <div className="text-center mt-5 flex items-center justify-center gap-5">
+            {/* What makes this different — three quiet cards */}
+            <div className="grid grid-cols-3 gap-3 mt-6">
+              {([
+                { icon: GitBranch, title: 'landing.feature1.title', desc: 'landing.feature1.desc' },
+                { icon: Workflow, title: 'landing.feature2.title', desc: 'landing.feature2.desc' },
+                { icon: Scissors, title: 'landing.feature3.title', desc: 'landing.feature3.desc' },
+              ] as const).map(({ icon: Icon, title, desc }) => (
+                <div key={title} className="bg-card/60 backdrop-blur border border-line rounded-xl px-4 py-3.5">
+                  <Icon size={16} strokeWidth={1.75} className="text-accent mb-2" />
+                  <h3 className="text-xs font-semibold text-ink mb-1">{t(title)}</h3>
+                  <p className="text-2xs text-ink-faint leading-relaxed">{t(desc)}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="text-center mt-6 flex items-center justify-center gap-5">
               <button
                 onClick={loadExample}
                 className="text-xs text-accent hover:text-accent-strong font-medium transition-colors inline-flex items-center gap-1.5"
