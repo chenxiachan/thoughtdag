@@ -9,6 +9,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "smoke": "node scripts/smoke.mjs",
+    "test:layout": "node scripts/test-layout.mjs",
     "preview": "vite preview",
     "desktop": "npm run build && cd desktop && electron ."
   },
