@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { AppWindow, Archive, ArrowDownUp, Folder, FolderOpen, Loader2, Plug, RefreshCw, RotateCcw, Search, SquareTerminal, Import, Trash2, X, Inbox } from 'lucide-react';
+import { AppWindow, Archive, ArrowDownUp, Link2, Folder, FolderOpen, Loader2, Plug, RefreshCw, RotateCcw, Search, SquareTerminal, Import, Trash2, X, Inbox } from 'lucide-react';
 import { scanSessions, groupByCwd, disabledRoots, setRootDisabled, type SessionCard, type AtlasGroup } from '../lib/atlas/discover';
 import { diffAgainstWatermark, markSeen, markAllSeen, changeKeyOf, type CardChange } from '../lib/atlas/watermark';
-import { useProjects, switchProject, setProjectArchived } from '../store/projects';
+import { useProjects, switchProject, setProjectArchived, subscribedSessionIds } from '../store/projects';
 import { useT, t as ti, fmt } from '../i18n';
 import { toast } from '../lib/ui-store';
 
@@ -113,6 +113,9 @@ export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { 
   const [selected, setSelected] = useState<string | 'canvases' | null>(window.desktopSessions ? null : 'canvases');
   const [busyRel, setBusyRel] = useState<string | null>(null);
   const [sourcesOpen, setSourcesOpen] = useState(false);
+  const [mountPick, setMountPick] = useState<SessionCard | null>(null);
+  // which canvas (if any) subscribes to a session — main, chapter or branch alike
+  const canvasOf = (sessionId: string) => projects.find((p) => subscribedSessionIds(p).includes(sessionId));
   const [query, setQuery] = useState('');
   const [runnerOff, setRunnerOff] = useState<Set<string>>(new Set());
   const [sortKey, setSortKey] = useState<SortKey>('time');
@@ -391,7 +394,7 @@ export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { 
             {selected === 'canvases' ? (
               <div className="space-y-1.5">
                 {projects.filter((p) => !p.archived).sort((a, b) => b.updatedAt - a.updatedAt).map((p) => (
-                  <div key={p.id} className="group flex items-center gap-2 border border-line rounded-xl px-4 py-3 hover:bg-wash transition-colors cursor-pointer"
+                  <div key={p.id} className="group flex items-center flex-wrap gap-2 border border-line rounded-xl px-4 py-3 hover:bg-wash transition-colors cursor-pointer"
                     onClick={() => { onClose(); void switchProject(p.id).then(onSwitched); }}>
                     <div className="flex-1 min-w-0">
                       <div className="text-sm text-ink font-medium truncate">{p.name}</div>
@@ -408,6 +411,21 @@ export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { 
                     >
                       <Archive size={15} strokeWidth={1.75} />
                     </button>
+                    {/* the listening cluster: every session this canvas
+                        subscribes to, with its role and progress */}
+                    {!!p.sourceSession && subscribedSessionIds(p).length > 0 && (
+                      <div className="w-full basis-full text-2xs text-ink-faint font-mono flex flex-wrap gap-x-3 gap-y-0.5 pt-1" data-atlas-cluster>
+                        {p.sourceSession.sessionId && (
+                          <span>◉ {p.sourceSession.runner} {p.sourceSession.sessionId.slice(0, 8)} · {fmt(t('atlas.turnsN'), { n: p.sourceSession.importedCount })}</span>
+                        )}
+                        {(p.sourceSession.chapters ?? []).map((c) => (
+                          <span key={c.sessionId}>↳ {c.runner} {c.sessionId.slice(0, 8)} · {fmt(t('atlas.turnsN'), { n: c.importedCount })}</span>
+                        ))}
+                        {(p.sourceSession.branches ?? []).map((b) => (
+                          <span key={b.sessionId}>⑂ {b.runner} {b.sessionId.slice(0, 8)} · {fmt(t('atlas.turnsN'), { n: b.importedCount })}</span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 ))}
                 {projects.some((p) => p.archived) && (
@@ -517,9 +535,12 @@ export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { 
                           )}
                           {card.sessionId === activeSessionId ? (
                             <span className="text-2xs text-white bg-ink rounded px-1 py-px shrink-0" data-atlas-badge="current">{t('atlas.currentOpen')}</span>
-                          ) : projects.some((p) => p.sourceSession?.sessionId === card.sessionId) && (
-                            <span className="text-2xs text-ink-faint border border-line rounded px-1 py-px shrink-0" data-atlas-badge="canvas">{t('atlas.onCanvas')}</span>
-                          )}
+                          ) : (() => {
+                            const home = canvasOf(card.sessionId);
+                            return home ? (
+                              <span className="text-2xs text-ink-faint border border-line rounded px-1 py-px shrink-0" title={home.name} data-atlas-badge="canvas">{t('atlas.onCanvas')}</span>
+                            ) : null;
+                          })()}
                         </div>
                         <div className="text-2xs text-ink-faint mt-0.5 flex items-center gap-2">
                           {/* runner identity is functional provenance, not promotion */}
@@ -543,6 +564,16 @@ export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { 
                                 data-atlas-recast
                               >
                                 <RotateCcw size={16} strokeWidth={1.75} />
+                              </button>
+                            )}
+                            {!canvasOf(card.sessionId) && (
+                              <button
+                                title={t('atlas.mountTo')}
+                                className="text-ink-faint hover:text-accent p-1.5 rounded transition-colors"
+                                onClick={(e) => { e.stopPropagation(); setMountPick(card); }}
+                                data-atlas-mount
+                              >
+                                <Link2 size={16} strokeWidth={1.75} />
                               </button>
                             )}
                             {appHosts.has(card.runner) && (
@@ -574,6 +605,43 @@ export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { 
             )}
           </div>
         </div>
+        {mountPick && (
+          <div className="absolute inset-0 z-10 bg-ink/20 flex items-center justify-center" onClick={() => setMountPick(null)}>
+            <div className="bg-surface border border-line rounded-2xl shadow-xl w-[400px] max-h-[70%] overflow-y-auto" onClick={(e) => e.stopPropagation()} data-atlas-mount-picker>
+              <div className="px-4 pt-3.5 pb-2.5 border-b border-line">
+                <div className="text-sm font-semibold text-ink">{t('atlas.mountTo')}</div>
+                <div className="text-2xs text-ink-muted mt-0.5">{t('atlas.mountHint')}</div>
+              </div>
+              {projects.filter((p) => !p.archived && p.kind !== 'paradigm').sort((a, b) => b.updatedAt - a.updatedAt).map((p) => (
+                <button
+                  key={p.id}
+                  className="w-full text-left px-4 py-2.5 text-sm text-ink hover:bg-wash transition-colors border-b border-line last:border-b-0"
+                  onClick={() => {
+                    const card = mountPick;
+                    setMountPick(null);
+                    void (async () => {
+                      setBusyRel(card.rel);
+                      try {
+                        const { streamRunnerConversation } = await import('../lib/adapters');
+                        const { mountConversationToProject, shellSessionReader } = await import('../lib/atlas/canonical');
+                        const conv = await streamRunnerConversation(shellSessionReader(card.rootKey, card.rel));
+                        const result = await mountConversationToProject(conv, p.id);
+                        if (!result) throw new Error(ti('handoff.notASession'));
+                        toast('success', fmt(ti('atlas.mountedChapter'), { n: result.kind === 'mounted' || result.kind === 'appended' ? result.turns : 0 }), 9000);
+                        onClose();
+                        onSwitched();
+                      } catch (err) {
+                        toast('error', fmt(ti('atlas.parseFailed'), { msg: err instanceof Error ? err.message : String(err) }));
+                      } finally { setBusyRel(null); }
+                    })();
+                  }}
+                >
+                  {p.name}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         {sourcesOpen && (
           <SourcesDialog
             roots={roots}

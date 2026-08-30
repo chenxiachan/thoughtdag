@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Archive, ChevronDown, Dna, FolderOpen, Loader2, Map as MapIcon, Pencil, Plus, RefreshCw, Trash2, Upload } from 'lucide-react';
 import SessionAtlas from './SessionAtlas';
+import { knownSessionIds } from '../lib/atlas/discover';
 import { useProjects, switchProject, createProject, renameProject, deleteProject, setProjectArchived } from '../store/projects';
 import { useI18n } from '../i18n';
 import { parseImportFile } from '../lib/export';
@@ -93,16 +94,26 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
         </button>
         {/* the twin badge: this canvas is one face of a session — the
             other face is one click away on the map */}
-        {!!active?.sourceSession?.sessionId && (
-          <button
-            title={fmt(ti('switcher.mirrorBadge'), { runner: active.sourceSession.runner })}
-            onClick={() => { setAtlasFocus(active.sourceSession!.sessionId); setAtlasOpen(true); }}
-            className="bg-card/90 backdrop-blur border border-line rounded-xl px-2 py-2 shadow-sm hover:bg-wash hover:text-accent transition-colors text-2xs font-mono text-ink-faint flex items-center gap-1"
-            data-twin-badge
-          >
-            ⇄ {active.sourceSession.runner}
-          </button>
-        )}
+        {!!active?.sourceSession?.sessionId && (() => {
+          // three states, honest about the source: reachable (live),
+          // unreachable on this machine (grey — the ledger holds only
+          // UUIDs, so the moment the source appears anywhere in a
+          // scanned root, listening resumes on its own), or no scan yet
+          // (assume live: never a false alarm)
+          const unreachable = knownSessionIds.size > 0 && !knownSessionIds.has(active.sourceSession.sessionId);
+          return (
+            <button
+              title={unreachable
+                ? ti('switcher.mirrorBadgeGone')
+                : fmt(ti('switcher.mirrorBadge'), { runner: active.sourceSession!.runner })}
+              onClick={() => { setAtlasFocus(active.sourceSession!.sessionId); setAtlasOpen(true); }}
+              className={`bg-card/90 backdrop-blur border border-line rounded-xl px-2 py-2 shadow-sm hover:bg-wash transition-colors text-2xs font-mono flex items-center gap-1 ${unreachable ? 'text-ink-faint/50 line-through decoration-1' : 'text-ink-faint hover:text-accent'}`}
+              data-twin-badge={unreachable ? 'unreachable' : 'live'}
+            >
+              ⇄ {active.sourceSession!.runner}
+            </button>
+          );
+        })()}
       </div>
 
       {open && (

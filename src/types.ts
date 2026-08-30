@@ -183,6 +183,10 @@ export interface ThoughtEdge extends Edge {
   data?: {
     isCrossLink?: boolean;
     isBranchFromSelection?: boolean;
+    /** Position of this edge's upstream BLOCK in the target's context when
+        the target has several parents (set via the focus panel; creation
+        order when absent). Lives on the edge — semantics drive rendering. */
+    contextOrder?: number;
     /** Watch edge: watched node → evaluator. Treated as a cross-link for
         layout (no tree structure) but feeds context like any incoming edge. */
     isWatch?: boolean;

@@ -21,8 +21,18 @@ export function walkUpAncestors(
     visited.add(id);
     const node = nodes.find((n) => n.id === id);
     if (!node) return;
-    for (const edge of edges) {
-      if (edge.target !== id) continue;
+    // A merge's incoming BLOCKS enter the context in a stated order:
+    // contextOrder on the edge (set from the focus panel), falling back
+    // to creation order. The order lives on the EDGE — semantics drive
+    // rendering, never the other way round: dragging nodes cannot
+    // change what a context says.
+    const incoming = edges.filter((e) => e.target === id);
+    if (incoming.length > 1) {
+      incoming.sort((a, b) =>
+        ((a.data as { contextOrder?: number } | undefined)?.contextOrder ?? Number.MAX_SAFE_INTEGER)
+        - ((b.data as { contextOrder?: number } | undefined)?.contextOrder ?? Number.MAX_SAFE_INTEGER));
+    }
+    for (const edge of incoming) {
       visitedEdgeIds.add(edge.id);
       walkUp(edge.source);
     }

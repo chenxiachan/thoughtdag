@@ -99,6 +99,11 @@ export function setRootDisabled(key: string, disabled: boolean): void {
   localStorage.setItem(DISABLED_KEY, JSON.stringify([...set]));
 }
 
+/** Session ids seen by the LAST scan — the twin badge's reachability
+ *  cache. Empty until a scan ran (then nothing is reported unreachable:
+ *  never a false alarm). */
+export const knownSessionIds = new Set<string>();
+
 export async function scanSessions(): Promise<SessionCard[]> {
   const bridge = window.desktopSessions;
   if (!bridge) return [];
@@ -125,6 +130,8 @@ export async function scanSessions(): Promise<SessionCard[]> {
       for (const c of batch) if (c) cards.push(c);
     }
   }
+  knownSessionIds.clear();
+  for (const c of cards) knownSessionIds.add(c.sessionId);
   return cards.sort((a, b) => b.mtime - a.mtime);
 }
 

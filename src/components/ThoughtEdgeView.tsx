@@ -64,6 +64,17 @@ export default function ThoughtEdgeView({
   // and thicken the stroke as selection feedback.
   const edgeStyle = selected ? { ...style, strokeWidth: 3, opacity: 1 } : style;
 
+  // A merge's incoming blocks have a stated order — show it AT the join,
+  // where the question "which reads first?" is asked. Only merges wear
+  // numbers; a single-parent edge needs none.
+  const mergeIndex = useMemo(() => {
+    if (isRef) return -1;
+    const siblings = edges.filter((e) => e.target === target && !e.data?.isCrossLink);
+    if (siblings.length < 2) return -1;
+    siblings.sort((a, b) => (a.data?.contextOrder ?? Number.MAX_SAFE_INTEGER) - (b.data?.contextOrder ?? Number.MAX_SAFE_INTEGER));
+    return siblings.findIndex((e) => e.id === id);
+  }, [edges, target, id, isRef]);
+
   return (
     <>
       <BaseEdge
@@ -73,6 +84,23 @@ export default function ThoughtEdgeView({
         markerStart={markerStart}
         interactionWidth={interactionWidth}
       />
+      {mergeIndex >= 0 && (
+        <EdgeLabelRenderer>
+          <div
+            className="nodrag nopan"
+            style={{
+              position: 'absolute',
+              pointerEvents: 'none',
+              transform: `translate(-50%, -50%) translate(${targetX}px, ${targetY - 22}px)`,
+            }}
+            data-merge-order={mergeIndex + 1}
+          >
+            <div className="w-4.5 h-4.5 min-w-[18px] px-0.5 rounded-full bg-card border border-line shadow-sm flex items-center justify-center text-2xs font-mono text-ink-muted" style={{ fontSize: 10 }}>
+              {mergeIndex + 1}
+            </div>
+          </div>
+        </EdgeLabelRenderer>
+      )}
       {data?.focusRole === 'path' && (
         // Context Focus feed line: bright dots gliding INSIDE the solid
         // stroke (narrower than it, so the line never reads as dashed —

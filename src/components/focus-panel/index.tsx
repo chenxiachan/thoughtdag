@@ -15,6 +15,7 @@ import ResponseSection from './ResponseSection';
 import HighlightsSection from './HighlightsSection';
 import HeaderActions from './HeaderActions';
 import ContextChainSection from './ContextChainSection';
+import ContextOrderSection from './ContextOrderSection';
 import FollowUpInput from './FollowUpInput';
 
 // The panel does three jobs: READ (question/response), ASK (the single
@@ -167,6 +168,7 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
           highlightMode={data.highlightMode}
         />
 
+        <ContextOrderSection nodeId={node.id} />
         <ContextChainSection
           key={`c-${selectedNodeId}`}
           partition={partition}

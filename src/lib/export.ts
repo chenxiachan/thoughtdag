@@ -183,7 +183,7 @@ async function reconcileImportedModels(nodes: ThoughtNode[]): Promise<ThoughtNod
 }
 
 export async function importProjectFromFile(file: File, pre?: unknown): Promise<boolean> {
-  let parsed: { name?: string; nodes?: ThoughtNode[]; edges?: ThoughtEdge[]; events?: unknown[]; instantiatedFrom?: ProjectMeta['instantiatedFrom']; sharedReadonly?: boolean };
+  let parsed: { name?: string; nodes?: ThoughtNode[]; edges?: ThoughtEdge[]; events?: unknown[]; instantiatedFrom?: ProjectMeta['instantiatedFrom']; sourceSession?: ProjectMeta['sourceSession']; sharedReadonly?: boolean };
   try {
     parsed = (pre ?? JSON.parse(await file.text())) as typeof parsed;
   } catch {
@@ -206,6 +206,19 @@ export async function importProjectFromFile(file: File, pre?: unknown): Promise<
     });
     if (!ok) return false;
   }
+  // An archive carrying a ledger restores a SUBSCRIBED canvas — but one
+  // session, one canvas: if a canvas already subscribes to this session,
+  // open it instead of minting a duplicate the listener would fight over.
+  if (parsed.sourceSession?.sessionId) {
+    const { useProjects, switchProject } = await import('../store/projects');
+    const existing = useProjects.getState().projects.find(
+      (p) => p.sourceSession?.sessionId === parsed.sourceSession!.sessionId);
+    if (existing) {
+      await switchProject(existing.id);
+      toast('info', fmt(t('toast.importAlreadySubscribed'), { name: existing.name }), 9000);
+      return true;
+    }
+  }
   const id = crypto.randomUUID();
   const reconciled = await internNodes(await reconcileImportedModels(parsed.nodes));
   // Write in the zustand-persist envelope format so rehydration accepts it.
@@ -214,7 +227,7 @@ export async function importProjectFromFile(file: File, pre?: unknown): Promise<
     version: PERSIST_VERSION,
   }));
   const name = parsed.name?.trim() || file.name.replace(/\.thoughtdag\.json$|\.json$/i, '') || 'Imported canvas';
-  await adoptImportedProject(id, name, 'chat', { instantiatedFrom: parsed.instantiatedFrom });
+  await adoptImportedProject(id, name, 'chat', { instantiatedFrom: parsed.instantiatedFrom, sourceSession: parsed.sourceSession });
   toast('success', fmt(t('toast.imported'), { name, n: parsed.nodes.length }));
   return true;
 }

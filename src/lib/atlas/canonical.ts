@@ -6,6 +6,7 @@ import {
   patchLedgerEntry, registerLedgerEntry, subscribedSessionIds, type ProjectMeta,
 } from '../../store/projects';
 import { useUiStore } from '../ui-store';
+import { t } from '../../i18n';
 import { generateId } from '../../utils';
 import type { ThoughtNode, ThoughtEdge } from '../../types';
 
@@ -128,6 +129,15 @@ export async function importOrAppendConversation(conv: import('../import-chat').
       // native canvases mount too — the ledger grows an empty-main
       // container on registration; no subscription is required to host
       if (anchorNode) {
+        // The opening turn REPLAYS what the canvas already holds (the
+        // compiled context, anchor included) — mounted verbatim, every
+        // continue would nest the previous opener one level deeper.
+        // Compress it to a departure marker; the reply stays.
+        const opener = built.nodes.find((n) => n.data.importSource && n.data.stepKind !== 'note');
+        if (opener && parseAnchor(opener.data.question ?? '')) {
+          const mark = t('exp.openerMark');
+          opener.data = { ...opener.data, question: mark, source: opener.data.source ? { ...opener.data.source, question: mark } : opener.data.source };
+        }
         const inSet = new Set(built.nodes.map((n) => n.id));
         const innerEdges = built.edges.filter((e) => inSet.has(e.source) && inSet.has(e.target));
         const sideways = anchor.mode !== 'continue';
@@ -157,6 +167,41 @@ export async function importOrAppendConversation(conv: import('../import-chat').
     sourceSession: { sessionId: conv.sessionId, runner: conv.source, importedCount: qa.length, tailNodeId: tailQaId },
   } : undefined);
   return { kind: 'imported', nodeCount: built.nodes.length };
+}
+
+/** The MANUAL road into a canvas: mount an arbitrary session onto a
+ *  chosen canvas's main-line tail (the anchored road is automatic; this
+ *  one is for "I want these sessions to meet" — the join entry the map
+ *  offers). Registers as a chapter, so growth appends idempotently. */
+export async function mountConversationToProject(
+  conv: import('../import-chat').ImportableConversation | null,
+  projectId: string,
+): Promise<CanonicalResult> {
+  if (!conv || !conv.sessionId) return null;
+  if (findSubscription(conv.sessionId)) return importOrAppendConversation(conv); // already lives somewhere
+  const built = conv.build();
+  const qa = built.nodes.filter((n) => n.data.importSource);
+  if (built.nodes.length === 0) return null;
+  await switchProject(projectId);
+  const store = useStore.getState();
+  const meta = useProjects.getState().projects.find((p) => p.id === projectId);
+  if (!meta) return null;
+  const ss = meta.sourceSession;
+  const anchorNode = (ss?.sessionId ? store.nodes.find((n) => n.id === ss.tailNodeId)
+    ?? store.nodes.filter((n) => n.data.importSource?.sessionId === ss.sessionId).at(-1) : null)
+    ?? store.nodes.at(-1) ?? null;
+  if (!anchorNode) return null;
+  const inSet = new Set(built.nodes.map((n) => n.id));
+  const innerEdges = built.edges.filter((e) => inSet.has(e.source) && inSet.has(e.target));
+  const seg = placeSegment(store, built.nodes, innerEdges, anchorNode, false);
+  store.pushHistory();
+  useStore.setState((s) => ({ nodes: [...s.nodes, ...seg.moved], edges: [...s.edges, ...seg.edges] }));
+  await registerLedgerEntry(projectId, 'chapter', {
+    sessionId: conv.sessionId, runner: conv.source, importedCount: qa.length,
+    tailNodeId: qa.at(-1)?.id ?? built.nodes.at(-1)!.id, anchorNodeId: anchorNode.id,
+  });
+  useUiStore.getState().setArrivalFocusNodeId(seg.moved[seg.moved.length - 1].id);
+  return { kind: 'mounted', mode: 'continue', turns: qa.length };
 }
 
 async function appendPastLedger(

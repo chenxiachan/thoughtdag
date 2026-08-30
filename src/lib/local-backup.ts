@@ -39,29 +39,32 @@ export async function backupActiveProject(): Promise<string | null> {
   if (rawNodes.length === 0) return null;
   const { projects, activeId } = useProjects.getState();
   const activeMeta = projects.find((p) => p.id === activeId);
-  // Unique data must reach disk; rebuildable data must not occupy it.
-  // A canvas fully covered by its session subscription (pristine mirror)
-  // has the source file as its backup — writing a second copy is noise.
-  // The moment the user's value layer appears, backups begin.
-  if (activeMeta?.sourceSession && activeId) {
-    const { canvasUniqueness } = await import('./atlas/canonical');
-    if ((await canvasUniqueness(activeId)) === 'pristine-mirror') return null;
-  }
   const nodes = await inlineVaultedContent(rawNodes);
   const base = (activeProjectName().replace(/[\\/:*?"<>|]/g, '_') || 'canvas').slice(0, 48);
   // mirror canvases are named after their first prompt — suffix the
   // session id so long/similar prompts can't collide on disk
-  const name = activeMeta?.sourceSession ? `${base}-${activeMeta.sourceSession.sessionId.slice(0, 8)}` : base;
+  const isMirror = !!activeMeta?.sourceSession;
+  const name = activeMeta?.sourceSession?.sessionId ? `${base}-${activeMeta.sourceSession.sessionId.slice(0, 8)}` : base;
   const payload = JSON.stringify({
     version: EXPORT_FORMAT_VERSION,
     name: activeProjectName(),
     exportedAt: new Date().toISOString(),
-    instantiatedFrom: projects.find((p) => p.id === activeId)?.instantiatedFrom,
+    instantiatedFrom: activeMeta?.instantiatedFrom,
+    // the LEDGER travels with the archive: a restored canvas keeps its
+    // subscriptions, so listening and appending come back to life — the
+    // ledger holds only UUIDs (session ids), never paths, so the file
+    // survives machines and moves; a source that isn't on this machine
+    // simply stays silent until it appears.
+    sourceSession: activeMeta?.sourceSession,
     nodes: stripTransient(nodes),
     edges,
     events,
   });
-  const file = await handle.getFileHandle(`${name}.thoughtdag.json`, { create: true });
+  // one filing rule: native canvases at the folder root, session-mirror
+  // canvases in the cli/ drawer — every canvas reaches disk (a canvas
+  // JSON is a PROJECTION, ~2.5% of its source session's size)
+  const dir = isMirror ? await handle.getDirectoryHandle('cli', { create: true }) : handle;
+  const file = await dir.getFileHandle(`${name}.thoughtdag.json`, { create: true });
   const w = await file.createWritable();
   await w.write(payload);
   await w.close();
