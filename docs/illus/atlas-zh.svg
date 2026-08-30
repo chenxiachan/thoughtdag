@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 300" role="img" aria-labelledby="title desc">
+  <title id="title">Agent 会话成为上下文图</title>
+  <desc id="desc">同一项目中的 Codex 与 Claude Code 会话被展开为上下文图，并从选定节点接续到新的 CLI 会话。</desc>
+  <rect width="520" height="300" rx="24" fill="#f8f7fb"/>
+  <rect x="20" y="28" width="142" height="244" rx="16" fill="#fff" stroke="#ded9e8"/>
+  <text x="38" y="55" fill="#888091" font-family="system-ui,sans-serif" font-size="11" font-weight="700">项目会话</text>
+  <rect x="33" y="73" width="116" height="48" rx="10" fill="#eeebfb" stroke="#bcb2f1"/>
+  <text x="44" y="91" fill="#6b5ce7" font-family="monospace" font-size="9">CODEX</text>
+  <text x="44" y="108" fill="#3d3845" font-family="system-ui,sans-serif" font-size="10" font-weight="700">梳理研究问题</text>
+  <rect x="33" y="132" width="116" height="48" rx="10" fill="#fff" stroke="#ded9e8"/>
+  <text x="44" y="150" fill="#777180" font-family="monospace" font-size="9">CLAUDE CODE</text>
+  <text x="44" y="167" fill="#3d3845" font-family="system-ui,sans-serif" font-size="10" font-weight="700">核对证据</text>
+  <rect x="33" y="191" width="116" height="48" rx="10" fill="#fff" stroke="#ded9e8"/>
+  <text x="44" y="209" fill="#777180" font-family="monospace" font-size="9">CODEX</text>
+  <text x="44" y="226" fill="#3d3845" font-family="system-ui,sans-serif" font-size="10" font-weight="700">形成结论</text>
+  <path d="M162 98 C190 98 183 82 211 82" fill="none" stroke="#7567dc" stroke-width="2"/>
+  <path d="M162 156 C190 156 183 150 211 150" fill="none" stroke="#7567dc" stroke-width="2"/>
+  <path d="M162 215 C190 215 183 218 211 218" fill="none" stroke="#7567dc" stroke-width="2"/>
+  <rect x="211" y="55" width="122" height="54" rx="12" fill="#fff" stroke="#c8c0f1"/>
+  <text x="225" y="78" fill="#3d3845" font-family="system-ui,sans-serif" font-size="10" font-weight="700">研究问题</text>
+  <text x="225" y="94" fill="#928b99" font-family="system-ui,sans-serif" font-size="9">展开为上下文图</text>
+  <rect x="211" y="123" width="122" height="54" rx="12" fill="#fff" stroke="#eccb9b"/>
+  <text x="225" y="146" fill="#3d3845" font-family="system-ui,sans-serif" font-size="10" font-weight="700">探索支线</text>
+  <text x="225" y="162" fill="#928b99" font-family="system-ui,sans-serif" font-size="9">保留但可排除</text>
+  <rect x="211" y="191" width="122" height="54" rx="12" fill="#fff" stroke="#aad9c5"/>
+  <text x="225" y="214" fill="#3d3845" font-family="system-ui,sans-serif" font-size="10" font-weight="700">阶段结论</text>
+  <text x="225" y="230" fill="#928b99" font-family="system-ui,sans-serif" font-size="9">选定当前上下文</text>
+  <path d="M272 109 L272 123" stroke="#7567dc" stroke-width="2"/>
+  <path d="M272 177 L272 191" stroke="#7567dc" stroke-width="2"/>
+  <path d="M333 218 C363 218 357 158 384 158" fill="none" stroke="#7567dc" stroke-width="2" stroke-dasharray="5 5"/>
+  <rect x="384" y="116" width="116" height="84" rx="14" fill="#28252e"/>
+  <circle cx="400" cy="133" r="3" fill="#f17979"/><circle cx="410" cy="133" r="3" fill="#e7bb60"/><circle cx="420" cy="133" r="3" fill="#69c58e"/>
+  <text x="398" y="158" fill="#d8d3e1" font-family="system-ui,sans-serif" font-size="9">新的 CLI 会话</text>
+  <text x="398" y="176" fill="#a99cf5" font-family="system-ui,sans-serif" font-size="9">带着上下文 →</text>
+  <text x="398" y="190" fill="#8ed2b1" font-family="system-ui,sans-serif" font-size="8">结果接回原图</text>
+</svg>

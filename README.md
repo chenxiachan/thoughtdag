@@ -11,7 +11,7 @@
 
 ### [Download ↓](https://chenxiachan.github.io/thoughtdag/#download) · [Website](https://chenxiachan.github.io/thoughtdag/)
 
-[中文](./README_ZH.md) · [Quick start](#quick-start) · [How it differs](#how-thoughtdag-differs) · [Research](#-research-why-editable-context-matters) · [Models & privacy](#models-cost--privacy)
+[中文](./README_ZH.md) · [Quick start](#quick-start) · [How it differs](#how-thoughtdag-differs) · [Agent sessions](#-bring-agent-sessions-onto-the-canvas) · [Research](#-research-why-editable-context-matters) · [Models & privacy](#models-cost--privacy)
 
 <img src="docs/hero-demo-en.gif" alt="Hero demo, recorded from the live app: selecting a passage in the PDF reader and asking about it; deleting a noise edge and regenerating a clean answer; zooming out through three semantic tiers to the map; opening the backup control center and exporting a real file" width="100%"/>
 
@@ -70,6 +70,21 @@ Merge nodes into a higher conclusion; weave highlights into cited prose. Zoom th
 </tr>
 </table>
 
+<table>
+<tr>
+<td width="55%">
+
+### 🧭 Bring agent sessions onto the canvas
+
+Bring work scattered across different agents into one editable context graph. Continue from any node, then bring the new work back to where the thought began.
+
+*Currently supports local Claude Code and Codex sessions, with more agent integrations in development. Source sessions remain read-only.*
+
+</td>
+<td width="45%"><img src="docs/illus/atlas-en.svg" alt="Illustration: local Codex and Claude Code sessions grouped by project, opened as a context graph, then continued in a fresh CLI session"/></td>
+</tr>
+</table>
+
 ## How ThoughtDAG differs
 
 Many products use nodes and edges, but the graph does a different job in each category.
@@ -115,7 +130,7 @@ Environment variables, local models and connection details → [docs/setup.md](d
 
 ### Browser demo
 
-Want a ten-second look before installing anything? The [hosted demo](https://app.thoughtdag.workers.dev) runs in the browser, and the example canvas needs no key. It is a feature subset: keyless web search, some direct-connection tools and the subscription bridge are desktop/local-only.
+Want a ten-second look before installing anything? The [hosted demo](https://app.thoughtdag.workers.dev) runs in the browser, and the example canvas needs no key. It is a feature subset: Session Atlas, local session discovery, keyless web search, some direct-connection tools and the subscription bridge are desktop/local-only.
 
 ## 🧪 Research: Why editable context matters
 
@@ -137,13 +152,10 @@ The full report explains the method, the numbers and their statistics, and what 
 | 🧭 Staleness & replay | Upstream edits mark the answers they invalidate; replay in dependency order, token estimate first |
 | ✂️ Clipping | Select a passage or drag a rectangle in the reader; it becomes canvas material with page provenance |
 | 🔌 Any model | Per-node pins that follow the line; text-only models read images through their companion text |
+| 🧭 Agent session continuity | Bring sessions from different agents into one map; continue from any node and return the result to the graph. |
 | 🔒 Local-first | Automatic folder backup writes real files; point it at a synced folder for cross-device |
 
 Full feature list (60+, grouped by area) → [docs/features.md](docs/features.md)
-
-### Works beside your coding agent
-
-Automatic folder backup keeps the canvas as a live `.thoughtdag.json` file in your project; Markdown export turns any context chain or selection into a plain `.md`. Coding agents can read either without a plugin, API or server.
 
 ## Models, cost & privacy
 

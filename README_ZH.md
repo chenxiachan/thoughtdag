@@ -11,7 +11,7 @@
 
 ### [下载桌面版 ↓](https://chenxiachan.github.io/thoughtdag/?lang=zh#download) · [官网](https://chenxiachan.github.io/thoughtdag/?lang=zh)
 
-[English](./README.md) · [快速开始](#快速开始) · [有何不同](#thoughtdag-和其他图形化-ai-工具有何不同) · [研究](#-研究为什么上下文需要可编辑) · [模型与隐私](#模型成本与隐私)
+[English](./README.md) · [快速开始](#快速开始) · [有何不同](#thoughtdag-和其他图形化-ai-工具有何不同) · [Agent 会话](#-把-agent-会话带进画布) · [研究](#-研究为什么上下文需要可编辑) · [模型与隐私](#模型成本与隐私)
 
 <img src="docs/hero-demo-zh.gif" alt="真实录屏的 Hero 演示：在 PDF 阅读器圈选段落提问；删掉噪音边重新生成干净答案；三层语义缩放缩到地图形态；打开备份控制中心导出真实文件" width="100%"/>
 
@@ -68,6 +68,21 @@
 </tr>
 </table>
 
+<table>
+<tr>
+<td width="55%">
+
+### 🧭 把 Agent 会话带进画布
+
+把散落在不同 Agent 里的工作，汇成一张可编辑的上下文图。从任意节点继续探索，再把新的结果接回思路开始的地方。
+
+*目前支持本机 Claude Code 与 Codex 会话，更多 Agent 正在接入；源会话始终只读。*
+
+</td>
+<td width="45%"><img src="docs/illus/atlas-zh.svg" alt="示意图：按项目归类本机 Codex 与 Claude Code 会话，展开为上下文图，再带着选定上下文进入新的 CLI 会话"/></td>
+</tr>
+</table>
+
 ## ThoughtDAG 和其他图形化 AI 工具有何不同
 
 很多产品都有节点和连线，但这张图在不同产品中做的事并不一样。
@@ -113,7 +128,7 @@ npm run dev       # → localhost:5173
 
 ### 在线体验
 
-想先花十秒看看再决定装不装？[在线 Demo](https://app.thoughtdag.workers.dev) 在浏览器里直接跑，示例画布免 key。注意它是功能子集：免 key 联网搜索、部分直连工具和订阅桥只在桌面版/本地可用。
+想先花十秒看看再决定装不装？[在线 Demo](https://app.thoughtdag.workers.dev) 在浏览器里直接跑，示例画布免 key。注意它是功能子集：Agent 对话地图、本机会话发现、免 key 联网搜索、部分直连工具和订阅桥只在桌面版/本地可用。
 
 ## 🧪 研究：为什么上下文需要可编辑
 
@@ -135,13 +150,10 @@ npm run dev       # → localhost:5173
 | 🧭 陈旧重放 | 上游一改，受影响回答亮标记；按依赖序批量重放，先报 token 价 |
 | ✂️ 摘取 | 阅读器里圈选文字、框选图表，摘成带页码出处的画布素材 |
 | 🔌 模型自由 | 节点级钉选、沿线继承；纯文本模型经伴随文本读图 |
+| 🧭 Agent 会话接续 | 把不同 Agent 的会话汇入同一张图，从任意节点继续，再把结果接回原图 |
 | 🔒 本地优先 | 自动文件夹备份写成真实文件，指向同步盘即跨设备 |
 
 完整功能清单（60+ 条，按领域分组）→ [docs/features_ZH.md](docs/features_ZH.md)
-
-### 和 coding agent 并肩工作
-
-自动文件夹备份会把画布持续写成项目里的 `.thoughtdag.json`；Markdown 导出则把任意上下文链或选区变成普通 `.md`。coding agent 无需插件、API 或额外服务即可读取。
 
 ## 模型、成本与隐私
 

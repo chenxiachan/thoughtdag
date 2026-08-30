@@ -6,7 +6,7 @@
     <title>ThoughtDAG — Make LLM context visible and editable</title>
     <meta
       name="description"
-      content="ThoughtDAG is an open-source, local-first canvas where graph edges define the context sent to an LLM. Branch, prune, merge, and inspect what the model sees."
+      content="ThoughtDAG is an open-source, local-first canvas that turns agent sessions and LLM conversations into editable context graphs. Wires define what the model sees next."
     />
     <meta name="robots" content="index,follow,max-image-preview:large" />
     <meta name="theme-color" content="#f8f6fb" />
@@ -31,7 +31,7 @@
     <meta property="og:title" content="ThoughtDAG — Make LLM context visible and editable" />
     <meta
       property="og:description"
-      content="A local-first, open-source canvas where the graph determines what the model sees."
+      content="Turn local agent sessions and LLM conversations into editable context graphs."
     />
     <meta property="og:url" content="https://chenxiachan.github.io/thoughtdag/" />
     <meta
@@ -52,7 +52,7 @@
         "name": "ThoughtDAG",
         "applicationCategory": "DeveloperApplication",
         "operatingSystem": "Web",
-        "description": "An open-source, local-first canvas where graph edges define the context sent to an LLM.",
+        "description": "An open-source, local-first canvas that turns agent sessions and LLM conversations into editable context graphs.",
         "license": "https://opensource.org/licenses/MIT",
         "codeRepository": "https://github.com/chenxiachan/thoughtdag",
         "url": "https://chenxiachan.github.io/thoughtdag/"
@@ -1028,6 +1028,8 @@
         margin: 0 auto;
         align-items: center;
       }
+      .research-teaser-copy { order: 2; }
+      .research-visual { order: 1; }
       .research-eyebrow {
         display: inline-flex;
         align-items: center;
@@ -1181,12 +1183,252 @@
         line-height: 1.35;
       }
 
+      /* 0.4 Session Atlas: a product chapter distinct from the research evidence below. */
+      .session-teaser {
+        position: relative;
+        overflow: hidden;
+        padding: 116px 24px;
+        border-top: 1px solid #2e2939;
+        border-bottom: 1px solid #2e2939;
+        background:
+          radial-gradient(circle at 78% 14%, rgba(124, 105, 244, 0.28), transparent 28%),
+          radial-gradient(circle at 16% 88%, rgba(65, 187, 146, 0.10), transparent 25%),
+          #17141f;
+      }
+      .session-teaser::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        opacity: 0.22;
+        background-image:
+          linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px);
+        background-size: 56px 56px;
+        mask-image: linear-gradient(90deg, #000, transparent 72%);
+      }
+      .session-teaser-inner {
+        position: relative;
+        z-index: 1;
+        width: min(1180px, 100%);
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: minmax(0, 0.78fr) minmax(600px, 1.22fr);
+        gap: 70px;
+        align-items: center;
+      }
+      .session-eyebrow {
+        margin: 0 0 15px;
+        color: #aa9df7;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+      }
+      .session-teaser h2 {
+        max-width: 620px;
+        margin: 0;
+        color: #f7f4fb;
+        font-size: clamp(38px, 5vw, 66px);
+        line-height: 0.99;
+        letter-spacing: -0.055em;
+      }
+      html[lang="zh-CN"] .session-teaser h2 {
+        line-height: 1.08;
+        letter-spacing: -0.045em;
+      }
+      .session-lede {
+        max-width: 590px;
+        margin: 24px 0 0;
+        color: #c5becd;
+        font-size: 17px;
+        line-height: 1.75;
+      }
+      .session-signals {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 9px;
+        margin: 25px 0 0;
+      }
+      .session-signals span {
+        padding: 8px 11px;
+        border: 1px solid rgba(187, 175, 255, 0.24);
+        border-radius: 999px;
+        color: #ddd6e8;
+        background: rgba(255, 255, 255, 0.06);
+        font-size: 12px;
+        font-weight: 720;
+      }
+      .session-availability {
+        margin: 18px 0 0;
+        color: #91899d;
+        font-size: 12px;
+        line-height: 1.6;
+      }
+      .session-action {
+        display: inline-flex;
+        margin-top: 24px;
+        color: #b9acf9;
+        font-size: 14px;
+        font-weight: 780;
+        text-decoration: none;
+      }
+      .session-action:hover { text-decoration: underline; }
+      .atlas-demo {
+        overflow: hidden;
+        border: 1px solid rgba(202, 191, 255, 0.42);
+        border-radius: 24px;
+        background: #fff;
+        box-shadow: 0 34px 90px rgba(0, 0, 0, 0.38), 0 0 0 1px rgba(255,255,255,0.04);
+      }
+      .atlas-demo-bar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 48px;
+        padding: 0 16px;
+        border-bottom: 1px solid #e5e0eb;
+        color: #5e5868;
+        background: rgba(248, 246, 251, 0.94);
+        font-size: 11px;
+        font-weight: 760;
+      }
+      .atlas-demo-dots { display: flex; gap: 5px; margin-right: 4px; }
+      .atlas-demo-dots i { width: 7px; height: 7px; border-radius: 50%; background: #ccc5d6; }
+      .atlas-demo-bar em {
+        margin-left: auto;
+        color: #6b5ce7;
+        font-style: normal;
+        font-weight: 750;
+      }
+      .atlas-demo-body {
+        display: grid;
+        grid-template-columns: 205px 1fr;
+        min-height: 425px;
+      }
+      .atlas-demo-sidebar {
+        padding: 17px 12px;
+        border-right: 1px solid #e7e2ec;
+        background: #faf9fc;
+      }
+      .atlas-demo-kicker {
+        padding: 0 9px 8px;
+        color: #9a94a4;
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 0.11em;
+        text-transform: uppercase;
+      }
+      .atlas-demo-project {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 3px;
+        padding: 9px 10px;
+        border-radius: 9px;
+        color: #514b5c;
+        font-size: 11px;
+        font-weight: 680;
+      }
+      .atlas-demo-project::before { content: "▱"; color: #9891a4; font-size: 14px; }
+      .atlas-demo-project b { margin-left: auto; color: #aaa4b2; font-size: 9px; }
+      .atlas-demo-project.active { color: var(--purple); background: #eeebfb; }
+      .atlas-demo-project.active::before { color: var(--purple); }
+      .atlas-demo-main { padding: 18px; background: #fff; }
+      .atlas-demo-mainhead {
+        display: flex;
+        align-items: baseline;
+        gap: 9px;
+        margin-bottom: 11px;
+        color: #2c2933;
+        font-size: 13px;
+        font-weight: 780;
+      }
+      .atlas-demo-mainhead span { color: #a09aa9; font-size: 9px; font-weight: 650; }
+      .atlas-session-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 7px;
+        padding: 10px 11px;
+        border: 1px solid #e3dfea;
+        border-radius: 11px;
+        background: #fff;
+      }
+      .atlas-session-row.active { border-color: #bcb2f1; background: #faf9ff; }
+      .atlas-runner {
+        padding: 3px 5px;
+        border: 1px solid #d9d3e2;
+        border-radius: 5px;
+        color: #777180;
+        font: 8px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+      }
+      .atlas-session-title { min-width: 0; flex: 1; color: #3d3845; font-size: 10px; font-weight: 700; }
+      .atlas-session-title small { display: block; margin-top: 3px; color: #a19aa9; font-size: 8px; font-weight: 600; }
+      .atlas-session-open { color: var(--purple); font-size: 14px; }
+      .atlas-canvas {
+        position: relative;
+        height: 238px;
+        margin-top: 13px;
+        overflow: hidden;
+        border: 1px solid #e4dfeb;
+        border-radius: 14px;
+        background-color: #fbfafd;
+        background-image: radial-gradient(#d9d4e2 0.8px, transparent 0.8px);
+        background-size: 18px 18px;
+      }
+      .atlas-canvas svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+      .atlas-canvas path { fill: none; stroke: #7567dc; stroke-width: 2; }
+      .atlas-node {
+        position: absolute;
+        width: 122px;
+        min-height: 50px;
+        padding: 9px 10px;
+        border: 1px solid #d9d3e4;
+        border-radius: 10px;
+        color: #3d3845;
+        background: rgba(255,255,255,0.97);
+        box-shadow: 0 8px 18px rgba(59, 48, 102, 0.08);
+        font-size: 9px;
+        font-weight: 710;
+        line-height: 1.35;
+      }
+      .atlas-node.root { left: 25px; top: 92px; }
+      .atlas-node.a { left: 178px; top: 30px; border-color: #c8c0f1; }
+      .atlas-node.b { left: 178px; top: 148px; border-color: #eccb9b; }
+      .atlas-node.merge { right: 22px; top: 88px; border-color: #aad9c5; }
+      .atlas-live-note {
+        position: absolute;
+        right: 13px;
+        bottom: 10px;
+        color: #2b9468;
+        font-size: 8px;
+        font-weight: 760;
+      }
+
       @media (max-width: 900px) {
+        .session-teaser-inner { grid-template-columns: 1fr; gap: 46px; }
+        .atlas-demo { width: min(720px, 100%); }
         .research-teaser-inner { grid-template-columns: 1fr; }
+        .research-teaser-copy { order: 1; }
+        .research-visual { order: 2; }
         .research-teaser-copy { max-width: 700px; }
         .research-visual { width: min(660px, 100%); }
       }
       @media (max-width: 600px) {
+        .session-teaser { padding: 82px 18px; }
+        .session-teaser h2 { font-size: 42px; }
+        .atlas-demo-body { grid-template-columns: 132px 1fr; min-height: 390px; }
+        .atlas-demo-project { padding: 8px 6px; font-size: 9px; }
+        .atlas-demo-project b { display: none; }
+        .atlas-demo-main { padding: 11px; }
+        .atlas-session-row { padding: 8px; }
+        .atlas-session-title { font-size: 9px; }
+        .atlas-canvas { height: 210px; }
+        .atlas-node { width: 88px; padding: 7px; font-size: 8px; }
+        .atlas-node.root { left: 8px; top: 76px; }
+        .atlas-node.a { left: 106px; top: 25px; }
+        .atlas-node.b { left: 106px; top: 135px; }
+        .atlas-node.merge { display: none; }
         .research-teaser { padding: 82px 20px; }
         .research-lede { font-size: 16px; }
         .research-visual { min-height: 440px; border-radius: 22px; }
@@ -1925,6 +2167,106 @@
       </div>
     </section>
 
+    <section class="session-teaser" id="sessions" aria-labelledby="session-heading">
+      <div class="session-teaser-inner">
+        <div class="session-teaser-copy">
+          <p
+            class="session-eyebrow"
+            data-en="NEW IN 0.4 · SESSION ATLAS"
+            data-zh="0.4 新功能 · AGENT 对话地图"
+          >
+            NEW IN 0.4 · SESSION ATLAS
+          </p>
+          <h2
+            id="session-heading"
+            data-en-html="See your agent context<br />as a graph"
+            data-zh-html="让你的 Agent<br />上下文可视化"
+          >
+            See your agent context<br />as a graph
+          </h2>
+          <p
+            class="session-lede"
+            data-en="Bring work scattered across different agents into one editable graph. See what each session carries, continue from any node, then bring the new work back to where the thought began."
+            data-zh="把散落在不同 Agent 里的工作带回同一张图。看清每段会话带着什么上下文，从任意节点继续，再把新的结果接回原来的思路。"
+          >
+            Bring work scattered across different agents into one editable graph. See what each
+            session carries, continue from any node, then bring the new work back to where the
+            thought began.
+          </p>
+          <div class="session-signals" aria-label="Session Atlas properties">
+            <span data-en="Local discovery" data-zh="本机发现">Local discovery</span>
+            <span data-en="Visible context" data-zh="上下文可视">Visible context</span>
+            <span data-en="Cross-agent continuity" data-zh="跨 Agent 接续">Cross-agent continuity</span>
+          </div>
+          <p
+            class="session-availability"
+            data-en="Desktop only · Claude Code and Codex supported today · more agent integrations in development."
+            data-zh="桌面版专属 · 目前支持 Claude Code 与 Codex · 更多 Agent 正在接入。"
+          >
+            Desktop only · Claude Code and Codex supported today · more agent integrations in
+            development.
+          </p>
+          <a
+            class="session-action"
+            href="#download"
+            data-en="Open your sessions on the desktop →"
+            data-zh="在桌面版打开你的会话 →"
+          >Open your sessions on the desktop →</a>
+        </div>
+
+        <div class="atlas-demo" aria-label="Session Atlas opening a local agent conversation as a graph">
+          <div class="atlas-demo-bar">
+            <span class="atlas-demo-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span data-en="AGENT CONVERSATION ATLAS" data-zh="AGENT 对话地图">AGENT CONVERSATION ATLAS</span>
+            <em data-en="context · mapped" data-zh="上下文 · 可视化">context · mapped</em>
+          </div>
+          <div class="atlas-demo-body">
+            <aside class="atlas-demo-sidebar">
+              <div class="atlas-demo-kicker" data-en="Project folders" data-zh="项目文件夹">Project folders</div>
+              <div class="atlas-demo-project active"><span>thoughtdag-main</span><b>18</b></div>
+              <div class="atlas-demo-project"><span>literature-review</span><b>7</b></div>
+              <div class="atlas-demo-project"><span>benchmark</span><b>11</b></div>
+              <div class="atlas-demo-project"><span data-en="Unfiled" data-zh="未分类">Unfiled</span><b>3</b></div>
+            </aside>
+            <div class="atlas-demo-main">
+              <div class="atlas-demo-mainhead">
+                <span data-en="thoughtdag-main" data-zh="thoughtdag-main">thoughtdag-main</span>
+                <span data-en="18 sessions" data-zh="18 个会话">18 sessions</span>
+              </div>
+              <div class="atlas-session-row active">
+                <span class="atlas-runner">codex</span>
+                <span class="atlas-session-title" data-en="Investigate contradictory findings" data-zh="梳理相互矛盾的研究结论">
+                  Investigate contradictory findings
+                  <small data-en="updated just now" data-zh="刚刚更新">updated just now</small>
+                </span>
+                <span class="atlas-session-open" aria-hidden="true">→</span>
+              </div>
+              <div class="atlas-session-row">
+                <span class="atlas-runner">claude-code</span>
+                <span class="atlas-session-title" data-en="Review benchmark design" data-zh="检查 benchmark 设计">
+                  Review benchmark design
+                  <small data-en="yesterday" data-zh="昨天">yesterday</small>
+                </span>
+              </div>
+              <div class="atlas-canvas" aria-label="The selected session opened as a branching context graph">
+                <svg viewBox="0 0 430 238" preserveAspectRatio="none" aria-hidden="true">
+                  <path d="M147 116 C170 116 158 57 178 57"></path>
+                  <path d="M147 116 C170 116 158 175 178 175"></path>
+                  <path d="M300 57 C328 57 312 112 333 112"></path>
+                  <path d="M300 175 C328 175 312 122 333 122"></path>
+                </svg>
+                <div class="atlas-node root" data-en="The literature disagrees" data-zh="研究结论相互矛盾">The literature disagrees</div>
+                <div class="atlas-node a" data-en="Check study design" data-zh="检查研究设计">Check study design</div>
+                <div class="atlas-node b" data-en="Alternative explanation" data-zh="另一种解释">Alternative explanation</div>
+                <div class="atlas-node merge" data-en="What stays in context?" data-zh="哪些内容进入上下文？">What stays in context?</div>
+                <span class="atlas-live-note" data-en="+ new turns arrive here" data-zh="+ 新对话继续追加">+ new turns arrive here</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="research-teaser" id="research" aria-labelledby="research-heading">
       <div class="research-teaser-inner">
         <div class="research-teaser-copy">
@@ -2481,7 +2823,6 @@
         };
         setBadges();
         new MutationObserver(setBadges).observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
-
         fetch("https://api.github.com/repos/chenxiachan/thoughtdag/releases?per_page=1")
           .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
           .then(function (rel) {
