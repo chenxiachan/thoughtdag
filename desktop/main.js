@@ -495,6 +495,67 @@ function setupAutoUpdate() {
   });
 }
 
+// ─── Codex app-server (Tier 2, READ path) ────────────────────────
+// Lazy singleton over `codex app-server` (JSON-RPC over stdio): the
+// thread store's front door — real names, fork lineage, paged turns.
+// File mirroring (Tier 1) stays the import truth; this layer only
+// reads. No codex CLI → every call answers null, the UI stays Tier 1.
+let codexRpc = null; // null=not started, 'dead'=CLI absent, else client
+function codexAppServer() {
+  if (codexRpc === 'dead') return null;
+  if (codexRpc) return codexRpc;
+  try {
+    const proc = require('child_process').spawn('codex', ['app-server'], { stdio: ['pipe', 'pipe', 'ignore'] });
+    let buf = '';
+    const pending = new Map();
+    let nextId = 1;
+    proc.stdout.on('data', (d) => {
+      buf += d.toString();
+      let i;
+      while ((i = buf.indexOf('\n')) >= 0) {
+        const line = buf.slice(0, i); buf = buf.slice(i + 1);
+        if (!line.trim()) continue;
+        try {
+          const m = JSON.parse(line);
+          if (m.id != null && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); }
+        } catch { /* notification noise */ }
+      }
+    });
+    proc.on('error', () => { codexRpc = 'dead'; });
+    proc.on('exit', () => { if (codexRpc !== 'dead') codexRpc = null; });
+    const send = (method, params) => new Promise((resolve) => {
+      const id = nextId++;
+      pending.set(id, resolve);
+      try { proc.stdin.write(JSON.stringify({ jsonrpc: '2.0', id, method, params }) + '\n'); } catch { resolve(null); }
+      setTimeout(() => { if (pending.has(id)) { pending.delete(id); resolve(null); } }, 10000);
+    });
+    codexRpc = { send, proc, ready: send('initialize', { clientInfo: { name: 'thoughtdag', title: 'ThoughtDAG', version: app.getVersion() } }) };
+    return codexRpc;
+  } catch { codexRpc = 'dead'; return null; }
+}
+ipcMain.handle('codex:threads', async () => {
+  const c = codexAppServer();
+  if (!c) return null;
+  await c.ready;
+  const r = await c.send('thread/list', { limit: 200 });
+  const data = r?.result?.data;
+  if (!Array.isArray(data)) return null;
+  return data.map((t) => ({
+    id: t.id, sessionId: t.sessionId, name: t.name ?? null,
+    preview: String(t.preview ?? '').slice(0, 200),
+    forkedFromId: t.forkedFromId ?? null, parentThreadId: t.parentThreadId ?? null,
+    updatedAt: t.updatedAt ?? null, cwd: t.cwd ?? null, path: t.path ?? null,
+  }));
+});
+ipcMain.handle('codex:thread-read', async (_e, threadId) => {
+  if (typeof threadId !== 'string' || !/^[A-Za-z0-9-]{8,}$/.test(threadId)) return null;
+  const c = codexAppServer();
+  if (!c) return null;
+  await c.ready;
+  const r = await c.send('thread/read', { threadId, includeTurns: true });
+  return r?.result?.thread ?? null;
+});
+
 const lock = app.requestSingleInstanceLock();
 if (!lock) {
   app.quit();
@@ -540,5 +601,5 @@ if (!lock) {
   });
   app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) boot(); });
   app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
-  app.on('will-quit', () => { serverProc?.kill(); });
+  app.on('will-quit', () => { serverProc?.kill(); if (codexRpc && codexRpc !== 'dead') codexRpc.proc.kill(); });
 }

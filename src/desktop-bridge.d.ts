@@ -44,6 +44,14 @@ interface DesktopSessionsBridge {
   setOpenPrefs: (prefs: { terminal: string }) => Promise<{ terminal: string }>;
   /** Native app picker (macOS) — a user-chosen terminal app joins the registry. */
   addTerminal: () => Promise<{ id: string; name: string } | null>;
+  /** Codex app-server read path (Tier 2): real thread names, fork
+      lineage, full turns. null whenever the codex CLI is absent. */
+  codexThreads?: () => Promise<{
+    id: string; sessionId: string; name: string | null; preview: string;
+    forkedFromId: string | null; parentThreadId: string | null;
+    updatedAt: string | null; cwd: string | null; path: string | null;
+  }[] | null>;
+  codexThreadRead?: (threadId: string) => Promise<unknown | null>;
   /** thoughtdag:// deep links: push while running, pull once at startup. */
   onDeepLink?: (cb: (url: string) => void) => void;
   pendingDeepLink?: () => Promise<string | null>;

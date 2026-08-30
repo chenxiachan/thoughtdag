@@ -29,5 +29,7 @@ contextBridge.exposeInMainWorld('desktopSessions', {
   watchStart: () => ipcRenderer.invoke('sessions:watch-start'),
   onSessionsChanged: (cb) => { ipcRenderer.on('sessions:changed', (_e, data) => cb(data)); },
   onDeepLink: (cb) => { ipcRenderer.on('sessions:deeplink', (_e, url) => cb(url)); },
+  codexThreads: () => ipcRenderer.invoke('codex:threads'),
+  codexThreadRead: (threadId) => ipcRenderer.invoke('codex:thread-read', threadId),
   pendingDeepLink: () => ipcRenderer.invoke('sessions:pending-deeplink'),
 });

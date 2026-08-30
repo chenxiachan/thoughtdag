@@ -53,7 +53,7 @@ interface RolloutLine {
   };
 }
 
-interface Turn {
+export interface CodexTurn {
   question: string;
   response: string;
   itemIds: string[];
@@ -93,9 +93,9 @@ const outputText = (output: unknown): string => {
  *  small (tool results clipped on entry). The whole adapter runs on this;
  *  the string-based entry points below are thin wrappers. */
 export class CodexSessionCollector {
-  private turns: Turn[] = [];
+  private turns: CodexTurn[] = [];
   private pendingCalls = new Map<string, { name: string; call: string }>();
-  private current: Turn | null = null;
+  private current: CodexTurn | null = null;
   private pendingCompaction: string | undefined;
   private sessionId: string | null = null;
   private cwd = '';
@@ -118,7 +118,7 @@ export class CodexSessionCollector {
     this.current = null;
   }
 
-  private ensure(): Turn {
+  private ensure(): CodexTurn {
     if (!this.current) {
       this.current = { question: '', response: '', itemIds: [], tools: [] };
       if (this.pendingCompaction) {
@@ -183,7 +183,7 @@ export class CodexSessionCollector {
     }
   }
 
-  finish(): { sessionId: string; title: string; turns: Turn[]; subagent: boolean } | null {
+  finish(): { sessionId: string; title: string; turns: CodexTurn[]; subagent: boolean } | null {
     this.flush();
     if (!this.sessionId || !this.sawItems) return null;
     // the rollout file does NOT carry the thread's display name (that
@@ -214,7 +214,7 @@ function collectFromText(text: string): CodexSessionCollector {
   return c;
 }
 
-function buildGraphFromTurns(turns: Turn[], sessionId: string): { nodes: ThoughtNode[]; edges: ThoughtEdge[] } {
+export function buildGraphFromTurns(turns: CodexTurn[], sessionId: string): { nodes: ThoughtNode[]; edges: ThoughtEdge[] } {
   // faithful projection: EVERY turn imports — no tail cap (see the Claude
   // Code adapter for the rationale; the rule is runner-agnostic).
   const nodes: ThoughtNode[] = [];

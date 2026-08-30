@@ -114,6 +114,11 @@ export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { 
   const [busyRel, setBusyRel] = useState<string | null>(null);
   const [sourcesOpen, setSourcesOpen] = useState(false);
   const [mountPick, setMountPick] = useState<SessionCard | null>(null);
+  // Tier 2 enrichment: the thread store's REAL names and fork lineage.
+  // Purely additive — absent codex CLI, the maps stay empty and every
+  // card keeps its Tier 1 identity (first user prompt).
+  const [threadNames, setThreadNames] = useState<Map<string, string>>(new Map());
+  const [threadForks, setThreadForks] = useState<Map<string, string>>(new Map());
   // curation picks: sessions selected for a side-by-side merge
   const [picked, setPicked] = useState<Map<string, SessionCard>>(new Map());
   const [mergePick, setMergePick] = useState(false);
@@ -143,6 +148,13 @@ export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { 
       const scanned = await scanSessions();
       setCards(scanned);
       setChanges(diffAgainstWatermark(scanned));
+      // Tier 2 enrichment, fire-and-forget: real thread names + fork
+      // lineage from the codex app-server; silence on any failure
+      void window.desktopSessions?.codexThreads?.().then((threads) => {
+        if (!threads) return;
+        setThreadNames(new Map(threads.filter((t) => t.name && t.sessionId).map((t) => [t.sessionId, t.name!])));
+        setThreadForks(new Map(threads.filter((t) => t.forkedFromId && t.sessionId).map((t) => [t.sessionId, t.forkedFromId!])));
+      }).catch(() => {});
       // twin-badge arrival: land on the folder that holds the session
       // this canvas mirrors
       if (focusSessionId) {
@@ -559,7 +571,10 @@ export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { 
                     >
                       <div className="flex-1 min-w-0">
                         <div className="text-sm text-ink truncate flex items-center gap-1.5">
-                          <span className="truncate">{card.title}</span>
+                          <span className="truncate">{threadNames.get(card.sessionId) ?? card.title}</span>
+                          {threadForks.has(card.sessionId) && (
+                            <span className="text-2xs text-ink-faint border border-line rounded px-1 py-px shrink-0 font-mono" title={`⑂ ${threadForks.get(card.sessionId)}`} data-atlas-fork>⑂</span>
+                          )}
                           {changes.get(changeKeyOf(card))?.kind === 'new' && (
                             <span className="text-2xs text-white bg-accent rounded px-1 py-px shrink-0" data-atlas-badge="new">{t('atlas.badgeNew')}</span>
                           )}
