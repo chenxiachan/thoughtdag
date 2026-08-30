@@ -11,7 +11,7 @@
 
 ### [Download ↓](https://chenxiachan.github.io/thoughtdag/#download) · [Website](https://chenxiachan.github.io/thoughtdag/)
 
-[中文](./README_ZH.md) · [Quick start](#quick-start) · [How it differs](#how-thoughtdag-differs) · [Agent sessions](#-bring-agent-sessions-onto-the-canvas) · [Research](#-research-why-editable-context-matters) · [Models & privacy](#models-cost--privacy)
+[中文](./README_ZH.md) · [Quick start](#quick-start) · [How it differs](#how-thoughtdag-differs) · [Session Atlas](#-session-atlas-bring-agent-conversations-onto-the-canvas) · [Research](#-research-why-editable-context-matters) · [Models & privacy](#models-cost--privacy)
 
 <img src="docs/hero-demo-en.gif" alt="Hero demo, recorded from the live app: selecting a passage in the PDF reader and asking about it; deleting a noise edge and regenerating a clean answer; zooming out through three semantic tiers to the map; opening the backup control center and exporting a real file" width="100%"/>
 
@@ -74,7 +74,7 @@ Merge nodes into a higher conclusion; weave highlights into cited prose. Zoom th
 <tr>
 <td width="55%">
 
-### 🧭 Bring agent sessions onto the canvas
+### 🧭 Session Atlas: bring agent conversations onto the canvas
 
 Bring work scattered across different agents into one editable context graph. Continue from any node, then bring the new work back to where the thought began.
 
