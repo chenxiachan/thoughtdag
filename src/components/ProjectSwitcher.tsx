@@ -165,19 +165,19 @@ export default function ProjectSwitcher({ onSwitched }: { onSwitched: () => void
                       <Pencil size={14} strokeWidth={1.75} />
                     </button>
                     <button
+                      title={t('common.delete')}
+                      className="opacity-0 group-hover:opacity-100 text-ink-faint hover:text-red-500 p-1 rounded transition-all shrink-0"
+                      onClick={(e) => { e.stopPropagation(); void confirmDelete(p); }}
+                    >
+                      <Trash2 size={14} strokeWidth={1.75} />
+                    </button>
+                    <button
                       title={t('switcher.archive')}
                       className="opacity-0 group-hover:opacity-100 text-ink-faint hover:text-amber-600 p-1 rounded transition-all shrink-0"
                       onClick={(e) => { e.stopPropagation(); void setProjectArchived(p.id, true).then(onSwitched); }}
                       data-archive-canvas
                     >
                       <Archive size={14} strokeWidth={1.75} />
-                    </button>
-                    <button
-                      title={t('common.delete')}
-                      className="opacity-0 group-hover:opacity-100 text-ink-faint hover:text-red-500 p-1 rounded transition-all shrink-0"
-                      onClick={(e) => { e.stopPropagation(); void confirmDelete(p); }}
-                    >
-                      <Trash2 size={14} strokeWidth={1.75} />
                     </button>
                   </>
                 )}
