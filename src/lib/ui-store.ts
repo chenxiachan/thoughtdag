@@ -346,3 +346,10 @@ export function confirmDialog(opts: Omit<ConfirmRequest, 'resolve'>): Promise<bo
     useUiStore.setState({ confirmRequest: { ...opts, resolve } });
   });
 }
+
+// DEV hook for e2e: a bare-path dynamic import of this module forks a
+// second instance once HMR has stamped the page's copy with ?t= —
+// setPanelOpen on the orphan does nothing. Tests must use window.__ui.
+if (import.meta.env.DEV) {
+  Object.assign(window, { __ui: useUiStore });
+}

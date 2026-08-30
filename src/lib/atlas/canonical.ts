@@ -221,6 +221,40 @@ async function appendPastLedger(
   const survivors = store.nodes.filter((n) => n.data.importSource?.sessionId === conv.sessionId);
   const anchor = store.nodes.find((n) => n.id === hit.entry.tailNodeId) ?? survivors.at(-1) ?? null;
 
+  // Half-turn refresh: CLI files stream — the question lands first, the
+  // answer follows later. The LAST imported turn may therefore sit on
+  // the canvas answerless (or mid-answer). If its node still matches
+  // its frozen source (the user never touched it), bring content and
+  // snapshot up to date TOGETHER, so the pristine test keeps passing on
+  // the next tick; an edited node is the user's and is never
+  // overwritten. Matching is by the turn's first item id (the user
+  // message), which never changes as the answer grows.
+  const lastImported = hit.entry.importedCount > 0 && qa.length >= hit.entry.importedCount
+    ? qa[hit.entry.importedCount - 1] : null;
+  if (lastImported) {
+    const key = lastImported.data.importSource?.itemIds?.[0];
+    const node = key ? survivors.find((n) => n.data.importSource?.itemIds?.[0] === key) : undefined;
+    const src = node?.data.source;
+    const pristine = !!src && node.data.question === src.question && (node.data.response ?? '') === (src.response ?? '');
+    const fd = lastImported.data;
+    const changed = !!node && (fd.question !== node.data.question || (fd.response ?? '') !== (node.data.response ?? ''));
+    if (node && pristine && changed) {
+      useStore.setState((s) => ({
+        nodes: s.nodes.map((n) => (n.id === node.id ? {
+          ...n,
+          data: {
+            ...n.data,
+            question: fd.question, response: fd.response,
+            responses: fd.responses, responseIndex: fd.responseIndex,
+            tokenCount: fd.tokenCount, attachments: fd.attachments,
+            importSource: fd.importSource, source: fd.source,
+          },
+        } : n)),
+      }));
+      useStore.getState().recomputeStaleness();
+    }
+  }
+
   if (qa.length <= hit.entry.importedCount) {
     useUiStore.getState().setArrivalFocusNodeId(anchor?.id ?? null);
     return { kind: 'opened' };
