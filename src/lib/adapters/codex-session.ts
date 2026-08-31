@@ -186,6 +186,29 @@ export class CodexSessionCollector {
   finish(): { sessionId: string; title: string; turns: CodexTurn[]; subagent: boolean } | null {
     this.flush();
     if (!this.sessionId || !this.sawItems) return null;
+    // A segment without a question is not a turn — it is the previous
+    // answer's tool machinery, split off by an intermediate
+    // turn_context / task_started scheduling marker. Fold it back in:
+    // the canvas shows turns of the CONVERSATION, not the runner's
+    // scheduling. A compaction mark on a folded segment survives by
+    // moving onto the next real turn; a leading orphan (nothing to fold
+    // into) stays as it is.
+    const folded: CodexTurn[] = [];
+    let carriedCompaction: string | undefined;
+    for (const turn of this.turns) {
+      const prev = folded[folded.length - 1];
+      if (!turn.question.trim() && prev) {
+        if (turn.compactionBefore) carriedCompaction = carriedCompaction ?? turn.compactionBefore;
+        if (turn.response) prev.response = prev.response ? `${prev.response}\n\n${turn.response}` : turn.response;
+        prev.tools.push(...turn.tools);
+        prev.itemIds.push(...turn.itemIds);
+      } else {
+        if (carriedCompaction && !turn.compactionBefore) turn.compactionBefore = carriedCompaction;
+        carriedCompaction = undefined;
+        folded.push(turn);
+      }
+    }
+    this.turns = folded;
     // the rollout file does NOT carry the thread's display name (that
     // lives in the app-server thread store) — the first real user prompt
     // is the closest honest stand-in
