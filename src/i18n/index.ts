@@ -14,6 +14,13 @@ const DICTS: Record<Lang, Record<MessageKey, string>> = { en, zh };
 const LANG_KEY = 'thoughtdag.lang';
 
 function initialLang(): Lang {
+  // an explicit ?lang= (the desktop shell's --lang flag, or a shared
+  // link) outranks everything and persists as the choice
+  const q = new URLSearchParams(window.location.search).get('lang');
+  if (q === 'en' || q === 'zh') {
+    try { localStorage.setItem(LANG_KEY, q); } catch { /* private mode */ }
+    return q;
+  }
   const saved = localStorage.getItem(LANG_KEY);
   if (saved === 'en' || saved === 'zh') return saved;
   return navigator.language.toLowerCase().startsWith('zh') ? 'zh' : 'en';

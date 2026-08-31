@@ -88,7 +88,12 @@ async function boot() {
   }
   // ?dv= identifies the desktop build to the web layer; &su=1 tells it the
   // shell self-updates, so the in-page download nudge stays quiet.
-  win.loadURL(`http://127.0.0.1:${port}/?dv=${encodeURIComponent(app.getVersion())}&su=1`);
+  // --lang=en|zh seeds the UI language (a demo profile boots in the
+  // requested language instead of the system's); absent, the web layer
+  // detects as always.
+  const langArg = process.argv.find((a) => a === '--lang=en' || a === '--lang=zh');
+  const langQ = langArg ? `&lang=${langArg.slice('--lang='.length)}` : '';
+  win.loadURL(`http://127.0.0.1:${port}/?dv=${encodeURIComponent(app.getVersion())}&su=1${langQ}`);
 }
 
 // ─── Session atlas: read-only access to runner session stores ───────────
