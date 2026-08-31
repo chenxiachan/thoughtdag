@@ -34,7 +34,7 @@ export default function ConfirmDialog() {
         {request.title && (
           <h3 className="text-sm font-semibold text-ink mb-1.5">{request.title}</h3>
         )}
-        <p className="text-sm text-ink-muted leading-relaxed">{request.message}</p>
+        <p className="text-sm text-ink-muted leading-relaxed whitespace-pre-line [overflow-wrap:anywhere]">{request.message}</p>
         <div className="flex justify-end gap-2 mt-5">
           <button
             onClick={() => resolveConfirm(false)}

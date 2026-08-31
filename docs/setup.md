@@ -111,4 +111,4 @@ mkdir -p ~/.claude/commands && curl -fsSL https://raw.githubusercontent.com/chen
 mkdir -p ~/.codex/skills/thoughtdag && curl -fsSL https://raw.githubusercontent.com/chenxiachan/thoughtdag/main/protocol/adapters/codex/skills/thoughtdag/SKILL.md -o ~/.codex/skills/thoughtdag/SKILL.md
 ```
 
-Both files are plain instructions you can read before installing. They locate the current session file, open it in the ThoughtDAG desktop app (falling back to a two-minute loopback bridge for the web app), and never write to the source conversation. Remove the file to uninstall.
+Both files are plain instructions you can read before installing. They locate the current session file and open it in the ThoughtDAG desktop app, falling back to a two-minute loopback bridge for the web app. Remove the file to uninstall.

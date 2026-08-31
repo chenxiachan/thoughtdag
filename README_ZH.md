@@ -117,7 +117,7 @@ brew install --cask thoughtdag
 
 ### 连接 Codex 或 Claude Code · 可选
 
-Agent 对话地图无需任何配置即可发现并打开本机会话；画布打开后会持续跟随对话自动生长。如果还想直接在 Agent 内把当前会话带进来（Claude Code 里输 `/thoughtdag`，Codex 里输 `$thoughtdag`），在 **Agent 对话地图 → 接入** 里一键启用即可：应用会安装一个可读的本地命令文件，绝不改动源对话，随时可移除。手动安装 → [安装指南](docs/setup_ZH.md#连接你的-agent)。
+Agent 对话地图无需任何配置即可发现并打开本机会话；画布打开后会持续跟随对话自动生长。如果还想直接在 Agent 内把当前会话带进来（Claude Code 里输 `/thoughtdag`，Codex 里输 `$thoughtdag`），在 **Agent 对话地图 → 接入** 里一键启用即可：应用会安装一个可读的本地命令文件，可随时移除。手动安装 → [安装指南](docs/setup_ZH.md#连接你的-agent)。
 
 ### 从源码运行
 

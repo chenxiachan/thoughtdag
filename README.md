@@ -119,7 +119,7 @@ Or use the [download page](https://chenxiachan.github.io/thoughtdag/#download), 
 
 ### Connect Codex or Claude Code · optional
 
-Session Atlas discovers and opens your local sessions with no setup at all — and an open canvas keeps following its conversation on its own. To also send the current session from **inside** your agent (`/thoughtdag` in Claude Code, `$thoughtdag` in Codex), enable one-command handoff in **Session Atlas → Sources**: the app installs one readable local file, never touches the source conversation, and removes it just as easily. Manual install → [setup guide](docs/setup.md#connect-your-agent).
+Session Atlas discovers and opens your local sessions with no setup at all — and an open canvas keeps following its conversation on its own. To also send the current session from **inside** your agent (`/thoughtdag` in Claude Code, `$thoughtdag` in Codex), enable one-command handoff in **Session Atlas → Sources**: the app installs one readable local file, removable the same way. Manual install → [setup guide](docs/setup.md#connect-your-agent).
 
 ### Run from source
 
