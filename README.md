@@ -117,9 +117,14 @@ brew install --cask thoughtdag
 
 Or use the [download page](https://chenxiachan.github.io/thoughtdag/#download), which detects your platform and gives you the right installer; [Releases](https://github.com/chenxiachan/thoughtdag/releases/latest) keeps every build. macOS builds are signed and notarized. Windows builds are not signed yet and may show a SmartScreen warning.
 
-### Connect Codex or Claude Code · optional
+### Connect the Codex or Claude Code skill
 
-Session Atlas discovers and opens your local sessions with no setup at all — and an open canvas keeps following its conversation on its own. To also send the current session from **inside** your agent (`/thoughtdag` in Claude Code, `$thoughtdag` in Codex), enable one-command handoff in **Session Atlas → Sources**: the app installs one readable local file, removable the same way. Manual install → [setup guide](docs/setup.md#connect-your-agent).
+Session Atlas discovers and opens your local sessions with no setup at all — and an open canvas keeps following its conversation on its own. To jump from a conversation straight to its canvas inside the agent:
+
+- Claude Code: `/thoughtdag`
+- Codex: `$thoughtdag`
+
+Enable it in **Session Atlas → Sources**: the app installs one readable local command file, removable anytime.
 
 ### Run from source
 
