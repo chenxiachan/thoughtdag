@@ -11,6 +11,18 @@ const fsp = require('fs/promises');
 // Development: the repo root (live dist + server.mjs + root node_modules).
 // Packaged: a self-contained payload under Resources — same three files,
 // prepared by scripts/prepare-payload.mjs with production deps only.
+// A pristine profile for demos, recordings and support: --user-data-dir
+// moves the whole data world (canvases, keys, tutorial state, backups
+// authorization) to a separate directory. The single-instance lock
+// scopes to the profile, so a demo instance runs beside the real one
+// without touching it.
+const dataDirArg = process.argv.find((a) => a.startsWith('--user-data-dir='));
+if (dataDirArg) {
+  const dir = path.resolve(dataDirArg.slice('--user-data-dir='.length));
+  app.setPath('userData', dir);
+  app.setPath('sessionData', dir);
+}
+
 const ROOT = app.isPackaged
   ? path.join(process.resourcesPath, 'payload')
   : path.join(__dirname, '..');
