@@ -55,7 +55,9 @@ export function threadToTurns(thread: AppServerThread): CodexTurn[] {
         turn.tools.push({ name: 'webSearch', call: String(it.query ?? ''), result: clip(JSON.stringify(it.results ?? []).slice(0, TOOL_RESULT_LIMIT)), truncated: true });
       } else if (ty) {
         // unknown tool-ish item: keep it honest and prunable
-        const { type: _t, id: _i, ...rest } = it;
+        const rest = { ...it };
+        delete rest.type;
+        delete rest.id;
         const body = JSON.stringify(rest);
         if (body.length > 4) turn.tools.push({ name: ty, call: '', result: clip(body), truncated: body.length > TOOL_RESULT_LIMIT });
       }
