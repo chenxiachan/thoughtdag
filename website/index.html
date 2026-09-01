@@ -871,6 +871,11 @@
           justify-content: center;
         }
 
+        .docs-link {
+          display: inline-flex !important;
+          align-items: center;
+        }
+
         .hero {
           padding-top: 108px;
         }
@@ -1475,6 +1480,15 @@
         >
         <a class="nav-link" href="#research" data-en="Research" data-zh="研究"
           >Research</a
+        >
+        <a
+          class="nav-link docs-link"
+          href="docs/"
+          data-en="Docs"
+          data-zh="文档"
+          data-en-href="docs/"
+          data-zh-href="docs/zh/"
+          >Docs</a
         >
         <a
           class="nav-link"
@@ -2593,6 +2607,14 @@
             .forEach((element) => {
               element.innerHTML =
                 language === "zh" ? element.dataset.zhHtml : element.dataset.enHtml;
+            });
+          document
+            .querySelectorAll("[data-en-href][data-zh-href]")
+            .forEach((element) => {
+              element.setAttribute(
+                "href",
+                language === "zh" ? element.dataset.zhHref : element.dataset.enHref,
+              );
             });
 
           languageToggle.textContent = language === "en" ? "中文" : "EN";

@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="560" viewBox="0 0 1200 560" role="img" aria-labelledby="title desc">
+  <title id="title">Replay updates dependent nodes in order</title>
+  <desc id="desc">An edited upstream node marks two dependent nodes stale. Replay regenerates them in dependency order while keeping older answer versions.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M1 1L11 6L1 11Z" fill="#6d5dfc"/>
+    </marker>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#4d4160" flood-opacity=".12"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="560" rx="32" fill="#fbf8f3"/>
+  <text x="72" y="72" font-family="Inter, Arial, sans-serif" font-size="26" font-weight="700" fill="#211a2b">Replay follows dependencies, not screen position</text>
+  <text x="72" y="108" font-family="Inter, Arial, sans-serif" font-size="18" fill="#6c6472">An upstream edit marks downstream answers stale. Replay updates them from left to right.</text>
+
+  <path d="M348 275H486" stroke="#6d5dfc" stroke-width="5" stroke-linecap="round" marker-end="url(#arrow)"/>
+  <path d="M710 275H848" stroke="#6d5dfc" stroke-width="5" stroke-linecap="round" marker-end="url(#arrow)"/>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="174" width="276" height="208" rx="22" fill="#fff" stroke="#c7bdfd" stroke-width="2"/>
+    <rect x="94" y="197" width="108" height="30" rx="15" fill="#eeeaff"/>
+    <text x="148" y="218" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="700" fill="#5e4be7">UPSTREAM</text>
+    <text x="96" y="267" font-family="Inter, Arial, sans-serif" font-size="23" font-weight="700" fill="#211a2b">Answer edited</text>
+    <text x="96" y="304" font-family="Inter, Arial, sans-serif" font-size="17" fill="#6c6472">Active version changes to v2</text>
+    <rect x="96" y="329" width="58" height="28" rx="14" fill="#f1eef5"/>
+    <text x="125" y="349" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="14" fill="#6c6472">v1 kept</text>
+    <rect x="162" y="329" width="58" height="28" rx="14" fill="#e6e0ff"/>
+    <text x="191" y="349" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="700" fill="#5e4be7">v2 active</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="486" y="174" width="224" height="208" rx="22" fill="#fff" stroke="#f0b24c" stroke-width="2"/>
+    <circle cx="521" cy="212" r="17" fill="#fff1d8"/>
+    <text x="521" y="218" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="800" fill="#c06b00">1</text>
+    <text x="550" y="218" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="700" fill="#c06b00">STALE</text>
+    <text x="510" y="270" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#211a2b">Replay first</text>
+    <text x="510" y="307" font-family="Inter, Arial, sans-serif" font-size="17" fill="#6c6472">Regenerate from v2</text>
+    <text x="510" y="340" font-family="Inter, Arial, sans-serif" font-size="16" fill="#817788">Older answer remains a version</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="848" y="174" width="280" height="208" rx="22" fill="#fff" stroke="#f0b24c" stroke-width="2"/>
+    <circle cx="883" cy="212" r="17" fill="#fff1d8"/>
+    <text x="883" y="218" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="800" fill="#c06b00">2</text>
+    <text x="912" y="218" font-family="Inter, Arial, sans-serif" font-size="15" font-weight="700" fill="#c06b00">STALE</text>
+    <text x="872" y="270" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="700" fill="#211a2b">Replay second</text>
+    <text x="872" y="307" font-family="Inter, Arial, sans-serif" font-size="17" fill="#6c6472">Wait for node 1 to finish</text>
+    <text x="872" y="340" font-family="Inter, Arial, sans-serif" font-size="16" fill="#817788">Then use its current answer</text>
+  </g>
+
+  <text x="600" y="465" text-anchor="middle" font-family="Inter, Arial, sans-serif" font-size="18" font-weight="650" fill="#51475a">The graph stays visible. Replay only refreshes the work you choose.</text>
+</svg>

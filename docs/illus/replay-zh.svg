@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="560" viewBox="0 0 1200 560" role="img" aria-labelledby="title desc">
+  <title id="title">重放会按依赖顺序更新下游节点</title>
+  <desc id="desc">上游节点被编辑后，两个下游节点被标记为陈旧。重放按依赖顺序重新生成，同时保留旧回答版本。</desc>
+  <defs>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M1 1L11 6L1 11Z" fill="#6d5dfc"/>
+    </marker>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#4d4160" flood-opacity=".12"/>
+    </filter>
+  </defs>
+  <rect width="1200" height="560" rx="32" fill="#fbf8f3"/>
+  <text x="72" y="72" font-family="PingFang SC, Noto Sans CJK SC, Arial, sans-serif" font-size="26" font-weight="700" fill="#211a2b">重放遵循依赖顺序，而不是画面位置</text>
+  <text x="72" y="108" font-family="PingFang SC, Noto Sans CJK SC, Arial, sans-serif" font-size="18" fill="#6c6472">上游内容改变后，下游回答会标记为陈旧；重放从左到右依次更新。</text>
+
+  <path d="M348 275H486" stroke="#6d5dfc" stroke-width="5" stroke-linecap="round" marker-end="url(#arrow)"/>
+  <path d="M710 275H848" stroke="#6d5dfc" stroke-width="5" stroke-linecap="round" marker-end="url(#arrow)"/>
+
+  <g filter="url(#shadow)">
+    <rect x="72" y="174" width="276" height="208" rx="22" fill="#fff" stroke="#c7bdfd" stroke-width="2"/>
+    <rect x="94" y="197" width="88" height="30" rx="15" fill="#eeeaff"/>
+    <text x="138" y="218" text-anchor="middle" font-family="PingFang SC, Noto Sans CJK SC, Arial, sans-serif" font-size="15" font-weight="700" fill="#5e4be7">上游节点</text>
+    <text x="96" y="267" font-family="PingFang SC, Noto Sans CJK SC, Arial, sans-serif" font-size="23" font-weight="700" fill="#211a2b">回答已编辑</text>
+    <text x="96" y="304" font-family="PingFang SC, Noto Sans CJK SC, Arial, sans-serif" font-size="17" fill="#6c6472">当前版本切换为 v2</text>
+    <rect x="96" y="329" width="66" height="28" rx="14" fill="#f1eef5"/>
+    <text x="129" y="349" text-anchor="middle" font-family="PingFang SC, Noto Sans CJK SC, Arial, sans-serif" font-size="14" fill="#6c6472">保留 v1</text>
+    <rect x="170" y="329" width="70" height="28" rx="14" fill="#e6e0ff"/>
+    <text x="205" y="349" text-anchor="middle" font-family="PingFang SC, Noto Sans CJK SC, Arial, sans-serif" font-size="14" font-weight="700" fill="#5e4be7">使用 v2</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="486" y="174" width="224" height="208" rx="22" fill="#fff" stroke="#f0b24c" stroke-width="2"/>
+    <circle cx="521" cy="212" r="17" fill="#fff1d8"/>
+    <text x="521" y="218" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="800" fill="#c06b00">1</text>
+    <text x="550" y="218" font-family="PingFang SC, Noto Sans CJK SC, Arial, sans-serif" font-size="15" font-weight="700" fill="#c06b00">陈旧</text>
+    <text x="510" y="270" font-family="PingFang SC, Noto Sans CJK SC, Arial, sans-serif" font-size="22" font-weight="700" fill="#211a2b">先重放</text>
+    <text x="510" y="307" font-family="PingFang SC, Noto Sans CJK SC, Arial, sans-serif" font-size="17" fill="#6c6472">基于 v2 重新生成</text>
+    <text x="510" y="340" font-family="PingFang SC, Noto Sans CJK SC, Arial, sans-serif" font-size="16" fill="#817788">旧回答仍作为版本保留</text>
+  </g>
+
+  <g filter="url(#shadow)">
+    <rect x="848" y="174" width="280" height="208" rx="22" fill="#fff" stroke="#f0b24c" stroke-width="2"/>
+    <circle cx="883" cy="212" r="17" fill="#fff1d8"/>
+    <text x="883" y="218" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="800" fill="#c06b00">2</text>
+    <text x="912" y="218" font-family="PingFang SC, Noto Sans CJK SC, Arial, sans-serif" font-size="15" font-weight="700" fill="#c06b00">陈旧</text>
+    <text x="872" y="270" font-family="PingFang SC, Noto Sans CJK SC, Arial, sans-serif" font-size="22" font-weight="700" fill="#211a2b">再重放</text>
+    <text x="872" y="307" font-family="PingFang SC, Noto Sans CJK SC, Arial, sans-serif" font-size="17" fill="#6c6472">等待节点 1 更新完成</text>
+    <text x="872" y="340" font-family="PingFang SC, Noto Sans CJK SC, Arial, sans-serif" font-size="16" fill="#817788">再使用它的当前回答</text>
+  </g>
+
+  <text x="600" y="465" text-anchor="middle" font-family="PingFang SC, Noto Sans CJK SC, Arial, sans-serif" font-size="18" font-weight="650" fill="#51475a">图仍保留原貌；重放只更新你选择继续使用的工作。</text>
+</svg>

@@ -1,36 +1,95 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 300" role="img" aria-labelledby="title desc">
-  <title id="title">Agent 会话成为上下文图</title>
-  <desc id="desc">同一项目中的 Codex 与 Claude Code 会话被展开为上下文图，并从选定节点接续到新的 CLI 会话。</desc>
-  <rect width="520" height="300" rx="24" fill="#f8f7fb"/>
-  <rect x="20" y="28" width="142" height="244" rx="16" fill="#fff" stroke="#ded9e8"/>
-  <text x="38" y="55" fill="#888091" font-family="system-ui,sans-serif" font-size="11" font-weight="700">项目会话</text>
-  <rect x="33" y="73" width="116" height="48" rx="10" fill="#eeebfb" stroke="#bcb2f1"/>
-  <text x="44" y="91" fill="#6b5ce7" font-family="monospace" font-size="9">CODEX</text>
-  <text x="44" y="108" fill="#3d3845" font-family="system-ui,sans-serif" font-size="10" font-weight="700">梳理研究问题</text>
-  <rect x="33" y="132" width="116" height="48" rx="10" fill="#fff" stroke="#ded9e8"/>
-  <text x="44" y="150" fill="#777180" font-family="monospace" font-size="9">CLAUDE CODE</text>
-  <text x="44" y="167" fill="#3d3845" font-family="system-ui,sans-serif" font-size="10" font-weight="700">核对证据</text>
-  <rect x="33" y="191" width="116" height="48" rx="10" fill="#fff" stroke="#ded9e8"/>
-  <text x="44" y="209" fill="#777180" font-family="monospace" font-size="9">CODEX</text>
-  <text x="44" y="226" fill="#3d3845" font-family="system-ui,sans-serif" font-size="10" font-weight="700">形成结论</text>
-  <path d="M162 98 C190 98 183 82 211 82" fill="none" stroke="#7567dc" stroke-width="2"/>
-  <path d="M162 156 C190 156 183 150 211 150" fill="none" stroke="#7567dc" stroke-width="2"/>
-  <path d="M162 215 C190 215 183 218 211 218" fill="none" stroke="#7567dc" stroke-width="2"/>
-  <rect x="211" y="55" width="122" height="54" rx="12" fill="#fff" stroke="#c8c0f1"/>
-  <text x="225" y="78" fill="#3d3845" font-family="system-ui,sans-serif" font-size="10" font-weight="700">研究问题</text>
-  <text x="225" y="94" fill="#928b99" font-family="system-ui,sans-serif" font-size="9">展开为上下文图</text>
-  <rect x="211" y="123" width="122" height="54" rx="12" fill="#fff" stroke="#eccb9b"/>
-  <text x="225" y="146" fill="#3d3845" font-family="system-ui,sans-serif" font-size="10" font-weight="700">探索支线</text>
-  <text x="225" y="162" fill="#928b99" font-family="system-ui,sans-serif" font-size="9">保留但可排除</text>
-  <rect x="211" y="191" width="122" height="54" rx="12" fill="#fff" stroke="#aad9c5"/>
-  <text x="225" y="214" fill="#3d3845" font-family="system-ui,sans-serif" font-size="10" font-weight="700">阶段结论</text>
-  <text x="225" y="230" fill="#928b99" font-family="system-ui,sans-serif" font-size="9">选定当前上下文</text>
-  <path d="M272 109 L272 123" stroke="#7567dc" stroke-width="2"/>
-  <path d="M272 177 L272 191" stroke="#7567dc" stroke-width="2"/>
-  <path d="M333 218 C363 218 357 158 384 158" fill="none" stroke="#7567dc" stroke-width="2" stroke-dasharray="5 5"/>
-  <rect x="384" y="116" width="116" height="84" rx="14" fill="#28252e"/>
-  <circle cx="400" cy="133" r="3" fill="#f17979"/><circle cx="410" cy="133" r="3" fill="#e7bb60"/><circle cx="420" cy="133" r="3" fill="#69c58e"/>
-  <text x="398" y="158" fill="#d8d3e1" font-family="system-ui,sans-serif" font-size="9">新的 CLI 会话</text>
-  <text x="398" y="176" fill="#a99cf5" font-family="system-ui,sans-serif" font-size="9">带着上下文 →</text>
-  <text x="398" y="190" fill="#8ed2b1" font-family="system-ui,sans-serif" font-size="8">结果接回原图</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="620" viewBox="0 0 1200 620" role="img" aria-labelledby="title desc">
+  <title id="title">Session Atlas：跨 Agent 的可视化上下文工作台</title>
+  <desc id="desc">多个本地 Agent 会话持续进入独立的可编辑镜像。用户可以看见、精简、补充和追问上下文，再把选定内容带到另一个 Agent，并将结果挂回原图。</desc>
+  <defs>
+    <marker id="arrow-purple" markerWidth="10" markerHeight="10" refX="8.5" refY="5" orient="auto"><path d="M1 1L9 5L1 9Z" fill="#725ed8"/></marker>
+    <marker id="arrow-green" markerWidth="10" markerHeight="10" refX="8.5" refY="5" orient="auto"><path d="M1 1L9 5L1 9Z" fill="#3e9f7a"/></marker>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="7" stdDeviation="11" flood-color="#4c405b" flood-opacity=".11"/></filter>
+    <style>.sans{font-family:"PingFang SC","Noto Sans CJK SC","Microsoft YaHei",Arial,sans-serif}.mono{font-family:"SFMono-Regular",Consolas,monospace}</style>
+  </defs>
+
+  <rect width="1200" height="620" rx="32" fill="#fbf8f3"/>
+  <text x="54" y="57" class="sans" font-size="28" font-weight="750" fill="#211a2b">让不同 Agent 的上下文，在同一张图上变得可见、可编辑、可传递</text>
+  <text x="54" y="91" class="sans" font-size="17" fill="#6f6675">原 Agent 照常工作，镜像持续更新；由你决定整理什么，以及什么进入下一步。</text>
+
+  <!-- Sources -->
+  <g filter="url(#shadow)"><rect x="52" y="127" width="246" height="386" rx="24" fill="#fff" stroke="#ded6e3" stroke-width="2"/></g>
+  <text x="78" y="164" class="sans" font-size="15" font-weight="750" fill="#766d7b">原 Agent 会话</text>
+  <rect x="76" y="187" width="198" height="105" rx="16" fill="#292631"/>
+  <circle cx="94" cy="205" r="4" fill="#f07a7a"/><circle cx="108" cy="205" r="4" fill="#e6b85c"/><circle cx="122" cy="205" r="4" fill="#68c38d"/>
+  <text x="94" y="235" class="mono" font-size="13" font-weight="700" fill="#dcd7e3">Agent A · 资料检索</text>
+  <text x="94" y="258" class="mono" font-size="11" fill="#a99cf5">› 找到两项相反证据</text>
+  <text x="94" y="276" class="mono" font-size="11" fill="#8ed2b1">› 新增第 12 轮...</text>
+  <rect x="76" y="310" width="198" height="105" rx="16" fill="#292631"/>
+  <circle cx="94" cy="328" r="4" fill="#f07a7a"/><circle cx="108" cy="328" r="4" fill="#e6b85c"/><circle cx="122" cy="328" r="4" fill="#68c38d"/>
+  <text x="94" y="358" class="mono" font-size="13" font-weight="700" fill="#dcd7e3">Agent B · 代码验证</text>
+  <text x="94" y="381" class="mono" font-size="11" fill="#a99cf5">› 运行复现实验</text>
+  <text x="94" y="399" class="mono" font-size="11" fill="#8ed2b1">› 输出工具结果</text>
+  <rect x="76" y="444" width="198" height="45" rx="13" fill="#f1eef8"/>
+  <text x="175" y="463" text-anchor="middle" class="sans" font-size="13" font-weight="750" fill="#5f50b9">持续监听 · 增量追加</text>
+  <text x="175" y="480" text-anchor="middle" class="sans" font-size="11" fill="#7c7382">原 Agent 进程不受影响</text>
+
+  <!-- Live updates -->
+  <path d="M298 239C338 239 335 230 370 230" fill="none" stroke="#725ed8" stroke-width="3.5" stroke-linecap="round" marker-end="url(#arrow-purple)"/>
+  <path d="M298 362C338 362 335 383 370 383" fill="none" stroke="#725ed8" stroke-width="3.5" stroke-linecap="round" marker-end="url(#arrow-purple)"/>
+  <rect x="306" y="281" width="56" height="54" rx="14" fill="#eeeaff"/>
+  <text x="334" y="303" text-anchor="middle" class="sans" font-size="12" font-weight="750" fill="#5f50b9">同步</text>
+  <text x="334" y="322" text-anchor="middle" class="sans" font-size="10" fill="#756b7c">追加轮次</text>
+
+  <!-- Editable mirror -->
+  <g filter="url(#shadow)"><rect x="370" y="127" width="466" height="386" rx="24" fill="#fff" stroke="#cfc5ed" stroke-width="2"/></g>
+  <rect x="394" y="147" width="246" height="35" rx="17.5" fill="#eeeaff"/>
+  <text x="517" y="170" text-anchor="middle" class="sans" font-size="15" font-weight="750" fill="#5d4cc2">Session Atlas · Agent 对话地图</text>
+  <text x="676" y="169" class="sans" font-size="12" fill="#817788">独立镜像</text>
+
+  <path d="M481 252C535 252 524 225 572 225" fill="none" stroke="#725ed8" stroke-width="3" marker-end="url(#arrow-purple)"/>
+  <path d="M481 252C535 252 524 315 572 315" fill="none" stroke="#d99c4f" stroke-width="3" marker-end="url(#arrow-purple)"/>
+  <path d="M684 225C724 225 712 270 746 270" fill="none" stroke="#725ed8" stroke-width="3" marker-end="url(#arrow-purple)"/>
+  <path d="M684 315C724 315 712 286 746 286" fill="none" stroke="#c8becd" stroke-width="3" stroke-dasharray="7 7"/>
+  <path d="M650 388C698 388 710 315 756 315" fill="none" stroke="#3e9f7a" stroke-width="3" marker-end="url(#arrow-green)"/>
+
+  <g filter="url(#shadow)">
+    <rect x="400" y="218" width="82" height="68" rx="15" fill="#fff" stroke="#bdb0ed" stroke-width="2"/>
+    <rect x="572" y="194" width="112" height="62" rx="15" fill="#fff" stroke="#bdb0ed" stroke-width="2"/>
+    <rect x="572" y="284" width="112" height="62" rx="15" fill="#fff9ef" stroke="#e5b66d" stroke-width="2"/>
+    <rect x="746" y="245" width="72" height="82" rx="15" fill="#f2fbf7" stroke="#74bf9f" stroke-width="2"/>
+    <rect x="524" y="365" width="126" height="52" rx="15" fill="#f2fbf7" stroke="#74bf9f" stroke-width="2"/>
+  </g>
+  <text x="441" y="246" text-anchor="middle" class="sans" font-size="13" font-weight="750" fill="#2e2736">原始任务</text>
+  <text x="441" y="267" text-anchor="middle" class="sans" font-size="11" fill="#817788">来源可追溯</text>
+  <text x="628" y="220" text-anchor="middle" class="sans" font-size="13" font-weight="750" fill="#2e2736">证据分支</text>
+  <text x="628" y="240" text-anchor="middle" class="sans" font-size="11" fill="#817788">保留进入上下文</text>
+  <text x="628" y="310" text-anchor="middle" class="sans" font-size="13" font-weight="750" fill="#8f5a16">无关探索</text>
+  <text x="628" y="330" text-anchor="middle" class="sans" font-size="11" fill="#9b7749">可见但已排除</text>
+  <text x="782" y="274" text-anchor="middle" class="sans" font-size="13" font-weight="750" fill="#277a5b">阶段</text>
+  <text x="782" y="293" text-anchor="middle" class="sans" font-size="13" font-weight="750" fill="#277a5b">结论</text>
+  <text x="782" y="313" text-anchor="middle" class="sans" font-size="10" fill="#4a806c">选定上下文</text>
+  <text x="587" y="388" text-anchor="middle" class="sans" font-size="12" font-weight="750" fill="#277a5b">＋ 补充资料与追问</text>
+  <text x="587" y="405" text-anchor="middle" class="sans" font-size="10" fill="#4a806c">只改变当前镜像</text>
+
+  <rect x="399" y="445" width="78" height="32" rx="16" fill="#eeeaff"/><text x="438" y="466" text-anchor="middle" class="sans" font-size="12" font-weight="750" fill="#5f50b9">可见</text>
+  <rect x="489" y="445" width="78" height="32" rx="16" fill="#fff1d8"/><text x="528" y="466" text-anchor="middle" class="sans" font-size="12" font-weight="750" fill="#a26414">可精简</text>
+  <rect x="579" y="445" width="78" height="32" rx="16" fill="#e6f6ef"/><text x="618" y="466" text-anchor="middle" class="sans" font-size="12" font-weight="750" fill="#277a5b">可追问</text>
+  <rect x="669" y="445" width="142" height="32" rx="16" fill="#f1eef5"/><text x="740" y="466" text-anchor="middle" class="sans" font-size="12" font-weight="750" fill="#6f6675">连线决定上下文</text>
+
+  <!-- Cross-agent transfer -->
+  <path d="M836 276C873 276 866 251 901 251" fill="none" stroke="#3e9f7a" stroke-width="3.5" marker-end="url(#arrow-green)"/>
+  <path d="M901 391C868 391 869 359 836 359" fill="none" stroke="#725ed8" stroke-width="3" stroke-dasharray="7 6" marker-end="url(#arrow-purple)"/>
+  <g filter="url(#shadow)"><rect x="901" y="127" width="247" height="386" rx="24" fill="#fff" stroke="#ded6e3" stroke-width="2"/></g>
+  <text x="927" y="164" class="sans" font-size="15" font-weight="750" fill="#766d7b">跨 Agent 协同</text>
+  <rect x="925" y="190" width="199" height="92" rx="16" fill="#f2fbf7" stroke="#93cdb5"/>
+  <text x="945" y="218" class="sans" font-size="13" font-weight="750" fill="#277a5b">选定上下文</text>
+  <text x="945" y="241" class="sans" font-size="11" fill="#557768">节点 · 来源 · 工具结果</text>
+  <text x="945" y="261" class="sans" font-size="11" fill="#557768">由人决定何时传递</text>
+  <rect x="925" y="306" width="199" height="104" rx="16" fill="#292631"/>
+  <circle cx="943" cy="324" r="4" fill="#f07a7a"/><circle cx="957" cy="324" r="4" fill="#e6b85c"/><circle cx="971" cy="324" r="4" fill="#68c38d"/>
+  <text x="943" y="354" class="mono" font-size="13" font-weight="700" fill="#dcd7e3">Agent C · 新实验</text>
+  <text x="943" y="378" class="mono" font-size="11" fill="#a99cf5">› 使用已选上下文</text>
+  <text x="943" y="397" class="mono" font-size="11" fill="#8ed2b1">› 结果挂回原图</text>
+  <rect x="925" y="435" width="199" height="52" rx="14" fill="#eeeaff"/>
+  <text x="1024" y="457" text-anchor="middle" class="sans" font-size="12" font-weight="750" fill="#5f50b9">多个 Agent，同一张画布</text>
+  <text x="1024" y="475" text-anchor="middle" class="sans" font-size="10" fill="#756b7c">共处不等于自动共享上下文</text>
+
+  <rect x="52" y="548" width="1096" height="42" rx="18" fill="#efeaf9"/>
+  <text x="600" y="575" text-anchor="middle" class="sans" font-size="15" font-weight="750" fill="#5949b2">原 Agent 不受影响　·　镜像独立整理　·　新增轮次持续追加　·　跨 Agent 传递由人发起</text>
 </svg>

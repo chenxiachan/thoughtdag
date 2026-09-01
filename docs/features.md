@@ -1,119 +1,79 @@
-# Full feature list
+# Complete feature index
 
-[中文](./features_ZH.md) · [Back to README](../README.md)
+[中文](/zh/features) · [Guide map](/guides/)
 
-## Philosophy
+This is a scan of current product areas. The feature guides explain how to use them; [Feature status](/reference/feature-status) separates current behavior from experimental directions.
 
-Chat terminals are harnesses for doing: they optimize for handing you an answer and hide everything else. ThoughtDAG is an instrument for thinking: the unit of value is the reasoning structure itself, kept legible, editable and repeatable.
+## Canvas and navigation
 
-Mind maps are drawn; this map grows. Chat leaves no map at all.
+- Multiple canvases with create, rename, switch, archive, and delete flows.
+- Infinite canvas with middle/right-drag panning, wheel zoom, node movement, and box selection.
+- Three semantic zoom levels: full cards, takeaway plaques, and icon-level markers.
+- Minimap, zoom controls, frame navigator, node search, structural arrow-key navigation, and root-path highlighting.
+- **Tidy layout**, local **Align**, frames, annotations, undo, and redo.
 
-*The graph is acyclic. You are the loop.*
+Guide: [Canvas, navigation, and frames](/guides/canvas-projects)
 
-## Canvas & context: the One Rule family
+## Conversation nodes and floating panel
 
-<img src="prune-en.gif" alt="Screen recording: a summary node wired to both the research chain and an off-topic dinner node absorbs the noise; the noise edge is clicked, deleted, and regeneration returns a clean summary" width="100%"/>
+- One node stores a question, answer versions, model provenance, role, highlights, and attachments.
+- Continue a path, **Explore** from selected text, edit questions and answers, or regenerate in place or as a sibling node.
+- Floating panel for reading, version switching, attachments, highlights, merge order, grouped context tree, and follow-up input.
+- Right-click node menu for panel/reading access, regeneration, summarizing to a note, copying, CLI continuation, duplication, archiving, and deletion.
 
-- **DAG context engine**: `buildContext()` walks all incoming edges, builds history in topological order
-- **Layered context assembly**: materials → reference blocks → the conversation, ordering independent of wiring history (same graph, same prompt)
-- **Purple edges** (continue): inherit the full ancestor context
-- **Orange solid edges** (explore): select text → branch right with the selection as context; solid always means structural, dashed always means bypass (reference / watch)
-- **Reference edges (dashed)**: drop a hand-drawn wire on any node to quote it (Q&A + upstream question trail) without dragging its whole conversation in; depth is a first-class edge property: toggle quote ⇄ full on the selected edge OR in the panel's context tree, and the connect toast prices both options (silent when the source has no chain)
-- **Context send preview**: live "~N tok · M messages · K files" plus a materials · references · conversation layer breakdown before asking
-- **Click-to-delete edges**: select an edge for a floating delete button; right-click menu works too; Cmd+Z undoes
-- **Archive (prune-but-keep)**: dimmed on canvas, excluded from every context walk, restorable; batch via multi-select
-- **Merge Synthesis**: box-select nodes → structured synthesis (conclusions / evidence / open questions)
-- **Highlight system**: three downstream modes: 📄 Full text / 🏷️ Tag important / ✂️ Highlights only; marks render across lists and tables; stale highlights auto-clean on edit; an all-highlights overview (by time / by node) pinpoints each mark's source node, exports Markdown, and weaves any checked subset into one cited passage
-- **Node role system**: per-node system prompt with three modes (inherit / set for next / reset here), `appliedRole` recorded at generation time, radio picker for multi-parent conflicts
-- **Role library, user-editable**: built-ins plus your own roles; add, edit and remove in a manager (editing a built-in makes your copy; restore anytime); applied roles stay frozen on their nodes
-- **Token counting**: per-node usage display
+Guide: [Conversation nodes and panel](/guides/conversations)
 
-## Reading & materials
+## Wires and model-visible context
 
-<img src="reading-en.gif" alt="Screen recording: selecting a sentence on the original PDF page, asking about it, the answer streaming into the annotation rail while the passage keeps a bubble mark, then a guided digest with page jumps" width="100%"/>
+- Purple solid conversation paths, orange structural exploration branches, purple dashed summary references, and red dashed reviewer relationships.
+- **Will send** preview grouped into materials, references, and conversation turns.
+- Delete or convert a wire without deleting its nodes; archive content to exclude it while retaining it.
+- Context fingerprints, stale markers, answer versions, and dependency-ordered replay.
+- Controlled comparison by regenerating the same question and model after a context change.
 
-- **Material reader**: original PDF rendering with a selectable text layer (pdf.js); select → ask lands a branch node with `(p.N)` provenance, and the passage keeps an anchor on the page (highlight wash + a bubble that reopens the thread); canvas nodes carry a p.N chip that jumps back into the reader; extracted-text view for scanned PDFs; a footer thread index tagging each conversation p.N or whole-material; per-material scroll memory
-- **Annotation rail**: answers stream beside the document; follow-ups chain onto the thread; selecting inside a rail answer explores (branch of THAT answer) or highlights; thread chips switch conversations, a crosshair jumps to the canvas
-- **Answers get the reading loop too**: every response opens reading-size; select to highlight or to branch from that passage, ask follow-ups below, and the viewer swaps to the new node so a whole chain of questions streams in place
-- **Guided digest**: one click turns the material into a short structured post in the UI language, with (p.N) jump buttons back into the original pages; the digest is a canvas NODE (versioned on rewrite, model-stamped, wireable downstream as the material's compression); regenerating routes through the digest prompt against the full text
-- **Recognize (scanned PDFs)**: per-page vision rewrite into Markdown/LaTeX, editable; external OCR output pastes in
-- **Content nodes**: notes (markdown), file nodes with PDF covers, time-stamped link snapshots; paste-driven creation; image auto-reading picks the strongest configured vision model; every material opens in the reader
-- **Attachment system**: node-local attachments (drag/paste/upload), inherited include/exclude control, fingerprint dedup, automatic Vision switching for images; PDFs feed context as extracted text and wear their first page as a cover on file nodes
-- **Material-first landing**: drop a document on the landing page and it lands as a material node with the reader auto-opened; attachments to the root question stay behind the explicit paperclip
+Guide: [Control context](/guides/context-control) · [Versions, staleness, and replay](/guides/versions-replay)
 
-## Map & review
+## Material nodes and reader
 
-<img src="hero-en.png" alt="ThoughtDAG map view: a waterfall DAG of thought, every plaque badged by cognitive move, with the focus panel showing a node's full answer and its token-priced context chain" width="100%"/>
+- PDF, image, HTML, DOCX, Markdown, text, code, and link-snapshot materials within current [input boundaries](/reference/supported-inputs).
+- Original/text/digest views where available; document recognition and editable extracted text.
+- Ask from selected text or a selected visual region, save a passage or image as its own node, and preserve page provenance.
+- Reading rail for source-grounded question chains, with jumps between source, answer, and canvas node.
+- Material overview and inherited attachment controls.
 
-- **Map mode**: three tiers with hysteresis: full cards → takeaway plaques → glyph seals (one icon per node); seals and edges counter-scale to a fixed screen size (map-pin style), so zooming further out tightens the map instead of shrinking it; nodes awaiting human input keep their working form
-- **Typed takeaways**: one conclusion-first line per answer version, auto-classified (✕ ruled out · ⚖ decided · ↩ pivoted · ? open; insight stays unmarked); display layer only, never enters context or fingerprints
-- **Staleness tracking**: per-generation upstream fingerprints; amber badges on nodes, dots in the context tree, explicit [Stale] marks in downstream payloads
-- **Batch replay**: one click re-runs every stale node in dependency order; confirm dialog with a token estimate; stop anytime
-- **Version management**: regenerate in place appends a comparable version (page through, delete, revert; downstream staleness reacts to the active version); "Regenerate as branch" spawns a parallel sibling for A/B runs
-- **Topology check-up**: on-demand diagnostics with deterministic findings (residual edges, shadow references, blind-pool breaches, pool asymmetry) plus observations (long chains, open branches, collider continuations); locate + one-click fix
-- **Canvas search (toolbar icon or Cmd+F)**: exact search across questions, answers, note bodies, highlights, link titles and material names; while you type, matching nodes stay lit and the rest of the map dims (the searchlight); picking a result flies there, opens the panel and scrolls to the exact match
-- **Ancestor edge highlighting**: the selected node's path to root turns gold, others dim
+Guide: [Material nodes and reader](/guides/materials)
 
-## Generation & automation
+## Organize and review
 
-- **Streaming responses**: SSE token-by-token rendering with blinking cursor, in node and panel; Stop keeps partial content; failed generations show Retry (errors go to toasts, never into answers)
-- **Reviewer preset**: critic role on a sliding red edge; re-critiques each new step automatically, history versioned; reviewers are ordinary nodes (question them, branch from them)
-- **Paradigm mode** (entrances temporarily backstage while the running experience is rebuilt; existing paradigm canvases still open): human/prompt steps + material slots; instantiate → cascade → unlock; edit the input + replay = re-run the experiment; bounded reviewer rounds declared in the file
-- **Ambient memory**: a background judge classifies durable facts (preference / identity / project) with admission rules in code, visible toast + undo on every write; project entries decay out of context after 45 days; one global switch (default on), manager with category badges, paste-import and JSON export; machine steps and digests stay memory-free
-- **Edit everything**: double-click a question to edit it; answers edit via a pencil button beside regenerate and copy (double-click stays a text-selection gesture); text selection toolbar (Branch / Highlight)
+- **Merge summary**, **Merge & delete**, **Weave highlights**, structured highlights, and multiple downstream highlight modes.
+- Condensed copy of consecutive unbranched runs while preserving the original path and protected decisions/pivots.
+- Sliding reviewer nodes, graph diagnostics, and manual or automatic refresh of dependent work.
 
-## Models & search
+Guide: [Merge, highlight, and condense](/guides/organize)
 
-- **Any model**: nine provider families register from `.env` keys; a toolbar picker switches at any time; text-only models reroute automatically when images appear
-- **Model interface manager**: no `.env` needed; provider presets pin only the endpoint address, and the model list is fetched live from the endpoint's `/models` route (never goes stale); a local Ollama is detected keylessly; a custom-endpoint field catches every other OpenAI-compatible service; keys stay in localStorage + proxy memory, never on disk; with nothing configured the toolbar wears a Connect-a-model button that opens the manager directly
-- **Per-node model override**: any node can pin its own LLM (badge on the card, sibling regenerations inherit it); cheap models for exploration, flagship for the hard steps; every version records which model wrote it
-- **Agentic search**: AI SDK tool loop: web search + arXiv + Semantic Scholar (free APIs), `[n]` citations + persisted references, guaranteed synthesis fallback, per-group toolbar toggles
-- **MCP tool ecosystem**: `mcp.config.json` (stdio + HTTP/SSE transports); tools join the agentic loop with per-call progress; mock server included for testing
-- **Capabilities panel**: search engine choice, scholar status, vision model preference and memory switch in one place, at the model picker's foot
+## Models, tools, roles, and memory
 
-## Desktop app
+- Runtime provider presets, OpenRouter sign-in, Ollama, custom OpenAI-compatible endpoints, `.env` providers, and supported plan connections.
+- Global model selection and node-level model pinning; model provenance stored per answer version.
+- Web search, scholarly search, vision routing, and local/remote MCP tools.
+- Inherited/set/reset node roles and editable role library.
+- Visible ambient-memory admission for preferences, user-stated identity, and project facts, with undo and global controls.
 
-- **One download, everything bundled**: the same app in its own window with the local engine inside; no Node, no terminal; macOS builds are signed and notarized by Apple
-- **Updates wait for your click**: the app checks quietly, announces a new version as an in-app notice, and downloads and restarts only on your say-so; a Check-for-updates menu entry shows the version you are on and answers out loud (found / latest / could not check); download progress lives on the Dock icon
-- **Every model gets the full toolset**: on desktop the bundled engine serves keyless web search, scholarly search, MCP tools and the vision reroute to every connected model, including browser-direct-only providers on the web
-- **One-click sign-in via your own browser**: OpenRouter authorization opens in the system browser where you are already signed in; the app picks the result up by itself and lands you on the fresh model list
+Guide: [Models, tools, and memory](/guides/models-tools) · [Connect a model](/setup)
 
-## Workbench & data
+## Session Atlas
 
-- **Infinite canvas**: pan, zoom, drag nodes freely (React Flow)
-- **Column-Tree auto-layout**: main chain flows down, branches fork right; real measured heights prevent overlap; Tidy layout / Align selection on demand
-- **Frames**: labeled colored regions with a navigator jump list; hide-annotations view toggle
-- **Focus panel (floating overlay)**: cards-on-wash reading layout over the canvas (which never resizes), context tree grouped by materials / references / conversation, follow-up input; drag-resizable width
-- **Markdown + LaTeX**: full markdown, syntax highlighting, inline and block math
-- **Multi-select**: box-select nodes: Merge Summary / Merge & Delete / Align / Export / Delete
-- **Read-only share links**: one link carries the whole graph (compressed into the URL, no server storage); the viewer walks, zooms and reads but cannot edit; share from the ⋯ menu
-- **@-mentions**: type @ in any ask box to reference a node by name; mentions not already upstream get a real dashed reference edge (visible, priced, convertible), upstream ones become precise designators
-- **Automatic folder backup**: grant a folder once and every change debounces into a real `.thoughtdag.json` on disk; point it at a synced directory and it doubles as cross-device sync with zero servers; a toolbar control center shows the last write and backs up every canvas on demand
-- **Event log**: an append-only record of semantic operations (asks, generations, highlights, archiving, undo) with timestamps, metadata-only; travels in backups, exports as CSV for R/Python analysis
-- **Node context menu**: right-click for open panel / reading view / regenerate (in place or as a new node) / copy / duplicate / archive / delete; right-clicking selected text keeps the native menu
-- **Data persistence**: IndexedDB auto-save (1s debounce), survives refresh; multi-canvas projects (create/switch/rename/delete)
-- **Export system**: whole-graph JSON backup and import; context-chain / multi-select Markdown export; memory and roles export too: easy in, easy out
-- **Import ChatGPT / Claude exports**: drop conversations.json into Import; edit/regenerate branches are preserved as graph forks, each conversation becomes its own canvas
-- **Undo/Redo**: Cmd+Z / Cmd+Shift+Z, full state snapshots
-- **Keyboard shortcuts**: Space collapse, R regenerate, arrow keys walk the DAG, Esc steps out (legend in the tutorial)
-- **Bilingual UI**: auto-detects browser language, one-click EN/中 switch
-- **Built-in tutorial**: a ten-step illustrated hero page, from asking to paradigms
-- **Example canvas**: one labeled click on the landing page loads four framed chapters around one everyday question: conversation grammar, materials & references, the ⚖️ context-pruning pair, and a reading loop with a real embedded PDF (anchored question, digest node); every node carries a typed takeaway so zooming out lands on a working map; reload anytime from the landing screen
+- Discover supported local Codex and Claude Code sessions by project folder.
+- Read-only graph mirrors with conversation nodes and inspectable tool-result attachments.
+- Incremental append, changed-session filters, multi-session canvas mounting, re-mirroring, and source-status indicators.
+- **Sources** management and optional one-command handoff from supported agents.
 
-## Roadmap
+Guide: [Session Atlas](/guides/session-atlas)
 
-**Near term**
-- [ ] Save any canvas as a paradigm (reverse instantiation)
-- [ ] Attachment blob separation (scaling image-heavy canvases)
+## Toolbar, menus, and data
 
-**Long term**
-- [ ] Run comparison view (same paradigm, N runs side by side)
-- [ ] Artifact nodes (file deliverables on canvas, Monaco editor + version history)
-- [ ] Async collaboration: share a paradigm, collect runs
+- Toolbar access to models, replay, frames, search, language, backup, overflow actions, undo, and redo.
+- Overflow menu for annotation visibility, layout, highlight/material overviews, condense, diagnostics, sharing, exports, appearance, memory, and tutorial.
+- IndexedDB persistence, automatic folder backup, complete JSON import/export, selected/context-chain Markdown, event CSV, and read-only URL sharing.
 
-## Feedback
-
-ThoughtDAG is an early, actively developed project. This is exactly when feedback matters most:
-
-- 🐛 Hit a bug or a rough edge? [Open an issue](https://github.com/chenxiachan/thoughtdag/issues)
-- 💡 Ideas about thinking-in-graphs? [Start a discussion](https://github.com/chenxiachan/thoughtdag/discussions)
+Guide: [Interface overview](/guides/interface-overview) · [Data, backup, and sharing](/guides/data-sharing)

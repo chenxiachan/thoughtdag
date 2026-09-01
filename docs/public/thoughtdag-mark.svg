@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 44" role="img" aria-labelledby="title desc">
+  <title id="title">ThoughtDAG</title>
+  <desc id="desc">A purple context chain with an editable node and an orange branch.</desc>
+  <rect width="44" height="44" rx="10" fill="#FAF9F7"/>
+  <line x1="19" y1="10" x2="19" y2="18" stroke="#6B5CE7" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="19" y1="25" x2="19" y2="33" stroke="#6B5CE7" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="22.5" y1="23.5" x2="30" y2="28.5" stroke="#E08A3C" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="3 3"/>
+  <circle cx="19" cy="7" r="3.8" fill="#6B5CE7"/>
+  <circle cx="19" cy="21.5" r="3.8" fill="#FAF9F7" stroke="#6B5CE7" stroke-width="2.6"/>
+  <circle cx="19" cy="36" r="3.8" fill="#6B5CE7" opacity="0.4"/>
+  <circle cx="33" cy="30" r="3.8" fill="#E08A3C"/>
+</svg>

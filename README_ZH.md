@@ -9,11 +9,11 @@
 ![License](https://img.shields.io/badge/许可-MIT-green)
 ![Status](https://img.shields.io/badge/状态-活跃开发中-6B5CE7)
 
-### [下载桌面版 ↓](https://chenxiachan.github.io/thoughtdag/?lang=zh#download) · [官网](https://chenxiachan.github.io/thoughtdag/?lang=zh)
+### [下载桌面版 ↓](https://chenxiachan.github.io/thoughtdag/?lang=zh#download) · [官网](https://chenxiachan.github.io/thoughtdag/?lang=zh) · [使用文档](https://chenxiachan.github.io/thoughtdag/docs/zh/)
 
-[English](./README.md) · [快速开始](#快速开始) · [有何不同](#thoughtdag-和其他图形化-ai-工具有何不同) · [Agent 会话](#-把-agent-会话带进画布) · [研究](#-研究为什么上下文需要可编辑) · [模型与隐私](#模型成本与隐私)
+[English](./README.md) · [快速开始](#快速开始) · [有何不同](#thoughtdag-和其他图形化-ai-工具有何不同) · [Agent 会话](#-把-agent-会话带进画布) · [研究](#-研究为什么上下文需要可编辑) · [完整文档](https://chenxiachan.github.io/thoughtdag/docs/zh/) · [模型与隐私](#模型成本与隐私)
 
-<img src="docs/hero-demo-zh.gif" alt="真实录屏的 Hero 演示：在 PDF 阅读器圈选段落提问；删掉噪音边重新生成干净答案；三层语义缩放缩到地图形态；打开备份控制中心导出真实文件" width="100%"/>
+<img src="docs/hero-demo-zh.gif" alt="ThoughtDAG Hero 演示：从 PDF 原文提问，删边修改模型上下文，缩小画布形成思维地图，导出备份，并通过 Session Atlas 把分散的 Agent 会话变成持续存在的项目上下文" width="100%"/>
 
 </div>
 

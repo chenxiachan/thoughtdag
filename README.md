@@ -9,11 +9,11 @@
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Status](https://img.shields.io/badge/status-active_development-6B5CE7)
 
-### [Download ↓](https://chenxiachan.github.io/thoughtdag/#download) · [Website](https://chenxiachan.github.io/thoughtdag/)
+### [Download ↓](https://chenxiachan.github.io/thoughtdag/#download) · [Website](https://chenxiachan.github.io/thoughtdag/) · [Docs](https://chenxiachan.github.io/thoughtdag/docs/)
 
-[中文](./README_ZH.md) · [Quick start](#quick-start) · [How it differs](#how-thoughtdag-differs) · [Session Atlas](#-session-atlas-bring-agent-conversations-onto-the-canvas) · [Research](#-research-why-editable-context-matters) · [Models & privacy](#models-cost--privacy)
+[中文](./README_ZH.md) · [Quick start](#quick-start) · [How it differs](#how-thoughtdag-differs) · [Session Atlas](#-session-atlas-bring-agent-conversations-onto-the-canvas) · [Research](#-research-why-editable-context-matters) · [Documentation](https://chenxiachan.github.io/thoughtdag/docs/) · [Models & privacy](#models-cost--privacy)
 
-<img src="docs/hero-demo-en.gif" alt="Hero demo, recorded from the live app: selecting a passage in the PDF reader and asking about it; deleting a noise edge and regenerating a clean answer; zooming out through three semantic tiers to the map; opening the backup control center and exporting a real file" width="100%"/>
+<img src="docs/hero-demo-en.gif" alt="ThoughtDAG hero demo: asking from a PDF passage, editing model context by removing an edge, zooming out into a thought map, exporting a backup, and turning scattered agent sessions into persistent project context with Session Atlas" width="100%"/>
 
 <p align="center"><a href="https://www.youtube.com/watch?v=-8BqAyaoNXQ"><img src="https://img.youtube.com/vi/-8BqAyaoNXQ/maxresdefault.jpg" alt="YouTube thumbnail for the ThoughtDAG narrated tour" width="640" /></a></p>
 

@@ -11,6 +11,9 @@
     "smoke": "node scripts/smoke.mjs",
     "test:layout": "node scripts/test-layout.mjs",
     "preview": "vite preview",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
     "desktop": "npm run build && cd desktop && electron ."
   },
   "dependencies": {
@@ -66,7 +69,8 @@
     "playwright-core": "^1.61.1",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.48.0",
-    "vite": "^7.3.1"
+    "vite": "^7.3.1",
+    "vitepress": "^1.6.4"
   },
   "description": "An infinite canvas where LLM conversations grow into an editable thought graph. Read papers into maps; every answer knows where it came from.",
   "repository": {
