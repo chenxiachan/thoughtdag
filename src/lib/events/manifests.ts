@@ -31,7 +31,22 @@ export const CODEX_MANIFEST: AdapterManifest = {
   contextSurface: UNKNOWN,
 };
 
+// The canvas is ThoughtDAG's own record. Turns and wires are exact; there
+// are no tool calls; a request's context is exact from the day commits
+// were logged and only an upstream fingerprint before that.
+export const THOUGHTDAG_MANIFEST: AdapterManifest = {
+  runner: 'thoughtdag', schema: 'thoughtdag-canvas/1',
+  turns: OBS_FULL,
+  parenting: OBS_FULL,      // the wires ARE the structure
+  messages: OBS_FULL,       // hand-made nodes carry their text whole
+  toolPairing: UNKNOWN,     // no tools run on the canvas
+  artifactTouch: OBS_FULL,  // attachments and references are explicit
+  compaction: UNKNOWN,      // condensing is a new node, not a replacement
+  contextSurface: OBS_PART, // exact for logged commits, upstream-only before
+};
+
 export const MANIFESTS: Record<string, AdapterManifest> = {
   'claude-code': CLAUDE_CODE_MANIFEST,
   codex: CODEX_MANIFEST,
+  thoughtdag: THOUGHTDAG_MANIFEST,
 };

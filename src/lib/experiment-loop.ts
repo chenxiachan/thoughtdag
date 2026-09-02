@@ -76,6 +76,12 @@ export async function takeToExperiment(nodeId: string, mode: 'branch' | 'continu
     staleIds: st.staleIds,
   });
   const anchor: ExperimentAnchor = { project, node: nodeId, bundle: bundle.id, mode };
+  // the bundle IS a committed context: record it as one, exact, with its
+  // members — the CLI session that opens it answers to this hash
+  {
+    const members = [...new Set(bundle.context.messages.map((m) => m.source?.node_id).filter((id): id is string => !!id))];
+    st.logEvent('commit', nodeId, { ctx: bundle.integrity.content_hash, bundle: bundle.id, n: bundle.context.messages.length, ...(members.length ? { m: members.slice(0, 200).join(',') } : {}), ...(members.length > 200 ? { more: true } : {}) });
+  }
   const md = renderHandoffMarkdown(bundle, anchor);
   try {
     await navigator.clipboard.writeText(md);

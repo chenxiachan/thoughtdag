@@ -5,7 +5,7 @@ import { autoLayout } from '../../lib/layout';
 import { getDescendantIds, selectionSinks, walkUpAncestors } from '../../lib/graph';
 import { COLORS } from '../../lib/constants';
 import type { ContextMessage, ImageAttachment } from '../../lib/api';
-import { buildContext, resolveExplicitRole, applyRoleOverride } from '../context-builder';
+import { buildContext, resolveExplicitRole, applyRoleOverride, type MessageSource } from '../context-builder';
 import { activeAbortControllers, autoRunCounts, runNodeGeneration, triggerParadigmCascade } from '../streaming';
 import { useUiStore, toast } from '../../lib/ui-store';
 import { t, fmt } from '../../i18n';
@@ -121,7 +121,7 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
     const selfNode = get().nodes.find((n) => n.id === id);
     const ctx = parentId
       ? buildContext(parentId, get().nodes, get().edges, branchContext, selfNode?.data.excludedAttachmentIds, selfNode?.data.includedAttachmentIds, get().staleIds)
-      : { messages: [] as ContextMessage[], images: [] as ImageAttachment[] };
+      : { messages: [] as ContextMessage[], images: [] as ImageAttachment[], sources: [] as MessageSource[] };
     const contextMessages = ctx.messages;
     const contextImages = ctx.images;
     const parentNode = parentId ? get().nodes.find((n) => n.id === parentId) : null;
@@ -158,7 +158,7 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
       ),
     }));
 
-    await runNodeGeneration(set, get, id, { question, messages: contextMessages, images: contextImages });
+    await runNodeGeneration(set, get, id, { question, messages: contextMessages, images: contextImages, sources: ctx.sources });
   },
 
   /**
@@ -261,7 +261,7 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
           await get().rerunNode(id); // standard context walk through the watch edge
         } else {
           const messages: ContextMessage[] = [...ctx!.messages, { role: 'user', content: branchQuestion }];
-          await runNodeGeneration(set, get, id, { question: branchQuestion, messages, images: ctx!.images });
+          await runNodeGeneration(set, get, id, { question: branchQuestion, messages, images: ctx!.images, sources: ctx!.sources });
         }
       }
     };
@@ -328,7 +328,7 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
     );
     const messages = ctx.messages;
     messages.push({ role: 'user', content: question });
-    await runNodeGeneration(set, get, id, { question, messages, images: ctx.images });
+    await runNodeGeneration(set, get, id, { question, messages, images: ctx.images, sources: ctx.sources });
   },
 
   submitHumanTurn: (nodeId: string, question: string) => {
@@ -394,7 +394,7 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
     // Append, never replace: the old (question, answer) pairs stay switchable
     // — an edited question must not orphan or erase the versions written
     // against the old wording.
-    await runNodeGeneration(set, get, nodeId, { question, messages: contextMessages, images: editCtx.images, versionMode: 'append' });
+    await runNodeGeneration(set, get, nodeId, { question, messages: contextMessages, images: editCtx.images, versionMode: 'append', sources: editCtx.sources });
   },
 
   regenerate: async (nodeId: string) => {
@@ -443,7 +443,7 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
     const regenSelf = get().nodes.find((n) => n.id === id);
     const regenCtx = parentId
       ? buildContext(parentId, get().nodes, get().edges, node.data.branchContext, regenSelf?.data.excludedAttachmentIds, regenSelf?.data.includedAttachmentIds, get().staleIds)
-      : { messages: [] as ContextMessage[], images: [] as ImageAttachment[] };
+      : { messages: [] as ContextMessage[], images: [] as ImageAttachment[], sources: [] as MessageSource[] };
     const contextMessages = regenCtx.messages;
     const regenParent = parentId ? get().nodes.find((n) => n.id === parentId) : null;
     applyRoleOverride(contextMessages, resolveExplicitRole(regenSelf?.data, regenParent?.data, !!parentId));
@@ -452,7 +452,7 @@ export const createLlmSlice: StateCreator<StoreState, [], [], LlmSlice> = (set, 
     contextMessages.push({ role: 'user', content: node.data.question });
     set((state) => ({ nodes: state.nodes.map((n) => n.id === id ? { ...n, data: { ...n.data, appliedRole } } : n) }));
 
-    await runNodeGeneration(set, get, id, { question: node.data.question, messages: contextMessages, images: regenCtx.images });
+    await runNodeGeneration(set, get, id, { question: node.data.question, messages: contextMessages, images: regenCtx.images, sources: regenCtx.sources });
   },
 
   batchMergeSummarize: async (nodeIds: string[], deleteAfter?: boolean, intent?: string) => {

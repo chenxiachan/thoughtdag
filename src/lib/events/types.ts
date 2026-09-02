@@ -55,7 +55,11 @@ export type EventKind =
   | 'tool.called'
   | 'tool.completed'
   | 'boundary.compaction'
-  | 'context.committed';
+  | 'context.committed'
+  // canvas facts: the structure a person built, and what they did to the record
+  | 'edge.recorded'
+  | 'artifact.attached'
+  | 'record.edited';
 
 export interface EventBase extends Evidence {
   /** stable across rebuilds: derived from the runner's own ids, never from position alone */
@@ -94,6 +98,9 @@ export interface TurnStarted extends EventBase {
   parentTurnId?: string;
   /** false when a runner or plugin opened the turn (a task notification, an injected message) */
   humanAuthored: boolean;
+  /** a canvas node that mirrors a runner's turn: the facts live in that
+      session; this turn only places them on the canvas */
+  mirrorOf?: { sessionId: string; item: string };
 }
 
 export interface MessageRecorded extends EventBase {
@@ -145,12 +152,49 @@ export interface ContextCommitted extends EventBase {
   requestId: string;
   members: { eventId?: string; nodeId?: string; artifact?: ArtifactRef }[];
   contentHash: string;
+  /** what the hash covers: the request as sent, or only its upstream
+      (the older canvas fingerprint, which blanks the node itself) */
+  hashOf: 'request' | 'upstream';
   decidedBy: 'user' | 'system' | 'model';
   confirmed: boolean;
 }
 
+/** A wire on the canvas. `context` edges are the ONLY edges that compile
+ *  into a request; `mainline` is the ancestor chain, `reference` a
+ *  cross-link. Never emitted for time order or provenance. */
+export interface EdgeRecorded extends EventBase {
+  kind: 'edge.recorded';
+  edgeType: 'context';
+  via: 'mainline' | 'reference';
+  fromTurnId: string;
+  toTurnId: string;
+}
+
+/** A material a person put on a node: an attachment (with the page it
+ *  points into), a web reference the answer cited. */
+export interface ArtifactAttached extends EventBase {
+  kind: 'artifact.attached';
+  turnId: string;
+  artifact: ArtifactRef;
+  via: 'attachment' | 'reference' | 'anchor';
+  mediaType?: string;
+  /** whether the compiler includes it (attachment exclusions are per node) */
+  inContext: boolean | 'unknown';
+}
+
+/** A person changed the record: the question or the answer no longer
+ *  reads as the runner wrote it. */
+export interface RecordEdited extends EventBase {
+  kind: 'record.edited';
+  turnId: string;
+  field: 'question' | 'response';
+  excerpt: string;
+  length: number;
+}
+
 export type CanonicalEvent =
-  | SessionStarted | TurnStarted | MessageRecorded | ToolCalled | ToolCompleted | BoundaryCompaction | ContextCommitted;
+  | SessionStarted | TurnStarted | MessageRecorded | ToolCalled | ToolCompleted | BoundaryCompaction | ContextCommitted
+  | EdgeRecorded | ArtifactAttached | RecordEdited;
 
 /** What an adapter can and cannot know. Projections show these, they
  *  never pretend past them. */
@@ -169,7 +213,8 @@ export interface AdapterManifest {
 /** A derived edge — reduced from tool.called, never emitted by an adapter. */
 export interface ArtifactTouch {
   artifact: ArtifactId;
-  op: ToolOp;
+  /** a tool's op, or `attach` for a material a person placed on the canvas */
+  op: ToolOp | 'attach';
   sessionId: string;
   turnId: string;
   turnIndex: number;

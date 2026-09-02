@@ -263,9 +263,13 @@ export function sessionToEvents(s: ProjectableSession): CanonicalEvent[] {
  *  strongest op winning, always pointing back at the tool.called it came
  *  from. Reads, fetches, writes and edits — a search root is not a touch. */
 export function deriveTouches(events: CanonicalEvent[]): ArtifactTouch[] {
-  const rank: Record<string, number> = { read: 1, fetch: 1, write: 2, edit: 2 };
+  const rank: Record<string, number> = { read: 1, fetch: 1, attach: 1, write: 2, edit: 2 };
   const byKey = new Map<string, ArtifactTouch>();
-  for (const e of events) {
+  for (const raw of events) {
+    // a material placed on a canvas node is a touch too — by a person, not a tool
+    const e = raw.kind === 'artifact.attached'
+      ? { kind: 'tool.called' as const, id: raw.id, sessionId: raw.sessionId, turnId: raw.turnId, turnIndex: raw.turnIndex, at: raw.at, op: 'attach' as const, artifacts: [raw.artifact], change: undefined as string | undefined }
+      : raw;
     if (e.kind !== 'tool.called' || !(e.op in rank)) continue;
     for (const a of e.artifacts) {
       const key = `${e.turnId}|${a.id}`;

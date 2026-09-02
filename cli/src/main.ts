@@ -25,25 +25,29 @@ import type { RunnerTurn } from '../../src/lib/adapters/shared';
 import { sessionToEvents, deriveTouches, absolutePath, fileUri, filePathOf, urlArtifact, arxivArtifact, type ProjectableSession } from '../../src/lib/events/project';
 import type { Locator } from '../../src/lib/events/types';
 import { MANIFESTS } from '../../src/lib/events/manifests';
+import { canvasToEvents, isCanvasBackup } from '../../src/lib/adapters/thoughtdag-canvas';
+import type { CanonicalEvent } from '../../src/lib/events/types';
 
 // ─── records ─────────────────────────────────────────────────────────
 
-type Op = 'read' | 'fetch' | 'write' | 'edit';
-const readLike = (op: Op): boolean => op === 'read' || op === 'fetch';
+type Op = 'read' | 'fetch' | 'attach' | 'write' | 'edit';
+const readLike = (op: Op): boolean => op === 'read' || op === 'fetch' || op === 'attach';
 /** observed: the op, and the first differing line of the change (verbatim, partial) */
 interface Touch { op: Op; d?: string; l?: Locator[] }
-interface FactTurn { i: number; item?: string; at?: string; q: string; ops: Record<string, Touch> }
+interface FactTurn { i: number; t: string; item?: string; at?: string; q: string; ops: Record<string, Touch> }
 /** One SOURCE FILE's worth of facts. A logical session (`id`) can span
  *  several — a resumed Codex thread opens a new rollout each time — so
  *  the store is keyed by source, and readers group by `id`. */
 interface FactSession {
-  id: string; runner: 'claude-code' | 'codex'; file: string; mtime: number; size: number;
+  id: string; runner: 'claude-code' | 'codex' | 'thoughtdag'; file: string; mtime: number; size: number;
   cwd: string; workspace: string; title: string; subagent?: boolean; turns: FactTurn[];
 }
 interface FactIndex {
   version: number; builtAt: string;
   /** keyed by canonical source file path */
   sessions: Record<string, FactSession>;
+  /** display names for artifacts that are not files (a canvas attachment's file name) */
+  names: Record<string, string>;
   /** .jsonl files seen that are not sessions, with the stat they had —
       remembered so a stray file does not make every query refresh */
   skipped: Record<string, { mtime: number; size: number }>;
@@ -53,28 +57,44 @@ interface FactIndex {
 interface CacheTurn { c?: string; p?: string; m?: Record<string, string> }
 interface CacheIndex { version: number; sessions: Record<string, Record<string, CacheTurn>> }
 
-const INDEX_VERSION = 7;
+const INDEX_VERSION = 8;
 const EXCERPT = 200;
 
 const HOME = process.env.THOUGHTDAG_HOME ?? path.join(os.homedir(), '.thoughtdag');
 const FACT_FILE = path.join(HOME, 'fact-index.json');
 const CACHE_FILE = path.join(HOME, 'interpretation-cache.json');
 const LEGACY_FILE = path.join(HOME, 'why-index.json');
+const CONFIG_FILE = path.join(HOME, 'config.json');
 const ROOTS = (process.env.THOUGHTDAG_SESSION_ROOTS?.split(path.delimiter).filter(Boolean))
   ?? [path.join(os.homedir(), '.claude', 'projects'), path.join(os.homedir(), '.codex', 'sessions')];
+
+/** Folders holding canvas backups (*.thoughtdag.json): the env var, or
+ *  what `index --canvas <dir>` remembered. */
+async function canvasRoots(): Promise<string[]> {
+  const env = process.env.THOUGHTDAG_CANVAS_ROOTS?.split(path.delimiter).filter(Boolean);
+  if (env) return env;
+  try { const c = JSON.parse(await fsp.readFile(CONFIG_FILE, 'utf8')) as { canvasRoots?: string[] }; return c.canvasRoots ?? []; } catch { return []; }
+}
+async function rememberCanvasRoot(dir: string): Promise<void> {
+  const roots = await canvasRoots();
+  const abs = path.resolve(dir);
+  if (!roots.includes(abs)) await writePrivate(CONFIG_FILE, { canvasRoots: [...roots, abs] });
+}
 
 // ─── files ───────────────────────────────────────────────────────────
 
 interface FileStat { file: string; mtime: number; size: number }
 
-async function walk(dir: string, depth: number, out: FileStat[]): Promise<void> {
+const isCanvasFile = (name: string): boolean => /\.thoughtdag\.json$/i.test(name);
+
+async function walk(dir: string, depth: number, out: FileStat[], accept: (name: string) => boolean): Promise<void> {
   if (depth > 5) return;
   let entries;
   try { entries = await fsp.readdir(dir, { withFileTypes: true }); } catch { return; }
   for (const ent of entries) {
     const p = path.join(dir, ent.name);
-    if (ent.isDirectory()) await walk(p, depth + 1, out);
-    else if (ent.isFile() && ent.name.endsWith('.jsonl')) {
+    if (ent.isDirectory()) await walk(p, depth + 1, out, accept);
+    else if (ent.isFile() && accept(ent.name)) {
       try { const st = await fsp.stat(p); out.push({ file: p, mtime: st.mtimeMs, size: st.size }); } catch { /* raced */ }
     }
   }
@@ -82,7 +102,8 @@ async function walk(dir: string, depth: number, out: FileStat[]): Promise<void> 
 
 async function listSources(): Promise<FileStat[]> {
   const files: FileStat[] = [];
-  for (const root of ROOTS) await walk(root, 0, files);
+  for (const root of ROOTS) await walk(root, 0, files, (n) => n.endsWith('.jsonl'));
+  for (const root of await canvasRoots()) await walk(root, 0, files, isCanvasFile);
   return files;
 }
 
@@ -143,9 +164,9 @@ function mentionKey(id: string): string {
 }
 
 /** How a person reads an artifact id: a path relative to here, a URL, a paper id. */
-async function displayOf(id: string): Promise<string> {
+async function displayOf(id: string, names: Record<string, string> = {}): Promise<string> {
   const p = filePathOf(id);
-  if (!p) return id;
+  if (!p) return names[id] ? `${names[id]}  (${id})` : id;
   const rel = path.relative(await realOr(process.cwd()), await realOr(p));
   return rel.startsWith('..') || path.isAbsolute(rel) ? p : rel;
 }
@@ -169,86 +190,105 @@ function questionExcerpt(text: string): string {
   return clipLine(line, EXCERPT);
 }
 
-/** Read one source file through its adapter: the collector's output, plus
- *  what the projection needs to name the session. */
-async function collect(file: string): Promise<{ runner: FactSession['runner']; s: NonNullable<ReturnType<ClaudeSessionCollector['finish']>> & { subagent?: boolean } } | null> {
+/** Read one source file through its adapter: a runner's JSONL through
+ *  its collector, a canvas backup through the canvas adapter. Both come
+ *  back as the same thing — events, plus the full text per turn that the
+ *  interpretation cache reads and the fact index never stores. */
+interface Projected {
+  runner: FactSession['runner'];
+  nativeId: string;
+  title: string;
+  cwd?: string;
+  subagent?: boolean;
+  events: CanonicalEvent[];
+  texts: Map<string, { question: string; response: string }>;
+  manifest: (typeof MANIFESTS)[string];
+  /** jsonl only: the collector's turns, for `recall` */
+  turns?: RunnerTurn[];
+}
+
+async function eventsOf(file: string, sourceId?: string): Promise<Projected | null> {
+  if (isCanvasFile(file)) {
+    let parsed: unknown;
+    try { parsed = JSON.parse(await fsp.readFile(file, 'utf8')); } catch { return null; }
+    if (!isCanvasBackup(parsed)) return null;
+    const c = canvasToEvents(parsed, { file, sourceId });
+    return { runner: 'thoughtdag', nativeId: c.nativeId, title: c.title, events: c.events, texts: c.texts, manifest: MANIFESTS.thoughtdag };
+  }
   let meta: { type?: string } = {};
   try { meta = JSON.parse(await firstLine(file)) as { type?: string }; } catch { /* not json */ }
-  const runner: FactSession['runner'] = meta.type === 'session_meta' ? 'codex' : 'claude-code';
+  const runner: 'claude-code' | 'codex' = meta.type === 'session_meta' ? 'codex' : 'claude-code';
   const collector = runner === 'codex' ? new CodexSessionCollector() : new ClaudeSessionCollector();
   const rl = createInterface({ input: createReadStream(file, { encoding: 'utf8', highWaterMark: 1 << 20 }) });
   for await (const line of rl) collector.feedLine(line);
   const s = collector.finish();
-  return s ? { runner, s } : null;
-}
-
-/** The canonical events of one source file — the contract every reader
- *  shares. `events <file>` prints exactly this. */
-async function eventsOf(file: string) {
-  const c = await collect(file);
-  if (!c) return null;
-  const { runner, s } = c;
+  if (!s) return null;
   const subagent = 'subagent' in s ? !!s.subagent : runner === 'claude-code' && /\/subagents\//.test(file);
+  const cwd = ('cwd' in s && s.cwd) ? s.cwd : undefined;
   const session: ProjectableSession = {
-    runner, nativeId: s.sessionId, title: s.title, file, schema: MANIFESTS[runner].schema,
-    ...(('cwd' in s && s.cwd) ? { cwd: s.cwd } : {}), ...(subagent ? { subagent } : {}), turns: s.turns,
+    runner, nativeId: s.sessionId, title: s.title, file, ...(sourceId ? { sourceId } : {}), schema: MANIFESTS[runner].schema,
+    ...(cwd ? { cwd } : {}), ...(subagent ? { subagent } : {}), turns: s.turns,
   };
-  return { session, events: sessionToEvents(session), manifest: MANIFESTS[runner] };
+  const events = sessionToEvents(session);
+  const texts = new Map<string, { question: string; response: string }>();
+  for (const e of events) if (e.kind === 'turn.started') { const t = s.turns[e.turnIndex]; if (t) texts.set(e.turnId, { question: t.question, response: t.response }); }
+  return { runner, nativeId: s.sessionId, title: s.title, ...(cwd ? { cwd } : {}), ...(subagent ? { subagent } : {}), events, texts, manifest: MANIFESTS[runner], turns: s.turns };
 }
 
-async function parseSession(f: FileStat): Promise<{ fact: FactSession; cache: Record<string, CacheTurn> } | null> {
-  const c = await collect(f.file);
-  if (!c) return null;
-  const { runner, s } = c;
+async function parseSession(f: FileStat): Promise<{ fact: FactSession; cache: Record<string, CacheTurn>; names: Record<string, string> } | null> {
   const memo = new Map<string, string>();
-  const rawCwd = ('cwd' in s && s.cwd) ? s.cwd : '';
-  const cwd = rawCwd ? await canonicalPath(rawCwd, memo) : '';
-  const workspace = cwd ? await workspaceOf(cwd) : '';
-  const subagent = 'subagent' in s ? !!s.subagent : runner === 'claude-code' && /\/subagents\//.test(f.file);
-  // the contract first: the index is a reduction of the same events every
-  // other reader sees, never a second reading of the log
   const sourceId = await canonicalPath(f.file, memo);
-  const session: ProjectableSession = {
-    runner, nativeId: s.sessionId, title: s.title, file: f.file, sourceId, schema: MANIFESTS[runner].schema,
-    ...(rawCwd ? { cwd: rawCwd } : {}), ...(subagent ? { subagent } : {}), turns: s.turns,
-  };
-  const opsByTurn = new Map<number, Record<string, Touch>>();
-  for (const t of deriveTouches(sessionToEvents(session))) {
+  const p = await eventsOf(f.file, sourceId);
+  if (!p) return null;
+  const cwd = p.cwd ? await canonicalPath(p.cwd, memo) : '';
+  const workspace = cwd ? await workspaceOf(cwd) : '';
+  // the index is a reduction of the contract: touches per turn, keyed by
+  // canonical artifact id; names kept for artifacts that are not files
+  const names: Record<string, string> = {};
+  const opsByTurn = new Map<string, Record<string, Touch>>();
+  for (const t of deriveTouches(p.events)) {
     const id = await canonicalArtifact(t.artifact, memo);
-    const ops = opsByTurn.get(t.turnIndex) ?? opsByTurn.set(t.turnIndex, {}).get(t.turnIndex)!;
+    const ops = opsByTurn.get(t.turnId) ?? opsByTurn.set(t.turnId, {}).get(t.turnId)!;
     const prev = ops[id];
     const d = prev?.d ?? t.change;
     const l = [...(prev?.l ?? []), ...(t.locators ?? [])].filter((x, i, arr) => arr.findIndex((y) => JSON.stringify(y) === JSON.stringify(x)) === i);
     ops[id] = { op: strongest(prev?.op, t.op as Op), ...(d ? { d } : {}), ...(l.length ? { l } : {}) };
   }
+  for (const e of p.events) if (e.kind === 'artifact.attached' && e.artifact.observedPath && !e.artifact.id.startsWith('file://')) names[e.artifact.id] = e.artifact.observedPath;
+  const questions = new Map<string, string>();
+  for (const e of p.events) if (e.kind === 'message.recorded' && e.role === 'user' && !questions.has(e.turnId)) questions.set(e.turnId, e.excerpt);
   const turns: FactTurn[] = [];
   const cache: Record<string, CacheTurn> = {};
   let lastSubstantive = '';
-  for (const [i, t] of (s.turns as RunnerTurn[]).entries()) {
-    const ops = opsByTurn.get(i) ?? {};
-    const q = questionExcerpt(t.question);
-    turns.push({ i, ...(t.itemIds[0] ? { item: t.itemIds[0] } : {}), ...(t.at ? { at: t.at } : {}), q, ops });
-    // interpretation: never in the fact record
+  const starts = p.events.filter((e): e is Extract<CanonicalEvent, { kind: 'turn.started' }> => e.kind === 'turn.started').sort((a, b) => a.turnIndex - b.turnIndex);
+  for (const ts of starts) {
+    const text = p.texts.get(ts.turnId);
+    const q = text ? questionExcerpt(text.question) : (questions.get(ts.turnId) ?? (ts.mirrorOf ? '(mirrored turn)' : ''));
+    // the id that makes a replayed turn count once across files: the
+    // runner's own message id, or the mirrored turn's
+    const item = ts.mirrorOf?.item ?? (p.runner === 'thoughtdag' ? ts.turnId : ts.turnId.split('#').pop()?.replace(/~\d+$/, ''));
+    turns.push({ i: ts.turnIndex, t: ts.turnId, ...(item ? { item } : {}), ...(ts.at ? { at: ts.at } : {}), q, ops: opsByTurn.get(ts.turnId) ?? {} });
+    if (!text) continue;
     const entry: CacheTurn = {};
-    const con = conclusionOf(t.response, 240);
+    const con = conclusionOf(text.response, 240);
     if (con) entry.c = con;
     if (q.length < 12 && lastSubstantive) entry.p = lastSubstantive;
     if (q.length >= 12) lastSubstantive = q;
-    for (const id of Object.keys(ops)) {
-      const m = mentionOf(t.response, mentionKey(id));
+    for (const id of Object.keys(opsByTurn.get(ts.turnId) ?? {})) {
+      const m = mentionOf(text.response, mentionKey(names[id] ? `file://${names[id]}` : id));
       if (m) (entry.m ??= {})[id] = m;
     }
-    if (Object.keys(entry).length) cache[String(i)] = entry;
+    if (Object.keys(entry).length) cache[String(ts.turnIndex)] = entry;
   }
   return {
-    fact: { id: s.sessionId, runner, file: f.file, mtime: f.mtime, size: f.size, cwd, workspace, title: s.title, ...(subagent ? { subagent } : {}), turns },
-    cache,
+    fact: { id: p.nativeId, runner: p.runner, file: f.file, mtime: f.mtime, size: f.size, cwd, workspace, title: p.title, ...(p.subagent ? { subagent: true } : {}), turns },
+    cache, names,
   };
 }
 
 // ─── stores ──────────────────────────────────────────────────────────
 
-const emptyFacts = (): FactIndex => ({ version: INDEX_VERSION, builtAt: '', sessions: {}, skipped: {} });
+const emptyFacts = (): FactIndex => ({ version: INDEX_VERSION, builtAt: '', sessions: {}, skipped: {}, names: {} });
 const emptyCache = (): CacheIndex => ({ version: INDEX_VERSION, sessions: {} });
 
 async function readJson<T>(file: string, empty: () => T): Promise<T> {
@@ -271,7 +311,7 @@ async function writePrivate(file: string, data: unknown): Promise<void> {
 
 const loadFacts = async (): Promise<FactIndex> => {
   const f = await readJson(FACT_FILE, emptyFacts);
-  f.skipped ??= {}; f.sessions ??= {};
+  f.skipped ??= {}; f.sessions ??= {}; f.names ??= {};
   return f;
 };
 const loadCache = (): Promise<CacheIndex> => readJson(CACHE_FILE, emptyCache);
@@ -280,8 +320,9 @@ const loadCache = (): Promise<CacheIndex> => readJson(CACHE_FILE, emptyCache);
 
 interface BuildReport { parsed: number; kept: number; skipped: number; removed: number; seconds: number }
 
-async function buildIndex(full: boolean): Promise<BuildReport> {
+async function buildIndex(full: boolean, canvasDir?: string): Promise<BuildReport> {
   const t0 = Date.now();
+  if (canvasDir) await rememberCanvasRoot(canvasDir);
   await fsp.rm(LEGACY_FILE, { force: true }).catch(() => undefined);
   const facts = full ? emptyFacts() : await loadFacts();
   const cache = full ? emptyCache() : await loadCache();
@@ -302,6 +343,7 @@ async function buildIndex(full: boolean): Promise<BuildReport> {
     delete facts.skipped[key];
     facts.sessions[key] = r.fact;
     cache.sessions[key] = r.cache;
+    Object.assign(facts.names, r.names);
     parsed++;
   }
   for (const key of Object.keys(facts.sessions)) {
@@ -379,6 +421,10 @@ async function resolveQuery(facts: FactIndex, arg: string, all: boolean): Promis
   // a web resource or a paper has one exact identity — no suffix games
   const web = urlArtifact(arg) ?? arxivArtifact(arg);
   if (web) return ids.has(web.id) ? { path: web.id, candidates: [web.id], elsewhere: 0 } : { path: null, candidates: [], elsewhere: 0 };
+  if (arg.startsWith('thoughtdag:')) return ids.has(arg) ? { path: arg, candidates: [arg], elsewhere: 0 } : { path: null, candidates: [], elsewhere: 0 };
+  // a canvas attachment answers to its file name
+  const named = Object.entries(facts.names).filter(([, name]) => name === arg || name.endsWith(`/${arg}`)).map(([id]) => id);
+  if (named.length === 1) return { path: named[0], candidates: named, elsewhere: 0 };
   const abs = absolutePath(arg, process.cwd());
   if (abs) {
     const typed = fileUri(abs);
@@ -418,7 +464,7 @@ function hitsFor(facts: FactIndex, artifact: string, includeRead: boolean): { hi
   return { hits, readsHidden: all.length - hits.length };
 }
 
-const OP_MARK: Record<Op, string> = { edit: '✏️ edit ', write: '✏️ write', read: '📖 read ', fetch: '🌐 fetch' };
+const OP_MARK: Record<Op, string> = { edit: '✏️ edit ', write: '✏️ write', read: '📖 read ', fetch: '🌐 fetch', attach: '📎 attach' };
 function when(t: FactTurn, s: FactSession): string {
   const d = new Date(t.at ?? s.mtime);
   const p = (n: number) => String(n).padStart(2, '0');
@@ -464,14 +510,14 @@ async function printWhy(facts: FactIndex, file: string, hits: Hit[], readsHidden
           session: h.session.id, runner: h.session.runner, title: h.session.title, subagent: !!h.session.subagent,
           turn: turnNumber(facts, h), at: h.turn.at ?? null, op: h.touch.op, locators: h.touch.l ?? null, question: h.turn.q,
           askedBefore: c.p ?? null, change: h.touch.d ?? null, about: c.m?.[file] ?? null, conclusion: c.c ?? null,
-          open: `thoughtdag://open?session=${h.session.id}`,
+          open: h.session.runner === 'thoughtdag' ? h.session.file : `thoughtdag://open?session=${h.session.id}`,
         };
       }),
     }, null, 1));
     return;
   }
 
-  const label = await displayOf(file);
+  const label = await displayOf(file, facts.names);
   const n = hits.length;
   const head = `why ${label}  ·  ${n} turn${n === 1 ? '' : 's'} in ${bySession.size} session${bySession.size === 1 ? '' : 's'}`;
   const notes = [
@@ -484,7 +530,7 @@ async function printWhy(facts: FactIndex, file: string, hits: Hit[], readsHidden
     const mine = g.filter((h) => shown.has(h));
     if (!mine.length) continue;
     const s = g[0].session;
-    console.log(`${s.runner}  「${s.title.slice(0, 70)}」${s.subagent ? '  (subagent)' : ''}  thoughtdag://open?session=${s.id}`);
+    console.log(`${s.runner}  「${s.title.slice(0, 70)}」${s.subagent ? '  (subagent)' : ''}  ${s.runner === 'thoughtdag' ? s.file : `thoughtdag://open?session=${s.id}`}`);
     for (const h of mine) {
       const c = interp(h);
       const where = h.touch.l?.map((l) => l.pages ? `p.${l.pages}` : l.lines ? `L${l.lines[0]}-${l.lines[1]}` : '').filter(Boolean).join(' ');
@@ -511,10 +557,13 @@ async function recall(facts: FactIndex, sidPrefix: string, n: number): Promise<v
   const frag = fragmentsOf(facts, any.id).find((f) => n >= f.offset && n < f.offset + f.s.turns.length);
   const s = frag?.s ?? any;
   const local = frag ? n - frag.offset : n;
-  const collector = s.runner === 'codex' ? new CodexSessionCollector() : new ClaudeSessionCollector();
-  const rl = createInterface({ input: createReadStream(s.file, { encoding: 'utf8', highWaterMark: 1 << 20 }) });
-  for await (const line of rl) collector.feedLine(line);
-  const turn = collector.finish()?.turns[local];
+  const p = await eventsOf(s.file);
+  const turn = p?.turns?.[local] ?? (() => {
+    // a canvas turn: the node's own text
+    const tid = s.turns[local]?.t;
+    const text = tid ? p?.texts.get(tid) : undefined;
+    return text ? { question: text.question, response: text.response, tools: [] as RunnerTurn['tools'], at: s.turns[local]?.at } : undefined;
+  })();
   if (!turn) { console.error(`session ${s.id.slice(0, 8)} has no turn #${n}`); process.exit(1); }
   console.log(`${s.runner}  「${s.title}」  turn #${n}${turn.at ? `  ${turn.at.slice(0, 16).replace('T', ' ')}` : ''}\n`);
   console.log(`## Question\n\n${turn.question.trim()}\n`);
@@ -532,7 +581,7 @@ async function recall(facts: FactIndex, sidPrefix: string, n: number): Promise<v
 
 const USAGE = `thoughtdag — the why layer
 
-  thoughtdag index [--full]                        build or refresh the footprint index
+  thoughtdag index [--full] [--canvas <dir>]       build or refresh the index (--canvas: also read canvas backups in <dir>, remembered)
   thoughtdag why <path> [--include-read] [--all] [--limit N] [--json]
                                                    the turns that touched a file, and what they said
   thoughtdag recall <session> <n>                  one turn in full (session id or prefix)
@@ -545,10 +594,10 @@ async function main(argv: string[]): Promise<void> {
   const [cmd, ...rest] = argv;
   const flag = (name: string): boolean => rest.includes(`--${name}`);
   const value = (name: string): string | undefined => { const i = rest.indexOf(`--${name}`); return i >= 0 ? rest[i + 1] : undefined; };
-  const args = rest.filter((a, i) => !a.startsWith('--') && !(i > 0 && rest[i - 1] === '--limit'));
+  const args = rest.filter((a, i) => !a.startsWith('--') && !(i > 0 && (rest[i - 1] === '--limit' || rest[i - 1] === '--canvas')));
 
   if (cmd === 'index') {
-    const r = await buildIndex(flag('full'));
+    const r = await buildIndex(flag('full'), value('canvas'));
     const st = summarize(await loadFacts(), await loadCache());
     console.log(`indexed ${r.parsed} session${r.parsed === 1 ? '' : 's'} (${r.kept} unchanged, ${r.skipped} not sessions, ${r.removed} gone) in ${r.seconds.toFixed(1)}s`);
     console.log(`${st.sessions} sessions in ${st.sources} files · ${st.turns} turns · ${artifactsLine(st.artifacts)} · ${HOME}`);

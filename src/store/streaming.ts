@@ -1,6 +1,6 @@
 import type { StoreApi } from 'zustand';
 import { walkUpAncestors } from '../lib/graph';
-import { upstreamFingerprint } from './context-builder';
+import { upstreamFingerprint, hashContext, type MessageSource } from './context-builder';
 import { pruneHighlights } from '../lib/highlight-match';
 import { llmCall, llmCallStream, type ContextMessage, type ImageAttachment } from '../lib/api';
 import { countTokens, activeSummary } from '../utils';
@@ -104,12 +104,25 @@ export async function runNodeGeneration(
     autoChain?: boolean;
     /** Extra work after the final state write, before pushHistory (e.g. re-layout). */
     onSuccess?: (response: string) => void;
+    /** where each context message came from — the members of this request */
+    sources?: MessageSource[];
   },
 ): Promise<void> {
   // Read-only viewer: no generation whatsoever — belt-and-braces behind the
   // hidden UI (a missed button must still be inert).
   if (isViewerMode) return;
   const { question, images, onSuccess, versionMode = 'replace' } = opts;
+  // The alignment fact, written BEFORE anything is sent: the hash of the
+  // request as compiled, and the nodes it was built from. Light metadata
+  // only, like every canvas event — never the text itself.
+  {
+    const members = [...new Set((opts.sources ?? []).map((s) => s.nodeId).filter((id): id is string => !!id))];
+    const shown = members.slice(0, 200);
+    get().logEvent('commit', nodeId, {
+      ctx: hashContext(opts.messages, images ?? []), n: opts.messages.length,
+      ...(shown.length ? { m: shown.join(',') } : {}), ...(members.length > shown.length ? { more: true } : {}),
+    });
+  }
   let { messages } = opts;
   if (!opts.autoChain) autoRunCounts.clear(); // a fresh user action starts a new wave
   // Supersede: abort any generation already running on this node; its late
