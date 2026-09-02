@@ -33,20 +33,26 @@ interface FactSession {
   id: string; runner: 'claude-code' | 'codex'; file: string; mtime: number; size: number;
   cwd: string; workspace: string; title: string; subagent?: boolean; turns: FactTurn[];
 }
-interface FactIndex { version: number; builtAt: string; sessions: Record<string, FactSession> }
+interface FactIndex {
+  version: number; builtAt: string;
+  sessions: Record<string, FactSession>;
+  /** .jsonl files seen that are not sessions, with the stat they had —
+      remembered so a stray file does not make every query refresh */
+  skipped: Record<string, { mtime: number; size: number }>;
+}
 /** heuristics: the answer's closing paragraph, the earlier ask a bare "ok"
  *  answers, the paragraph naming each file — candidates, not facts */
 interface CacheTurn { c?: string; p?: string; m?: Record<string, string> }
 interface CacheIndex { version: number; sessions: Record<string, Record<string, CacheTurn>> }
 
-const INDEX_VERSION = 4;
+const INDEX_VERSION = 5;
 const EXCERPT = 200;
 
 const HOME = process.env.THOUGHTDAG_HOME ?? path.join(os.homedir(), '.thoughtdag');
 const FACT_FILE = path.join(HOME, 'fact-index.json');
 const CACHE_FILE = path.join(HOME, 'interpretation-cache.json');
 const LEGACY_FILE = path.join(HOME, 'why-index.json');
-const ROOTS = (process.env.THOUGHTDAG_SESSION_ROOTS?.split(':').filter(Boolean))
+const ROOTS = (process.env.THOUGHTDAG_SESSION_ROOTS?.split(path.delimiter).filter(Boolean))
   ?? [path.join(os.homedir(), '.claude', 'projects'), path.join(os.homedir(), '.codex', 'sessions')];
 
 // ─── files ───────────────────────────────────────────────────────────
@@ -211,7 +217,7 @@ async function parseSession(f: FileStat): Promise<{ fact: FactSession; cache: Re
 
 // ─── stores ──────────────────────────────────────────────────────────
 
-const emptyFacts = (): FactIndex => ({ version: INDEX_VERSION, builtAt: '', sessions: {} });
+const emptyFacts = (): FactIndex => ({ version: INDEX_VERSION, builtAt: '', sessions: {}, skipped: {} });
 const emptyCache = (): CacheIndex => ({ version: INDEX_VERSION, sessions: {} });
 
 async function readJson<T>(file: string, empty: () => T): Promise<T> {
@@ -232,7 +238,11 @@ async function writePrivate(file: string, data: unknown): Promise<void> {
   await fsp.rename(tmp, file);
 }
 
-const loadFacts = (): Promise<FactIndex> => readJson(FACT_FILE, emptyFacts);
+const loadFacts = async (): Promise<FactIndex> => {
+  const f = await readJson(FACT_FILE, emptyFacts);
+  f.skipped ??= {}; f.sessions ??= {};
+  return f;
+};
 const loadCache = (): Promise<CacheIndex> => readJson(CACHE_FILE, emptyCache);
 
 // ─── index ───────────────────────────────────────────────────────────
@@ -251,9 +261,14 @@ async function buildIndex(full: boolean): Promise<BuildReport> {
   for (const f of files) {
     seen.add(f.file);
     const prev = byFile.get(f.file);
-    if (prev && prev.mtime === f.mtime && prev.size === f.size) { kept++; continue; }
+    const sk = facts.skipped[f.file];
+    if (sk && sk.mtime === f.mtime && sk.size === f.size) { skipped++; continue; }
+    // unchanged AND its interpretation is still there: a deleted cache
+    // must come back on the next index, or "deletable" was a lie
+    if (prev && prev.mtime === f.mtime && prev.size === f.size && cache.sessions[prev.id]) { kept++; continue; }
     const r = await parseSession(f).catch(() => null);
-    if (!r) { skipped++; continue; }
+    if (!r) { facts.skipped[f.file] = { mtime: f.mtime, size: f.size }; skipped++; continue; }
+    delete facts.skipped[f.file];
     if (prev && prev.id !== r.fact.id) { delete facts.sessions[prev.id]; delete cache.sessions[prev.id]; }
     facts.sessions[r.fact.id] = r.fact;
     cache.sessions[r.fact.id] = r.cache;
@@ -262,6 +277,7 @@ async function buildIndex(full: boolean): Promise<BuildReport> {
   for (const s of Object.values(facts.sessions)) {
     if (!seen.has(s.file)) { delete facts.sessions[s.id]; delete cache.sessions[s.id]; removed++; }
   }
+  for (const file of Object.keys(facts.skipped)) if (!seen.has(file)) delete facts.skipped[file];
   facts.builtAt = new Date().toISOString();
   await writePrivate(FACT_FILE, facts);
   await writePrivate(CACHE_FILE, cache);
@@ -273,14 +289,21 @@ async function buildIndex(full: boolean): Promise<BuildReport> {
  *  second thanks to the per-file watermark). */
 async function ensureFresh(): Promise<FactIndex> {
   const facts = await loadFacts();
+  const cache = await loadCache();
   const files = await listSources();
   const byFile = new Map(Object.values(facts.sessions).map((s) => [s.file, s]));
+  const known = (f: FileStat): boolean => {
+    const p = byFile.get(f.file);
+    if (p) return p.mtime === f.mtime && p.size === f.size && !!cache.sessions[p.id];
+    const sk = facts.skipped[f.file];
+    return !!sk && sk.mtime === f.mtime && sk.size === f.size;
+  };
   const stale = !facts.builtAt
-    || files.some((f) => { const p = byFile.get(f.file); return !p || p.mtime !== f.mtime || p.size !== f.size; })
-    || byFile.size !== files.length;
+    || files.some((f) => !known(f))
+    || byFile.size + Object.keys(facts.skipped).length !== files.length;
   if (!stale) return facts;
   const r = await buildIndex(false);
-  if (r.parsed || r.removed) console.error(`(index refreshed: ${r.parsed} session${r.parsed === 1 ? '' : 's'} re-read, ${r.removed} gone, ${r.seconds.toFixed(1)}s)`);
+  console.error(`(index refreshed: ${r.parsed} session${r.parsed === 1 ? '' : 's'} re-read, ${r.removed} gone, ${r.seconds.toFixed(1)}s)`);
   return loadFacts();
 }
 
@@ -322,10 +345,10 @@ async function resolveQuery(facts: FactIndex, arg: string, all: boolean): Promis
   if (paths.has(abs)) return { path: abs, candidates: [abs], elsewhere: 0 };
   const real = await canonicalPath(abs);
   if (paths.has(real)) return { path: real, candidates: [real], elsewhere: 0 };
-  const needle = arg.replace(/^\.\//, '').replace(/\/+$/, '');
-  const bySuffix = [...paths].filter((p) => p === needle || p.endsWith(`/${needle}`));
+  const needle = arg.replace(/^\.[\\/]/, '').replace(/[\\/]+$/, '').split(/[\\/]/).join(path.sep);
+  const bySuffix = [...paths].filter((p) => p === needle || p.endsWith(path.sep + needle));
   const ws = await workspaceOf(process.cwd());
-  const inside = all ? bySuffix : bySuffix.filter((p) => p.startsWith(`${ws}/`));
+  const inside = all ? bySuffix : bySuffix.filter((p) => p.startsWith(ws + path.sep));
   if (inside.length === 1) return { path: inside[0], candidates: inside, elsewhere: bySuffix.length - inside.length };
   return { path: null, candidates: inside.sort(), elsewhere: bySuffix.length - inside.length };
 }
@@ -452,7 +475,7 @@ const USAGE = `thoughtdag — the why layer
                                                    the turns that touched a file, and what they said
   thoughtdag recall <session> <n>                  one turn in full (session id or prefix)
   thoughtdag status                                what the index holds, and how much is evidence
-  thoughtdag purge                                 delete everything this tool stored
+  thoughtdag purge [--cache]                       delete everything this tool stored (--cache: only the interpretation)
 `;
 
 async function main(argv: string[]): Promise<void> {
@@ -479,8 +502,10 @@ async function main(argv: string[]): Promise<void> {
     return;
   }
   if (cmd === 'purge') {
+    // --cache drops only the interpretation; the next index recomputes it
+    const targets = flag('cache') ? [CACHE_FILE, `${CACHE_FILE}.tmp`] : [FACT_FILE, CACHE_FILE, LEGACY_FILE, `${FACT_FILE}.tmp`, `${CACHE_FILE}.tmp`];
     let n = 0;
-    for (const f of [FACT_FILE, CACHE_FILE, LEGACY_FILE, `${FACT_FILE}.tmp`, `${CACHE_FILE}.tmp`]) {
+    for (const f of targets) {
       try { await fsp.rm(f); n++; } catch { /* absent */ }
     }
     console.log(`removed ${n} file${n === 1 ? '' : 's'} from ${HOME}`);
