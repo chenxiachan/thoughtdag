@@ -57,6 +57,22 @@ writeFileSync(cxResumed, [
   cx('response_item', { type: 'message', role: 'assistant', content: [{ type: 'output_text', text: '第二段答。' }] }),
 ].join('\n'));
 
+// artifact identity: spaces, a paper URL, a page URL, a locator, a relative path with no cwd
+const ccArt = join(tmp, 'sid-art.jsonl');
+const ccNoCwd = (uuid, parent, type, content) => L({ type, uuid, parentUuid: parent, sessionId: 'sid-art', isSidechain: false, timestamp: '2026-08-21T14:02:00.000Z', message: { role: type, content } });
+writeFileSync(ccArt, [
+  ccNoCwd('u1', null, 'user', '看材料'),
+  ccNoCwd('a1', 'u1', 'assistant', [
+    { type: 'tool_use', id: 'k1', name: 'Read', input: { file_path: '/Users/x/My Notes/别说服.md', offset: 10, limit: 5 } },
+    { type: 'tool_use', id: 'k2', name: 'Read', input: { file_path: '/Users/x/paper.pdf', pages: '1-5' } },
+    { type: 'tool_use', id: 'k3', name: 'WebFetch', input: { url: 'https://arxiv.org/pdf/2410.08900v3.pdf', prompt: 'p' } },
+    { type: 'tool_use', id: 'k4', name: 'WebFetch', input: { url: 'https://Docs.Example.com/Guide#top', prompt: 'p' } },
+    { type: 'tool_use', id: 'k5', name: 'Read', input: { file_path: 'relative/without/cwd.ts' } },
+  ]),
+  ccNoCwd('r1', 'a1', 'user', [{ type: 'tool_result', tool_use_id: 'k1', content: 'x' }, { type: 'tool_result', tool_use_id: 'k2', content: 'y' }, { type: 'tool_result', tool_use_id: 'k3', content: 'z' }, { type: 'tool_result', tool_use_id: 'k4', content: 'w' }, { type: 'tool_result', tool_use_id: 'k5', content: 'v' }]),
+  ccNoCwd('a2', 'r1', 'assistant', [{ type: 'text', text: '看完了。' }]),
+].join('\n'));
+
 const run = (...a) => execFileSync(process.execPath, [CLI, ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
 const events = (file) => run('events', file).trim().split('\n').map((l) => JSON.parse(l));
 
@@ -143,6 +159,19 @@ test('every tool.completed answers exactly one tool.called, and both point at th
   assert.equal(cc[0].callId, 't1');
   const cxCalls = events(cxResumed).filter((e) => e.kind === 'tool.called');
   assert.deepEqual(cxCalls.map((c) => c.source.ref), ['call-A', 'call-B'], 'codex refs are call_ids');
+});
+
+test('artifact identity is canonical and only ever certain', () => {
+  const calls = events(ccArt).filter((e) => e.kind === 'tool.called');
+  assert.deepEqual(calls[0].artifacts, [{ id: 'file:///Users/x/My%20Notes/%E5%88%AB%E8%AF%B4%E6%9C%8D.md', observedPath: '/Users/x/My Notes/别说服.md', locator: { lines: [10, 14] } }]);
+  assert.deepEqual(calls[1].artifacts, [{ id: 'file:///Users/x/paper.pdf', observedPath: '/Users/x/paper.pdf', locator: { pages: '1-5' } }]);
+  assert.deepEqual(calls[2].artifacts, [{ id: 'arxiv:2410.08900', observedPath: 'https://arxiv.org/pdf/2410.08900v3.pdf' }]);
+  assert.deepEqual(calls[3].artifacts, [{ id: 'https://docs.example.com/Guide', observedPath: 'https://Docs.Example.com/Guide#top' }]);
+  assert.deepEqual(calls[4].artifacts, [], 'a relative path with no cwd is not an artifact');
+  const touches = run('events', ccArt, '--touches').trim().split('\n').map((l) => JSON.parse(l));
+  assert.deepEqual(touches.map((t) => [t.artifact, t.op]).sort(), [
+    ['arxiv:2410.08900', 'fetch'], ['file:///Users/x/My%20Notes/%E5%88%AB%E8%AF%B4%E6%9C%8D.md', 'read'], ['file:///Users/x/paper.pdf', 'read'], ['https://docs.example.com/Guide', 'fetch'],
+  ].sort());
 });
 
 test('derived touches: one per turn and artifact, strongest op, pointing back at the call', () => {

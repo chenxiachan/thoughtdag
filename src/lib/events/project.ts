@@ -59,22 +59,90 @@ function turnKeys(session: string, turns: ProjectableTurn[]): string[] {
   });
 }
 
-/** Files as the runner wrote them → canonical artifact ids. Relative
- *  paths resolve against the session cwd; canonicalization of the real
- *  filesystem (symlinks) is the index's job, where a filesystem exists. */
-export function fileArtifact(observed: string, cwd?: string): ArtifactRef {
-  const abs = observed.startsWith('/') ? observed : cwd ? joinPath(cwd, observed) : observed;
-  return { id: `file://${abs}`, observedPath: observed };
-}
+// ─── artifact identity ───────────────────────────────────────────────
+//
+// One id per thing, by scheme. Deterministic from what the tool wrote;
+// anything that cannot be pinned down is NOT an artifact (a relative path
+// with no cwd, a malformed URL) — better absent than guessed.
 
-function joinPath(base: string, rel: string): string {
-  const parts = base.replace(/\/+$/, '').split('/');
-  for (const seg of rel.split('/')) {
+const isWindowsAbs = (p: string): boolean => /^[A-Za-z]:[\\/]/.test(p);
+
+/** POSIX or Windows path → normalized absolute path with forward slashes,
+ *  `.` and `..` resolved lexically. Symlink resolution needs a filesystem
+ *  and is the index's job. */
+export function absolutePath(observed: string, cwd?: string): string | null {
+  const p = observed.replace(/\\/g, '/');
+  let base: string;
+  if (p.startsWith('/') || isWindowsAbs(p)) base = p;
+  else if (cwd) base = `${cwd.replace(/\\/g, '/').replace(/\/+$/, '')}/${p}`;
+  else return null;
+  const drive = isWindowsAbs(base) ? base.slice(0, 2) : '';
+  const parts: string[] = [];
+  for (const seg of base.slice(drive.length).split('/')) {
     if (!seg || seg === '.') continue;
-    if (seg === '..') { if (parts.length > 1) parts.pop(); continue; }
+    if (seg === '..') { parts.pop(); continue; }
     parts.push(seg);
   }
-  return parts.join('/');
+  return `${drive}/${parts.join('/')}`;
+}
+
+/** file:///abs/path with every segment percent-encoded (spaces, #, %,
+ *  non-ASCII), slashes kept; a Windows drive rides as file:///C:/… */
+export function fileUri(absPath: string): string {
+  const drive = isWindowsAbs(absPath) ? absPath.slice(0, 2) : '';
+  const rest = absPath.slice(drive.length);
+  const encoded = rest.split('/').map((seg) => encodeURIComponent(seg)).join('/');
+  return `file://${drive ? `/${drive}` : ''}${encoded}`;
+}
+
+/** The path back out of a file:// id. */
+export function filePathOf(id: string): string | null {
+  if (!id.startsWith('file://')) return null;
+  const raw = id.slice('file://'.length);
+  const decoded = raw.split('/').map((seg) => { try { return decodeURIComponent(seg); } catch { return seg; } }).join('/');
+  return /^\/[A-Za-z]:\//.test(decoded) ? decoded.slice(1) : decoded;
+}
+
+export function fileArtifact(observed: string, cwd?: string): ArtifactRef | null {
+  const abs = absolutePath(observed, cwd);
+  return abs ? { id: fileUri(abs), observedPath: observed } : null;
+}
+
+const ARXIV_RE = /^\/(?:abs|pdf|html)\/(\d{4}\.\d{4,5})(?:v\d+)?(?:\.pdf)?\/?$/;
+
+/** A fetched URL → `arxiv:<id>` when it is an arXiv paper (version and
+ *  abs/pdf/html spelling folded into one identity, the URL kept as
+ *  observed), else the URL itself with host lowercased and fragment
+ *  dropped. Not a URL → not an artifact. */
+export function urlArtifact(url: string): ArtifactRef | null {
+  let u: URL;
+  try { u = new URL(url); } catch { return null; }
+  if (u.protocol !== 'http:' && u.protocol !== 'https:') return null;
+  const host = u.hostname.toLowerCase();
+  if (host === 'arxiv.org' || host === 'www.arxiv.org') {
+    const m = u.pathname.match(ARXIV_RE);
+    if (m) return { id: `arxiv:${m[1]}`, observedPath: url };
+  }
+  u.hash = '';
+  return { id: u.href, observedPath: url };
+}
+
+/** An arXiv id typed by hand ("arxiv:2401.12345", "2401.12345") → canonical. */
+export function arxivArtifact(text: string): ArtifactRef | null {
+  const m = text.trim().match(/^(?:arxiv:)?(\d{4}\.\d{4,5})(?:v\d+)?$/i);
+  return m ? { id: `arxiv:${m[1]}`, observedPath: text } : null;
+}
+
+/** Every artifact one tool call touched: its files (with the locator the
+ *  call used) and the URL it fetched. */
+export function toolArtifacts(tool: RunnerTool, cwd?: string): ArtifactRef[] {
+  const out: ArtifactRef[] = [];
+  for (const p of tool.paths ?? []) {
+    const a = fileArtifact(p, cwd);
+    if (a) out.push(tool.locator ? { ...a, locator: tool.locator } : a);
+  }
+  if (tool.url) { const a = urlArtifact(tool.url); if (a) out.push(a); }
+  return out;
 }
 
 /** The first line that actually changed: an Edit's old → new, a codex
@@ -154,7 +222,7 @@ export function sessionToEvents(s: ProjectableSession): CanonicalEvent[] {
       // the runner's own call id names both records; a synthetic ref only
       // when the runner recorded none
       const nativeRef = tool.nativeCallId ?? `${t.itemIds[0] ?? `turn-${i}`}:tool${k}`;
-      const artifacts: ArtifactRef[] = (tool.paths ?? []).map((p) => fileArtifact(p, s.cwd));
+      const artifacts: ArtifactRef[] = toolArtifacts(tool, s.cwd);
       const change = changeHead(tool);
       const called: ToolCalled = {
         id: callId, kind: 'tool.called', ...base, source: src(nativeRef), ...OBS_PART,
@@ -182,9 +250,9 @@ export function sessionToEvents(s: ProjectableSession): CanonicalEvent[] {
 
 /** The derived edge behind `why`: one touch per (turn, artifact), the
  *  strongest op winning, always pointing back at the tool.called it came
- *  from. Reads, writes and edits only — a search root is not a touch. */
+ *  from. Reads, fetches, writes and edits — a search root is not a touch. */
 export function deriveTouches(events: CanonicalEvent[]): ArtifactTouch[] {
-  const rank: Record<string, number> = { read: 1, write: 2, edit: 2 };
+  const rank: Record<string, number> = { read: 1, fetch: 1, write: 2, edit: 2 };
   const byKey = new Map<string, ArtifactTouch>();
   for (const e of events) {
     if (e.kind !== 'tool.called' || !(e.op in rank)) continue;

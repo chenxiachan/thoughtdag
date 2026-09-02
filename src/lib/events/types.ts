@@ -36,7 +36,14 @@ export interface SourcePointer {
  *  artifacts. Titles, paraphrased URLs and unrecoverable citations are not
  *  artifacts at all. */
 export type ArtifactId = string;
-export interface Locator { page?: number; quote?: string; range?: [number, number] }
+/** Where inside an artifact — exactly as the tool asked for it. */
+export interface Locator {
+  /** PDF pages as written ("3" or "1-5") */
+  pages?: string;
+  /** 1-based line range of a text read */
+  lines?: [number, number];
+  quote?: string;
+}
 export interface ArtifactRef { id: ArtifactId; observedPath?: string; locator?: Locator }
 
 export type ToolOp = 'read' | 'write' | 'edit' | 'run' | 'search' | 'fetch' | 'agent' | 'other' | 'unknown';

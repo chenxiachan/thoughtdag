@@ -183,7 +183,10 @@ export class CodexSessionCollector {
       const raw = String(p.arguments ?? p.input ?? '');
       const op = toolOpOf(p.name);
       const call = clip(raw, op === 'edit' || op === 'write' ? ARTIFACT_CALL_LIMIT : TOOL_CALL_LIMIT);
-      this.pendingCalls.set(p.call_id, { name: p.name, call: call.text, paths: op === 'edit' ? patchPaths(raw) : [], op });
+      // apply_patch names its files in the header; view_image names one in
+      // its JSON arguments — both structured, neither guessed from a shell line
+      const viewed = op === 'read' ? (() => { try { const a = JSON.parse(raw) as { path?: string }; return typeof a.path === 'string' && a.path ? [a.path] : []; } catch { return []; } })() : [];
+      this.pendingCalls.set(p.call_id, { name: p.name, call: call.text, paths: op === 'edit' ? patchPaths(raw) : viewed, op });
     } else if ((p.type === 'function_call_output' || p.type === 'custom_tool_call_output') && p.call_id) {
       const reg = this.pendingCalls.get(p.call_id);
       if (reg) {

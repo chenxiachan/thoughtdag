@@ -30,8 +30,8 @@ writeFileSync(mainFile, [
   cc('r2', 'a2', 'user', [{ type: 'tool_result', tool_use_id: 't2', content: 'ok' }]),
   cc('a3', 'r2', 'assistant', [{ type: 'text', text: '找到了。\n\n崩溃来自流式输出没有节流，加了重试和退避，不是模型的问题。' }]),
   cc('u2', 'a3', 'user', '顺便看看 README', { at: '2026-08-21T15:00:00.000Z' }),
-  cc('a4', 'u2', 'assistant', [{ type: 'tool_use', id: 't3', name: 'Read', input: { file_path: `${proj}/README.md` } }]),
-  cc('r3', 'a4', 'user', [{ type: 'tool_result', tool_use_id: 't3', content: '# hi' }]),
+  cc('a4', 'u2', 'assistant', [{ type: 'tool_use', id: 't3', name: 'Read', input: { file_path: `${proj}/README.md` } }, { type: 'tool_use', id: 't3b', name: 'WebFetch', input: { url: 'https://arxiv.org/abs/2506.07962v2', prompt: 'summarize' } }, { type: 'tool_use', id: 't3c', name: 'WebFetch', input: { url: 'https://Example.com/a#frag', prompt: 'read' } }]),
+  cc('r3', 'a4', 'user', [{ type: 'tool_result', tool_use_id: 't3', content: '# hi' }, { type: 'tool_result', tool_use_id: 't3b', content: 'paper text' }, { type: 'tool_result', tool_use_id: 't3c', content: 'page text' }]),
   cc('a5', 'r3', 'assistant', [{ type: 'text', text: 'README 没问题。' }]),
 ].join('\n'));
 writeFileSync(join(ccRoot, 'proj', 'sid-1', 'subagents', 'agent-abc123.jsonl'), [
@@ -122,10 +122,21 @@ test('a bare filename resolves inside this workspace; --all widens', () => {
   assert.match(run('why', 'nope.ts'), /no session touched/);
 });
 
+test('a paper and a page are artifacts too: why arxiv:<id> and why <url>', () => {
+  const paper = run('why', 'arxiv:2506.07962');
+  assert.match(paper.split('\n')[0], /^why arxiv:2506\.07962  ·  1 turn in 1 session$/);
+  assert.match(paper, /🌐 fetch/);
+  assert.match(run('why', '2506.07962').split('\n')[0], /1 turn in 1 session/);
+  const page = run('why', 'https://example.com/a');
+  assert.match(page.split('\n')[0], /^why https:\/\/example\.com\/a  ·  1 turn in 1 session$/, 'host lowercased, fragment dropped');
+  assert.match(run('why', 'https://nowhere.example/x'), /no session touched/);
+});
+
 test('--json carries the evidence legend and per-hit fields', () => {
   const json = JSON.parse(run('why', 'src/lib/api.ts', '--json'));
   assert.equal(json.turns, 2); assert.equal(json.readsHidden, 1);
   assert.match(json.evidence.change, /^observed/);
+  assert.equal(json.artifact, `file://${realProj}/src/lib/api.ts`); assert.equal(json.file, `${realProj}/src/lib/api.ts`);
   assert.ok(json.hits.every((h) => h.open.startsWith('thoughtdag://open?session=')));
 });
 
@@ -157,7 +168,7 @@ test('recall prints the turn in full with its diff', () => {
 
 test('status reports the evidence breakdown', () => {
   const status = run('status');
-  assert.match(status, /5 sessions · 7 turns · 4 files touched/);
+  assert.match(status, /5 sessions · 7 turns · 4 files · 1 urls · 1 papers/);
   assert.match(status, /5 edits\/writes, 5 with an observed change head/);
   assert.match(status, /candidates only/);
 });

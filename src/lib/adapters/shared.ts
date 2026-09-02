@@ -19,6 +19,10 @@ export interface RunnerTool {
   /** the runner's own id for this call (tool_use.id, call_id) — the same
       id its result answers to; provenance that must survive normalization */
   nativeCallId?: string;
+  /** a web resource the call fetched, exactly as requested */
+  url?: string;
+  /** where inside the file the call looked, as the runner wrote it */
+  locator?: { pages?: string; lines?: [number, number] };
 }
 
 export interface RunnerTurn {

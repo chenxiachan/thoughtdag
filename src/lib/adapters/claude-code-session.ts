@@ -86,7 +86,27 @@ interface Turn {
   compactionBefore?: string; // note text for a compaction boundary preceding this turn
 }
 
-interface ToolInput { file_path?: string; notebook_path?: string; content?: string; old_string?: string; new_string?: string; replace_all?: boolean }
+interface ToolInput {
+  file_path?: string; notebook_path?: string; content?: string; old_string?: string; new_string?: string; replace_all?: boolean;
+  url?: string; offset?: number; limit?: number; pages?: string;
+}
+
+/** What the call fetched (WebFetch) and where it looked inside a file
+ *  (Read offset/limit, PDF pages) — structured fields only. */
+function toolScope(input: unknown): { url?: string; locator?: RunnerTool['locator'] } {
+  const i = (input ?? {}) as ToolInput;
+  const out: { url?: string; locator?: RunnerTool['locator'] } = {};
+  if (typeof i.url === 'string' && /^https?:\/\//.test(i.url)) out.url = i.url;
+  const loc: NonNullable<RunnerTool['locator']> = {};
+  if (typeof i.pages === 'string' && i.pages.trim()) loc.pages = i.pages.trim();
+  if (typeof i.offset === 'number' || typeof i.limit === 'number') {
+    const start = Math.max(1, typeof i.offset === 'number' ? i.offset : 1);
+    const end = typeof i.limit === 'number' ? start + Math.max(0, i.limit) - 1 : start;
+    loc.lines = [start, Math.max(start, end)];
+  }
+  if (Object.keys(loc).length) out.locator = loc;
+  return out;
+}
 
 /** The files a call touched, read straight off its input — never guessed
  *  from free text. */
@@ -131,7 +151,7 @@ const clip = clipText;
 export class ClaudeSessionCollector {
   private turns: Turn[] = [];
   // tool_use id → registration, so results pair up even across lines
-  private pendingTools = new Map<string, { name: string; call: string; paths: string[]; op: RunnerTool['op'] }>();
+  private pendingTools = new Map<string, { name: string; call: string; paths: string[]; op: RunnerTool['op']; url?: string; locator?: RunnerTool['locator'] }>();
   private current: Turn | null = null;
   private pendingCompaction: string | undefined;
   private sessionId: string | null = null;
@@ -193,6 +213,7 @@ export class ClaudeSessionCollector {
               this.current.tools.push({
                 name: reg.name, call: reg.call, result: res.text, truncated: res.truncated,
                 ...(reg.paths.length ? { paths: reg.paths } : {}), op: reg.op, nativeCallId: p.tool_use_id,
+                ...(reg.url ? { url: reg.url } : {}), ...(reg.locator ? { locator: reg.locator } : {}),
               });
               this.pendingTools.delete(p.tool_use_id);
             }
@@ -234,7 +255,7 @@ export class ClaudeSessionCollector {
           if (p.type === 'tool_use' && p.id && p.name) {
             const op = toolOpOf(p.name);
             const call = clip(renderCall(p.name, p.input), op === 'write' || op === 'edit' ? ARTIFACT_CALL_LIMIT : TOOL_CALL_LIMIT);
-            this.pendingTools.set(p.id, { name: p.name, call: call.text, paths: toolPaths(p.input), op });
+            this.pendingTools.set(p.id, { name: p.name, call: call.text, paths: toolPaths(p.input), op, ...toolScope(p.input) });
           }
         }
       }

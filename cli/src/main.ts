@@ -21,13 +21,14 @@ import os from 'node:os';
 import { ClaudeSessionCollector } from '../../src/lib/adapters/claude-code-session';
 import { CodexSessionCollector } from '../../src/lib/adapters/codex-session';
 import { conclusionOf } from '../../src/lib/turn-insight';
-import type { RunnerTool, RunnerTurn } from '../../src/lib/adapters/shared';
-import { sessionToEvents, deriveTouches, changeHead, type ProjectableSession } from '../../src/lib/events/project';
+import type { RunnerTurn } from '../../src/lib/adapters/shared';
+import { sessionToEvents, deriveTouches, absolutePath, fileUri, filePathOf, urlArtifact, arxivArtifact, type ProjectableSession } from '../../src/lib/events/project';
 import { MANIFESTS } from '../../src/lib/events/manifests';
 
 // ─── records ─────────────────────────────────────────────────────────
 
-type Op = 'read' | 'write' | 'edit';
+type Op = 'read' | 'fetch' | 'write' | 'edit';
+const readLike = (op: Op): boolean => op === 'read' || op === 'fetch';
 /** observed: the op, and the first differing line of the change (verbatim, partial) */
 interface Touch { op: Op; d?: string }
 interface FactTurn { i: number; item?: string; at?: string; q: string; ops: Record<string, Touch> }
@@ -47,7 +48,7 @@ interface FactIndex {
 interface CacheTurn { c?: string; p?: string; m?: Record<string, string> }
 interface CacheIndex { version: number; sessions: Record<string, Record<string, CacheTurn>> }
 
-const INDEX_VERSION = 5;
+const INDEX_VERSION = 6;
 const EXCERPT = 200;
 
 const HOME = process.env.THOUGHTDAG_HOME ?? path.join(os.homedir(), '.thoughtdag');
@@ -119,13 +120,36 @@ async function workspaceOf(dir: string): Promise<string> {
 // ─── parsing ─────────────────────────────────────────────────────────
 
 const strongest = (a: Op | undefined, b: Op): Op => (a === 'edit' || a === 'write') ? a : b;
-const opOf = (t: RunnerTool): Op | null => (t.op === 'read' || t.op === 'write' || t.op === 'edit') ? t.op : null;
+
+/** An artifact id with its real filesystem spelling: file:// ids go through
+ *  realpath (symlinks, /var → /private/var); web and paper ids are already
+ *  canonical. */
+async function canonicalArtifact(id: string, memo: Map<string, string>): Promise<string> {
+  const p = filePathOf(id);
+  return p ? fileUri(await canonicalPath(p, memo)) : id;
+}
+
+/** The name a paragraph would use for this artifact. */
+function mentionKey(id: string): string {
+  const p = filePathOf(id);
+  if (p) return path.basename(p);
+  if (id.startsWith('arxiv:')) return id.slice('arxiv:'.length);
+  try { const u = new URL(id); return u.pathname.split('/').filter(Boolean).pop() ?? u.hostname; } catch { return id; }
+}
+
+/** How a person reads an artifact id: a path relative to here, a URL, a paper id. */
+async function displayOf(id: string): Promise<string> {
+  const p = filePathOf(id);
+  if (!p) return id;
+  const rel = path.relative(await realOr(process.cwd()), await realOr(p));
+  return rel.startsWith('..') || path.isAbsolute(rel) ? p : rel;
+}
 const clipLine = (s: string, max: number): string => { const l = s.trim(); return l.length > max ? `${l.slice(0, max)}…` : l; };
 
 /** The last paragraph of the answer that names the file — a candidate
  *  explanation, not a verified reason. */
-function mentionOf(response: string, file: string): string | undefined {
-  const base = path.basename(file).toLowerCase();
+function mentionOf(response: string, key: string): string | undefined {
+  const base = key.toLowerCase();
   if (base.length < 4) return undefined;
   const paras = response.replace(/```[\s\S]*?```/g, '').split(/\n\s*\n/)
     .map((p) => p.replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/[#*`>|_~]/g, '').replace(/\s+/g, ' ').trim())
@@ -175,36 +199,40 @@ async function parseSession(f: FileStat): Promise<{ fact: FactSession; cache: Re
   const rawCwd = ('cwd' in s && s.cwd) ? s.cwd : '';
   const cwd = rawCwd ? await canonicalPath(rawCwd, memo) : '';
   const workspace = cwd ? await workspaceOf(cwd) : '';
+  const subagent = 'subagent' in s ? !!s.subagent : runner === 'claude-code' && /\/subagents\//.test(f.file);
+  // the contract first: the index is a reduction of the same events every
+  // other reader sees, never a second reading of the log
+  const session: ProjectableSession = {
+    runner, nativeId: s.sessionId, title: s.title, file: f.file, schema: MANIFESTS[runner].schema,
+    ...(rawCwd ? { cwd: rawCwd } : {}), ...(subagent ? { subagent } : {}), turns: s.turns,
+  };
+  const opsByTurn = new Map<number, Record<string, Touch>>();
+  for (const t of deriveTouches(sessionToEvents(session))) {
+    const id = await canonicalArtifact(t.artifact, memo);
+    const ops = opsByTurn.get(t.turnIndex) ?? opsByTurn.set(t.turnIndex, {}).get(t.turnIndex)!;
+    const prev = ops[id];
+    const d = prev?.d ?? t.change;
+    ops[id] = { op: strongest(prev?.op, t.op as Op), ...(d ? { d } : {}) };
+  }
   const turns: FactTurn[] = [];
   const cache: Record<string, CacheTurn> = {};
   let lastSubstantive = '';
   for (const [i, t] of (s.turns as RunnerTurn[]).entries()) {
-    const ops: Record<string, Touch> = {};
-    for (const tool of t.tools) {
-      const op = opOf(tool);
-      if (!op) continue;
-      for (const p of tool.paths ?? []) {
-        const abs = await canonicalPath(path.isAbsolute(p) ? p : rawCwd ? path.resolve(rawCwd, p) : p, memo);
-        const prev = ops[abs];
-        const d = op === 'read' ? undefined : (prev?.d ?? changeHead(tool));
-        ops[abs] = { op: strongest(prev?.op, op), ...(d ? { d } : {}) };
-      }
-    }
+    const ops = opsByTurn.get(i) ?? {};
     const q = questionExcerpt(t.question);
     turns.push({ i, ...(t.itemIds[0] ? { item: t.itemIds[0] } : {}), ...(t.at ? { at: t.at } : {}), q, ops });
     // interpretation: never in the fact record
     const entry: CacheTurn = {};
-    const c = conclusionOf(t.response, 240);
-    if (c) entry.c = c;
+    const con = conclusionOf(t.response, 240);
+    if (con) entry.c = con;
     if (q.length < 12 && lastSubstantive) entry.p = lastSubstantive;
     if (q.length >= 12) lastSubstantive = q;
-    for (const abs of Object.keys(ops)) {
-      const m = mentionOf(t.response, abs);
-      if (m) (entry.m ??= {})[abs] = m;
+    for (const id of Object.keys(ops)) {
+      const m = mentionOf(t.response, mentionKey(id));
+      if (m) (entry.m ??= {})[id] = m;
     }
     if (Object.keys(entry).length) cache[String(i)] = entry;
   }
-  const subagent = 'subagent' in s ? !!s.subagent : runner === 'claude-code' && /\/subagents\//.test(f.file);
   return {
     fact: { id: s.sessionId, runner, file: f.file, mtime: f.mtime, size: f.size, cwd, workspace, title: s.title, ...(subagent ? { subagent } : {}), turns },
     cache,
@@ -303,23 +331,27 @@ async function ensureFresh(): Promise<FactIndex> {
   return loadFacts();
 }
 
-interface Stats { sessions: number; turns: number; files: number; touches: number; changes: number; withChangeHead: number; withMention: number }
+interface Stats { sessions: number; turns: number; artifacts: { file: number; url: number; arxiv: number; other: number }; touches: number; changes: number; withChangeHead: number; withMention: number }
+const schemeOf = (id: string): keyof Stats['artifacts'] => id.startsWith('file://') ? 'file' : id.startsWith('arxiv:') ? 'arxiv' : /^https?:\/\//.test(id) ? 'url' : 'other';
+const artifactsLine = (a: Stats['artifacts']): string => [`${a.file} files`, a.url ? `${a.url} urls` : '', a.arxiv ? `${a.arxiv} papers` : '', a.other ? `${a.other} other` : ''].filter(Boolean).join(' · ');
 
 function summarize(facts: FactIndex, cache: CacheIndex): Stats {
-  const files = new Set<string>();
+  const seen = new Set<string>();
+  const artifacts = { file: 0, url: 0, arxiv: 0, other: 0 };
   let turns = 0, touches = 0, changes = 0, withChangeHead = 0, withMention = 0;
   for (const s of Object.values(facts.sessions)) {
     turns += s.turns.length;
     for (const t of s.turns) {
       const ct = cache.sessions[s.id]?.[String(t.i)];
       for (const [p, x] of Object.entries(t.ops)) {
-        files.add(p); touches++;
-        if (x.op !== 'read') { changes++; if (x.d) withChangeHead++; }
+        if (!seen.has(p)) { seen.add(p); artifacts[schemeOf(p)]++; }
+        touches++;
+        if (!readLike(x.op)) { changes++; if (x.d) withChangeHead++; }
         if (ct?.m?.[p]) withMention++;
       }
     }
   }
-  return { sessions: Object.keys(facts.sessions).length, turns, files: files.size, touches, changes, withChangeHead, withMention };
+  return { sessions: Object.keys(facts.sessions).length, turns, artifacts, touches, changes, withChangeHead, withMention };
 }
 
 // ─── why ─────────────────────────────────────────────────────────────
@@ -336,40 +368,50 @@ const allPaths = (facts: FactIndex): Set<string> => {
  *  suffix — inside this workspace unless --all: the same file name lives
  *  in many projects, and the question is about this one. */
 async function resolveQuery(facts: FactIndex, arg: string, all: boolean): Promise<{ path: string | null; candidates: string[]; elsewhere: number }> {
-  const paths = allPaths(facts);
-  const abs = path.resolve(process.cwd(), arg);
-  if (paths.has(abs)) return { path: abs, candidates: [abs], elsewhere: 0 };
-  const real = await canonicalPath(abs);
-  if (paths.has(real)) return { path: real, candidates: [real], elsewhere: 0 };
-  const needle = arg.replace(/^\.[\\/]/, '').replace(/[\\/]+$/, '').split(/[\\/]/).join(path.sep);
-  const bySuffix = [...paths].filter((p) => p === needle || p.endsWith(path.sep + needle));
-  const ws = await workspaceOf(process.cwd());
-  const inside = all ? bySuffix : bySuffix.filter((p) => p.startsWith(ws + path.sep));
-  if (inside.length === 1) return { path: inside[0], candidates: inside, elsewhere: bySuffix.length - inside.length };
-  return { path: null, candidates: inside.sort(), elsewhere: bySuffix.length - inside.length };
+  const ids = allPaths(facts);
+  // a web resource or a paper has one exact identity — no suffix games
+  const web = urlArtifact(arg) ?? arxivArtifact(arg);
+  if (web) return ids.has(web.id) ? { path: web.id, candidates: [web.id], elsewhere: 0 } : { path: null, candidates: [], elsewhere: 0 };
+  const abs = absolutePath(arg, process.cwd());
+  if (abs) {
+    const typed = fileUri(abs);
+    if (ids.has(typed)) return { path: typed, candidates: [typed], elsewhere: 0 };
+    const real = fileUri(await canonicalPath(abs));
+    if (ids.has(real)) return { path: real, candidates: [real], elsewhere: 0 };
+  }
+  const needle = arg.replace(/\\/g, '/').replace(/^\.\//, '').replace(/\/+$/, '');
+  const files = [...ids].flatMap((id) => { const p = filePathOf(id); return p ? [{ id, p }] : []; });
+  const bySuffix = files.filter(({ p }) => p === needle || p.endsWith(`/${needle}`));
+  const ws = (await workspaceOf(process.cwd())).replace(/\\/g, '/');
+  const inside = all ? bySuffix : bySuffix.filter(({ p }) => p.startsWith(`${ws}/`));
+  if (inside.length === 1) return { path: inside[0].id, candidates: [inside[0].p], elsewhere: bySuffix.length - inside.length };
+  return { path: null, candidates: inside.map((x) => x.p).sort(), elsewhere: bySuffix.length - inside.length };
 }
 
 /** Every turn that touched the file, once each: a continued session
  *  replays the turns it continued from under the same message ids, and
  *  those belong to the session that first recorded them. */
-function hitsFor(facts: FactIndex, file: string, includeRead: boolean): { hits: Hit[]; readsHidden: number } {
-  const hits: Hit[] = [];
+function hitsFor(facts: FactIndex, artifact: string, includeRead: boolean): { hits: Hit[]; readsHidden: number } {
+  const all: Hit[] = [];
   const seen = new Set<string>();
-  let readsHidden = 0;
   const sessions = Object.values(facts.sessions).sort((a, b) => a.mtime - b.mtime);
   for (const session of sessions) {
     for (const turn of session.turns) {
-      const touch = turn.ops[file];
+      const touch = turn.ops[artifact];
       if (!touch) continue;
       if (turn.item) { if (seen.has(turn.item)) continue; seen.add(turn.item); }
-      if (touch.op === 'read' && !includeRead) { readsHidden++; continue; }
-      hits.push({ session, turn, touch });
+      all.push({ session, turn, touch });
     }
   }
-  return { hits, readsHidden };
+  // reads hide behind changes; an artifact that was only ever read (or
+  // fetched — a paper, a page) shows its reads, or there is nothing to say
+  const hasChanges = all.some((h) => !readLike(h.touch.op));
+  if (includeRead || !hasChanges) return { hits: all, readsHidden: 0 };
+  const hits = all.filter((h) => !readLike(h.touch.op));
+  return { hits, readsHidden: all.length - hits.length };
 }
 
-const OP_MARK: Record<Op, string> = { edit: '✏️ edit ', write: '✏️ write', read: '📖 read ' };
+const OP_MARK: Record<Op, string> = { edit: '✏️ edit ', write: '✏️ write', read: '📖 read ', fetch: '🌐 fetch' };
 function when(t: FactTurn, s: FactSession): string {
   const d = new Date(t.at ?? s.mtime);
   const p = (n: number) => String(n).padStart(2, '0');
@@ -396,7 +438,7 @@ async function printWhy(file: string, hits: Hit[], readsHidden: number, cache: C
 
   if (json) {
     console.log(JSON.stringify({
-      file, turns: hits.length, sessions: bySession.size, readsHidden, evidence: EVIDENCE,
+      artifact: file, file: filePathOf(file), turns: hits.length, sessions: bySession.size, readsHidden, evidence: EVIDENCE,
       hits: [...shown].map((h) => {
         const c = interp(h);
         return {
@@ -410,9 +452,9 @@ async function printWhy(file: string, hits: Hit[], readsHidden: number, cache: C
     return;
   }
 
-  const rel = path.relative(await realOr(process.cwd()), await realOr(file));
+  const label = await displayOf(file);
   const n = hits.length;
-  const head = `why ${rel.startsWith('..') ? file : rel}  ·  ${n} turn${n === 1 ? '' : 's'} in ${bySession.size} session${bySession.size === 1 ? '' : 's'}`;
+  const head = `why ${label}  ·  ${n} turn${n === 1 ? '' : 's'} in ${bySession.size} session${bySession.size === 1 ? '' : 's'}`;
   const notes = [
     readsHidden ? `${readsHidden} read${readsHidden === 1 ? '' : 's'} hidden, --include-read` : '',
     n > limit ? `showing ${limit}, --limit for more` : '',
@@ -485,7 +527,7 @@ async function main(argv: string[]): Promise<void> {
     const r = await buildIndex(flag('full'));
     const st = summarize(await loadFacts(), await loadCache());
     console.log(`indexed ${r.parsed} session${r.parsed === 1 ? '' : 's'} (${r.kept} unchanged, ${r.skipped} not sessions, ${r.removed} gone) in ${r.seconds.toFixed(1)}s`);
-    console.log(`${st.sessions} sessions · ${st.turns} turns · ${st.files} files touched · ${HOME}`);
+    console.log(`${st.sessions} sessions · ${st.turns} turns · ${artifactsLine(st.artifacts)} · ${HOME}`);
     return;
   }
   if (cmd === 'status') {
@@ -493,7 +535,7 @@ async function main(argv: string[]): Promise<void> {
     if (!facts.builtAt) { console.log('no index yet — run: thoughtdag index'); return; }
     const st = summarize(facts, await loadCache());
     const pct = (a: number, b: number) => (b ? `${((a / b) * 100).toFixed(1)}%` : '–');
-    console.log(`${st.sessions} sessions · ${st.turns} turns · ${st.files} files touched · built ${facts.builtAt.slice(0, 16).replace('T', ' ')}`);
+    console.log(`${st.sessions} sessions · ${st.turns} turns · ${artifactsLine(st.artifacts)} · built ${facts.builtAt.slice(0, 16).replace('T', ' ')}`);
     console.log(`evidence: ${st.touches} touches · ${st.changes} edits/writes, ${st.withChangeHead} with an observed change head (${pct(st.withChangeHead, st.changes)} of changes, ${pct(st.withChangeHead, st.touches)} of touches) · ${st.withMention} answers name the file (${pct(st.withMention, st.touches)}, candidates only)`);
     console.log(`store: ${HOME} (0700) · fact-index.json + interpretation-cache.json (0600)`);
     return;
