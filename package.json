@@ -3,9 +3,6 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "bin": {
-    "thoughtdag": "cli/dist/thoughtdag.mjs"
-  },
   "scripts": {
     "dev": "vite",
     "server": "node server.mjs",

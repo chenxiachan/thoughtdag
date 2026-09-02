@@ -1,0 +1,13 @@
+{
+  "name": "thoughtdag",
+  "version": "0.1.0",
+  "description": "Find the conversations that shaped a file. Indexes local Claude Code and Codex sessions by the files they touched; source files are never written.",
+  "license": "MIT",
+  "type": "module",
+  "bin": { "thoughtdag": "dist/thoughtdag.mjs" },
+  "files": ["dist/thoughtdag.mjs", "README.md"],
+  "engines": { "node": ">=20" },
+  "repository": { "type": "git", "url": "https://github.com/chenxiachan/thoughtdag.git", "directory": "cli" },
+  "homepage": "https://github.com/chenxiachan/thoughtdag#readme",
+  "keywords": ["claude-code", "codex", "agent", "context", "provenance", "why"]
+}
