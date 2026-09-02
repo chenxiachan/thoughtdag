@@ -126,6 +126,7 @@ test('indexed together, a mirrored turn counts once and the canvas answers why f
   assert.match(pdf.split('\n')[0], /why snn-review\.pdf  \(thoughtdag:attachment\/att-1\)  ·  1 turn in 1 session/);
   assert.match(pdf, /📎 attach\s+#0  p\.7/);
   assert.match(pdf, /thoughtdag  「脉冲网络综述」/);
+  assert.match(pdf, /thoughtdag:\/\/open\?canvas=%E8%84%89%E5%86%B2%E7%BD%91%E7%BB%9C%E7%BB%BC%E8%BF%B0&node=n1/, 'a canvas hit opens the project at the node');
   assert.match(pdf, /≈ 它用可导的近似替代不可导的脉冲函数/);
   const paper = run('why', 'arxiv:1901.09948');
   assert.match(paper.split('\n')[0], /1 turn in 1 session/);

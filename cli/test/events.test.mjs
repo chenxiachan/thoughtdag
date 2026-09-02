@@ -81,6 +81,13 @@ writeFileSync(cxFrag2, [
   cx('response_item', { type: 'message', role: 'assistant', content: [{ type: 'output_text', text: '好。' }] }),
 ].join('\n'));
 
+// a session opened from a canvas hand-off: the anchor rides in the first message
+const ccAnchored = join(tmp, 'sid-anchored.jsonl');
+writeFileSync(ccAnchored, [
+  cc('u1', null, 'user', '继续这个思路。\n\n[ThoughtDAG anchor: project=proj-7 node=node-42 bundle=cb_abcdef0123456789 mode=continue]', { sessionId: 'sid-anchored' }),
+  cc('a1', 'u1', 'assistant', [{ type: 'text', text: '好。' }], { sessionId: 'sid-anchored' }),
+].join('\n'));
+
 const run = (...a) => execFileSync(process.execPath, [CLI, ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
 const events = (file) => run('events', file).trim().split('\n').map((l) => JSON.parse(l));
 
@@ -198,6 +205,12 @@ test('touches keep every distinct locator of the turn', () => {
   assert.deepEqual(pdf.locators, [{ pages: '1-5' }]);
   const notes = touches.find((t) => t.artifact.endsWith('.md'));
   assert.deepEqual(notes.locators, [{ lines: [10, 14] }]);
+});
+
+test('a session opened from a canvas hand-off carries its anchor', () => {
+  const s = events(ccAnchored).find((e) => e.kind === 'session.started');
+  assert.deepEqual(s.anchor, { project: 'proj-7', node: 'node-42', bundle: 'cb_abcdef0123456789', mode: 'continue' });
+  assert.equal(events(ccFile).find((e) => e.kind === 'session.started').anchor, undefined);
 });
 
 test('derived touches: one per turn and artifact, strongest op, pointing back at the call', () => {

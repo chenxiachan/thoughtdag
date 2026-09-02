@@ -100,10 +100,42 @@ export function startLiveMirror(): void {
   // door. Locate the file (filename fast path: cc files are named by
   // sessionId, codex rollouts embed it; head-scan fallback), then hand
   // it to the canonical router: resubscribe, adopt, mount or mint.
+  // Land on the exact turn: after the session is on the canvas, the node
+  // carrying that message id becomes the arrival focus (App centers it).
+  const focusTurn = async (item: string): Promise<void> => {
+    if (!item) return;
+    const { useStore } = await import('../../store');
+    const { useUiStore } = await import('../ui-store');
+    const node = useStore.getState().nodes.find((n) => n.data.importSource?.itemIds?.includes(item));
+    if (node) useUiStore.getState().setArrivalFocusNodeId(node.id);
+  };
+
+  // thoughtdag://open?canvas=<name>&node=<id> — a why hit on the canvas's
+  // own record: switch to that project by name, land on the node.
+  const openCanvasLink = async (name: string, nodeId: string): Promise<void> => {
+    const { useProjects, switchProject } = await import('../../store/projects');
+    const project = useProjects.getState().projects.find((p) => p.name === name);
+    if (!project) { toast('error', t('handoff.deeplinkMiss')); return; }
+    await switchProject(project.id);
+    if (nodeId) {
+      const { useStore } = await import('../../store');
+      const { useUiStore } = await import('../ui-store');
+      if (useStore.getState().nodes.some((n) => n.id === nodeId)) useUiStore.getState().setArrivalFocusNodeId(nodeId);
+    }
+  };
+
   const openDeepLink = async (url: string): Promise<void> => {
     let sid = '';
-    try { sid = new URL(url).searchParams.get('session') ?? ''; } catch { return; }
+    let turn = '';
+    try {
+      const u = new URL(url);
+      const canvas = u.searchParams.get('canvas');
+      if (canvas) { await openCanvasLink(canvas, u.searchParams.get('node') ?? ''); return; }
+      sid = u.searchParams.get('session') ?? '';
+      turn = u.searchParams.get('turn') ?? '';
+    } catch { return; }
     if (!/^[A-Za-z0-9_-]{8,}$/.test(sid)) return;
+    if (!/^[A-Za-z0-9_-]*$/.test(turn)) turn = '';
     const roots = await bridge.roots().catch(() => []);
     let target: { rootKey: string; rel: string } | null = null;
     for (const r of roots) {
@@ -131,6 +163,7 @@ export function startLiveMirror(): void {
     else if (result.kind === 'appended') toast('success', fmt(t('atlas.liveAppended'), { n: result.turns }), 8000);
     else if (result.kind === 'mounted') toast('success', fmt(t(result.mode === 'continue' ? 'atlas.mountedChapter' : 'atlas.mountedBranch'), { n: result.turns }), 9000);
     else if (result.kind === 'imported') toast('success', fmt(t('toast.importedChats'), { n: 1, m: result.nodeCount }), 8000);
+    if (result && turn) await focusTurn(turn);
   };
   bridge.onDeepLink?.((url) => { void openDeepLink(url); });
   void (async () => {

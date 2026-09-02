@@ -186,6 +186,14 @@ export function changeHead(t: RunnerTool): string | undefined {
 const opOf = (t: RunnerTool): ToolOp => t.op ?? 'unknown';
 
 /** Project one session's turns onto canonical events, in file order. */
+// The hand-off anchor a canvas puts at the end of the opening message
+// (see experiment-loop.ts); reading it back closes the loop in the data.
+const ANCHOR_RE = /\[ThoughtDAG anchor: project=([\w-]+) node=([\w-]+) bundle=([\w-]+)(?: mode=(branch|continue))?\]/;
+export function anchorOf(text: string): { project: string; node: string; bundle: string; mode: 'branch' | 'continue' } | undefined {
+  const m = text.match(ANCHOR_RE);
+  return m ? { project: m[1], node: m[2], bundle: m[3], mode: m[4] === 'continue' ? 'continue' : 'branch' } : undefined;
+}
+
 export function sessionToEvents(s: ProjectableSession): CanonicalEvent[] {
   const sid = sessionKey(s.runner, s.nativeId);
   const src = (ref: string): SourcePointer => ({ runner: s.runner, file: s.file, ref, schema: s.schema });
@@ -197,6 +205,8 @@ export function sessionToEvents(s: ProjectableSession): CanonicalEvent[] {
     ...(s.cwd ? { cwd: s.cwd } : {}), ...(s.workspace ? { workspace: s.workspace } : {}),
     ...(s.parentSessionId ? { parentSessionId: s.parentSessionId } : {}), ...(s.subagent ? { subagent: true } : {}),
   };
+  const anchor = anchorOf(s.turns[0]?.question ?? '');
+  if (anchor) started.anchor = anchor;
   out.push(started);
   const keys = turnKeys(sid, s.turns);
   // the tree's address book: message id → the FIRST turn that carries it

@@ -88,6 +88,9 @@ export interface SessionStarted extends EventBase {
   workspace?: string;
   parentSessionId?: string;
   subagent?: boolean;
+  /** the session opened from a canvas hand-off: the anchor line the
+      bundle's Markdown carried names the project, node and bundle */
+  anchor?: { project: string; node: string; bundle: string; mode: 'branch' | 'continue' };
 }
 
 export interface TurnStarted extends EventBase {

@@ -41,6 +41,8 @@ interface FactTurn { i: number; t: string; item?: string; at?: string; q: string
 interface FactSession {
   id: string; runner: 'claude-code' | 'codex' | 'thoughtdag'; file: string; mtime: number; size: number;
   cwd: string; workspace: string; title: string; subagent?: boolean; turns: FactTurn[];
+  /** opened from a canvas hand-off */
+  anchor?: { project: string; node: string; bundle: string };
 }
 interface FactIndex {
   version: number; builtAt: string;
@@ -198,6 +200,7 @@ interface Projected {
   runner: FactSession['runner'];
   nativeId: string;
   title: string;
+  anchor?: FactSession['anchor'];
   cwd?: string;
   subagent?: boolean;
   events: CanonicalEvent[];
@@ -232,7 +235,9 @@ async function eventsOf(file: string, sourceId?: string): Promise<Projected | nu
   const events = sessionToEvents(session);
   const texts = new Map<string, { question: string; response: string }>();
   for (const e of events) if (e.kind === 'turn.started') { const t = s.turns[e.turnIndex]; if (t) texts.set(e.turnId, { question: t.question, response: t.response }); }
-  return { runner, nativeId: s.sessionId, title: s.title, ...(cwd ? { cwd } : {}), ...(subagent ? { subagent } : {}), events, texts, manifest: MANIFESTS[runner], turns: s.turns };
+  const started = events.find((e): e is Extract<CanonicalEvent, { kind: 'session.started' }> => e.kind === 'session.started');
+  const anchor = started?.anchor ? { project: started.anchor.project, node: started.anchor.node, bundle: started.anchor.bundle } : undefined;
+  return { runner, nativeId: s.sessionId, title: s.title, ...(anchor ? { anchor } : {}), ...(cwd ? { cwd } : {}), ...(subagent ? { subagent } : {}), events, texts, manifest: MANIFESTS[runner], turns: s.turns };
 }
 
 async function parseSession(f: FileStat): Promise<{ fact: FactSession; cache: Record<string, CacheTurn>; names: Record<string, string> } | null> {
@@ -281,7 +286,7 @@ async function parseSession(f: FileStat): Promise<{ fact: FactSession; cache: Re
     if (Object.keys(entry).length) cache[String(ts.turnIndex)] = entry;
   }
   return {
-    fact: { id: p.nativeId, runner: p.runner, file: f.file, mtime: f.mtime, size: f.size, cwd, workspace, title: p.title, ...(p.subagent ? { subagent: true } : {}), turns },
+    fact: { id: p.nativeId, runner: p.runner, file: f.file, mtime: f.mtime, size: f.size, cwd, workspace, title: p.title, ...(p.subagent ? { subagent: true } : {}), ...(p.anchor ? { anchor: p.anchor } : {}), turns },
     cache, names,
   };
 }
@@ -464,6 +469,13 @@ function hitsFor(facts: FactIndex, artifact: string, includeRead: boolean): { hi
   return { hits, readsHidden: all.length - hits.length };
 }
 
+/** Where a hit opens: the mirrored session at that very turn, or the
+ *  canvas project at that node. */
+function openLink(h: Hit): string {
+  if (h.session.runner === 'thoughtdag') return `thoughtdag://open?canvas=${encodeURIComponent(h.session.title)}&node=${encodeURIComponent(h.turn.t.split('#').pop() ?? '')}`;
+  return `thoughtdag://open?session=${h.session.id}${h.turn.item ? `&turn=${encodeURIComponent(h.turn.item)}` : ''}`;
+}
+
 const OP_MARK: Record<Op, string> = { edit: '✏️ edit ', write: '✏️ write', read: '📖 read ', fetch: '🌐 fetch', attach: '📎 attach' };
 function when(t: FactTurn, s: FactSession): string {
   const d = new Date(t.at ?? s.mtime);
@@ -510,7 +522,7 @@ async function printWhy(facts: FactIndex, file: string, hits: Hit[], readsHidden
           session: h.session.id, runner: h.session.runner, title: h.session.title, subagent: !!h.session.subagent,
           turn: turnNumber(facts, h), at: h.turn.at ?? null, op: h.touch.op, locators: h.touch.l ?? null, question: h.turn.q,
           askedBefore: c.p ?? null, change: h.touch.d ?? null, about: c.m?.[file] ?? null, conclusion: c.c ?? null,
-          open: h.session.runner === 'thoughtdag' ? h.session.file : `thoughtdag://open?session=${h.session.id}`,
+          open: openLink(h),
         };
       }),
     }, null, 1));
@@ -530,7 +542,7 @@ async function printWhy(facts: FactIndex, file: string, hits: Hit[], readsHidden
     const mine = g.filter((h) => shown.has(h));
     if (!mine.length) continue;
     const s = g[0].session;
-    console.log(`${s.runner}  「${s.title.slice(0, 70)}」${s.subagent ? '  (subagent)' : ''}  ${s.runner === 'thoughtdag' ? s.file : `thoughtdag://open?session=${s.id}`}`);
+    console.log(`${s.runner}  「${s.title.slice(0, 70)}」${s.subagent ? '  (subagent)' : ''}${s.anchor ? `  ↩ from canvas node ${s.anchor.node} (${s.anchor.bundle})` : ''}  ${openLink(mine[0])}`);
     for (const h of mine) {
       const c = interp(h);
       const where = h.touch.l?.map((l) => l.pages ? `p.${l.pages}` : l.lines ? `L${l.lines[0]}-${l.lines[1]}` : '').filter(Boolean).join(' ');
@@ -546,6 +558,52 @@ async function printWhy(facts: FactIndex, file: string, hits: Hit[], readsHidden
   }
   if (!printed) console.log('(no turns)\n');
   console.log('Δ observed change · ≈ read from the answer, a candidate explanation, not a verified reason · ⤴ the earlier question this reply answers');
+}
+
+// ─── find ────────────────────────────────────────────────────────────
+
+/** Exact phrase, case-insensitive, over what the index holds: the
+ *  questions people asked (verbatim excerpts, the strongest signal) and,
+ *  marked ≈, what the interpretation cache read off the answers. Recall is
+ *  bounded by wording — a synonym is not a hit — and every hit is a quote
+ *  with a pointer, never a guess. */
+interface FindHit { session: FactSession; sourceKey: string; turn: FactTurn; where: 'Q' | '≈'; text: string }
+
+function findHits(facts: FactIndex, cache: CacheIndex, phrase: string, scope: 'q' | 'a' | 'all'): FindHit[] {
+  const needle = phrase.toLowerCase();
+  const hits: FindHit[] = [];
+  const seen = new Set<string>();
+  for (const [sourceKey, session] of Object.entries(facts.sessions).sort((a, b) => a[1].mtime - b[1].mtime)) {
+    for (const turn of session.turns) {
+      if (turn.item) { if (seen.has(turn.item)) continue; seen.add(turn.item); }
+      if (scope !== 'a' && turn.q.toLowerCase().includes(needle)) { hits.push({ session, sourceKey, turn, where: 'Q', text: turn.q }); continue; }
+      if (scope === 'q') continue;
+      const c = cache.sessions[sourceKey]?.[String(turn.i)];
+      // what the answer said — the closing line and the paragraphs naming a
+      // file; not the earlier question a bare reply answers (that is a Q hit of its own turn)
+      const said = [c?.c, ...Object.values(c?.m ?? {})].find((x) => x && x.toLowerCase().includes(needle));
+      if (said) hits.push({ session, sourceKey, turn, where: '≈', text: said });
+    }
+  }
+  return hits.sort((a, b) => (b.turn.at ?? '').localeCompare(a.turn.at ?? ''));
+}
+
+function printFind(facts: FactIndex, phrase: string, hits: FindHit[], limit: number, json: boolean): void {
+  const shown = hits.slice(0, limit);
+  const sessions = new Set(hits.map((h) => h.session.id)).size;
+  if (json) {
+    console.log(JSON.stringify({ phrase, turns: hits.length, sessions, evidence: { Q: 'observed (a question, verbatim excerpt)', '≈': EVIDENCE.about },
+      hits: shown.map((h) => ({ session: h.session.id, runner: h.session.runner, title: h.session.title, turn: turnNumber(facts, h), at: h.turn.at ?? null, where: h.where, text: h.text, open: openLink(h) })) }, null, 1));
+    return;
+  }
+  console.log(`find "${phrase}"  ·  ${hits.length} turn${hits.length === 1 ? '' : 's'} in ${sessions} session${sessions === 1 ? '' : 's'}${hits.length > limit ? `  (showing ${limit}, --limit for more)` : ''}\n`);
+  for (const h of shown) {
+    const s = h.session;
+    console.log(`${when(h.turn, s)}  ${s.runner}  「${s.title.slice(0, 60)}」  #${turnNumber(facts, h)}  ${openLink(h)}`);
+    console.log(`    ${h.where}: ${h.text}`);
+  }
+  if (!shown.length) console.log('(nothing asked or said in those words — try another wording; matching is exact)');
+  else console.log('\nQ: a question, verbatim · ≈ read from an answer, a candidate, not a verified statement');
 }
 
 // ─── recall ──────────────────────────────────────────────────────────
@@ -584,6 +642,8 @@ const USAGE = `thoughtdag — the why layer
   thoughtdag index [--full] [--canvas <dir>]       build or refresh the index (--canvas: also read canvas backups in <dir>, remembered)
   thoughtdag why <path> [--include-read] [--all] [--limit N] [--json]
                                                    the turns that touched a file, and what they said
+  thoughtdag find "<phrase>" [--in q|a] [--limit N] [--json]
+                                                   the turns where those words were asked (Q) or said (≈)
   thoughtdag recall <session> <n>                  one turn in full (session id or prefix)
   thoughtdag status                                what the index holds, and how much is evidence
   thoughtdag purge [--cache]                       delete everything this tool stored (--cache: only the interpretation)
@@ -594,7 +654,7 @@ async function main(argv: string[]): Promise<void> {
   const [cmd, ...rest] = argv;
   const flag = (name: string): boolean => rest.includes(`--${name}`);
   const value = (name: string): string | undefined => { const i = rest.indexOf(`--${name}`); return i >= 0 ? rest[i + 1] : undefined; };
-  const args = rest.filter((a, i) => !a.startsWith('--') && !(i > 0 && (rest[i - 1] === '--limit' || rest[i - 1] === '--canvas')));
+  const args = rest.filter((a, i) => !a.startsWith('--') && !(i > 0 && (rest[i - 1] === '--limit' || rest[i - 1] === '--canvas' || rest[i - 1] === '--in')));
 
   if (cmd === 'index') {
     const r = await buildIndex(flag('full'), value('canvas'));
@@ -650,6 +710,13 @@ async function main(argv: string[]): Promise<void> {
     console.log(JSON.stringify({ kind: 'adapter.manifest', ...r.manifest }));
     for (const e of r.events) console.log(JSON.stringify(e));
     return;
+  }
+  if (cmd === 'find') {
+    if (!args[0]) { console.error(USAGE); process.exit(2); }
+    const facts = flag('no-refresh') ? await loadFacts() : await ensureFresh();
+    if (!facts.builtAt) { console.error('no index yet — run: thoughtdag index'); process.exit(1); }
+    const scope = value('in') === 'q' ? 'q' : value('in') === 'a' ? 'a' : 'all';
+    return printFind(facts, args[0], findHits(facts, await loadCache(), args[0], scope), Number(value('limit') ?? 10) || 10, flag('json'));
   }
   if (cmd === 'recall') {
     if (!args[0] || args[1] === undefined) { console.error(USAGE); process.exit(2); }

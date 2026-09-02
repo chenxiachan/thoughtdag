@@ -162,6 +162,25 @@ test('a paper and a page are artifacts too: why arxiv:<id> and why <url>', () =>
   assert.match(run('why', 'https://nowhere.example/x'), /no session touched/);
 });
 
+test('every hit opens at its own turn; a session opened from a canvas says so', () => {
+  const json = JSON.parse(run('why', 'src/lib/api.ts', '--json'));
+  assert.ok(json.hits.every((h) => /^thoughtdag:\/\/open\?session=[^&]+&turn=[^&]+$/.test(h.open)), JSON.stringify(json.hits.map((h) => h.open)));
+  assert.match(run('why', 'src/lib/api.ts'), /thoughtdag:\/\/open\?session=sid-1&turn=u1/);
+});
+
+test('find: exact words asked (Q) or said (≈), newest first, with pointers', () => {
+  const asked = run('find', '模型一用就崩');
+  assert.match(asked.split('\n')[0], /^find "模型一用就崩"  ·  1 turn in 1 session$/);
+  assert.match(asked, /Q: 免费档模型一用就崩，帮我查/);
+  assert.match(asked, /thoughtdag:\/\/open\?session=sid-1&turn=u1/);
+  const said = run('find', 'OAuth');
+  assert.match(said, /≈: 走 OAuth/);
+  assert.match(run('find', 'OAuth', '--in', 'q'), /0 turns/);
+  assert.match(run('find', '不存在的短语'), /0 turns/);
+  const json = JSON.parse(run('find', '崩', '--json'));
+  assert.equal(json.hits[0].where, 'Q');
+});
+
 test('--json carries the evidence legend and per-hit fields', () => {
   const json = JSON.parse(run('why', 'src/lib/api.ts', '--json'));
   assert.equal(json.turns, 2); assert.equal(json.readsHidden, 1);
