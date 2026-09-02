@@ -137,7 +137,7 @@ export default function ResponseViewer() {
                 {data.highlights.length > 0 && !data.isLoading ? (
                   <HighlightedMarkdown content={data.response} highlights={new Set(data.highlights.map((h) => h.text))} />
                 ) : (
-                  <Markdown>{data.response}</Markdown>
+                  <Markdown base={data.importSource?.cwd}>{data.response}</Markdown>
                 )}
                 {data.isLoading && <span className="inline-block w-2 h-4 bg-accent animate-pulse rounded-sm ml-0.5" />}
               </div>

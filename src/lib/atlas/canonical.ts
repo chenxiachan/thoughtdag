@@ -307,8 +307,19 @@ async function appendPastLedger(
     const src = node?.data.source;
     const pristine = !!src && node.data.question === src.question && (node.data.response ?? '') === (src.response ?? '');
     const fd = lastImported.data;
-    const changed = !!node && (fd.question !== node.data.question || (fd.response ?? '') !== (node.data.response ?? ''));
+    const textChanged = !!node && (fd.question !== node.data.question || (fd.response ?? '') !== (node.data.response ?? ''));
+    // Arrivals land on a finished turn too: a subagent's report (task
+    // notification) reaches the file minutes after the answer that
+    // launched it. When the fresh turn carries MORE tool attachments and
+    // the node's own are its untouched prefix, append the newcomers —
+    // keeping the node's attachment objects (and the ids the user's
+    // exclusions point at) as they are.
+    const oldAtts = node?.data.attachments ?? [];
+    const newAtts = fd.attachments ?? [];
+    const attachmentsGrew = !!node && newAtts.length > oldAtts.length && oldAtts.every((a, i) => newAtts[i]?.name === a.name);
+    const changed = textChanged || attachmentsGrew;
     if (node && pristine && changed) {
+      const attachments = textChanged ? fd.attachments : [...oldAtts, ...newAtts.slice(oldAtts.length)];
       useStore.setState((s) => ({
         nodes: s.nodes.map((n) => (n.id === node.id ? {
           ...n,
@@ -316,7 +327,7 @@ async function appendPastLedger(
             ...n.data,
             question: fd.question, response: fd.response,
             responses: fd.responses, responseIndex: fd.responseIndex,
-            tokenCount: fd.tokenCount, attachments: fd.attachments,
+            tokenCount: fd.tokenCount, attachments,
             importSource: fd.importSource, source: fd.source,
           },
         } : n)),

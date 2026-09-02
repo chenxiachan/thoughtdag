@@ -66,7 +66,15 @@ interface DesktopSessionsBridge {
   onSessionsChanged: (cb: (e: { rootKey: string; rel: string }) => void) => void;
 }
 
+/** Local paths a response mentions, opened on this machine. */
+interface DesktopLocalBridge {
+  open(path: string): Promise<{ ok: boolean; kind?: 'dir' | 'file'; opened?: 'viewer' | 'finder'; reason?: string }>;
+  /** data URL for an image file (images only, bounded), null otherwise */
+  image(path: string): Promise<string | null>;
+}
+
 interface Window {
   desktop?: DesktopBridge;
   desktopSessions?: DesktopSessionsBridge;
+  desktopLocal?: DesktopLocalBridge;
 }

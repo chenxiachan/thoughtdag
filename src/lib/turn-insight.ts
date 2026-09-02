@@ -58,3 +58,44 @@ export function turnComposition(data: Pick<ThoughtData, 'question' | 'response' 
   const total = q + a + tool;
   return { q, a, tool, total, toolShare: total > 0 ? tool / total : 0 };
 }
+
+export interface FootprintEntry { path: string; name: string; op: 'read' | 'write' | 'edit' }
+
+/** The files this turn touched, straight from its tool attachments —
+ *  writes and edits first, then reads, each path once. This is what a
+ *  reader looking back needs on the card's face; the calls themselves
+ *  stay in the drawer. Empty for hand-made nodes. */
+export function footprint(data: Pick<ThoughtData, 'attachments'>): FootprintEntry[] {
+  const seen = new Map<string, FootprintEntry>();
+  for (const att of data.attachments ?? []) {
+    if (!att.paths?.length || (att.op !== 'read' && att.op !== 'write' && att.op !== 'edit')) continue;
+    for (const path of att.paths) {
+      const prev = seen.get(path);
+      if (!prev) seen.set(path, { path, name: path.split('/').filter(Boolean).pop() ?? path, op: att.op });
+      else if (prev.op === 'read' && att.op !== 'read') prev.op = att.op;
+    }
+  }
+  return [...seen.values()].sort((a, b) => (a.op === 'read' ? 1 : 0) - (b.op === 'read' ? 1 : 0));
+}
+
+/** The closing paragraph of an answer. Agents state their conclusion
+ *  LAST — the opening line is usually "let me look at…" — so a collapsed
+ *  imported turn shows its end, not its start. */
+export function conclusionOf(response: string, max = 140): string {
+  const paras = response
+    .replace(/```[\s\S]*?```/g, '')
+    .split(/\n\s*\n/)
+    .map((p) => p
+      .replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1') // links and images → their text
+      .replace(/[#*`>|_~]/g, '')
+      .replace(/^\s*[-•\d.)]+\s*/gm, '')
+      .replace(/\s+/g, ' ')
+      .trim())
+    // a lead-in to a block ("Now the warnings:"), a sources line, a bare
+    // closing offer — none of these is the finding
+    .filter((p) => p.length > 12 && !/[:：]$/.test(p) && !/^(sources?|references?|来源|参考)\b/i.test(p));
+  const substantive = paras.filter((p) => p.length >= 30);
+  const last = substantive[substantive.length - 1] ?? paras[paras.length - 1]
+    ?? response.replace(/[#*`>-]/g, '').replace(/\s+/g, ' ').trim();
+  return last.length > max ? `${last.slice(0, max)}…` : last;
+}

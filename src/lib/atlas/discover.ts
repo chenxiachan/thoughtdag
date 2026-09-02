@@ -20,9 +20,30 @@ export interface SessionCard {
   title: string;
   mtime: number;
   size: number;
-  /** A spawned subagent thread (codex parent_thread_id) — machinery, not
-      a conversation the user held; hidden unless asked for. */
+  /** A spawned subagent thread (codex parent_thread_id, claude-code
+      sidechain file) — machinery, not a conversation the user held;
+      hidden unless asked for. */
   subagent?: boolean;
+  /** the session that spawned this subagent, when the file says so */
+  parentSessionId?: string;
+}
+
+/** The identity a session file answers to. One rule for every reader
+ *  (cards, the live watcher, deep links): a codex rollout is its
+ *  session_meta id; a claude-code file is its sessionId — EXCEPT a
+ *  subagent's own file, whose sessionId names the PARENT and whose real
+ *  name is the agentId. Reading the parent's id there would hang the
+ *  parent's badges on the child and let the parent's canvas adopt it. */
+export function identityFromHead(head: string): string | null {
+  for (const raw of head.split('\n')) {
+    let l: { type?: string; payload?: { id?: string }; sessionId?: string; isSidechain?: boolean; agentId?: string };
+    try { l = JSON.parse(raw) as typeof l; } catch { continue; }
+    if (l.type === 'session_meta' && l.payload?.id) return l.payload.id;
+    if ((l.type === 'user' || l.type === 'assistant') && typeof l.sessionId === 'string') {
+      return l.isSidechain && typeof l.agentId === 'string' ? l.agentId : l.sessionId;
+    }
+  }
+  return null;
 }
 
 export interface AtlasGroup {
@@ -61,6 +82,14 @@ function cardFromHead(rootKey: string, rel: string, head: string, mtime: number,
   // claude-code: every event line carries top-level sessionId + cwd; a
   // leading summary line (continued sessions) makes the best title.
   const marker = lines.find((l) => typeof l.sessionId === 'string' && (l.type === 'user' || l.type === 'assistant' || typeof l.cwd === 'string')) as { sessionId?: string; cwd?: string } | undefined;
+  const first = lines.find((l) => l.type === 'user' || l.type === 'assistant') as { isSidechain?: boolean; agentId?: string; sessionId?: string } | undefined;
+  if (first?.isSidechain && typeof first.agentId === 'string') {
+    return {
+      runner: 'claude-code', rootKey, rel, sessionId: first.agentId, cwd: marker?.cwd ?? null,
+      title: firstUserLine(head) ?? `agent ${first.agentId.slice(0, 8)}`, mtime, size,
+      subagent: true, ...(first.sessionId ? { parentSessionId: first.sessionId } : {}),
+    };
+  }
   const id = marker?.sessionId;
   if (!id) return null;
   const summary = (lines.find((l) => l.type === 'summary' && typeof l.summary === 'string') as { summary?: string } | undefined)?.summary;

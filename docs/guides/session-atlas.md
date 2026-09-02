@@ -42,6 +42,8 @@ From the welcome screen, choose **Agent conversations**. From a canvas, open **S
 
 Atlas lists only files whose runner format it can identify. It does not guess from filenames.
 
+**Sub-threads** are threads an agent spawned rather than conversations you held: Codex child threads and Claude Code subagent files. They are hidden by default; the toggle reveals them, and each opens as its own mirror.
+
 ## Open a session as a graph mirror
 
 Click a session card or its **Import** icon. Each user-and-agent turn becomes one conversation node. Tool calls and results are paired as text attachments on that node rather than becoming fake conversation turns.
@@ -52,7 +54,10 @@ The import preserves:
 
 - runner and session id;
 - source turn identifiers for each node;
-- paired tool calls, results, and truncation markers.
+- paired tool calls, results, and truncation markers;
+- the session's working directory, so relative paths in answers resolve on this machine.
+
+Each collapsed node shows the files that turn touched (✏️ wrote or edited, 📖 read) and the answer's closing paragraph rather than its opening line; the full tool trail stays in the node's attachments. A subagent's report arriving as a task notification folds into the turn that launched it instead of appearing as a question. Links in answers never leave the app on their own: web URLs open in the system browser, a local folder or file opens in Finder, an image or PDF in its viewer, and images the agent produced render inline.
 
 That provenance supports traceability and incremental updates. **Visible after import does not mean included in the next model request.** Wires, references, and attachment controls still determine compiled context; see [Control context](./context-control).
 

@@ -1,4 +1,4 @@
-import { memo, useRef, useState } from 'react';
+import { createContext, memo, useContext, useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -8,6 +8,7 @@ import rehypeRaw from 'rehype-raw';
 import { Check, Copy } from 'lucide-react';
 import { fuzzyHighlightRegex } from '../lib/highlight-match';
 import { useT } from '../i18n';
+import { localPathOf, openLocalPath, basenameOf } from '../lib/local-path';
 
 const REMARK_PLUGINS = [remarkGfm, remarkMath];
 
@@ -59,17 +60,77 @@ function Table(props: React.HTMLAttributes<HTMLTableElement>) {
   );
 }
 
-const COMPONENTS = { pre: Pre, table: Table };
+// Links leave the card, never the app. A web URL opens a new tab (the
+// desktop shell hands it to the system browser); a LOCAL path — a file
+// or folder the agent named — opens on this machine and never becomes a
+// web address. Either way the click does not reach the canvas as a node
+// selection.
+// The writer's working directory, when the text came from a session: a
+// relative path in it resolves against this, not against the app.
+const BaseContext = createContext<string | undefined>(undefined);
+
+function Anchor(props: React.AnchorHTMLAttributes<HTMLAnchorElement>) {
+  const local = localPathOf(props.href, useContext(BaseContext));
+  if (local) {
+    return (
+      <a
+        {...props}
+        title={local}
+        data-local-path={local}
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); void openLocalPath(local); }}
+      />
+    );
+  }
+  return <a {...props} target="_blank" rel="noreferrer noopener" onClick={(e) => e.stopPropagation()} />;
+}
+
+// An image the agent produced shows inline, read from disk through the
+// shell; where there is no disk (the browser) a chip names the file.
+function LocalImage({ path, alt }: { path: string; alt?: string }) {
+  const [src, setSrc] = useState<string | null>(null);
+  // no shell, no disk: the chip is final from the first paint
+  const [failed, setFailed] = useState(() => !window.desktopLocal);
+  useEffect(() => {
+    const bridge = window.desktopLocal;
+    if (!bridge) return;
+    let live = true;
+    void bridge.image(path).then((d) => { if (!live) return; if (d) setSrc(d); else setFailed(true); }).catch(() => { if (live) setFailed(true); });
+    return () => { live = false; };
+  }, [path]);
+  if (src) {
+    return <img src={src} alt={alt ?? basenameOf(path)} title={path} className="cursor-zoom-in nopan" onClick={(e) => { e.stopPropagation(); void openLocalPath(path); }} />;
+  }
+  return (
+    <span
+      className={`inline-flex items-center gap-1 text-xs border border-line rounded-md px-1.5 py-0.5 font-mono nopan cursor-pointer ${failed ? 'text-ink-faint' : 'text-ink-muted'}`}
+      title={path}
+      data-local-image={path}
+      onClick={(e) => { e.stopPropagation(); void openLocalPath(path); }}
+    >
+      🖼 {basenameOf(path)}
+    </span>
+  );
+}
+
+function Img(props: React.ImgHTMLAttributes<HTMLImageElement>) {
+  const local = localPathOf(props.src, useContext(BaseContext));
+  if (local) return <LocalImage path={local} alt={props.alt} />;
+  return <img {...props} />;
+}
+
+const COMPONENTS = { pre: Pre, table: Table, a: Anchor, img: Img };
 
 // Standard markdown rendering (GFM + math + syntax highlighting).
 // memo: the unified parse + KaTeX layout is the most expensive render on a
 // card, and cards re-render far more often than their text changes (every
 // streamed chunk anywhere re-renders every card). Same string → skip.
-export const Markdown = memo(function Markdown({ children }: { children: string }) {
+export const Markdown = memo(function Markdown({ children, base }: { children: string; base?: string }) {
   return (
-    <ReactMarkdown remarkPlugins={REMARK_PLUGINS} rehypePlugins={REHYPE_PLUGINS} components={COMPONENTS}>
-      {normalizeMath(children)}
-    </ReactMarkdown>
+    <BaseContext.Provider value={base}>
+      <ReactMarkdown remarkPlugins={REMARK_PLUGINS} rehypePlugins={REHYPE_PLUGINS} components={COMPONENTS}>
+        {normalizeMath(children)}
+      </ReactMarkdown>
+    </BaseContext.Provider>
   );
 });
 

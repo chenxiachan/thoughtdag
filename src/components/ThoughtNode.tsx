@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
-import { toolFingerprint, turnComposition } from '../lib/turn-insight';
+import { toolFingerprint, turnComposition, footprint, conclusionOf } from '../lib/turn-insight';
 import { Handle, Position, useReactFlow, useUpdateNodeInternals, type NodeProps } from '@xyflow/react';
 import { AlertTriangle, Archive, BookOpen, Check, ChevronDown, ChevronLeft, ChevronRight, Copy, Eye, GitBranch, Globe, Hourglass, Minimize2, Paperclip, RefreshCw, Send, Split, Square, Star, Trash2, UserRound, X, Pencil } from 'lucide-react';
 import 'katex/dist/katex.min.css';
@@ -306,6 +306,8 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   const toolMarks = useMemo(() => toolFingerprint(data), [data.attachments]);
   // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on the exact fields read
   const composition = useMemo(() => turnComposition(data), [data.question, data.response, data.attachments]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on the exact fields read
+  const prints = useMemo(() => footprint(data), [data.attachments]);
   const marksLine = toolMarks.map((m) => `${m.glyph}${m.count > 1 ? m.count : ''}`).join(' ');
   const marksTitle = toolMarks.map((m) => `${m.name}×${m.count}`).join(' · ');
   const compBar = composition && (
@@ -770,7 +772,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
               {highlightedTexts.size > 0 || exploreSpecs.length > 0 ? (
                 <HighlightedMarkdown content={data.response} highlights={highlightedTexts} exploreMarks={exploreSpecs} />
               ) : (
-                <Markdown>{data.response}</Markdown>
+                <Markdown base={data.importSource?.cwd}>{data.response}</Markdown>
               )}
             </div>
             </>
@@ -968,13 +970,22 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
             )}
             {compBar}
           </div>
+          {prints.length > 0 && (
+            <div
+              className="text-2xs text-ink-faint font-mono mt-1 truncate select-none"
+              title={`${t('node.footprint')}\n${prints.map((f) => `${f.op === 'read' ? '📖' : '✏️'} ${f.path}`).join('\n')}`}
+              data-footprint
+            >
+              {prints.slice(0, 3).map((f) => `${f.op === 'read' ? '📖' : '✏️'} ${f.name}`).join('   ')}{prints.length > 3 ? `   +${prints.length - 3}` : ''}
+            </div>
+          )}
           {versionSummary ? (
             <div className="text-xs text-ink-faint mt-1.5 leading-relaxed line-clamp-2">
               {versionSummary}
             </div>
           ) : data.response ? (
             <div className="text-xs text-ink-faint mt-1.5 leading-relaxed line-clamp-2 italic">
-              {data.response.replace(/[#*`>-]/g, '').slice(0, 120)}{data.response.length > 120 ? '…' : ''}
+              {data.importSource ? conclusionOf(data.response) : `${data.response.replace(/[#*`>-]/g, '').slice(0, 120)}${data.response.length > 120 ? '…' : ''}`}
             </div>
           ) : null}
         </div>

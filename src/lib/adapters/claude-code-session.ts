@@ -2,7 +2,10 @@ import type { ThoughtNode, ThoughtEdge } from '../../types';
 import { makeNode, type ImportableConversation } from '../import-chat';
 import { autoLayout } from '../layout';
 import { generateId } from '../../utils';
-import { turnsToBranch, seedPlaque, toolAttachments, dropSelfCommandTurns, markImporterNote } from './shared';
+import {
+  turnsToBranch, seedPlaque, toolAttachments, dropSelfCommandTurns, markImporterNote, toolOpOf, clipText,
+  TOOL_CALL_LIMIT, ARTIFACT_CALL_LIMIT, TOOL_RESULT_LIMIT, type RunnerTool,
+} from './shared';
 
 // Claude Code session importer — the continuity layer's READ direction for
 // one concrete runner. A session lives as JSONL under ~/.claude/projects/;
@@ -20,7 +23,14 @@ import { turnsToBranch, seedPlaque, toolAttachments, dropSelfCommandTurns, markI
 //   - `thinking` blocks are dropped: they never re-enter a next turn's
 //     context in the source runner either, and this importer projects
 //     context, not the model's private reasoning.
-//   - Sidechain (subagent) events are skipped in v0.
+//   - Sidechain lines: a MAIN session file skips them (older runners inlined
+//     subagent traffic there); a subagent's OWN file is sidechain top to
+//     bottom and parses as a session in its own right, named by agentId —
+//     its sessionId field points at the parent, and taking that as identity
+//     would let the parent's canvas adopt the subagent's turns.
+//   - A task notification (the runner delivering a subagent's report) rides
+//     a user line but nobody typed it: it folds into the turn in progress as
+//     an arrival, never a question of its own.
 //   - A compaction boundary becomes a [Note] node wired into the next
 //     turn: the source model's history was truncated there, and an honest
 //     projection keeps that visible and prunable.
@@ -28,8 +38,8 @@ import { turnsToBranch, seedPlaque, toolAttachments, dropSelfCommandTurns, markI
 //     MAX_TURNS import, and a [Note] node says so out loud.
 // The source session file is never written — read-only by contract.
 
-const TOOL_RESULT_LIMIT = 4000;
-const TOOL_CALL_LIMIT = 800;
+// a subagent's report is the one payload of a turn worth keeping whole
+const NOTIFICATION_LIMIT = 16000;
 
 interface ContentPart {
   type?: string;
@@ -48,7 +58,9 @@ interface SessionLine {
   uuid?: string;
   parentUuid?: string | null;
   sessionId?: string;
+  cwd?: string;
   isSidechain?: boolean;
+  agentId?: string;
   customTitle?: string;
   slug?: string;
   timestamp?: string;
@@ -68,8 +80,30 @@ interface Turn {
       hang the turn off its REAL parent turn instead of whatever came
       before it in the file. */
   parentItemId?: string;
-  tools: { name: string; call: string; result: string; truncated: boolean }[];
+  tools: RunnerTool[];
   compactionBefore?: string; // note text for a compaction boundary preceding this turn
+}
+
+interface ToolInput { file_path?: string; notebook_path?: string; content?: string; old_string?: string; new_string?: string; replace_all?: boolean }
+
+/** The files a call touched, read straight off its input — never guessed
+ *  from free text. */
+function toolPaths(input: unknown): string[] {
+  const i = (input ?? {}) as ToolInput;
+  const p = i.file_path ?? i.notebook_path;
+  return typeof p === 'string' && p ? [p] : [];
+}
+
+/** The call as the reader should see it: a Write shows its file, an Edit
+ *  its diff — not a JSON-escaped blob. Other tools keep their raw input. */
+function renderCall(name: string, input: unknown): string {
+  const i = (input ?? {}) as ToolInput;
+  const op = toolOpOf(name);
+  if (op === 'write' && typeof i.content === 'string') return `${i.file_path ?? ''}\n\n${i.content}`;
+  if (op === 'edit' && typeof i.new_string === 'string') {
+    return `${i.file_path ?? i.notebook_path ?? ''}${i.replace_all ? ' (replace all)' : ''}\n--- old\n${i.old_string ?? ''}\n+++ new\n${i.new_string}`;
+  }
+  return JSON.stringify(input ?? {});
 }
 
 function textParts(content: string | ContentPart[] | undefined): string {
@@ -87,8 +121,7 @@ function resultText(content: string | Array<{ type?: string; text?: string }> | 
     .join('\n');
 }
 
-const clip = (s: string, limit: number): { text: string; truncated: boolean } =>
-  s.length > limit ? { text: `${s.slice(0, limit)}\n…[truncated, ${s.length} chars total]`, truncated: true } : { text: s, truncated: false };
+const clip = clipText;
 
 /** Streaming turn collector — mirror of the Codex one: lines in one at a
  *  time (no path may hold a whole multi-hundred-MB session as text),
@@ -96,12 +129,16 @@ const clip = (s: string, limit: number): { text: string; truncated: boolean } =>
 export class ClaudeSessionCollector {
   private turns: Turn[] = [];
   // tool_use id → registration, so results pair up even across lines
-  private pendingTools = new Map<string, { name: string; call: string }>();
+  private pendingTools = new Map<string, { name: string; call: string; paths: string[]; op: RunnerTool['op'] }>();
   private current: Turn | null = null;
   private pendingCompaction: string | undefined;
   private sessionId: string | null = null;
   private customTitle: string | null = null;
   private slug: string | null = null;
+  private firstQuestion: string | null = null;
+  private cwd: string | null = null;
+  // decided by the first message line: what kind of file this is
+  private mode: 'main' | 'sidechain' | null = null;
 
   feedLine(raw: string): void {
     const t = raw.trim();
@@ -120,7 +157,12 @@ export class ClaudeSessionCollector {
   private feed(line: SessionLine): void {
     if (line.type === 'custom-title' && line.customTitle) this.customTitle = line.customTitle;
     if (line.slug && !this.slug) this.slug = line.slug;
-    if (line.isSidechain) return;
+    if (line.cwd && !this.cwd) this.cwd = line.cwd;
+    if (this.mode === null && (line.type === 'user' || line.type === 'assistant') && line.uuid) {
+      this.mode = line.isSidechain && line.agentId ? 'sidechain' : 'main';
+      if (this.mode === 'sidechain') this.sessionId = line.agentId!;
+    }
+    if (!!line.isSidechain !== (this.mode === 'sidechain')) return;
 
     if (line.type === 'system' && line.subtype === 'compact_boundary') {
       this.flush();
@@ -144,15 +186,27 @@ export class ClaudeSessionCollector {
             const reg = this.pendingTools.get(p.tool_use_id);
             if (reg && this.current) {
               const res = clip(resultText(p.content), TOOL_RESULT_LIMIT);
-              this.current.tools.push({ name: reg.name, call: reg.call, result: res.text, truncated: res.truncated });
+              this.current.tools.push({
+                name: reg.name, call: reg.call, result: res.text, truncated: res.truncated,
+                ...(reg.paths.length ? { paths: reg.paths } : {}), op: reg.op,
+              });
               this.pendingTools.delete(p.tool_use_id);
             }
           }
         }
       }
       const text = textParts(content);
-      if (text.trim()) {
+      if (!text.trim()) return;
+      if (/^\s*<task-notification>/.test(text)) {
+        if (this.current) {
+          const res = clip(text, NOTIFICATION_LIMIT);
+          this.current.tools.push({ name: 'Agent', call: '(task notification)', result: res.text, truncated: res.truncated, op: 'agent' });
+        }
+        return;
+      }
+      {
         this.flush();
+        if (!this.firstQuestion) this.firstQuestion = text.trim();
         this.current = {
           question: text, response: '', itemIds: line.uuid ? [line.uuid] : [], tools: [],
           parentItemId: line.parentUuid ?? undefined,
@@ -173,19 +227,22 @@ export class ClaudeSessionCollector {
       if (Array.isArray(content)) {
         for (const p of content) {
           if (p.type === 'tool_use' && p.id && p.name) {
-            const call = clip(JSON.stringify(p.input ?? {}), TOOL_CALL_LIMIT);
-            this.pendingTools.set(p.id, { name: p.name, call: call.text });
+            const op = toolOpOf(p.name);
+            const call = clip(renderCall(p.name, p.input), op === 'write' || op === 'edit' ? ARTIFACT_CALL_LIMIT : TOOL_CALL_LIMIT);
+            this.pendingTools.set(p.id, { name: p.name, call: call.text, paths: toolPaths(p.input), op });
           }
         }
       }
     }
   }
 
-  finish(): { sessionId: string; title: string; turns: Turn[] } | null {
+  finish(): { sessionId: string; title: string; turns: Turn[]; cwd?: string } | null {
     this.flush();
     if (!this.sessionId) return null;
-    const title = this.customTitle ?? this.slug ?? `session ${this.sessionId.slice(0, 8)}`;
-    return { sessionId: this.sessionId, title, turns: dropSelfCommandTurns(this.turns) };
+    // a subagent's slug is a random three-word tag; its prompt names it better
+    const own = this.mode === 'sidechain' ? this.firstQuestion?.split('\n')[0].slice(0, 80) ?? null : this.slug;
+    const title = this.customTitle ?? own ?? `session ${this.sessionId.slice(0, 8)}`;
+    return { sessionId: this.sessionId, title, turns: dropSelfCommandTurns(this.turns), ...(this.cwd ? { cwd: this.cwd } : {}) };
   }
 
   toConversation(): ImportableConversation | null {
@@ -196,7 +253,7 @@ export class ClaudeSessionCollector {
       messageCount: s.turns.length,
       source: 'claude-code',
       sessionId: s.sessionId,
-      build: () => buildGraphFromTurns(s.turns, s.sessionId),
+      build: () => buildGraphFromTurns(s.turns, s.sessionId, s.cwd),
     };
   }
 }
@@ -215,7 +272,8 @@ function noteNode(text: string): ThoughtNode {
   return n;
 }
 
-function buildGraphFromTurns(turns: Turn[], sessionId: string): { nodes: ThoughtNode[]; edges: ThoughtEdge[] } {
+function buildGraphFromTurns(turns: Turn[], sessionId: string, cwd?: string): { nodes: ThoughtNode[]; edges: ThoughtEdge[] } {
+  const origin = cwd ? { cwd } : {};
   // faithful projection: EVERY turn imports — no tail cap. Long sessions
   // stay navigable through the zoom tiers (map plaques, glyphs), and
   // pruning is the user's decision on the canvas, never the importer's.
@@ -240,12 +298,12 @@ function buildGraphFromTurns(turns: Turn[], sessionId: string): { nodes: Thought
       const note = noteNode(turn.compactionBefore);
       // importer-owned notes carry provenance too, so "node without
       // importSource" strictly means "the user made this by hand"
-      note.data.importSource = { runner: 'claude-code', sessionId, itemIds: [] };
+      note.data.importSource = { runner: 'claude-code', sessionId, itemIds: [], ...origin };
       nodes.push(note);
       noteToWire = note;
     }
     const node = makeNode(turn.question, turn.response, prev === null);
-    node.data.importSource = { runner: 'claude-code', sessionId, itemIds: turn.itemIds };
+    node.data.importSource = { runner: 'claude-code', sessionId, itemIds: turn.itemIds, ...origin };
     node.data.source = { question: node.data.question, response: node.data.response };
     seedPlaque(node);
     node.data.attachments = toolAttachments(turn);
@@ -276,7 +334,7 @@ export function claudeCodeSessionAsBranch(
 ): { nodes: ThoughtNode[]; edges: ThoughtEdge[]; turnCount: number } | null {
   const s = collectFromText(text).finish();
   if (!s) return null;
-  return turnsToBranch(s.turns, s.sessionId, 'claude-code', anchorNode);
+  return turnsToBranch(s.turns, s.sessionId, 'claude-code', anchorNode, s.cwd);
 }
 
 /** The importable-conversation wrapper the existing import modal consumes. */

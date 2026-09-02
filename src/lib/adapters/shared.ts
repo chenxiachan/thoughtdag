@@ -1,18 +1,55 @@
-import type { ThoughtNode, ThoughtEdge, Attachment } from '../../types';
+import type { ThoughtNode, ThoughtEdge, Attachment, ToolOp } from '../../types';
 import { makeNode } from '../import-chat';
 import { autoLayout } from '../layout';
 import { generateId } from '../../utils';
+import { conclusionOf } from '../turn-insight';
 
 // Shared projection pieces for runner session adapters. Every runner's
 // collector reduces its native format to this Turn shape; everything
 // downstream (branch building, plaques, tool attachments) is common.
 
+export interface RunnerTool {
+  name: string;
+  call: string;
+  result: string;
+  truncated: boolean;
+  /** files the call touched (absolute or repo-relative, as the runner wrote them) */
+  paths?: string[];
+  op?: ToolOp;
+}
+
 export interface RunnerTurn {
   question: string;
   response: string;
   itemIds: string[];
-  tools: { name: string; call: string; result: string; truncated: boolean }[];
+  tools: RunnerTool[];
 }
+
+// Tool names → what they DID. Deterministic, runner-neutral: the same
+// table classifies a Claude Code `Edit` and a Codex `apply_patch`.
+const TOOL_OPS: [RegExp, ToolOp][] = [
+  [/^(Read|NotebookRead|read_file|view_image)$/i, 'read'],
+  [/^(Write|write_file)$/i, 'write'],
+  [/^(Edit|MultiEdit|NotebookEdit|apply_patch)$/i, 'edit'],
+  [/^(Bash|BashOutput|Shell|exec_command|local_shell|write_stdin)$/i, 'run'],
+  [/^(Grep|Glob|LS|Search|WebSearch|web_search)$/i, 'search'],
+  [/^(WebFetch|Fetch)$/i, 'fetch'],
+  [/^(Task|Agent)$/i, 'agent'],
+];
+
+export function toolOpOf(name: string): ToolOp {
+  return TOOL_OPS.find(([re]) => re.test(name))?.[1] ?? 'other';
+}
+
+/** Artifact-producing calls (a Write's whole file, an Edit's diff) keep
+ *  their full text: that IS what the model saw and what the turn produced.
+ *  Everything else clips to a readable head. */
+export const TOOL_CALL_LIMIT = 800;
+export const ARTIFACT_CALL_LIMIT = 32000;
+export const TOOL_RESULT_LIMIT = 4000;
+
+export const clipText = (s: string, limit: number): { text: string; truncated: boolean } =>
+  s.length > limit ? { text: `${s.slice(0, limit)}\n…[truncated, ${s.length} chars total]`, truncated: true } : { text: s, truncated: false };
 
 // The one turn we do NOT project faithfully: ThoughtDAG's own entry command.
 // A turn that says "send this session to ThoughtDAG" is self-referential
@@ -32,9 +69,13 @@ export function markImporterNote(note: ThoughtNode): void {
   note.width = 460;
 }
 
+/** The plaque an imported turn wears when zoomed out, and the line its
+ *  collapsed card shows: the answer's CONCLUSION. An agent opens with
+ *  "let me look at…" and closes with what it found — the reader looking
+ *  back needs the close. */
 export function seedPlaque(node: ThoughtNode): void {
-  const first = node.data.response.split('\n').map((l) => l.trim()).find((l) => l && !/^[#>*`-]+$/.test(l));
-  if (first) node.data.summaries = [first.replace(/^[#>*`\s]+/, '').slice(0, 90)];
+  const line = conclusionOf(node.data.response, 90);
+  if (line) node.data.summaries = [line];
 }
 
 export function toolAttachments(turn: RunnerTurn): Attachment[] {
@@ -44,6 +85,8 @@ export function toolAttachments(turn: RunnerTurn): Attachment[] {
     type: 'text/plain',
     size: tool.call.length + tool.result.length,
     content: `[call] ${tool.call}\n[result]\n${tool.result}`,
+    ...(tool.paths?.length ? { paths: tool.paths } : {}),
+    ...(tool.op ? { op: tool.op } : {}),
   }));
 }
 
@@ -55,6 +98,7 @@ export function turnsToBranch(
   sessionId: string,
   runner: string,
   anchorNode: { id: string; x: number; y: number },
+  cwd?: string,
 ): { nodes: ThoughtNode[]; edges: ThoughtEdge[]; turnCount: number } | null {
   if (turns.length === 0) return null;
   const nodes: ThoughtNode[] = [];
@@ -62,7 +106,7 @@ export function turnsToBranch(
   let prev: { id: string } = { id: anchorNode.id };
   for (const turn of turns) {
     const node = makeNode(turn.question || '(tool-only turn)', turn.response, false);
-    node.data.importSource = { runner, sessionId, itemIds: turn.itemIds };
+    node.data.importSource = { runner, sessionId, itemIds: turn.itemIds, ...(cwd ? { cwd } : {}) };
     node.data.source = { question: node.data.question, response: node.data.response };
     node.data.attachments = toolAttachments(turn);
     seedPlaque(node);

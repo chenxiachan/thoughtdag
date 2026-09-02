@@ -158,6 +158,9 @@ export const en = {
 
   // Node (ThoughtNode + streaming placeholders)
   'node.exploringFrom': 'Exploring from selection:',
+  'local.desktopOnly': 'This is a local path; only the desktop app can open it: {path}',
+  'local.missing': 'Path not found: {path}',
+  'node.footprint': 'Files this turn touched (✏️ wrote or edited, 📖 read)',
   'node.reasoning': 'Reasoning',
   'node.reasoningLive': 'Thinking…',
   'node.openAtPage': 'Reopen the reader at page {n} with this thread',

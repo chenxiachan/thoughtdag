@@ -1,5 +1,6 @@
 import { toast } from '../ui-store';
 import { t, fmt } from '../../i18n';
+import { identityFromHead } from './discover';
 
 // The live mirror, phase one of the listener: when the file behind the
 // ACTIVE canvas's mirrored session grows, the appendix arrives on its
@@ -9,15 +10,12 @@ import { t, fmt } from '../../i18n';
 // manual until the chapter ledger lands — an auto-mount without
 // idempotence would stack duplicate branches.
 
-function sessionIdFromHead(head: string): string | null {
-  for (const raw of head.split('\n')) {
-    try {
-      const line = JSON.parse(raw) as { type?: string; sessionId?: string; payload?: { id?: string } };
-      if (line.type === 'session_meta' && line.payload?.id) return line.payload.id;
-      if (typeof line.sessionId === 'string') return line.sessionId;
-    } catch { /* truncated head tail */ }
-  }
-  return null;
+/** The file a session id names, by FILENAME: cc files are `<id>.jsonl`,
+ *  codex rollouts embed the id, a subagent file is `agent-<id>.jsonl`. A
+ *  path-wide match would hit `<parent-id>/subagents/…` first for any
+ *  session that ever spawned an agent. */
+export function pickSessionFile<T extends { rel: string }>(files: T[], sid: string): T | undefined {
+  return files.find((f) => (f.rel.split('/').pop() ?? f.rel).includes(sid));
 }
 
 let started = false;
@@ -51,7 +49,7 @@ export function startLiveMirror(): void {
       const activeMeta = projects.find((p) => p.id === activeId);
       const head = await bridge.head(ev.rootKey, ev.rel, 262144).catch(() => '');
       if (!head) return;
-      const sid = sessionIdFromHead(head);
+      const sid = identityFromHead(head);
       if (!sid) return;
 
       const subscribedHere = !!activeMeta && subscribedSessionIds(activeMeta).includes(sid);
@@ -110,7 +108,7 @@ export function startLiveMirror(): void {
     let target: { rootKey: string; rel: string } | null = null;
     for (const r of roots) {
       const ls = await bridge.list(r.key).catch(() => []);
-      const byName = ls.find((f) => f.rel.includes(sid));
+      const byName = pickSessionFile(ls, sid);
       if (byName) { target = { rootKey: r.key, rel: byName.rel }; break; }
     }
     if (!target) {
@@ -121,7 +119,7 @@ export function startLiveMirror(): void {
       files.sort((a, b) => b.mtime - a.mtime);
       for (const f of files.slice(0, 40)) {
         const head = await bridge.head(f.rootKey, f.rel, 262144).catch(() => '');
-        if (head && sessionIdFromHead(head) === sid) { target = f; break; }
+        if (head && identityFromHead(head) === sid) { target = f; break; }
       }
     }
     if (!target) { toast('error', t('handoff.deeplinkMiss')); return; }

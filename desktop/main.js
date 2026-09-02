@@ -80,6 +80,14 @@ async function boot() {
     shell.openExternal(url);
     return { action: 'deny' };
   });
+  // In-page navigation to the outside (a plain link inside a response)
+  // would replace the app with the target site, with no way back. The
+  // app's own origins navigate; everything else goes to the browser.
+  win.webContents.on('will-navigate', (e, url) => {
+    if (/^(http:\/\/(127\.0\.0\.1|localhost)[:/]|file:|data:)/.test(url)) return;
+    e.preventDefault();
+    if (/^(https?|mailto):/.test(url)) shell.openExternal(url);
+  });
 
   const ready = await waitReady(port);
   if (!ready) {
@@ -320,6 +328,37 @@ function setupSessionAtlas() {
     }
     await walk(root, 0);
     return out;
+  });
+
+  // Local paths a response mentions (a file the agent wrote, a folder it
+  // built) open on THIS machine, never as a URL: a folder or a plain file
+  // shows in Finder, an image or PDF opens in its viewer. Nothing that
+  // could execute is ever handed to the OS — a script link reveals, it
+  // does not run.
+  const expandHome = (p) => (p.startsWith('~/') ? path.join(os.homedir(), p.slice(2)) : p);
+  const VIEWABLE = /\.(png|jpe?g|gif|webp|svg|pdf)$/i;
+  const IMAGE_MIME = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', gif: 'image/gif', webp: 'image/webp', svg: 'image/svg+xml' };
+  ipcMain.handle('local:open', async (_e, raw) => {
+    if (typeof raw !== 'string') return { ok: false, reason: 'invalid' };
+    const p = expandHome(raw);
+    if (!path.isAbsolute(p)) return { ok: false, reason: 'invalid' };
+    let st;
+    try { st = await fsp.stat(p); } catch { return { ok: false, reason: 'missing' }; }
+    if (st.isDirectory()) { const err = await shell.openPath(p); return { ok: !err, kind: 'dir' }; }
+    if (VIEWABLE.test(p)) { const err = await shell.openPath(p); return { ok: !err, kind: 'file', opened: 'viewer' }; }
+    shell.showItemInFolder(p);
+    return { ok: true, kind: 'file', opened: 'finder' };
+  });
+  ipcMain.handle('local:image', async (_e, raw) => {
+    if (typeof raw !== 'string') return null;
+    const p = expandHome(raw);
+    const ext = (p.match(/\.(png|jpe?g|gif|webp|svg)$/i)?.[1] ?? '').toLowerCase();
+    if (!path.isAbsolute(p) || !ext) return null;
+    let st;
+    try { st = await fsp.stat(p); } catch { return null; }
+    if (!st.isFile() || st.size > 20 * 1024 * 1024) return null;
+    const buf = await fsp.readFile(p);
+    return `data:${IMAGE_MIME[ext]};base64,${buf.toString('base64')}`;
   });
 
   ipcMain.handle('sessions:head', async (_e, rootKey, rel, bytes) => {

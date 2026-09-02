@@ -19,7 +19,15 @@ export interface Attachment {
   isExtracting?: boolean; // PDF extraction in progress
   digest?: string; // reader's guided digest (markdown, with (p.N) anchors)
   digestBy?: string; // model that wrote the digest
+  /** Footprint of an imported tool call: the files it touched and what it
+      did to them — the why layer's join key (path → the turns that touched
+      it). Set by the session adapters, never by hand. */
+  paths?: string[];
+  op?: ToolOp;
 }
+
+/** What a tool call DID, classified from its name across runners. */
+export type ToolOp = 'read' | 'write' | 'edit' | 'run' | 'search' | 'fetch' | 'agent' | 'other';
 
 export interface Highlight {
   id: string;
@@ -88,7 +96,10 @@ export interface ThoughtData extends Record<string, unknown> {
   /** Provenance of a node imported from an external runner session (the
       continuity layer's read direction). Source sessions stay read-only;
       these ids let a future continuation point back at native items. */
-  importSource?: { runner: string; sessionId: string; itemIds: string[] };
+  /** Provenance of an imported turn. `cwd` is the source session's working
+      directory: relative paths the agent wrote ("./fig1.png") resolve
+      against it. */
+  importSource?: { runner: string; sessionId: string; itemIds: string[]; cwd?: string };
   /** Frozen snapshot of the SOURCE projection at import time. The working
       question/response fields are free to iterate; this never changes, so
       "has this node diverged from its source?" is a field comparison, and

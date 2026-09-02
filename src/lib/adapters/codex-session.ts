@@ -2,7 +2,10 @@ import type { ThoughtNode, ThoughtEdge } from '../../types';
 import { makeNode, type ImportableConversation } from '../import-chat';
 import { autoLayout } from '../layout';
 import { generateId } from '../../utils';
-import { turnsToBranch, seedPlaque, toolAttachments, dropSelfCommandTurns, markImporterNote } from './shared';
+import {
+  turnsToBranch, seedPlaque, toolAttachments, dropSelfCommandTurns, markImporterNote, toolOpOf, clipText,
+  TOOL_CALL_LIMIT, ARTIFACT_CALL_LIMIT, TOOL_RESULT_LIMIT, type RunnerTool,
+} from './shared';
 
 // Codex session importer — Tier 1 (read-only) of the second runner adapter.
 // A session lives as a rollout JSONL under ~/.codex/sessions/; each line is
@@ -26,8 +29,14 @@ import { turnsToBranch, seedPlaque, toolAttachments, dropSelfCommandTurns, markI
 //     own mechanisms not visible in the rollout — nothing to mark yet).
 // The source rollout is never written — read-only by contract.
 
-const TOOL_RESULT_LIMIT = 4000;
-const TOOL_CALL_LIMIT = 800;
+/** apply_patch names its files in the patch header — deterministic, no
+ *  command parsing. Other codex tools touch files only through shell
+ *  commands, which this importer does not guess at. */
+function patchPaths(patch: string): string[] {
+  const out: string[] = [];
+  for (const m of patch.matchAll(/^\*\*\* (?:Add|Update|Delete) File: (.+)$/gm)) out.push(m[1].trim());
+  return out;
+}
 
 interface RolloutLine {
   timestamp?: string;
@@ -57,12 +66,11 @@ export interface CodexTurn {
   question: string;
   response: string;
   itemIds: string[];
-  tools: { name: string; call: string; result: string; truncated: boolean }[];
+  tools: RunnerTool[];
   compactionBefore?: string;
 }
 
-const clip = (s: string, limit: number): { text: string; truncated: boolean } =>
-  s.length > limit ? { text: `${s.slice(0, limit)}\n…[truncated, ${s.length} chars total]`, truncated: true } : { text: s, truncated: false };
+const clip = clipText;
 
 const partText = (content: Array<{ type?: string; text?: string }> | undefined): string =>
   (content ?? []).filter((p) => p.text && (p.type === 'input_text' || p.type === 'output_text' || p.type === 'text'))
@@ -94,7 +102,7 @@ const outputText = (output: unknown): string => {
  *  the string-based entry points below are thin wrappers. */
 export class CodexSessionCollector {
   private turns: CodexTurn[] = [];
-  private pendingCalls = new Map<string, { name: string; call: string }>();
+  private pendingCalls = new Map<string, { name: string; call: string; paths: string[]; op: RunnerTool['op'] }>();
   private current: CodexTurn | null = null;
   private pendingCompaction: string | undefined;
   private sessionId: string | null = null;
@@ -170,20 +178,25 @@ export class CodexSessionCollector {
       }
       // role=developer: runner boilerplate, dropped
     } else if ((p.type === 'function_call' || p.type === 'custom_tool_call') && p.call_id && p.name) {
-      const call = clip(String(p.arguments ?? p.input ?? ''), TOOL_CALL_LIMIT);
-      this.pendingCalls.set(p.call_id, { name: p.name, call: call.text });
+      const raw = String(p.arguments ?? p.input ?? '');
+      const op = toolOpOf(p.name);
+      const call = clip(raw, op === 'edit' || op === 'write' ? ARTIFACT_CALL_LIMIT : TOOL_CALL_LIMIT);
+      this.pendingCalls.set(p.call_id, { name: p.name, call: call.text, paths: op === 'edit' ? patchPaths(raw) : [], op });
     } else if ((p.type === 'function_call_output' || p.type === 'custom_tool_call_output') && p.call_id) {
       const reg = this.pendingCalls.get(p.call_id);
       if (reg) {
         const t = this.ensure();
         const res = clip(outputText(p.output), TOOL_RESULT_LIMIT);
-        t.tools.push({ name: reg.name, call: reg.call, result: res.text, truncated: res.truncated });
+        t.tools.push({
+          name: reg.name, call: reg.call, result: res.text, truncated: res.truncated,
+          ...(reg.paths.length ? { paths: reg.paths } : {}), op: reg.op,
+        });
         this.pendingCalls.delete(p.call_id);
       }
     }
   }
 
-  finish(): { sessionId: string; title: string; turns: CodexTurn[]; subagent: boolean } | null {
+  finish(): { sessionId: string; title: string; turns: CodexTurn[]; subagent: boolean; cwd?: string } | null {
     this.flush();
     if (!this.sessionId || !this.sawItems) return null;
     // A segment without a question is not a turn — it is the previous
@@ -215,7 +228,7 @@ export class CodexSessionCollector {
     const dir = this.cwd.split('/').filter(Boolean).pop();
     const title = this.firstQuestion?.split('\n')[0].slice(0, 60)
       || ['codex', dir, this.day].filter(Boolean).join(' · ');
-    return { sessionId: this.sessionId, title, turns: dropSelfCommandTurns(this.turns), subagent: !!this.parentThreadId };
+    return { sessionId: this.sessionId, title, turns: dropSelfCommandTurns(this.turns), subagent: !!this.parentThreadId, ...(this.cwd ? { cwd: this.cwd } : {}) };
   }
 
   toConversation(): ImportableConversation | null {
@@ -226,7 +239,7 @@ export class CodexSessionCollector {
       messageCount: s.turns.length,
       source: 'codex',
       sessionId: s.sessionId,
-      build: () => buildGraphFromTurns(s.turns, s.sessionId),
+      build: () => buildGraphFromTurns(s.turns, s.sessionId, s.cwd),
     };
   }
 }
@@ -237,7 +250,8 @@ function collectFromText(text: string): CodexSessionCollector {
   return c;
 }
 
-export function buildGraphFromTurns(turns: CodexTurn[], sessionId: string): { nodes: ThoughtNode[]; edges: ThoughtEdge[] } {
+export function buildGraphFromTurns(turns: CodexTurn[], sessionId: string, cwd?: string): { nodes: ThoughtNode[]; edges: ThoughtEdge[] } {
+  const origin = cwd ? { cwd } : {};
   // faithful projection: EVERY turn imports — no tail cap (see the Claude
   // Code adapter for the rationale; the rule is runner-agnostic).
   const nodes: ThoughtNode[] = [];
@@ -250,13 +264,13 @@ export function buildGraphFromTurns(turns: CodexTurn[], sessionId: string): { no
     if (turn.compactionBefore) {
       const note = makeNode(turn.compactionBefore, '', false);
       note.data.stepKind = 'note';
-      note.data.importSource = { runner: 'codex', sessionId, itemIds: [] };
+      note.data.importSource = { runner: 'codex', sessionId, itemIds: [], ...origin };
       markImporterNote(note);
       nodes.push(note);
       noteToWire = note;
     }
     const node = makeNode(turn.question || '(tool-only turn)', turn.response, prev === null);
-    node.data.importSource = { runner: 'codex', sessionId, itemIds: turn.itemIds };
+    node.data.importSource = { runner: 'codex', sessionId, itemIds: turn.itemIds, ...origin };
     node.data.source = { question: node.data.question, response: node.data.response };
     node.data.attachments = toolAttachments(turn);
     seedPlaque(node);
@@ -277,7 +291,7 @@ export function codexSessionAsBranch(
 ): { nodes: ThoughtNode[]; edges: ThoughtEdge[]; turnCount: number } | null {
   const s = collectFromText(text).finish();
   if (!s) return null;
-  return turnsToBranch(s.turns, s.sessionId, 'codex', anchorNode);
+  return turnsToBranch(s.turns, s.sessionId, 'codex', anchorNode, s.cwd);
 }
 
 /** The importable-conversation wrapper the import modal consumes. */

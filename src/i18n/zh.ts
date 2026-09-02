@@ -158,6 +158,9 @@ export const zh: Record<keyof typeof en, string> = {
 
   // Node (ThoughtNode + streaming placeholders)
   'node.exploringFrom': '从选中内容探索：',
+  'local.desktopOnly': '这是本机路径，只有桌面版能打开：{path}',
+  'local.missing': '找不到这个路径：{path}',
+  'node.footprint': '这一轮碰过的文件（✏️ 写或改，📖 读）',
   'node.reasoning': '思考过程',
   'node.reasoningLive': '思考中…',
   'node.openAtPage': '回到阅读器第 {n} 页，展开这条对话',

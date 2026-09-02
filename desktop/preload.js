@@ -36,3 +36,11 @@ contextBridge.exposeInMainWorld('desktopSessions', {
   codexThreadRead: (threadId) => ipcRenderer.invoke('codex:thread-read', threadId),
   pendingDeepLink: () => ipcRenderer.invoke('sessions:pending-deeplink'),
 });
+
+// Local paths mentioned in responses: open here, on this machine (folder
+// or file in Finder, image/PDF in its viewer), and images inline as data
+// URLs. Nothing executable is ever launched.
+contextBridge.exposeInMainWorld('desktopLocal', {
+  open: (p) => ipcRenderer.invoke('local:open', p),
+  image: (p) => ipcRenderer.invoke('local:image', p),
+});
