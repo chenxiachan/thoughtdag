@@ -183,7 +183,8 @@ function mentionOf(response: string, key: string): string | undefined {
   if (base.length < 4) return undefined;
   const paras = response.replace(/```[\s\S]*?```/g, '').split(/\n\s*\n/)
     .map((p) => p.replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/[#*`>|_~]/g, '').replace(/\s+/g, ' ').trim())
-    .filter((p) => p.length > 12 && p.toLowerCase().includes(base));
+    // a sources list or a lead-in to a block names the file without saying anything about it
+    .filter((p) => p.length > 12 && p.toLowerCase().includes(base) && !/[:：]$/.test(p) && !/^(sources?|references?|来源|参考)\b/i.test(p));
   const last = paras[paras.length - 1];
   return last ? clipLine(last, 240) : undefined;
 }
@@ -429,7 +430,10 @@ const allPaths = (facts: FactIndex): Set<string> => {
 /** Exact path first (as typed, then canonical). A bare name matches by
  *  suffix — inside this workspace unless --all: the same file name lives
  *  in many projects, and the question is about this one. */
-async function resolveQuery(facts: FactIndex, arg: string, all: boolean): Promise<{ path: string | null; candidates: string[]; elsewhere: number }> {
+async function resolveQuery(facts: FactIndex, rawArg: string, all: boolean): Promise<{ path: string | null; candidates: string[]; elsewhere: number }> {
+  // agents hand us paths as their host writes them: `@file` (a Claude Code
+  // reference), quoted, or with a trailing colon — the target is the path
+  const arg = rawArg.trim().replace(/^@/, '').replace(/^["'`]|["'`:]+$/g, '');
   const ids = allPaths(facts);
   // a web resource or a paper has one exact identity — no suffix games
   const web = urlArtifact(arg) ?? arxivArtifact(arg);

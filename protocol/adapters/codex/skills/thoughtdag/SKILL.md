@@ -17,7 +17,7 @@ thoughtdag recall <session> <n>        # one turn in full
 thoughtdag status                      # what the index holds, and how much is hard evidence
 ```
 
-The index refreshes itself before a query; `thoughtdag index` is rarely needed by hand. Stop here.
+Pass every word after the skill name through as arguments. Codex turns an `@file` in the prompt into an attachment: when the text is just `why` (or `why` plus other flags) and a file arrived attached, that file is the target — use its path (or its name) as the argument; do not read its body, the query needs only the name. Never run the command with no argument. The index refreshes itself before a query; `thoughtdag index` is rarely needed by hand. Stop here.
 
 **B. Open the session** (no argument, `list`, a session-id prefix, `harvest`). Rules and steps:
 

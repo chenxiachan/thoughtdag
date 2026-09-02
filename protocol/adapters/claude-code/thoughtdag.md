@@ -14,7 +14,7 @@ thoughtdag recall <session> <n>        # 把某一轮完整摊开
 thoughtdag status                      # 索引里有什么、多少是确定证据
 ```
 
-索引在查询前会自己刷新，通常不必手动 `thoughtdag index`。到此结束。
+参数里的 `@文件` 是 Claude Code 的引用语法，它会先把整个文件读进对话：查询不需要文件正文，剥掉 `@` 把名字交给命令行即可（命令行本身也会剥），**不要**去读或引用被附带进来的正文。提醒用户下次直接写文件名。索引在查询前会自己刷新，通常不必手动 `thoughtdag index`。到此结束。
 
 **B. 打开会话**（无参数、`list`、会话 id 前缀、`harvest`）：把当前 Claude Code 会话在 ThoughtDAG 中打开。规则与步骤：
 

@@ -161,6 +161,12 @@ test('page ranges survive from the read call into the index and the answer', () 
   assert.deepEqual(json.hits[0].locators, [{ pages: '1-5' }, { pages: '9-10' }]);
 });
 
+test('a host-flavoured path still resolves: @file, quotes, trailing colon', () => {
+  assert.match(run('why', '@src/lib/api.ts').split('\n')[0], /^why src\/lib\/api\.ts/);
+  assert.match(run('why', '"api.ts"').split('\n')[0], /^why src\/lib\/api\.ts/);
+  assert.match(run('why', 'src/lib/api.ts:').split('\n')[0], /^why src\/lib\/api\.ts/);
+});
+
 test('a bare filename resolves inside this workspace; --all widens', () => {
   assert.match(run('why', 'api.ts').split('\n')[0], /why src\/lib\/api\.ts/);
   assert.match(run('why', 'api.ts', '--all').split('\n')[0], /2 files match/);
