@@ -80,7 +80,7 @@ export async function takeToExperiment(nodeId: string, mode: 'branch' | 'continu
   // members — the CLI session that opens it answers to this hash
   {
     const members = [...new Set(bundle.context.messages.map((m) => m.source?.node_id).filter((id): id is string => !!id))];
-    st.logEvent('commit', nodeId, { ctx: bundle.integrity.content_hash, bundle: bundle.id, n: bundle.context.messages.length, ...(members.length ? { m: members.slice(0, 200).join(',') } : {}), ...(members.length > 200 ? { more: true } : {}) });
+    st.logEvent('commit', nodeId, { kind: 'bundle', sha: bundle.integrity.content_hash, bundle: bundle.id, n: bundle.context.messages.length, ...(members.length ? { m: members.slice(0, 200).join(',') } : {}), ...(members.length > 200 ? { more: true } : {}) });
   }
   const md = renderHandoffMarkdown(bundle, anchor);
   try {

@@ -1,6 +1,7 @@
 import type { StoreApi } from 'zustand';
 import { walkUpAncestors } from '../lib/graph';
-import { upstreamFingerprint, hashContext, type MessageSource } from './context-builder';
+import { upstreamFingerprint, type MessageSource } from './context-builder';
+import { sha256Hex, canonicalStringify } from '../lib/context-bundle';
 import { pruneHighlights } from '../lib/highlight-match';
 import { llmCall, llmCallStream, type ContextMessage, type ImageAttachment } from '../lib/api';
 import { countTokens, activeSummary } from '../utils';
@@ -112,17 +113,6 @@ export async function runNodeGeneration(
   // hidden UI (a missed button must still be inert).
   if (isViewerMode) return;
   const { question, images, onSuccess, versionMode = 'replace' } = opts;
-  // The alignment fact, written BEFORE anything is sent: the hash of the
-  // request as compiled, and the nodes it was built from. Light metadata
-  // only, like every canvas event — never the text itself.
-  {
-    const members = [...new Set((opts.sources ?? []).map((s) => s.nodeId).filter((id): id is string => !!id))];
-    const shown = members.slice(0, 200);
-    get().logEvent('commit', nodeId, {
-      ctx: hashContext(opts.messages, images ?? []), n: opts.messages.length,
-      ...(shown.length ? { m: shown.join(',') } : {}), ...(members.length > shown.length ? { more: true } : {}),
-    });
-  }
   let { messages } = opts;
   if (!opts.autoChain) autoRunCounts.clear(); // a fresh user action starts a new wave
   // Supersede: abort any generation already running on this node; its late
@@ -269,6 +259,23 @@ export async function runNodeGeneration(
       commitStream();
     };
 
+    // The alignment fact, written at the dispatch boundary — the exact
+    // payload the API layer receives, nothing added or dropped after this
+    // line: a SHA-256 over the messages (the question is the last one),
+    // every image's bytes, the model asked for and the tool switches. Light
+    // metadata only, like every canvas event — never the text itself.
+    {
+      const imageDigests = await Promise.all((images ?? []).map((img) => sha256Hex(img.data)));
+      const model = pinnedModel || useUiStore.getState().selectedModel || '';
+      const tools = { web: selfData?.webSearch ?? useUiStore.getState().webSearchEnabled, scholar: selfData?.scholarSearch ?? useUiStore.getState().scholarSearchEnabled };
+      const sha = await sha256Hex(canonicalStringify({ messages, images: imageDigests, model, tools }));
+      const members = [...new Set((opts.sources ?? []).map((s) => s.nodeId).filter((id): id is string => !!id))];
+      const shown = members.slice(0, 200);
+      get().logEvent('commit', nodeId, {
+        kind: 'request', sha: `sha256:${sha}`, n: messages.length, ...(model ? { model } : {}),
+        ...(shown.length ? { m: shown.join(',') } : {}), ...(members.length > shown.length ? { more: true } : {}),
+      });
+    }
     const response = await llmCallStream(messages, (_chunk, fullSoFar) => {
       pushStream({ response: fullSoFar });
     }, abortController.signal, images, {

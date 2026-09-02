@@ -45,7 +45,8 @@ const canvas = {
   ],
   events: [
     { t: '2026-08-30T09:00:30.000Z', op: 'ask', id: 'n1', d: { chars: 20 } },
-    { t: '2026-08-30T09:10:05.000Z', op: 'commit', id: 'n2', d: { ctx: 'h-req-2', n: 4, m: 'n1,m1' } },
+    { t: '2026-08-30T09:10:05.000Z', op: 'commit', id: 'n2', d: { kind: 'request', sha: 'sha256:' + 'ab'.repeat(32), n: 4, m: 'n1,m1', model: 'glm-5.3-flash' } },
+    { t: '2026-08-30T09:20:00.000Z', op: 'commit', id: 'n2', d: { kind: 'bundle', sha: 'sha256:' + 'cd'.repeat(32), bundle: 'cb_cdcdcdcdcdcdcdcd', n: 3, m: 'n1' } },
   ],
 };
 const canvasFile = join(canvasRoot, '脉冲网络综述.thoughtdag.json');
@@ -103,8 +104,14 @@ test('context.committed: exact from a logged commit, upstream-only from the olde
   const ev = events(canvasFile);
   const commits = ev.filter((e) => e.kind === 'context.committed');
   const exact = commits.find((c) => c.hashOf === 'request');
-  assert.equal(exact.contentHash, 'h-req-2'); assert.equal(exact.completeness, 'full'); assert.equal(exact.basis, 'observed');
+  assert.equal(exact.contentHash, 'sha256:' + 'ab'.repeat(32)); assert.equal(exact.completeness, 'full'); assert.equal(exact.basis, 'observed');
   assert.deepEqual(exact.members, [{ nodeId: 'n1' }, { nodeId: 'm1' }]);
+  assert.equal(exact.messageCount, 4); assert.equal(exact.model, 'glm-5.3-flash');
+  assert.equal(exact.id, 'thoughtdag:脉冲网络综述/commit:n2@2026-08-30T09:10:05.000Z', 'id from node and time, not log position');
+  const bundle = commits.find((c) => c.hashOf === 'bundle');
+  assert.equal(bundle.requestId, 'cb_cdcdcdcdcdcdcdcd'); assert.equal(bundle.contentHash, 'sha256:' + 'cd'.repeat(32)); assert.equal(bundle.messageCount, 3);
+  assert.notEqual(bundle.id, exact.id);
+  assert.deepEqual(events(canvasFile).filter((e) => e.kind === 'context.committed').map((c) => c.id), commits.map((c) => c.id), 'stable across projections');
   const partial = commits.filter((c) => c.hashOf === 'upstream');
   assert.equal(partial.length, 2);
   assert.ok(partial.every((c) => c.completeness === 'partial' && c.members.length === 0));

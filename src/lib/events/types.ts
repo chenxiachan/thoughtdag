@@ -151,10 +151,14 @@ export interface ContextCommitted extends EventBase {
   kind: 'context.committed';
   requestId: string;
   members: { eventId?: string; nodeId?: string; artifact?: ArtifactRef }[];
+  /** `sha256:<hex>` for request and bundle hashes; the older fingerprint keeps its own form */
   contentHash: string;
-  /** what the hash covers: the request as sent, or only its upstream
-      (the older canvas fingerprint, which blanks the node itself) */
-  hashOf: 'request' | 'upstream';
+  /** what the hash covers: the request exactly as dispatched; a Context
+      Bundle handed to another runner; or only the upstream (the older
+      canvas fingerprint, which blanks the node itself) */
+  hashOf: 'request' | 'bundle' | 'upstream';
+  messageCount?: number;
+  model?: string;
   decidedBy: 'user' | 'system' | 'model';
   confirmed: boolean;
 }

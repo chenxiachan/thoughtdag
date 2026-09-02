@@ -190,17 +190,23 @@ export function canvasToEvents(backup: CanvasBackup, opts: { file: string; sourc
     out.push(ev);
   }
 
-  // exact commits: the request as sent, hashed at send time, members listed
-  for (const [k, ev] of (backup.events ?? []).entries()) {
+  // exact commits, written at the dispatch boundary: a SHA-256 over the
+  // request as sent (or a bundle as handed off), the message count, the
+  // model, the member nodes. Ids come from node and time, never from the
+  // log's position — the log is capped and may be trimmed.
+  for (const ev of backup.events ?? []) {
     if (ev.op !== 'commit' || !ev.id || !ev.d) continue;
-    const hash = typeof ev.d.ctx === 'string' ? ev.d.ctx : '';
-    if (!hash) continue;
+    const sha = typeof ev.d.sha === 'string' ? ev.d.sha : '';
+    if (!sha) continue;
+    const kind = ev.d.kind === 'bundle' ? 'bundle' : 'request';
     const members = typeof ev.d.m === 'string' && ev.d.m ? ev.d.m.split(',').filter(Boolean).map((nodeId) => ({ nodeId })) : [];
     const truncated = ev.d.more === true;
     const c: ContextCommitted = {
-      id: `${sid}/commit:${k}`, kind: 'context.committed', sessionId: sid, turnId: turnIdOf(ev.id), turnIndex: index.get(ev.id) ?? 0, at: ev.t,
-      source: src(`event:${k}`), basis: 'observed', completeness: truncated || !members.length ? 'partial' : 'full',
-      requestId: typeof ev.d.bundle === 'string' ? ev.d.bundle : `${ev.id}@${ev.t}`, members, contentHash: hash, hashOf: 'request', decidedBy: 'user', confirmed: true,
+      id: `${sid}/commit:${ev.id}@${ev.t}${kind === 'bundle' ? ':bundle' : ''}`, kind: 'context.committed', sessionId: sid, turnId: turnIdOf(ev.id), turnIndex: index.get(ev.id) ?? 0, at: ev.t,
+      source: src(`event:commit:${ev.id}@${ev.t}`), basis: 'observed', completeness: truncated || !members.length ? 'partial' : 'full',
+      requestId: typeof ev.d.bundle === 'string' ? ev.d.bundle : `${ev.id}@${ev.t}`, members, contentHash: sha.startsWith('sha256:') ? sha : `sha256:${sha}`, hashOf: kind,
+      ...(typeof ev.d.n === 'number' ? { messageCount: ev.d.n } : {}), ...(typeof ev.d.model === 'string' && ev.d.model ? { model: ev.d.model } : {}),
+      decidedBy: 'user', confirmed: true,
     };
     out.push(c);
   }
