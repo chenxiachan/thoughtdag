@@ -30,8 +30,8 @@ writeFileSync(mainFile, [
   cc('r2', 'a2', 'user', [{ type: 'tool_result', tool_use_id: 't2', content: 'ok' }]),
   cc('a3', 'r2', 'assistant', [{ type: 'text', text: '找到了。\n\n崩溃来自流式输出没有节流，加了重试和退避，不是模型的问题。' }]),
   cc('u2', 'a3', 'user', '顺便看看 README', { at: '2026-08-21T15:00:00.000Z' }),
-  cc('a4', 'u2', 'assistant', [{ type: 'tool_use', id: 't3', name: 'Read', input: { file_path: `${proj}/README.md` } }, { type: 'tool_use', id: 't3b', name: 'WebFetch', input: { url: 'https://arxiv.org/abs/2506.07962v2', prompt: 'summarize' } }, { type: 'tool_use', id: 't3c', name: 'WebFetch', input: { url: 'https://Example.com/a#frag', prompt: 'read' } }]),
-  cc('r3', 'a4', 'user', [{ type: 'tool_result', tool_use_id: 't3', content: '# hi' }, { type: 'tool_result', tool_use_id: 't3b', content: 'paper text' }, { type: 'tool_result', tool_use_id: 't3c', content: 'page text' }]),
+  cc('a4', 'u2', 'assistant', [{ type: 'tool_use', id: 't3', name: 'Read', input: { file_path: `${proj}/README.md` } }, { type: 'tool_use', id: 't3b', name: 'WebFetch', input: { url: 'https://arxiv.org/abs/2506.07962v2', prompt: 'summarize' } }, { type: 'tool_use', id: 't3c', name: 'WebFetch', input: { url: 'https://Example.com/a#frag', prompt: 'read' } }, { type: 'tool_use', id: 't3d', name: 'Read', input: { file_path: `${proj}/paper.pdf`, pages: '1-5' } }, { type: 'tool_use', id: 't3e', name: 'Read', input: { file_path: `${proj}/paper.pdf`, pages: '9-10' } }]),
+  cc('r3', 'a4', 'user', [{ type: 'tool_result', tool_use_id: 't3', content: '# hi' }, { type: 'tool_result', tool_use_id: 't3b', content: 'paper text' }, { type: 'tool_result', tool_use_id: 't3c', content: 'page text' }, { type: 'tool_result', tool_use_id: 't3d', content: 'pp' }, { type: 'tool_result', tool_use_id: 't3e', content: 'pp' }]),
   cc('a5', 'r3', 'assistant', [{ type: 'text', text: 'README 没问题。' }]),
 ].join('\n'));
 writeFileSync(join(ccRoot, 'proj', 'sid-1', 'subagents', 'agent-abc123.jsonl'), [
@@ -63,6 +63,15 @@ writeFileSync(join(cxRoot, '2026/09/01', 'rollout-2026-09-01T11-00-00-cx-2.jsonl
   cx('response_item', { type: 'custom_tool_call_output', call_id: 'c1', output: 'Done' }),
   cx('response_item', { type: 'message', role: 'assistant', content: [{ type: 'output_text', text: '好了。' }] }),
 ].join('\n'));
+// a resumed codex thread: a second rollout file, same session id, new turn — one logical session, two source files
+writeFileSync(join(cxRoot, '2026/09/01', 'rollout-2026-09-01T12-00-00-cx-2.jsonl'), [
+  cx('session_meta', { id: 'cx-2', cwd: other, timestamp: '2026-08-02T10:00:00.000Z' }, '2026-08-02T10:00:00.000Z'),
+  cx('turn_context', { turn_id: 'T9' }, '2026-08-02T10:00:00.000Z'),
+  cx('response_item', { type: 'message', role: 'user', content: [{ type: 'input_text', text: '续接后再改' }] }, '2026-08-02T10:00:00.000Z'),
+  cx('response_item', { type: 'custom_tool_call', call_id: 'c9', name: 'apply_patch', input: '*** Begin Patch\n*** Update File: frag.ts\n@@\n-x\n+y\n*** End Patch' }, '2026-08-02T10:00:00.000Z'),
+  cx('response_item', { type: 'custom_tool_call_output', call_id: 'c9', output: 'Done' }, '2026-08-02T10:00:00.000Z'),
+  cx('response_item', { type: 'message', role: 'assistant', content: [{ type: 'output_text', text: '改了。' }] }, '2026-08-02T10:00:00.000Z'),
+].join('\n'));
 // a .jsonl that is not a session at all (a log some other tool left behind)
 writeFileSync(join(ccRoot, 'proj', 'not-a-session.jsonl'), '{"hello":"world"}\n{"ping":1}\n');
 
@@ -76,7 +85,7 @@ const mode = (f) => (statSync(f).mode & 0o777).toString(8);
 
 test('index parses both runners, the subagent file, the continued session; skips the stray file', () => {
   const out = run('index');
-  assert.match(out, /indexed 5 sessions \(0 unchanged, 1 not sessions?, 0 gone\)/);
+  assert.match(out, /indexed 6 sessions \(0 unchanged, 1 not sessions?, 0 gone\)/);
 });
 
 test('the store is private: directory 0700, files 0600', () => {
@@ -89,8 +98,9 @@ test('facts hold no interpretation and no full answers; the workspace is the git
   const facts = JSON.parse(readFileSync(join(home, 'fact-index.json'), 'utf8'));
   const text = JSON.stringify(facts);
   assert.ok(!text.includes('崩溃来自流式输出') && !text.includes('走 OAuth'), 'fact index leaked answer text');
-  assert.equal(facts.sessions['sid-1'].workspace, realProj);
-  assert.equal(facts.sessions['sid-1'].cwd, join(realProj, 'src'));
+  const sid1 = Object.values(facts.sessions).find((x) => x.id === 'sid-1');
+  assert.equal(sid1.workspace, realProj);
+  assert.equal(sid1.cwd, join(realProj, 'src'));
 });
 
 test('a stray non-session .jsonl does not make every query refresh', () => {
@@ -114,6 +124,26 @@ test('why: reads hidden by default, every turn once with --include-read, evidenc
   const withReads = run('why', 'src/lib/api.ts', '--include-read');
   assert.match(withReads.split('\n')[0], /3 turns in 3 sessions/);
   assert.match(withReads, /\(subagent\)/);
+});
+
+test('a session split across files is one session: grouped, numbered through, recalled by that number', () => {
+  const idx = JSON.parse(readFileSync(join(home, 'fact-index.json'), 'utf8'));
+  assert.equal(Object.keys(idx.sessions).length, 6, 'facts are stored per source file');
+  assert.equal(new Set(Object.values(idx.sessions).map((s) => s.id)).size, 5, 'five logical sessions');
+  const status = run('status');
+  assert.match(status, /5 sessions in 6 files/);
+  const why = run('why', `${other}/frag.ts`);
+  assert.match(why.split('\n')[0], /1 turn in 1 session/);
+  assert.match(why, /#1\b/, 'the fragment\'s only turn is turn 1 of the logical session (turn 0 lives in the first file)');
+  const rec = run('recall', 'cx-2', '1');
+  assert.ok(rec.includes('续接后再改'), 'recall resolves the number through the fragments');
+});
+
+test('page ranges survive from the read call into the index and the answer', () => {
+  const why = run('why', 'paper.pdf');
+  assert.match(why, /📖 read\s+#1  p\.1-5 p\.9-10/, why.split('\n').find((l) => l.includes('read')) ?? 'no read line');
+  const json = JSON.parse(run('why', 'paper.pdf', '--json'));
+  assert.deepEqual(json.hits[0].locators, [{ pages: '1-5' }, { pages: '9-10' }]);
 });
 
 test('a bare filename resolves inside this workspace; --all widens', () => {
@@ -168,8 +198,8 @@ test('recall prints the turn in full with its diff', () => {
 
 test('status reports the evidence breakdown', () => {
   const status = run('status');
-  assert.match(status, /5 sessions · 7 turns · 4 files · 1 urls · 1 papers/);
-  assert.match(status, /5 edits\/writes, 5 with an observed change head/);
+  assert.match(status, /5 sessions in 6 files · 8 turns · 6 files · 1 urls · 1 papers/);
+  assert.match(status, /6 edits\/writes, 6 with an observed change head/);
   assert.match(status, /candidates only/);
 });
 

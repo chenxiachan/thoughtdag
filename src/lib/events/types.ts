@@ -76,6 +76,9 @@ export interface SessionStarted extends EventBase {
   kind: 'session.started';
   runner: string;
   nativeId: string;
+  /** the source file this fragment came from — one logical session can
+      span several (a resumed Codex thread opens a new rollout each time) */
+  sourceId: string;
   title: string;
   cwd?: string;
   workspace?: string;
@@ -173,4 +176,6 @@ export interface ArtifactTouch {
   derivedFrom: string; // the tool.called event id
   change?: string;
   at?: string;
+  /** every distinct place the turn looked inside the artifact */
+  locators?: Locator[];
 }

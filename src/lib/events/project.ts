@@ -25,6 +25,8 @@ export interface ProjectableSession {
   nativeId: string;
   title: string;
   file: string;
+  /** canonical identity of the source file; defaults to `file` */
+  sourceId?: string;
   schema: string;
   cwd?: string;
   workspace?: string;
@@ -44,6 +46,14 @@ const clip = (s: string, max = EXCERPT_CHARS): string => {
 /** Everything an adapter tells us about a turn's identity funnels into
  *  one string, so ids survive rebuilds and never depend on position alone. */
 export const sessionKey = (runner: string, nativeId: string): string => `${runner}:${nativeId}`;
+
+/** Short, stable tag for a source file — the fragment discriminator on
+ *  session-level events (djb2, base36; no crypto needed in a browser). */
+export function fragmentTag(sourceId: string): string {
+  let h = 5381;
+  for (let i = 0; i < sourceId.length; i++) h = ((h << 5) + h + sourceId.charCodeAt(i)) | 0;
+  return (h >>> 0).toString(36);
+}
 
 /** One key per conversation segment, even when a runner reuses its turn
  *  id: a codex turn that resumes after a compaction — with new user input
@@ -180,9 +190,10 @@ export function sessionToEvents(s: ProjectableSession): CanonicalEvent[] {
   const sid = sessionKey(s.runner, s.nativeId);
   const src = (ref: string): SourcePointer => ({ runner: s.runner, file: s.file, ref, schema: s.schema });
   const out: CanonicalEvent[] = [];
+  const sourceId = s.sourceId ?? s.file;
   const started: SessionStarted = {
-    id: `${sid}/session`, kind: 'session.started', sessionId: sid, source: src(s.nativeId), ...OBS_FULL,
-    runner: s.runner, nativeId: s.nativeId, title: s.title,
+    id: `${sid}/session@${fragmentTag(sourceId)}`, kind: 'session.started', sessionId: sid, source: src(s.nativeId), ...OBS_FULL,
+    runner: s.runner, nativeId: s.nativeId, sourceId, title: s.title,
     ...(s.cwd ? { cwd: s.cwd } : {}), ...(s.workspace ? { workspace: s.workspace } : {}),
     ...(s.parentSessionId ? { parentSessionId: s.parentSessionId } : {}), ...(s.subagent ? { subagent: true } : {}),
   };
@@ -260,14 +271,18 @@ export function deriveTouches(events: CanonicalEvent[]): ArtifactTouch[] {
       const key = `${e.turnId}|${a.id}`;
       const prev = byKey.get(key);
       const stronger = !prev || rank[e.op] > rank[prev.op];
+      // every distinct place the turn looked, kept across the fold
+      const locators = [...(prev?.locators ?? [])];
+      if (a.locator && !locators.some((l) => JSON.stringify(l) === JSON.stringify(a.locator))) locators.push(a.locator);
       if (!prev || stronger) {
+        const change = stronger ? (e.change ?? prev?.change) : prev?.change;
         byKey.set(key, {
           artifact: a.id, op: e.op, sessionId: e.sessionId, turnId: e.turnId, turnIndex: e.turnIndex ?? 0,
-          derivedFrom: e.id, ...(e.at ? { at: e.at } : {}),
-          ...((stronger ? e.change : prev?.change) ? { change: stronger ? (e.change ?? prev?.change) : prev?.change } : {}),
+          derivedFrom: e.id, ...(e.at ? { at: e.at } : {}), ...(change ? { change } : {}), ...(locators.length ? { locators } : {}),
         });
-      } else if (!prev.change && e.change) {
-        prev.change = e.change;
+      } else {
+        if (!prev.change && e.change) prev.change = e.change;
+        if (locators.length) prev.locators = locators;
       }
     }
   }

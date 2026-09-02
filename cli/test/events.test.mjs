@@ -73,6 +73,14 @@ writeFileSync(ccArt, [
   ccNoCwd('a2', 'r1', 'assistant', [{ type: 'text', text: '看完了。' }]),
 ].join('\n'));
 
+const cxFrag2 = join(tmp, 'rollout-cx-1-b.jsonl');
+writeFileSync(cxFrag2, [
+  cx('session_meta', { id: 'cx-1', cwd: proj, timestamp: '2026-08-01T10:00:00.000Z' }),
+  cx('turn_context', { turn_id: 'T7' }),
+  cx('response_item', { type: 'message', role: 'user', content: [{ type: 'input_text', text: '第二个文件' }] }),
+  cx('response_item', { type: 'message', role: 'assistant', content: [{ type: 'output_text', text: '好。' }] }),
+].join('\n'));
+
 const run = (...a) => execFileSync(process.execPath, [CLI, ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
 const events = (file) => run('events', file).trim().split('\n').map((l) => JSON.parse(l));
 
@@ -172,6 +180,24 @@ test('artifact identity is canonical and only ever certain', () => {
   assert.deepEqual(touches.map((t) => [t.artifact, t.op]).sort(), [
     ['arxiv:2410.08900', 'fetch'], ['file:///Users/x/My%20Notes/%E5%88%AB%E8%AF%B4%E6%9C%8D.md', 'read'], ['file:///Users/x/paper.pdf', 'read'], ['https://docs.example.com/Guide', 'fetch'],
   ].sort());
+});
+
+test('one logical session in two files: same sessionId, distinct session.started ids, no turn collision', () => {
+  const a = events(cxFile); const b = events(cxFrag2);
+  const sa = a.find((e) => e.kind === 'session.started'); const sb = b.find((e) => e.kind === 'session.started');
+  assert.equal(sa.sessionId, sb.sessionId);
+  assert.notEqual(sa.id, sb.id);
+  assert.equal(sa.sourceId, cxFile); assert.equal(sb.sourceId, cxFrag2);
+  const ids = new Set([...a, ...b].filter((e) => e.kind !== 'adapter.manifest').map((e) => e.id));
+  assert.equal(ids.size, a.length + b.length - 2, 'no event id shared across the two fragments');
+});
+
+test('touches keep every distinct locator of the turn', () => {
+  const touches = run('events', ccArt, '--touches').trim().split('\n').map((l) => JSON.parse(l));
+  const pdf = touches.find((t) => t.artifact === 'file:///Users/x/paper.pdf');
+  assert.deepEqual(pdf.locators, [{ pages: '1-5' }]);
+  const notes = touches.find((t) => t.artifact.endsWith('.md'));
+  assert.deepEqual(notes.locators, [{ lines: [10, 14] }]);
 });
 
 test('derived touches: one per turn and artifact, strongest op, pointing back at the call', () => {

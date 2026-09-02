@@ -23,6 +23,7 @@ import { CodexSessionCollector } from '../../src/lib/adapters/codex-session';
 import { conclusionOf } from '../../src/lib/turn-insight';
 import type { RunnerTurn } from '../../src/lib/adapters/shared';
 import { sessionToEvents, deriveTouches, absolutePath, fileUri, filePathOf, urlArtifact, arxivArtifact, type ProjectableSession } from '../../src/lib/events/project';
+import type { Locator } from '../../src/lib/events/types';
 import { MANIFESTS } from '../../src/lib/events/manifests';
 
 // ─── records ─────────────────────────────────────────────────────────
@@ -30,14 +31,18 @@ import { MANIFESTS } from '../../src/lib/events/manifests';
 type Op = 'read' | 'fetch' | 'write' | 'edit';
 const readLike = (op: Op): boolean => op === 'read' || op === 'fetch';
 /** observed: the op, and the first differing line of the change (verbatim, partial) */
-interface Touch { op: Op; d?: string }
+interface Touch { op: Op; d?: string; l?: Locator[] }
 interface FactTurn { i: number; item?: string; at?: string; q: string; ops: Record<string, Touch> }
+/** One SOURCE FILE's worth of facts. A logical session (`id`) can span
+ *  several — a resumed Codex thread opens a new rollout each time — so
+ *  the store is keyed by source, and readers group by `id`. */
 interface FactSession {
   id: string; runner: 'claude-code' | 'codex'; file: string; mtime: number; size: number;
   cwd: string; workspace: string; title: string; subagent?: boolean; turns: FactTurn[];
 }
 interface FactIndex {
   version: number; builtAt: string;
+  /** keyed by canonical source file path */
   sessions: Record<string, FactSession>;
   /** .jsonl files seen that are not sessions, with the stat they had —
       remembered so a stray file does not make every query refresh */
@@ -48,7 +53,7 @@ interface FactIndex {
 interface CacheTurn { c?: string; p?: string; m?: Record<string, string> }
 interface CacheIndex { version: number; sessions: Record<string, Record<string, CacheTurn>> }
 
-const INDEX_VERSION = 6;
+const INDEX_VERSION = 7;
 const EXCERPT = 200;
 
 const HOME = process.env.THOUGHTDAG_HOME ?? path.join(os.homedir(), '.thoughtdag');
@@ -202,8 +207,9 @@ async function parseSession(f: FileStat): Promise<{ fact: FactSession; cache: Re
   const subagent = 'subagent' in s ? !!s.subagent : runner === 'claude-code' && /\/subagents\//.test(f.file);
   // the contract first: the index is a reduction of the same events every
   // other reader sees, never a second reading of the log
+  const sourceId = await canonicalPath(f.file, memo);
   const session: ProjectableSession = {
-    runner, nativeId: s.sessionId, title: s.title, file: f.file, schema: MANIFESTS[runner].schema,
+    runner, nativeId: s.sessionId, title: s.title, file: f.file, sourceId, schema: MANIFESTS[runner].schema,
     ...(rawCwd ? { cwd: rawCwd } : {}), ...(subagent ? { subagent } : {}), turns: s.turns,
   };
   const opsByTurn = new Map<number, Record<string, Touch>>();
@@ -212,7 +218,8 @@ async function parseSession(f: FileStat): Promise<{ fact: FactSession; cache: Re
     const ops = opsByTurn.get(t.turnIndex) ?? opsByTurn.set(t.turnIndex, {}).get(t.turnIndex)!;
     const prev = ops[id];
     const d = prev?.d ?? t.change;
-    ops[id] = { op: strongest(prev?.op, t.op as Op), ...(d ? { d } : {}) };
+    const l = [...(prev?.l ?? []), ...(t.locators ?? [])].filter((x, i, arr) => arr.findIndex((y) => JSON.stringify(y) === JSON.stringify(x)) === i);
+    ops[id] = { op: strongest(prev?.op, t.op as Op), ...(d ? { d } : {}), ...(l.length ? { l } : {}) };
   }
   const turns: FactTurn[] = [];
   const cache: Record<string, CacheTurn> = {};
@@ -279,29 +286,28 @@ async function buildIndex(full: boolean): Promise<BuildReport> {
   const facts = full ? emptyFacts() : await loadFacts();
   const cache = full ? emptyCache() : await loadCache();
   const files = await listSources();
-  const byFile = new Map(Object.values(facts.sessions).map((s) => [s.file, s]));
   let parsed = 0, kept = 0, skipped = 0, removed = 0;
   const seen = new Set<string>();
   for (const f of files) {
-    seen.add(f.file);
-    const prev = byFile.get(f.file);
-    const sk = facts.skipped[f.file];
+    const key = await canonicalPath(f.file);
+    seen.add(key);
+    const prev = facts.sessions[key];
+    const sk = facts.skipped[key];
     if (sk && sk.mtime === f.mtime && sk.size === f.size) { skipped++; continue; }
     // unchanged AND its interpretation is still there: a deleted cache
     // must come back on the next index, or "deletable" was a lie
-    if (prev && prev.mtime === f.mtime && prev.size === f.size && cache.sessions[prev.id]) { kept++; continue; }
+    if (prev && prev.mtime === f.mtime && prev.size === f.size && cache.sessions[key]) { kept++; continue; }
     const r = await parseSession(f).catch(() => null);
-    if (!r) { facts.skipped[f.file] = { mtime: f.mtime, size: f.size }; skipped++; continue; }
-    delete facts.skipped[f.file];
-    if (prev && prev.id !== r.fact.id) { delete facts.sessions[prev.id]; delete cache.sessions[prev.id]; }
-    facts.sessions[r.fact.id] = r.fact;
-    cache.sessions[r.fact.id] = r.cache;
+    if (!r) { facts.skipped[key] = { mtime: f.mtime, size: f.size }; skipped++; continue; }
+    delete facts.skipped[key];
+    facts.sessions[key] = r.fact;
+    cache.sessions[key] = r.cache;
     parsed++;
   }
-  for (const s of Object.values(facts.sessions)) {
-    if (!seen.has(s.file)) { delete facts.sessions[s.id]; delete cache.sessions[s.id]; removed++; }
+  for (const key of Object.keys(facts.sessions)) {
+    if (!seen.has(key)) { delete facts.sessions[key]; delete cache.sessions[key]; removed++; }
   }
-  for (const file of Object.keys(facts.skipped)) if (!seen.has(file)) delete facts.skipped[file];
+  for (const key of Object.keys(facts.skipped)) if (!seen.has(key)) delete facts.skipped[key];
   facts.builtAt = new Date().toISOString();
   await writePrivate(FACT_FILE, facts);
   await writePrivate(CACHE_FILE, cache);
@@ -315,23 +321,23 @@ async function ensureFresh(): Promise<FactIndex> {
   const facts = await loadFacts();
   const cache = await loadCache();
   const files = await listSources();
-  const byFile = new Map(Object.values(facts.sessions).map((s) => [s.file, s]));
-  const known = (f: FileStat): boolean => {
-    const p = byFile.get(f.file);
-    if (p) return p.mtime === f.mtime && p.size === f.size && !!cache.sessions[p.id];
-    const sk = facts.skipped[f.file];
+  const keyed = await Promise.all(files.map(async (f) => ({ ...f, key: await canonicalPath(f.file) })));
+  const known = (f: FileStat & { key: string }): boolean => {
+    const p = facts.sessions[f.key];
+    if (p) return p.mtime === f.mtime && p.size === f.size && !!cache.sessions[f.key];
+    const sk = facts.skipped[f.key];
     return !!sk && sk.mtime === f.mtime && sk.size === f.size;
   };
   const stale = !facts.builtAt
-    || files.some((f) => !known(f))
-    || byFile.size + Object.keys(facts.skipped).length !== files.length;
+    || keyed.some((f) => !known(f))
+    || Object.keys(facts.sessions).length + Object.keys(facts.skipped).length !== keyed.length;
   if (!stale) return facts;
   const r = await buildIndex(false);
   console.error(`(index refreshed: ${r.parsed} session${r.parsed === 1 ? '' : 's'} re-read, ${r.removed} gone, ${r.seconds.toFixed(1)}s)`);
   return loadFacts();
 }
 
-interface Stats { sessions: number; turns: number; artifacts: { file: number; url: number; arxiv: number; other: number }; touches: number; changes: number; withChangeHead: number; withMention: number }
+interface Stats { sessions: number; sources: number; turns: number; artifacts: { file: number; url: number; arxiv: number; other: number }; touches: number; changes: number; withChangeHead: number; withMention: number }
 const schemeOf = (id: string): keyof Stats['artifacts'] => id.startsWith('file://') ? 'file' : id.startsWith('arxiv:') ? 'arxiv' : /^https?:\/\//.test(id) ? 'url' : 'other';
 const artifactsLine = (a: Stats['artifacts']): string => [`${a.file} files`, a.url ? `${a.url} urls` : '', a.arxiv ? `${a.arxiv} papers` : '', a.other ? `${a.other} other` : ''].filter(Boolean).join(' · ');
 
@@ -339,10 +345,10 @@ function summarize(facts: FactIndex, cache: CacheIndex): Stats {
   const seen = new Set<string>();
   const artifacts = { file: 0, url: 0, arxiv: 0, other: 0 };
   let turns = 0, touches = 0, changes = 0, withChangeHead = 0, withMention = 0;
-  for (const s of Object.values(facts.sessions)) {
+  for (const [key, s] of Object.entries(facts.sessions)) {
     turns += s.turns.length;
     for (const t of s.turns) {
-      const ct = cache.sessions[s.id]?.[String(t.i)];
+      const ct = cache.sessions[key]?.[String(t.i)];
       for (const [p, x] of Object.entries(t.ops)) {
         if (!seen.has(p)) { seen.add(p); artifacts[schemeOf(p)]++; }
         touches++;
@@ -351,12 +357,13 @@ function summarize(facts: FactIndex, cache: CacheIndex): Stats {
       }
     }
   }
-  return { sessions: Object.keys(facts.sessions).length, turns, artifacts, touches, changes, withChangeHead, withMention };
+  const sessions = new Set(Object.values(facts.sessions).map((s) => s.id)).size;
+  return { sessions, sources: Object.keys(facts.sessions).length, turns, artifacts, touches, changes, withChangeHead, withMention };
 }
 
 // ─── why ─────────────────────────────────────────────────────────────
 
-interface Hit { session: FactSession; turn: FactTurn; touch: Touch }
+interface Hit { session: FactSession; sourceKey: string; turn: FactTurn; touch: Touch }
 
 const allPaths = (facts: FactIndex): Set<string> => {
   const all = new Set<string>();
@@ -394,13 +401,13 @@ async function resolveQuery(facts: FactIndex, arg: string, all: boolean): Promis
 function hitsFor(facts: FactIndex, artifact: string, includeRead: boolean): { hits: Hit[]; readsHidden: number } {
   const all: Hit[] = [];
   const seen = new Set<string>();
-  const sessions = Object.values(facts.sessions).sort((a, b) => a.mtime - b.mtime);
-  for (const session of sessions) {
+  const sources = Object.entries(facts.sessions).sort((a, b) => a[1].mtime - b[1].mtime);
+  for (const [sourceKey, session] of sources) {
     for (const turn of session.turns) {
       const touch = turn.ops[artifact];
       if (!touch) continue;
       if (turn.item) { if (seen.has(turn.item)) continue; seen.add(turn.item); }
-      all.push({ session, turn, touch });
+      all.push({ session, sourceKey, turn, touch });
     }
   }
   // reads hide behind changes; an artifact that was only ever read (or
@@ -426,7 +433,19 @@ const EVIDENCE = {
   conclusion: 'inferred (the answer\'s closing paragraph)',
 } as const;
 
-async function printWhy(file: string, hits: Hit[], readsHidden: number, cache: CacheIndex, limit: number, json: boolean): Promise<void> {
+/** Turn numbers count through a logical session's fragments in time
+ *  order, so `#n` in why and `recall <session> n` agree even when the
+ *  runner split the session across files. */
+function fragmentsOf(facts: FactIndex, sessionId: string): { key: string; s: FactSession; offset: number }[] {
+  const frags = Object.entries(facts.sessions).filter(([, s]) => s.id === sessionId).sort((a, b) => a[1].mtime - b[1].mtime);
+  let offset = 0;
+  return frags.map(([key, s]) => { const f = { key, s, offset }; offset += s.turns.length; return f; });
+}
+function turnNumber(facts: FactIndex, h: Hit): number {
+  return (fragmentsOf(facts, h.session.id).find((f) => f.key === h.sourceKey)?.offset ?? 0) + h.turn.i;
+}
+
+async function printWhy(facts: FactIndex, file: string, hits: Hit[], readsHidden: number, cache: CacheIndex, limit: number, json: boolean): Promise<void> {
   const bySession = new Map<string, Hit[]>();
   for (const h of hits) (bySession.get(h.session.id) ?? bySession.set(h.session.id, []).get(h.session.id)!).push(h);
   const groups = [...bySession.values()]
@@ -434,7 +453,7 @@ async function printWhy(file: string, hits: Hit[], readsHidden: number, cache: C
     .sort((a, b) => (b[b.length - 1].turn.at ?? '').localeCompare(a[a.length - 1].turn.at ?? ''));
   const shown = new Set<Hit>();
   for (const g of groups) for (const h of g) if (shown.size < limit) shown.add(h);
-  const interp = (h: Hit): CacheTurn => cache.sessions[h.session.id]?.[String(h.turn.i)] ?? {};
+  const interp = (h: Hit): CacheTurn => cache.sessions[h.sourceKey]?.[String(h.turn.i)] ?? {};
 
   if (json) {
     console.log(JSON.stringify({
@@ -443,7 +462,7 @@ async function printWhy(file: string, hits: Hit[], readsHidden: number, cache: C
         const c = interp(h);
         return {
           session: h.session.id, runner: h.session.runner, title: h.session.title, subagent: !!h.session.subagent,
-          turn: h.turn.i, at: h.turn.at ?? null, op: h.touch.op, question: h.turn.q,
+          turn: turnNumber(facts, h), at: h.turn.at ?? null, op: h.touch.op, locators: h.touch.l ?? null, question: h.turn.q,
           askedBefore: c.p ?? null, change: h.touch.d ?? null, about: c.m?.[file] ?? null, conclusion: c.c ?? null,
           open: `thoughtdag://open?session=${h.session.id}`,
         };
@@ -468,7 +487,8 @@ async function printWhy(file: string, hits: Hit[], readsHidden: number, cache: C
     console.log(`${s.runner}  「${s.title.slice(0, 70)}」${s.subagent ? '  (subagent)' : ''}  thoughtdag://open?session=${s.id}`);
     for (const h of mine) {
       const c = interp(h);
-      console.log(`  ${when(h.turn, s)}  ${OP_MARK[h.touch.op]}  #${h.turn.i}`);
+      const where = h.touch.l?.map((l) => l.pages ? `p.${l.pages}` : l.lines ? `L${l.lines[0]}-${l.lines[1]}` : '').filter(Boolean).join(' ');
+      console.log(`  ${when(h.turn, s)}  ${OP_MARK[h.touch.op]}  #${turnNumber(facts, h)}${where ? `  ${where}` : ''}`);
       console.log(`    Q: ${h.turn.q}${c.p ? `   ⤴ ${c.p}` : ''}`);
       if (h.touch.d) console.log(`    Δ ${h.touch.d}`);
       const about = c.m?.[file];
@@ -485,12 +505,16 @@ async function printWhy(file: string, hits: Hit[], readsHidden: number, cache: C
 // ─── recall ──────────────────────────────────────────────────────────
 
 async function recall(facts: FactIndex, sidPrefix: string, n: number): Promise<void> {
-  const s = Object.values(facts.sessions).find((x) => x.id.startsWith(sidPrefix));
-  if (!s) { console.error(`no session starts with ${sidPrefix}`); process.exit(1); }
+  const any = Object.values(facts.sessions).find((x) => x.id.startsWith(sidPrefix));
+  if (!any) { console.error(`no session starts with ${sidPrefix}`); process.exit(1); }
+  // the fragment that holds turn n of the logical session
+  const frag = fragmentsOf(facts, any.id).find((f) => n >= f.offset && n < f.offset + f.s.turns.length);
+  const s = frag?.s ?? any;
+  const local = frag ? n - frag.offset : n;
   const collector = s.runner === 'codex' ? new CodexSessionCollector() : new ClaudeSessionCollector();
   const rl = createInterface({ input: createReadStream(s.file, { encoding: 'utf8', highWaterMark: 1 << 20 }) });
   for await (const line of rl) collector.feedLine(line);
-  const turn = collector.finish()?.turns[n];
+  const turn = collector.finish()?.turns[local];
   if (!turn) { console.error(`session ${s.id.slice(0, 8)} has no turn #${n}`); process.exit(1); }
   console.log(`${s.runner}  「${s.title}」  turn #${n}${turn.at ? `  ${turn.at.slice(0, 16).replace('T', ' ')}` : ''}\n`);
   console.log(`## Question\n\n${turn.question.trim()}\n`);
@@ -527,7 +551,7 @@ async function main(argv: string[]): Promise<void> {
     const r = await buildIndex(flag('full'));
     const st = summarize(await loadFacts(), await loadCache());
     console.log(`indexed ${r.parsed} session${r.parsed === 1 ? '' : 's'} (${r.kept} unchanged, ${r.skipped} not sessions, ${r.removed} gone) in ${r.seconds.toFixed(1)}s`);
-    console.log(`${st.sessions} sessions · ${st.turns} turns · ${artifactsLine(st.artifacts)} · ${HOME}`);
+    console.log(`${st.sessions} sessions in ${st.sources} files · ${st.turns} turns · ${artifactsLine(st.artifacts)} · ${HOME}`);
     return;
   }
   if (cmd === 'status') {
@@ -535,7 +559,7 @@ async function main(argv: string[]): Promise<void> {
     if (!facts.builtAt) { console.log('no index yet — run: thoughtdag index'); return; }
     const st = summarize(facts, await loadCache());
     const pct = (a: number, b: number) => (b ? `${((a / b) * 100).toFixed(1)}%` : '–');
-    console.log(`${st.sessions} sessions · ${st.turns} turns · ${artifactsLine(st.artifacts)} · built ${facts.builtAt.slice(0, 16).replace('T', ' ')}`);
+    console.log(`${st.sessions} sessions in ${st.sources} files · ${st.turns} turns · ${artifactsLine(st.artifacts)} · built ${facts.builtAt.slice(0, 16).replace('T', ' ')}`);
     console.log(`evidence: ${st.touches} touches · ${st.changes} edits/writes, ${st.withChangeHead} with an observed change head (${pct(st.withChangeHead, st.changes)} of changes, ${pct(st.withChangeHead, st.touches)} of touches) · ${st.withMention} answers name the file (${pct(st.withMention, st.touches)}, candidates only)`);
     console.log(`store: ${HOME} (0700) · fact-index.json + interpretation-cache.json (0600)`);
     return;
@@ -567,7 +591,7 @@ async function main(argv: string[]): Promise<void> {
       return;
     }
     const { hits, readsHidden } = hitsFor(facts, file, flag('include-read'));
-    return printWhy(file, hits, readsHidden, await loadCache(), Number(value('limit') ?? 10) || 10, flag('json'));
+    return printWhy(facts, file, hits, readsHidden, await loadCache(), Number(value('limit') ?? 10) || 10, flag('json'));
   }
   if (cmd === 'events') {
     if (!args[0]) { console.error(USAGE); process.exit(2); }
