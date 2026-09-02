@@ -33,7 +33,7 @@ const canvas = {
   version: 1, name: '脉冲网络综述', projectId: 'proj-snn-01', exportedAt: '2026-09-01T10:00:00.000Z',
   nodes: [
     node('n1', { question: 'surrogate gradient 的核心思想是什么', response: '第一段。\n\n它用可导的近似替代不可导的脉冲函数。', createdAt: '2026-08-30T09:00:00.000Z', lastGeneratedAt: '2026-08-30T09:01:00.000Z', generatedBy: ['glm-5.3-flash'], lastContextHash: 'abc123',
-      attachments: [{ id: 'att-1', name: 'snn-review.pdf', type: 'application/pdf', size: 1000, content: '', addedAt: '2026-08-30T08:59:00.000Z' }], anchor: { page: 7, attId: 'att-1' },
+      attachments: [{ id: 'att-1', name: 'snn-review.pdf', type: 'application/pdf', size: 1000, content: '', addedAt: '2026-08-30T08:59:00.000Z', extractedText: 'Surrogate Gradient Learning in Spiking Neural Networks\nEmre Neftci, Hesham Mostafa, Friedemann Zenke\nAbstract. Spiking neural networks are…' }], anchor: { page: 7, attId: 'att-1' },
       highlights: [{ id: 'h1', text: '可导的近似', at: '2026-08-30T09:05:00.000Z' }], highlightMode: 'tag',
       references: [{ title: 'Neftci 2019', url: 'https://arxiv.org/abs/1901.09948' }] }),
     node('n2', { question: '那 STDP 呢', response: '第二段。\n\n它是局部的、无监督的时序规则。', createdAt: '2026-08-30T09:10:00.000Z', lastContextHash: 'def456' }),
@@ -151,6 +151,15 @@ test("an anchor is a claim until the canvas's bundle commit confirms it: matched
   assert.match(why, /↩ from canvas node n9 \(cb_0000000000000000, unverified\)/);
   const json = JSON.parse(run('why', `${proj}/src/handoff.ts`, '--json'));
   assert.deepEqual(json.hits.map((h) => h.anchor.status).sort(), ['matched', 'mismatch', 'unverified']);
+});
+
+test('a material is found by its own words — the title in its extracted text — whatever the file is called', () => {
+  const hit = run('find', 'Surrogate Gradient Learning in Spiking');
+  assert.match(hit.split('\n')[0], /1 turn in 1 session/);
+  assert.match(hit, /M: .*\[snn-review\.pdf\] Surrogate Gradient Learning in Spiking Neural Networks/);
+  assert.match(run('find', 'Neftci', '--in', 'm'), /1 turn/);
+  const facts = readFileSync(join(home, 'fact-index.json'), 'utf8');
+  assert.ok(!facts.includes('Friedemann'), 'material text lives in the text cache, not in facts');
 });
 
 test('recall reads a canvas turn from the backup', () => {

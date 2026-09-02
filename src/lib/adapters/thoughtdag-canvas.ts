@@ -33,8 +33,9 @@ export interface CanvasProjection {
   nativeId: string;
   title: string;
   events: CanonicalEvent[];
-  /** full text per turn, for the interpretation cache (never stored in facts) */
-  texts: Map<string, { question: string; response: string }>;
+  /** full text per turn, for the interpretation and text caches (never stored in facts);
+      `material` is the extracted text of the node's attachments, head only */
+  texts: Map<string, { question: string; response: string; material?: string }>;
 }
 
 const OBS_FULL = { basis: 'observed', completeness: 'full' } as const;
@@ -61,7 +62,7 @@ export function canvasToEvents(backup: CanvasBackup, opts: { file: string; sourc
   const schema = THOUGHTDAG_MANIFEST.schema;
   const src = (ref: string): SourcePointer => ({ runner: 'thoughtdag', file: opts.file, ref, schema });
   const out: CanonicalEvent[] = [];
-  const texts = new Map<string, { question: string; response: string }>();
+  const texts = new Map<string, { question: string; response: string; material?: string }>();
   const title = backup.name?.trim() || nativeId;
 
   const started: SessionStarted = {
@@ -171,6 +172,17 @@ export function canvasToEvents(backup: CanvasBackup, opts: { file: string; sourc
         artifact: a, via: 'reference', inContext: 'unknown',
       };
       out.push(e);
+    }
+
+    // what the node's materials SAY (their extracted text, head only): the
+    // words a paper is found by, whatever the file is called now
+    const material = (d.attachments ?? [])
+      .filter((a) => !a.name.startsWith('tool: ') && !a.op && typeof a.extractedText === 'string' && a.extractedText.trim())
+      .map((a) => `[${a.name}]\n${a.extractedText!.slice(0, 4000)}`)
+      .join('\n\n');
+    if (material) {
+      const prev = texts.get(tid) ?? { question: '', response: '' };
+      texts.set(tid, { ...prev, material });
     }
 
     // the upstream fingerprint recorded at generation: real, but it blanks

@@ -107,6 +107,7 @@ test('the store is private: directory 0700, files 0600', () => {
   assert.equal(mode(home), '700');
   assert.equal(mode(join(home, 'fact-index.json')), '600');
   assert.equal(mode(join(home, 'interpretation-cache.json')), '600');
+  assert.equal(mode(join(home, 'text-index.json')), '600');
 });
 
 test('facts hold no interpretation and no full answers; the workspace is the git root', () => {
@@ -198,14 +199,19 @@ test('every hit opens at its own turn; a session opened from a canvas says so', 
   assert.ok(text.includes('thoughtdag://open?session=sid-1&turn=u1'));
 });
 
-test('find: exact words asked (Q) or said (≈), newest first, with pointers', () => {
+test('find: exact words asked (Q) or answered (A), anywhere in the text, newest first, with pointers', () => {
   const asked = run('find', '模型一用就崩');
   assert.match(asked.split('\n')[0], /^find "模型一用就崩"  ·  1 turn in 1 session$/);
   assert.match(asked, /Q: 免费档模型一用就崩，帮我查/);
   assert.match(asked, /thoughtdag:\/\/open\?session=sid-1&turn=u1/);
   const said = run('find', 'OAuth');
-  assert.match(said, /≈: 走 OAuth/);
+  assert.match(said, /A: .*走 OAuth，服务端零改动/);
   assert.match(run('find', 'OAuth', '--in', 'q'), /0 turns/);
+  // words buried in the MIDDLE of an answer, nowhere near its conclusion
+  const mid = run('find', '流式输出没有节流');
+  assert.match(mid.split('\n')[0], /1 turn in 1 session/);
+  assert.match(mid, /A: .*崩溃来自流式输出没有节流/);
+  assert.match(run('find', '流式输出没有节流', '--in', 'q'), /0 turns/);
   assert.match(run('find', '不存在的短语'), /0 turns/);
   const json = JSON.parse(run('find', '崩', '--json'));
   assert.equal(json.hits[0].where, 'Q');
@@ -219,11 +225,12 @@ test('--json carries the evidence legend and per-hit fields', () => {
   assert.ok(json.hits.every((h) => h.open.startsWith('thoughtdag://open?session=')));
 });
 
-test('a deleted interpretation cache comes back on the next index', () => {
-  assert.match(run('purge', '--cache'), /removed 1 file/);
-  assert.ok(!existsSync(join(home, 'interpretation-cache.json')));
+test('deleted interpretation and text caches come back on the next index', () => {
+  assert.match(run('purge', '--cache'), /removed 2 files/);
+  assert.ok(!existsSync(join(home, 'interpretation-cache.json')) && !existsSync(join(home, 'text-index.json')));
   run('index');
-  assert.ok(existsSync(join(home, 'interpretation-cache.json')));
+  assert.ok(existsSync(join(home, 'interpretation-cache.json')) && existsSync(join(home, 'text-index.json')));
+  assert.match(run('find', '流式输出没有节流'), /1 turn/);
   assert.match(run('why', 'src/lib/api.ts'), /≈ 崩溃来自流式输出/);
 });
 
@@ -253,8 +260,8 @@ test('status reports the evidence breakdown', () => {
 });
 
 test('purge removes every stored file', () => {
-  assert.match(run('purge'), /removed 2 files/);
-  assert.ok(!existsSync(join(home, 'fact-index.json')) && !existsSync(join(home, 'interpretation-cache.json')));
+  assert.match(run('purge'), /removed 3 files/);
+  assert.ok(!existsSync(join(home, 'fact-index.json')) && !existsSync(join(home, 'interpretation-cache.json')) && !existsSync(join(home, 'text-index.json')));
   rmSync(tmp, { recursive: true, force: true });
 });
 
