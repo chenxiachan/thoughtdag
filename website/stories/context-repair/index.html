@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Repairing LLM Context — ThoughtDAG</title>
-    <meta name="description" content="A seven-model pilot on context errors that survive downstream, and what it takes to repair them." />
+    <meta name="description" content="A nine-endpoint pilot on context errors that survive downstream, and what it takes to repair them." />
     <meta name="robots" content="index,follow,max-image-preview:large" />
     <meta name="theme-color" content="#f8f6fb" />
     <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg" />
@@ -15,19 +15,19 @@
     <link rel="stylesheet" href="../../assets/research-pages.css" />
     <meta property="og:type" content="article" />
     <meta property="og:title" content="Repairing LLM Context — ThoughtDAG" />
-    <meta property="og:description" content="A seven-model pilot on context errors that survive downstream, and what it takes to repair them." />
+    <meta property="og:description" content="A nine-endpoint pilot on context errors that survive downstream, and what it takes to repair them." />
     <meta property="og:url" content="https://chenxiachan.github.io/thoughtdag/stories/context-repair/" />
     <meta property="og:image" content="https://chenxiachan.github.io/thoughtdag/assets/context-repair-flagship.png" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Repairing LLM Context — ThoughtDAG" />
-    <meta name="twitter:description" content="A seven-model pilot on errors that survive downstream." />
+    <meta name="twitter:description" content="A nine-endpoint pilot on errors that survive downstream." />
     <meta name="twitter:image" content="https://chenxiachan.github.io/thoughtdag/assets/context-repair-flagship.png" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "Article",
         "headline": "Repairing LLM Context",
-        "description": "A seven-model pilot on context errors that survive downstream, and what it takes to repair them.",
+        "description": "A nine-endpoint pilot on context errors that survive downstream, and what it takes to repair them.",
         "datePublished": "2026-08-17",
         "author": { "@type": "Person", "name": "Xia Chen" },
         "publisher": { "@type": "Organization", "name": "ThoughtDAG" },
@@ -54,7 +54,7 @@
       <div class="case-hero-inner">
         <span class="eyebrow" data-en="CONTEXT ENGINEERING · PILOT V2" data-zh="上下文工程 · 第二轮实验">CONTEXT ENGINEERING · PILOT V2</span>
         <h1 data-en="Repairing LLM Context" data-zh="修复 LLM 上下文">Repairing LLM Context</h1>
-        <p class="case-hero-lede" data-en="A seven-model pilot on errors that survive downstream." data-zh="一个错误被后续对话反复继承后，删掉源头还够不够？七个模型的两轮实验。">A seven-model pilot on errors that survive downstream.</p>
+        <p class="case-hero-lede" data-en="A nine-endpoint pilot on errors that survive downstream." data-zh="一个错误被后续对话反复继承后，删掉源头还够不够？九个模型端点、1,485 次测试。">A nine-endpoint pilot on errors that survive downstream.</p>
         <div class="hero-actions">
           <a class="button primary" href="#case" data-en="See the case →" data-zh="查看案例 →">See the case →</a>
           <a class="text-link" href="../../research/context-repair-pilot-v2/" data-en="Methods, data & results" data-zh="方法、数据与完整结果">Methods, data &amp; results</a>
@@ -70,18 +70,18 @@
       </div>
       <div class="signal">
         <small data-en="SOURCE ONLY" data-zh="仅删源头">SOURCE ONLY</small>
-        <strong>68 / 72</strong>
-        <p data-en="paired repairs recovered" data-zh="个受污染案例恢复">paired repairs recovered</p>
+        <strong>152 / 162</strong>
+        <p data-en="derailed outcomes recovered" data-zh="个受污染结果恢复">derailed outcomes recovered</p>
       </div>
       <div class="signal">
         <small data-en="RECOMPUTE" data-zh="按依赖重算">RECOMPUTE</small>
-        <strong>71 / 72</strong>
-        <p data-en="paired repairs recovered" data-zh="个受污染案例恢复">paired repairs recovered</p>
+        <strong>161 / 162</strong>
+        <p data-en="derailed outcomes recovered" data-zh="个受污染结果恢复">derailed outcomes recovered</p>
       </div>
       <div class="signal">
         <small data-en="WHOLE SUBGRAPH" data-zh="删除污染子图">WHOLE SUBGRAPH</small>
-        <strong>72 / 72</strong>
-        <p data-en="paired repairs recovered" data-zh="个受污染案例恢复">paired repairs recovered</p>
+        <strong>162 / 162</strong>
+        <p data-en="derailed outcomes recovered" data-zh="个受污染结果恢复">derailed outcomes recovered</p>
       </div>
     </section>
 
@@ -95,7 +95,7 @@
           <article class="step"><b>2</b><h3 data-en="Pollute" data-zh="污染">Pollute</h3><p data-en="A false turn restores 30." data-zh="错误信息又写回 30。">A false turn restores 30.</p></article>
           <article class="step"><b>3</b><h3 data-en="Propagate" data-zh="传播">Propagate</h3><p data-en="Later turns derive 120 and 131." data-zh="下游继续得到 120 和 131。">Later turns derive 120 and 131.</p></article>
           <article class="step"><b>4</b><h3 data-en="Delete" data-zh="删除">Delete</h3><p data-en="The false source is removed." data-zh="删除最初的错误源头。">The false source is removed.</p></article>
-          <article class="step"><b>5</b><h3 data-en="Ask again" data-zh="再次提问">Ask again</h3><p data-en="Some models still answer 131." data-zh="部分模型仍然回答 131。">Some models still answer 131.</p></article>
+          <article class="step"><b>5</b><h3 data-en="Ask again" data-zh="再次提问">Ask again</h3><p data-en="Three of nine endpoints still answer 131." data-zh="九个端点里有三个仍然回答 131。">Three of nine endpoints still answer 131.</p></article>
         </div>
         <figure class="case-figure">
           <img src="../../assets/context-repair-flagship.png" alt="Five graph conditions in the context repair flagship case" />
