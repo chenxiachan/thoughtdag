@@ -1,8 +1,22 @@
 ---
-description: 把当前 Claude Code 会话在 ThoughtDAG 中打开（桌面版直连；无桌面版时走本机桥）
+description: 把当前 Claude Code 会话在 ThoughtDAG 中打开（桌面版直连；无桌面版时走本机桥）；或用 why / find / recall 查本机会话历史
 ---
 
-把当前 Claude Code 会话在 ThoughtDAG 中打开。规则与步骤：
+两种用法，按参数分流：
+
+**A. 查历史**：参数以 `why`、`find`、`recall`、`status` 开头时，这是一次查询，不打开任何画布。原样交给 ThoughtDAG 命令行，把它的输出**逐字**贴给用户，不要自己去读会话文件、不要总结或改写（输出本身就是为阅读设计的：Δ 是观察到的改动，≈ 是回答里的候选解释，⤴ 是空应答承接的上一个问题，每一行末尾的 `thoughtdag://…` 深链用 `open` 可直接落到那一轮）。找命令行的顺序：① `command -v thoughtdag` 有则直接用；② 否则 `npx -y thoughtdag`（npm 发布后可用）；③ 开发者在 ThoughtDAG 仓库内时，`node cli/dist/thoughtdag.mjs`（`cli/dist` 不存在就先 `npm run cli:build`）。例：
+
+```bash
+thoughtdag why src/lib/api.ts          # 哪几轮对话动过这个文件、改了什么、当时说了什么
+thoughtdag why arxiv:2506.07962        # 论文、网址、画布附件名都是合法的对象
+thoughtdag find "surrogate gradient"   # 在哪几轮被问过（Q）或说过（≈），精确匹配
+thoughtdag recall <session> <n>        # 把某一轮完整摊开
+thoughtdag status                      # 索引里有什么、多少是确定证据
+```
+
+索引在查询前会自己刷新，通常不必手动 `thoughtdag index`。到此结束。
+
+**B. 打开会话**（无参数、`list`、会话 id 前缀、`harvest`）：把当前 Claude Code 会话在 ThoughtDAG 中打开。规则与步骤：
 
 1. **定位会话**：当前项目的会话 JSONL 在 `~/.claude/projects/<项目路径 slug>/` 下（slug = 项目绝对路径把 `/` 和 `.` 替换为 `-`）。用 `ls -t` 取该目录**最近修改**的 `.jsonl` 即当前会话。参数为 `list` 时改为列出最近 5 个会话（文件名、大小、修改时间）等用户挑选；为某会话 id 前缀时选中匹配文件。sessionId = 文件名去掉 `.jsonl`。
 
