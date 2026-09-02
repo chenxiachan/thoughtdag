@@ -30,7 +30,7 @@ const node = (id, data, extra = {}) => ({ id, type: 'thought', position: { x: 0,
   question: '', response: '', responses: [data.response ?? ''], responseIndex: 0, isCollapsed: true, isEditing: false, isEditingResponse: false, isLoading: false,
   tokenCount: 1, highlights: [], attachments: [], ...data }, ...extra });
 const canvas = {
-  version: 1, name: '脉冲网络综述', exportedAt: '2026-09-01T10:00:00.000Z',
+  version: 1, name: '脉冲网络综述', projectId: 'proj-snn-01', exportedAt: '2026-09-01T10:00:00.000Z',
   nodes: [
     node('n1', { question: 'surrogate gradient 的核心思想是什么', response: '第一段。\n\n它用可导的近似替代不可导的脉冲函数。', createdAt: '2026-08-30T09:00:00.000Z', lastGeneratedAt: '2026-08-30T09:01:00.000Z', generatedBy: ['glm-5.3-flash'], lastContextHash: 'abc123',
       attachments: [{ id: 'att-1', name: 'snn-review.pdf', type: 'application/pdf', size: 1000, content: '', addedAt: '2026-08-30T08:59:00.000Z' }], anchor: { page: 7, attId: 'att-1' },
@@ -52,6 +52,16 @@ const canvas = {
 const canvasFile = join(canvasRoot, '脉冲网络综述.thoughtdag.json');
 writeFileSync(canvasFile, JSON.stringify(canvas));
 
+const anchored = (sid, anchor) => [
+  L({ type: 'user', uuid: `${sid}-u1`, parentUuid: null, sessionId: sid, cwd: proj, isSidechain: false, timestamp: '2026-08-31T10:00:00.000Z', message: { role: 'user', content: `继续。\n\n${anchor}` } }),
+  L({ type: 'assistant', uuid: `${sid}-a1`, parentUuid: `${sid}-u1`, sessionId: sid, cwd: proj, isSidechain: false, timestamp: '2026-08-31T10:00:00.000Z', message: { role: 'assistant', content: [{ type: 'tool_use', id: `${sid}-t1`, name: 'Edit', input: { file_path: `${proj}/src/handoff.ts`, old_string: 'x', new_string: 'y' } }] } }),
+  L({ type: 'user', uuid: `${sid}-r1`, parentUuid: `${sid}-a1`, sessionId: sid, cwd: proj, isSidechain: false, message: { role: 'user', content: [{ type: 'tool_result', tool_use_id: `${sid}-t1`, content: 'ok' }] } }),
+  L({ type: 'assistant', uuid: `${sid}-a2`, parentUuid: `${sid}-r1`, sessionId: sid, cwd: proj, isSidechain: false, message: { role: 'assistant', content: [{ type: 'text', text: '好。' }] } }),
+].join('\n');
+writeFileSync(join(ccRoot, 'proj', 'sid-matched.jsonl'), anchored('sid-matched', '[ThoughtDAG anchor: project=proj-snn-01 node=n2 bundle=cb_cdcdcdcdcdcdcdcd mode=continue]'));
+writeFileSync(join(ccRoot, 'proj', 'sid-mismatch.jsonl'), anchored('sid-mismatch', '[ThoughtDAG anchor: project=proj-snn-01 node=n1 bundle=cb_cdcdcdcdcdcdcdcd]'));
+writeFileSync(join(ccRoot, 'proj', 'sid-unverified.jsonl'), anchored('sid-unverified', '[ThoughtDAG anchor: project=proj-x node=n9 bundle=cb_0000000000000000]'));
+
 const env = { ...process.env, THOUGHTDAG_HOME: home, THOUGHTDAG_SESSION_ROOTS: ccRoot, THOUGHTDAG_CANVAS_ROOTS: canvasRoot };
 const run = (...a) => execFileSync(process.execPath, [CLI, ...a], { env, cwd: proj, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
 const events = (file) => run('events', file).trim().split('\n').map((l) => JSON.parse(l));
@@ -60,7 +70,7 @@ test('a canvas backup projects onto the contract with its own runner and manifes
   const ev = events(canvasFile);
   assert.equal(ev[0].kind, 'adapter.manifest'); assert.equal(ev[0].runner, 'thoughtdag');
   const s = ev.find((e) => e.kind === 'session.started');
-  assert.equal(s.sessionId, 'thoughtdag:脉冲网络综述'); assert.equal(s.title, '脉冲网络综述'); assert.equal(s.sourceId, canvasFile);
+  assert.equal(s.sessionId, 'thoughtdag:proj-snn-01', 'the project id is the identity when the backup carries one'); assert.equal(s.title, '脉冲网络综述'); assert.equal(s.sourceId, canvasFile);
   const ids = ev.filter((e) => e.kind !== 'adapter.manifest').map((e) => e.id);
   assert.equal(new Set(ids).size, ids.length, 'unique ids');
 });
@@ -107,7 +117,7 @@ test('context.committed: exact from a logged commit, upstream-only from the olde
   assert.equal(exact.contentHash, 'sha256:' + 'ab'.repeat(32)); assert.equal(exact.completeness, 'full'); assert.equal(exact.basis, 'observed');
   assert.deepEqual(exact.members, [{ nodeId: 'n1' }, { nodeId: 'm1' }]);
   assert.equal(exact.messageCount, 4); assert.equal(exact.model, 'glm-5.3-flash');
-  assert.equal(exact.id, 'thoughtdag:脉冲网络综述/commit:n2@2026-08-30T09:10:05.000Z', 'id from node and time, not log position');
+  assert.equal(exact.id, 'thoughtdag:proj-snn-01/commit:n2@2026-08-30T09:10:05.000Z', 'id from node and time, not log position');
   const bundle = commits.find((c) => c.hashOf === 'bundle');
   assert.equal(bundle.requestId, 'cb_cdcdcdcdcdcdcdcd'); assert.equal(bundle.contentHash, 'sha256:' + 'cd'.repeat(32)); assert.equal(bundle.messageCount, 3);
   assert.notEqual(bundle.id, exact.id);
@@ -119,14 +129,14 @@ test('context.committed: exact from a logged commit, upstream-only from the olde
 
 test('indexed together, a mirrored turn counts once and the canvas answers why for its materials', () => {
   const out = run('index');
-  assert.match(out, /indexed 2 sessions/);
+  assert.match(out, /indexed 5 sessions/);
   const why = run('why', `${proj}/src/api.ts`);
   assert.match(why.split('\n')[0], /1 turn in 1 session/, 'the mirror does not double the runner turn');
   const pdf = run('why', 'snn-review.pdf');
   assert.match(pdf.split('\n')[0], /why snn-review\.pdf  \(thoughtdag:attachment\/att-1\)  ·  1 turn in 1 session/);
   assert.match(pdf, /📎 attach\s+#0  p\.7/);
   assert.match(pdf, /thoughtdag  「脉冲网络综述」/);
-  assert.match(pdf, /thoughtdag:\/\/open\?canvas=%E8%84%89%E5%86%B2%E7%BD%91%E7%BB%9C%E7%BB%BC%E8%BF%B0&node=n1/, 'a canvas hit opens the project at the node');
+  assert.match(pdf, /thoughtdag:\/\/open\?canvas=proj-snn-01&node=n1/, 'a canvas hit opens the project BY ID at the node');
   assert.match(pdf, /≈ 它用可导的近似替代不可导的脉冲函数/);
   const paper = run('why', 'arxiv:1901.09948');
   assert.match(paper.split('\n')[0], /1 turn in 1 session/);
@@ -134,8 +144,17 @@ test('indexed together, a mirrored turn counts once and the canvas answers why f
   assert.ok(!JSON.stringify(facts).includes('它用可导的近似'), 'facts hold no answer text');
 });
 
+test("an anchor is a claim until the canvas's bundle commit confirms it: matched, mismatch, unverified", () => {
+  const why = run('why', `${proj}/src/handoff.ts`);
+  assert.match(why, /↩ from canvas node n2 \(cb_cdcdcdcdcdcdcdcd, matched\)/);
+  assert.match(why, /↩ from canvas node n1 \(cb_cdcdcdcdcdcdcdcd, mismatch\)/);
+  assert.match(why, /↩ from canvas node n9 \(cb_0000000000000000, unverified\)/);
+  const json = JSON.parse(run('why', `${proj}/src/handoff.ts`, '--json'));
+  assert.deepEqual(json.hits.map((h) => h.anchor.status).sort(), ['matched', 'mismatch', 'unverified']);
+});
+
 test('recall reads a canvas turn from the backup', () => {
-  const rec = run('recall', '脉冲网络综述', '0');
+  const rec = run('recall', 'proj-snn-01', '0');
   assert.ok(rec.includes('surrogate gradient') && rec.includes('它用可导的近似'), rec.slice(0, 200));
   rmSync(tmp, { recursive: true, force: true });
 });

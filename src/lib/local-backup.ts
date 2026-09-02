@@ -48,6 +48,9 @@ export async function backupActiveProject(): Promise<string | null> {
   const payload = JSON.stringify({
     version: EXPORT_FORMAT_VERSION,
     name: activeProjectName(),
+    // the canvas's stable identity — names collide, ids do not; a deep
+    // link back to this canvas rides on it
+    projectId: activeId,
     exportedAt: new Date().toISOString(),
     instantiatedFrom: activeMeta?.instantiatedFrom,
     // the LEDGER travels with the archive: a restored canvas keeps its

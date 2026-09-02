@@ -166,6 +166,9 @@ export interface StreamCallbacks {
   onReasoning?: (chunk: string, fullSoFar: string) => void;
   /** The chosen model cannot see images: a vision model answers instead. */
   onRerouted?: (from: string, to: string) => void;
+  /** The request is leaving — exactly this payload, after every image
+      substitution or drop, on this lane. Fires again on a retry. */
+  onDispatch?: (payload: { messages: ContextMessage[]; images: ImageAttachment[]; model: string; toolPrefs: ToolPrefs; lane: 'direct' | 'proxy' }) => void;
   /** The vision stand-in failed; the original model answers from the
       images' companion text. */
   onImageFallback?: (model: string) => void;
@@ -207,8 +210,10 @@ export async function llmCallStream(
     const direct = directProvider(modelId);
     if (direct && modelId) {
       await guardDirectVision(modelId, imgs);
+      callbacks?.onDispatch?.({ messages: contextMessages, images: imgs ?? [], model: modelId, toolPrefs: toolPrefs ?? {}, lane: 'direct' });
       return directLlmStream(direct, modelId, contextMessages, chunkCb, signal, imgs, cbs, toolPrefs?.web);
     }
+    callbacks?.onDispatch?.({ messages: contextMessages, images: imgs ?? [], model: modelId ?? '', toolPrefs: toolPrefs ?? {}, lane: 'proxy' });
     return proxyStream(imgs, chunkCb);
   };
 

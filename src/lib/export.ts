@@ -54,6 +54,7 @@ export async function exportActiveProjectJson(opts?: { sharedReadonly?: boolean 
   const payload = JSON.stringify({
     version: EXPORT_FORMAT_VERSION,
     name,
+    projectId: activeId,
     exportedAt: new Date().toISOString(),
     // paradigm provenance lives in project meta, not the graph — without
     // this line a backup round-trip would silently drop it

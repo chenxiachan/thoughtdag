@@ -20,6 +20,8 @@ import { THOUGHTDAG_MANIFEST } from '../events/manifests';
 export interface CanvasBackup {
   version?: number;
   name?: string;
+  /** the project's stable id (backups written since 0.4.3); older files have only a name */
+  projectId?: string;
   exportedAt?: string;
   nodes: ThoughtNode[];
   edges: ThoughtEdge[];
@@ -51,7 +53,9 @@ export function canvasNativeId(file: string): string {
 }
 
 export function canvasToEvents(backup: CanvasBackup, opts: { file: string; sourceId?: string }): CanvasProjection {
-  const nativeId = canvasNativeId(opts.file);
+  // identity: the project's own id when the backup carries it; the file
+  // name otherwise (older backups) — the deep link says which it got
+  const nativeId = backup.projectId?.trim() || canvasNativeId(opts.file);
   const sid = sessionKey('thoughtdag', nativeId);
   const sourceId = opts.sourceId ?? opts.file;
   const schema = THOUGHTDAG_MANIFEST.schema;

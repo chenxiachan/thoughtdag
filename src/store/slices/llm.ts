@@ -546,6 +546,8 @@ ${intent.trim()}` : ''}` },
       question: summaryQuestion,
       messages,
       images: ctx.images,
+      // the fan-in parents ARE the members, plus whatever the compiler drew
+      sources: [...selected.map((n) => ({ layer: 'chain' as const, nodeId: n.id, part: 'response' as const })), ...ctx.sources],
       onSuccess: () => {
         // Optionally delete the merged originals (and their descendants),
         // rewiring the synthesis to the boundary parents so it keeps its
@@ -669,7 +671,7 @@ ${list}` },
 ${intent.trim()}` : ''}` },
     ];
 
-    await runNodeGeneration(set, get, id, { question: weaveQuestion, messages });
+    await runNodeGeneration(set, get, id, { question: weaveQuestion, messages, sources: nodeIds.map((nid) => ({ layer: 'chain' as const, nodeId: nid, part: 'response' as const })) });
   },
 
   stopGeneration: (nodeId: string) => {

@@ -63,6 +63,21 @@ writeFileSync(join(cxRoot, '2026/09/01', 'rollout-2026-09-01T11-00-00-cx-2.jsonl
   cx('response_item', { type: 'custom_tool_call_output', call_id: 'c1', output: 'Done' }),
   cx('response_item', { type: 'message', role: 'assistant', content: [{ type: 'output_text', text: '好了。' }] }),
 ].join('\n'));
+// a codex rollout whose turn id is REUSED after a compaction: two segments, both touch the file
+writeFileSync(join(cxRoot, '2026/09/01', 'rollout-2026-09-01T13-00-00-cx-3.jsonl'), [
+  cx('session_meta', { id: 'cx-3', cwd: proj, timestamp: '2026-08-03T10:00:00.000Z' }, '2026-08-03T10:00:00.000Z'),
+  cx('turn_context', { turn_id: 'T1' }, '2026-08-03T10:00:00.000Z'),
+  cx('response_item', { type: 'message', role: 'user', content: [{ type: 'input_text', text: '第一段改 reuse.ts' }] }, '2026-08-03T10:00:00.000Z'),
+  cx('response_item', { type: 'custom_tool_call', call_id: 'r1', name: 'apply_patch', input: '*** Begin Patch\n*** Update File: src/reuse.ts\n@@\n-a\n+b\n*** End Patch' }, '2026-08-03T10:00:00.000Z'),
+  cx('response_item', { type: 'custom_tool_call_output', call_id: 'r1', output: 'Done' }, '2026-08-03T10:00:00.000Z'),
+  cx('response_item', { type: 'message', role: 'assistant', content: [{ type: 'output_text', text: '改了 a。' }] }, '2026-08-03T10:00:00.000Z'),
+  cx('compacted', {}, '2026-08-03T10:05:00.000Z'),
+  cx('turn_context', { turn_id: 'T1' }, '2026-08-03T10:06:00.000Z'),
+  cx('response_item', { type: 'message', role: 'user', content: [{ type: 'input_text', text: '压缩后第二段再改 reuse.ts' }] }, '2026-08-03T10:06:00.000Z'),
+  cx('response_item', { type: 'custom_tool_call', call_id: 'r2', name: 'apply_patch', input: '*** Begin Patch\n*** Update File: src/reuse.ts\n@@\n-b\n+c\n*** End Patch' }, '2026-08-03T10:06:00.000Z'),
+  cx('response_item', { type: 'custom_tool_call_output', call_id: 'r2', output: 'Done' }, '2026-08-03T10:06:00.000Z'),
+  cx('response_item', { type: 'message', role: 'assistant', content: [{ type: 'output_text', text: '改了 b。' }] }, '2026-08-03T10:06:00.000Z'),
+].join('\n'));
 // a resumed codex thread: a second rollout file, same session id, new turn — one logical session, two source files
 writeFileSync(join(cxRoot, '2026/09/01', 'rollout-2026-09-01T12-00-00-cx-2.jsonl'), [
   cx('session_meta', { id: 'cx-2', cwd: other, timestamp: '2026-08-02T10:00:00.000Z' }, '2026-08-02T10:00:00.000Z'),
@@ -85,7 +100,7 @@ const mode = (f) => (statSync(f).mode & 0o777).toString(8);
 
 test('index parses both runners, the subagent file, the continued session; skips the stray file', () => {
   const out = run('index');
-  assert.match(out, /indexed 6 sessions \(0 unchanged, 1 not sessions?, 0 gone\)/);
+  assert.match(out, /indexed 7 sessions \(0 unchanged, 1 not sessions?, 0 gone\)/);
 });
 
 test('the store is private: directory 0700, files 0600', () => {
@@ -128,10 +143,10 @@ test('why: reads hidden by default, every turn once with --include-read, evidenc
 
 test('a session split across files is one session: grouped, numbered through, recalled by that number', () => {
   const idx = JSON.parse(readFileSync(join(home, 'fact-index.json'), 'utf8'));
-  assert.equal(Object.keys(idx.sessions).length, 6, 'facts are stored per source file');
-  assert.equal(new Set(Object.values(idx.sessions).map((s) => s.id)).size, 5, 'five logical sessions');
+  assert.equal(Object.keys(idx.sessions).length, 7, 'facts are stored per source file');
+  assert.equal(new Set(Object.values(idx.sessions).map((s) => s.id)).size, 6, 'six logical sessions');
   const status = run('status');
-  assert.match(status, /5 sessions in 6 files/);
+  assert.match(status, /6 sessions in 7 files/);
   const why = run('why', `${other}/frag.ts`);
   assert.match(why.split('\n')[0], /1 turn in 1 session/);
   assert.match(why, /#1\b/, 'the fragment\'s only turn is turn 1 of the logical session (turn 0 lives in the first file)');
@@ -162,10 +177,19 @@ test('a paper and a page are artifacts too: why arxiv:<id> and why <url>', () =>
   assert.match(run('why', 'https://nowhere.example/x'), /no session touched/);
 });
 
+test('a turn id reused after a compaction is two turns, not one swallowed', () => {
+  const why = run('why', 'src/reuse.ts');
+  assert.match(why.split('\n')[0], /2 turns in 1 session/, why.split('\n')[0]);
+  assert.match(why, /Δ a → b/); assert.match(why, /Δ b → c/);
+});
+
 test('every hit opens at its own turn; a session opened from a canvas says so', () => {
   const json = JSON.parse(run('why', 'src/lib/api.ts', '--json'));
   assert.ok(json.hits.every((h) => /^thoughtdag:\/\/open\?session=[^&]+&turn=[^&]+$/.test(h.open)), JSON.stringify(json.hits.map((h) => h.open)));
-  assert.match(run('why', 'src/lib/api.ts'), /thoughtdag:\/\/open\?session=sid-1&turn=u1/);
+  const text = run('why', 'src/lib/api.ts', '--include-read');
+  const hitLines = text.split('\n').filter((l) => /^  \d{4}-\d{2}-\d{2} /.test(l));
+  assert.ok(hitLines.length >= 3 && hitLines.every((l) => /thoughtdag:\/\/open\?session=[^&\s]+&turn=\S+$/.test(l)), 'every hit line in the TEXT output ends with its own deep link');
+  assert.ok(text.includes('thoughtdag://open?session=sid-1&turn=u1'));
 });
 
 test('find: exact words asked (Q) or said (≈), newest first, with pointers', () => {
@@ -217,8 +241,8 @@ test('recall prints the turn in full with its diff', () => {
 
 test('status reports the evidence breakdown', () => {
   const status = run('status');
-  assert.match(status, /5 sessions in 6 files · 8 turns · 6 files · 1 urls · 1 papers/);
-  assert.match(status, /6 edits\/writes, 6 with an observed change head/);
+  assert.match(status, /6 sessions in 7 files · 10 turns · 7 files · 1 urls · 1 papers/);
+  assert.match(status, /8 edits\/writes, 8 with an observed change head/);
   assert.match(status, /candidates only/);
 });
 

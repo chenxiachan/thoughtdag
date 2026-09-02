@@ -50,6 +50,8 @@ interface FactIndex {
   sessions: Record<string, FactSession>;
   /** display names for artifacts that are not files (a canvas attachment's file name) */
   names: Record<string, string>;
+  /** bundles a canvas handed off (a `bundle` commit), by bundle id: what an anchor is checked against */
+  bundles: Record<string, { canvas: string; node: string }>;
   /** .jsonl files seen that are not sessions, with the stat they had —
       remembered so a stray file does not make every query refresh */
   skipped: Record<string, { mtime: number; size: number }>;
@@ -59,7 +61,7 @@ interface FactIndex {
 interface CacheTurn { c?: string; p?: string; m?: Record<string, string> }
 interface CacheIndex { version: number; sessions: Record<string, Record<string, CacheTurn>> }
 
-const INDEX_VERSION = 8;
+const INDEX_VERSION = 9;
 const EXCERPT = 200;
 
 const HOME = process.env.THOUGHTDAG_HOME ?? path.join(os.homedir(), '.thoughtdag');
@@ -240,7 +242,7 @@ async function eventsOf(file: string, sourceId?: string): Promise<Projected | nu
   return { runner, nativeId: s.sessionId, title: s.title, ...(anchor ? { anchor } : {}), ...(cwd ? { cwd } : {}), ...(subagent ? { subagent } : {}), events, texts, manifest: MANIFESTS[runner], turns: s.turns };
 }
 
-async function parseSession(f: FileStat): Promise<{ fact: FactSession; cache: Record<string, CacheTurn>; names: Record<string, string> } | null> {
+async function parseSession(f: FileStat): Promise<{ fact: FactSession; cache: Record<string, CacheTurn>; names: Record<string, string>; bundles: FactIndex['bundles'] } | null> {
   const memo = new Map<string, string>();
   const sourceId = await canonicalPath(f.file, memo);
   const p = await eventsOf(f.file, sourceId);
@@ -260,6 +262,8 @@ async function parseSession(f: FileStat): Promise<{ fact: FactSession; cache: Re
     ops[id] = { op: strongest(prev?.op, t.op as Op), ...(d ? { d } : {}), ...(l.length ? { l } : {}) };
   }
   for (const e of p.events) if (e.kind === 'artifact.attached' && e.artifact.observedPath && !e.artifact.id.startsWith('file://')) names[e.artifact.id] = e.artifact.observedPath;
+  const bundles: FactIndex['bundles'] = {};
+  for (const e of p.events) if (e.kind === 'context.committed' && e.hashOf === 'bundle' && e.turnId) bundles[e.requestId] = { canvas: p.nativeId, node: e.turnId.split('#').pop() ?? '' };
   const questions = new Map<string, string>();
   for (const e of p.events) if (e.kind === 'message.recorded' && e.role === 'user' && !questions.has(e.turnId)) questions.set(e.turnId, e.excerpt);
   const turns: FactTurn[] = [];
@@ -271,7 +275,10 @@ async function parseSession(f: FileStat): Promise<{ fact: FactSession; cache: Re
     const q = text ? questionExcerpt(text.question) : (questions.get(ts.turnId) ?? (ts.mirrorOf ? '(mirrored turn)' : ''));
     // the id that makes a replayed turn count once across files: the
     // runner's own message id, or the mirrored turn's
-    const item = ts.mirrorOf?.item ?? (p.runner === 'thoughtdag' ? ts.turnId : ts.turnId.split('#').pop()?.replace(/~\d+$/, ''));
+    // A replayed record (a continued session carries its parent's turns
+    // under the same message ids) counts once; a runner REUSING an id for a
+    // new segment (~2) is a new turn and keeps its suffix.
+    const item = ts.mirrorOf?.item ?? (p.runner === 'thoughtdag' ? ts.turnId : ts.turnId.split('#').pop());
     turns.push({ i: ts.turnIndex, t: ts.turnId, ...(item ? { item } : {}), ...(ts.at ? { at: ts.at } : {}), q, ops: opsByTurn.get(ts.turnId) ?? {} });
     if (!text) continue;
     const entry: CacheTurn = {};
@@ -287,13 +294,13 @@ async function parseSession(f: FileStat): Promise<{ fact: FactSession; cache: Re
   }
   return {
     fact: { id: p.nativeId, runner: p.runner, file: f.file, mtime: f.mtime, size: f.size, cwd, workspace, title: p.title, ...(p.subagent ? { subagent: true } : {}), ...(p.anchor ? { anchor: p.anchor } : {}), turns },
-    cache, names,
+    cache, names, bundles,
   };
 }
 
 // ─── stores ──────────────────────────────────────────────────────────
 
-const emptyFacts = (): FactIndex => ({ version: INDEX_VERSION, builtAt: '', sessions: {}, skipped: {}, names: {} });
+const emptyFacts = (): FactIndex => ({ version: INDEX_VERSION, builtAt: '', sessions: {}, skipped: {}, names: {}, bundles: {} });
 const emptyCache = (): CacheIndex => ({ version: INDEX_VERSION, sessions: {} });
 
 async function readJson<T>(file: string, empty: () => T): Promise<T> {
@@ -316,7 +323,7 @@ async function writePrivate(file: string, data: unknown): Promise<void> {
 
 const loadFacts = async (): Promise<FactIndex> => {
   const f = await readJson(FACT_FILE, emptyFacts);
-  f.skipped ??= {}; f.sessions ??= {}; f.names ??= {};
+  f.skipped ??= {}; f.sessions ??= {}; f.names ??= {}; f.bundles ??= {};
   return f;
 };
 const loadCache = (): Promise<CacheIndex> => readJson(CACHE_FILE, emptyCache);
@@ -349,6 +356,7 @@ async function buildIndex(full: boolean, canvasDir?: string): Promise<BuildRepor
     facts.sessions[key] = r.fact;
     cache.sessions[key] = r.cache;
     Object.assign(facts.names, r.names);
+    Object.assign(facts.bundles, r.bundles);
     parsed++;
   }
   for (const key of Object.keys(facts.sessions)) {
@@ -469,10 +477,23 @@ function hitsFor(facts: FactIndex, artifact: string, includeRead: boolean): { hi
   return { hits, readsHidden: all.length - hits.length };
 }
 
+/** An anchor is a CLAIM in a session's first message. It is matched when
+ *  an indexed canvas logged that bundle's hand-off from that node,
+ *  mismatched when the bundle exists but names another node, unverified
+ *  when no indexed canvas knows the bundle (older hand-offs, or a canvas
+ *  folder not yet indexed). */
+type AnchorStatus = 'matched' | 'mismatch' | 'unverified';
+function anchorStatus(facts: FactIndex, a: NonNullable<FactSession['anchor']>): AnchorStatus {
+  const b = facts.bundles[a.bundle];
+  if (!b) return 'unverified';
+  return b.node === a.node ? 'matched' : 'mismatch';
+}
+
 /** Where a hit opens: the mirrored session at that very turn, or the
  *  canvas project at that node. */
 function openLink(h: Hit): string {
-  if (h.session.runner === 'thoughtdag') return `thoughtdag://open?canvas=${encodeURIComponent(h.session.title)}&node=${encodeURIComponent(h.turn.t.split('#').pop() ?? '')}`;
+  // canvas: the project's own id when the backup carried one, its name otherwise
+  if (h.session.runner === 'thoughtdag') return `thoughtdag://open?canvas=${encodeURIComponent(h.session.id)}&node=${encodeURIComponent(h.turn.t.split('#').pop() ?? '')}`;
   return `thoughtdag://open?session=${h.session.id}${h.turn.item ? `&turn=${encodeURIComponent(h.turn.item)}` : ''}`;
 }
 
@@ -520,6 +541,7 @@ async function printWhy(facts: FactIndex, file: string, hits: Hit[], readsHidden
         const c = interp(h);
         return {
           session: h.session.id, runner: h.session.runner, title: h.session.title, subagent: !!h.session.subagent,
+          anchor: h.session.anchor ? { ...h.session.anchor, status: anchorStatus(facts, h.session.anchor) } : null,
           turn: turnNumber(facts, h), at: h.turn.at ?? null, op: h.touch.op, locators: h.touch.l ?? null, question: h.turn.q,
           askedBefore: c.p ?? null, change: h.touch.d ?? null, about: c.m?.[file] ?? null, conclusion: c.c ?? null,
           open: openLink(h),
@@ -542,11 +564,11 @@ async function printWhy(facts: FactIndex, file: string, hits: Hit[], readsHidden
     const mine = g.filter((h) => shown.has(h));
     if (!mine.length) continue;
     const s = g[0].session;
-    console.log(`${s.runner}  「${s.title.slice(0, 70)}」${s.subagent ? '  (subagent)' : ''}${s.anchor ? `  ↩ from canvas node ${s.anchor.node} (${s.anchor.bundle})` : ''}  ${openLink(mine[0])}`);
+    console.log(`${s.runner}  「${s.title.slice(0, 70)}」${s.subagent ? '  (subagent)' : ''}${s.anchor ? `  ↩ from canvas node ${s.anchor.node} (${s.anchor.bundle}, ${anchorStatus(facts, s.anchor)})` : ''}`);
     for (const h of mine) {
       const c = interp(h);
       const where = h.touch.l?.map((l) => l.pages ? `p.${l.pages}` : l.lines ? `L${l.lines[0]}-${l.lines[1]}` : '').filter(Boolean).join(' ');
-      console.log(`  ${when(h.turn, s)}  ${OP_MARK[h.touch.op]}  #${turnNumber(facts, h)}${where ? `  ${where}` : ''}`);
+      console.log(`  ${when(h.turn, s)}  ${OP_MARK[h.touch.op]}  #${turnNumber(facts, h)}${where ? `  ${where}` : ''}  ${openLink(h)}`);
       console.log(`    Q: ${h.turn.q}${c.p ? `   ⤴ ${c.p}` : ''}`);
       if (h.touch.d) console.log(`    Δ ${h.touch.d}`);
       const about = c.m?.[file];

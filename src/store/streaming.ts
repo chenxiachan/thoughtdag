@@ -259,26 +259,26 @@ export async function runNodeGeneration(
       commitStream();
     };
 
-    // The alignment fact, written at the dispatch boundary — the exact
-    // payload the API layer receives, nothing added or dropped after this
-    // line: a SHA-256 over the messages (the question is the last one),
-    // every image's bytes, the model asked for and the tool switches. Light
-    // metadata only, like every canvas event — never the text itself.
-    {
-      const imageDigests = await Promise.all((images ?? []).map((img) => sha256Hex(img.data)));
-      const model = pinnedModel || useUiStore.getState().selectedModel || '';
-      const tools = { web: selfData?.webSearch ?? useUiStore.getState().webSearchEnabled, scholar: selfData?.scholarSearch ?? useUiStore.getState().scholarSearchEnabled };
-      const sha = await sha256Hex(canonicalStringify({ messages, images: imageDigests, model, tools }));
-      const members = [...new Set((opts.sources ?? []).map((s) => s.nodeId).filter((id): id is string => !!id))];
+    // The alignment fact, written by the API layer at the moment the
+    // request leaves — exactly what goes out, after any image substitution
+    // or drop, on whichever lane: a SHA-256 over the messages (the
+    // question is the last one), every image's type and bytes, the model
+    // and every tool switch. Fires again on a retry. Light metadata only,
+    // like every canvas event — never the text itself.
+    const members = [...new Set((opts.sources ?? []).map((s) => s.nodeId).filter((id): id is string => !!id))];
+    const commitDispatch = async (p: { messages: ContextMessage[]; images: ImageAttachment[]; model: string; toolPrefs: { web?: boolean; scholar?: boolean; mcp?: boolean }; lane: string }) => {
+      const imageDigests = await Promise.all(p.images.map(async (img) => ({ type: img.mimeType, sha: await sha256Hex(img.data) })));
+      const sha = await sha256Hex(canonicalStringify({ messages: p.messages, images: imageDigests, model: p.model, tools: { web: !!p.toolPrefs.web, scholar: !!p.toolPrefs.scholar, mcp: !!p.toolPrefs.mcp } }));
       const shown = members.slice(0, 200);
       get().logEvent('commit', nodeId, {
-        kind: 'request', sha: `sha256:${sha}`, n: messages.length, ...(model ? { model } : {}),
+        kind: 'request', sha: `sha256:${sha}`, n: p.messages.length, images: p.images.length, lane: p.lane, ...(p.model ? { model: p.model } : {}),
         ...(shown.length ? { m: shown.join(',') } : {}), ...(members.length > shown.length ? { more: true } : {}),
       });
-    }
+    };
     const response = await llmCallStream(messages, (_chunk, fullSoFar) => {
       pushStream({ response: fullSoFar });
     }, abortController.signal, images, {
+      onDispatch: (p) => { void commitDispatch(p).catch(() => undefined); },
       onToolCall: (name, query) => {
         if (!isCurrent()) return;
         // Show what's being searched while the answer hasn't started streaming

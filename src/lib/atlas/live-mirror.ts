@@ -110,11 +110,14 @@ export function startLiveMirror(): void {
     if (node) useUiStore.getState().setArrivalFocusNodeId(node.id);
   };
 
-  // thoughtdag://open?canvas=<name>&node=<id> — a why hit on the canvas's
-  // own record: switch to that project by name, land on the node.
-  const openCanvasLink = async (name: string, nodeId: string): Promise<void> => {
+  // thoughtdag://open?canvas=<project id | name>&node=<id> — a why hit on
+  // the canvas's own record: the stable id first, a name only for backups
+  // written before ids travelled (and then it must be unique).
+  const openCanvasLink = async (ref: string, nodeId: string): Promise<void> => {
     const { useProjects, switchProject } = await import('../../store/projects');
-    const project = useProjects.getState().projects.find((p) => p.name === name);
+    const all = useProjects.getState().projects;
+    const byName = all.filter((p) => p.name === ref);
+    const project = all.find((p) => p.id === ref) ?? (byName.length === 1 ? byName[0] : undefined);
     if (!project) { toast('error', t('handoff.deeplinkMiss')); return; }
     await switchProject(project.id);
     if (nodeId) {
