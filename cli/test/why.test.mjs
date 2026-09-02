@@ -107,7 +107,7 @@ test('the store is private: directory 0700, files 0600', () => {
   assert.equal(mode(home), '700');
   assert.equal(mode(join(home, 'fact-index.json')), '600');
   assert.equal(mode(join(home, 'interpretation-cache.json')), '600');
-  assert.equal(mode(join(home, 'text-index.json')), '600');
+  assert.equal(mode(join(home, 'text-index.jsonl')), '600');
 });
 
 test('facts hold no interpretation and no full answers; the workspace is the git root', () => {
@@ -226,10 +226,10 @@ test('--json carries the evidence legend and per-hit fields', () => {
 });
 
 test('deleted interpretation and text caches come back on the next index', () => {
-  assert.match(run('purge', '--cache'), /removed 2 files/);
-  assert.ok(!existsSync(join(home, 'interpretation-cache.json')) && !existsSync(join(home, 'text-index.json')));
+  assert.match(run('purge', '--cache'), /removed 3 files/);
+  assert.ok(!existsSync(join(home, 'interpretation-cache.json')) && !existsSync(join(home, 'text-index.jsonl')));
   run('index');
-  assert.ok(existsSync(join(home, 'interpretation-cache.json')) && existsSync(join(home, 'text-index.json')));
+  assert.ok(existsSync(join(home, 'interpretation-cache.json')) && existsSync(join(home, 'text-index.jsonl')));
   assert.match(run('find', '流式输出没有节流'), /1 turn/);
   assert.match(run('why', 'src/lib/api.ts'), /≈ 崩溃来自流式输出/);
 });
@@ -260,8 +260,8 @@ test('status reports the evidence breakdown', () => {
 });
 
 test('purge removes every stored file', () => {
-  assert.match(run('purge'), /removed 3 files/);
-  assert.ok(!existsSync(join(home, 'fact-index.json')) && !existsSync(join(home, 'interpretation-cache.json')) && !existsSync(join(home, 'text-index.json')));
+  assert.match(run('purge'), /removed 4 files/);
+  assert.ok(!existsSync(join(home, 'fact-index.json')) && !existsSync(join(home, 'interpretation-cache.json')) && !existsSync(join(home, 'text-index.jsonl')));
   rmSync(tmp, { recursive: true, force: true });
 });
 

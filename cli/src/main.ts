@@ -11,12 +11,14 @@
 // from free text or a model. Three stores, three kinds of content:
 //   fact-index.json           observed events + verbatim excerpts + pointers
 //   interpretation-cache.json heuristics read off the answers (deletable)
-//   text-index.json           what was asked, answered and attached, verbatim,
-//                             for exact phrase search (deletable, rebuilt on index)
+//   text-index.jsonl          what was asked, answered and attached, verbatim, one
+//                             turn per line — streamed, never parsed whole — for exact
+//                             phrase search (deletable, rebuilt on index); text-index.json
+//                             is its small manifest (which sources are in it)
 // Source files are read, never written. The index is derived and can
 // always be rebuilt; a query refreshes it first when a source moved on.
 
-import { promises as fsp, createReadStream } from 'node:fs';
+import { promises as fsp, createReadStream, createWriteStream } from 'node:fs';
 import { createInterface } from 'node:readline';
 import path from 'node:path';
 import os from 'node:os';
@@ -65,7 +67,9 @@ interface CacheIndex { version: number; sessions: Record<string, Record<string, 
 /** verbatim text per turn: q = what was asked, a = what was answered, m = what the
  *  node's materials say (extracted text, head only). Search runs over this. */
 interface TextTurn { q: string; a: string; m?: string }
-interface TextIndex { version: number; sessions: Record<string, Record<string, TextTurn>> }
+/** manifest of the text lines: source key → number of turns present */
+interface TextIndex { version: number; sessions: Record<string, number> }
+interface TextLine extends TextTurn { k: string; i: number }
 
 const INDEX_VERSION = 10;
 const EXCERPT = 200;
@@ -74,6 +78,7 @@ const HOME = process.env.THOUGHTDAG_HOME ?? path.join(os.homedir(), '.thoughtdag
 const FACT_FILE = path.join(HOME, 'fact-index.json');
 const CACHE_FILE = path.join(HOME, 'interpretation-cache.json');
 const TEXT_FILE = path.join(HOME, 'text-index.json');
+const TEXT_LINES = path.join(HOME, 'text-index.jsonl');
 const LEGACY_FILE = path.join(HOME, 'why-index.json');
 const CONFIG_FILE = path.join(HOME, 'config.json');
 const ROOTS = (process.env.THOUGHTDAG_SESSION_ROOTS?.split(path.delimiter).filter(Boolean))
@@ -347,6 +352,34 @@ const loadText = (): Promise<TextIndex> => readJson(TEXT_FILE, emptyText);
 
 interface BuildReport { parsed: number; kept: number; skipped: number; removed: number; seconds: number }
 
+/** The text lines file is rewritten by streaming: lines of unchanged
+ *  sources pass through, lines of re-read or vanished sources are dropped,
+ *  new lines are appended. Never held in memory whole. */
+async function rewriteTextLines(replaced: Map<string, Record<string, TextTurn>>, removed: Set<string>, full: boolean): Promise<void> {
+  await fsp.mkdir(HOME, { recursive: true, mode: 0o700 });
+  const tmp = `${TEXT_LINES}.tmp`;
+  const out = createWriteStream(tmp, { mode: 0o600 });
+  const write = (line: string): Promise<void> => new Promise((res, rej) => { out.write(line + '\n', (e) => (e ? rej(e) : res())); });
+  if (!full) {
+    let old: ReturnType<typeof createInterface> | null = null;
+    try { await fsp.access(TEXT_LINES); old = createInterface({ input: createReadStream(TEXT_LINES, { encoding: 'utf8', highWaterMark: 1 << 20 }) }); } catch { /* first build */ }
+    if (old) {
+      for await (const line of old) {
+        const at = line.indexOf('"k":"'); if (at < 0) continue;
+        const k = JSON.parse(line.slice(at + 4, line.indexOf('"', at + 5) + 1)) as string;
+        if (replaced.has(k) || removed.has(k)) continue;
+        await write(line);
+      }
+    }
+  }
+  for (const [k, turns] of replaced) {
+    for (const [i, t] of Object.entries(turns)) await write(JSON.stringify({ k, i: Number(i), ...t } satisfies TextLine));
+  }
+  await new Promise<void>((res, rej) => out.end((e?: Error | null) => (e ? rej(e) : res())));
+  await fsp.chmod(tmp, 0o600).catch(() => undefined);
+  await fsp.rename(tmp, TEXT_LINES);
+}
+
 async function buildIndex(full: boolean, canvasDir?: string): Promise<BuildReport> {
   const t0 = Date.now();
   if (canvasDir) await rememberCanvasRoot(canvasDir);
@@ -357,6 +390,8 @@ async function buildIndex(full: boolean, canvasDir?: string): Promise<BuildRepor
   const files = await listSources();
   let parsed = 0, kept = 0, skipped = 0, removed = 0;
   const seen = new Set<string>();
+  const replacedText = new Map<string, Record<string, TextTurn>>();
+  const removedKeys = new Set<string>();
   for (const f of files) {
     const key = await canonicalPath(f.file);
     seen.add(key);
@@ -371,18 +406,20 @@ async function buildIndex(full: boolean, canvasDir?: string): Promise<BuildRepor
     delete facts.skipped[key];
     facts.sessions[key] = r.fact;
     cache.sessions[key] = r.cache;
-    text.sessions[key] = r.text;
+    replacedText.set(key, r.text);
+    text.sessions[key] = Object.keys(r.text).length;
     Object.assign(facts.names, r.names);
     Object.assign(facts.bundles, r.bundles);
     parsed++;
   }
   for (const key of Object.keys(facts.sessions)) {
-    if (!seen.has(key)) { delete facts.sessions[key]; delete cache.sessions[key]; delete text.sessions[key]; removed++; }
+    if (!seen.has(key)) { delete facts.sessions[key]; delete cache.sessions[key]; delete text.sessions[key]; removedKeys.add(key); removed++; }
   }
   for (const key of Object.keys(facts.skipped)) if (!seen.has(key)) delete facts.skipped[key];
   facts.builtAt = new Date().toISOString();
   await writePrivate(FACT_FILE, facts);
   await writePrivate(CACHE_FILE, cache);
+  await rewriteTextLines(replacedText, removedKeys, full);
   await writePrivate(TEXT_FILE, text);
   return { parsed, kept, skipped, removed, seconds: (Date.now() - t0) / 1000 };
 }
@@ -619,25 +656,39 @@ function snippetAround(text: string, needle: string, width = 70): string {
   return `${start > 0 ? '…' : ''}${text.slice(start, end).replace(/\s+/g, ' ').trim()}${end < text.length ? '…' : ''}`;
 }
 
-function findHits(facts: FactIndex, text: TextIndex, phrase: string, scope: 'q' | 'a' | 'm' | 'all'): FindHit[] {
+async function findHits(facts: FactIndex, phrase: string, scope: 'q' | 'a' | 'm' | 'all'): Promise<FindHit[]> {
   const needle = phrase.toLowerCase();
-  const hits: FindHit[] = [];
-  const seen = new Set<string>();
-  for (const [sourceKey, session] of Object.entries(facts.sessions).sort((a, b) => a[1].mtime - b[1].mtime)) {
-    const turns = text.sessions[sourceKey] ?? {};
-    for (const turn of session.turns) {
-      if (turn.item) { if (seen.has(turn.item)) continue; seen.add(turn.item); }
-      const t = turns[String(turn.i)];
-      if (!t) continue;
-      const fields: ['Q' | 'A' | 'M', string | undefined][] = [['Q', t.q], ['A', t.a], ['M', t.m]];
-      for (const [where, body] of fields) {
-        if (!body) continue;
-        if (scope !== 'all' && where.toLowerCase() !== scope) continue;
-        if (!body.toLowerCase().includes(needle)) continue;
-        hits.push({ session, sourceKey, turn, where, snippet: snippetAround(body, needle) });
-        break; // one hit per turn, the strongest field first
-      }
+  const turnsOf = new Map<string, Map<number, FactTurn>>();
+  const lookup = (k: string, i: number): FactTurn | undefined => {
+    let m = turnsOf.get(k);
+    if (!m) { m = new Map(facts.sessions[k]?.turns.map((t) => [t.i, t]) ?? []); turnsOf.set(k, m); }
+    return m.get(i);
+  };
+  const raw: FindHit[] = [];
+  let lines: ReturnType<typeof createInterface> | null = null;
+  try { await fsp.access(TEXT_LINES); lines = createInterface({ input: createReadStream(TEXT_LINES, { encoding: 'utf8', highWaterMark: 1 << 20 }) }); } catch { return []; }
+  for await (const line of lines) {
+    // cheap gate before any parsing: the phrase must be somewhere in the line
+    if (!line.toLowerCase().includes(needle)) continue;
+    let t: TextLine;
+    try { t = JSON.parse(line) as TextLine; } catch { continue; }
+    const session = facts.sessions[t.k]; const turn = lookup(t.k, t.i);
+    if (!session || !turn) continue;
+    const fields: ['Q' | 'A' | 'M', string | undefined][] = [['Q', t.q], ['A', t.a], ['M', t.m]];
+    for (const [where, body] of fields) {
+      if (!body) continue;
+      if (scope !== 'all' && where.toLowerCase() !== scope) continue;
+      if (!body.toLowerCase().includes(needle)) continue;
+      raw.push({ session, sourceKey: t.k, turn, where, snippet: snippetAround(body, needle) });
+      break; // one hit per turn, the strongest field first
     }
+  }
+  // a replayed turn counts once, credited to the session that first recorded it
+  const seen = new Set<string>();
+  const hits: FindHit[] = [];
+  for (const h of raw.sort((a, b) => a.session.mtime - b.session.mtime)) {
+    if (h.turn.item) { if (seen.has(h.turn.item)) continue; seen.add(h.turn.item); }
+    hits.push(h);
   }
   return hits.sort((a, b) => (b.turn.at ?? '').localeCompare(a.turn.at ?? ''));
 }
@@ -724,12 +775,12 @@ async function main(argv: string[]): Promise<void> {
     const pct = (a: number, b: number) => (b ? `${((a / b) * 100).toFixed(1)}%` : '–');
     console.log(`${st.sessions} sessions in ${st.sources} files · ${st.turns} turns · ${artifactsLine(st.artifacts)} · built ${facts.builtAt.slice(0, 16).replace('T', ' ')}`);
     console.log(`evidence: ${st.touches} touches · ${st.changes} edits/writes, ${st.withChangeHead} with an observed change head (${pct(st.withChangeHead, st.changes)} of changes, ${pct(st.withChangeHead, st.touches)} of touches) · ${st.withMention} answers name the file (${pct(st.withMention, st.touches)}, candidates only)`);
-    console.log(`store: ${HOME} (0700) · fact-index.json + interpretation-cache.json + text-index.json (0600)`);
+    console.log(`store: ${HOME} (0700) · fact-index.json + interpretation-cache.json + text-index.jsonl (0600)`);
     return;
   }
   if (cmd === 'purge') {
     // --cache drops only the interpretation; the next index recomputes it
-    const targets = flag('cache') ? [CACHE_FILE, TEXT_FILE, `${CACHE_FILE}.tmp`, `${TEXT_FILE}.tmp`] : [FACT_FILE, CACHE_FILE, TEXT_FILE, LEGACY_FILE, `${FACT_FILE}.tmp`, `${CACHE_FILE}.tmp`, `${TEXT_FILE}.tmp`];
+    const targets = flag('cache') ? [CACHE_FILE, TEXT_FILE, TEXT_LINES, `${CACHE_FILE}.tmp`, `${TEXT_FILE}.tmp`, `${TEXT_LINES}.tmp`] : [FACT_FILE, CACHE_FILE, TEXT_FILE, TEXT_LINES, LEGACY_FILE, `${FACT_FILE}.tmp`, `${CACHE_FILE}.tmp`, `${TEXT_FILE}.tmp`, `${TEXT_LINES}.tmp`];
     let n = 0;
     for (const f of targets) {
       try { await fsp.rm(f); n++; } catch { /* absent */ }
@@ -770,7 +821,7 @@ async function main(argv: string[]): Promise<void> {
     const facts = flag('no-refresh') ? await loadFacts() : await ensureFresh();
     if (!facts.builtAt) { console.error('no index yet — run: thoughtdag index'); process.exit(1); }
     const scope = value('in') === 'q' ? 'q' : value('in') === 'a' ? 'a' : value('in') === 'm' ? 'm' : 'all';
-    return printFind(facts, args[0], findHits(facts, await loadText(), args[0], scope), Number(value('limit') ?? 10) || 10, flag('json'));
+    return printFind(facts, args[0], await findHits(facts, args[0], scope), Number(value('limit') ?? 10) || 10, flag('json'));
   }
   if (cmd === 'recall') {
     if (!args[0] || args[1] === undefined) { console.error(USAGE); process.exit(2); }
