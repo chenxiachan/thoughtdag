@@ -62,6 +62,7 @@ interface SessionLine {
   isSidechain?: boolean;
   agentId?: string;
   customTitle?: string;
+  summary?: string;
   slug?: string;
   timestamp?: string;
   compactMetadata?: { preTokens?: number; postTokens?: number };
@@ -81,6 +82,7 @@ interface Turn {
       before it in the file. */
   parentItemId?: string;
   tools: RunnerTool[];
+  at?: string;
   compactionBefore?: string; // note text for a compaction boundary preceding this turn
 }
 
@@ -134,6 +136,7 @@ export class ClaudeSessionCollector {
   private pendingCompaction: string | undefined;
   private sessionId: string | null = null;
   private customTitle: string | null = null;
+  private summary: string | null = null;
   private slug: string | null = null;
   private firstQuestion: string | null = null;
   private cwd: string | null = null;
@@ -156,6 +159,7 @@ export class ClaudeSessionCollector {
 
   private feed(line: SessionLine): void {
     if (line.type === 'custom-title' && line.customTitle) this.customTitle = line.customTitle;
+    if (line.type === 'summary' && line.summary && !this.summary) this.summary = line.summary;
     if (line.slug && !this.slug) this.slug = line.slug;
     if (line.cwd && !this.cwd) this.cwd = line.cwd;
     if (this.mode === null && (line.type === 'user' || line.type === 'assistant') && line.uuid) {
@@ -210,6 +214,7 @@ export class ClaudeSessionCollector {
         this.current = {
           question: text, response: '', itemIds: line.uuid ? [line.uuid] : [], tools: [],
           parentItemId: line.parentUuid ?? undefined,
+          ...(line.timestamp ? { at: line.timestamp } : {}),
         };
         if (this.pendingCompaction) {
           this.current.compactionBefore = this.pendingCompaction;
@@ -239,9 +244,11 @@ export class ClaudeSessionCollector {
   finish(): { sessionId: string; title: string; turns: Turn[]; cwd?: string } | null {
     this.flush();
     if (!this.sessionId) return null;
-    // a subagent's slug is a random three-word tag; its prompt names it better
-    const own = this.mode === 'sidechain' ? this.firstQuestion?.split('\n')[0].slice(0, 80) ?? null : this.slug;
-    const title = this.customTitle ?? own ?? `session ${this.sessionId.slice(0, 8)}`;
+    // The name people recognize: their own title, the runner's summary
+    // line (continued sessions), else the first thing they asked. The
+    // slug is a random three-word tag and comes last.
+    const asked = this.firstQuestion?.split('\n').map((l) => l.trim()).find((l) => l && !l.startsWith('<'))?.slice(0, 80) ?? null;
+    const title = this.customTitle ?? this.summary ?? asked ?? this.slug ?? `session ${this.sessionId.slice(0, 8)}`;
     return { sessionId: this.sessionId, title, turns: dropSelfCommandTurns(this.turns), ...(this.cwd ? { cwd: this.cwd } : {}) };
   }
 

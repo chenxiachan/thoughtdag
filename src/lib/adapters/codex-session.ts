@@ -67,6 +67,7 @@ export interface CodexTurn {
   response: string;
   itemIds: string[];
   tools: RunnerTool[];
+  at?: string;
   compactionBefore?: string;
 }
 
@@ -167,6 +168,7 @@ export class CodexSessionCollector {
         if (text.trim()) {
           if (!this.firstQuestion) this.firstQuestion = text.trim();
           const t = this.ensure();
+          if (!t.at && line.timestamp) t.at = line.timestamp;
           t.question = t.question ? `${t.question}\n\n${text}` : text;
         }
       } else if (p.role === 'assistant') {

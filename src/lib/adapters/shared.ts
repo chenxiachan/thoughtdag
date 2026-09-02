@@ -23,6 +23,8 @@ export interface RunnerTurn {
   response: string;
   itemIds: string[];
   tools: RunnerTool[];
+  /** ISO timestamp of the turn's opening message, when the runner wrote one */
+  at?: string;
 }
 
 // Tool names → what they DID. Deterministic, runner-neutral: the same
