@@ -400,7 +400,8 @@ async function buildIndex(full: boolean, canvasDir?: string): Promise<BuildRepor
     if (sk && sk.mtime === f.mtime && sk.size === f.size) { skipped++; continue; }
     // unchanged AND its interpretation is still there: a deleted cache
     // must come back on the next index, or "deletable" was a lie
-    if (prev && prev.mtime === f.mtime && prev.size === f.size && cache.sessions[key] && text.sessions[key]) { kept++; continue; }
+    // presence, not truthiness: a session with no text at all (an empty rollout) is still indexed
+    if (prev && prev.mtime === f.mtime && prev.size === f.size && key in cache.sessions && key in text.sessions) { kept++; continue; }
     const r = await parseSession(f).catch(() => null);
     if (!r) { facts.skipped[key] = { mtime: f.mtime, size: f.size }; skipped++; continue; }
     delete facts.skipped[key];
@@ -419,7 +420,7 @@ async function buildIndex(full: boolean, canvasDir?: string): Promise<BuildRepor
   facts.builtAt = new Date().toISOString();
   await writePrivate(FACT_FILE, facts);
   await writePrivate(CACHE_FILE, cache);
-  await rewriteTextLines(replacedText, removedKeys, full);
+  if (full || replacedText.size || removedKeys.size) await rewriteTextLines(replacedText, removedKeys, full);
   await writePrivate(TEXT_FILE, text);
   return { parsed, kept, skipped, removed, seconds: (Date.now() - t0) / 1000 };
 }
@@ -435,7 +436,7 @@ async function ensureFresh(): Promise<FactIndex> {
   const keyed = await Promise.all(files.map(async (f) => ({ ...f, key: await canonicalPath(f.file) })));
   const known = (f: FileStat & { key: string }): boolean => {
     const p = facts.sessions[f.key];
-    if (p) return p.mtime === f.mtime && p.size === f.size && !!cache.sessions[f.key] && !!text.sessions[f.key];
+    if (p) return p.mtime === f.mtime && p.size === f.size && f.key in cache.sessions && f.key in text.sessions;
     const sk = facts.skipped[f.key];
     return !!sk && sk.mtime === f.mtime && sk.size === f.size;
   };
