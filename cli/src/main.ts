@@ -22,6 +22,8 @@ import { ClaudeSessionCollector } from '../../src/lib/adapters/claude-code-sessi
 import { CodexSessionCollector } from '../../src/lib/adapters/codex-session';
 import { conclusionOf } from '../../src/lib/turn-insight';
 import type { RunnerTool, RunnerTurn } from '../../src/lib/adapters/shared';
+import { sessionToEvents, deriveTouches, changeHead, type ProjectableSession } from '../../src/lib/events/project';
+import { MANIFESTS } from '../../src/lib/events/manifests';
 
 // ─── records ─────────────────────────────────────────────────────────
 
@@ -120,34 +122,6 @@ const strongest = (a: Op | undefined, b: Op): Op => (a === 'edit' || a === 'writ
 const opOf = (t: RunnerTool): Op | null => (t.op === 'read' || t.op === 'write' || t.op === 'edit') ? t.op : null;
 const clipLine = (s: string, max: number): string => { const l = s.trim(); return l.length > max ? `${l.slice(0, max)}…` : l; };
 
-/** First line that actually differs between an Edit's old and new text;
- *  a Write's first line. Verbatim slice of the observed call. */
-function changeHead(t: RunnerTool): string | undefined {
-  if (t.op === 'edit' && /^\*\*\* Begin Patch/m.test(t.call)) {
-    // a codex apply_patch: first removed line → first added line of the patch
-    const lines = t.call.split('\n');
-    const minus = lines.find((l) => l.startsWith('-') && !l.startsWith('---'))?.slice(1) ?? '';
-    const plus = lines.find((l) => l.startsWith('+') && !l.startsWith('+++'))?.slice(1) ?? '';
-    if (minus || plus) return `${clipLine(minus, 70) || '∅'} → ${clipLine(plus, 70) || '∅'}`;
-  }
-  if (t.op === 'edit') {
-    const m = t.call.match(/\n--- old\n([\s\S]*?)\n\+\+\+ new\n([\s\S]*)$/);
-    if (!m) return undefined;
-    const a = m[1].split('\n'); const b = m[2].split('\n');
-    let k = 0;
-    while (k < a.length && k < b.length && a[k] === b[k]) k++;
-    const before = a.slice(k).find((l) => l.trim()) ?? '';
-    const after = b.slice(k).find((l) => l.trim()) ?? '';
-    return `${clipLine(before, 70) || '∅'} → ${clipLine(after, 70) || '∅'}`;
-  }
-  if (t.op === 'write') {
-    const body = t.call.replace(/^[^\n]*\n\n?/, '');
-    const first = body.split('\n').map((l) => l.trim()).find(Boolean) ?? '';
-    return `new file, ${body.length} chars: ${clipLine(first, 80)}`;
-  }
-  return undefined;
-}
-
 /** The last paragraph of the answer that names the file — a candidate
  *  explanation, not a verified reason. */
 function mentionOf(response: string, file: string): string | undefined {
@@ -166,15 +140,37 @@ function questionExcerpt(text: string): string {
   return clipLine(line, EXCERPT);
 }
 
-async function parseSession(f: FileStat): Promise<{ fact: FactSession; cache: Record<string, CacheTurn> } | null> {
+/** Read one source file through its adapter: the collector's output, plus
+ *  what the projection needs to name the session. */
+async function collect(file: string): Promise<{ runner: FactSession['runner']; s: NonNullable<ReturnType<ClaudeSessionCollector['finish']>> & { subagent?: boolean } } | null> {
   let meta: { type?: string } = {};
-  try { meta = JSON.parse(await firstLine(f.file)) as { type?: string }; } catch { /* not json */ }
+  try { meta = JSON.parse(await firstLine(file)) as { type?: string }; } catch { /* not json */ }
   const runner: FactSession['runner'] = meta.type === 'session_meta' ? 'codex' : 'claude-code';
   const collector = runner === 'codex' ? new CodexSessionCollector() : new ClaudeSessionCollector();
-  const rl = createInterface({ input: createReadStream(f.file, { encoding: 'utf8', highWaterMark: 1 << 20 }) });
+  const rl = createInterface({ input: createReadStream(file, { encoding: 'utf8', highWaterMark: 1 << 20 }) });
   for await (const line of rl) collector.feedLine(line);
   const s = collector.finish();
-  if (!s) return null;
+  return s ? { runner, s } : null;
+}
+
+/** The canonical events of one source file — the contract every reader
+ *  shares. `events <file>` prints exactly this. */
+async function eventsOf(file: string) {
+  const c = await collect(file);
+  if (!c) return null;
+  const { runner, s } = c;
+  const subagent = 'subagent' in s ? !!s.subagent : runner === 'claude-code' && /\/subagents\//.test(file);
+  const session: ProjectableSession = {
+    runner, nativeId: s.sessionId, title: s.title, file, schema: MANIFESTS[runner].schema,
+    ...(('cwd' in s && s.cwd) ? { cwd: s.cwd } : {}), ...(subagent ? { subagent } : {}), turns: s.turns,
+  };
+  return { session, events: sessionToEvents(session), manifest: MANIFESTS[runner] };
+}
+
+async function parseSession(f: FileStat): Promise<{ fact: FactSession; cache: Record<string, CacheTurn> } | null> {
+  const c = await collect(f.file);
+  if (!c) return null;
+  const { runner, s } = c;
   const memo = new Map<string, string>();
   const rawCwd = ('cwd' in s && s.cwd) ? s.cwd : '';
   const cwd = rawCwd ? await canonicalPath(rawCwd, memo) : '';
@@ -476,6 +472,7 @@ const USAGE = `thoughtdag — the why layer
   thoughtdag recall <session> <n>                  one turn in full (session id or prefix)
   thoughtdag status                                what the index holds, and how much is evidence
   thoughtdag purge [--cache]                       delete everything this tool stored (--cache: only the interpretation)
+  thoughtdag events <session-file> [--touches]     the canonical events of one source file, one JSON per line
 `;
 
 async function main(argv: string[]): Promise<void> {
@@ -529,6 +526,15 @@ async function main(argv: string[]): Promise<void> {
     }
     const { hits, readsHidden } = hitsFor(facts, file, flag('include-read'));
     return printWhy(file, hits, readsHidden, await loadCache(), Number(value('limit') ?? 10) || 10, flag('json'));
+  }
+  if (cmd === 'events') {
+    if (!args[0]) { console.error(USAGE); process.exit(2); }
+    const r = await eventsOf(path.resolve(process.cwd(), args[0]));
+    if (!r) { console.error('not a session file'); process.exit(1); }
+    if (flag('touches')) { for (const t of deriveTouches(r.events)) console.log(JSON.stringify(t)); return; }
+    console.log(JSON.stringify({ kind: 'adapter.manifest', ...r.manifest }));
+    for (const e of r.events) console.log(JSON.stringify(e));
+    return;
   }
   if (cmd === 'recall') {
     if (!args[0] || args[1] === undefined) { console.error(USAGE); process.exit(2); }
