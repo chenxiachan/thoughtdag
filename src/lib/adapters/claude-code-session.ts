@@ -192,7 +192,7 @@ export class ClaudeSessionCollector {
               const res = clip(resultText(p.content), TOOL_RESULT_LIMIT);
               this.current.tools.push({
                 name: reg.name, call: reg.call, result: res.text, truncated: res.truncated,
-                ...(reg.paths.length ? { paths: reg.paths } : {}), op: reg.op,
+                ...(reg.paths.length ? { paths: reg.paths } : {}), op: reg.op, nativeCallId: p.tool_use_id,
               });
               this.pendingTools.delete(p.tool_use_id);
             }

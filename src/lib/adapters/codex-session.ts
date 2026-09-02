@@ -191,7 +191,7 @@ export class CodexSessionCollector {
         const res = clip(outputText(p.output), TOOL_RESULT_LIMIT);
         t.tools.push({
           name: reg.name, call: reg.call, result: res.text, truncated: res.truncated,
-          ...(reg.paths.length ? { paths: reg.paths } : {}), op: reg.op,
+          ...(reg.paths.length ? { paths: reg.paths } : {}), op: reg.op, nativeCallId: p.call_id,
         });
         this.pendingCalls.delete(p.call_id);
       }

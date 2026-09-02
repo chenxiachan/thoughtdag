@@ -41,6 +41,22 @@ writeFileSync(cxFile, [
   cx('response_item', { type: 'message', role: 'assistant', content: [{ type: 'output_text', text: '接好了。' }] }),
 ].join('\n'));
 
+const cxResumed = join(tmp, 'rollout-cx-2.jsonl');
+writeFileSync(cxResumed, [
+  cx('session_meta', { id: 'cx-2', cwd: proj, timestamp: '2026-07-31T10:00:00.000Z' }),
+  cx('turn_context', { turn_id: 'T1' }),
+  cx('response_item', { type: 'message', role: 'user', content: [{ type: 'input_text', text: '第一段' }] }),
+  cx('response_item', { type: 'function_call', call_id: 'call-A', name: 'shell', arguments: '{"command":["ls"]}' }),
+  cx('response_item', { type: 'function_call_output', call_id: 'call-A', output: 'a.ts' }),
+  cx('response_item', { type: 'message', role: 'assistant', content: [{ type: 'output_text', text: '第一段答。' }] }),
+  cx('compacted', {}),
+  cx('turn_context', { turn_id: 'T1' }),
+  cx('response_item', { type: 'message', role: 'user', content: [{ type: 'input_text', text: '压缩后再问' }] }),
+  cx('response_item', { type: 'function_call', call_id: 'call-B', name: 'shell', arguments: '{"command":["cat a.ts"]}' }),
+  cx('response_item', { type: 'function_call_output', call_id: 'call-B', output: 'const a = 1;' }),
+  cx('response_item', { type: 'message', role: 'assistant', content: [{ type: 'output_text', text: '第二段答。' }] }),
+].join('\n'));
+
 const run = (...a) => execFileSync(process.execPath, [CLI, ...a], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
 const events = (file) => run('events', file).trim().split('\n').map((l) => JSON.parse(l));
 
@@ -97,6 +113,36 @@ test('codex projects through the same contract: relative patch paths resolve aga
   assert.equal(call.sessionId, 'codex:cx-1');
   assert.deepEqual(call.artifacts, [{ id: 'file:///repo/src/a.ts', observedPath: 'src/a.ts' }]);
   assert.equal(call.change, 'a → b');
+});
+
+test('event ids are globally unique, even when a runner reuses its turn id after a compaction', () => {
+  for (const file of [ccFile, cxFile, cxResumed]) {
+    const ids = events(file).filter((e) => e.kind !== 'adapter.manifest').map((e) => e.id);
+    assert.equal(new Set(ids).size, ids.length, `duplicate ids in ${file}`);
+  }
+  const ev = events(cxResumed);
+  const turns = ev.filter((e) => e.kind === 'turn.started');
+  assert.equal(turns.length, 2);
+  assert.notEqual(turns[0].turnId, turns[1].turnId);
+  assert.ok(turns[1].turnId.endsWith('~2'), turns[1].turnId);
+  assert.equal(ev.filter((e) => e.kind === 'boundary.compaction').length, 1);
+});
+
+test('every tool.completed answers exactly one tool.called, and both point at the runner\'s own call id', () => {
+  for (const file of [ccFile, cxFile, cxResumed]) {
+    const ev = events(file);
+    const calls = ev.filter((e) => e.kind === 'tool.called');
+    for (const r of ev.filter((e) => e.kind === 'tool.completed')) {
+      const owners = calls.filter((c) => c.id === r.calledEventId);
+      assert.equal(owners.length, 1, `${file}: ${r.id} has ${owners.length} calls`);
+      assert.equal(owners[0].source.ref, r.source.ref, 'call and result share the native ref');
+    }
+  }
+  const cc = events(ccFile).filter((e) => e.kind === 'tool.called');
+  assert.deepEqual(cc.map((c) => c.source.ref), ['t1', 't2', cc[2].source.ref], 'claude-code refs are tool_use ids');
+  assert.equal(cc[0].callId, 't1');
+  const cxCalls = events(cxResumed).filter((e) => e.kind === 'tool.called');
+  assert.deepEqual(cxCalls.map((c) => c.source.ref), ['call-A', 'call-B'], 'codex refs are call_ids');
 });
 
 test('derived touches: one per turn and artifact, strongest op, pointing back at the call', () => {

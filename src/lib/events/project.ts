@@ -44,7 +44,20 @@ const clip = (s: string, max = EXCERPT_CHARS): string => {
 /** Everything an adapter tells us about a turn's identity funnels into
  *  one string, so ids survive rebuilds and never depend on position alone. */
 export const sessionKey = (runner: string, nativeId: string): string => `${runner}:${nativeId}`;
-const turnKey = (session: string, t: ProjectableTurn, index: number): string => `${session}#${t.itemIds[0] ?? `i${index}`}`;
+
+/** One key per conversation segment, even when a runner reuses its turn
+ *  id: a codex turn that resumes after a compaction — with new user input
+ *  in between — carries the same turn_id twice. The second segment gets
+ *  `~2`; deterministic by order of appearance, so ids stay stable. */
+function turnKeys(session: string, turns: ProjectableTurn[]): string[] {
+  const seen = new Map<string, number>();
+  return turns.map((t, i) => {
+    const base = t.itemIds[0] ?? `i${i}`;
+    const n = (seen.get(base) ?? 0) + 1;
+    seen.set(base, n);
+    return n === 1 ? `${session}#${base}` : `${session}#${base}~${n}`;
+  });
+}
 
 /** Files as the runner wrote them → canonical artifact ids. Relative
  *  paths resolve against the session cwd; canonicalization of the real
@@ -106,12 +119,13 @@ export function sessionToEvents(s: ProjectableSession): CanonicalEvent[] {
     ...(s.parentSessionId ? { parentSessionId: s.parentSessionId } : {}), ...(s.subagent ? { subagent: true } : {}),
   };
   out.push(started);
-  // the tree's address book: message id → the turn that carries it
+  const keys = turnKeys(sid, s.turns);
+  // the tree's address book: message id → the FIRST turn that carries it
   const byItem = new Map<string, string>();
-  s.turns.forEach((t, i) => { for (const id of t.itemIds) byItem.set(id, turnKey(sid, t, i)); });
+  s.turns.forEach((t, i) => { for (const id of t.itemIds) if (!byItem.has(id)) byItem.set(id, keys[i]); });
 
   s.turns.forEach((t, i) => {
-    const tid = turnKey(sid, t, i);
+    const tid = keys[i];
     const at = t.at;
     const base = { sessionId: sid, turnId: tid, turnIndex: i, ...(at ? { at } : {}) };
     if (t.compactionBefore) {
@@ -137,16 +151,19 @@ export function sessionToEvents(s: ProjectableSession): CanonicalEvent[] {
     }
     t.tools.forEach((tool, k) => {
       const callId = `${tid}/t${k}`;
+      // the runner's own call id names both records; a synthetic ref only
+      // when the runner recorded none
+      const nativeRef = tool.nativeCallId ?? `${t.itemIds[0] ?? `turn-${i}`}:tool${k}`;
       const artifacts: ArtifactRef[] = (tool.paths ?? []).map((p) => fileArtifact(p, s.cwd));
       const change = changeHead(tool);
       const called: ToolCalled = {
-        id: callId, kind: 'tool.called', ...base, source: src(`${t.itemIds[0] ?? `turn-${i}`}:tool${k}`), ...OBS_PART,
-        callId, name: tool.name, op: opOf(tool), artifacts, excerpt: clip(tool.call), length: tool.call.length,
+        id: callId, kind: 'tool.called', ...base, source: src(nativeRef), ...OBS_PART,
+        callId: tool.nativeCallId ?? callId, name: tool.name, op: opOf(tool), artifacts, excerpt: clip(tool.call), length: tool.call.length,
         ...(change ? { change } : {}),
       };
       out.push(called);
       const done: ToolCompleted = {
-        id: `${callId}/result`, kind: 'tool.completed', ...base, source: src(`${t.itemIds[0] ?? `turn-${i}`}:result${k}`),
+        id: `${callId}/result`, kind: 'tool.completed', ...base, source: src(nativeRef),
         basis: 'observed', completeness: tool.truncated ? 'partial' : 'full',
         calledEventId: callId, excerpt: clip(tool.result), length: tool.result.length, truncated: tool.truncated,
       };

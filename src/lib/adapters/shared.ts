@@ -16,6 +16,9 @@ export interface RunnerTool {
   /** files the call touched (absolute or repo-relative, as the runner wrote them) */
   paths?: string[];
   op?: ToolOp;
+  /** the runner's own id for this call (tool_use.id, call_id) — the same
+      id its result answers to; provenance that must survive normalization */
+  nativeCallId?: string;
 }
 
 export interface RunnerTurn {
