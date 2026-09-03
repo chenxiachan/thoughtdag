@@ -154,6 +154,9 @@ export default function App() {
     // desktop only: the live mirror — the active canvas follows its
     // session file on its own (idempotent append via the ledger)
     void import('./lib/atlas/live-mirror').then((m) => m.startLiveMirror());
+    // desktop only: the canvas writes its own source record for the why
+    // layer, whether or not a backup folder was ever chosen
+    void import('./lib/canvas-record').then((m) => m.startCanvasRecord());
     // ledger self-heal: canvases weeded before deletion-as-unsubscription
     // existed may still carry dead subscriptions — clear them on arrival
     void import('./lib/atlas/canonical').then((m) => m.unsubscribeOrphanedSessions());

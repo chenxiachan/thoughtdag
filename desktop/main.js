@@ -361,6 +361,31 @@ function setupSessionAtlas() {
     return `data:${IMAGE_MIME[ext]};base64,${buf.toString('base64')}`;
   });
 
+  // The canvas's own source record for the why layer: one slim JSON per
+  // project under <thoughtdag home>/canvases/, private (0700/0600), written
+  // whole via a temp file. The renderer names the project; the shell owns
+  // the path — no path ever crosses the bridge.
+  const THOUGHTDAG_HOME = process.env.THOUGHTDAG_HOME || path.join(os.homedir(), '.thoughtdag');
+  const CANVAS_DIR = path.join(THOUGHTDAG_HOME, 'canvases');
+  const PROJECT_ID = /^[A-Za-z0-9_-]{1,128}$/;
+  ipcMain.handle('canvas:record-write', async (_e, projectId, json) => {
+    if (typeof projectId !== 'string' || !PROJECT_ID.test(projectId) || typeof json !== 'string' || json.length > 64 * 1024 * 1024) return { ok: false, reason: 'invalid' };
+    await fsp.mkdir(CANVAS_DIR, { recursive: true, mode: 0o700 });
+    await fsp.chmod(THOUGHTDAG_HOME, 0o700).catch(() => undefined);
+    await fsp.chmod(CANVAS_DIR, 0o700).catch(() => undefined);
+    const file = path.join(CANVAS_DIR, `${projectId}.thoughtdag.json`);
+    const tmp = `${file}.tmp`;
+    await fsp.writeFile(tmp, json, { mode: 0o600 });
+    await fsp.chmod(tmp, 0o600).catch(() => undefined);
+    await fsp.rename(tmp, file);
+    return { ok: true, file };
+  });
+  ipcMain.handle('canvas:record-remove', async (_e, projectId) => {
+    if (typeof projectId !== 'string' || !PROJECT_ID.test(projectId)) return { ok: false };
+    await fsp.rm(path.join(CANVAS_DIR, `${projectId}.thoughtdag.json`), { force: true }).catch(() => undefined);
+    return { ok: true };
+  });
+
   ipcMain.handle('sessions:head', async (_e, rootKey, rel, bytes) => {
     const fh = await fsp.open(resolveInRoot(rootKey, rel), 'r');
     try {

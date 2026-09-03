@@ -44,3 +44,10 @@ contextBridge.exposeInMainWorld('desktopLocal', {
   open: (p) => ipcRenderer.invoke('local:open', p),
   image: (p) => ipcRenderer.invoke('local:image', p),
 });
+
+// The canvas's own source record for the why layer (see main.js): the page
+// hands over a project id and its slim JSON; the shell decides where it lives.
+contextBridge.exposeInMainWorld('desktopCanvas', {
+  write: (projectId, json) => ipcRenderer.invoke('canvas:record-write', projectId, json),
+  remove: (projectId) => ipcRenderer.invoke('canvas:record-remove', projectId),
+});

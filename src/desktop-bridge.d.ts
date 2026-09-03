@@ -73,8 +73,16 @@ interface DesktopLocalBridge {
   image(path: string): Promise<string | null>;
 }
 
+/** The canvas's own source record for the why layer, kept by the shell
+ *  under <thoughtdag home>/canvases/. */
+interface DesktopCanvasBridge {
+  write(projectId: string, json: string): Promise<{ ok: boolean; file?: string; reason?: string }>;
+  remove(projectId: string): Promise<{ ok: boolean }>;
+}
+
 interface Window {
   desktop?: DesktopBridge;
   desktopSessions?: DesktopSessionsBridge;
   desktopLocal?: DesktopLocalBridge;
+  desktopCanvas?: DesktopCanvasBridge;
 }

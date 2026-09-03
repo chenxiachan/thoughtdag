@@ -84,12 +84,16 @@ const CONFIG_FILE = path.join(HOME, 'config.json');
 const ROOTS = (process.env.THOUGHTDAG_SESSION_ROOTS?.split(path.delimiter).filter(Boolean))
   ?? [path.join(os.homedir(), '.claude', 'projects'), path.join(os.homedir(), '.codex', 'sessions')];
 
-/** Folders holding canvas backups (*.thoughtdag.json): the env var, or
- *  what `index --canvas <dir>` remembered. */
+/** Folders holding canvases (*.thoughtdag.json). Always: the records the
+ *  desktop app writes itself under <home>/canvases. Plus the env var, or
+ *  what `index --canvas <dir>` remembered — backup folders, for canvases
+ *  that live on another machine or were deleted from the app. The same
+ *  project in two files collapses to one session. */
+const CANVAS_RECORDS = path.join(HOME, 'canvases');
 async function canvasRoots(): Promise<string[]> {
   const env = process.env.THOUGHTDAG_CANVAS_ROOTS?.split(path.delimiter).filter(Boolean);
-  if (env) return env;
-  try { const c = JSON.parse(await fsp.readFile(CONFIG_FILE, 'utf8')) as { canvasRoots?: string[] }; return c.canvasRoots ?? []; } catch { return []; }
+  if (env) return [CANVAS_RECORDS, ...env];
+  try { const c = JSON.parse(await fsp.readFile(CONFIG_FILE, 'utf8')) as { canvasRoots?: string[] }; return [CANVAS_RECORDS, ...(c.canvasRoots ?? [])]; } catch { return [CANVAS_RECORDS]; }
 }
 async function rememberCanvasRoot(dir: string): Promise<void> {
   const roots = await canvasRoots();

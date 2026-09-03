@@ -62,6 +62,13 @@ writeFileSync(join(ccRoot, 'proj', 'sid-matched.jsonl'), anchored('sid-matched',
 writeFileSync(join(ccRoot, 'proj', 'sid-mismatch.jsonl'), anchored('sid-mismatch', '[ThoughtDAG anchor: project=proj-snn-01 node=n1 bundle=cb_cdcdcdcdcdcdcdcd]'));
 writeFileSync(join(ccRoot, 'proj', 'sid-unverified.jsonl'), anchored('sid-unverified', '[ThoughtDAG anchor: project=proj-x node=n9 bundle=cb_0000000000000000]'));
 
+// the app's own record of the SAME canvas, in the default root — one project, two files
+mkdirSync(join(home, 'canvases'), { recursive: true });
+writeFileSync(join(home, 'canvases', 'proj-snn-01.thoughtdag.json'), JSON.stringify({ ...canvas, record: 'thoughtdag-canvas-record', exportedAt: '2026-09-02T10:00:00.000Z' }));
+// and a record of a canvas that exists nowhere else
+writeFileSync(join(home, 'canvases', 'proj-only-record.thoughtdag.json'), JSON.stringify({ version: 1, name: '只有源记录', projectId: 'proj-only-record', exportedAt: '2026-09-02T11:00:00.000Z', record: 'thoughtdag-canvas-record',
+  nodes: [node('r1', { question: '自动落盘的画布也能被找到吗', response: '能。\n\n源记录不依赖备份文件夹。', createdAt: '2026-09-02T10:59:00.000Z' })], edges: [], events: [] }));
+
 const env = { ...process.env, THOUGHTDAG_HOME: home, THOUGHTDAG_SESSION_ROOTS: ccRoot, THOUGHTDAG_CANVAS_ROOTS: canvasRoot };
 const run = (...a) => execFileSync(process.execPath, [CLI, ...a], { env, cwd: proj, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
 const events = (file) => run('events', file).trim().split('\n').map((l) => JSON.parse(l));
@@ -129,7 +136,7 @@ test('context.committed: exact from a logged commit, upstream-only from the olde
 
 test('indexed together, a mirrored turn counts once and the canvas answers why for its materials', () => {
   const out = run('index');
-  assert.match(out, /indexed 5 sessions/);
+  assert.match(out, /indexed 7 sessions/, out.split('\n')[0]);
   const why = run('why', `${proj}/src/api.ts`);
   assert.match(why.split('\n')[0], /1 turn in 1 session/, 'the mirror does not double the runner turn');
   const pdf = run('why', 'snn-review.pdf');
@@ -160,6 +167,12 @@ test('a material is found by its own words — the title in its extracted text �
   assert.match(run('find', 'Neftci', '--in', 'm'), /1 turn/);
   const facts = readFileSync(join(home, 'fact-index.json'), 'utf8');
   assert.ok(!facts.includes('Friedemann'), 'material text lives in the text cache, not in facts');
+});
+
+test('the app\'s own canvas records are a default root: found without --canvas, and one project in two files counts once', () => {
+  assert.match(run('find', '自动落盘的画布').split('\n')[0], /1 turn in 1 session/);
+  assert.match(run('why', 'snn-review.pdf').split('\n')[0], /1 turn in 1 session/, 'the record and the backup of proj-snn-01 do not double the attachment');
+  assert.match(run('status'), /6 sessions in 7 files/);
 });
 
 test('recall reads a canvas turn from the backup', () => {

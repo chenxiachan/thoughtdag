@@ -222,7 +222,12 @@ async function drainGenerations(): Promise<void> {
   await new Promise((r) => setTimeout(r, 0)); // let the final abort writes reach the debounce queue
 }
 
+/** Run before the active canvas is swapped out — the canvas record
+ *  flushes here so a switch never loses a minute of changes. */
+export const beforeSwitchHooks: Array<() => Promise<void>> = [];
+
 export async function switchProject(id: string): Promise<void> {
+  for (const hook of beforeSwitchHooks) await hook().catch(() => undefined);
   const { activeId, switching, projects } = useProjects.getState();
   if (switching || id === activeId || !projects.some((p) => p.id === id)) return;
   useProjects.setState({ switching: true });
@@ -276,6 +281,8 @@ export async function deleteProject(id: string): Promise<void> {
   await idbDel(projectStorageKey(id));
   useProjects.setState((s) => ({ projects: s.projects.filter((p) => p.id !== id) }));
   await saveMeta();
+  // the why layer's copy goes with it (desktop only; a no-op elsewhere)
+  void import('../lib/canvas-record').then((m) => m.removeCanvasRecord(id)).catch(() => undefined);
 }
 
 // Register a project entry for graph data already written to its storage key
