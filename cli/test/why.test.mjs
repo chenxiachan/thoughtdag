@@ -3,7 +3,8 @@
 // is reproducible from a clean checkout.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { execFileSync, spawnSync } from 'node:child_process';
+import { execFileSync, spawnSync, spawn } from 'node:child_process';
+const require_child = () => ({ spawn });
 import { mkdtempSync, mkdirSync, writeFileSync, appendFileSync, statSync, existsSync, rmSync, readFileSync, realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname, delimiter } from 'node:path';
@@ -247,6 +248,42 @@ test('a query refreshes a stale index on its own, and says so', () => {
   assert.match(r.out, /Δ new file/);
 });
 
+test('why --check: one cheap line, exit 0 with history and 1 without, from a recent index as-is', () => {
+  const yes = spawnSync(process.execPath, [CLI, 'why', '--check', 'src/lib/api.ts'], { env, cwd: proj, encoding: 'utf8' });
+  assert.equal(yes.status, 0);
+  assert.match(yes.stdout.trim(), /^src\/lib\/api\.ts: \d+ turns in \d+ sessions · \d+ edits\/writes · \d+ reads? · latest 2026-08-2\d  →  thoughtdag why src\/lib\/api\.ts$/, yes.stdout);
+  assert.equal(yes.stderr, '', 'a recent index is read as-is: no refresh notice');
+  const no = spawnSync(process.execPath, [CLI, 'why', '--check', 'src/never.ts'], { env, cwd: proj, encoding: 'utf8' });
+  assert.equal(no.status, 1); assert.equal(no.stdout.trim(), 'src/never.ts: no history');
+  const j = JSON.parse(spawnSync(process.execPath, [CLI, 'why', '--check', 'src/lib/api.ts', '--json'], { env, cwd: proj, encoding: 'utf8' }).stdout);
+  assert.equal(j.history, true); assert.ok(j.changes >= 1);
+});
+
+test('concurrent queries against a stale index all succeed; one refreshes, the rest wait or answer', () => {
+  // make the index stale, then fire six queries at once
+  appendFileSync(mainFile, '\n' + cc('u9', 'a7', 'user', '并发前再问一句', { at: '2026-08-21T17:00:00.000Z' }) + '\n' + cc('a9', 'u9', 'assistant', [{ type: 'text', text: '好。' }]));
+  const procs = Array.from({ length: 6 }, () => spawnSync(process.execPath, [CLI, 'why', 'src/lib/api.ts', '--limit', '1'], { env, cwd: proj, encoding: 'utf8' }));
+  // spawnSync is sequential; the race needs real parallelism — use spawn and wait
+  const { spawn } = require_child();
+  return new Promise((resolve) => {
+    const children = Array.from({ length: 6 }, () => spawn(process.execPath, [CLI, 'why', 'src/lib/api.ts', '--limit', '1'], { env, cwd: proj }));
+    appendFileSync(mainFile, '\n' + cc('u10', 'a9', 'user', '再来一句制造过期', { at: '2026-08-21T17:10:00.000Z' }) + '\n' + cc('a10', 'u10', 'assistant', [{ type: 'text', text: '好。' }]));
+    const results = [];
+    for (const ch of children) {
+      let err = '';
+      ch.stderr.on('data', (d) => { err += d; });
+      ch.on('close', (code) => { results.push({ code, err }); if (results.length === children.length) done(); });
+    }
+    function done() {
+      assert.ok(results.every((r) => r.code === 0), `exit codes: ${results.map((r) => r.code).join(',')}\n${results.map((r) => r.err).join('---')}`);
+      assert.ok(!results.some((r) => /ENOENT/.test(r.err)), 'no rename race');
+      assert.ok(!existsSync(join(home, 'index.lock')), 'the lock is released');
+      assert.ok(procs.every((p) => p.status === 0));
+      resolve();
+    }
+  });
+});
+
 test('recall prints the turn in full with its diff', () => {
   const rec = run('recall', 'sid-1', '0');
   assert.ok(rec.includes('## Question') && rec.includes('免费档模型') && rec.includes('+++ new\n') && rec.includes('x = retry(1)'));
@@ -254,7 +291,7 @@ test('recall prints the turn in full with its diff', () => {
 
 test('status reports the evidence breakdown', () => {
   const status = run('status');
-  assert.match(status, /6 sessions in 7 files · 10 turns · 7 files · 1 urls · 1 papers/);
+  assert.match(status, /6 sessions in 7 files · 12 turns · 7 files · 1 urls · 1 papers/);
   assert.match(status, /8 edits\/writes, 8 with an observed change head/);
   assert.match(status, /candidates only/);
 });

@@ -10,6 +10,7 @@ Two uses, chosen by the argument. Communicate with the user in THEIR language (t
 **A. Query history**: when the argument starts with `why`, `find`, `recall` or `status`, this is a query — open no canvas. Pass it verbatim to the ThoughtDAG command line and show its output **as is**: do not read session files yourself, do not summarize or reword (the output is written to be read: Δ is an observed change, ≈ a candidate explanation read from an answer, ⤴ the earlier question a bare reply answered; the `thoughtdag://…` link ending each line opens that very turn via `open`). Find the command line in this order: ① `command -v thoughtdag` — use it if present; ② else `npx -y thoughtdag` (once published on npm); ③ a developer inside the ThoughtDAG repository: `node cli/dist/thoughtdag.mjs` (run `npm run cli:build` first if `cli/dist` is missing). Examples:
 
 ```bash
+thoughtdag why --check src/lib/api.ts  # one line: does this file have history? exit 0 yes / 1 no — ask before editing
 thoughtdag why src/lib/api.ts          # which turns touched this file, what changed, what was said
 thoughtdag why arxiv:2506.07962        # papers, URLs and canvas attachment names are valid too
 thoughtdag find "surrogate gradient"   # where these words were asked (Q) or said (≈), exact match

@@ -7,6 +7,7 @@ description: 把当前 Claude Code 会话在 ThoughtDAG 中打开（桌面版直
 **A. 查历史**：参数以 `why`、`find`、`recall`、`status` 开头时，这是一次查询，不打开任何画布。原样交给 ThoughtDAG 命令行，把它的输出**逐字**贴给用户，不要自己去读会话文件、不要总结或改写（输出本身就是为阅读设计的：Δ 是观察到的改动，≈ 是回答里的候选解释，⤴ 是空应答承接的上一个问题，每一行末尾的 `thoughtdag://…` 深链用 `open` 可直接落到那一轮）。找命令行的顺序：① `command -v thoughtdag` 有则直接用；② 否则 `npx -y thoughtdag`（npm 发布后可用）；③ 开发者在 ThoughtDAG 仓库内时，`node cli/dist/thoughtdag.mjs`（`cli/dist` 不存在就先 `npm run cli:build`）。例：
 
 ```bash
+thoughtdag why --check src/lib/api.ts  # 一行：这个文件有没有历史（退出码 0 有、1 无），改文件前先问这句
 thoughtdag why src/lib/api.ts          # 哪几轮对话动过这个文件、改了什么、当时说了什么
 thoughtdag why arxiv:2506.07962        # 论文、网址、画布附件名都是合法的对象
 thoughtdag find "surrogate gradient"   # 在哪几轮被问过（Q）或说过（≈），精确匹配

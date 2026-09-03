@@ -13,9 +13,17 @@ Indexes the agent sessions already on your machine (Claude Code, Codex) by the f
 - `Δ` lines are observed changes; `≈` lines are read from the answer and are candidate explanations, not verified reasons.
 
 ```
-thoughtdag index [--full]
+thoughtdag index [--full] [--canvas <dir>]
 thoughtdag why <path> [--include-read] [--all] [--limit N] [--json]
+thoughtdag why --check <path>            # one line, exit 0/1: is there history here?
+thoughtdag find "<phrase>" [--in q|a|m]  # where these exact words were asked, answered or attached
 thoughtdag recall <session> <n>
 thoughtdag status
-thoughtdag purge
+thoughtdag purge [--cache]
+thoughtdag mcp                           # the same questions as MCP tools (stdio, read-only)
+thoughtdag setup [mcp | rules [--remove]]
 ```
+
+## Let the agent ask on its own
+
+`thoughtdag setup mcp` registers the server for Claude Code in this project's `.mcp.json` and for Codex in `~/.codex/config.toml`; the agent then has `why_check`, `why_file`, `find` and `recall_turn` as tools. `thoughtdag setup rules` adds two lines to this project's `CLAUDE.md` and `AGENTS.md` — check for history before editing a file; query before explaining why code is the way it is — as a marked block, `--remove` takes it out. Both are per project and explicit; nothing is written unless you ask.

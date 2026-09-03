@@ -18,7 +18,7 @@
 // Source files are read, never written. The index is derived and can
 // always be rebuilt; a query refreshes it first when a source moved on.
 
-import { promises as fsp, createReadStream, createWriteStream } from 'node:fs';
+import { promises as fsp, createReadStream, createWriteStream, statSync } from 'node:fs';
 import { createInterface } from 'node:readline';
 import path from 'node:path';
 import os from 'node:os';
@@ -333,12 +333,55 @@ async function readJson<T>(file: string, empty: () => T): Promise<T> {
   } catch { return empty(); }
 }
 
+/** A temp name no other process can be using: pid and a time tag. Two
+ *  queries refreshing at once used to share one `.tmp` and one of them
+ *  lost the rename race. */
+const tmpFor = (file: string): string => `${file}.${process.pid}.${Date.now().toString(36)}.tmp`;
+
+const LOCK_FILE = path.join(HOME, 'index.lock');
+const LOCK_STALE_MS = 10 * 60_000;
+
+/** One refresher at a time. Returns a release function, or null when
+ *  another live process holds the lock. A lock left by a dead process
+ *  (or older than ten minutes) is broken. */
+async function acquireLock(): Promise<(() => Promise<void>) | null> {
+  await fsp.mkdir(HOME, { recursive: true, mode: 0o700 });
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const fh = await fsp.open(LOCK_FILE, 'wx', 0o600);
+      await fh.writeFile(JSON.stringify({ pid: process.pid, at: Date.now() }));
+      await fh.close();
+      return async () => { await fsp.rm(LOCK_FILE, { force: true }).catch(() => undefined); };
+    } catch (err) {
+      if ((err as NodeJS.ErrnoException).code !== 'EEXIST') throw err;
+      let holder: { pid?: number; at?: number } = {};
+      try { holder = JSON.parse(await fsp.readFile(LOCK_FILE, 'utf8')) as typeof holder; } catch { /* unreadable: treat as stale */ }
+      const alive = (() => { if (!holder.pid) return false; try { process.kill(holder.pid, 0); return true; } catch { return false; } })();
+      const stale = !alive || !holder.at || Date.now() - holder.at > LOCK_STALE_MS;
+      if (!stale) return null;
+      await fsp.rm(LOCK_FILE, { force: true }).catch(() => undefined);
+    }
+  }
+  return null;
+}
+
+/** Wait for another process's refresh to finish (the lock to disappear),
+ *  bounded; true when it did. */
+async function waitForLock(maxMs = 20_000): Promise<boolean> {
+  const t0 = Date.now();
+  while (Date.now() - t0 < maxMs) {
+    try { await fsp.access(LOCK_FILE); } catch { return true; }
+    await new Promise((r) => setTimeout(r, 150));
+  }
+  return false;
+}
+
 /** Private by construction: the directory is 0700, every file 0600, and
  *  a write never leaves a half-written index behind. */
 async function writePrivate(file: string, data: unknown): Promise<void> {
   await fsp.mkdir(HOME, { recursive: true, mode: 0o700 });
   await fsp.chmod(HOME, 0o700).catch(() => undefined);
-  const tmp = `${file}.tmp`;
+  const tmp = tmpFor(file);
   await fsp.writeFile(tmp, JSON.stringify(data), { mode: 0o600 });
   await fsp.chmod(tmp, 0o600).catch(() => undefined);
   await fsp.rename(tmp, file);
@@ -354,14 +397,14 @@ const loadText = (): Promise<TextIndex> => readJson(TEXT_FILE, emptyText);
 
 // ─── index ───────────────────────────────────────────────────────────
 
-interface BuildReport { parsed: number; kept: number; skipped: number; removed: number; seconds: number }
+interface BuildReport { parsed: number; kept: number; skipped: number; removed: number; seconds: number; waited?: boolean }
 
 /** The text lines file is rewritten by streaming: lines of unchanged
  *  sources pass through, lines of re-read or vanished sources are dropped,
  *  new lines are appended. Never held in memory whole. */
 async function rewriteTextLines(replaced: Map<string, Record<string, TextTurn>>, removed: Set<string>, full: boolean): Promise<void> {
   await fsp.mkdir(HOME, { recursive: true, mode: 0o700 });
-  const tmp = `${TEXT_LINES}.tmp`;
+  const tmp = tmpFor(TEXT_LINES);
   const out = createWriteStream(tmp, { mode: 0o600 });
   const write = (line: string): Promise<void> => new Promise((res, rej) => { out.write(line + '\n', (e) => (e ? rej(e) : res())); });
   if (!full) {
@@ -387,6 +430,21 @@ async function rewriteTextLines(replaced: Map<string, Record<string, TextTurn>>,
 async function buildIndex(full: boolean, canvasDir?: string): Promise<BuildReport> {
   const t0 = Date.now();
   if (canvasDir) await rememberCanvasRoot(canvasDir);
+  // one refresher at a time; a second caller waits for the first and
+  // then simply reads what it wrote
+  const release = await acquireLock();
+  if (!release) {
+    const done = await waitForLock();
+    return { parsed: 0, kept: 0, skipped: 0, removed: 0, seconds: (Date.now() - t0) / 1000, waited: done };
+  }
+  try {
+    return await buildIndexLocked(full, t0);
+  } finally {
+    await release();
+  }
+}
+
+async function buildIndexLocked(full: boolean, t0: number): Promise<BuildReport> {
   await fsp.rm(LEGACY_FILE, { force: true }).catch(() => undefined);
   const facts = full ? emptyFacts() : await loadFacts();
   const cache = full ? emptyCache() : await loadCache();
@@ -449,7 +507,8 @@ async function ensureFresh(): Promise<FactIndex> {
     || Object.keys(facts.sessions).length + Object.keys(facts.skipped).length !== keyed.length;
   if (!stale) return facts;
   const r = await buildIndex(false);
-  console.error(`(index refreshed: ${r.parsed} session${r.parsed === 1 ? '' : 's'} re-read, ${r.removed} gone, ${r.seconds.toFixed(1)}s)`);
+  if (r.waited !== undefined) console.error(r.waited ? '(index refreshed by another process)' : '(index refresh in progress elsewhere; answering from the current index)');
+  else console.error(`(index refreshed: ${r.parsed} session${r.parsed === 1 ? '' : 's'} re-read, ${r.removed} gone, ${r.seconds.toFixed(1)}s)`);
   return loadFacts();
 }
 
@@ -588,7 +647,8 @@ function turnNumber(facts: FactIndex, h: Hit): number {
   return (fragmentsOf(facts, h.session.id).find((f) => f.key === h.sourceKey)?.offset ?? 0) + h.turn.i;
 }
 
-async function printWhy(facts: FactIndex, file: string, hits: Hit[], readsHidden: number, cache: CacheIndex, limit: number, json: boolean): Promise<void> {
+async function renderWhy(facts: FactIndex, file: string, hits: Hit[], readsHidden: number, cache: CacheIndex, limit: number, json: boolean): Promise<string> {
+  const out: string[] = [];
   const bySession = new Map<string, Hit[]>();
   for (const h of hits) (bySession.get(h.session.id) ?? bySession.set(h.session.id, []).get(h.session.id)!).push(h);
   const groups = [...bySession.values()]
@@ -599,7 +659,7 @@ async function printWhy(facts: FactIndex, file: string, hits: Hit[], readsHidden
   const interp = (h: Hit): CacheTurn => cache.sessions[h.sourceKey]?.[String(h.turn.i)] ?? {};
 
   if (json) {
-    console.log(JSON.stringify({
+    out.push(JSON.stringify({
       artifact: file, file: filePathOf(file), turns: hits.length, sessions: bySession.size, readsHidden, evidence: EVIDENCE,
       hits: [...shown].map((h) => {
         const c = interp(h);
@@ -612,7 +672,7 @@ async function printWhy(facts: FactIndex, file: string, hits: Hit[], readsHidden
         };
       }),
     }, null, 1));
-    return;
+    return out.join('\n');
   }
 
   const label = await displayOf(file, facts.names);
@@ -622,28 +682,29 @@ async function printWhy(facts: FactIndex, file: string, hits: Hit[], readsHidden
     readsHidden ? `${readsHidden} read${readsHidden === 1 ? '' : 's'} hidden, --include-read` : '',
     n > limit ? `showing ${limit}, --limit for more` : '',
   ].filter(Boolean);
-  console.log(`${head}${notes.length ? `  (${notes.join('; ')})` : ''}\n`);
+  out.push(`${head}${notes.length ? `  (${notes.join('; ')})` : ''}\n`);
   let printed = 0;
   for (const g of groups) {
     const mine = g.filter((h) => shown.has(h));
     if (!mine.length) continue;
     const s = g[0].session;
-    console.log(`${s.runner}  「${s.title.slice(0, 70)}」${s.subagent ? '  (subagent)' : ''}${s.anchor ? `  ↩ from canvas node ${s.anchor.node} (${s.anchor.bundle}, ${anchorStatus(facts, s.anchor)})` : ''}`);
+    out.push(`${s.runner}  「${s.title.slice(0, 70)}」${s.subagent ? '  (subagent)' : ''}${s.anchor ? `  ↩ from canvas node ${s.anchor.node} (${s.anchor.bundle}, ${anchorStatus(facts, s.anchor)})` : ''}`);
     for (const h of mine) {
       const c = interp(h);
       const where = h.touch.l?.map((l) => l.pages ? `p.${l.pages}` : l.lines ? `L${l.lines[0]}-${l.lines[1]}` : '').filter(Boolean).join(' ');
-      console.log(`  ${when(h.turn, s)}  ${OP_MARK[h.touch.op]}  #${turnNumber(facts, h)}${where ? `  ${where}` : ''}  ${openLink(h)}`);
-      console.log(`    Q: ${h.turn.q}${c.p ? `   ⤴ ${c.p}` : ''}`);
-      if (h.touch.d) console.log(`    Δ ${h.touch.d}`);
+      out.push(`  ${when(h.turn, s)}  ${OP_MARK[h.touch.op]}  #${turnNumber(facts, h)}${where ? `  ${where}` : ''}  ${openLink(h)}`);
+      out.push(`    Q: ${h.turn.q}${c.p ? `   ⤴ ${c.p}` : ''}`);
+      if (h.touch.d) out.push(`    Δ ${h.touch.d}`);
       const about = c.m?.[file];
-      if (about) console.log(`    ≈ ${about}`);
-      else if (c.c) console.log(`    ≈ ${c.c}   (closing line)`);
+      if (about) out.push(`    ≈ ${about}`);
+      else if (c.c) out.push(`    ≈ ${c.c}   (closing line)`);
       printed++;
     }
-    console.log('');
+    out.push('');
   }
-  if (!printed) console.log('(no turns)\n');
-  console.log('Δ observed change · ≈ read from the answer, a candidate explanation, not a verified reason · ⤴ the earlier question this reply answers');
+  if (!printed) out.push('(no turns)\n');
+  out.push('Δ observed change · ≈ read from the answer, a candidate explanation, not a verified reason · ⤴ the earlier question this reply answers');
+  return out.join('\n');
 }
 
 // ─── find ────────────────────────────────────────────────────────────
@@ -698,29 +759,59 @@ async function findHits(facts: FactIndex, phrase: string, scope: 'q' | 'a' | 'm'
   return hits.sort((a, b) => (b.turn.at ?? '').localeCompare(a.turn.at ?? ''));
 }
 
-function printFind(facts: FactIndex, phrase: string, hits: FindHit[], limit: number, json: boolean): void {
+function renderFind(facts: FactIndex, phrase: string, hits: FindHit[], limit: number, json: boolean): string {
+  const out: string[] = [];
   const shown = hits.slice(0, limit);
   const sessions = new Set(hits.map((h) => h.session.id)).size;
   if (json) {
-    console.log(JSON.stringify({ phrase, turns: hits.length, sessions, evidence: { Q: 'observed (a question, verbatim)', A: 'observed (an answer, verbatim)', M: "observed (an attached material's text, verbatim)" },
+    out.push(JSON.stringify({ phrase, turns: hits.length, sessions, evidence: { Q: 'observed (a question, verbatim)', A: 'observed (an answer, verbatim)', M: "observed (an attached material's text, verbatim)" },
       hits: shown.map((h) => ({ session: h.session.id, runner: h.session.runner, title: h.session.title, turn: turnNumber(facts, h), at: h.turn.at ?? null, where: h.where, snippet: h.snippet, open: openLink(h) })) }, null, 1));
-    return;
+    return out.join('\n');
   }
-  console.log(`find "${phrase}"  ·  ${hits.length} turn${hits.length === 1 ? '' : 's'} in ${sessions} session${sessions === 1 ? '' : 's'}${hits.length > limit ? `  (showing ${limit}, --limit for more)` : ''}\n`);
+  out.push(`find "${phrase}"  ·  ${hits.length} turn${hits.length === 1 ? '' : 's'} in ${sessions} session${sessions === 1 ? '' : 's'}${hits.length > limit ? `  (showing ${limit}, --limit for more)` : ''}\n`);
   for (const h of shown) {
     const s = h.session;
-    console.log(`${when(h.turn, s)}  ${s.runner}  「${s.title.slice(0, 60)}」  #${turnNumber(facts, h)}  ${openLink(h)}`);
-    console.log(`    ${h.where}: ${h.snippet}`);
+    out.push(`${when(h.turn, s)}  ${s.runner}  「${s.title.slice(0, 60)}」  #${turnNumber(facts, h)}  ${openLink(h)}`);
+    out.push(`    ${h.where}: ${h.snippet}`);
   }
-  if (!shown.length) console.log('(nothing asked, answered or attached in those words — try another wording; matching is exact)');
-  else console.log('\nQ: asked · A: answered · M: in an attached material — all verbatim; the phrase must appear in those words');
+  if (!shown.length) out.push('(nothing asked, answered or attached in those words — try another wording; matching is exact)');
+  else out.push('\nQ: asked · A: answered · M: in an attached material — all verbatim; the phrase must appear in those words');
+  return out.join('\n');
+}
+
+// ─── check ───────────────────────────────────────────────────────────
+
+/** The cheap question an agent asks before touching a file: is there any
+ *  history here at all? Facts only, one line, exit code 0 when there is.
+ *  Reads a recent index as-is (the last ten minutes), refreshes only when
+ *  it is older — a rule that fires before every edit must cost almost
+ *  nothing. */
+const CHECK_FRESH_MS = 10 * 60_000;
+
+async function factsForCheck(force: boolean): Promise<FactIndex> {
+  const facts = await loadFacts();
+  const age = facts.builtAt ? Date.now() - new Date(facts.builtAt).getTime() : Infinity;
+  return force || age > CHECK_FRESH_MS ? ensureFresh() : facts;
+}
+
+function renderCheck(facts: FactIndex, arg: string, file: string | null, hits: Hit[], json: boolean): { text: string; has: boolean } {
+  const changes = hits.filter((h) => !readLike(h.touch.op)).length;
+  const reads = hits.length - changes;
+  const sessions = new Set(hits.map((h) => h.session.id)).size;
+  const latest = hits.map((h) => h.turn.at ?? '').filter(Boolean).sort().pop();
+  const has = hits.length > 0;
+  if (json) return { text: JSON.stringify({ query: arg, artifact: file, history: has, turns: hits.length, sessions, changes, reads, latest: latest ?? null }), has };
+  if (!has) return { text: `${arg}: no history`, has };
+  const parts = [`${hits.length} turn${hits.length === 1 ? '' : 's'} in ${sessions} session${sessions === 1 ? '' : 's'}`, changes ? `${changes} edit${changes === 1 ? '' : 's'}/write${changes === 1 ? '' : 's'}` : '', reads ? `${reads} read${reads === 1 ? '' : 's'}` : '', latest ? `latest ${latest.slice(0, 10)}` : ''].filter(Boolean);
+  return { text: `${arg}: ${parts.join(' · ')}  →  thoughtdag why ${arg}`, has };
 }
 
 // ─── recall ──────────────────────────────────────────────────────────
 
-async function recall(facts: FactIndex, sidPrefix: string, n: number): Promise<void> {
+async function renderRecall(facts: FactIndex, sidPrefix: string, n: number): Promise<string> {
+  const out: string[] = [];
   const any = Object.values(facts.sessions).find((x) => x.id.startsWith(sidPrefix));
-  if (!any) { console.error(`no session starts with ${sidPrefix}`); process.exit(1); }
+  if (!any) throw new Error(`no session starts with ${sidPrefix}`);
   // the fragment that holds turn n of the logical session
   const frag = fragmentsOf(facts, any.id).find((f) => n >= f.offset && n < f.offset + f.s.turns.length);
   const s = frag?.s ?? any;
@@ -732,17 +823,170 @@ async function recall(facts: FactIndex, sidPrefix: string, n: number): Promise<v
     const text = tid ? p?.texts.get(tid) : undefined;
     return text ? { question: text.question, response: text.response, tools: [] as RunnerTurn['tools'], at: s.turns[local]?.at } : undefined;
   })();
-  if (!turn) { console.error(`session ${s.id.slice(0, 8)} has no turn #${n}`); process.exit(1); }
-  console.log(`${s.runner}  「${s.title}」  turn #${n}${turn.at ? `  ${turn.at.slice(0, 16).replace('T', ' ')}` : ''}\n`);
-  console.log(`## Question\n\n${turn.question.trim()}\n`);
-  console.log(`## Answer\n\n${turn.response.trim() || '(none)'}\n`);
+  if (!turn) throw new Error(`session ${s.id.slice(0, 8)} has no turn #${n}`);
+  out.push(`${s.runner}  「${s.title}」  turn #${n}${turn.at ? `  ${turn.at.slice(0, 16).replace('T', ' ')}` : ''}\n`);
+  out.push(`## Question\n\n${turn.question.trim()}\n`);
+  out.push(`## Answer\n\n${turn.response.trim() || '(none)'}\n`);
   if (turn.tools.length) {
-    console.log(`## Tools (${turn.tools.length})\n`);
+    out.push(`## Tools (${turn.tools.length})\n`);
     for (const t of turn.tools) {
-      console.log(`- ${t.name}${t.paths?.length ? `  ${t.paths.join(', ')}` : ''}`);
-      if (t.op === 'edit' || t.op === 'write') console.log(t.call.slice(0, 1200).split('\n').map((l) => `    ${l}`).join('\n'));
+      out.push(`- ${t.name}${t.paths?.length ? `  ${t.paths.join(', ')}` : ''}`);
+      if (t.op === 'edit' || t.op === 'write') out.push(t.call.slice(0, 1200).split('\n').map((l) => `    ${l}`).join('\n'));
     }
   }
+  return out.join('\n');
+}
+
+// ─── mcp ─────────────────────────────────────────────────────────────
+//
+// The same four questions as tools an agent calls itself, over the Model
+// Context Protocol's stdio transport (newline-delimited JSON-RPC 2.0).
+// Read-only by construction: nothing here writes a canvas or a session.
+// stdout carries protocol frames only; every notice goes to stderr.
+
+const CLI_VERSION = '0.1.0';
+const MCP_TOOLS = [
+  { name: 'why_check', description: 'Cheap first question before editing a file: does this artifact have any history in local agent sessions? One line; history true/false.', inputSchema: { type: 'object', properties: { path: { type: 'string', description: 'file path (absolute or relative to cwd), URL, or arxiv:<id>' } }, required: ['path'] } },
+  { name: 'why_file', description: 'The turns across local Claude Code, Codex and ThoughtDAG sessions that touched a file, URL or paper: when, what changed (Δ, observed), what was asked, what the answer said about it (≈, a candidate explanation, not a verified reason). Each hit carries a deep link.', inputSchema: { type: 'object', properties: { path: { type: 'string' }, include_read: { type: 'boolean', description: 'also list turns that only read it (default false)' }, limit: { type: 'number', description: 'max hits (default 10)' } }, required: ['path'] } },
+  { name: 'find', description: 'Where these exact words were asked (Q), answered (A) or attached (M) across local sessions and canvases. Exact, case-insensitive match; every hit is a verbatim snippet with a pointer.', inputSchema: { type: 'object', properties: { phrase: { type: 'string' }, in: { type: 'string', enum: ['q', 'a', 'm', 'all'] }, limit: { type: 'number' } }, required: ['phrase'] } },
+  { name: 'recall_turn', description: 'One turn in full — the question, the answer, the tool calls with their diffs — by session id (or prefix) and turn number as shown by why_file.', inputSchema: { type: 'object', properties: { session: { type: 'string' }, turn: { type: 'number' } }, required: ['session', 'turn'] } },
+];
+
+async function mcpCall(name: string, a: Record<string, unknown>): Promise<string> {
+  if (name === 'why_check') {
+    const facts = await factsForCheck(false);
+    const q = String(a.path ?? '');
+    const { path: file } = await resolveQuery(facts, q, false);
+    return renderCheck(facts, q, file, file ? hitsFor(facts, file, true).hits : [], false).text;
+  }
+  if (name === 'why_file') {
+    const facts = await ensureFresh();
+    const q = String(a.path ?? '');
+    const { path: file, candidates, elsewhere } = await resolveQuery(facts, q, false);
+    if (!file) return candidates.length ? `${candidates.length} files match "${q}" — pick one:\n${candidates.slice(0, 20).map((c) => `  ${c}`).join('\n')}` : elsewhere ? `no match in this workspace (${elsewhere} elsewhere)` : `no session touched ${q}`;
+    const { hits, readsHidden } = hitsFor(facts, file, a.include_read === true);
+    return renderWhy(facts, file, hits, readsHidden, await loadCache(), Number(a.limit ?? 10) || 10, false);
+  }
+  if (name === 'find') {
+    const facts = await ensureFresh();
+    const scope = (['q', 'a', 'm'] as const).find((x) => x === a.in) ?? 'all';
+    return renderFind(facts, String(a.phrase ?? ''), await findHits(facts, String(a.phrase ?? ''), scope), Number(a.limit ?? 10) || 10, false);
+  }
+  if (name === 'recall_turn') return renderRecall(await ensureFresh(), String(a.session ?? ''), Number(a.turn ?? 0));
+  throw new Error(`unknown tool: ${name}`);
+}
+
+async function serveMcp(): Promise<void> {
+  const send = (msg: unknown): void => { process.stdout.write(`${JSON.stringify(msg)}\n`); };
+  const rl = createInterface({ input: process.stdin });
+  for await (const line of rl) {
+    if (!line.trim()) continue;
+    let req: { id?: unknown; method?: string; params?: Record<string, unknown> };
+    try { req = JSON.parse(line) as typeof req; } catch { continue; }
+    const { id, method, params } = req;
+    if (method === 'notifications/initialized' || method === 'notifications/cancelled') continue;
+    if (id === undefined) continue; // a notification we do not handle
+    try {
+      if (method === 'initialize') {
+        send({ jsonrpc: '2.0', id, result: { protocolVersion: (params?.protocolVersion as string) ?? '2025-06-18', capabilities: { tools: {} }, serverInfo: { name: 'thoughtdag', version: CLI_VERSION } } });
+      } else if (method === 'ping') {
+        send({ jsonrpc: '2.0', id, result: {} });
+      } else if (method === 'tools/list') {
+        send({ jsonrpc: '2.0', id, result: { tools: MCP_TOOLS } });
+      } else if (method === 'tools/call') {
+        const name = String(params?.name ?? '');
+        const args = (params?.arguments as Record<string, unknown>) ?? {};
+        try {
+          const text = await mcpCall(name, args);
+          send({ jsonrpc: '2.0', id, result: { content: [{ type: 'text', text }] } });
+        } catch (err) {
+          send({ jsonrpc: '2.0', id, result: { content: [{ type: 'text', text: err instanceof Error ? err.message : String(err) }], isError: true } });
+        }
+      } else {
+        send({ jsonrpc: '2.0', id, error: { code: -32601, message: `method not found: ${method}` } });
+      }
+    } catch (err) {
+      send({ jsonrpc: '2.0', id, error: { code: -32603, message: err instanceof Error ? err.message : String(err) } });
+    }
+  }
+}
+
+// ─── setup: MCP registration and the two rules, explicit and reversible ──
+//
+// `setup mcp` registers the server for Claude Code in THIS project's
+// .mcp.json (project scope) and for Codex in ~/.codex/config.toml (the
+// only place Codex reads). `setup rules` appends a marked block to this
+// project's CLAUDE.md and AGENTS.md; --remove takes it out. Nothing is
+// written globally for Claude Code, nothing is written without being asked.
+
+const RULES_BEGIN = '<!-- thoughtdag:begin -->';
+const RULES_END = '<!-- thoughtdag:end -->';
+const RULES_BLOCK = `${RULES_BEGIN}
+## ThoughtDAG (the why layer)
+- Before editing a file, run \`thoughtdag why --check <path>\` (or the why_check tool). If it reports history, run \`thoughtdag why <path>\` and read what shaped the file before changing it.
+- When asked why code is the way it is, query first — \`thoughtdag why <path>\`, \`thoughtdag find "<words>"\` — then read the code.
+${RULES_END}
+`;
+
+/** How to start the server from a config file: the PATH command when
+ *  installed, else node plus this very file. */
+function mcpCommand(): { command: string; args: string[] } {
+  const onPath = (process.env.PATH ?? '').split(path.delimiter).some((d) => { try { return !!d && statSync(path.join(d, 'thoughtdag')).isFile(); } catch { return false; } });
+  return onPath ? { command: 'thoughtdag', args: ['mcp'] } : { command: process.execPath, args: [process.argv[1], 'mcp'] };
+}
+
+async function setupMcp(): Promise<string[]> {
+  const notes: string[] = [];
+  const cmd = mcpCommand();
+  // Claude Code: project-scoped .mcp.json
+  const mcpJson = path.join(process.cwd(), '.mcp.json');
+  let cfg: { mcpServers?: Record<string, unknown> } = {};
+  try { cfg = JSON.parse(await fsp.readFile(mcpJson, 'utf8')) as typeof cfg; } catch { /* new file */ }
+  cfg.mcpServers = { ...(cfg.mcpServers ?? {}), thoughtdag: { command: cmd.command, args: cmd.args } };
+  await fsp.writeFile(mcpJson, `${JSON.stringify(cfg, null, 2)}\n`);
+  notes.push(`claude-code: registered in ${mcpJson} (project scope)`);
+  // Codex: ~/.codex/config.toml, a marked block, once
+  const codexCfg = path.join(os.homedir(), '.codex', 'config.toml');
+  let toml = '';
+  try { toml = await fsp.readFile(codexCfg, 'utf8'); } catch { /* new file */ }
+  if (!/^\[mcp_servers\.thoughtdag\]/m.test(toml)) {
+    const block = `\n# thoughtdag — the why layer (added by \`thoughtdag setup mcp\`)\n[mcp_servers.thoughtdag]\ncommand = ${JSON.stringify(cmd.command)}\nargs = ${JSON.stringify(cmd.args)}\n`;
+    await fsp.mkdir(path.dirname(codexCfg), { recursive: true });
+    await fsp.writeFile(codexCfg, `${toml.replace(/\s*$/, '')}${toml.trim() ? '\n' : ''}${block}`);
+    notes.push(`codex: registered in ${codexCfg}`);
+  } else notes.push(`codex: already registered in ${codexCfg}`);
+  return notes;
+}
+
+async function setupRules(remove: boolean): Promise<string[]> {
+  const notes: string[] = [];
+  for (const name of ['CLAUDE.md', 'AGENTS.md']) {
+    const file = path.join(process.cwd(), name);
+    let text = '';
+    try { text = await fsp.readFile(file, 'utf8'); } catch { if (remove) { notes.push(`${name}: absent`); continue; } }
+    const has = text.includes(RULES_BEGIN);
+    if (remove) {
+      if (!has) { notes.push(`${name}: no thoughtdag block`); continue; }
+      const stripped = text.replace(new RegExp(`\\n?${RULES_BEGIN}[\\s\\S]*?${RULES_END}\\n?`), '\n').replace(/\n{3,}/g, '\n\n').replace(/\s+$/, '\n');
+      await fsp.writeFile(file, stripped);
+      notes.push(`${name}: thoughtdag block removed`);
+    } else {
+      if (has) { notes.push(`${name}: already has the thoughtdag block`); continue; }
+      await fsp.writeFile(file, `${text.replace(/\s*$/, '')}${text.trim() ? '\n\n' : ''}${RULES_BLOCK}`);
+      notes.push(`${name}: thoughtdag block added`);
+    }
+  }
+  return notes;
+}
+
+async function setupStatus(): Promise<string[]> {
+  const notes: string[] = [];
+  try { const c = JSON.parse(await fsp.readFile(path.join(process.cwd(), '.mcp.json'), 'utf8')) as { mcpServers?: Record<string, unknown> }; notes.push(`claude-code mcp (project): ${c.mcpServers?.thoughtdag ? 'registered' : 'not registered'}`); } catch { notes.push('claude-code mcp (project): not registered'); }
+  try { const t = await fsp.readFile(path.join(os.homedir(), '.codex', 'config.toml'), 'utf8'); notes.push(`codex mcp: ${/^\[mcp_servers\.thoughtdag\]/m.test(t) ? 'registered' : 'not registered'}`); } catch { notes.push('codex mcp: not registered'); }
+  for (const name of ['CLAUDE.md', 'AGENTS.md']) {
+    try { const t = await fsp.readFile(path.join(process.cwd(), name), 'utf8'); notes.push(`${name}: ${t.includes(RULES_BEGIN) ? 'rules present' : 'no rules'}`); } catch { notes.push(`${name}: absent`); }
+  }
+  return notes;
 }
 
 // ─── main ────────────────────────────────────────────────────────────
@@ -752,12 +996,15 @@ const USAGE = `thoughtdag — the why layer
   thoughtdag index [--full] [--canvas <dir>]       build or refresh the index (--canvas: also read canvas backups in <dir>, remembered)
   thoughtdag why <path> [--include-read] [--all] [--limit N] [--json]
                                                    the turns that touched a file, and what they said
+  thoughtdag why --check <path> [--fresh] [--json]  one line: is there history here? exit 0 yes, 1 no (cheap; refreshes only a stale index)
   thoughtdag find "<phrase>" [--in q|a|m] [--limit N] [--json]
                                                    the turns where those words were asked (Q), answered (A) or attached (M)
   thoughtdag recall <session> <n>                  one turn in full (session id or prefix)
   thoughtdag status                                what the index holds, and how much is evidence
   thoughtdag purge [--cache]                       delete everything this tool stored (--cache: only the interpretation and text caches)
   thoughtdag events <session-file> [--touches]     the canonical events of one source file, one JSON per line
+  thoughtdag mcp                                   serve why_check / why_file / find / recall_turn over MCP (stdio, read-only)
+  thoughtdag setup [mcp | rules [--remove]]        register the MCP server (this project + Codex), add/remove the two rules in this project's CLAUDE.md and AGENTS.md; bare: show status
 `;
 
 async function main(argv: string[]): Promise<void> {
@@ -785,13 +1032,27 @@ async function main(argv: string[]): Promise<void> {
   }
   if (cmd === 'purge') {
     // --cache drops only the interpretation; the next index recomputes it
-    const targets = flag('cache') ? [CACHE_FILE, TEXT_FILE, TEXT_LINES, `${CACHE_FILE}.tmp`, `${TEXT_FILE}.tmp`, `${TEXT_LINES}.tmp`] : [FACT_FILE, CACHE_FILE, TEXT_FILE, TEXT_LINES, LEGACY_FILE, `${FACT_FILE}.tmp`, `${CACHE_FILE}.tmp`, `${TEXT_FILE}.tmp`, `${TEXT_LINES}.tmp`];
+    const targets = flag('cache') ? [CACHE_FILE, TEXT_FILE, TEXT_LINES] : [FACT_FILE, CACHE_FILE, TEXT_FILE, TEXT_LINES, LEGACY_FILE, LOCK_FILE];
     let n = 0;
     for (const f of targets) {
       try { await fsp.rm(f); n++; } catch { /* absent */ }
     }
+    // leftovers of interrupted writes
+    for (const name of await fsp.readdir(HOME).catch(() => [] as string[])) {
+      if (/\.tmp$/.test(name)) { await fsp.rm(path.join(HOME, name), { force: true }).catch(() => undefined); }
+    }
     console.log(`removed ${n} file${n === 1 ? '' : 's'} from ${HOME}`);
     return;
+  }
+  if (cmd === 'why' && flag('check')) {
+    if (!args[0]) { console.error(USAGE); process.exit(2); }
+    const facts = await factsForCheck(flag('fresh'));
+    if (!facts.builtAt) { console.error('no index yet — run: thoughtdag index'); process.exit(1); }
+    const { path: file } = await resolveQuery(facts, args[0], flag('all'));
+    const hits = file ? hitsFor(facts, file, true).hits : [];
+    const r = renderCheck(facts, args[0], file, hits, flag('json'));
+    console.log(r.text);
+    process.exit(r.has ? 0 : 1);
   }
   if (cmd === 'why') {
     if (!args[0]) { console.error(USAGE); process.exit(2); }
@@ -810,7 +1071,15 @@ async function main(argv: string[]): Promise<void> {
       return;
     }
     const { hits, readsHidden } = hitsFor(facts, file, flag('include-read'));
-    return printWhy(facts, file, hits, readsHidden, await loadCache(), Number(value('limit') ?? 10) || 10, flag('json'));
+    console.log(await renderWhy(facts, file, hits, readsHidden, await loadCache(), Number(value('limit') ?? 10) || 10, flag('json')));
+    return;
+  }
+  if (cmd === 'mcp') return serveMcp();
+  if (cmd === 'setup') {
+    const what = args[0];
+    const notes = what === 'mcp' ? await setupMcp() : what === 'rules' ? await setupRules(flag('remove')) : await setupStatus();
+    for (const n of notes) console.log(n);
+    return;
   }
   if (cmd === 'events') {
     if (!args[0]) { console.error(USAGE); process.exit(2); }
@@ -826,11 +1095,13 @@ async function main(argv: string[]): Promise<void> {
     const facts = flag('no-refresh') ? await loadFacts() : await ensureFresh();
     if (!facts.builtAt) { console.error('no index yet — run: thoughtdag index'); process.exit(1); }
     const scope = value('in') === 'q' ? 'q' : value('in') === 'a' ? 'a' : value('in') === 'm' ? 'm' : 'all';
-    return printFind(facts, args[0], await findHits(facts, args[0], scope), Number(value('limit') ?? 10) || 10, flag('json'));
+    console.log(renderFind(facts, args[0], await findHits(facts, args[0], scope), Number(value('limit') ?? 10) || 10, flag('json')));
+    return;
   }
   if (cmd === 'recall') {
     if (!args[0] || args[1] === undefined) { console.error(USAGE); process.exit(2); }
-    return recall(await ensureFresh(), args[0], Number(args[1]));
+    console.log(await renderRecall(await ensureFresh(), args[0], Number(args[1])));
+    return;
   }
   console.log(USAGE);
   if (cmd && cmd !== 'help' && cmd !== '--help') process.exit(2);
