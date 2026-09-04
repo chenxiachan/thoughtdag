@@ -7,6 +7,7 @@ const path = require('path');
 const net = require('net');
 const os = require('os');
 const fsp = require('fs/promises');
+const { zstdDecompressSync } = require('node:zlib');
 
 // Development: the repo root (live dist + server.mjs + root node_modules).
 // Packaged: a self-contained payload under Resources — same three files,
@@ -115,6 +116,8 @@ const BUILTIN_ROOTS = process.env.TD_SESSION_ROOTS
   : {
     'claude-projects': path.join(os.homedir(), '.claude', 'projects'),
     'codex-sessions': path.join(os.homedir(), '.codex', 'sessions'),
+    // DeepSeek Harness: one session per dir under ~/.dsh/sessions/<encoded cwd>/
+    'dsh-sessions': path.join(process.env.DSH_HOME || path.join(os.homedir(), '.dsh'), 'sessions'),
   };
 // Custom roots join the whitelist ONLY through the native directory picker
 // (sessions:add-root) — the page can never name a path in a string. They
@@ -132,6 +135,32 @@ function resolveInRoot(rootKey, rel) {
   const abs = path.resolve(root, String(rel));
   if (abs !== root && !abs.startsWith(root + path.sep)) throw new Error('path escapes session root');
   return abs;
+}
+
+// DSH sessions are zstd-compressed JSONL (session.jsonl.zstd). The fenced
+// primitives below answer with TEXT — a head, a read, line-aligned chunks —
+// so a .zstd rel is decompressed here, once per file+mtime, and served from
+// the same buffer every reader sees. Raw files (claude/codex) are untouched.
+// Decompression is bounded per file: a frame far larger than any plausible
+// session (512MB of JSONL) is refused rather than ballooning the shell.
+const ZSTD_MAX = 512 * 1024 * 1024;
+const zstdCache = new Map(); // "rootKey:rel" -> { mtimeMs, size, buf }
+async function sessionText(rootKey, rel) {
+  if (typeof rel !== 'string' || !rel.endsWith('.zstd')) return '';
+  const abs = resolveInRoot(rootKey, rel);
+  const key = rootKey + ':' + rel;
+  const st = await fsp.stat(abs).catch(() => null);
+  if (!st) return '';
+  const hit = zstdCache.get(key);
+  if (hit && hit.mtimeMs === st.mtimeMs && hit.size === st.size) return hit.buf;
+  if (st.size > ZSTD_MAX) return '';
+  const raw = await fsp.readFile(abs).catch(() => null);
+  if (!raw) return '';
+  let buf;
+  try { buf = zstdDecompressSync(raw); } catch { return ''; }
+  if (zstdCache.size > 32) zstdCache.clear();
+  zstdCache.set(key, { mtimeMs: st.mtimeMs, size: st.size, buf });
+  return buf;
 }
 
 // ─── Terminal registry ─────────────────────────────────────────────────
@@ -318,7 +347,7 @@ function setupSessionAtlas() {
       for (const ent of entries) {
         const p = path.join(dir, ent.name);
         if (ent.isDirectory()) await walk(p, depth + 1);
-        else if (ent.isFile() && ent.name.endsWith('.jsonl')) {
+        else if (ent.isFile() && (ent.name.endsWith('.jsonl') || ent.name.endsWith('.zstd'))) {
           try {
             const st = await fsp.stat(p);
             out.push({ rel: path.relative(root, p), size: st.size, mtime: st.mtimeMs });
@@ -387,6 +416,11 @@ function setupSessionAtlas() {
   });
 
   ipcMain.handle('sessions:head', async (_e, rootKey, rel, bytes) => {
+    if (typeof rel === 'string' && rel.endsWith('.zstd')) {
+      const dec = await sessionText(rootKey, rel);
+      const n = Math.min(Math.max(1024, bytes | 0), 524288);
+      return dec ? dec.subarray(0, Math.min(n, dec.length)).toString('utf8') : '';
+    }
     const fh = await fsp.open(resolveInRoot(rootKey, rel), 'r');
     try {
       // upper bound generous on purpose: a codex session_meta line carries
@@ -400,7 +434,10 @@ function setupSessionAtlas() {
     }
   });
 
-  ipcMain.handle('sessions:read', (_e, rootKey, rel) => fsp.readFile(resolveInRoot(rootKey, rel), 'utf8'));
+  ipcMain.handle('sessions:read', (_e, rootKey, rel) => {
+    if (typeof rel === 'string' && rel.endsWith('.zstd')) return sessionText(rootKey, rel);
+    return fsp.readFile(resolveInRoot(rootKey, rel), 'utf8');
+  });
 
   // Chunked read for sessions beyond what one V8 string can hold (a 619MB
   // rollout is a real file on this machine). Chunks cut on line boundaries
@@ -408,25 +445,35 @@ function setupSessionAtlas() {
   // chunk (never observed — the worst line seen is 49KB) is dropped whole
   // rather than split into two corrupt halves.
   ipcMain.handle('sessions:read-range', async (_e, rootKey, rel, start, length) => {
-    const fh = await fsp.open(resolveInRoot(rootKey, rel), 'r');
+    // zstd sessions read from the decompressed buffer (see sessionText) —
+    // chunk offsets address the DECODED text, exactly as a raw .jsonl's
+    // offsets address its own file.
+    const isZstd = typeof rel === 'string' && rel.endsWith('.zstd');
+    const dec = isZstd ? await sessionText(rootKey, rel) : null;
+    const fh = isZstd ? null : await fsp.open(resolveInRoot(rootKey, rel), 'r');
     try {
-      const st = await fh.stat();
       const from = Math.max(0, Number(start) || 0);
       const want = Math.min(Math.max(65536, Number(length) || 0), 32 * 1024 * 1024);
-      const size = Math.min(want, Math.max(0, st.size - from));
+      const total = isZstd ? dec.length : (await fh.stat()).size;
+      const size = Math.min(want, Math.max(0, total - from));
       if (size === 0) return { text: '', nextStart: from, eof: true };
-      const buf = Buffer.alloc(size);
-      const { bytesRead } = await fh.read(buf, 0, size, from);
-      let slice = buf.subarray(0, bytesRead);
-      const eof = from + bytesRead >= st.size;
+      let slice;
+      if (isZstd) {
+        slice = dec.subarray(from, from + size);
+      } else {
+        const b = Buffer.alloc(size);
+        const { bytesRead } = await fh.read(b, 0, size, from);
+        slice = b.subarray(0, bytesRead);
+      }
+      const eof = from + size >= total;
       if (!eof) {
         const lastNl = slice.lastIndexOf(0x0a);
         if (lastNl >= 0) slice = slice.subarray(0, lastNl + 1);
-        else return { text: '', nextStart: from + bytesRead, eof: false };
+        else return { text: '', nextStart: from + size, eof: false };
       }
       return { text: slice.toString('utf8'), nextStart: from + slice.length, eof };
     } finally {
-      await fh.close();
+      if (fh) await fh.close();
     }
   });
 
@@ -443,7 +490,7 @@ function setupSessionAtlas() {
       if (!await dirExists(root)) continue;
       try {
         const w = fs.watch(root, { recursive: true }, (_event, filename) => {
-          if (!filename || !String(filename).endsWith('.jsonl')) return;
+          if (!filename || !(String(filename).endsWith('.jsonl') || String(filename).endsWith('.zstd'))) return;
           const key = `${rootKey}:${filename}`;
           clearTimeout(pending.get(key));
           pending.set(key, setTimeout(() => {
