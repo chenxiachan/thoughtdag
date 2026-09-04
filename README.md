@@ -4,14 +4,82 @@
 
 # ThoughtDAG
 
-**Your thinking deserves a map.** An infinite canvas where LLM conversations grow into an editable thought graph.
+**Find the conversations. Decide what the model sees next.**
 
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Status](https://img.shields.io/badge/status-active_development-6B5CE7)
 
 ### [Download ↓](https://chenxiachan.github.io/thoughtdag/#download) · [Website](https://chenxiachan.github.io/thoughtdag/) · [Docs](https://chenxiachan.github.io/thoughtdag/docs/)
 
-[中文](./README_ZH.md) · [Quick start](#quick-start) · [How it differs](#how-thoughtdag-differs) · [Session Atlas](#-session-atlas-bring-agent-conversations-onto-the-canvas) · [Research](#-research-why-editable-context-matters) · [Documentation](https://chenxiachan.github.io/thoughtdag/docs/) · [Models & privacy](#models-cost--privacy)
+[中文](./README_ZH.md) · [Find past context](#find-where-your-work-was-discussed) · [Visual app](#want-to-explore-and-shape-the-context-visually) · [How it differs](#how-thoughtdag-differs) · [Session Atlas](#-session-atlas-bring-agent-conversations-onto-the-canvas) · [Research](#-research-why-editable-context-matters) · [Documentation](https://chenxiachan.github.io/thoughtdag/docs/)
+
+</div>
+
+## Find where your work was discussed
+
+> Start with a code file, an exact phrase, a URL, or a paper. ThoughtDAG searches your local agent conversations and takes you back to the matching turn.
+
+Try it without installing anything:
+
+```bash
+npx thoughtdag why src/lib/api.ts
+npx thoughtdag find "a phrase you remember"
+```
+
+For regular use, install the CLI and connect its read-only MCP tools:
+
+```bash
+npm install -g thoughtdag
+thoughtdag setup mcp
+```
+
+Your agent can then call `why_check`, `why_file`, `find`, and `recall_turn` directly. Conversations from Claude Code, Codex, and ThoughtDAG canvases are indexed together on your machine; the desktop app is not required.
+
+### What it can find
+
+#### Which conversations changed or mentioned this code
+
+```text
+$ npx thoughtdag why src/lib/api.ts
+why src/lib/api.ts · 12 turns in 6 sessions
+claude-code  ✏️ edit  Q: Can the API detect vision support?
+             Δ storedProviders → storedProviders, storedVision…
+…
+```
+
+#### Which conversations discussed this concept
+
+```text
+$ npx thoughtdag find "context.committed" --in q
+find "context.committed" · 21 turns in 12 sessions
+claude-code  Q: …add context.committed to the event contract…
+codex        Q: …context.committed is already half implemented…
+…
+```
+
+#### Which conversations discussed this file, paper, or webpage
+
+```text
+$ npx thoughtdag find "arxiv" --in m
+find "arxiv" · 1 turn in 1 canvas
+thoughtdag   M: …collective intelligence, artificial life · arXiv:2606.26733…
+```
+
+Real local results, shortened to the most useful lines.
+
+> **Give agents less irrelevant history. Reduce context-driven hallucinations and wasted tokens. Improve answer accuracy.** The query layer brings back only the matching history; the canvas lets you cut contaminated branches before they shape the next answer.
+
+## Want to explore and shape the context visually?
+
+The full desktop app adds Session Atlas, an editable context canvas, PDF and file readers, model and search connections, clipping, export, and handoff.
+
+```bash
+brew install --cask thoughtdag
+```
+
+Or use the [download page](https://chenxiachan.github.io/thoughtdag/#download) for macOS, Windows, and Linux.
+
+<div align="center">
 
 <img src="docs/hero-demo-en.gif" alt="ThoughtDAG hero demo: asking from a PDF passage, editing model context by removing an edge, zooming out into a thought map, exporting a backup, and turning scattered agent sessions into persistent project context with Session Atlas" width="100%"/>
 
@@ -96,6 +164,8 @@ Many products use nodes and edges, but the graph does a different job in each ca
 | Branching chat canvases | They usually follow one inherited branch; ThoughtDAG can merge or prune several paths. |
 | Workflow and agent canvases | Edges run tasks and data; ThoughtDAG edges control conversational context. |
 | RAG and automatic memory | The system retrieves context automatically; ThoughtDAG makes the selection visible and editable. |
+| Code structure graphs | They answer what connects to what; ThoughtDAG finds the conversations and decisions that shaped it. |
+| Agent memory and conversation search | They retrieve text; ThoughtDAG indexes what agents did to files and materials, then lets you control what moves forward. |
 
 ThoughtDAG is a user-authored context graph: incoming paths and explicit references form the next request, while excluded work stays visible on the canvas.
 
@@ -105,26 +175,7 @@ The export keeps the nodes, wires and high-level structural counts. Different qu
 
 <img src="docs/thought-map-four-en.png" alt="Four Thought Map exports showing a deep single thread, five explored branches, a three-week investigation and a literature review season" width="100%"/>
 
-## Quick start
-
-### Desktop app
-
-On macOS, install with Homebrew:
-
-```bash
-brew install --cask thoughtdag
-```
-
-Or use the [download page](https://chenxiachan.github.io/thoughtdag/#download), which detects your platform and gives you the right installer; [Releases](https://github.com/chenxiachan/thoughtdag/releases/latest) keeps every build. macOS builds are signed and notarized. Windows builds are not signed yet and may show a SmartScreen warning.
-
-### Connect the Codex or Claude Code skill
-
-Session Atlas discovers and opens your local sessions with no setup at all — and an open canvas keeps following its conversation on its own. To jump from a conversation straight to its canvas inside the agent:
-
-- Claude Code: `/thoughtdag`
-- Codex: `$thoughtdag`
-
-Enable it in **Session Atlas → Sources**: the app installs one readable local command file, removable anytime.
+## More ways to run
 
 ### Run from source
 

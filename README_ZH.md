@@ -4,14 +4,82 @@
 
 # ThoughtDAG
 
-**思考值得一张地图。** 在无限画布上，AI 对话长成一张可编辑的思维图。
+**找到相关对话。决定模型下一步看到什么。**
 
 ![License](https://img.shields.io/badge/许可-MIT-green)
 ![Status](https://img.shields.io/badge/状态-活跃开发中-6B5CE7)
 
 ### [下载桌面版 ↓](https://chenxiachan.github.io/thoughtdag/?lang=zh#download) · [官网](https://chenxiachan.github.io/thoughtdag/?lang=zh) · [使用文档](https://chenxiachan.github.io/thoughtdag/docs/zh/)
 
-[English](./README.md) · [快速开始](#快速开始) · [有何不同](#thoughtdag-和其他图形化-ai-工具有何不同) · [Agent 会话](#-把-agent-会话带进画布) · [研究](#-研究为什么上下文需要可编辑) · [完整文档](https://chenxiachan.github.io/thoughtdag/docs/zh/) · [模型与隐私](#模型成本与隐私)
+[English](./README.md) · [找回历史上下文](#找到你们在哪里聊过它) · [可视化应用](#想进一步探索并可视化上下文) · [有何不同](#thoughtdag-和其他图形化-ai-工具有何不同) · [Agent 会话](#-把-agent-会话带进画布) · [研究](#-研究为什么上下文需要可编辑) · [完整文档](https://chenxiachan.github.io/thoughtdag/docs/zh/)
+
+</div>
+
+## 找到你们在哪里聊过它
+
+> 从一个代码文件、一句记得的原话、一个网址或一篇论文出发。ThoughtDAG 检索本机上的 Agent 对话，并带你回到命中的那一轮。
+
+无需安装，直接试用：
+
+```bash
+npx thoughtdag why src/lib/api.ts
+npx thoughtdag find "你记得的一句话"
+```
+
+日常使用时，安装 CLI 并接入只读 MCP 工具：
+
+```bash
+npm install -g thoughtdag
+thoughtdag setup mcp
+```
+
+之后 Agent 可以直接调用 `why_check`、`why_file`、`find` 和 `recall_turn`。Claude Code、Codex 与 ThoughtDAG 画布里的对话会在本机进入同一份索引；不安装桌面版也能使用。
+
+### 它能找到什么
+
+#### 哪些对话修改或提及过这个代码
+
+```text
+$ npx thoughtdag why src/lib/api.ts
+why src/lib/api.ts · 12 个相关轮次，来自 6 个会话
+claude-code  ✏️ 修改  Q: 能否判断模型是否支持多模态？
+             Δ storedProviders → storedProviders, storedVision…
+……
+```
+
+#### 哪些对话提过这个概念
+
+```text
+$ npx thoughtdag find "context.committed" --in q
+find "context.committed" · 21 个相关轮次，来自 12 个会话
+claude-code  Q: ……把 context.committed 加入事件契约……
+codex        Q: ……context.committed 已经实现了一半……
+……
+```
+
+#### 哪些对话聊过这个文件、论文或网页
+
+```text
+$ npx thoughtdag find "arxiv" --in m
+find "arxiv" · 1 个相关轮次，来自 1 张画布
+thoughtdag   M: ……集体智能、人工生命 · arXiv:2606.26733……
+```
+
+来自真实本地结果，仅保留最有用的几行。
+
+> **让 Agent 少读无关历史，显著降低上下文污染导致的幻觉与错误，减少 token 浪费，提高回答准确率。** 查询层只带回命中的历史；画布层剪掉污染分支，不让它继续影响下一个回答。
+
+## 想进一步探索并可视化上下文？
+
+完整版桌面应用提供 Agent 对话地图、可编辑上下文画布、PDF/文件阅读器、模型与搜索接入、摘取、导出和交接。
+
+```bash
+brew install --cask thoughtdag
+```
+
+也可以前往[下载页](https://chenxiachan.github.io/thoughtdag/?lang=zh#download)获取 macOS、Windows 与 Linux 版本。
+
+<div align="center">
 
 <img src="docs/hero-demo-zh.gif" alt="ThoughtDAG Hero 演示：从 PDF 原文提问，删边修改模型上下文，缩小画布形成思维地图，导出备份，并通过 Session Atlas 把分散的 Agent 会话变成持续存在的项目上下文" width="100%"/>
 
@@ -94,6 +162,8 @@
 | 分支对话画布 | 通常沿一条父链继承；ThoughtDAG 还能合并或剪枝多条路径。 |
 | 工作流与 Agent 画布 | 连线用于运行任务和传递数据；ThoughtDAG 的连线用于控制对话上下文。 |
 | RAG 与自动记忆 | 系统自动检索上下文；ThoughtDAG 让选择过程可见、可编辑。 |
+| 代码结构图工具 | 它们回答“和什么相连”；ThoughtDAG 找到塑造它的对话与决策。 |
+| Agent 记忆与对话检索 | 它们找回文本；ThoughtDAG 索引 Agent 对文件和材料做过什么，并让你控制哪些上下文继续向前。 |
 
 ThoughtDAG 是一张由人编辑的上下文图：连入节点的路径与显式引用构成下一次请求，被排除的内容则继续留在画布上。
 
@@ -103,26 +173,7 @@ ThoughtDAG 是一张由人编辑的上下文图：连入节点的路径与显式
 
 <img src="docs/thought-map-four-zh.png" alt="四张思路地图，分别呈现一条深入主线、五条探索支线、持续三周的问题与一整个文献综述季" width="100%"/>
 
-## 快速开始
-
-### 桌面版
-
-macOS 用户可以通过 Homebrew 安装：
-
-```bash
-brew install --cask thoughtdag
-```
-
-也可以前往[下载页](https://chenxiachan.github.io/thoughtdag/?lang=zh#download)，页面会自动识别系统并给出对应安装包；全部构建可在 [Releases](https://github.com/chenxiachan/thoughtdag/releases/latest) 找到。macOS 版已签名与公证；Windows 版暂未签名，可能出现 SmartScreen 提示。
-
-### 连接 Codex 或 Claude Code Skill
-
-Agent 对话地图无需任何配置即可发现并打开本机会话；画布打开后会持续跟随对话自动生长。如果还想在 Agent 内把当前对话直接跳转到画布：
-
-- Claude Code 里输 `/thoughtdag`
-- Codex 里输 `$thoughtdag`
-
-在 **Agent 对话地图 → 接入** 里一键启用即可：应用会安装一个可读的本地命令文件，可随时移除。
+## 更多运行方式
 
 ### 从源码运行
 

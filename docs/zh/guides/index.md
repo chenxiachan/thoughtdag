@@ -18,6 +18,7 @@
 | 页面 | 说明 |
 |---|---|
 | [模型、工具与记忆](/zh/guides/models-tools) | 连接模型，启用搜索或 MCP，并管理角色与环境记忆 |
+| [Why 层：CLI 与 MCP](/zh/guides/why-layer) | 安装本地查询层，使用命令，并接入只读 MCP 工具 |
 | [Agent 对话地图](/zh/guides/session-atlas) | 把本地 Agent 会话作为持续更新、可独立整理的图镜像打开 |
 | [数据、备份与分享](/zh/guides/data-sharing) | 备份、导入、导出和分享画布 |
 

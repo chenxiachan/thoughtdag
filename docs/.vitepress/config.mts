@@ -26,6 +26,7 @@ const enSidebar = [
     text: 'Tools and data',
     items: [
       { text: 'Models, tools, and memory', link: '/guides/models-tools' },
+      { text: 'Why layer: CLI and MCP', link: '/guides/why-layer' },
       { text: 'Session Atlas', link: '/guides/session-atlas' },
       { text: 'Data, backup, and sharing', link: '/guides/data-sharing' },
     ],
@@ -75,6 +76,7 @@ const zhSidebar = [
     text: '工具与数据',
     items: [
       { text: '模型、工具与记忆', link: '/zh/guides/models-tools' },
+      { text: 'Why 层：CLI 与 MCP', link: '/zh/guides/why-layer' },
       { text: 'Agent 对话地图', link: '/zh/guides/session-atlas' },
       { text: '数据、备份与分享', link: '/zh/guides/data-sharing' },
     ],

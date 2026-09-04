@@ -2,6 +2,8 @@
 
 Session Atlas is ThoughtDAG's **visual context workspace** for local agent work. It brings processes that were scattered across CLI and agent sessions into one inspectable, editable, and composable canvas:
 
+To query a file, phrase, URL, or paper directly from an agent, see [Why layer: CLI and read-only MCP](./why-layer).
+
 ![Session Atlas brings work from several agents into a continuously updated visual mirror where context can be curated and transferred](../illus/atlas-en.svg)
 
 - see each turn, tool call, result, and source instead of waiting for automatic compaction to leave only a summary;
