@@ -8,6 +8,13 @@
 //
 // "Open" means what it means here: stage the session in the harness chat.
 // The plugin's client half listens for td:select-session and switches.
+//
+// The other agents on this machine come through the same host: it serves
+// Claude Code's and Codex's session directories with the desktop bridge's
+// file primitives (/roots…), so the atlas lists all three sources and a
+// Claude Code or Codex session mirrors inside the harness exactly as it
+// does in the desktop shell. Those files change on disk without a seq; the
+// poll compares their mtimes instead.
 
 type Bridge = NonNullable<Window['desktopSessions']>;
 type Root = Awaited<ReturnType<Bridge['roots']>>[number];
@@ -21,6 +28,8 @@ const POLL_MS = 2500;
 interface Entry { id: string; live: boolean; size: number; mtime: number; seq: number | null; cwd: string | null }
 
 interface DiskSession { id: string; title?: string | null; cwd?: string | null; size: number; mtime: number }
+interface FileRoot { key: string; path: string; builtin: boolean; exists: boolean }
+interface FileEntry { rel: string; size: number; mtime: number }
 interface LiveSession { id: string; seq?: number | null; createdAt?: number | null }
 
 /** The harness session the chat currently shows, as its client half tells us. */
@@ -97,6 +106,18 @@ export function installDshSessionsBridge(apiBase: string): void {
     return t;
   };
 
+  // the other agents' files: root list cached per session, mtimes remembered
+  // so the poll can tell which file grew
+  let fileRoots: FileRoot[] | null = null;
+  const fileRootsOf = async (): Promise<FileRoot[]> => {
+    if (fileRoots) return fileRoots;
+    fileRoots = await json<{ roots: FileRoot[] }>('/roots').then((r) => r.roots.filter((x) => x.exists)).catch(() => [] as FileRoot[]);
+    return fileRoots;
+  };
+  const fileMtimes = new Map<string, number>(); // `${rootKey}|${rel}` → mtime
+  const listFiles = async (rootKey: string): Promise<FileEntry[]> => json<{ files: FileEntry[] }>(`/roots/${encodeURIComponent(rootKey)}/list`).then((r) => r.files).catch(() => [] as FileEntry[]);
+  const fileUrl = (rootKey: string, op: string, rel: string, extra = ''): string => `/roots/${encodeURIComponent(rootKey)}/${op}?rel=${encodeURIComponent(rel)}${extra}`;
+
   const listeners: ((e: { rootKey: string; rel: string }) => void)[] = [];
   let polling = false;
   const poll = async (): Promise<void> => {
@@ -111,6 +132,15 @@ export function installDshSessionsBridge(apiBase: string): void {
         for (const cb of listeners) cb({ rootKey: ROOT_KEY, rel: relOf(e.id) });
       }
     }
+    // the other agents' files: a grown mtime is the change signal
+    for (const r of await fileRootsOf()) {
+      for (const f of await listFiles(r.key)) {
+        const k = `${r.key}|${f.rel}`;
+        const prev = fileMtimes.get(k);
+        fileMtimes.set(k, f.mtime);
+        if (prev !== undefined && f.mtime > prev) for (const cb of listeners) cb({ rootKey: r.key, rel: f.rel });
+      }
+    }
   };
 
   const select = (id: string): void => {
@@ -118,27 +148,37 @@ export function installDshSessionsBridge(apiBase: string): void {
   };
 
   const bridge: Bridge = {
-    roots: async (): Promise<Root[]> => [{ key: ROOT_KEY, path: '~/.dsh/sessions', builtin: true, exists: true }],
+    roots: async (): Promise<Root[]> => [{ key: ROOT_KEY, path: '~/.dsh/sessions', builtin: true, exists: true }, ...(await fileRootsOf())],
     addRoot: async () => null,
     removeRoot: async () => {},
     list: async (rootKey: string): Promise<Listed[]> => {
-      if (rootKey !== ROOT_KEY) return [];
+      if (rootKey !== ROOT_KEY) {
+        const files = await listFiles(rootKey);
+        for (const f of files) fileMtimes.set(`${rootKey}|${f.rel}`, f.mtime);
+        return files;
+      }
       return (await refreshIndex()).map((e) => ({ rel: relOf(e.id), size: e.size, mtime: e.mtime }));
     },
     head: async (rootKey, rel, bytes) => {
-      const id = rootKey === ROOT_KEY ? idOf(rel) : null;
+      if (rootKey !== ROOT_KEY) return text(fileUrl(rootKey, 'head', rel, `&bytes=${Math.max(1024, bytes | 0)}`)).catch(() => '');
+      const id = idOf(rel);
       if (!id) return '';
       const t = await textOf(id);
       return t.slice(0, Math.min(Math.max(1024, bytes | 0), 524288));
     },
     read: async (rootKey, rel) => {
-      const id = rootKey === ROOT_KEY ? idOf(rel) : null;
+      if (rootKey !== ROOT_KEY) return text(fileUrl(rootKey, 'read', rel)).catch(() => '');
+      const id = idOf(rel);
       return id ? textOf(id) : '';
     },
     // offsets address the decoded text; chunks cut on line boundaries — the
     // same contract as the desktop's read-range over a .zstd session
     readRange: async (rootKey, rel, start, length) => {
-      const id = rootKey === ROOT_KEY ? idOf(rel) : null;
+      if (rootKey !== ROOT_KEY) {
+        return json<{ text: string; nextStart: number; eof: boolean }>(fileUrl(rootKey, 'range', rel, `&start=${start | 0}&length=${length | 0}`))
+          .catch(() => ({ text: '', nextStart: start | 0, eof: true }));
+      }
+      const id = idOf(rel);
       const t = id ? await textOf(id) : '';
       const from = Math.max(0, start | 0);
       const want = Math.min(Math.max(65536, length | 0), 32 * 1024 * 1024);
@@ -153,7 +193,13 @@ export function installDshSessionsBridge(apiBase: string): void {
       }
       return { text: slice, nextStart: from + slice.length, eof };
     },
-    openInCli: async (_runner, _cwd, sessionId) => { select(sessionId); return { opened: true, via: 'app' as const, command: '' }; },
+    // a harness session opens in the chat; another agent's session has no
+    // terminal to open from a browser — the atlas hears "not opened"
+    openInCli: async (runner, _cwd, sessionId) => {
+      if (runner !== 'dsh') return { opened: false, via: 'app' as const, command: '' };
+      select(sessionId);
+      return { opened: true, via: 'app' as const, command: '' };
+    },
     openTargets: async () => ({ terminals: [], apps: [{ runner: 'dsh', name: 'DeepSeek Harness' }], prefs: { terminal: '' }, canAddCustom: false }),
     setOpenPrefs: async (prefs) => prefs,
     addTerminal: async () => null,
