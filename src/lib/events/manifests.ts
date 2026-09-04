@@ -51,7 +51,7 @@ export const DSH_MANIFEST: AdapterManifest = {
   parenting: OBS_FULL,      // turns are linear; a continued session is a new file
   messages: OBS_PART,       // assistant text folds per step; reasoning is dropped
   toolPairing: OBS_FULL,    // tool/call ↔ tool/result pair by callId
-  artifactTouch: UNKNOWN,   // run_code arguments are code, not declared file ops
+  artifactTouch: OBS_FULL, // file_path on read/write/edit — top-level calls and run_code dispatches alike; shell commands stay opaque, as for every runner
   compaction: UNKNOWN,      // no boundary event observed in the log yet
   contextSurface: OBS_PART, // request/context carries provider+model+window, never messages
 };

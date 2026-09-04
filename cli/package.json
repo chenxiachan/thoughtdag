@@ -1,7 +1,7 @@
 {
   "name": "thoughtdag",
-  "version": "0.1.0",
-  "description": "Find the conversations that shaped a file. Indexes local Claude Code and Codex sessions by the files they touched; source files are never written.",
+  "version": "0.1.1",
+  "description": "Find the conversations that shaped a file. Indexes local Claude Code, Codex and DeepSeek Harness sessions by the files they touched; source files are never written.",
   "license": "MIT",
   "type": "module",
   "bin": {
@@ -29,6 +29,7 @@
   "keywords": [
     "claude-code",
     "codex",
+    "dsh",
     "agent",
     "context",
     "provenance",

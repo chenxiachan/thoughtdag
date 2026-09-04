@@ -132,3 +132,50 @@ export function turnsToBranch(
   }
   return { nodes: laid, edges, turnCount: turns.length };
 }
+
+// Tool ARGUMENTS share one vocabulary across runners — file_path, content,
+// old_string / new_string, offset / limit, pages, url — whether the host is
+// Claude Code or DSH (top-level calls and run_code dispatches alike). These
+// read that vocabulary; nothing here guesses from free text.
+export interface ToolInput {
+  file_path?: string; notebook_path?: string; content?: string; old_string?: string; new_string?: string; replace_all?: boolean;
+  url?: string; offset?: number; limit?: number; pages?: string;
+}
+
+/** What the call fetched (WebFetch) and where it looked inside a file
+ *  (Read offset/limit, PDF pages) — structured fields only. */
+export function toolScope(input: unknown): { url?: string; locator?: RunnerTool['locator'] } {
+  const i = (input ?? {}) as ToolInput;
+  const out: { url?: string; locator?: RunnerTool['locator'] } = {};
+  if (typeof i.url === 'string' && /^https?:\/\//.test(i.url)) out.url = i.url;
+  const loc: NonNullable<RunnerTool['locator']> = {};
+  if (typeof i.pages === 'string' && i.pages.trim()) loc.pages = i.pages.trim();
+  if (typeof i.offset === 'number' || typeof i.limit === 'number') {
+    const start = Math.max(1, typeof i.offset === 'number' ? i.offset : 1);
+    const end = typeof i.limit === 'number' ? start + Math.max(0, i.limit) - 1 : start;
+    loc.lines = [start, Math.max(start, end)];
+  }
+  if (Object.keys(loc).length) out.locator = loc;
+  return out;
+}
+
+/** The files a call touched, read straight off its input — never guessed
+ *  from free text. */
+export function toolPaths(input: unknown): string[] {
+  const i = (input ?? {}) as ToolInput;
+  const p = i.file_path ?? i.notebook_path;
+  return typeof p === 'string' && p ? [p] : [];
+}
+
+/** The call as the reader should see it: a Write shows its file, an Edit
+ *  its diff — not a JSON-escaped blob. Other tools keep their raw input. */
+export function renderCall(name: string, input: unknown): string {
+  const i = (input ?? {}) as ToolInput;
+  const op = toolOpOf(name);
+  if (op === 'write' && typeof i.content === 'string') return `${i.file_path ?? ''}\n\n${i.content}`;
+  if (op === 'edit' && typeof i.new_string === 'string') {
+    return `${i.file_path ?? i.notebook_path ?? ''}${i.replace_all ? ' (replace all)' : ''}\n--- old\n${i.old_string ?? ''}\n+++ new\n${i.new_string}`;
+  }
+  return JSON.stringify(input ?? {});
+}
+

@@ -4,6 +4,7 @@ import { autoLayout } from '../layout';
 import { generateId } from '../../utils';
 import {
   turnsToBranch, seedPlaque, toolAttachments, dropSelfCommandTurns, toolOpOf, clipText,
+  toolPaths, toolScope, renderCall as renderArgCall,
   ARTIFACT_CALL_LIMIT, TOOL_CALL_LIMIT, TOOL_RESULT_LIMIT, type RunnerTool,
 } from './shared';
 
@@ -29,9 +30,16 @@ import {
 //     context in DSH either (same rule as the Claude Code adapter).
 //   - Tool calls pair with their results by callId into atomic text
 //     attachments on the turn's node (tool/call arguments + tool/result
-//     text). tool/code-dispatch lines are the SAME root call observed at
-//     the dispatch level (rootCallId = callId) — skipped, never a second
-//     tool. Unknown event types are noise to this projector.
+//     text); a call that names a file (read / write / edit) records that
+//     path as its footprint.
+//   - Most file work in DSH happens INSIDE run_code: the code calls
+//     tools.read / tools.edit / tools.write, and each such sub-call is
+//     logged as tool/code-dispatch with its own name, arguments and result.
+//     A dispatch that names a file becomes a tool of its own (keyed by the
+//     sub-call id) — that is the turn's real footprint, and the reason
+//     `why <file>` finds DSH turns at all. Shell, search and bookkeeping
+//     dispatches stay folded inside the root run_code attachment (its code
+//     already shows them). Unknown event types are noise to this projector.
 //   - The source session file is never written — read-only by contract.
 
 interface DshPart { type?: string; text?: string }
@@ -82,6 +90,14 @@ interface DshToolResult {
   };
 }
 
+interface DshCodeDispatch {
+  type: 'tool/code-dispatch';
+  data: {
+    rootCallId?: string; parentCallId?: string; subCallId?: string;
+    name?: string; arguments?: unknown; isError?: boolean; content?: unknown;
+  };
+}
+
 interface DshSessionLine {
   type?: string;
   id?: string;
@@ -121,19 +137,20 @@ function partsText(content: unknown, depth = 0): string {
 }
 
 /** run_code carries the code it ran as a JSON string of {code,
- *  description} — render the CODE (that is what ran), any other tool
- *  keeps its raw JSON arguments. */
-function renderCall(name: string, argumentsJson: string): { text: string; truncated: boolean } {
+ *  description} — render the CODE (that is what ran). A file tool renders
+ *  the way every runner's does (a Write shows its file, an Edit its diff);
+ *  anything else keeps its raw JSON arguments. */
+function renderRootCall(name: string, argumentsJson: string, args: unknown): { text: string; truncated: boolean } {
   const op = toolOpOf(name);
   if (op === 'run' || /^run_code$/i.test(name)) {
-    try {
-      const a = JSON.parse(argumentsJson) as { code?: string; description?: string };
-      const body = typeof a.code === 'string' ? a.code : argumentsJson;
-      return clipText(body, ARTIFACT_CALL_LIMIT);
-    } catch { /* fall through to raw */ }
+    const a = (args ?? {}) as { code?: string };
+    return clipText(typeof a.code === 'string' ? a.code : argumentsJson, ARTIFACT_CALL_LIMIT);
   }
-  return clipText(argumentsJson, op === 'write' || op === 'edit' ? ARTIFACT_CALL_LIMIT : TOOL_CALL_LIMIT);
+  const body = args && typeof args === 'object' ? renderArgCall(name, args) : argumentsJson;
+  return clipText(body, op === 'write' || op === 'edit' ? ARTIFACT_CALL_LIMIT : TOOL_CALL_LIMIT);
 }
+
+const parseArgs = (json: string | undefined): unknown => { try { return JSON.parse(json ?? ''); } catch { return undefined; } };
 
 interface DshTurn {
   question: string;
@@ -147,7 +164,7 @@ interface DshTurn {
  *  run tens of thousands of events; no path may hold it whole). */
 export class DshSessionCollector {
   private turns: DshTurn[] = [];
-  private pendingTools = new Map<string, { name: string; call: string; truncated: boolean; op: RunnerTool['op'] }>();
+  private pendingTools = new Map<string, { name: string; call: string; truncated: boolean; op: RunnerTool['op']; paths: string[]; url?: string; locator?: RunnerTool['locator'] }>();
   private current: DshTurn | null = null;
   private sessionId: string | null = null;
   private cwd: string | null = null;
@@ -214,8 +231,10 @@ export class DshSessionCollector {
       const tc = line as unknown as DshToolCall;
       if (!tc.data?.callId || !tc.data?.name) return;
       const op = /^run_code$/i.test(tc.data.name) ? 'run' : toolOpOf(tc.data.name);
-      const call = renderCall(tc.data.name, tc.data.arguments ?? '');
-      this.pendingTools.set(tc.data.callId, { name: tc.data.name, call: call.text, truncated: call.truncated, op });
+      const args = parseArgs(tc.data.arguments);
+      const call = renderRootCall(tc.data.name, tc.data.arguments ?? '', args);
+      const scope = op === 'run' ? {} : toolScope(args);
+      this.pendingTools.set(tc.data.callId, { name: tc.data.name, call: call.text, truncated: call.truncated, op, paths: op === 'run' ? [] : toolPaths(args), ...scope });
       return;
     }
     if (line.type === 'tool/result') {
@@ -229,8 +248,27 @@ export class DshSessionCollector {
       t.tools.push({
         name: reg.name, call: reg.call, result: res.text, truncated: reg.truncated || res.truncated,
         op: reg.op, nativeCallId: callId,
+        ...(reg.paths.length ? { paths: reg.paths } : {}), ...(reg.url ? { url: reg.url } : {}), ...(reg.locator ? { locator: reg.locator } : {}),
       });
       this.pendingTools.delete(callId);
+      return;
+    }
+    // A file operation dispatched from inside run_code (see the header): its
+    // own tool, its own footprint. Dispatches that name no file fold into
+    // the root call.
+    if (line.type === 'tool/code-dispatch') {
+      const d = (line as unknown as DshCodeDispatch).data;
+      if (!d?.name || !d.subCallId) return;
+      const paths = toolPaths(d.arguments);
+      const scope = toolScope(d.arguments);
+      if (!paths.length && !scope.url) return;
+      const op = toolOpOf(d.name);
+      const call = clipText(renderArgCall(d.name, d.arguments), op === 'write' || op === 'edit' ? ARTIFACT_CALL_LIMIT : TOOL_CALL_LIMIT);
+      const res = clipText(partsText(d.content), TOOL_RESULT_LIMIT);
+      this.ensure().tools.push({
+        name: d.name, call: call.text, result: res.text, truncated: call.truncated || res.truncated,
+        op, nativeCallId: d.subCallId, ...(paths.length ? { paths } : {}), ...(scope.url ? { url: scope.url } : {}), ...(scope.locator ? { locator: scope.locator } : {}),
+      });
       return;
     }
     // turn/step boundaries, request/*, permission/preset, sandbox/mode,
