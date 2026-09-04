@@ -112,6 +112,10 @@ function partsText(content: unknown, depth = 0): string {
     const o = p as DshPart;
     if (o.type === 'text' && typeof o.text === 'string') return o.text;
     if (o.type === 'image') return '[image omitted]';
+    // reasoning never re-enters the model's own next context in DSH; it is
+    // not the answer — drop it here, before the nested fallback below could
+    // re-admit its `text` field as if it were a text part.
+    if (o.type === 'reasoning') return '';
     return partsText(o.text ?? (o as { content?: unknown }).content, depth + 1);
   }).filter(Boolean).join('\n');
 }
@@ -238,7 +242,7 @@ export class DshSessionCollector {
     this.flush();
     if (!this.sessionId) return null;
     const asked = this.firstQuestion ?? null;
-    const title = this.title ?? asked ?? `session ${this.sessionId.slice(0, 8)}`;
+    const title = this.title ?? asked ?? `session ${this.sessionId.replace(/^session-/, '').slice(0, 8)}`;
     return { sessionId: this.sessionId, title, turns: dropSelfCommandTurns(this.turns), ...(this.cwd ? { cwd: this.cwd } : {}) };
   }
 
