@@ -189,6 +189,10 @@ export async function llmCallStream(
   callbacks?: StreamCallbacks,
   toolPrefs?: ToolPrefs,
   modelOverride?: string,
+  /** Inside DeepSeek Harness only: which working directory a harness-agent
+      turn runs in, and which mirrored session it continues (a tail
+      follow-up). Ignored by every other backend. */
+  harness?: { cwd?: string; session?: string },
 ): Promise<string> {
   // On the Workers deployment, OpenRouter models stream straight from the
   // browser — the proxy's CPU allowance can't survive big contexts + heavy
@@ -271,6 +275,7 @@ export async function llmCallStream(
         ...(useUiStore.getState().anysearchKey ? { anysearchKey: useUiStore.getState().anysearchKey } : {}),
         model: modelOverride || useUiStore.getState().selectedModel || undefined,
         providers: statelessProviders(),
+        ...(harness ? { harness } : {}),
       }),
       signal,
     });

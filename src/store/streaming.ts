@@ -4,6 +4,7 @@ import { upstreamFingerprint, type MessageSource } from './context-builder';
 import { sha256Hex, canonicalStringify } from '../lib/context-bundle';
 import { pruneHighlights } from '../lib/highlight-match';
 import { llmCall, llmCallStream, type ContextMessage, type ImageAttachment } from '../lib/api';
+import { harnessOutbound } from '../lib/atlas/dsh-bridge';
 import { countTokens, activeSummary } from '../utils';
 import { toast, useUiStore } from '../lib/ui-store';
 import { getModelsOnce, reconcileModelId } from '../lib/use-models';
@@ -319,7 +320,7 @@ export async function runNodeGeneration(
         scholar: selfData?.scholarSearch ?? useUiStore.getState().scholarSearchEnabled,
         mcp: useUiStore.getState().mcpEnabled,
       };
-    })(), pinnedModel);
+    })(), pinnedModel, await harnessOutbound(nodeId, pinnedModel ?? useUiStore.getState().selectedModel ?? serverDefaultModel ?? undefined));
     flushStream();
     if (!isCurrent()) return; // superseded while finishing: drop everything
     activeAbortControllers.delete(nodeId);

@@ -227,3 +227,52 @@ export function installDshSessionsBridge(apiBase: string): void {
   });
   window.parent.postMessage({ source: 'dsh-thoughtdag', type: 'td:request-current' }, window.location.origin);
 }
+
+// ── outbound context for a question asked inside the harness ────────────
+// The one place the canvas tells the harness bridge WHERE and INTO WHICH
+// session a `harness/agent` question runs. Absent (returns undefined)
+// everywhere but inside the embedded harness, so the send path stays
+// byte-identical elsewhere.
+
+export const HARNESS_AGENT_MODEL = 'harness/agent';
+
+/** The working directory a fresh agent turn should run in: the project the
+ *  active canvas mirrors, else the session the harness chat currently shows. */
+async function activeCanvasCwd(): Promise<string | null> {
+  try {
+    const { useStore } = await import('../../store');
+    const counts = new Map<string, number>();
+    for (const n of useStore.getState().nodes) {
+      const c = n.data.importSource?.cwd;
+      if (c) counts.set(c, (counts.get(c) ?? 0) + 1);
+    }
+    let best: string | null = null; let bestN = 0;
+    for (const [c, n] of counts) if (n > bestN) { best = c; bestN = n; }
+    return best;
+  } catch { return null; }
+}
+
+/** For the node about to generate: the harness routing for its request, or
+ *  undefined when not embedded / not a harness-agent question. A question
+ *  asked DIRECTLY off the mirrored session's current tail, with nothing else
+ *  wired in, continues that session (a follow-up); any richer wiring gets a
+ *  fresh session carrying the compiled context. */
+export async function harnessOutbound(nodeId: string, model: string | undefined): Promise<{ cwd?: string; session?: string } | undefined> {
+  if (!window.desktopSessions || model !== HARNESS_AGENT_MODEL) return undefined;
+  const cwd = (await activeCanvasCwd()) ?? currentSession?.cwd ?? undefined;
+  try {
+    const { useStore } = await import('../../store');
+    const { useProjects } = await import('../../store/projects');
+    const { projects, activeId } = useProjects.getState();
+    const meta = projects.find((p) => p.id === activeId);
+    const ss = meta?.sourceSession;
+    if (ss && ss.runner === 'dsh') {
+      const incoming = useStore.getState().edges.filter((e) => e.target === nodeId);
+      // exactly one parent, and it is the mirror's current tail → continue
+      if (incoming.length === 1 && incoming[0].source === ss.tailNodeId) {
+        return { ...(cwd ? { cwd } : {}), session: ss.sessionId };
+      }
+    }
+  } catch { /* store not ready — fall through to a fresh session */ }
+  return cwd ? { cwd } : {};
+}
