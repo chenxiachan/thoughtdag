@@ -9,7 +9,10 @@ export async function anyRunnerSessionConversation(text: string): Promise<Import
   const cc = claudeCodeSessionConversation(text);
   if (cc) return cc;
   const { codexSessionConversation } = await import('./codex-session');
-  return codexSessionConversation(text);
+  const codex = codexSessionConversation(text);
+  if (codex) return codex;
+  const { dshSessionConversation } = await import('./dsh-session');
+  return dshSessionConversation(text);
 }
 
 /** Streaming dispatch: chunks of line-aligned text flow through BOTH
@@ -22,18 +25,20 @@ export async function streamRunnerConversation(
 ): Promise<ImportableConversation | null> {
   const { ClaudeSessionCollector } = await import('./claude-code-session');
   const { CodexSessionCollector } = await import('./codex-session');
+  const { DshSessionCollector } = await import('./dsh-session');
   const cc = new ClaudeSessionCollector();
   const codex = new CodexSessionCollector();
+  const dsh = new DshSessionCollector();
   let carry = '';
   for (let chunk = await read(); chunk !== null; chunk = await read()) {
     if (!chunk) continue;
     const text = carry + chunk;
     const lines = text.split('\n');
     carry = lines.pop() ?? '';
-    for (const ln of lines) { cc.feedLine(ln); codex.feedLine(ln); }
+    for (const ln of lines) { cc.feedLine(ln); codex.feedLine(ln); dsh.feedLine(ln); }
   }
-  if (carry) { cc.feedLine(carry); codex.feedLine(carry); }
-  return cc.toConversation() ?? codex.toConversation();
+  if (carry) { cc.feedLine(carry); codex.feedLine(carry); dsh.feedLine(carry); }
+  return cc.toConversation() ?? codex.toConversation() ?? dsh.toConversation();
 }
 
 /** Harvest dispatch: whichever adapter recognizes the session builds the
@@ -46,5 +51,8 @@ export async function anyRunnerSessionAsBranch(
   const cc = claudeCodeSessionAsBranch(text, anchorNode);
   if (cc) return cc;
   const { codexSessionAsBranch } = await import('./codex-session');
-  return codexSessionAsBranch(text, anchorNode);
+  const codex = codexSessionAsBranch(text, anchorNode);
+  if (codex) return codex;
+  const { dshSessionAsBranch } = await import('./dsh-session');
+  return dshSessionAsBranch(text, anchorNode);
 }

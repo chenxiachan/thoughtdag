@@ -45,8 +45,20 @@ export const THOUGHTDAG_MANIFEST: AdapterManifest = {
   contextSurface: OBS_PART, // exact for logged commits, upstream-only before
 };
 
+export const DSH_MANIFEST: AdapterManifest = {
+  runner: 'dsh', schema: 'dsh-events/2026-09',
+  turns: OBS_FULL,          // user/message events (source.kind=user) bound every turn
+  parenting: OBS_FULL,      // turns are linear; a continued session is a new file
+  messages: OBS_PART,       // assistant text folds per step; reasoning is dropped
+  toolPairing: OBS_FULL,    // tool/call ↔ tool/result pair by callId
+  artifactTouch: UNKNOWN,   // run_code arguments are code, not declared file ops
+  compaction: UNKNOWN,      // no boundary event observed in the log yet
+  contextSurface: OBS_PART, // request/context carries provider+model+window, never messages
+};
+
 export const MANIFESTS: Record<string, AdapterManifest> = {
   'claude-code': CLAUDE_CODE_MANIFEST,
   codex: CODEX_MANIFEST,
+  dsh: DSH_MANIFEST,
   thoughtdag: THOUGHTDAG_MANIFEST,
 };
