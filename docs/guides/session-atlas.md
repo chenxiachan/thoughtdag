@@ -14,7 +14,7 @@ To query a file, phrase, URL, or paper directly from an agent, see [Why layer: C
 
 Atlas does not replace an agent's own compact command. It adds a finer-grained, traceable layer above it. You can think of Atlas as a **visual coordination and context-transfer layer** above CLI sessions, but not yet as an Agent OS that autonomously schedules processes, permissions, and resources.
 
-It is currently a **desktop feature** with native scanning support for local Codex and Claude Code sessions. Integrations for other tools are also being prepared. If you need a particular runner or workflow, describe the use case in [GitHub Discussions](https://github.com/chenxiachan/thoughtdag/discussions), or report a reproducible format or compatibility problem in [GitHub Issues](https://github.com/chenxiachan/thoughtdag/issues).
+It is currently a **desktop feature** with native scanning support for local Codex, Claude Code, and DeepSeek Harness sessions. Integrations for other tools are also being prepared. If you need a particular runner or workflow, describe the use case in [GitHub Discussions](https://github.com/chenxiachan/thoughtdag/discussions), or report a reproducible format or compatibility problem in [GitHub Issues](https://github.com/chenxiachan/thoughtdag/issues).
 
 ## The source agent keeps working; the mirror is yours to curate
 

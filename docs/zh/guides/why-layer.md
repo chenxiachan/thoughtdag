@@ -1,6 +1,6 @@
 # Why 层：CLI 与只读 MCP
 
-Why 层把本机 Claude Code、Codex 与 ThoughtDAG 画布里的对话放进同一份索引。从一个文件、一句原话、一个网址或 arXiv 论文编号出发，结果会指回命中的原始轮次。
+Why 层把本机 Claude Code、Codex、DeepSeek Harness 与 ThoughtDAG 画布里的对话放进同一份索引。从一个文件、一句原话、一个网址或 arXiv 论文编号出发，结果会指回命中的原始轮次。
 
 ## 安装
 

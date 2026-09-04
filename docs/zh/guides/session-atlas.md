@@ -14,7 +14,7 @@ Agent 对话地图是 ThoughtDAG 面向本地 Agent 工作的**可视化上下�
 
 对话地图不是为了取代 Agent 自带的 compact，而是在它之上提供更细粒度、可追溯的整理方式。你可以把它理解为 CLI 会话之上的**可视化协同与上下文传递层**，但它还不是一个自动调度进程、权限和资源的 Agent OS。
 
-它目前属于**桌面版功能**，原生支持扫描 Codex 与 Claude Code 的本地会话；其他工具的接入也在准备中。如果你希望支持某个 runner 或工作流，欢迎在 [GitHub Discussions](https://github.com/chenxiachan/thoughtdag/discussions) 描述使用场景，或通过 [GitHub Issues](https://github.com/chenxiachan/thoughtdag/issues) 提交可复现的格式与兼容问题。
+它目前属于**桌面版功能**，原生支持扫描 Codex、Claude Code 与 DeepSeek Harness 的本地会话；其他工具的接入也在准备中。如果你希望支持某个 runner 或工作流，欢迎在 [GitHub Discussions](https://github.com/chenxiachan/thoughtdag/discussions) 描述使用场景，或通过 [GitHub Issues](https://github.com/chenxiachan/thoughtdag/issues) 提交可复现的格式与兼容问题。
 
 ## 原 Agent 继续工作，镜像独立整理
 

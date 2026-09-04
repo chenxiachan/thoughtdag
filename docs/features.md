@@ -63,7 +63,7 @@ Guide: [Models, tools, and memory](/guides/models-tools) · [Connect a model](/s
 
 ## Session Atlas
 
-- Discover supported local Codex and Claude Code sessions by project folder.
+- Discover supported local Codex, Claude Code, and DeepSeek Harness sessions by project folder.
 - Read-only graph mirrors with conversation nodes and inspectable tool-result attachments.
 - Incremental append, changed-session filters, multi-session canvas mounting, re-mirroring, and source-status indicators.
 - **Sources** management and optional one-command handoff from supported agents.

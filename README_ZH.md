@@ -33,7 +33,7 @@ npm install -g thoughtdag
 thoughtdag setup mcp
 ```
 
-之后 Agent 可以直接调用 `why_check`、`why_file`、`find` 和 `recall_turn`。Claude Code、Codex 与 ThoughtDAG 画布里的对话会在本机进入同一份索引；不安装桌面版也能使用。
+之后 Agent 可以直接调用 `why_check`、`why_file`、`find` 和 `recall_turn`。Claude Code、Codex、DeepSeek Harness 与 ThoughtDAG 画布里的对话会在本机进入同一份索引；不安装桌面版也能使用。
 
 ### 它能找到什么
 
@@ -144,7 +144,7 @@ brew install --cask thoughtdag
 
 把散落在不同 Agent 里的工作，汇成一张可编辑的上下文图。从任意节点继续探索，再把新的结果接回思路开始的地方。
 
-*目前支持本机 Claude Code 与 Codex 会话，更多 Agent 正在接入；源会话始终只读。*
+*目前支持本机 Claude Code、Codex 与 DeepSeek Harness 会话，更多 Agent 正在接入；源会话始终只读。*
 
 </td>
 <td width="45%"><img src="docs/illus/atlas-zh.svg" alt="示意图：按项目归类本机 Codex 与 Claude Code 会话，展开为上下文图，再带着选定上下文进入新的 CLI 会话"/></td>

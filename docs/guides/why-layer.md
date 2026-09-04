@@ -1,6 +1,6 @@
 # Why layer: CLI and read-only MCP
 
-The Why layer indexes local Claude Code, Codex, and ThoughtDAG canvas conversations together. Start with a file, an exact phrase, a URL, or an arXiv paper id; the result points back to the matching turn.
+The Why layer indexes local Claude Code, Codex, DeepSeek Harness, and ThoughtDAG canvas conversations together. Start with a file, an exact phrase, a URL, or an arXiv paper id; the result points back to the matching turn.
 
 ## Install
 

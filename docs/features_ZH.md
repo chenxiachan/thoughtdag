@@ -63,7 +63,7 @@
 
 ## Agent 对话地图
 
-- 按项目目录发现受支持的本地 Codex 与 Claude Code 会话；
+- 按项目目录发现受支持的本地 Codex、Claude Code 与 DeepSeek Harness 会话；
 - 建立独立图镜像，对话成为节点，tool result 保留为可检查附件，原 Agent 会话不受画布修改影响；
 - 增量追加、只看变化、多会话挂入画布、重新镜像和来源状态提示；
 - **接入**管理，以及可选的一键接入命令。

@@ -33,7 +33,7 @@ npm install -g thoughtdag
 thoughtdag setup mcp
 ```
 
-Your agent can then call `why_check`, `why_file`, `find`, and `recall_turn` directly. Conversations from Claude Code, Codex, and ThoughtDAG canvases are indexed together on your machine; the desktop app is not required.
+Your agent can then call `why_check`, `why_file`, `find`, and `recall_turn` directly. Conversations from Claude Code, Codex, DeepSeek Harness, and ThoughtDAG canvases are indexed together on your machine; the desktop app is not required.
 
 ### What it can find
 
@@ -146,7 +146,7 @@ Merge nodes into a higher conclusion; weave highlights into cited prose. Zoom th
 
 Bring work scattered across different agents into one editable context graph. Continue from any node, then bring the new work back to where the thought began.
 
-*Currently supports local Claude Code and Codex sessions, with more agent integrations in development. Source sessions remain read-only.*
+*Currently supports local Claude Code, Codex, and DeepSeek Harness sessions, with more agent integrations in development. Source sessions remain read-only.*
 
 </td>
 <td width="45%"><img src="docs/illus/atlas-en.svg" alt="Illustration: local Codex and Claude Code sessions grouped by project, opened as a context graph, then continued in a fresh CLI session"/></td>
