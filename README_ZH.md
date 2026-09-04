@@ -11,11 +11,11 @@
 
 ### [下载桌面版 ↓](https://chenxiachan.github.io/thoughtdag/?lang=zh#download) · [官网](https://chenxiachan.github.io/thoughtdag/?lang=zh) · [使用文档](https://chenxiachan.github.io/thoughtdag/docs/zh/)
 
-[English](./README.md) · [找回历史上下文](#找到你们在哪里聊过它) · [可视化应用](#想进一步探索并可视化上下文) · [有何不同](#thoughtdag-和其他图形化-ai-工具有何不同) · [Agent 会话](#-把-agent-会话带进画布) · [研究](#-研究为什么上下文需要可编辑) · [完整文档](https://chenxiachan.github.io/thoughtdag/docs/zh/)
+[English](./README.md) · [找回历史上下文](#新功能--跨-agent-精确定位所需上下文) · [可视化应用](#想进一步探索并可视化上下文) · [有何不同](#thoughtdag-和其他图形化-ai-工具有何不同) · [Agent 会话](#-把-agent-会话带进画布) · [研究](#-研究为什么上下文需要可编辑) · [完整文档](https://chenxiachan.github.io/thoughtdag/docs/zh/)
 
 </div>
 
-## 找到你们在哪里聊过它
+## 新功能 · 跨 Agent 精确定位所需上下文
 
 > 从一个代码文件、一句记得的原话、一个网址或一篇论文出发。ThoughtDAG 检索本机上的 Agent 对话，并带你回到命中的那一轮。
 
