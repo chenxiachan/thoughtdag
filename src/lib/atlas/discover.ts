@@ -80,6 +80,11 @@ function cardFromHead(rootKey: string, rel: string, head: string, mtime: number,
     const id = dshOpen.id;
     const titleLine = lines.find((l) => l.type === 'session/title') as { data?: { title?: string } } | undefined;
     const firstUser = dshFirstUserText(lines);
+    // DSH writes a session file the moment a session is created — before any
+    // message. Such a blank file (header + policy events, well under 4 KB
+    // compressed) has nothing to mirror and would only fail on open, so it is
+    // not a card. A real first message lands in the head, whatever its size.
+    if (!titleLine && !firstUser && size <= 4096) return null;
     const title = titleLine?.data?.title ?? firstUser ?? `session ${id.replace(/^session-/, '').slice(0, 8)}`;
     return { runner: 'dsh', rootKey, rel, sessionId: id, cwd: dshOpen.cwd ?? null, title, mtime, size };
   }
