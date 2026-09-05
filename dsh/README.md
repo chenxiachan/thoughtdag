@@ -62,10 +62,13 @@ full-screen iframe.
 
 ### Canvas-side import
 
-ThoughtDAG's own session importer (`dsh-session` adapter + the canonical
-import path) accepts the bridge's JSONL verbatim. Wiring a "DSH sessions"
-source into the in-iframe canvas UI (Session Atlas) is planned; the bridge is
-the data plane it will read.
+Inside the iframe the canvas runs with this bridge as its session source
+(the SPA is built with `VITE_DSH_BRIDGE=/thoughtdag/api`): Session Atlas
+lists the harness's sessions beside Claude Code's and Codex's (served by
+this host from their directories), opens one as a graph, and follows it
+live by polling the session's seq. The client half tells the canvas which
+session the chat shows (`td:current-session`) and switches the chat when the
+canvas names one (`td:select-session`).
 
 ## The why layer inside the harness
 
@@ -84,8 +87,8 @@ Both are on by default; `whyTools: false` / `whyPrompt: false` in the plugin con
 - Canvas why panel (a node's file → its history through `/thoughtdag/api`)
 - Canvas UI for the write bridge: name a fork point on a node, hand a compiled context to `inject`, continue with `followup`; the client already switches the chat to a session the canvas names (`td:select-session`)
 - `replace`: shadow a surface range from the canvas (DSH's compaction primitive); needs a live check of how the chat renders a replaced range
-- Theme sync and live session following in the iframe
-- A real "import current session" affordance inside the canvas UI
+- Theme and language sync with the harness UI
+- Open the chat's current session on the canvas automatically when the view switches
 
 ## Development
 
