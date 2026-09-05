@@ -29,6 +29,8 @@ dsh web
 - **The wires decide what the harness sees.** Materials, notes and nodes wired into a question arrive as its context; a follow-up at the tail of a mirrored session continues that session.
 <img width="1562" height="952" alt="image" src="https://github.com/user-attachments/assets/e9a9208c-8394-41d3-b43a-40c741603836" />
 
+<img src="docs/harness-plugin-zh.gif" alt="ThoughtDAG inside DeepSeek Harness: the 对话 | 思维图 switch above the chat, a question asked on the canvas and answered by a harness model, then a follow-up node growing the graph" width="100%"/>
+
 The plugin bundles the canvas; no other ThoughtDAG install is needed. Requires Node 22.19+ and DeepSeek Harness 0.1.2-rc or later.
 
 ## New · Pinpoint the context you need across agents

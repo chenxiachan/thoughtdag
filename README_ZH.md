@@ -28,6 +28,8 @@ dsh web
 - **在画布上提问。** 选 Harness 的任一模型，或选 **DeepSeek Harness · Agent**，问题作为一轮真实的 Harness 对话执行，工具随它用。回答流回节点，这一轮留在 Harness 的会话日志里。
 - **连线决定 Harness 看到什么。** 连进问题的材料、笔记和节点就是它收到的上下文；在镜像会话的链尾追问，会续接那个会话。
 
+<img src="docs/harness-plugin-zh.gif" alt="ThoughtDAG 在 DeepSeek Harness 里：对话框上方的 对话 | 思维图 开关，在画布上提问、由 Harness 的模型回答，再追问长出新节点" width="100%"/>
+
 插件自带画布，不需要另装 ThoughtDAG。需要 Node 22.19 以上和 DeepSeek Harness 0.1.2-rc 及之后版本。
 
 ## 新功能 · 跨 Agent 精确定位所需上下文
