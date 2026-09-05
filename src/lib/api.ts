@@ -164,6 +164,12 @@ export interface StreamCallbacks {
   onSources?: (sources: import('../types').Reference[]) => void;
   /** Reasoning/thinking tokens (models that emit them; never enters context). */
   onReasoning?: (chunk: string, fullSoFar: string) => void;
+  /** Inside DeepSeek Harness: the harness session this generation ran in
+      (a fresh one, or the mirrored session it continued). */
+  onHarnessSession?: (session: string, continued: boolean) => void;
+  /** Inside DeepSeek Harness: the dsh turn a harness-agent question created —
+      the canvas node becomes that turn's mirror. */
+  onHarnessTurn?: (turn: { session: string; turn: number | null; userMessageId: string | null; seq: number | null }) => void;
   /** The chosen model cannot see images: a vision model answers instead. */
   onRerouted?: (from: string, to: string) => void;
   /** The request is leaving — exactly this payload, after every image
@@ -320,6 +326,13 @@ export async function llmCallStream(
           }
           if (parsed.gatewaySearch) {
             cbs.onGatewaySearch?.();
+          }
+          // Harness routing frames (only the embedded dsh bridge sends them)
+          if (typeof parsed.harnessSession === 'string') {
+            cbs.onHarnessSession?.(parsed.harnessSession, !!parsed.continued);
+          }
+          if (parsed.harnessTurn?.session) {
+            cbs.onHarnessTurn?.(parsed.harnessTurn);
           }
           if (Array.isArray(parsed.sources)) {
             cbs.onSources?.(parsed.sources);

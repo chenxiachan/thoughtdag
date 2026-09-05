@@ -16,6 +16,9 @@
 // does in the desktop shell. Those files change on disk without a seq; the
 // poll compares their mtimes instead.
 
+import type { StoreApi } from 'zustand';
+import type { StoreState } from '../../store/types';
+
 type Bridge = NonNullable<Window['desktopSessions']>;
 type Root = Awaited<ReturnType<Bridge['roots']>>[number];
 type Listed = Awaited<ReturnType<Bridge['list']>>[number];
@@ -275,4 +278,46 @@ export async function harnessOutbound(nodeId: string, model: string | undefined)
     }
   } catch { /* store not ready — fall through to a fresh session */ }
   return cwd ? { cwd } : {};
+}
+
+/** After a harness-agent generation, make this node the mirror of the dsh turn
+ *  it produced: stamp its provenance (runner dsh, the session, the person's
+ *  message id), and — when it continued the canvas's OWN mirrored session —
+ *  advance that ledger entry so the live sweep sees no gap and does not append
+ *  the same turn a second time. No-op outside the harness. */
+export async function stampHarnessTurn(
+  set: StoreApi<StoreState>['setState'],
+  _get: StoreApi<StoreState>['getState'],
+  nodeId: string,
+  turn: { question: string; response: string },
+  route: { cwd?: string; session?: string },
+  harnessSession: string | undefined,
+  harnessTurn: { session: string; turn: number | null; userMessageId: string | null; seq: number | null } | null,
+): Promise<void> {
+  if (!window.desktopSessions) return;
+  const sessionId = route.session ?? harnessTurn?.session ?? harnessSession;
+  if (!sessionId) return;
+  const itemIds = harnessTurn?.userMessageId ? [harnessTurn.userMessageId] : [];
+  set((s) => ({
+    nodes: s.nodes.map((n) => (n.id === nodeId
+      ? { ...n, data: { ...n.data,
+          importSource: { runner: 'dsh', sessionId, itemIds, ...(route.cwd ? { cwd: route.cwd } : {}) },
+          source: { question: turn.question, response: turn.response } } }
+      : n)),
+  }));
+  // A tail follow-up continued the canvas's mirrored session: the turn is now
+  // both a live node AND about to be a mirror appendix — advance the ledger so
+  // it is only the node. A fresh session (route.session absent) has no ledger
+  // entry and is not swept, so the node's stamp alone is enough.
+  if (route.session) {
+    const { useProjects, patchLedgerEntry } = await import('../../store/projects');
+    const { projects, activeId } = useProjects.getState();
+    if (!activeId) return;
+    const ss = projects.find((p) => p.id === activeId)?.sourceSession;
+    if (!ss) return;
+    const entry = ss.sessionId === route.session ? ss
+      : ss.chapters?.find((c) => c.sessionId === route.session)
+      ?? ss.branches?.find((b) => b.sessionId === route.session);
+    await patchLedgerEntry(activeId, route.session, { importedCount: (entry?.importedCount ?? 0) + 1, tailNodeId: nodeId });
+  }
 }

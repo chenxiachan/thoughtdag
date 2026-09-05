@@ -4,7 +4,7 @@ import { upstreamFingerprint, type MessageSource } from './context-builder';
 import { sha256Hex, canonicalStringify } from '../lib/context-bundle';
 import { pruneHighlights } from '../lib/highlight-match';
 import { llmCall, llmCallStream, type ContextMessage, type ImageAttachment } from '../lib/api';
-import { harnessOutbound } from '../lib/atlas/dsh-bridge';
+import { harnessOutbound, stampHarnessTurn } from '../lib/atlas/dsh-bridge';
 import { countTokens, activeSummary } from '../utils';
 import { toast, useUiStore } from '../lib/ui-store';
 import { getModelsOnce, reconcileModelId } from '../lib/use-models';
@@ -159,6 +159,12 @@ export async function runNodeGeneration(
   // what generatedBy must record (execution and provenance never diverge).
   let actualModel: string | undefined;
   let gatewaySearched = false;
+  // Inside DeepSeek Harness a generation runs as a real dsh turn: the bridge
+  // reports which session it ran in and the turn it created, so this node can
+  // become that turn's mirror (and the live mirror not append it again).
+  const harnessRoute = await harnessOutbound(nodeId, pinnedModel ?? useUiStore.getState().selectedModel ?? serverDefaultModel ?? undefined);
+  let harnessSession: string | undefined;
+  let harnessTurn: { session: string; turn: number | null; userMessageId: string | null; seq: number | null } | null = null;
 
   const writeFinal = (response: string, failed = false) => {
     if (!isCurrent()) return; // superseded: a newer generation owns this node
@@ -306,6 +312,8 @@ export async function runNodeGeneration(
         }));
       },
       onSources: (sources) => { references = sources; },
+      onHarnessSession: (session) => { harnessSession = session; },
+      onHarnessTurn: (turn) => { harnessTurn = turn; },
       onRerouted: (_from, to) => { actualModel = to; },
       onImageFallback: (model) => { actualModel = model; },
       onReasoning: (_chunk, fullSoFar) => {
@@ -320,7 +328,7 @@ export async function runNodeGeneration(
         scholar: selfData?.scholarSearch ?? useUiStore.getState().scholarSearchEnabled,
         mcp: useUiStore.getState().mcpEnabled,
       };
-    })(), pinnedModel, await harnessOutbound(nodeId, pinnedModel ?? useUiStore.getState().selectedModel ?? serverDefaultModel ?? undefined));
+    })(), pinnedModel, harnessRoute);
     flushStream();
     if (!isCurrent()) return; // superseded while finishing: drop everything
     activeAbortControllers.delete(nodeId);
@@ -332,6 +340,10 @@ export async function runNodeGeneration(
       return;
     }
     writeFinal(response);
+    // this node is the mirror of the dsh turn it just ran: stamp provenance,
+    // and on a tail follow-up advance the mirror's ledger so the live sweep
+    // does not append the same turn a second time
+    if (harnessRoute) await stampHarnessTurn(set, get, nodeId, { question, response }, harnessRoute, harnessSession, harnessTurn);
     onSuccess?.(response);
     get().pushHistory();
     generateSummary(nodeId, question, response, get().setSummary, collectMapLines(nodeId, get().nodes, get().edges));
