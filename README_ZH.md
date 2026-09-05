@@ -11,9 +11,24 @@
 
 ### [下载桌面版 ↓](https://chenxiachan.github.io/thoughtdag/?lang=zh#download) · [官网](https://chenxiachan.github.io/thoughtdag/?lang=zh) · [使用文档](https://chenxiachan.github.io/thoughtdag/docs/zh/)
 
-[English](./README.md) · [找回历史上下文](#新功能--跨-agent-精确定位所需上下文) · [可视化应用](#想进一步探索并可视化上下文) · [有何不同](#thoughtdag-和其他图形化-ai-工具有何不同) · [Agent 会话](#-把-agent-会话带进画布) · [研究](#-研究为什么上下文需要可编辑) · [完整文档](https://chenxiachan.github.io/thoughtdag/docs/zh/)
+[English](./README.md) · [在 DeepSeek Harness 里](#新功能--在-deepseek-harness-里) · [找回历史上下文](#新功能--跨-agent-精确定位所需上下文) · [可视化应用](#想进一步探索并可视化上下文) · [有何不同](#thoughtdag-和其他图形化-ai-工具有何不同) · [Agent 会话](#-把-agent-会话带进画布) · [研究](#-研究为什么上下文需要可编辑) · [完整文档](https://chenxiachan.github.io/thoughtdag/docs/zh/)
 
 </div>
+
+## 新功能 · 在 DeepSeek Harness 里
+
+> ThoughtDAG 可以作为 DeepSeek Harness 网页界面里的一个视图运行：对话框上方多一个 对话 | 思维图 开关。画布决定 Harness 下一步看到什么，Harness 负责把这一轮跑完。
+
+```bash
+dsh plugin --profile web add dsh-thoughtdag
+dsh web
+```
+
+- **Agent 对话地图看到三家。** Harness 自己的会话和 Claude Code、Codex 并列；打开一个就是一张图，随对话实时生长。
+- **在画布上提问。** 选 Harness 的任一模型，或选 **DeepSeek Harness · Agent**，问题作为一轮真实的 Harness 对话执行，工具随它用。回答流回节点，这一轮留在 Harness 的会话日志里。
+- **连线决定 Harness 看到什么。** 连进问题的材料、笔记和节点就是它收到的上下文；在镜像会话的链尾追问，会续接那个会话。
+
+插件自带画布，不需要另装 ThoughtDAG。需要 Node 22.19 以上和 DeepSeek Harness 0.1.2-rc 及之后版本。
 
 ## 新功能 · 跨 Agent 精确定位所需上下文
 
@@ -164,6 +179,7 @@ brew install --cask thoughtdag
 | RAG 与自动记忆 | 系统自动检索上下文；ThoughtDAG 让选择过程可见、可编辑。 |
 | 代码结构图工具 | 它们回答“和什么相连”；ThoughtDAG 找到塑造它的对话与决策。 |
 | Agent 记忆与对话检索 | 它们找回文本；ThoughtDAG 索引 Agent 对文件和材料做过什么，并让你控制哪些上下文继续向前。 |
+| Harness 上下文查看器 | 它们显示会话当前携带了什么；ThoughtDAG 让你编排下一轮收到什么，并作为真实的一轮发出去。 |
 
 ThoughtDAG 是一张由人编辑的上下文图：连入节点的路径与显式引用构成下一次请求，被排除的内容则继续留在画布上。
 
@@ -222,6 +238,7 @@ npm run dev       # → localhost:5173
 - **免费档模型覆盖全部功能**；本地 Ollama 完全离线
 - **桌面版一切都在本机**：画布、key、文档；在线 Demo 的模型流量浏览器直连，key 不经服务器
 - **PDF 不离机**，只有提取文本随提问发出
+- **在 DeepSeek Harness 里，模型调用走 Harness 自己的接入和 key**；ThoughtDAG 不另加 key，图片和链接抓取也走 Harness 的附件库与受限抓取器
 - **备份格式向后兼容**；Markdown 导出是永久逃生门
 
 ## 贡献者

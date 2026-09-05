@@ -11,9 +11,24 @@
 
 ### [Download ↓](https://chenxiachan.github.io/thoughtdag/#download) · [Website](https://chenxiachan.github.io/thoughtdag/) · [Docs](https://chenxiachan.github.io/thoughtdag/docs/)
 
-[中文](./README_ZH.md) · [Find past context](#new--pinpoint-the-context-you-need-across-agents) · [Visual app](#want-to-explore-and-shape-the-context-visually) · [How it differs](#how-thoughtdag-differs) · [Session Atlas](#-session-atlas-bring-agent-conversations-onto-the-canvas) · [Research](#-research-why-editable-context-matters) · [Documentation](https://chenxiachan.github.io/thoughtdag/docs/)
+[中文](./README_ZH.md) · [Inside DeepSeek Harness](#new--inside-deepseek-harness) · [Find past context](#new--pinpoint-the-context-you-need-across-agents) · [Visual app](#want-to-explore-and-shape-the-context-visually) · [How it differs](#how-thoughtdag-differs) · [Session Atlas](#-session-atlas-bring-agent-conversations-onto-the-canvas) · [Research](#-research-why-editable-context-matters) · [Documentation](https://chenxiachan.github.io/thoughtdag/docs/)
 
 </div>
+
+## New · Inside DeepSeek Harness
+
+> ThoughtDAG runs as a view inside the DeepSeek Harness web UI: a 对话 | 思维图 switch above the chat. The canvas is where you decide what the harness sees next; the harness runs the turn.
+
+```bash
+dsh plugin --profile web add dsh-thoughtdag
+dsh web
+```
+
+- **Session Atlas sees all three agents.** The harness's own sessions sit beside Claude Code and Codex; open one as a graph and it follows the conversation live.
+- **Ask from the canvas.** Pick one of the harness's models, or **DeepSeek Harness · Agent** to run the question as a real harness turn with tools. The answer streams back into the node, and the turn stays in the harness's session log.
+- **The wires decide what the harness sees.** Materials, notes and nodes wired into a question arrive as its context; a follow-up at the tail of a mirrored session continues that session.
+
+The plugin bundles the canvas; no other ThoughtDAG install is needed. Requires Node 22.19+ and DeepSeek Harness 0.1.2-rc or later.
 
 ## New · Pinpoint the context you need across agents
 
@@ -166,6 +181,7 @@ Many products use nodes and edges, but the graph does a different job in each ca
 | RAG and automatic memory | The system retrieves context automatically; ThoughtDAG makes the selection visible and editable. |
 | Code structure graphs | They answer what connects to what; ThoughtDAG finds the conversations and decisions that shaped it. |
 | Agent memory and conversation search | They retrieve text; ThoughtDAG indexes what agents did to files and materials, then lets you control what moves forward. |
+| Harness context viewers | They show what a session carries now; ThoughtDAG lets you compose what the next turn receives, and sends it as a real turn. |
 
 ThoughtDAG is a user-authored context graph: incoming paths and explicit references form the next request, while excluded work stays visible on the canvas.
 
@@ -224,6 +240,7 @@ Connect a local Ollama or any OpenAI-compatible endpoint. Built-in presets, subs
 - **The free model tier covers every feature**; a local Ollama runs fully offline
 - **In the desktop app everything lives on your machine**: canvases, keys, documents; on the web demo, model traffic runs browser-direct and keys never touch the server
 - **PDFs never leave your machine**; only extracted text travels when you ask
+- **Inside DeepSeek Harness, model calls use the harness's own providers and keys**; ThoughtDAG adds no key of its own, and images and link fetches go through the harness's attachment store and bounded fetcher
 - **The backup format stays backward compatible**; Markdown export is the permanent escape hatch
 
 ## Contributors
