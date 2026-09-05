@@ -525,6 +525,11 @@ async function buildIndexLocked(full: boolean, t0: number): Promise<BuildReport>
 /** A query answers from the present: when any source changed since the
  *  index was built, refresh incrementally first (usually well under a
  *  second thanks to the per-file watermark). */
+// A host that embeds this library (the DeepSeek Harness plugin) speaks to no
+// terminal: it silences the refresh notices the command line prints.
+let quiet = false;
+export function setQuiet(v: boolean): void { quiet = v; }
+
 async function ensureFresh(): Promise<FactIndex> {
   const facts = await loadFacts();
   const cache = await loadCache();
@@ -542,8 +547,10 @@ async function ensureFresh(): Promise<FactIndex> {
     || Object.keys(facts.sessions).length + Object.keys(facts.skipped).length !== keyed.length;
   if (!stale) return facts;
   const r = await buildIndex(false);
-  if (r.waited !== undefined) console.error(r.waited ? '(index refreshed by another process)' : '(index refresh in progress elsewhere; answering from the current index)');
-  else console.error(`(index refreshed: ${r.parsed} session${r.parsed === 1 ? '' : 's'} re-read, ${r.removed} gone, ${r.seconds.toFixed(1)}s)`);
+  if (!quiet) {
+    if (r.waited !== undefined) console.error(r.waited ? '(index refreshed by another process)' : '(index refresh in progress elsewhere; answering from the current index)');
+    else console.error(`(index refreshed: ${r.parsed} session${r.parsed === 1 ? '' : 's'} re-read, ${r.removed} gone, ${r.seconds.toFixed(1)}s)`);
+  }
   return loadFacts();
 }
 

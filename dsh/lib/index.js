@@ -672,6 +672,7 @@ async function installWhyLayer(ctx, config) {
   let why
   try {
     why = await import('./why.mjs')
+    why.setQuiet?.(true)
   } catch (error) {
     whyStatus.error = error instanceof Error ? error.message : String(error)
     ctx.logger.warn('[dsh-thoughtdag] why layer not loaded: ' + whyStatus.error)
