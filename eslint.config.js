@@ -6,7 +6,8 @@ import tseslint from 'typescript-eslint'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  // the Remotion video project and the docs build cache are not app code
+  globalIgnores(['dist', 'video', 'docs/.vitepress/cache']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [

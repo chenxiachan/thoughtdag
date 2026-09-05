@@ -97,18 +97,20 @@ export default function GlobalTooltip() {
 // shove the box fully back inside — before paint, so nothing flashes.
 function TipBox({ tip }: { tip: Tip }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [x, setX] = useState(tip.x);
+  // measure, then write the clamped position straight onto the element:
+  // still before paint, and without a second render
   useLayoutEffect(() => {
-    const w = ref.current?.offsetWidth ?? 0;
-    const half = w / 2;
-    setX(Math.max(12 + half, Math.min(tip.x, window.innerWidth - 12 - half)));
+    const el = ref.current;
+    if (!el) return;
+    const half = el.offsetWidth / 2;
+    el.style.left = `${Math.max(12 + half, Math.min(tip.x, window.innerWidth - 12 - half))}px`;
   }, [tip]);
   return createPortal(
     <div
       ref={ref}
       className="tdag-tooltip"
       style={{
-        left: x,
+        left: tip.x,
         top: tip.above ? tip.top - 8 : tip.bottom + 8,
         transform: `translate(-50%, ${tip.above ? '-100%' : '0'})`,
       }}

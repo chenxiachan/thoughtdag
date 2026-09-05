@@ -21,6 +21,8 @@ export default function CondenseDialog({ onFocusSegment }: { onFocusSegment?: (n
   const nodes = useStore((s) => s.nodes);
   const edges = useStore((s) => s.edges);
   const [refreshTick, setRefreshTick] = useState(0);
+  // refreshTick is the deliberate re-read trigger, not a value the memo reads
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const segments = useMemo(() => (open && run.status === 'idle' ? findCandidateSegments(nodes, edges) : []), [open, run.status, nodes, edges, refreshTick]);
   const globalModel = useUiStore((s) => s.selectedModel);
   const models = useModels()?.models ?? [];

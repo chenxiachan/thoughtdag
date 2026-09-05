@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { AppWindow, Archive, ArrowDownUp, Link2, Folder, FolderOpen, Loader2, Plug, RefreshCw, RotateCcw, Search, Square, SquareCheckBig, SquareTerminal, Import, Trash2, X, Inbox } from 'lucide-react';
 import { scanSessions, groupByCwd, disabledRoots, setRootDisabled, type SessionCard, type AtlasGroup } from '../lib/atlas/discover';
@@ -218,6 +218,8 @@ export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { 
       }
     } finally { setScanning(false); }
   };
+  // one scan on mount; refresh is recreated per render and must not re-run the scan
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { void refresh(); }, []);
 
   // live freshness: the watcher (live-mirror) broadcasts store changes;
@@ -238,14 +240,14 @@ export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { 
   // REAL thread name when the store lends one, the parsed title
   // otherwise. Search or sort on a different string than the one on
   // screen reads as a broken atlas.
-  const displayTitle = (c: SessionCard): string => threadNames.get(c.sessionId) ?? c.title;
+  const displayTitle = useCallback((c: SessionCard): string => threadNames.get(c.sessionId) ?? c.title, [threadNames]);
 
   // filters shape the whole atlas: folder counts follow them too
   const visible = useMemo(() => (cards ?? []).filter((c) =>
     !runnerOff.has(c.runner)
     && (showSubagents || !c.subagent)
     && (!onlyChanged || changes.has(changeKeyOf(c)))
-    && (!query.trim() || displayTitle(c).toLowerCase().includes(query.trim().toLowerCase()))), [cards, runnerOff, query, onlyChanged, changes, showSubagents, threadNames]);
+    && (!query.trim() || displayTitle(c).toLowerCase().includes(query.trim().toLowerCase()))), [cards, runnerOff, query, onlyChanged, changes, showSubagents, displayTitle]);
   const groups = useMemo(() => groupByCwd(visible), [visible]);
   const runners = useMemo(() => [...new Set((cards ?? []).map((c) => c.runner))].sort(), [cards]);
   const rootCounts = useMemo(() => {
@@ -260,7 +262,7 @@ export default function SessionAtlas({ onClose, onSwitched, focusSessionId }: { 
       ? (a: SessionCard, b: SessionCard) => displayTitle(a).localeCompare(displayTitle(b))
       : SORTERS[sortKey];
     return [...activeGroup.cards].sort(sorter);
-  }, [activeGroup, sortKey, threadNames]);
+  }, [activeGroup, sortKey, displayTitle]);
 
   const seen = (card: SessionCard) => {
     markSeen(card);
