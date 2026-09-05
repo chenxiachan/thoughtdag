@@ -15,7 +15,7 @@
 
 </div>
 
-## New · Inside DeepSeek Harness
+## New · DeepSeek Harness Available!
 
 > ThoughtDAG runs as a view inside the DeepSeek Harness web UI: a 对话 | 思维图 switch above the chat. The canvas is where you decide what the harness sees next; the harness runs the turn.
 
@@ -27,6 +27,7 @@ dsh web
 - **Session Atlas sees all three agents.** The harness's own sessions sit beside Claude Code and Codex; open one as a graph and it follows the conversation live.
 - **Ask from the canvas.** Pick one of the harness's models, or **DeepSeek Harness · Agent** to run the question as a real harness turn with tools. The answer streams back into the node, and the turn stays in the harness's session log.
 - **The wires decide what the harness sees.** Materials, notes and nodes wired into a question arrive as its context; a follow-up at the tail of a mirrored session continues that session.
+<img width="1562" height="952" alt="image" src="https://github.com/user-attachments/assets/e9a9208c-8394-41d3-b43a-40c741603836" />
 
 The plugin bundles the canvas; no other ThoughtDAG install is needed. Requires Node 22.19+ and DeepSeek Harness 0.1.2-rc or later.
 
