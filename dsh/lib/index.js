@@ -42,9 +42,12 @@
 // The model connection: inside the harness ThoughtDAG has no proxy of its
 // own, so this host also answers the SPA's proxy protocol with the harness's
 // providers and credentials (the SPA is built with VITE_API_BASE=/thoughtdag):
-//   GET  /models   the harness's model catalog in the SPA's list shape
-//   POST /stream   one model call, streamed as the SPA's SSE frames
-//   POST /claude   the same call, whole answer as JSON
+//   GET  /models     the harness's model catalog in the SPA's list shape
+//                    (vision from each adapter's declared input modalities)
+//   POST /stream     one model call, streamed as the SPA's SSE frames; images
+//                    enter the attachment store and ride the last user message
+//   POST /claude     the same call, whole answer as JSON
+//   POST /fetch-url  the SPA's link snapshot, through the harness's bounded fetcher
 // These are canvas-native calls (summaries, condensing, a canvas that is
 // not a mirrored session) — they run on the harness's models but do not
 // enter any session log; a mirrored session's turns go through /followup.
@@ -64,7 +67,7 @@ import { fileURLToPath } from 'node:url'
 import { zstdDecompressSync } from 'node:zlib'
 
 export const name = 'thoughtdag'
-export const inject = ['webServer', 'sessions', 'sessionController', 'agents', 'llm', 'attachments']
+export const inject = ['webServer', 'sessions', 'sessionController', 'agents', 'llm', 'attachments', 'web']
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 const APP_DIR = resolve(__dirname, '../dist-app')
@@ -432,22 +435,35 @@ function splitModelId(id) {
 }
 
 /** The harness's catalog in the SPA's list shape. No model is marked as
- *  seeing images yet: image blocks need the attachment store, a later step. */
+ *  seeing images: a model is marked vision when its adapter declares image
+ *  input; those images then enter the attachment store and ride the call. */
 const AGENT_MODEL = 'harness/agent'
+
+/** Which of a provider's models take images: the adapter's declared input
+ *  modalities; a name that says "vision" only when the adapter says nothing. */
+async function visionIdsOf(ctx, providerId, catalogModels) {
+  const out = new Set()
+  try {
+    for (const m of await ctx.llm.listModels(providerId)) if ((m.inputModalities ?? []).includes('image')) out.add(m.id)
+    if (out.size > 0) return out
+  } catch { /* provider not routable right now */ }
+  for (const m of catalogModels) if (/vision/i.test(m.id) || /vision/i.test(m.name ?? '')) out.add(m.id)
+  return out
+}
 
 async function modelsPayload(ctx) {
   const cat = await ctx.sessionController.modelCatalog()
   // the harness itself, as an entry: the agent loop with tools, not a bare model
   const models = [{ id: AGENT_MODEL, name: 'DeepSeek Harness · Agent (tools)', provider: 'DeepSeek Harness', vision: true }]
-  // A bare model call goes through ctx.llm.stream, which sends text only —
-  // the harness admits images through a SESSION turn, so images ride the
-  // agent path (harness/agent, marked vision above). Bare models stay text.
-  for (const g of cat.groups ?? []) for (const m of g.models ?? []) models.push({ id: `${g.id}/${m.id}`, name: m.name ?? m.id, provider: g.name ?? g.id, vision: false })
+  for (const g of cat.groups ?? []) {
+    const vision = await visionIdsOf(ctx, g.id, g.models ?? [])
+    for (const m of g.models ?? []) models.push({ id: `${g.id}/${m.id}`, name: m.name ?? m.id, provider: g.name ?? g.id, vision: vision.has(m.id) })
+  }
   const def = cat.default ? `${cat.default.provider}/${cat.default.model}` : null
   return {
     models,
     default: def && models.some(m => m.id === def) ? def : (models[0]?.id ?? null),
-    capabilities: { webSearch: false, searchEngine: 'none', scholarSearch: false, vision: false },
+    capabilities: { webSearch: false, searchEngine: 'none', scholarSearch: false, vision: models.some(m => m.vision) },
     harness: { routableProviders: cat.routableProviders ?? [], failures: (cat.failures ?? []).map(f => ({ provider: f.id, message: f.message })) },
   }
 }
@@ -471,6 +487,24 @@ async function callOf(ctx, body, target) {
     })
   }
   if (messages.length === 0) throw new HttpError(400, 'messages: nothing to send')
+  // the canvas sends images only to a model it was told sees them; they
+  // enter the attachment store first (the harness's image contract), then
+  // ride the last user message as image blocks
+  const images = Array.isArray(body?.images) ? body.images.filter(i => i && typeof i.data === 'string' && IMAGE_MEDIA.has(i.mimeType)) : []
+  if (images.length > 0) {
+    let lastUser = null
+    for (let i = messages.length - 1; i >= 0; i--) if (messages[i].role === 'user') { lastUser = messages[i]; break }
+    if (lastUser) {
+      for (const img of images) {
+        try {
+          const ref = await ctx.attachments.saveImage({ data: Buffer.from(img.data, 'base64'), mediaType: img.mimeType, name: 'canvas-image' })
+          lastUser.content.push({ type: 'image', attachment: ref })
+        } catch (error) {
+          throw new HttpError(400, 'image rejected by the harness: ' + (error instanceof Error ? error.message : String(error)))
+        }
+      }
+    }
+  }
   return { provider: target.provider, model: target.model, messages, ...(system.length ? { system: system.join('\n\n') } : {}) }
 }
 
@@ -527,8 +561,17 @@ async function runAgentTurn(ctx, body, emit, isClosed) {
   let fullText = ''
   let done
   const finished = new Promise(resolve => { done = resolve })
+  let currentTurn = null
   const off = ctx.on('session/event', (session, event) => {
     if (session?.id !== sessionId || !event) return
+    if (event.type === 'turn/start') { currentTurn = event.data?.turn ?? null; return }
+    // the person's question entering the surface: THIS is the turn the
+    // canvas node stands for — with its id the canvas marks the node as the
+    // mirror of that turn, and the live mirror does not append it a second time
+    if (event.type === 'user/message' && (event.data?.source?.kind ?? 'user') === 'user') {
+      emit({ harnessTurn: { session: sessionId, turn: currentTurn, userMessageId: event.data?.id ?? null, seq: event.seq ?? null } })
+      return
+    }
     if (event.type === 'assistant/chunk') {
       const c = event.data?.chunk
       if (c?.type === 'text-delta' && c.text) { sawChunk = true; fullText += c.text; emit({ text: c.text }) }
@@ -666,6 +709,21 @@ export function apply(ctx, config) {
           return sendFile(res, 'application/x-ndjson; charset=utf-8', await readFile(abs))
         }
         return sendJson(res, 200, await rangeOfFile(abs, url.searchParams.get('start'), url.searchParams.get('length')))
+      }
+      // ── link snapshots: the SPA's /api/fetch-url on the harness's bounded fetcher ──
+      if (path === '/fetch-url' && req.method === 'POST') {
+        const body = await readJson(req)
+        const target = typeof body?.url === 'string' ? body.url.trim() : ''
+        if (!/^https?:\/\//i.test(target)) return sendJson(res, 400, { error: 'url must be http(s)' })
+        let r
+        try { r = await ctx.web.fetch({ url: target }, AbortSignal.timeout(30000)) } catch (error) { return sendJson(res, 502, { error: error instanceof Error ? error.message : String(error) }) }
+        if (r.statusCode >= 400) return sendJson(res, 502, { error: `HTTP ${r.statusCode} from ${target}` })
+        const html = r.body?.kind === 'html' ? r.body.content : null
+        const title = (html && /<title[^>]*>([^<]*)<\/title>/i.exec(html)?.[1]?.trim()) || new URL(target).hostname
+        const text = html
+          ? html.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, ' ').replace(/<[^>]+>/g, ' ').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/\s+\n/g, '\n').replace(/[ \t]+/g, ' ').trim()
+          : String(r.body?.content ?? '')
+        return sendJson(res, 200, { title, text, fetchedAt: new Date().toISOString(), ...(html ? { html } : {}), url: r.url ?? target, truncated: !!r.truncated })
       }
       // ── model connection (the SPA's proxy protocol, on the harness's providers) ──
       if (path === '/models' && req.method === 'GET') return sendJson(res, 200, await modelsPayload(ctx))
