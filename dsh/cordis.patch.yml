@@ -9,3 +9,8 @@
         # Extra authorities the /thoughtdag/api Host check accepts; localhost
         # and 127.0.0.1 are always allowed.
         trustedHosts: []
+        # The why layer as native harness tools (why_check, why_file, why_find,
+        # why_recall) and a /why command. Set false to leave them out.
+        whyTools: true
+        # A short system-prompt section telling the model when to ask why.
+        whyPrompt: true

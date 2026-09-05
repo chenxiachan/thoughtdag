@@ -67,8 +67,21 @@ import path) accepts the bridge's JSONL verbatim. Wiring a "DSH sessions"
 source into the in-iframe canvas UI (Session Atlas) is planned; the bridge is
 the data plane it will read.
 
+## The why layer inside the harness
+
+The plugin bundles the `thoughtdag` CLI's library (`lib/why.mjs`, built at pack time) and answers the same four questions over the same `~/.thoughtdag` index — no CLI or MCP install needed:
+
+| Surface | What |
+|---|---|
+| Native tools | `why_check(path)`, `why_file(path, include_read?, limit?)`, `why_find(phrase, in?, limit?)`, `why_recall(session, turn)` — the agent calls them like any harness tool; relative paths resolve against the session's working directory |
+| `/why <path \| url \| arxiv:id>` | a person asks from the chat; the answer is the CLI's `why` output, no model message |
+| System-prompt section | four lines telling the model to `why_check` before editing a file with history and how to read the other three |
+
+Both are on by default; `whyTools: false` / `whyPrompt: false` in the plugin config turn them off.
+
 ## Not yet (roadmap)
 
+- Canvas why panel (a node's file → its history through `/thoughtdag/api`)
 - Canvas UI for the write bridge: name a fork point on a node, hand a compiled context to `inject`, continue with `followup`; the client already switches the chat to a session the canvas names (`td:select-session`)
 - `replace`: shadow a surface range from the canvas (DSH's compaction primitive); needs a live check of how the chat renders a replaced range
 - Theme sync and live session following in the iframe

@@ -32,3 +32,10 @@ mkdirSync(outDir, { recursive: true })
 cpSync(tmp, outDir, { recursive: true })
 rmSync(tmp, { recursive: true, force: true })
 console.log('plugin SPA written to', outDir)
+
+// The why layer: the CLI's library, bundled for the host (Node), so the plugin
+// registers the same four questions as native harness tools and a /why command
+const esbuild = resolve(repo, 'node_modules/.bin/esbuild')
+const whyOut = resolve(__dirname, '../lib/why.mjs')
+execFileSync(esbuild, [resolve(repo, 'cli/src/lib.ts'), '--bundle', '--platform=node', '--format=esm', '--target=node22', '--define:import.meta.env={}', '--outfile=' + whyOut, '--log-level=warning'], { stdio: 'inherit' })
+console.log('why layer written to', whyOut)
