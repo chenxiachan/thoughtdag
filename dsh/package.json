@@ -1,0 +1,57 @@
+{
+  "name": "dsh-thoughtdag",
+  "version": "0.4.4",
+  "description": "ThoughtDAG for DeepSeek Harness: turn the current DSH session into an editable thought graph on an infinite canvas.",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "dist-app",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs ..",
+    "prepack": "npm run build",
+    "verify": "node scripts/verify-write-bridge.mjs"
+  },
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "license": "MIT",
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "@deepseek-ai/dsh-client-modules",
+        "@deepseek-ai/dsh-api-session-controller",
+        "@deepseek-ai/dsh-client-connection"
+      ],
+      "immediately": false
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chenxiachan/thoughtdag.git",
+    "directory": "dsh"
+  },
+  "homepage": "https://github.com/chenxiachan/thoughtdag/tree/main/dsh#readme",
+  "bugs": "https://github.com/chenxiachan/thoughtdag/issues",
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "thoughtdag",
+    "context",
+    "canvas"
+  ]
+}

@@ -15,7 +15,8 @@
     "docs:build": "vitepress build docs",
     "docs:preview": "vitepress preview docs",
     "desktop": "npm run build && cd desktop && electron .",
-    "cli:build": "esbuild cli/src/main.ts --bundle --platform=node --format=esm --target=node20 --define:import.meta.env={} --outfile=cli/dist/thoughtdag.mjs --log-level=warning"
+    "cli:build": "esbuild cli/src/main.ts --bundle --platform=node --format=esm --target=node20 --define:import.meta.env={} --outfile=cli/dist/thoughtdag.mjs --log-level=warning",
+    "dsh:build": "node dsh/scripts/build.mjs ."
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.8",
