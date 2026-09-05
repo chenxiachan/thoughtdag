@@ -2,7 +2,18 @@
   "name": "dsh-thoughtdag",
   "version": "0.4.4",
   "description": "ThoughtDAG for DeepSeek Harness: turn the current DSH session into an editable thought graph on an infinite canvas.",
+  "author": "Xia Chen",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/chenxiachan/thoughtdag.git",
+    "directory": "dsh"
+  },
+  "homepage": "https://github.com/chenxiachan/thoughtdag/tree/main/dsh#readme",
+  "bugs": "https://github.com/chenxiachan/thoughtdag/issues",
   "type": "module",
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
   "main": "lib/index.js",
   "exports": {
     ".": "./lib/index.js",
@@ -22,10 +33,6 @@
     "prepack": "npm run build",
     "verify": "node scripts/verify-write-bridge.mjs"
   },
-  "engines": {
-    "node": ">=22.19.0"
-  },
-  "license": "MIT",
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
@@ -38,20 +45,63 @@
         "@deepseek-ai/dsh-client-connection"
       ],
       "immediately": false
+    },
+    "compatibility": {
+      "dshReleases": {
+        "0.1.2-rc.1": "compatible"
+      }
     }
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/chenxiachan/thoughtdag.git",
-    "directory": "dsh"
-  },
-  "homepage": "https://github.com/chenxiachan/thoughtdag/tree/main/dsh#readme",
-  "bugs": "https://github.com/chenxiachan/thoughtdag/issues",
   "keywords": [
     "dsh",
     "dsh-plugin",
     "thoughtdag",
     "context",
     "canvas"
-  ]
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.2",
+    "@deepseek-ai/dsh-session": ">=0.1.2-rc.1",
+    "@deepseek-ai/dsh-api-session-controller": ">=0.1.2-rc.1",
+    "@deepseek-ai/dsh-agent": ">=0.1.2-rc.1",
+    "@deepseek-ai/dsh-llm": ">=0.1.2-rc.1",
+    "@deepseek-ai/dsh-attachment": ">=0.1.2-rc.1",
+    "@deepseek-ai/dsh-web": ">=0.1.2-rc.1",
+    "@deepseek-ai/dsh-host-webserver": ">=0.1.2-rc.1",
+    "@deepseek-ai/dsh-client-modules": ">=0.1.2-rc.1",
+    "@deepseek-ai/dsh-client-connection": ">=0.1.2-rc.1"
+  },
+  "peerDependenciesMeta": {
+    "@deepseek-ai/cordis": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-session": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-api-session-controller": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-agent": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-llm": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-attachment": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-web": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-host-webserver": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-client-modules": {
+      "optional": true
+    },
+    "@deepseek-ai/dsh-client-connection": {
+      "optional": true
+    }
+  }
 }
