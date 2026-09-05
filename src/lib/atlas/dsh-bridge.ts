@@ -280,44 +280,79 @@ export async function harnessOutbound(nodeId: string, model: string | undefined)
   return cwd ? { cwd } : {};
 }
 
-/** After a harness-agent generation, make this node the mirror of the dsh turn
- *  it produced: stamp its provenance (runner dsh, the session, the person's
- *  message id), and — when it continued the canvas's OWN mirrored session —
- *  advance that ledger entry so the live sweep sees no gap and does not append
- *  the same turn a second time. No-op outside the harness. */
+type HarnessTurnRef = { session: string; turn: number | null; userMessageId: string | null; seq: number | null };
+type HarnessRoute = { cwd?: string; session?: string };
+
+/** Provenance for a node that IS a dsh turn: runner, session, the person's
+ *  message id (the deep-link and dedup key), the project it ran in. */
+const stampProvenance = (
+  set: StoreApi<StoreState>['setState'], nodeId: string, sessionId: string, route: HarnessRoute,
+  userMessageId: string | null, source?: { question: string; response: string },
+): void => {
+  const itemIds = userMessageId ? [userMessageId] : [];
+  set((s) => ({
+    nodes: s.nodes.map((n) => (n.id === nodeId
+      ? { ...n, data: { ...n.data,
+          importSource: { runner: 'dsh', sessionId, itemIds, ...(route.cwd ? { cwd: route.cwd } : {}) },
+          ...(source ? { source } : {}) } }
+      : n)),
+  }));
+};
+
+/** A tail follow-up continued the canvas's mirrored session: the new turn is
+ *  a live node AND, to the live sweep, an unimported appendix — advance the
+ *  ledger so it is only the node. A fresh session (route.session absent) has
+ *  no ledger entry and is not swept. Returns whether an entry was advanced. */
+async function advanceLedger(routeSession: string | undefined, nodeId: string): Promise<boolean> {
+  if (!routeSession) return false;
+  const { useProjects, patchLedgerEntry } = await import('../../store/projects');
+  const { projects, activeId } = useProjects.getState();
+  if (!activeId) return false;
+  const ss = projects.find((p) => p.id === activeId)?.sourceSession;
+  if (!ss) return false;
+  const entry = ss.sessionId === routeSession ? ss
+    : ss.chapters?.find((c) => c.sessionId === routeSession)
+    ?? ss.branches?.find((b) => b.sessionId === routeSession);
+  if (!entry) return false;
+  await patchLedgerEntry(activeId, routeSession, { importedCount: entry.importedCount + 1, tailNodeId: nodeId });
+  return true;
+}
+
+/** The moment the bridge names the dsh turn a question created, claim it:
+ *  the node becomes that turn's mirror NOW — provenance stamped, ledger
+ *  advanced — while the agent is still working. The live sweep polls every
+ *  few seconds; a turn that runs longer than that would otherwise be seen
+ *  as new and appended a second time before the completion stamp. Returns
+ *  whether the ledger was advanced, so the completion stamp does not count
+ *  the turn twice. No-op outside the harness. */
+export async function claimHarnessTurn(
+  set: StoreApi<StoreState>['setState'],
+  nodeId: string,
+  route: HarnessRoute,
+  turn: HarnessTurnRef,
+): Promise<boolean> {
+  if (!window.desktopSessions) return false;
+  stampProvenance(set, nodeId, route.session ?? turn.session, route, turn.userMessageId);
+  return advanceLedger(route.session, nodeId);
+}
+
+/** After a harness-agent generation completes: the final provenance and the
+ *  source snapshot (question, response) on the node. The ledger was normally
+ *  advanced by {@link claimHarnessTurn} when the turn was named; only when
+ *  that frame never arrived is it advanced here. No-op outside the harness. */
 export async function stampHarnessTurn(
   set: StoreApi<StoreState>['setState'],
   _get: StoreApi<StoreState>['getState'],
   nodeId: string,
   turn: { question: string; response: string },
-  route: { cwd?: string; session?: string },
+  route: HarnessRoute,
   harnessSession: string | undefined,
-  harnessTurn: { session: string; turn: number | null; userMessageId: string | null; seq: number | null } | null,
+  harnessTurn: HarnessTurnRef | null,
+  ledgerAdvanced = false,
 ): Promise<void> {
   if (!window.desktopSessions) return;
   const sessionId = route.session ?? harnessTurn?.session ?? harnessSession;
   if (!sessionId) return;
-  const itemIds = harnessTurn?.userMessageId ? [harnessTurn.userMessageId] : [];
-  set((s) => ({
-    nodes: s.nodes.map((n) => (n.id === nodeId
-      ? { ...n, data: { ...n.data,
-          importSource: { runner: 'dsh', sessionId, itemIds, ...(route.cwd ? { cwd: route.cwd } : {}) },
-          source: { question: turn.question, response: turn.response } } }
-      : n)),
-  }));
-  // A tail follow-up continued the canvas's mirrored session: the turn is now
-  // both a live node AND about to be a mirror appendix — advance the ledger so
-  // it is only the node. A fresh session (route.session absent) has no ledger
-  // entry and is not swept, so the node's stamp alone is enough.
-  if (route.session) {
-    const { useProjects, patchLedgerEntry } = await import('../../store/projects');
-    const { projects, activeId } = useProjects.getState();
-    if (!activeId) return;
-    const ss = projects.find((p) => p.id === activeId)?.sourceSession;
-    if (!ss) return;
-    const entry = ss.sessionId === route.session ? ss
-      : ss.chapters?.find((c) => c.sessionId === route.session)
-      ?? ss.branches?.find((b) => b.sessionId === route.session);
-    await patchLedgerEntry(activeId, route.session, { importedCount: (entry?.importedCount ?? 0) + 1, tailNodeId: nodeId });
-  }
+  stampProvenance(set, nodeId, sessionId, route, harnessTurn?.userMessageId ?? null, { question: turn.question, response: turn.response });
+  if (!ledgerAdvanced) await advanceLedger(route.session, nodeId);
 }

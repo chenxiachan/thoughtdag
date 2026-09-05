@@ -4,7 +4,7 @@ import { upstreamFingerprint, type MessageSource } from './context-builder';
 import { sha256Hex, canonicalStringify } from '../lib/context-bundle';
 import { pruneHighlights } from '../lib/highlight-match';
 import { llmCall, llmCallStream, type ContextMessage, type ImageAttachment } from '../lib/api';
-import { harnessOutbound, stampHarnessTurn } from '../lib/atlas/dsh-bridge';
+import { harnessOutbound, claimHarnessTurn, stampHarnessTurn } from '../lib/atlas/dsh-bridge';
 import { countTokens, activeSummary } from '../utils';
 import { toast, useUiStore } from '../lib/ui-store';
 import { getModelsOnce, reconcileModelId } from '../lib/use-models';
@@ -165,6 +165,9 @@ export async function runNodeGeneration(
   const harnessRoute = await harnessOutbound(nodeId, pinnedModel ?? useUiStore.getState().selectedModel ?? serverDefaultModel ?? undefined);
   let harnessSession: string | undefined;
   let harnessTurn: { session: string; turn: number | null; userMessageId: string | null; seq: number | null } | null = null;
+  // the turn is claimed the moment the bridge names it (mid-generation), so a
+  // live sweep firing while the agent works does not append it a second time
+  let harnessClaim: Promise<boolean> | null = null;
 
   const writeFinal = (response: string, failed = false) => {
     if (!isCurrent()) return; // superseded: a newer generation owns this node
@@ -313,7 +316,10 @@ export async function runNodeGeneration(
       },
       onSources: (sources) => { references = sources; },
       onHarnessSession: (session) => { harnessSession = session; },
-      onHarnessTurn: (turn) => { harnessTurn = turn; },
+      onHarnessTurn: (turn) => {
+        harnessTurn = turn;
+        if (harnessRoute && !harnessClaim) harnessClaim = claimHarnessTurn(set, nodeId, harnessRoute, turn).catch(() => false);
+      },
       onRerouted: (_from, to) => { actualModel = to; },
       onImageFallback: (model) => { actualModel = model; },
       onReasoning: (_chunk, fullSoFar) => {
@@ -343,7 +349,10 @@ export async function runNodeGeneration(
     // this node is the mirror of the dsh turn it just ran: stamp provenance,
     // and on a tail follow-up advance the mirror's ledger so the live sweep
     // does not append the same turn a second time
-    if (harnessRoute) await stampHarnessTurn(set, get, nodeId, { question, response }, harnessRoute, harnessSession, harnessTurn);
+    if (harnessRoute) {
+      const ledgerAdvanced = harnessClaim ? await harnessClaim : false;
+      await stampHarnessTurn(set, get, nodeId, { question, response }, harnessRoute, harnessSession, harnessTurn, ledgerAdvanced);
+    }
     onSuccess?.(response);
     get().pushHistory();
     generateSummary(nodeId, question, response, get().setSummary, collectMapLines(nodeId, get().nodes, get().edges));
