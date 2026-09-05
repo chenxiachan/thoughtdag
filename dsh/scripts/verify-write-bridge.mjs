@@ -9,16 +9,20 @@ const HEY = process.argv[2] ?? 'session-e093e195-bb3a-4c56-93a1-b56c31894f5f';
 const j = async (path, init) => { const r = await fetch(B + path, init); const t = await r.text(); let b; try { b = JSON.parse(t); } catch { b = t; } return { status: r.status, body: b }; };
 const post = (path, body) => j(path, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
 const log = async (id) => (await fetch(`${B}/sessions/${id}/log`)).text();
-const ok = (name, cond, extra = '') => console.log(`${cond ? '✅' : '❌'} ${name}${extra ? ' — ' + extra : ''}`);
+let failures = 0;
+const ok = (name, cond, extra = '') => { if (!cond) failures++; console.log(`${cond ? '✅' : '❌'} ${name}${extra ? ' — ' + extra : ''}`); };
 
 const turns = await j(`/sessions/${HEY}/turns`);
-ok('turns of a cold session', turns.status === 200 && turns.body.turns?.length === 1, JSON.stringify(turns.body.turns));
-const endSeq = turns.body.turns?.[0]?.endSeq;
+// the session may have grown since it was recorded: fork after its LAST completed turn
+const completed = (turns.body.turns ?? []).filter(t => t.endSeq !== null);
+const last = completed[completed.length - 1];
+ok('turns of a cold session', turns.status === 200 && completed.length >= 1, `${completed.length} completed turn(s)`);
+const endSeq = last?.endSeq;
 
-const bad = await post(`/sessions/${HEY}/fork`, { afterTurn: 7 });
+const bad = await post(`/sessions/${HEY}/fork`, { afterTurn: 9999 });
 ok('fork at an unknown turn is refused', bad.status === 400, JSON.stringify(bad.body));
-const fork = await post(`/sessions/${HEY}/fork`, { afterTurn: 1 });
-ok('fork after turn 1', fork.status === 200 && typeof fork.body.session === 'string' && fork.body.atSeq === endSeq, JSON.stringify(fork.body));
+const fork = await post(`/sessions/${HEY}/fork`, { afterTurn: last?.turn });
+ok(`fork after turn ${last?.turn}`, fork.status === 200 && typeof fork.body.session === 'string' && fork.body.atSeq === endSeq, JSON.stringify(fork.body));
 const child = fork.body.session;
 
 const live = await j('/sessions');
@@ -52,3 +56,5 @@ for (let i = 0; i < 90 && answer === null; i++) {
 ok('the injected context entered the child surface as a user/message from the plugin', ctxOnSurface);
 ok('the model answered from the injected context', answer !== null && /teal/i.test(answer), JSON.stringify(answer));
 console.log('child session:', child);
+console.log(failures ? `${failures} check(s) failed` : 'all checks passed');
+process.exitCode = failures ? 1 : 0;
