@@ -14,7 +14,7 @@ To query a file, phrase, URL, or paper directly from an agent, see [Why layer: C
 
 Atlas does not replace an agent's own compact command. It adds a finer-grained, traceable layer above it. You can think of Atlas as a **visual coordination and context-transfer layer** above CLI sessions, but not yet as an Agent OS that autonomously schedules processes, permissions, and resources.
 
-It is currently a **desktop feature** with native scanning support for local Codex, Claude Code, and DeepSeek Harness sessions. Integrations for other tools are also being prepared. If you need a particular runner or workflow, describe the use case in [GitHub Discussions](https://github.com/chenxiachan/thoughtdag/discussions), or report a reproducible format or compatibility problem in [GitHub Issues](https://github.com/chenxiachan/thoughtdag/issues).
+Atlas is available in the **desktop app and the [DeepSeek Harness plugin](./deepseek-harness)**, supporting local Codex, Claude Code, and DeepSeek Harness sessions. System file pickers, desktop-app links, and terminal launching below describe the desktop app; see the plugin manual for opening and continuing sessions inside Harness.
 
 ## The source agent keeps working; the mirror is yours to curate
 
@@ -23,7 +23,7 @@ Atlas does not rewrite the source agent's session. It creates an independent Tho
 - You can prune or rewrite mirror nodes, add materials and notes, create branches, and ask follow-up questions in ThoughtDAG.
 - Those actions change only the ThoughtDAG canvas and the context compiled from it. They never rewrite the source agent's history.
 - The source agent can keep running. As long as this canvas remains subscribed to that session, Atlas incrementally appends new turns to the matching chain tail.
-- New questions and answers created in ThoughtDAG belong to the canvas. They are not written back into the source agent session.
+- Regular-model questions and answers belong to the canvas and are not automatically written into the source session. In the Harness plugin, **DeepSeek Harness · Agent** executes and records a new turn; a follow-up at the corresponding mirror's tail can continue that session. This does not rewrite existing history. See the [execution reference](./deepseek-harness#execution-reference).
 
 The mirror is therefore not a frozen snapshot: you can curate its context while the source agent keeps working as before.
 

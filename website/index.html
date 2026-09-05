@@ -1180,6 +1180,19 @@
         text-decoration: none;
       }
       .desktop-install-head { padding-top: 8px; border-top: 1px solid var(--line); }
+      .harness-teaser { padding: 84px 24px; background: #fff; scroll-margin-top: 80px; }
+      .harness-inner { max-width: 1080px; margin: 0 auto; }
+      .harness-copy { max-width: 760px; margin: 0 auto 32px; text-align: center; }
+      .harness-copy h2 { font-size: clamp(30px, 4.5vw, 48px); line-height: 1.12; letter-spacing: -.045em; margin: 12px 0 20px; }
+      .harness-copy p { color: var(--muted); font-size: 17px; line-height: 1.7; }
+      .harness-copy .session-eyebrow { color: var(--purple); font-size: 13px; }
+      .harness-video { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: contain; background: #f4f2ef; border: 1px solid var(--line); border-radius: 12px; }
+      .harness-footer { display: flex; justify-content: space-between; align-items: start; gap: 24px; margin-top: 22px; }
+      .harness-footer p { max-width: 620px; margin: 0; color: var(--muted); font-size: 15px; line-height: 1.7; }
+      .harness-footer a { margin-top: 3px; white-space: nowrap; font-size: 15px; }
+      .install-code { max-width: 100%; overflow-x: auto; min-width: 0; font-size: 14px; }
+      #harness-install { scroll-margin-top: 90px; }
+      @media (max-width: 700px) { .harness-teaser { padding: 56px 20px; } .harness-footer { flex-direction: column; gap: 8px; } .install-path > * { min-width: 0; } }
 
       /* Research entry: product mechanism first, pilot evidence second. */
       .research-teaser {
@@ -2480,18 +2493,17 @@ why src/lib/api.ts · 12 个相关轮次，来自 6 个会话
           </div>
           <p
             class="session-availability"
-            data-en="Desktop only · Claude Code, Codex and DeepSeek Harness supported today · more agent integrations in development."
-            data-zh="桌面版专属 · 目前支持 Claude Code、Codex 与 DeepSeek Harness · 更多 Agent 正在接入。"
+            data-en="Available in the desktop app and the Harness plugin · Claude Code, Codex and DeepSeek Harness sessions."
+            data-zh="桌面版与 Harness 插件均可使用 · 支持 Claude Code、Codex 与 DeepSeek Harness 会话。"
           >
-            Desktop only · Claude Code, Codex and DeepSeek Harness supported today · more agent
-            integrations in development.
+            Available in the desktop app and the Harness plugin · Claude Code, Codex and DeepSeek Harness sessions.
           </p>
           <a
             class="session-action"
             href="#download"
-            data-en="Open your sessions on the desktop →"
-            data-zh="在桌面版打开你的会话 →"
-          >Open your sessions on the desktop →</a>
+            data-en="Choose how to open your sessions →"
+            data-zh="选择打开会话的方式 →"
+          >Choose how to open your sessions →</a>
         </div>
 
         <div class="atlas-demo" aria-label="Session Atlas opening a local agent conversation as a graph">
@@ -2543,6 +2555,21 @@ why src/lib/api.ts · 12 个相关轮次，来自 6 个会话
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="harness-teaser" id="harness" aria-labelledby="harness-heading">
+      <div class="harness-inner">
+        <div class="harness-copy">
+          <p class="session-eyebrow" data-en="NEW · INSIDE DEEPSEEK HARNESS" data-zh="新功能 · 在 DEEPSEEK HARNESS 中使用">NEW · INSIDE DEEPSEEK HARNESS</p>
+          <h2 id="harness-heading" data-en="Your canvas. Your next harness turn." data-zh="在 Harness 里，直接用图继续思考。">Your canvas. Your next harness turn.</h2>
+          <p data-en="Switch from chat to the thought graph. Connect the context, ask a follow-up, and let the harness run the next turn." data-zh="从对话切换到思维图。连接上下文，继续追问，让 Harness 执行下一轮。">Switch from chat to the thought graph. Connect the context, ask a follow-up, and let the harness run the next turn.</p>
+        </div>
+        <video id="harness-video" class="harness-video" controls playsinline muted preload="metadata" src="media/harness-user-take-en.mp4" aria-label="ThoughtDAG inside DeepSeek Harness: real screen recording"></video>
+        <div class="harness-footer">
+          <p data-en="Choose DeepSeek Harness · Agent to run with tools and keep the turn in your harness session. The plugin includes the canvas; no desktop install needed." data-zh="选择 DeepSeek Harness · Agent，即可调用工具，并将这一轮记录在 Harness 会话中。插件自带画布，无需安装桌面版。">Choose DeepSeek Harness · Agent to run with tools and keep the turn in your harness session. The plugin includes the canvas; no desktop install needed.</p>
+          <a class="install-doc-link" href="#harness-install" data-en="Install the plugin →" data-zh="安装插件 →">Install the plugin →</a>
         </div>
       </div>
     </section>
@@ -2681,9 +2708,9 @@ why src/lib/api.ts · 12 个相关轮次，来自 6 个会话
         <h2 data-en="Start with the layer you need" data-zh="从需要的这一层开始">Start with the layer you need</h2>
         <p
           class="dl-sub"
-          data-en="Query conversation history on its own, or install the full visual workspace."
-          data-zh="可以只查询对话历史，也可以安装完整的可视化工作台。"
-        >Query conversation history on its own, or install the full visual workspace.</p>
+          data-en="Search with your agent, work inside Harness, or open the standalone app. Choose one to start."
+          data-zh="让 Agent 检索历史、在 Harness 中使用画布，或打开独立应用。选适合你的一种开始。"
+        >Search with your agent, work inside Harness, or open the standalone app. Choose one to start.</p>
         <div class="install-path">
           <div>
             <h3 data-en="CLI + read-only MCP" data-zh="CLI + 只读 MCP">CLI + read-only MCP</h3>
@@ -2702,6 +2729,15 @@ why src/lib/api.ts · 12 个相关轮次，来自 6 个会话
           </div>
           <code class="install-code">npm install -g thoughtdag
 thoughtdag setup mcp</code>
+        </div>
+        <div class="install-path" id="harness-install">
+          <div>
+            <h3 data-en="Already using DeepSeek Harness?" data-zh="已经在用 DeepSeek Harness？">Already using DeepSeek Harness?</h3>
+            <p data-en="Add the thought graph to the web UI. Use your harness models, run agent turns, and explore sessions in Atlas. No separate ThoughtDAG app or CLI required." data-zh="把思维图接入网页界面，使用 Harness 模型、执行 Agent 轮次，并在 Atlas 中探索会话。无需另装 ThoughtDAG 应用或 CLI。">Add the thought graph to the web UI. Use your harness models, run agent turns, and explore sessions in Atlas. No separate ThoughtDAG app or CLI required.</p>
+            <a class="install-doc-link" href="docs/guides/deepseek-harness" data-en-href="docs/guides/deepseek-harness" data-zh-href="docs/zh/guides/deepseek-harness" data-en="Installation and usage →" data-zh="安装与使用手册 →">Installation and usage →</a>
+          </div>
+          <code class="install-code">dsh plugin --profile web add dsh-thoughtdag
+dsh web</code>
         </div>
       </div>
 
@@ -2855,6 +2891,12 @@ thoughtdag setup mcp</code>
 
         const applyLanguage = (language, updateUrl = false) => {
           currentLanguage = language;
+          const harnessVideo = document.getElementById("harness-video");
+          const harnessSource = `media/harness-user-take-${language === "zh" ? "zh" : "en"}.mp4`;
+          if (harnessVideo.getAttribute("src") !== harnessSource) {
+            harnessVideo.setAttribute("src", harnessSource);
+            harnessVideo.load();
+          }
           document.documentElement.lang = language === "zh" ? "zh-CN" : "en";
           document.title =
             language === "zh"

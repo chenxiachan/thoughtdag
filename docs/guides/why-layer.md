@@ -38,6 +38,8 @@ The first command adds a marked block to this project's `CLAUDE.md` and `AGENTS.
 
 ## CLI reference
 
+For native Harness queries and their release status, see the [DeepSeek Harness plugin](./deepseek-harness#query-history). Native `why_find` and `why_recall` correspond to MCP `find` and `recall_turn` below.
+
 | Command | Purpose |
 |---|---|
 | `thoughtdag index [--full] [--canvas <dir>]` | Build or refresh the index; optionally remember a canvas-backup directory |

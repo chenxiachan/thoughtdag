@@ -38,6 +38,8 @@ thoughtdag setup rules --remove
 
 ## CLI 命令字典
 
+Harness 内的原生查询入口及其发布状态，参见 [DeepSeek Harness 插件](./deepseek-harness#查询历史)。原生工具的 `why_find`、`why_recall` 分别对应这里 MCP 的 `find`、`recall_turn`。
+
 | 命令 | 作用 |
 |---|---|
 | `thoughtdag index [--full] [--canvas <dir>]` | 建立或刷新索引；可同时记住画布备份目录 |

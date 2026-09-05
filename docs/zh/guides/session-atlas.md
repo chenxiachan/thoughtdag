@@ -14,7 +14,7 @@ Agent 对话地图是 ThoughtDAG 面向本地 Agent 工作的**可视化上下�
 
 对话地图不是为了取代 Agent 自带的 compact，而是在它之上提供更细粒度、可追溯的整理方式。你可以把它理解为 CLI 会话之上的**可视化协同与上下文传递层**，但它还不是一个自动调度进程、权限和资源的 Agent OS。
 
-它目前属于**桌面版功能**，原生支持扫描 Codex、Claude Code 与 DeepSeek Harness 的本地会话；其他工具的接入也在准备中。如果你希望支持某个 runner 或工作流，欢迎在 [GitHub Discussions](https://github.com/chenxiachan/thoughtdag/discussions) 描述使用场景，或通过 [GitHub Issues](https://github.com/chenxiachan/thoughtdag/issues) 提交可复现的格式与兼容问题。
+它可在**桌面版和 [DeepSeek Harness 插件](./deepseek-harness)**中使用，支持 Codex、Claude Code 与 DeepSeek Harness 的本地会话。下文的系统文件选择器、桌面 App 和终端唤起操作以桌面版为准；Harness 内的打开与续接方式见插件手册。
 
 ## 原 Agent 继续工作，镜像独立整理
 
@@ -23,7 +23,7 @@ Agent 对话地图是 ThoughtDAG 面向本地 Agent 工作的**可视化上下�
 - 你可以在 ThoughtDAG 中删减或改写镜像节点、补充资料与便签、建立新分支并继续追问；
 - 这些操作只改变 ThoughtDAG 画布及其后续编译出的上下文，不会改写原 Agent 的历史；
 - 原 Agent 可以继续对话；只要这张画布仍订阅该 session，对话地图就会把新轮次增量追加到对应链尾；
-- 在 ThoughtDAG 中产生的新问题和回答属于画布的新内容，不会自动写回原 Agent 会话。
+- 普通模型生成的新问题和回答属于画布，不会自动写回原 Agent 会话。在 Harness 插件中选择 **DeepSeek Harness · Agent** 则会执行并记录新轮次；在对应镜像链尾追问可以续接该会话。这不改写已有历史，参见[运行方式字典](./deepseek-harness#运行方式字典)。
 
 因此，镜像不是一张静止的快照：你可以在其中整理上下文，而原 Agent 仍按原来的方式继续工作。
 
