@@ -288,10 +288,12 @@ export function installDshSessionsBridge(apiBase: string): void {
     }
     if (d.type === 'td:view') {
       const was = shown;
-      const v = d as { shown?: boolean; bar?: boolean; desktop?: boolean };
+      const v = d as { shown?: boolean; bar?: boolean; desktop?: boolean; pill?: boolean };
       shown = v.shown !== false;
-      // the host says whether its title band carries the 对话|思维图 switch (then the canvas hides its own) and whether it is the desktop app
-      if (v.bar !== undefined || v.desktop !== undefined) useUiStore.getState().setHarnessHost({ bar: !!v.bar, desktop: !!v.desktop });
+      // the host says whether its title band carries the 对话|思维图 switch, whether it keeps the floating
+      // pill for both views (then the canvas hides its own — the iframe starts below the strip, the twin
+      // could never sit at strip height, #61), and whether it is the desktop app
+      if (v.bar !== undefined || v.desktop !== undefined || v.pill !== undefined) useUiStore.getState().setHarnessHost({ bar: !!v.bar, desktop: !!v.desktop, pill: !!v.pill });
       if (shown && !was) wake(); else if (!shown && was) schedule();
     }
   });
