@@ -71,7 +71,7 @@ import ShareDialog from './components/ui/ShareDialog';
 import ThoughtMapDialog from './components/ui/ThoughtMapDialog';
 import BackupDialog from './components/ui/BackupDialog';
 import CondenseDialog from './components/ui/CondenseDialog';
-import { backupSupported } from './lib/local-backup';
+import { backupCapable } from './lib/local-backup';
 import LangSwitch from './components/ui/LangSwitch';
 import ModelPicker from './components/ui/ModelPicker';
 import RoleTemplateChips from './components/ui/RoleTemplateChips';
@@ -1763,7 +1763,7 @@ function Canvas() {
             <Loader2 size={14} strokeWidth={1.75} className="animate-spin" /><span className="text-2xs font-mono">{condenseRunState.current}/{condenseRunState.total}</span>
           </button>
         )}
-        {backupSupported && (
+        {backupCapable() && (
           <button
             onClick={() => useUiStore.getState().setBackupDialogOpen(true)}
             className="bg-card/90 backdrop-blur border border-line rounded-lg w-8 h-8 flex items-center justify-center shadow-sm hover:bg-wash transition-colors text-ink-muted hover:text-accent"

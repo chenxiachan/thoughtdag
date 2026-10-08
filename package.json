@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "smoke": "node scripts/smoke.mjs",
     "test:layout": "node scripts/test-layout.mjs",
+    "test:backup": "node scripts/test-backup-write.mjs",
     "preview": "vite preview",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",

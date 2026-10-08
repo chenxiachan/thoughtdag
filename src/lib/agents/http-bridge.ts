@@ -64,6 +64,12 @@ export async function installAgentsHttpBridge(apiBase: string): Promise<boolean>
     pickCwd: () => pickThroughHarness(),
     guardWrite: async (cwd, config) => (await post<{ ok: boolean }>('/agents/guard', { cwd, config })).ok,
     writeMaterials: async (cwd, files) => post('/agents/materials', { cwd, files }),
+    // the host writes the backup file (#66). Inside the harness frame the
+    // canvas has no directory handle — Chromium's picker never returns there
+    // on Windows — so the backup keeps a plain path string and the host does
+    // the writing. A host that does not serve /backup fails the probe-free
+    // first call, and the backup falls back to the browser handle path.
+    backupJson: async (dir, name, json) => post<{ file: string }>('/backup', { dir, name, json }),
     onEvent: (cb) => { listeners.push(cb); ensureFeed(); },
   };
   return true;

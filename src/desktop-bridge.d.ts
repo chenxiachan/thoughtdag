@@ -132,6 +132,18 @@ interface DesktopAgentsBridge {
   guardWrite(cwd: string, config: { mode: 'ask' | 'allow'; allow: string[] }): Promise<boolean>;
   /** the canvas's materials written under <cwd>/.thoughtdag/materials */
   writeMaterials(cwd: string, files: { name: string; content: string; encoding?: 'utf8' | 'base64' }[]): Promise<{ dir: string | null; written: string[] }>;
+  /** the local backup, written by the HOST instead of the browser.
+   *
+   *  The File System Access API is a browser capability: it needs a handle,
+   *  which only lives in the page that asked for it. Chromium's directory
+   *  picker never returns inside the harness's Windows frame (#66), so the
+   *  canvas cannot hold a handle there. When the host offers this call, the
+   *  backup stores a plain PATH string instead and the host writes the file
+   *  — no handle, no permission prompt at boot.
+   *
+   *  Absent on every host that cannot write files (the plain web app), which
+   *  is exactly the signal to stay on the handle path. */
+  backupJson?(dir: string, name: string, json: string): Promise<{ file: string }>;
   onEvent(cb: (payload: { runId: string; event: Record<string, unknown> & { type: string } }) => void): void;
 }
 

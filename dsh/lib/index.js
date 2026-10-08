@@ -81,6 +81,10 @@ export const inject = ['webServer', 'sessions', 'sessionController', 'agents', '
 const __dirname = fileURLToPath(new URL('.', import.meta.url))
 const require = createRequire(import.meta.url)
 const APP_DIR = resolve(__dirname, '../dist-app')
+// the path rules for the canvas's local backup (#66); the route below shells
+// this, and it is required HERE because the handler needs it in scope — inside
+// agentsHttp() it would be a function-local binding the handler cannot see
+const { writeBackup, BackupRequestError } = require(resolve(__dirname, 'runtime', 'backup-write.cjs'))
 
 // The plugin's own version travels into the canvas's URL (?dv=), so the
 // update dialog and the release history know which release runs here, as
@@ -1216,6 +1220,22 @@ export async function apply(ctx, config) {
       if (path.startsWith('/agents/')) {
         const body = req.method === 'POST' ? await readJson(req, MAX_WRITE_BODY_BYTES).catch(() => null) : null
         if (await agentsHttp().handle(req, res, path, body)) return
+      }
+      // ── the canvas's local backup, written by THIS host (#66) ──
+      // The File System Access API needs a directory handle, and Chromium's own
+      // picker never returns inside the harness frame on Windows, so the canvas
+      // cannot write the file itself there. It keeps the absolute path the
+      // harness's own picker handed it and asks this endpoint to write instead.
+      // The path rules live in runtime/backup-write.cjs so they can be tested
+      // without a harness: scripts/test-backup-write.mjs.
+      if (path === '/backup' && req.method === 'POST') {
+        const body = await readJson(req, MAX_WRITE_BODY_BYTES).catch(() => null)
+        try {
+          return sendJson(res, 200, { file: await writeBackup(body) })
+        } catch (error) {
+          if (error instanceof BackupRequestError) return sendJson(res, 400, { error: error.message })
+          return sendJson(res, 500, { error: 'could not write the backup: ' + (error instanceof Error ? error.message : String(error)) })
+        }
       }
       // ── model connection (the SPA's proxy protocol, on the harness's providers) ──
       if (path === '/models' && req.method === 'GET') return sendJson(res, 200, await modelsPayload(ctx, registeredProviders))
