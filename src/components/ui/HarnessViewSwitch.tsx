@@ -11,9 +11,12 @@ import { useUiStore } from '../../lib/ui-store';
 
 export default function HarnessViewSwitch() {
   const t = useT();
-  // the desktop host's title band carries this switch itself; the canvas shows its own only in a browser tab
+  // the desktop host's title band carries this switch itself, and a Windows-style host keeps the floating
+  // pill for both views — its iframe starts below the host's top strip, so this in-canvas twin could never
+  // sit at strip height (#61); the canvas shows its own only in a browser tab
   const hostBar = useUiStore((st) => !!st.harnessHost?.bar);
-  if (!IN_HARNESS_FRAME || hostBar) return null;
+  const hostPill = useUiStore((st) => !!st.harnessHost?.pill);
+  if (!IN_HARNESS_FRAME || hostBar || hostPill) return null;
   const close = () => window.parent.postMessage({ source: 'dsh-thoughtdag', type: 'td:close' }, window.location.origin);
   return (
     <div className="bg-card/90 backdrop-blur border border-line rounded-xl p-0.5 shadow-sm flex items-center" role="group" aria-label="view switch" data-harness-view-switch>

@@ -137,9 +137,9 @@ interface UiState {
   /** inside the harness: a newer plugin on the registry than the one running */
   pluginUpdate: { current: string; latest: string } | null;
   setPluginUpdate: (u: { current: string; latest: string } | null) => void;
-  /** inside the harness: whether the host shows its title band over the map (its own 对话|思维图 switch), and whether it is the desktop app */
-  harnessHost: { bar: boolean; desktop: boolean } | null;
-  setHarnessHost: (h: { bar: boolean; desktop: boolean } | null) => void;
+  /** inside the harness: whether the host shows its title band over the map (its own 对话|思维图 switch), whether it keeps the floating pill for both views (then the canvas hides its own twin), and whether it is the desktop app */
+  harnessHost: { bar: boolean; desktop: boolean; pill: boolean } | null;
+  setHarnessHost: (h: { bar: boolean; desktop: boolean; pill: boolean } | null) => void;
   highlightsOverviewOpen: boolean;
   setHighlightsOverviewOpen: (open: boolean) => void;
   materialsOverviewOpen: boolean;
