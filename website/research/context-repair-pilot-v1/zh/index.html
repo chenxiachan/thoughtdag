@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LLM 上下文修复：试点实验 v1 · ThoughtDAG</title>
+    <meta name="description" content="在可编辑的 LLM 上下文图里，错误如何沿下游传播，以及剪除与按依赖顺序重算能修复多少。试点实验 v1 的结果。" />
+    <meta name="robots" content="index,follow,max-image-preview:large" />
+    <meta name="theme-color" content="#f8f6fb" />
+    <link rel="icon" type="image/svg+xml" href="../../../assets/favicon.svg" />
+    <link rel="canonical" href="https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v2/zh/" />
+    <link rel="alternate" hreflang="en" href="https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v1/" />
+    <link rel="alternate" hreflang="zh-CN" href="https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v1/zh/" />
+    <link rel="alternate" hreflang="x-default" href="https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v1/" />
+    <link rel="stylesheet" href="../../../assets/research-pages.css" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="LLM 上下文修复：试点实验 v1 · ThoughtDAG" />
+    <meta property="og:description" content="在可编辑的 LLM 上下文图里，错误如何传播，剪除与按依赖顺序重算能修复多少。" />
+    <meta property="og:url" content="https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v1/zh/" />
+    <meta property="og:image" content="https://chenxiachan.github.io/thoughtdag/assets/context-repair-strategies-zh.png" />
+    <meta property="og:locale" content="zh_CN" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="LLM 上下文修复：试点实验 v1" />
+    <meta name="twitter:description" content="错误的传播、剪除，以及按依赖顺序重算。" />
+    <meta name="twitter:image" content="https://chenxiachan.github.io/thoughtdag/assets/context-repair-strategies-zh.png" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "LLM 上下文修复：试点实验 v1",
+        "alternativeHeadline": "错误的传播、剪除，以及按依赖顺序重算",
+        "datePublished": "2026-08-17",
+        "inLanguage": "zh-CN",
+        "author": { "@type": "Person", "name": "Xia Chen" },
+        "publisher": { "@type": "Organization", "name": "ThoughtDAG" },
+        "mainEntityOfPage": "https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v1/zh/",
+        "image": "https://chenxiachan.github.io/thoughtdag/assets/context-repair-strategies-zh.png"
+      }
+    </script>
+  </head>
+  <body>
+    <nav class="site-nav" aria-label="主导航">
+      <a class="brand" href="../../zh/">
+        <img src="../../../assets/favicon.svg" alt="" />
+        <span>ThoughtDAG</span>
+      </a>
+      <div class="nav-links">
+        <a class="nav-link lang" href="../" hreflang="en" lang="en">English</a>
+        <a class="nav-link" href="../../../stories/context-repair/?lang=zh">案例</a>
+        <a class="nav-link" href="https://github.com/chenxiachan/thoughtdag/tree/main/benchmark" target="_blank" rel="noreferrer">数据与代码 ↗</a>
+        <a class="nav-link primary" href="https://github.com/chenxiachan/thoughtdag" target="_blank" rel="noreferrer">GitHub ↗</a>
+      </div>
+    </nav>
+
+    <div class="report-shell">
+      <article class="report-main">
+        <div class="caveat" style="margin-bottom:28px">
+          <p><strong>这是归档的 v1 快照</strong>（四个端点，8 月 16 日）。规模更大的<a class="text-link" href="../../context-repair-pilot-v2/zh/">试点实验 v2（九个端点、对照配对和推理消融）</a>已经取代了它。</p>
+        </div>
+        <header class="report-header">
+          <span class="eyebrow">THOUGHTDAG 研究 · 试点实验 V1</span>
+          <h1>LLM 上下文修复：试点实验 v1</h1>
+          <p class="report-subtitle">错误的传播、剪除，以及按依赖顺序重算。</p>
+          <p class="report-dates"><time datetime="2026-08-17">2026 年 8 月 17 日发布</time></p>
+          <p class="report-meta">结果采集于 2026 年 8 月 16 日 · 4 个模型端点 · 540 个已采集条件 · 0 次采集失败</p>
+          <div class="finding"><strong>一句话结论。</strong>在 72 个配对案例中，冲突的上下文先让模型答错。之后，移除受污染的子图修复了 72/72，重算它的下游修复了 71/72，只删除最初那条错误轮次修复了 68/72。</div>
+        </header>
+
+        <section class="report-section" id="problem">
+          <h2>问题</h2>
+          <p>假设一段 LLM 对话里有一次错误的更正。你删掉了这一轮。对话就修好了吗？</p>
+          <p>不一定。等到发现错误时，后面的回答可能已经复述过它、用它算过数，并把它变成了新的论断。删掉最初的错误，改变的是源头，却不会改写从它长出来的结论。</p>
+          <p>在线性的聊天记录里，这一点很难看出来。把对话表示成一张依赖图，就明显得多。</p>
+        </section>
+
+        <section class="report-section" id="case">
+          <h2>一个受控示例</h2>
+          <p>旗舰案例刻意设计得很简单，这样不需要 LLM 评判就能给答案打分。四个箱子各装 30 个零件，另有 11 个散件。一次经过核实的复点把 30 改成了 24。</p>
+          <div class="equation">4 × 24 + 11 = 107</div>
+          <p>随后，一条错误的轮次又把数字改回 30。三个下游轮次把这个错误传了下去：先是 <code>4 × 30 = 120</code>，再是 <code>120 + 11 = 131</code>，接着复述了一遍这些过时的中间值。最后的问题始终是同一个：用固定的输入求出一个数字。</p>
+          <figure class="report-figure">
+            <img src="../../../assets/context-repair-flagship-zh.png" alt="旗舰「仓库箱子」案例中的五种图条件与四个模型的输出" />
+            <figcaption>五种图状态，最后的问题始终不变。错误源头本身被删除之后，Gemma 和 GPT-OSS 仍然回答 131。</figcaption>
+          </figure>
+        </section>
+
+        <section class="report-section" id="conditions">
+          <h2>五种图条件</h2>
+          <div class="report-table-wrap">
+            <table class="report-table">
+              <thead><tr><th>条件</th><th>呈现的上下文</th><th>检验什么</th></tr></thead>
+              <tbody>
+                <tr><td>干净</td><td>核实后的数值和干净的中间轮次</td><td>模型本身能不能解出这道题？</td></tr>
+                <tr><td>污染</td><td>错误的回改，加上受污染的下游</td><td>错误会不会改变答案？</td></tr>
+                <tr><td>剪除源头</td><td>删掉错误的回改，保留下游</td><td>只删源头够不够？</td></tr>
+                <tr><td>剪除子图</td><td>删掉错误的回改及其下游</td><td>完整切除能否恢复答案？</td></tr>
+                <tr><td>重算下游</td><td>删掉错误的回改，按依赖顺序重新生成下游</td><td>这条思路能否被修复，而不是整个丢掉？</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>在前四种条件里，受污染的下游轮次对所有模型都是同一份冻结的文本。只有重算条件要求每个模型自己重新生成它们。这样就把两件事分开了：模型对同一段错误历史有多敏感，以及它能不能把这段历史重建好。</p>
+        </section>
+
+        <section class="report-section" id="flagship">
+          <h2>旗舰结果</h2>
+          <p>四个模型端点都在温度 0、服务商默认的推理设置下测试。</p>
+          <div class="report-table-wrap">
+            <table class="report-table">
+              <thead><tr><th>图条件</th><th>GLM 4.5 Flash</th><th>Nemotron 3.5 Lightning</th><th>Gemma 4 26B</th><th>GPT-OSS 20B</th></tr></thead>
+              <tbody>
+                <tr><td>干净</td><td>107</td><td>107</td><td>107</td><td>107</td></tr>
+                <tr><td>污染</td><td>131</td><td>131</td><td>131</td><td>131</td></tr>
+                <tr><td>只删源头</td><td>107</td><td>107</td><td><strong>131</strong></td><td><strong>131</strong></td></tr>
+                <tr><td>删除受污染子图</td><td>107</td><td>107</td><td>107</td><td>107</td></tr>
+                <tr><td>删除源头并重算</td><td>107</td><td>107</td><td>107</td><td>107</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>这不是隐藏记忆的证据。残留的错误就明明白白地留在下游的表述里。删掉一个节点，并不会让已经从它生成的文字自动失效。</p>
+        </section>
+
+        <section class="report-section" id="pilot">
+          <h2>整个试点的结果</h2>
+          <p>试点包含 9 个任务族，传播深度分别为 1、2、3。每个模型跑了 135 个条件。主要的修复指标只统计这样的案例：在干净上下文下答对，被污染之后答错。</p>
+          <h3>对上下文的敏感程度是一致的</h3>
+          <ul>
+            <li>干净上下文：每个模型都是 27/27 答对。</li>
+            <li>明确的错误信息：每个模型都是 9/9 被带错。</li>
+            <li>错误地取代一条已核实的更新：每个模型都是 9/9 被带错。</li>
+            <li>数值相近但无关的插话：每个模型都是 0/9 被带错。</li>
+          </ul>
+          <h3>修复方式会影响结果</h3>
+          <div class="report-table-wrap">
+            <table class="report-table">
+              <thead><tr><th>修复操作</th><th>恢复</th><th>恢复率</th></tr></thead>
+              <tbody>
+                <tr><td>删除受污染子图</td><td>72/72</td><td>100%</td></tr>
+                <tr><td>删除源头并重算下游</td><td>71/72</td><td>98.6%</td></tr>
+                <tr><td>只删源头</td><td>68/72</td><td>94.4%</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <figure class="report-figure">
+            <img src="../../../assets/context-repair-strategies-zh.png" alt="三种上下文修复策略的恢复率" />
+            <figcaption>在先被冲突上下文带偏的 72 个配对案例里，三种修复方式各自的恢复情况。</figcaption>
+          </figure>
+          <p>只删源头的四次失败，全部出现在深度 2 或 3 的错误取代案例里。Gemma 的规律最清楚：深度 1 为 6/6，深度 2 为 5/6，深度 3 为 4/6。</p>
+          <figure class="report-figure">
+            <img src="../../../assets/context-repair-model-matrix-zh.png" alt="各模型、各修复策略的成功次数" />
+            <figcaption>这个试点检验的是上下文干预，不是权威的模型排行榜。</figcaption>
+          </figure>
+        </section>
+
+        <section class="report-section" id="meaning">
+          <h2>这个结果意味着什么</h2>
+          <h3>1. 对话里的错误会变成状态</h3>
+          <p>一个错误的数值一旦被后面的计算和总结用过，这些下游轮次就各自成了这个错误的载体。</p>
+          <h3>2. 删除证据和修复后果是两种操作</h3>
+          <p>删除错误源头，改变的是应当相信什么。它不一定改变后面的轮次已经说了什么。</p>
+          <h3>3. 重算必须按依赖顺序进行</h3>
+          <p>父节点还是过时的，就不该先重新生成子节点。ThoughtDAG 把这些依赖记录为连线，并从上游到下游依次重放过时的节点。</p>
+          <h3>4. 图本身就是实验干预</h3>
+          <p>在 ThoughtDAG 里，一条连线决定哪些上游节点进入下一次请求。编辑连线会改变序列化后的上下文，所以剪除和重放是可以检验的操作，而不只是视觉上的比喻。</p>
+        </section>
+
+        <section class="report-section" id="limits">
+          <h2>这个试点不能说明什么</h2>
+          <div class="caveat">
+            <p>这不是四个模型的总体排名。任务是合成的，每个端点在温度 0 下只跑了一次，各服务商默认的推理设置也没有统一。</p>
+            <p>这个试点不揭示模型为什么生成某个 token，不测量隐藏的推理，也不说明每一段真实的研究对话都能从手动编辑图中受益。</p>
+          </div>
+          <p>它能说明的结论更窄：在受控的多轮任务里，一个错误论断的源头轮次被删除之后，它仍可能继续影响 LLM，因为它已经传播进了下游的对话。删除受污染的下游，或按依赖顺序重新生成它们，比只删源头更可靠地修复这些残留的上下文。</p>
+        </section>
+
+        <section class="report-section" id="reproduce">
+          <h2>复现与查看</h2>
+          <p>基准保存了图案例、逐字的序列化请求、回答、用量、声明式评分，以及可以导入的 ThoughtDAG 画布。</p>
+          <ul>
+            <li><a class="text-link" href="https://github.com/chenxiachan/thoughtdag/blob/main/benchmark/cases/repair/pilot-depot-crates-k3.case.json" target="_blank" rel="noreferrer">旗舰案例定义 ↗</a></li>
+            <li><a class="text-link" href="https://github.com/chenxiachan/thoughtdag/blob/main/benchmark/canvases/results/rp-pilot-depot-crates-k3.story.thoughtdag.json" target="_blank" rel="noreferrer">可导入的故事画布 ↗</a></li>
+            <li><a class="text-link" href="https://github.com/chenxiachan/thoughtdag/blob/main/benchmark/STATUS.md" target="_blank" rel="noreferrer">试点状态与汇总结果 ↗</a></li>
+            <li><a class="text-link" href="https://github.com/chenxiachan/thoughtdag/blob/main/benchmark/DESIGN.md" target="_blank" rel="noreferrer">基准设计 ↗</a></li>
+          </ul>
+          <p>ThoughtDAG 是用来可视化和复现这些干预的参考实现。它不是实验的结论。</p>
+        </section>
+      </article>
+
+      <aside class="report-aside" aria-label="本页章节">
+        <strong>本页内容</strong>
+        <a href="#problem">问题</a>
+        <a href="#case">受控示例</a>
+        <a href="#conditions">五种条件</a>
+        <a href="#flagship">旗舰结果</a>
+        <a href="#pilot">整个试点</a>
+        <a href="#meaning">解读</a>
+        <a href="#limits">局限</a>
+        <a href="#reproduce">复现</a>
+        <a class="aside-cta" href="../../../stories/context-repair/?lang=zh">查看精简版案例 →</a>
+      </aside>
+    </div>
+
+    <footer class="page-footer">ThoughtDAG · 上下文修复试点实验 v1 · 试点结果，不是权威的模型排行榜</footer>
+  </body>
+</html>

@@ -9,6 +9,9 @@
     <meta name="theme-color" content="#f8f6fb" />
     <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg" />
     <link rel="canonical" href="https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v2/" />
+    <link rel="alternate" hreflang="en" href="https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v2/" />
+    <link rel="alternate" hreflang="zh-CN" href="https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v2/zh/" />
+    <link rel="alternate" hreflang="x-default" href="https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v2/" />
     <link rel="stylesheet" href="../../assets/research-pages.css" />
     <meta property="og:type" content="article" />
     <meta property="og:title" content="Context Repair for LLMs: Pilot v2 — ThoughtDAG" />
@@ -25,8 +28,9 @@
         "@type": "TechArticle",
         "headline": "Context Repair for LLMs: Pilot v2",
         "alternativeHeadline": "Propagation, pruning, and dependency-ordered recomputation",
-        "datePublished": "2026-08-17",
-        "dateModified": "2026-08-19",
+        "datePublished": "2026-08-21",
+        "dateModified": "2026-08-23",
+        "inLanguage": "en",
         "author": { "@type": "Person", "name": "Xia Chen" },
         "publisher": { "@type": "Organization", "name": "ThoughtDAG" },
         "mainEntityOfPage": "https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v2/",
@@ -36,11 +40,12 @@
   </head>
   <body>
     <nav class="site-nav" aria-label="Primary navigation">
-      <a class="brand" href="../../#research">
+      <a class="brand" href="../">
         <img src="../../assets/favicon.svg" alt="" />
         <span>ThoughtDAG</span>
       </a>
       <div class="nav-links">
+        <a class="nav-link lang" href="zh/" hreflang="zh-CN" lang="zh-CN">中文</a>
         <a class="nav-link" href="../../stories/context-repair/">Case study</a>
         <a class="nav-link" href="https://github.com/chenxiachan/thoughtdag/tree/main/benchmark" target="_blank" rel="noreferrer">Data &amp; code ↗</a>
         <a class="nav-link primary" href="https://github.com/chenxiachan/thoughtdag" target="_blank" rel="noreferrer">GitHub ↗</a>
@@ -53,6 +58,7 @@
           <span class="eyebrow">THOUGHTDAG RESEARCH · PILOT V2</span>
           <h1>Context Repair for LLMs: Pilot v2</h1>
           <p class="report-subtitle">How a wrong fact survives in a conversation after you delete it, and what actually removes it.</p>
+          <p class="report-dates"><time datetime="2026-08-21">Published August 21, 2026</time><span>Updated August 23, 2026</span></p>
           <p class="report-meta">Results collected August 16–22, 2026 · 9 model endpoints · 1,215 captured conditions · 0 capture failures</p>
           <div class="finding"><strong>Result in one sentence.</strong> Across 162 model-case outcomes (18 derailed cases, each evaluated on nine endpoints) in which conflicting context first caused a wrong answer, removing the contaminated subgraph repaired 162/162, recomputing its descendants repaired 161/162, and deleting only the original bad turn repaired 152/162.</div>
         </header>

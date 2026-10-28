@@ -9,6 +9,9 @@
     <meta name="theme-color" content="#f8f6fb" />
     <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg" />
     <link rel="canonical" href="https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v2/" />
+    <link rel="alternate" hreflang="en" href="https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v1/" />
+    <link rel="alternate" hreflang="zh-CN" href="https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v1/zh/" />
+    <link rel="alternate" hreflang="x-default" href="https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v1/" />
     <link rel="stylesheet" href="../../assets/research-pages.css" />
     <meta property="og:type" content="article" />
     <meta property="og:title" content="Context Repair for LLMs: Pilot v1 — ThoughtDAG" />
@@ -26,6 +29,7 @@
         "headline": "Context Repair for LLMs: Pilot v1",
         "alternativeHeadline": "Propagation, pruning, and dependency-ordered recomputation",
         "datePublished": "2026-08-17",
+        "inLanguage": "en",
         "author": { "@type": "Person", "name": "Xia Chen" },
         "publisher": { "@type": "Organization", "name": "ThoughtDAG" },
         "mainEntityOfPage": "https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v1/",
@@ -35,11 +39,12 @@
   </head>
   <body>
     <nav class="site-nav" aria-label="Primary navigation">
-      <a class="brand" href="../../#research">
+      <a class="brand" href="../">
         <img src="../../assets/favicon.svg" alt="" />
         <span>ThoughtDAG</span>
       </a>
       <div class="nav-links">
+        <a class="nav-link lang" href="zh/" hreflang="zh-CN" lang="zh-CN">中文</a>
         <a class="nav-link" href="../../stories/context-repair/">Case study</a>
         <a class="nav-link" href="https://github.com/chenxiachan/thoughtdag/tree/main/benchmark" target="_blank" rel="noreferrer">Data &amp; code ↗</a>
         <a class="nav-link primary" href="https://github.com/chenxiachan/thoughtdag" target="_blank" rel="noreferrer">GitHub ↗</a>
@@ -55,6 +60,7 @@
           <span class="eyebrow">THOUGHTDAG RESEARCH · PILOT V1</span>
           <h1>Context Repair for LLMs: Pilot v1</h1>
           <p class="report-subtitle">Propagation, pruning, and dependency-ordered recomputation.</p>
+          <p class="report-dates"><time datetime="2026-08-17">Published August 17, 2026</time></p>
           <p class="report-meta">Results collected August 16, 2026 · 4 model endpoints · 540 captured conditions · 0 capture failures</p>
           <div class="finding"><strong>Result in one sentence.</strong> Across 72 paired cases in which conflicting context first caused a wrong answer, removing the contaminated subgraph repaired 72/72, recomputing its descendants repaired 71/72, and deleting only the original bad turn repaired 68/72.</div>
         </header>

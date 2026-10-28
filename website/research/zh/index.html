@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ThoughtDAG 研究</title>
+    <meta name="description" content="研究 Agent 实际发给模型的是什么：删掉源头后错误怎样留在上下文里，Agent 一轮的 token 去了哪里，以及与 TraceVista 的合作。方法、数据和脚本全部公开。" />
+    <meta name="robots" content="index,follow,max-image-preview:large" />
+    <meta name="theme-color" content="#f8f6fb" />
+    <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg" />
+    <link rel="canonical" href="https://chenxiachan.github.io/thoughtdag/research/zh/" />
+    <link rel="alternate" hreflang="en" href="https://chenxiachan.github.io/thoughtdag/research/" />
+    <link rel="alternate" hreflang="zh-CN" href="https://chenxiachan.github.io/thoughtdag/research/zh/" />
+    <link rel="alternate" hreflang="x-default" href="https://chenxiachan.github.io/thoughtdag/research/" />
+    <link rel="stylesheet" href="../../assets/research-pages.css" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="ThoughtDAG 研究" />
+    <meta property="og:description" content="研究 Agent 实际发给模型的是什么：删掉源头后错误怎样留在上下文里，Agent 一轮的 token 去了哪里，以及与 TraceVista 的合作。方法、数据和脚本全部公开。" />
+    <meta property="og:url" content="https://chenxiachan.github.io/thoughtdag/research/zh/" />
+    <meta property="og:image" content="https://chenxiachan.github.io/thoughtdag/assets/turn-cost-composition.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script type="application/ld+json">
+      {"@context": "https://schema.org", "@type": "CollectionPage", "name": "ThoughtDAG 研究", "description": "研究 Agent 实际发给模型的是什么：删掉源头后错误怎样留在上下文里，Agent 一轮的 token 去了哪里，以及与 TraceVista 的合作。方法、数据和脚本全部公开。", "url": "https://chenxiachan.github.io/thoughtdag/research/zh/", "inLanguage": "zh-CN", "isPartOf": {"@type": "WebSite", "name": "ThoughtDAG", "url": "https://chenxiachan.github.io/thoughtdag/"}, "hasPart": [{"@type": "TechArticle", "headline": "Where an Agent Turn's Tokens Go", "datePublished": "2026-10-28", "url": "https://chenxiachan.github.io/thoughtdag/research/agent-turn-tokens/zh/", "author": {"@type": "Person", "name": "Xia Chen"}}, {"@type": "TechArticle", "headline": "Context repair: how one error contaminates the rest of a conversation", "datePublished": "2026-08-21", "url": "https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v2/zh/", "author": {"@type": "Person", "name": "Xia Chen"}}, {"@type": "TechArticle", "headline": "Context Repair for LLMs, first pilot", "datePublished": "2026-08-17", "url": "https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v1/zh/", "author": {"@type": "Person", "name": "Xia Chen"}}]}
+    </script>
+    <style>
+      .hub { width: min(980px, calc(100% - 48px)); margin: 0 auto; padding: 84px 0 110px; }
+      .hub .report-header h1 { max-width: 13em; font-size: clamp(42px, 6vw, 72px); }
+      html[lang="zh-CN"] .hub .report-header h1 { letter-spacing: -0.04em; line-height: 1.12; }
+      .hub .study-list { display: grid; gap: 16px; margin: 0; padding: 0; list-style: none; }
+      .hub .study { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 10px 30px; padding: 26px; border: 1px solid var(--line); border-radius: 18px; background: var(--card); }
+      .hub .study.archived { background: transparent; }
+      .hub .study-when { color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: 0.06em; line-height: 1.5; text-transform: uppercase; }
+      .hub .study-when span { display: block; margin-top: 6px; color: #5f51cf; }
+      .hub .study-body { min-width: 0; }
+      .hub .study h3 { margin: 0; font-size: 24px; line-height: 1.22; letter-spacing: -0.03em; }
+      .hub .study-figure { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; margin: 14px 0 0; }
+      .hub .study-figure strong { color: var(--purple); font-size: 34px; line-height: 1; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+      .hub .study-figure span { color: var(--muted); font-size: 13px; line-height: 1.5; }
+      .hub .study-body p.finding-line { margin: 12px 0 0; color: #4e4957; font-size: 15.5px; line-height: 1.75; }
+      .hub .study-scope { margin: 10px 0 0; color: var(--muted); font-size: 12.5px; }
+      .hub .study-links { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 14px; font-size: 14px; font-weight: 650; }
+      .hub .study-links a, .hub .report-section .study-links a { color: var(--purple); }
+      .hub .study-links a:hover { text-decoration: underline; }
+      .hub .bib-wrap { position: relative; margin: 18px 0 0; }
+      .hub .bib { margin: 0; padding: 20px 22px; overflow-x: auto; border-radius: 14px; background: var(--ink); color: #f4f2f8; font: 13px/1.65 "SFMono-Regular", Consolas, monospace; }
+      .hub .bib-copy { position: absolute; top: 12px; right: 12px; padding: 6px 12px; border: 1px solid rgba(255,255,255,0.25); border-radius: 8px; background: transparent; color: #fff; font: inherit; font-size: 12px; cursor: pointer; }
+      .hub .bib-copy:focus-visible { outline: 2px solid var(--purple-soft); outline-offset: 2px; }
+      @media (max-width: 640px) {
+        .hub { width: calc(100% - 36px); padding-top: 58px; }
+        .hub .study { grid-template-columns: 1fr; padding: 20px; }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="site-nav" aria-label="Primary navigation">
+      <a class="brand" href="../../zh.html">
+        <img src="../../assets/favicon.svg" alt="" />
+        <span>ThoughtDAG</span>
+      </a>
+      <div class="nav-links">
+        <a class="nav-link lang" href="../" hreflang="en" lang="en">English</a>
+        <a class="nav-link" href="../../docs/zh/">文档</a>
+        <a class="nav-link primary" href="https://github.com/chenxiachan/thoughtdag" target="_blank" rel="noreferrer">GitHub ↗</a>
+      </div>
+    </nav>
+
+    <main class="hub">
+      <header class="report-header">
+        <span class="eyebrow">THOUGHTDAG 研究</span>
+        <h1>打开 Agent 和模型之间的上下文黑箱</h1>
+        <p class="report-subtitle">模型下一步的回答取决于它这一轮读到的上下文。下面的报告测量这份上下文，ThoughtDAG 让它可以编辑。</p>
+        <p class="report-meta">2 篇研究报告 · 1 项合作 · 数据和脚本都在仓库里</p>
+      </header>
+
+      <section class="report-section" id="studies">
+        <h2>研究报告</h2>
+        <ol class="study-list">
+          <li class="study">
+            <p class="study-when">2026 年 10 月<span>测量笔记</span></p>
+            <div class="study-body">
+              <h3>Agent 一轮的 token 去了哪里</h3>
+              <p class="study-figure"><strong>1% 到 7%</strong><span>一轮的 token 里，最后给人读的回答只占这么多</span></p>
+              <p class="finding-line">工具调用及其结果占一轮的 42% 到 95%，思考占 4% 到 53%。在 Claude Code 和 DeepSeek Harness 上，下一轮开头的提示里仍带着上一轮的思考。各部分比例反映的是一个人的用法；但每个运行时里，回答都只占少数。</p>
+              <p class="study-scope">3,237 轮 · Claude Code、Codex、DeepSeek Harness、Pi · 作者本人 30 天的日志</p>
+              <p class="study-links"><a href="../agent-turn-tokens/zh/">阅读 →</a> <a href="../agent-turn-tokens/" hreflang="en">English</a> <a href="https://github.com/chenxiachan/thoughtdag/blob/main/benchmark/tools/turn-cost.mjs" target="_blank" rel="noreferrer">脚本 ↗</a> <a href="https://github.com/chenxiachan/thoughtdag/blob/main/benchmark/runs/turn-cost/2026-10-27.json" target="_blank" rel="noreferrer">汇总数据 ↗</a></p>
+            </div>
+          </li>
+          <li class="study">
+            <p class="study-when">2026 年 8 月<span>试点 v2</span></p>
+            <div class="study-body">
+              <h3>上下文修复：一句错话怎样污染后面的对话</h3>
+              <p class="study-figure"><strong>152 → 162</strong><span>个被带偏的结果修好（共 162 个，18 个案例 × 9 个端点）：只删源头，到删掉整个子图</span></p>
+              <p class="finding-line">删掉错误的源头，不等于它已经离开后续的上下文。在 162 个被带偏的结果（18 个案例 × 9 个端点）中，只删源头修好 152 个，重算下游节点修好 161 个，删掉整个受污染子图修好全部 162 个。关掉推理后，只删源头只修好 18 个里的 2 个。</p>
+              <p class="study-scope">9 个模型端点 · 1,215 个采集条件 · 0 次采集失败</p>
+              <p class="study-links"><a href="../context-repair-pilot-v2/zh/">阅读 →</a> <a href="../context-repair-pilot-v2/" hreflang="en">English</a> <a href="../../stories/context-repair/?lang=zh">案例</a> <a href="https://github.com/chenxiachan/thoughtdag/tree/main/benchmark" target="_blank" rel="noreferrer">基准与数据 ↗</a></p>
+            </div>
+          </li>
+          <li class="study archived">
+            <p class="study-when">2026 年 8 月<span>试点 v1 · 已由 v2 取代</span></p>
+            <div class="study-body">
+              <h3>大模型的上下文修复：第一次试点</h3>
+              
+              <p class="finding-line">基准在四个端点上的第一次运行，作为归档快照保留；v2 扩展到九个端点，并加入了关闭推理的对照。</p>
+              <p class="study-scope">4 个模型端点 · 540 个采集条件</p>
+              <p class="study-links"><a href="../context-repair-pilot-v1/zh/">阅读 →</a> <a href="../context-repair-pilot-v1/" hreflang="en">English</a></p>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <section class="report-section" id="collaboration">
+        <h2>合作</h2>
+        <ol class="study-list">
+          <li class="study">
+            <p class="study-when">2026 年 10 月起<span>合作</span></p>
+            <div class="study-body">
+              <h3>TraceVista</h3>
+              <p class="finding-line">TraceVista 把 Agent 的工作流程画成可视化的地图：从全貌逐层展开到每一步动作和原始记录，提问得到的回答都链回证据。它的阅读层沿用了 ThoughtDAG 的缩放摘要。</p>
+              <p class="study-scope">与 @Superone77 等合作 · 阅读层与对图提问由 Xia Chen 负责</p>
+              <p class="study-links"><a href="https://tracevista.pages.dev/" target="_blank" rel="noreferrer">在线演示 ↗</a> <a href="https://github.com/Superone77/TraceVista" target="_blank" rel="noreferrer">GitHub ↗</a></p>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <section class="report-section" id="publishing">
+        <h2>这些研究怎么发布</h2>
+        <ul>
+            <li>每个数字都来自仓库里的脚本，汇总结果就放在脚本旁边。</li>
+            <li>研究读取个人会话日志时，日志留在那台机器上，只公开汇总数字。</li>
+            <li>每篇报告的结尾都写明它没有证明什么。</li>
+            <li>报告有版本。新版本会链回它取代的旧版本。</li>
+        </ul>
+      </section>
+
+      <section class="report-section" id="cite">
+        <h2>引用</h2>
+        <div class="bib-wrap">
+          <pre class="bib" id="bib">@software{chen_thoughtdag_2026,
+  author  = {Chen, Xia},
+  title   = {ThoughtDAG: an instrument for legible human-AI collaboration},
+  year    = {2026},
+  url     = {https://github.com/chenxiachan/thoughtdag},
+  license = {MIT}
+}</pre>
+          <button class="bib-copy" id="bib-copy" type="button">复制</button>
+        </div>
+        <p>GitHub 上的「Cite this repository」按钮读取的是 CITATION.cff 里的同一条目。 <a href="https://github.com/chenxiachan/thoughtdag/blob/main/CITATION.cff" target="_blank" rel="noreferrer">CITATION.cff ↗</a></p>
+      </section>
+    </main>
+
+    <footer class="page-footer">ThoughtDAG 研究 · 开源，MIT 许可</footer>
+    <script>
+      document.getElementById("bib-copy").addEventListener("click", (event) => {
+        const button = event.currentTarget;
+        const done = () => { button.textContent = "已复制"; setTimeout(() => { button.textContent = "复制"; }, 1600); };
+        navigator.clipboard?.writeText(document.getElementById("bib").textContent).then(done, () => {
+          const range = document.createRange();
+          range.selectNodeContents(document.getElementById("bib"));
+          getSelection().removeAllRanges();
+          getSelection().addRange(range);
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -99,6 +99,10 @@ Below the switch, **amount** sets how much recall may bring into an ask: lean 4k
 
 What leaves the machine: the question and the candidate excerpts of that one decision, to the route you chose. Nothing else, and nothing when the decision model is off.
 
+In a small selection pilot, Jev-1.13's median was **391 ms** against **24,813 ms** for a GLM-5.3-Flash adapter with default reasoning: six runs per engine over the same 14 synthetic excerpts. The two are different inference paths, and the timing covers the selection step alone, without retrieval or answer generation, so it does not measure whole-product speed or accuracy.
+
+<img src="./jev-relevance-en.gif" alt="Animated replay of the selection pilot: Jev median 391 milliseconds versus 24,813 milliseconds for the GLM adapter with default reasoning. Not end-to-end retrieval timing." width="100%" loading="lazy"/>
+
 ## Connect local agent sessions
 
 Model connections answer “which endpoint generates this response.” Session Atlas brings local agent sessions into a mirror canvas that you can inspect and reorganize. In the desktop app, **Session Atlas → Sources** can re-detect directories and **Enable/Update** the command that opens a session in ThoughtDAG.

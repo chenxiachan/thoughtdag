@@ -47,7 +47,8 @@ for (const path of pages) {
   if (path === 'zh.html') {
     assert.equal(attr(nodes.find((n) => n.tagName === 'html'), 'lang'), 'zh-CN');
     const main = nodes.find((n) => n.tagName === 'main');
-    assert(text(main).includes('都能接上过去的思路'), 'Chinese headline must exist without JavaScript');
+    assert(text(main).includes('让模型的上下文看得见'), 'Chinese definition must exist without JavaScript');
+    assert(nodes.some((n) => n.tagName === 'script' && text(n).includes('"FAQPage"') && text(n).includes('能不删聊天记录')), 'Chinese FAQ data');
     assert(text(main).includes('如何编辑 AI 上下文'), 'Chinese tutorial links must exist without JavaScript');
     assert.equal(attr(nodes.find((n) => attr(n, 'id') === 'language-toggle'), 'href'), './');
   }

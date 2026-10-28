@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Where an Agent Turn's Tokens Go · ThoughtDAG</title>
+    <meta name="description" content="3,237 agent turns from four runtimes: the answer is 1 to 7% of a turn, tool traffic and thinking are the rest, and current runtimes keep the thinking in context. What a canvas should pass on." />
+    <meta name="robots" content="index,follow,max-image-preview:large" />
+    <meta name="theme-color" content="#f8f6fb" />
+    <link rel="icon" type="image/svg+xml" href="../../assets/favicon.svg" />
+    <link rel="canonical" href="https://chenxiachan.github.io/thoughtdag/research/agent-turn-tokens/" />
+    <link rel="alternate" hreflang="en" href="https://chenxiachan.github.io/thoughtdag/research/agent-turn-tokens/" />
+    <link rel="alternate" hreflang="zh-CN" href="https://chenxiachan.github.io/thoughtdag/research/agent-turn-tokens/zh/" />
+    <link rel="alternate" hreflang="x-default" href="https://chenxiachan.github.io/thoughtdag/research/agent-turn-tokens/" />
+    <link rel="stylesheet" href="../../assets/research-pages.css" />
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="Where an Agent Turn's Tokens Go · ThoughtDAG" />
+    <meta property="og:description" content="The answer is 1 to 7% of an agent turn. Tool traffic and thinking are the rest, and current runtimes keep the thinking in context." />
+    <meta property="og:url" content="https://chenxiachan.github.io/thoughtdag/research/agent-turn-tokens/" />
+    <meta property="og:image" content="https://chenxiachan.github.io/thoughtdag/assets/turn-cost-composition.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Where an Agent Turn's Tokens Go" />
+    <meta name="twitter:description" content="Thinking and tool traffic outweigh the answer, and current runtimes keep both in context." />
+    <meta name="twitter:image" content="https://chenxiachan.github.io/thoughtdag/assets/turn-cost-composition.png" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "TechArticle",
+        "headline": "Where an Agent Turn's Tokens Go",
+        "alternativeHeadline": "Thinking, tool traffic and the answer in 3,237 agent turns",
+        "datePublished": "2026-10-28",
+        "dateModified": "2026-10-28",
+        "inLanguage": "en",
+        "author": { "@type": "Person", "name": "Xia Chen" },
+        "publisher": { "@type": "Organization", "name": "ThoughtDAG" },
+        "mainEntityOfPage": "https://chenxiachan.github.io/thoughtdag/research/agent-turn-tokens/",
+        "image": "https://chenxiachan.github.io/thoughtdag/assets/turn-cost-composition.png"
+      }
+    </script>
+  </head>
+  <body>
+    <nav class="site-nav" aria-label="Primary navigation">
+      <a class="brand" href="../">
+        <img src="../../assets/favicon.svg" alt="" />
+        <span>ThoughtDAG</span>
+      </a>
+      <div class="nav-links">
+        <a class="nav-link lang" href="zh/" hreflang="zh-CN" lang="zh-CN">中文</a>
+        <a class="nav-link" href="../context-repair-pilot-v2/">Context repair pilot</a>
+        <a class="nav-link" href="https://github.com/chenxiachan/thoughtdag/tree/main/benchmark" target="_blank" rel="noreferrer">Data &amp; code ↗</a>
+        <a class="nav-link primary" href="https://github.com/chenxiachan/thoughtdag" target="_blank" rel="noreferrer">GitHub ↗</a>
+      </div>
+    </nav>
+
+    <div class="report-shell">
+      <article class="report-main">
+        <header class="report-header">
+          <span class="eyebrow">THOUGHTDAG RESEARCH · MEASUREMENT NOTE</span>
+          <h1>Where an Agent Turn's Tokens Go</h1>
+          <p class="report-subtitle">Thinking and tool traffic outweigh the answer a person reads, and current runtimes keep both in context. What that means for what a canvas passes on.</p>
+          <p class="report-dates"><time datetime="2026-10-28">Published October 28, 2026</time></p>
+          <p class="report-meta">Session logs from the author's machine, September 27 to October 27, 2026 · 4 agent runtimes · 188 session files · 3,237 turns · 48,766 model calls</p>
+          <div class="finding"><strong>Result in one sentence.</strong> Across 3,237 agent turns, the answer a person reads was 1 to 7% of a turn's tokens, tool calls and their results were 42 to 95%, and thinking was 4 to 53%; on Claude Code and DeepSeek Harness, the prompt that opened the next turn still held the previous turn's thinking (median share retained 1.00, with 1,589 of 1,768 readable turn boundaries between 0.9 and 1.1).</div>
+        </header>
+
+        <section class="report-section" id="question">
+          <h2>The question</h2>
+          <p>ThoughtDAG imports agent sessions onto a canvas: one node per turn, carrying the question, the answer and the tool steps. A question asked below a node reads what the canvas compiles from the wires above it. So two things have to be decided for every agent turn: what of it passes on to the questions below, and what the card should show about the rest.</p>
+          <p>A turn has four parts: the question, the answer, the tool calls with their results, and the thinking. This note measures how large each part is in real sessions, and whether the agent runtimes themselves keep a turn's thinking in context for later turns. It asks three questions:</p>
+          <ol>
+            <li>What is an agent turn made of?</li>
+            <li>Does the runtime carry a turn's thinking into the next prompt?</li>
+            <li>How much would a question below a turn read under each handoff rule?</li>
+          </ol>
+        </section>
+
+        <section class="report-section" id="highlights">
+          <h2>Highlights</h2>
+          <ol class="hl-list">
+            <li><strong>The answer is a small part of a turn.</strong> It was 3.0% of a Claude Code turn's tokens, 1.0% of a Codex turn's and 7.0% of a DeepSeek Harness turn's. Tool calls and results were 42%, 95% and 62%. Thinking was 53%, 4% and 29%. The mix follows what each runtime was used for (the Codex sessions here were mostly computer-use tasks) and will look different for someone else; the answer stayed a few percent of the turn in all three.</li>
+            <li><strong>On the models in these logs, thinking stays in the agent's own context.</strong> At 90% of 1,727 Claude Code turn boundaries and all 41 DeepSeek Harness ones, the next turn's prompt grew by the previous turn's whole output, thinking included. This matches the providers' documentation. The claim that thinking never reaches later turns holds for some older models and some request shapes, not for these.</li>
+            <li><strong>A Claude Code log holds about a fifth of the thinking.</strong> The log keeps a summary. The billed output counts 39.0 million thinking tokens against 8.7 million tokens of summary text, so counting the text undercounts by about 4.5 times.</li>
+            <li><strong>A tenth of the turns carry most of the tool traffic.</strong> The heaviest tenth held 53% (Claude Code), 62% (Codex) and 80% (DeepSeek Harness) of the stored tool record. That shape calls for a switch on each turn rather than one rule for a whole canvas.</li>
+          </ol>
+        </section>
+
+        <section class="report-section" id="method">
+          <h2>Data and method</h2>
+          <p><strong>Corpus.</strong> Every session file modified in the 30 days to October 27, 2026 on the author's machine, from four agent runtimes. The work was software development on this project and others, and research writing. The runtimes were used for different kinds of work: most of the Codex sessions were hands-on computer-use tasks, operating applications and running commands to get something done, which is why tool traffic is so large in its turns. This is one person's usage, and the share of each part will differ widely with how someone uses an agent. Only aggregate numbers leave the machine; the published per-turn rows are token counts.</p>
+          <div class="report-table-wrap">
+            <table class="report-table">
+              <thead><tr><th>Runtime</th><th>Session files</th><th>Turns</th><th>Turns with tool calls</th><th>Median tool steps</th><th>Model calls</th><th>Models (share of calls)</th></tr></thead>
+              <tbody>
+                <tr><td>Claude Code</td><td>69</td><td>2,948</td><td>2,205</td><td>9</td><td>38,476</td><td><code>claude-opus-5-5</code> 89%, Fable 5.1 and 5, Opus 5, others</td></tr>
+                <tr><td>Codex</td><td>76</td><td>182</td><td>157</td><td>18</td><td>8,903</td><td><code>gpt-6-astra</code> 93%, <code>gpt-5.6-sol</code>, <code>gpt-6.1-sol</code></td></tr>
+                <tr><td>DeepSeek Harness</td><td>36</td><td>95</td><td>59</td><td>5</td><td>1,330</td><td><code>deepseek-flash</code>, <code>deepseek-v4-flash</code></td></tr>
+                <tr><td>Pi</td><td>7</td><td>12</td><td>6</td><td>6</td><td>57</td><td><code>deepseek-v4-flash</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p><strong>Turns.</strong> Each file goes through the importer ThoughtDAG itself uses, so a turn here is exactly a node on the canvas: one message the person typed, and everything the agent did until the next one. Codex child threads are left out of the turn counts, since their parent turn already holds their result. Pi has too few turns to say much; it appears in the tables and not in the figures.</p>
+          <p><strong>Parts of a turn.</strong> Question and answer as the card shows them. Tool calls and results at their original size: the importer clips each result to 4,000 characters for the canvas, and its clip mark records the original length. Thinking as described next.</p>
+          <p><strong>Counting.</strong> Thinking uses the providers' own counts wherever a log has them. Codex logs a running reasoning total (its thinking itself is encrypted). Pi logs a reasoning count per message. A Claude Code log keeps only a summary of the thinking, so a message's thinking is its billed output minus what it visibly wrote. DeepSeek returns its reasoning whole, so DeepSeek Harness thinking is counted from the text. Text is counted with the canvas's own estimator: one token per CJK character, four characters per token otherwise. For every runtime, the importer's thinking total agrees with the sum of the per-call counts within 0.2%.</p>
+        </section>
+
+        <section class="report-section" id="composition">
+          <h2>What a turn is made of</h2>
+          <div class="report-table-wrap">
+            <table class="report-table">
+              <thead><tr><th>Share of a turn's tokens</th><th>Question</th><th>Answer</th><th>Tool calls and results</th><th>Thinking</th></tr></thead>
+              <tbody>
+                <tr><td>Claude Code</td><td>2.1%</td><td><strong>3.0%</strong></td><td>41.9%</td><td>52.9%</td></tr>
+                <tr><td>Codex</td><td>0.1%</td><td><strong>1.0%</strong></td><td>94.9%</td><td>4.1%</td></tr>
+                <tr><td>DeepSeek Harness</td><td>1.1%</td><td><strong>7.0%</strong></td><td>62.4%</td><td>29.5%</td></tr>
+                <tr><td>Pi (12 turns)</td><td>26.2%</td><td>5.6%</td><td>53.0%</td><td>15.2%</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <figure class="report-figure">
+            <img src="../../assets/turn-cost-composition.png" alt="Stacked bars: for Claude Code the answer is 3% of a turn, tool traffic 42%, thinking 53%; for Codex 1%, 95%, 4%; for DeepSeek Harness 7%, 62%, 29%" />
+            <figcaption>Pooled over all turns of each runtime. Tool calls and results at their original size; thinking from the providers' counts (Claude Code: billed output beyond the visible part).</figcaption>
+          </figure>
+          <p>Measured against its own answer, a typical turn looks like this (median, with the 90th percentile in brackets):</p>
+          <div class="report-table-wrap">
+            <table class="report-table">
+              <thead><tr><th>Per turn</th><th>Tool calls and results ÷ answer</th><th>Thinking ÷ answer</th></tr></thead>
+              <tbody>
+                <tr><td>Claude Code</td><td>9.2× (38×)</td><td>9.3× (48×)</td></tr>
+                <tr><td>Codex</td><td>70× (197×)</td><td>3.6× (10.5×)</td></tr>
+                <tr><td>DeepSeek Harness</td><td>4.4× (45×)</td><td>3.0× (22×)</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p>The runtimes differ in their mix. The Codex turns here are long tool loops (a median of 18 steps) with large command output, and thinking was 27% of their output tokens. Claude Code thinks the most: 70% of its output tokens were thinking. DeepSeek Harness sits between, at 48%.</p>
+          <div class="caveat">
+            <p><strong>One person's usage.</strong> The mix reflects what each runtime was used for in this sample more than the runtime itself. Most of the Codex sessions were transactional computer-use work, such as operating applications and running commands to finish a task, so tool calls and their results fill 95% of its turns. Someone who uses these agents differently will see different shares, possibly very different ones. What held in all three runtimes is that the answer a person reads at the end was a small minority of the turn's tokens: 1.0 to 7.0%.</p>
+          </div>
+        </section>
+
+        <section class="report-section" id="carry">
+          <h2>Does the runtime keep the thinking?</h2>
+          <p>A common answer is no: the model thinks, answers, and the next turn starts without the thinking. The providers' documentation, read on October 27, 2026, says it depends on the model and the request:</p>
+          <ul>
+            <li><strong>Anthropic.</strong> Claude Opus 4.5 and later Opus models, Sonnet 4.6 and later, Haiku 5.5, and the Fable and Mythos models keep thinking blocks from all prior turns in context and bill them as input. Earlier models keep only the last turn's. (<a class="text-link" href="https://platform.claude.com/docs/en/build-with-claude/thinking" target="_blank" rel="noreferrer">Thinking ↗</a>)</li>
+            <li><strong>DeepSeek.</strong> In thinking mode, a request that declares tools must pass back the reasoning of all previous turns, and it is concatenated into the context. Without tools it is ignored. (<a class="text-link" href="https://api-docs.deepseek.com/guides/thinking_mode" target="_blank" rel="noreferrer">Thinking mode ↗</a>)</li>
+            <li><strong>OpenAI.</strong> Models before GPT-5.6 do not render reasoning from earlier turns into the next sample by default; GPT-5.6 models do. (<a class="text-link" href="https://developers.openai.com/api/docs/guides/reasoning" target="_blank" rel="noreferrer">Reasoning ↗</a>)</li>
+          </ul>
+          <p>All three keep the thinking between tool calls inside one turn. An agent harness always declares tools, so the DeepSeek rule that applies to DeepSeek Harness is the first one.</p>
+          <h3>Measured from the providers' own counts</h3>
+          <p>Every model call logs the size of the prompt it was sent (input plus cache reads and writes). Across a turn boundary, the next prompt grows by whatever the runtime kept from the previous turn, plus the new message. If the thinking is kept, the growth equals the last call's whole output plus the new message. If it is dropped, the growth is the visible output plus the new message, minus all the thinking the turn had been holding between its tool calls. We report where each boundary falls between the two as the share of the previous turn's thinking still present: 1 means kept, 0 means dropped. Boundaries with compaction, a model change, images, or under 1,000 tokens of thinking are skipped.</p>
+          <p>Between tool calls inside a turn, where all three APIs keep the thinking, the same measure (after subtracting the tool results) is a control. It should read 1, or a little above where the runtime adds other content.</p>
+          <div class="report-table-wrap">
+            <table class="report-table">
+              <thead><tr><th>Runtime</th><th>Next turn: n · median (interquartile range)</th><th>Control, next tool call: n · median (IQR)</th><th>Reading</th></tr></thead>
+              <tbody>
+                <tr><td>Claude Code</td><td>1,727 · <strong>1.00</strong> (1.00 to 1.01)</td><td>17,534 · 1.18 (1.08 to 1.39)</td><td>kept</td></tr>
+                <tr><td>DeepSeek Harness</td><td>41 · <strong>1.00</strong> (1.00 to 1.00)</td><td>334 · 1.03 (1.01 to 1.11)</td><td>kept</td></tr>
+                <tr><td>Codex</td><td>84 · 0.02 (−1.08 to 0.76)</td><td>530 · 1.08 (0.54 to 3.09)</td><td>not readable by this method</td></tr>
+                <tr><td>Pi</td><td>1</td><td>8</td><td>too few</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <figure class="report-figure">
+            <img src="../../assets/turn-cost-carry.png" alt="Box plots of the share of earlier thinking still in the next prompt: Claude Code and DeepSeek Harness sit at 1 across turn boundaries; Codex scatters in both the result and the control" />
+            <figcaption>Each box is one runtime at turn boundaries or, as a control, between tool calls. Claude Code and DeepSeek Harness sit at 1. For Codex the control scatters as widely as the result, so the arithmetic cannot separate kept from dropped there.</figcaption>
+          </figure>
+          <p>Most Claude Code boundaries fall within 0.9 to 1.1 of the kept reading (1,548 of 1,727, 90%); 78 (4.5%) fall below 0.5. A boundary where the runtime also cleared older content, such as stale tool results, shrinks the prompt and pulls the share down, and this arithmetic cannot tell the two apart. All 41 DeepSeek Harness boundaries fall within 0.95 to 1.06.</p>
+          <p>For Codex, the logs do not support a reading. Two likely reasons: an auxiliary review model logs its usage in the same stream as the main model, and history the runtime trims before sending is not visible in its log. Its documentation is the only evidence here.</p>
+          <p>For the Claude Code and DeepSeek Harness sessions in this sample, then, each later prompt carried the thinking of every earlier turn until the runtime compacted its history. Thinking is paid for twice: once as output when generated, and again as input in each later call that re-reads it, much of it at cache-read prices.</p>
+        </section>
+
+        <section class="report-section" id="handoff">
+          <h2>What a canvas should pass on</h2>
+          <p>The canvas's handoff is a separate decision from the runtime's. A question asked below a turn on the canvas reads what the canvas compiles from the wires, not the runtime's prompt. We compared handoff rules by how many tokens that question would read from the turn, relative to handing on the question and answer alone:</p>
+          <div class="report-table-wrap">
+            <table class="report-table">
+              <thead><tr><th>Pooled (median per turn)</th><th>+ tool record</th><th>+ thinking</th><th>+ both</th></tr></thead>
+              <tbody>
+                <tr><td>Claude Code</td><td>6.5× (5.3×)</td><td>11.3× (8.9×)</td><td>16.8×</td></tr>
+                <tr><td>Codex</td><td>28.1× (16.7×)</td><td>5.0× (4.0×)</td><td>32.1×</td></tr>
+                <tr><td>DeepSeek Harness</td><td>6.6× (2.1×)</td><td>4.6× (3.2×)</td><td>10.2×</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <figure class="report-figure">
+            <img src="../../assets/turn-cost-forwarding.png" alt="Grouped bars: relative to the answer-only handoff, adding the tool record multiplies what a question below reads by 6.5 (Claude Code), 28.1 (Codex) and 6.6 (DeepSeek Harness)" />
+            <figcaption>The tool record here is the one the canvas stores, with each result clipped to 4,000 characters; the full record would be larger.</figcaption>
+          </figure>
+          <p>ThoughtDAG now handles an agent turn this way:</p>
+          <ul>
+            <li><strong>The answer always passes on.</strong></li>
+            <li><strong>The tool record arrives switched off, with one switch on each turn.</strong> While it is off, a question below reads one line naming the files the turn touched, so it can ask for their current contents. Because a tenth of the turns carry most of the weight, the switch sits on the turn, not on the canvas.</li>
+            <li><strong>Thinking never passes on.</strong> It stays on the card as a count. The turn's bar draws what passes on as solid and what stays as hatched.</li>
+          </ul>
+          <p>This note measures size, not effect. Whether a question below answers better with the tool record or the thinking in its context was not tested here.</p>
+        </section>
+
+        <section class="report-section" id="limits">
+          <h2>What this note does not establish</h2>
+          <div class="caveat">
+            <p>The logs come from one month of the author's own use: a convenience sample whose mix of work shapes the numbers. The Codex sessions, for example, are mostly computer-use tasks with long tool loops. Counts taken from text are estimates and do not use each provider's tokenizer; the Claude Code thinking count rests on estimating the visible part of each message well. The carry-over test reads what the prompt contained according to the providers' usage numbers, not what the model attended to. It reads nothing for Codex, and Pi has too few turns. Token shares are not cost shares: cache reads are billed at a fraction of the input price.</p>
+          </div>
+          <p>It establishes a narrower result: in these agent sessions the answer was a small part of each turn, tool traffic and thinking were most of it, and on Claude Code and DeepSeek Harness the thinking stayed in the runtime's context for later turns.</p>
+        </section>
+
+        <section class="report-section" id="reproduce">
+          <h2>Reproduce and inspect</h2>
+          <p>The script runs on the machine that holds the logs and writes aggregate numbers only.</p>
+          <ul>
+            <li><a class="text-link" href="https://github.com/chenxiachan/thoughtdag/blob/main/benchmark/tools/turn-cost.mjs" target="_blank" rel="noreferrer">Measurement script ↗</a></li>
+            <li><a class="text-link" href="https://github.com/chenxiachan/thoughtdag/blob/main/benchmark/tools/turn_cost_figures.py" target="_blank" rel="noreferrer">Figure script ↗</a></li>
+            <li><a class="text-link" href="https://github.com/chenxiachan/thoughtdag/blob/main/benchmark/runs/turn-cost/2026-10-27.json" target="_blank" rel="noreferrer">Aggregate results ↗</a></li>
+            <li><a class="text-link" href="https://github.com/chenxiachan/thoughtdag/tree/main/src/lib/adapters" target="_blank" rel="noreferrer">The importers that define a turn ↗</a></li>
+          </ul>
+        </section>
+      </article>
+
+      <aside class="report-aside" aria-label="Report sections">
+        <strong>On this page</strong>
+        <a href="#question">The question</a>
+        <a href="#highlights">Highlights</a>
+        <a href="#method">Data and method</a>
+        <a href="#composition">What a turn is made of</a>
+        <a href="#carry">Does the runtime keep it?</a>
+        <a href="#handoff">What to pass on</a>
+        <a href="#limits">Limitations</a>
+        <a href="#reproduce">Reproduce</a>
+        <a class="aside-cta" href="../context-repair-pilot-v2/">Read the context repair pilot →</a>
+      </aside>
+    </div>
+
+    <footer class="page-footer">ThoughtDAG · Where an Agent Turn's Tokens Go · A measurement note on the author's own logs</footer>
+  </body>
+</html>

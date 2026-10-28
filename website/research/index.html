@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ThoughtDAG Research</title>
+    <meta name="description" content="Research on what agents actually send to models: how an error stays in the context after its source is deleted, where an agent turn&#x27;s tokens go, and the TraceVista collaboration. Methods, data and scripts are public." />
+    <meta name="robots" content="index,follow,max-image-preview:large" />
+    <meta name="theme-color" content="#f8f6fb" />
+    <link rel="icon" type="image/svg+xml" href="../assets/favicon.svg" />
+    <link rel="canonical" href="https://chenxiachan.github.io/thoughtdag/research/" />
+    <link rel="alternate" hreflang="en" href="https://chenxiachan.github.io/thoughtdag/research/" />
+    <link rel="alternate" hreflang="zh-CN" href="https://chenxiachan.github.io/thoughtdag/research/zh/" />
+    <link rel="alternate" hreflang="x-default" href="https://chenxiachan.github.io/thoughtdag/research/" />
+    <link rel="stylesheet" href="../assets/research-pages.css" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="ThoughtDAG Research" />
+    <meta property="og:description" content="Research on what agents actually send to models: how an error stays in the context after its source is deleted, where an agent turn&#x27;s tokens go, and the TraceVista collaboration. Methods, data and scripts are public." />
+    <meta property="og:url" content="https://chenxiachan.github.io/thoughtdag/research/" />
+    <meta property="og:image" content="https://chenxiachan.github.io/thoughtdag/assets/turn-cost-composition.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script type="application/ld+json">
+      {"@context": "https://schema.org", "@type": "CollectionPage", "name": "ThoughtDAG Research", "description": "Research on what agents actually send to models: how an error stays in the context after its source is deleted, where an agent turn's tokens go, and the TraceVista collaboration. Methods, data and scripts are public.", "url": "https://chenxiachan.github.io/thoughtdag/research/", "inLanguage": "en", "isPartOf": {"@type": "WebSite", "name": "ThoughtDAG", "url": "https://chenxiachan.github.io/thoughtdag/"}, "hasPart": [{"@type": "TechArticle", "headline": "Where an Agent Turn's Tokens Go", "datePublished": "2026-10-28", "url": "https://chenxiachan.github.io/thoughtdag/research/agent-turn-tokens/", "author": {"@type": "Person", "name": "Xia Chen"}}, {"@type": "TechArticle", "headline": "Context repair: how one error contaminates the rest of a conversation", "datePublished": "2026-08-21", "url": "https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v2/", "author": {"@type": "Person", "name": "Xia Chen"}}, {"@type": "TechArticle", "headline": "Context Repair for LLMs, first pilot", "datePublished": "2026-08-17", "url": "https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v1/", "author": {"@type": "Person", "name": "Xia Chen"}}]}
+    </script>
+    <style>
+      .hub { width: min(980px, calc(100% - 48px)); margin: 0 auto; padding: 84px 0 110px; }
+      .hub .report-header h1 { max-width: 13em; font-size: clamp(42px, 6vw, 72px); }
+      html[lang="zh-CN"] .hub .report-header h1 { letter-spacing: -0.04em; line-height: 1.12; }
+      .hub .study-list { display: grid; gap: 16px; margin: 0; padding: 0; list-style: none; }
+      .hub .study { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 10px 30px; padding: 26px; border: 1px solid var(--line); border-radius: 18px; background: var(--card); }
+      .hub .study.archived { background: transparent; }
+      .hub .study-when { color: var(--muted); font-size: 12px; font-weight: 700; letter-spacing: 0.06em; line-height: 1.5; text-transform: uppercase; }
+      .hub .study-when span { display: block; margin-top: 6px; color: #5f51cf; }
+      .hub .study-body { min-width: 0; }
+      .hub .study h3 { margin: 0; font-size: 24px; line-height: 1.22; letter-spacing: -0.03em; }
+      .hub .study-figure { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; margin: 14px 0 0; }
+      .hub .study-figure strong { color: var(--purple); font-size: 34px; line-height: 1; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+      .hub .study-figure span { color: var(--muted); font-size: 13px; line-height: 1.5; }
+      .hub .study-body p.finding-line { margin: 12px 0 0; color: #4e4957; font-size: 15.5px; line-height: 1.75; }
+      .hub .study-scope { margin: 10px 0 0; color: var(--muted); font-size: 12.5px; }
+      .hub .study-links { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 14px; font-size: 14px; font-weight: 650; }
+      .hub .study-links a, .hub .report-section .study-links a { color: var(--purple); }
+      .hub .study-links a:hover { text-decoration: underline; }
+      .hub .bib-wrap { position: relative; margin: 18px 0 0; }
+      .hub .bib { margin: 0; padding: 20px 22px; overflow-x: auto; border-radius: 14px; background: var(--ink); color: #f4f2f8; font: 13px/1.65 "SFMono-Regular", Consolas, monospace; }
+      .hub .bib-copy { position: absolute; top: 12px; right: 12px; padding: 6px 12px; border: 1px solid rgba(255,255,255,0.25); border-radius: 8px; background: transparent; color: #fff; font: inherit; font-size: 12px; cursor: pointer; }
+      .hub .bib-copy:focus-visible { outline: 2px solid var(--purple-soft); outline-offset: 2px; }
+      @media (max-width: 640px) {
+        .hub { width: calc(100% - 36px); padding-top: 58px; }
+        .hub .study { grid-template-columns: 1fr; padding: 20px; }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="site-nav" aria-label="Primary navigation">
+      <a class="brand" href="../">
+        <img src="../assets/favicon.svg" alt="" />
+        <span>ThoughtDAG</span>
+      </a>
+      <div class="nav-links">
+        <a class="nav-link lang" href="zh/" hreflang="zh-CN" lang="zh-CN">中文</a>
+        <a class="nav-link" href="../docs/">Docs</a>
+        <a class="nav-link primary" href="https://github.com/chenxiachan/thoughtdag" target="_blank" rel="noreferrer">GitHub ↗</a>
+      </div>
+    </nav>
+
+    <main class="hub">
+      <header class="report-header">
+        <span class="eyebrow">THOUGHTDAG RESEARCH</span>
+        <h1>Opening the context black box between agents and models</h1>
+        <p class="report-subtitle">A model&#x27;s next answer depends on the context it reads in that turn. These reports measure that context, and ThoughtDAG makes it editable.</p>
+        <p class="report-meta">2 research reports · 1 collaboration · data and scripts in the repository</p>
+      </header>
+
+      <section class="report-section" id="studies">
+        <h2>Research reports</h2>
+        <ol class="study-list">
+          <li class="study">
+            <p class="study-when">Oct 2026<span>Measurement note</span></p>
+            <div class="study-body">
+              <h3>Where an Agent Turn&#x27;s Tokens Go</h3>
+              <p class="study-figure"><strong>1 to 7%</strong><span>of a turn&#x27;s tokens is the answer a person reads</span></p>
+              <p class="finding-line">Tool calls with their results were 42 to 95% of a turn and thinking 4 to 53%. On Claude Code and DeepSeek Harness, the prompt that opened the next turn still held the previous turn&#x27;s thinking. The shares reflect one person&#x27;s use; the answer stayed a small minority in every runtime.</p>
+              <p class="study-scope">3,237 turns · Claude Code, Codex, DeepSeek Harness, Pi · 30 days of the author&#x27;s own logs</p>
+              <p class="study-links"><a href="agent-turn-tokens/">Read →</a> <a href="agent-turn-tokens/zh/" hreflang="zh-CN">中文</a> <a href="https://github.com/chenxiachan/thoughtdag/blob/main/benchmark/tools/turn-cost.mjs" target="_blank" rel="noreferrer">Script ↗</a> <a href="https://github.com/chenxiachan/thoughtdag/blob/main/benchmark/runs/turn-cost/2026-10-27.json" target="_blank" rel="noreferrer">Aggregate data ↗</a></p>
+            </div>
+          </li>
+          <li class="study">
+            <p class="study-when">Aug 2026<span>Pilot v2</span></p>
+            <div class="study-body">
+              <h3>Context repair: how one error contaminates the rest of a conversation</h3>
+              <p class="study-figure"><strong>152 → 162</strong><span>of 162 derailed outcomes repaired (18 cases × 9 endpoints): deleting the source, then removing the subgraph</span></p>
+              <p class="finding-line">Removing an error at its source does not take it out of the downstream context. Across 162 derailed outcomes (18 cases on 9 endpoints), deleting only the source repaired 152, recomputing downstream nodes 161, and removing the contaminated subgraph all 162. With reasoning switched off, source-only repair fell to 2 of 18.</p>
+              <p class="study-scope">9 model endpoints · 1,215 captured conditions · 0 capture failures</p>
+              <p class="study-links"><a href="context-repair-pilot-v2/">Read →</a> <a href="context-repair-pilot-v2/zh/" hreflang="zh-CN">中文</a> <a href="../stories/context-repair/">Case study</a> <a href="https://github.com/chenxiachan/thoughtdag/tree/main/benchmark" target="_blank" rel="noreferrer">Benchmark ↗</a></p>
+            </div>
+          </li>
+          <li class="study archived">
+            <p class="study-when">Aug 2026<span>Pilot v1 · superseded by v2</span></p>
+            <div class="study-body">
+              <h3>Context Repair for LLMs, first pilot</h3>
+              
+              <p class="finding-line">The first run of the benchmark on four endpoints. Kept as an archived snapshot; v2 extends it to nine endpoints and adds the reasoning ablation.</p>
+              <p class="study-scope">4 model endpoints · 540 captured conditions</p>
+              <p class="study-links"><a href="context-repair-pilot-v1/">Read →</a> <a href="context-repair-pilot-v1/zh/" hreflang="zh-CN">中文</a></p>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <section class="report-section" id="collaboration">
+        <h2>Collaboration</h2>
+        <ol class="study-list">
+          <li class="study">
+            <p class="study-when">Since Oct 2026<span>Collaboration</span></p>
+            <div class="study-body">
+              <h3>TraceVista</h3>
+              <p class="finding-line">TraceVista visualizes agent workflows as maps: from the overview down to each action and its original record, with answers to questions linked to the evidence. Its reading layer builds on ThoughtDAG&#x27;s zoom summaries.</p>
+              <p class="study-scope">With @Superone77 and contributors · reading layer and map Q&amp;A by Xia Chen</p>
+              <p class="study-links"><a href="https://tracevista.pages.dev/" target="_blank" rel="noreferrer">Live demo ↗</a> <a href="https://github.com/Superone77/TraceVista" target="_blank" rel="noreferrer">GitHub ↗</a></p>
+            </div>
+          </li>
+        </ol>
+      </section>
+
+      <section class="report-section" id="publishing">
+        <h2>How these studies are published</h2>
+        <ul>
+            <li>Every number comes from a script in the repository, with its aggregate output next to it.</li>
+            <li>Where a study reads personal session logs, the logs stay on that machine and only aggregate counts are published.</li>
+            <li>Each report ends with what it does not establish.</li>
+            <li>Reports are versioned. A newer version links back to the one it replaces.</li>
+        </ul>
+      </section>
+
+      <section class="report-section" id="cite">
+        <h2>Cite</h2>
+        <div class="bib-wrap">
+          <pre class="bib" id="bib">@software{chen_thoughtdag_2026,
+  author  = {Chen, Xia},
+  title   = {ThoughtDAG: an instrument for legible human-AI collaboration},
+  year    = {2026},
+  url     = {https://github.com/chenxiachan/thoughtdag},
+  license = {MIT}
+}</pre>
+          <button class="bib-copy" id="bib-copy" type="button">Copy</button>
+        </div>
+        <p>GitHub&#x27;s “Cite this repository” button reads the same entry from CITATION.cff. <a href="https://github.com/chenxiachan/thoughtdag/blob/main/CITATION.cff" target="_blank" rel="noreferrer">CITATION.cff ↗</a></p>
+      </section>
+    </main>
+
+    <footer class="page-footer">ThoughtDAG Research · Open source, MIT</footer>
+    <script>
+      document.getElementById("bib-copy").addEventListener("click", (event) => {
+        const button = event.currentTarget;
+        const done = () => { button.textContent = "Copied"; setTimeout(() => { button.textContent = "Copy"; }, 1600); };
+        navigator.clipboard?.writeText(document.getElementById("bib").textContent).then(done, () => {
+          const range = document.createRange();
+          range.selectNodeContents(document.getElementById("bib"));
+          getSelection().removeAllRanges();
+          getSelection().addRange(range);
+        });
+      });
+    </script>
+  </body>
+</html>

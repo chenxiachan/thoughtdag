@@ -16,6 +16,39 @@
     <loc>https://chenxiachan.github.io/thoughtdag/stories/context-repair/</loc>
   </url>
   <url>
+    <loc>https://chenxiachan.github.io/thoughtdag/research/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://chenxiachan.github.io/thoughtdag/research/" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://chenxiachan.github.io/thoughtdag/research/zh/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://chenxiachan.github.io/thoughtdag/research/" />
+  </url>
+  <url>
+    <loc>https://chenxiachan.github.io/thoughtdag/research/zh/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://chenxiachan.github.io/thoughtdag/research/" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://chenxiachan.github.io/thoughtdag/research/zh/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://chenxiachan.github.io/thoughtdag/research/" />
+  </url>
+  <url>
+    <loc>https://chenxiachan.github.io/thoughtdag/research/agent-turn-tokens/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://chenxiachan.github.io/thoughtdag/research/agent-turn-tokens/" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://chenxiachan.github.io/thoughtdag/research/agent-turn-tokens/zh/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://chenxiachan.github.io/thoughtdag/research/agent-turn-tokens/" />
+  </url>
+  <url>
+    <loc>https://chenxiachan.github.io/thoughtdag/research/agent-turn-tokens/zh/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://chenxiachan.github.io/thoughtdag/research/agent-turn-tokens/" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://chenxiachan.github.io/thoughtdag/research/agent-turn-tokens/zh/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://chenxiachan.github.io/thoughtdag/research/agent-turn-tokens/" />
+  </url>
+  <url>
     <loc>https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v2/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v2/" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v2/zh/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v2/" />
+  </url>
+  <url>
+    <loc>https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v2/zh/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v2/" />
+    <xhtml:link rel="alternate" hreflang="zh-CN" href="https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v2/zh/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v2/" />
   </url>
 </urlset>

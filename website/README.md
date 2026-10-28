@@ -1,9 +1,11 @@
 # ThoughtDAG bilingual product story
 
-This is a static, bilingual homepage with problem-led tutorial entry points and
-a scroll-driven product story. English is the default language. The build emits
+This is a static, bilingual homepage: a scroll-driven product story, then
+download, research and questions. English is the default language. The build emits
 `zh.html` from the existing `data-zh` attributes so Chinese text, metadata, and
 links are available without JavaScript. Legacy `?lang=zh` links navigate there.
+The build also writes FAQPage structured data in each language from the visible
+questions, so the two cannot drift apart.
 It keeps ThoughtDAG's own product boundary and visual semantics:
 
 - purple solid edges are full context;
@@ -19,6 +21,9 @@ https://chenxiachan.github.io/thoughtdag/zh.html
 https://chenxiachan.github.io/thoughtdag/docs/tutorials/
 https://chenxiachan.github.io/thoughtdag/docs/zh/tutorials/
 https://chenxiachan.github.io/thoughtdag/stories/context-repair/
+https://chenxiachan.github.io/thoughtdag/research/
+https://chenxiachan.github.io/thoughtdag/research/zh/
+https://chenxiachan.github.io/thoughtdag/research/agent-turn-tokens/
 https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v2/
 ```
 
@@ -44,26 +49,14 @@ each tutorial offers the approved GIF for download. Update both locales when
 changing a tutorial. These animations illustrate workflows; they are not screen
 recordings or measured performance evidence.
 
-The page selects the final product film by both language and viewport:
-
-```text
-website/assets/thoughtdag-story-en-horizontal.mp4
-website/assets/thoughtdag-story-zh-horizontal.mp4
-website/assets/thoughtdag-story-en-vertical.mp4
-website/assets/thoughtdag-story-zh-vertical.mp4
-```
-
-Viewports up to 760px use the 9:16 vertical films. Wider viewports use the
-16:9 horizontal films. Switching the page language also switches the film,
-poster frame, accessible label, and duration.
-
 Canonical, alternate-language, Open Graph, robots, and sitemap metadata point
 to the shared public deployment. `sitemap.xml` indexes `site-sitemap.xml` and the
 generated `docs/sitemap.xml`. Submit the index URL in Search Console. A project
 path's `robots.txt` cannot replace the host's root robots policy. These changes
 support crawlability and discovery; they do not guarantee indexing or AI citations.
 
-The homepage introduces the Context Repair Pilot without turning the product
-story into a report. The concise bilingual case study lives under `stories/`,
-while the English technical report and reproducibility links live under
-`research/`.
+The homepage lists the research in one row per study, newest first, and links
+to the research index at `research/`, which also carries the citation. Each
+report has an English page and a Chinese page under `zh/`, with figures in both
+languages; a report is versioned, and a superseded version stays online with a
+link to its successor. The concise bilingual case study lives under `stories/`.

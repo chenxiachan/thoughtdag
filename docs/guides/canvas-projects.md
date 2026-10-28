@@ -35,6 +35,10 @@ You can:
 
 Exporting creates a separate image. It does not move canvas nodes or change model context.
 
+Four exports, from a single thread to a branching literature review:
+
+<img src="../thought-map-four-en.png" alt="Four Thought Map exports showing different patterns of exploration, from a single thread to a branching literature review." width="100%" loading="lazy"/>
+
 ## Continue the last thread
 
 Hover **Continue last thread** to reveal the most recently active conversation node on the map. Click it to fly back, restore a readable zoom, and open that node's panel.
