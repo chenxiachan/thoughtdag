@@ -234,48 +234,11 @@ function resolveInRoot(rootKey, rel) {
 // torn frame (the live tail of an in-progress session) is dropped: the next
 // sweep re-reads the file and picks it up whole.
 const ZSTD_MAX = 512 * 1024 * 1024;
-const ZSTD_MAGIC = 4247762216; // 0xFD2FB528 little-endian
-/** [start, end) byte ranges of every structurally complete zstd frame. */
-function scanZstdFrames(buffer) {
-  const frames = [];
-  let offset = 0;
-  while (offset < buffer.length) {
-    const start = offset;
-    if (buffer.length - offset < 4) break; // torn tail
-    if (buffer.readUInt32LE(offset) !== ZSTD_MAGIC) return { frames }; // corrupt — read what we can
-    offset += 4;
-    if (offset === buffer.length) break;
-    const descriptor = buffer.readUInt8(offset);
-    offset += 1;
-    const contentSizeFlag = descriptor >>> 6;
-    const singleSegment = (descriptor & 32) !== 0;
-    const checksum = (descriptor & 4) !== 0;
-    const dictionaryFlag = descriptor & 3;
-    const dictionaryBytes = dictionaryFlag === 3 ? 4 : dictionaryFlag;
-    const contentSizeBytes = contentSizeFlag === 0 ? (singleSegment ? 1 : 0) : 1 << contentSizeFlag;
-    const remainingHeaderBytes = (singleSegment ? 0 : 1) + dictionaryBytes + contentSizeBytes;
-    if (buffer.length - offset < remainingHeaderBytes) break;
-    offset += remainingHeaderBytes;
-    for (;;) {
-      if (buffer.length - offset < 3) return { frames };
-      const blockHeader = buffer.readUIntLE(offset, 3);
-      offset += 3;
-      const lastBlock = (blockHeader & 1) !== 0;
-      const blockType = (blockHeader >>> 1) & 3;
-      const blockSize = blockHeader >>> 3;
-      const payloadBytes = blockType === 1 ? 1 : blockSize;
-      if (buffer.length - offset < payloadBytes) return { frames };
-      offset += payloadBytes;
-      if (lastBlock) break;
-    }
-    if (checksum) {
-      if (buffer.length - offset < 4) return { frames };
-      offset += 4;
-    }
-    frames.push({ start, end: offset });
-  }
-  return { frames };
-}
+// The zstd container walk and the prefix decoder are shared with the harness
+// plugin (runtime/zstd-frames.mjs, bundled into the payload). A second copy
+// here would drift from the one the plugin decodes with (#80).
+const ZSTD_RUNTIME_DIR = app.isPackaged ? path.join(process.resourcesPath, 'payload', 'runtime') : path.join(__dirname, '..', 'runtime');
+const { scanZstdFrames, readZstdHead } = require(path.join(ZSTD_RUNTIME_DIR, 'zstd-frames.cjs'));
 /** Decompress a concatenated-frame zstd buffer to one contiguous Buffer. */
 function decompressZstdAll(raw) {
   const { frames } = scanZstdFrames(raw);
@@ -561,9 +524,13 @@ function setupSessionAtlas() {
 
   ipcMain.handle('sessions:head', async (_e, rootKey, rel, bytes) => {
     if (typeof rel === 'string' && rel.endsWith('.zstd')) {
-      const dec = await sessionText(rootKey, rel);
+      // A prefix, not the whole log: the atlas reads one head per session and
+      // decoding a 21 MB (50 MB decoded) session for its first 16 KB was the
+      // slow half of the scan (#80). readZstdHead widens its window until the
+      // requested byte count is decoded, so a big first frame no longer loses
+      // the whole frame the fixed 256 KB window used to drop.
       const n = Math.min(Math.max(1024, bytes | 0), 524288);
-      return dec ? dec.subarray(0, Math.min(n, dec.length)).toString('utf8') : '';
+      return readZstdHead(resolveInRoot(rootKey, rel), n, { open: fsp.open, inflate: zstdDecompressSync });
     }
     const fh = await fsp.open(resolveInRoot(rootKey, rel), 'r');
     try {

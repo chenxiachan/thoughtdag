@@ -113,8 +113,24 @@ export function installDshSessionsBridge(apiBase: string): void {
   };
 
   // decoded text per session, briefly cached: head + read + range calls
-  // arrive in bursts for the same file
+  // arrive in bursts for the same file. Nothing evicted this map before
+  // 0.5.24: a listing read one `head` per session, every one of them went
+  // through textOf (a WHOLE decoded log), and the entries were never dropped
+  // — 600 sessions of history parked hundreds of MB in the page and the scan
+  // died at ~108 cards (#80). Only a LIVE session keeps its entry past
+  // CACHE_MS: its tail plans build on the text already held (liveTailPlan),
+  // while a disk session always refetches and its entry is dead weight.
   const cache = new Map<string, { at: number; seq: number | null; text: string }>();
+  /** Drop entries no reader can reuse: a disk session's text is refetched on
+   *  every call, so an expired one is garbage; a live session's is a base for
+   *  the next tail and stays. */
+  const pruneCache = (): void => {
+    const now = Date.now();
+    for (const [id, entry] of cache) {
+      if (index.get(id)?.live) continue;
+      if (now - entry.at >= CACHE_MS) cache.delete(id);
+    }
+  };
   const textOf = async (id: string): Promise<string> => {
     const e = index.get(id) ?? (await refreshIndex(), index.get(id));
     if (!e) return '';
@@ -132,6 +148,7 @@ export function installDshSessionsBridge(apiBase: string): void {
       t = await text(e.live ? `/sessions/${encodeURIComponent(id)}/log` : `/disksessions/${encodeURIComponent(id)}/log`).catch(() => '');
       if (e.live && e.cwd) t = withHeaderCwd(t, e.cwd);
     }
+    pruneCache();
     cache.set(id, { at: Date.now(), seq: e.seq, text: t });
     return t;
   };
@@ -219,8 +236,18 @@ export function installDshSessionsBridge(apiBase: string): void {
       if (rootKey !== ROOT_KEY) return text(fileUrl(rootKey, 'head', rel, `&bytes=${Math.max(1024, bytes | 0)}`)).catch(() => '');
       const id = idOf(rel);
       if (!id) return '';
+      const want = Math.min(Math.max(1024, bytes | 0), 524288);
+      // A disk session answers from its own prefix route: the host decodes the
+      // frames the prefix needs instead of the whole log (#80). A LIVE session
+      // keeps the textOf road — its log may not be on disk yet, and the mirror
+      // continues on the text already held (liveTailPlan).
+      const e = index.get(id) ?? (await refreshIndex(), index.get(id));
+      if (!e) return '';
+      if (!e.live) {
+        return text(`/disksessions/${encodeURIComponent(id)}/head?bytes=${want}`).catch(() => '');
+      }
       const t = await textOf(id);
-      return t.slice(0, Math.min(Math.max(1024, bytes | 0), 524288));
+      return t.slice(0, want);
     },
     read: async (rootKey, rel) => {
       if (rootKey !== ROOT_KEY) return text(fileUrl(rootKey, 'read', rel)).catch(() => '');

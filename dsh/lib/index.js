@@ -85,6 +85,8 @@ const APP_DIR = resolve(__dirname, '../dist-app')
 // this, and it is required HERE because the handler needs it in scope — inside
 // agentsHttp() it would be a function-local binding the handler cannot see
 const { writeBackup, BackupRequestError } = require(resolve(__dirname, 'runtime', 'backup-write.cjs'))
+// the zstd container walk shared with the desktop shell (#80)
+const zstdFrames = require(resolve(__dirname, 'runtime', 'zstd-frames.cjs'))
 
 // The plugin's own version travels into the canvas's URL (?dv=), so the
 // update dialog and the release history know which release runs here, as
@@ -239,58 +241,13 @@ function eventsJsonlSince(session, since) {
 // container walk the DSH persistence backend performs). A final torn frame
 // (live tail) is dropped; the next read picks it up whole.
 
-const ZSTD_MAGIC = 4247762216 // 0xFD2FB528 LE
-function scanZstdFrames(buffer) {
-  const frames = []
-  let offset = 0
-  while (offset < buffer.length) {
-    const start = offset
-    if (buffer.length - offset < 4) break
-    if (buffer.readUInt32LE(offset) !== ZSTD_MAGIC) return { frames }
-    offset += 4
-    if (offset === buffer.length) break
-    const descriptor = buffer.readUInt8(offset)
-    offset += 1
-    const contentSizeFlag = descriptor >>> 6
-    const singleSegment = (descriptor & 32) !== 0
-    const checksum = (descriptor & 4) !== 0
-    const dictionaryFlag = descriptor & 3
-    const dictionaryBytes = dictionaryFlag === 3 ? 4 : dictionaryFlag
-    const contentSizeBytes = contentSizeFlag === 0 ? (singleSegment ? 1 : 0) : 1 << contentSizeFlag
-    const remainingHeaderBytes = (singleSegment ? 0 : 1) + dictionaryBytes + contentSizeBytes
-    if (buffer.length - offset < remainingHeaderBytes) break
-    offset += remainingHeaderBytes
-    for (;;) {
-      if (buffer.length - offset < 3) return { frames }
-      const blockHeader = buffer.readUIntLE(offset, 3)
-      offset += 3
-      const lastBlock = (blockHeader & 1) !== 0
-      const blockType = (blockHeader >>> 1) & 3
-      const blockSize = blockHeader >>> 3
-      const payloadBytes = blockType === 1 ? 1 : blockSize
-      if (buffer.length - offset < payloadBytes) return { frames }
-      offset += payloadBytes
-      if (lastBlock) break
-    }
-    if (checksum) {
-      if (buffer.length - offset < 4) return { frames }
-      offset += 4
-    }
-    frames.push({ start, end: offset })
-  }
-  return { frames }
-}
-
-/** Decode a concatenated-frame zstd buffer to UTF-8 text ('' when corrupt). */
-function decompressZstdToText(raw) {
-  try {
-    const { frames } = scanZstdFrames(raw)
-    if (frames.length === 0) return ''
-    const parts = []
-    for (const { start, end } of frames) parts.push(zstdDecompressSync(raw.subarray(start, end)))
-    return Buffer.concat(parts).toString('utf8')
-  } catch { return '' }
-}
+// The container walk and the prefix decoder live in runtime/zstd-frames.cjs:
+// the desktop shell needs the same two and a second copy would drift.
+const { scanZstdFrames, decompressZstdToText: decodeFrames, readZstdHead: readZstdHeadOf } = zstdFrames
+const decompressZstdToText = (raw) => decodeFrames(raw, zstdDecompressSync)
+/** The first `bytes` bytes of a .zstd log's text (#80): a head read costs a
+ *  window, never the whole decoded log. */
+const readZstdHead = (logPath, bytes, stopWhen, maxBytes) => readZstdHeadOf(logPath, bytes, { open, inflate: zstdDecompressSync, ...(stopWhen ? { stopWhen, maxBytes } : {}) })
 
 /** Walk $DSH_HOME/sessions for the session log (2 levels deep). DSH writes the
  *  session format version into the file name: early builds used
@@ -302,7 +259,21 @@ function decompressZstdToText(raw) {
 // version is found before this file learns its name (the 0.2 desktop's own sessions were invisible
 // while only v3 was probed)
 const SESSION_LOG_RE = /^session(?:\.v(\d+))?\.jsonl\.zstd?$/
+// A short memo on the walk: the atlas asks for one head per session (#80), and
+// this walk reads every workspace/session directory — 644 of them here, ~70 ms
+// each, which would dominate a scan that now decodes in 2.5 ms per log. Two
+// seconds is short enough that a session created in between still shows up on
+// the next poll.
+const SESSION_WALK_MS = 2000
+let sessionWalk = null
 async function findSessionFiles(dshHome) {
+  const now = Date.now()
+  if (sessionWalk !== null && sessionWalk.home === dshHome && now - sessionWalk.at < SESSION_WALK_MS) return sessionWalk.files
+  const files = await walkSessionDirs(dshHome)
+  sessionWalk = { home: dshHome, at: Date.now(), files }
+  return files
+}
+async function walkSessionDirs(dshHome) {
   const root = join(dshHome, 'sessions')
   const out = []
   let entries
@@ -326,10 +297,21 @@ async function findSessionFiles(dshHome) {
   return out
 }
 
-/** Cheap title from the FIRST zstd frame only (bounded read): the session
- *  header names the id+cwd; session/title arrives right after in live logs.
- *  Falls back to the session id when the frame boundary cuts early. */
-const HEAD_READ_BYTES = 256 * 1024 // covers the first frames: header + title + opening turns
+/** Cheap title from a bounded PREFIX of the log: the session header names the
+ *  id+cwd; session/title arrives right after in live logs. Falls back to the
+ *  session id when the prefix cuts early.
+ *
+ *  The prefix comes from readZstdHead, the same decoder /disksessions/<id>/head
+ *  answers with (#80): a fixed 256 KB window used to be read here, and when a
+ *  single frame was larger than that, the whole frame was dropped — the listing
+ *  then fell back to an id-shaped title for a session whose title was in reach.
+ *  The decoder widens until it has what it was asked for, so the window is a
+ *  starting size rather than a ceiling. */
+const HEAD_READ_BYTES = 64 * 1024 // start here: header + title usually ride the first frames
+const TITLE_EVENT = '"type":"session/title"' // the early-stop marker for a listing's title
+// past this the title is not near the top (a huge pasted first message can push
+// session/title far down): give up and use the id-shaped fallback, as before
+const HEAD_READ_BYTES_MAX = 4 * 1024 * 1024
 // a session's head is decoded once per (path, size, mtime): the listing is
 // polled, and a poll must not decompress sixty files it already knows
 const headCache = new Map()
@@ -344,16 +326,13 @@ async function cachedHead(f) {
 }
 async function sessionTitleFromHead(logPath) {
   try {
-    const fh = await open(logPath, 'r')
-    let buf
-    try {
-      const st = await fh.stat()
-      const want = Math.min(st.size, HEAD_READ_BYTES)
-      const b = Buffer.alloc(want)
-      const { bytesRead } = await fh.read(b, 0, want, 0)
-      buf = b.subarray(0, bytesRead)
-    } finally { await fh.close() }
-    const text = decompressZstdToText(buf)
+    // The window widens until session/title appears, so a title that rides
+    // past the old fixed 256 KB (a giant pasted first message) is still found.
+    // 4 MB is the give-up point: past it the id-shaped fallback stands, as it
+    // always did.
+    const stopWhen = (t) => t.includes(TITLE_EVENT)
+    stopWhen.overlapBytes = TITLE_EVENT.length + 16 // a marker split across two frames still matches
+    const text = await readZstdHead(logPath, HEAD_READ_BYTES, stopWhen, HEAD_READ_BYTES_MAX)
     let title = null
     let id = null
     let cwd = null
@@ -1389,6 +1368,19 @@ export async function apply(ctx, config) {
         }
         sessions.sort((a, b) => b.mtime - a.mtime)
         return sendJson(res, 200, { sessions })
+      }
+      // The first `bytes` of a log's TEXT, without decoding the whole log (#80).
+      // The atlas reads a 16-256 KB head per session to name it; this used to go
+      // through /log, which decodes tens of MB of zstd per session.
+      const diskHead = /^\/disksessions\/([^/]+?)\/head$/.exec(path)
+      if (diskHead !== null && req.method === 'GET') {
+        const name = decodeURIComponent(diskHead[1])
+        const dshHome = process.env.DSH_HOME || join(os.homedir(), '.dsh')
+        const files = await findSessionFiles(dshHome)
+        const hit = files.find(f => f.sessionDir === name || f.sessionDir.startsWith(name))
+        if (!hit) return sendJson(res, 404, { error: 'no such session on disk' })
+        const bytes = Math.min(Math.max(Number(url.searchParams.get('bytes')) || 16384, 1024), 524288)
+        return sendFile(res, 'application/x-ndjson; charset=utf-8', await readZstdHead(hit.log, bytes))
       }
       const diskOne = /^\/disksessions\/([^/]+?)(\/log)?$/.exec(path)
       if (diskOne !== null && req.method === 'GET') {

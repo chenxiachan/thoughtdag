@@ -176,35 +176,63 @@ export function setRootDisabled(key: string, disabled: boolean): void {
  *  never a false alarm). */
 export const knownSessionIds = new Set<string>();
 
+// A card is a pure function of the file it was read from, so a scan only has
+// to read files whose size or mtime moved. Keyed by root+rel+size+mtime: an
+// appended event changes both, and the row is then re-read (never re-used).
+// This is what makes reopening the map, and the 2 s throttled rescan a session
+// change triggers, read zero heads instead of hundreds (#80). Memory-only on
+// purpose: a fresh launch starts clean, and the scan behind this is seconds.
+const cardCache = new Map<string, SessionCard | null>();
+const CARD_CACHE_MAX = 4000;
+const cardKey = (rootKey: string, rel: string, size: number, mtime: number): string => `${rootKey}\u0000${rel}\u0000${size}\u0000${mtime}`;
+
+/** The card for one listed file, from the cache when nothing about the file
+ *  changed, else by reading the smallest head that names it. */
+async function cardForFile(
+  bridge: NonNullable<Window['desktopSessions']>,
+  rootKey: string,
+  f: { rel: string; size: number; mtime: number },
+): Promise<SessionCard | null> {
+  const key = cardKey(rootKey, f.rel, f.size, f.mtime);
+  if (cardCache.has(key)) return cardCache.get(key) ?? null;
+  // DSH titles ride session/title AFTER the first user message, which can be
+  // a giant pasted conversation — read those heads generously.
+  const bytes = f.rel.endsWith('.zstd') ? HEAD_RETRY_BYTES : HEAD_BYTES;
+  const head = await bridge.head(rootKey, f.rel, bytes).catch(() => '');
+  let card = head ? cardFromHead(rootKey, f.rel, head, f.mtime, f.size) : null;
+  if (!card && head) {
+    // a codex session_meta first line can be 48KB+ of instructions — one
+    // generous retry before giving a file up as unrecognized
+    const bigHead = await bridge.head(rootKey, f.rel, HEAD_RETRY_BYTES).catch(() => '');
+    if (bigHead.length > head.length) card = cardFromHead(rootKey, f.rel, bigHead, f.mtime, f.size);
+  }
+  // a file no signature claims stays unclaimed (null) until it changes
+  if (cardCache.size >= CARD_CACHE_MAX) cardCache.clear();
+  cardCache.set(key, card);
+  return card;
+}
+
 export async function scanSessions(): Promise<SessionCard[]> {
   const bridge = window.desktopSessions;
   if (!bridge) return [];
   const off = disabledRoots();
   const roots = (await bridge.roots().catch(() => [])).filter((r) => r.exists && !off.has(r.key)).map((r) => r.key);
   const cards: SessionCard[] = [];
+  const live = new Set<string>();
   for (const rootKey of roots) {
     const files = await bridge.list(rootKey).catch(() => []);
     // newest first, and head-read concurrently in small batches — a store
     // can hold hundreds of files, but each head is one bounded read
     const sorted = [...files].sort((a, b) => b.mtime - a.mtime);
+    for (const f of sorted) live.add(cardKey(rootKey, f.rel, f.size, f.mtime));
     const BATCH = 12;
     for (let i = 0; i < sorted.length; i += BATCH) {
-      const batch = await Promise.all(sorted.slice(i, i + BATCH).map(async (f) => {
-        // DSH titles ride session/title AFTER the first user message, which
-        // can be a giant pasted conversation — read those heads generously.
-        const bytes = f.rel.endsWith('.zstd') ? HEAD_RETRY_BYTES : HEAD_BYTES;
-        const head = await bridge.head(rootKey, f.rel, bytes).catch(() => '');
-        if (!head) return null;
-        const card = cardFromHead(rootKey, f.rel, head, f.mtime, f.size);
-        if (card) return card;
-        // a codex session_meta first line can be 48KB+ of instructions —
-        // one generous retry before giving a file up as unrecognized
-        const bigHead = await bridge.head(rootKey, f.rel, HEAD_RETRY_BYTES).catch(() => '');
-        return bigHead.length > head.length ? cardFromHead(rootKey, f.rel, bigHead, f.mtime, f.size) : null;
-      }));
+      const batch = await Promise.all(sorted.slice(i, i + BATCH).map((f) => cardForFile(bridge, rootKey, f)));
       for (const c of batch) if (c) cards.push(c);
     }
   }
+  // forget rows whose file disappeared (deleted, disabled root, renamed log)
+  for (const key of [...cardCache.keys()]) if (!live.has(key)) cardCache.delete(key);
   knownSessionIds.clear();
   for (const c of cards) knownSessionIds.add(c.sessionId);
   return cards.sort((a, b) => b.mtime - a.mtime);
