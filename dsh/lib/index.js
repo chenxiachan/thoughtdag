@@ -68,7 +68,7 @@
 // atlas can open it, and the canvas gets its id in the first frame.
 
 import { randomUUID } from 'node:crypto'
-import { open, readFile, readdir, stat } from 'node:fs/promises'
+import { open, readFile, readdir, realpath, stat } from 'node:fs/promises'
 import { extname, join, normalize, resolve, sep } from 'node:path'
 import { createRequire } from 'node:module'
 import os from 'node:os'
@@ -1092,6 +1092,29 @@ function canvasPermission(ctx, agent, mode, emit) {
   }
 }
 
+// ── the harness's workspaces, for the sessions the canvas creates ───────
+// The harness files a session under a workspace only when the session is
+// created with that workspace's id; a bare cwd, even the workspace's own
+// folder, leaves it ungrouped in the sidebar (#85). A fresh session whose
+// folder is a registered workspace is therefore created by the workspace's
+// id, and the harness puts it there. Workspace paths are stored through
+// realpath, so the folder goes through it too. The registry is optional:
+// hosts without it get the folder as before.
+let workspaceRegistry = null
+
+/** The create request for a fresh session in `cwd`: the workspace whose folder it is, else the folder itself. */
+async function sessionCreateRequest(cwd) {
+  if (!cwd) return {}
+  if (typeof workspaceRegistry?.list === 'function') {
+    try {
+      const canonical = await realpath(cwd)
+      const workspace = workspaceRegistry.list().find((w) => w.path === canonical)
+      if (workspace) return { workspaceId: workspace.id }
+    } catch { /* a folder that does not resolve: the host reports it on the cwd */ }
+  }
+  return { cwd }
+}
+
 /** Run one question through the harness's agent loop, continuing a mirrored
  *  session, forking a dsh mirror at the parent's exact turn, or creating a
  *  fresh session. Report progress as SSE-style frames via `emit`; resolves
@@ -1120,8 +1143,8 @@ async function runAgentTurn(ctx, body, emit, isClosed, { answerApprovals = true 
     }
   }
   if (!sessionId) {
-    const cwd = typeof body?.harness?.cwd === 'string' && body.harness.cwd ? { cwd: body.harness.cwd } : {}
-    sessionId = (await ctx.sessionController.create({ ...cwd })).sessionId
+    const cwd = typeof body?.harness?.cwd === 'string' && body.harness.cwd ? body.harness.cwd : null
+    sessionId = (await ctx.sessionController.create(await sessionCreateRequest(cwd))).sessionId
   }
   emit({ harnessSession: sessionId, continued: sessionId === continueId, ...(forkedFrom ? { forkedFrom } : {}) })
   // a streaming caller can show and answer approvals; a one-shot caller
@@ -1721,6 +1744,12 @@ export async function apply(ctx, config) {
     const svc = pctx.permissionPresets
     permissionPresets = svc
     pctx.effect(() => () => { if (permissionPresets === svc) permissionPresets = null }, 'thoughtdag: permission presets')
+  })
+  // so is the workspace registry: without it a fresh session gets its folder only
+  ctx.inject(['workspaceRegistry'], (wctx) => {
+    const svc = wctx.workspaceRegistry
+    workspaceRegistry = svc
+    wctx.effect(() => () => { if (workspaceRegistry === svc) workspaceRegistry = null }, 'thoughtdag: workspace registry')
   })
   await installWhyLayer(ctx, config)
 }

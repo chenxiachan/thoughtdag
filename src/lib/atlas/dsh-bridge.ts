@@ -351,9 +351,12 @@ export async function harnessOutbound(nodeId: string, model: string | undefined)
   const { useProjects } = await import('../../store/projects');
   const { projects, activeId } = useProjects.getState();
   // the folder the person chose for this canvas first, then the project the
-  // canvas mirrors, then the session the chat shows
+  // canvas mirrors, then the session the chat shows, then the canvas's own
+  // folder: the one the toolbar's folder chip names (a session created
+  // without a folder ran in the harness's profile directory, #85)
   const chosen = projects.find((p) => p.id === activeId)?.agentCwd;
-  const cwd = chosen ?? (await activeCanvasCwd()) ?? currentSession?.cwd ?? undefined;
+  const own = async () => (window.desktopAgents ? await window.desktopAgents.workspace(activeId ?? 'default').catch(() => undefined) : undefined);
+  const cwd = chosen ?? (await activeCanvasCwd()) ?? currentSession?.cwd ?? (await own()) ?? undefined;
   // the canvas's permission mode rides along; the plugin applies it to this turn only
   const mode = projects.find((p) => p.id === activeId)?.agentGuard?.mode;
   const base = { ...(cwd ? { cwd } : {}), ...(mode === 'auto' || mode === 'allow' ? { permission: mode } : {}) };
