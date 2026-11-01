@@ -39,6 +39,32 @@ const DOCS = 'https://chenxiachan.github.io/thoughtdag/docs';
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    version: '0.5.27',
+    date: '2026-11-01',
+    announce: true,
+    lead: {
+      zh: '🧰 Agent 每一轮的工具记录有了自己的开关，新导入的轮次默认不往下传。画布发起的 Harness 会话归到对应的工作区。',
+      en: '🧰 Each agent turn\'s tool record has its own switch, and newly imported turns start with it off. Harness sessions started from the canvas are filed under their workspace.',
+    },
+    items: [
+      {
+        title: { zh: '🧰 工具记录每轮一个开关', en: '🧰 One switch per turn for the tool record' },
+        body: {
+          zh: '导入的 Agent 会话里，每一轮的工具调用和结果在侧栏有一个开关。新导入的轮次默认关闭，后面的提问只知道这一轮动过哪些文件；打开后，会读到每一步的调用和结果。已经在画布上的轮次保持原样。思考只在卡片上显示约多少 token，不往下传。卡片的小条里，实心是往下传的部分，斜纹是留在本卡的部分。',
+          en: 'In an imported agent session, each turn\'s tool calls and results have a switch in the side panel. Newly imported turns start with it off, so questions below learn only which files the turn touched; switched on, they read every call and its result. Turns already on a canvas stay as they were. Thinking shows on the card as an approximate token count and is not passed on. On the card\'s bar, solid is what passes on and hatched is what stays on the card.',
+        },
+        link: { label: { zh: '为什么这样设计：Agent 一轮的 token 去了哪里', en: 'Why: where an agent turn\'s tokens go' }, href: 'https://chenxiachan.github.io/thoughtdag/research/agent-turn-tokens/' },
+      },
+      {
+        title: { zh: '🗂 Harness 会话归到工作区', en: '🗂 Harness sessions land in their workspace' },
+        body: {
+          zh: '在画布上用 Harness Agent 提问、开了新会话时，如果工作目录正是 Harness 里的某个工作区，这个会话会归到该工作区，不再出现在「未分组」里（#85）。没有选目录时，会话在工作目录芯片显示的文件夹里运行。',
+          en: 'When a Harness Agent question on the canvas starts a new session and its working directory is one of Harness\'s workspaces, the session is filed under that workspace instead of Ungrouped (#85). With no folder chosen, the session runs in the folder the working-directory chip shows.',
+        },
+      },
+    ],
+  },
+  {
     // a quiet release: the 0.5.21 entry stays the announcement, this one is history only
     version: '0.5.26',
     date: '2026-10-25',

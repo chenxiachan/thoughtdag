@@ -1,6 +1,6 @@
 {
   "name": "dsh-thoughtdag",
-  "version": "0.5.26",
+  "version": "0.5.27",
   "description": "ThoughtDAG for DeepSeek Harness: turn the current DSH session into an editable thought graph on an infinite canvas. Source, releases and issues: github.com/chenxiachan/thoughtdag",
   "author": "Xia Chen",
   "repository": {
