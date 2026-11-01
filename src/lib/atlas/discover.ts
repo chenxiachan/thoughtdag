@@ -182,8 +182,9 @@ export const knownSessionIds = new Set<string>();
 // This is what makes reopening the map, and the 2 s throttled rescan a session
 // change triggers, read zero heads instead of hundreds (#80). Memory-only on
 // purpose: a fresh launch starts clean, and the scan behind this is seconds.
+// Each scan drops the rows of files it no longer lists, so the map holds at
+// most the files of the last scan and this one.
 const cardCache = new Map<string, SessionCard | null>();
-const CARD_CACHE_MAX = 4000;
 const cardKey = (rootKey: string, rel: string, size: number, mtime: number): string => `${rootKey}\u0000${rel}\u0000${size}\u0000${mtime}`;
 
 /** The card for one listed file, from the cache when nothing about the file
@@ -207,7 +208,6 @@ async function cardForFile(
     if (bigHead.length > head.length) card = cardFromHead(rootKey, f.rel, bigHead, f.mtime, f.size);
   }
   // a file no signature claims stays unclaimed (null) until it changes
-  if (cardCache.size >= CARD_CACHE_MAX) cardCache.clear();
   cardCache.set(key, card);
   return card;
 }

@@ -114,7 +114,7 @@ export function installDshSessionsBridge(apiBase: string): void {
 
   // decoded text per session, briefly cached: head + read + range calls
   // arrive in bursts for the same file. Nothing evicted this map before
-  // 0.5.24: a listing read one `head` per session, every one of them went
+  // #80: a listing read one `head` per session, every one of them went
   // through textOf (a WHOLE decoded log), and the entries were never dropped
   // — 600 sessions of history parked hundreds of MB in the page and the scan
   // died at ~108 cards (#80). Only a LIVE session keeps its entry past

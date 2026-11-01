@@ -15,24 +15,18 @@
 //   - a torn final frame (a session still being written)
 //
 // Run: node scripts/test-zstd-head.mjs
-import { execFileSync } from 'node:child_process';
+import { createRequire } from 'node:module';
 import { mkdtempSync, openSync, rmSync, writeSync, closeSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import { open } from 'node:fs/promises';
 import { zstdCompressSync, zstdDecompressSync } from 'node:zlib';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const tmp = mkdtempSync(join(tmpdir(), 'tdag-zstd-head-'));
-const bundle = join(tmp, 'zstd-frames.mjs');
-// The module ships as plain CJS in runtime/ (the plugin requires it, the
-// desktop requires it); esbuild gives this test one ESM view of it, exactly as
-// both hosts load it.
-execFileSync(join(ROOT, 'node_modules/.bin/esbuild'), [
-  join(ROOT, 'runtime/zstd-frames.cjs'), '--bundle', '--format=esm', '--platform=node', `--outfile=${bundle}`,
-], { stdio: ['ignore', 'ignore', 'pipe'] });
-const { readZstdHead, scanZstdFrames, decompressZstdToText, HEAD_MAX_WINDOW_BYTES } = await import(pathToFileURL(bundle).href);
+// the module is plain CJS in runtime/, required as the plugin and the desktop require it
+const { readZstdHead, scanZstdFrames, decompressZstdToText, HEAD_MAX_WINDOW_BYTES } = createRequire(import.meta.url)(join(ROOT, 'runtime', 'zstd-frames.cjs'));
 
 let failures = 0;
 function test(name, fn) {

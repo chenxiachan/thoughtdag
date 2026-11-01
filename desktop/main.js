@@ -235,7 +235,7 @@ function resolveInRoot(rootKey, rel) {
 // sweep re-reads the file and picks it up whole.
 const ZSTD_MAX = 512 * 1024 * 1024;
 // The zstd container walk and the prefix decoder are shared with the harness
-// plugin (runtime/zstd-frames.mjs, bundled into the payload). A second copy
+// plugin (runtime/zstd-frames.cjs, copied into the payload). A second copy
 // here would drift from the one the plugin decodes with (#80).
 const ZSTD_RUNTIME_DIR = app.isPackaged ? path.join(process.resourcesPath, 'payload', 'runtime') : path.join(__dirname, '..', 'runtime');
 const { scanZstdFrames, readZstdHead } = require(path.join(ZSTD_RUNTIME_DIR, 'zstd-frames.cjs'));
