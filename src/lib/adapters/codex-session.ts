@@ -3,7 +3,7 @@ import { makeNode, type ImportableConversation } from '../import-chat';
 import { autoLayout } from '../layout';
 import { generateId } from '../../utils';
 import {
-  turnsToBranch, seedPlaque, toolAttachments, dropSelfCommandTurns, markImporterNote, toolOpOf, clipText,
+  turnsToBranch, seedPlaque, seatTurnWork, dropSelfCommandTurns, markImporterNote, toolOpOf, clipText,
   TOOL_CALL_LIMIT, ARTIFACT_CALL_LIMIT, TOOL_RESULT_LIMIT, type RunnerTool, attachSubagentBranches, adoptSubagentSessions, type SubagentRun, type SubagentSession
 } from './shared';
 
@@ -22,7 +22,9 @@ import {
 //   - function_call pairs with function_call_output by call_id into one
 //     atomic attachment (same grammar as the Claude Code adapter).
 //   - reasoning items are ENCRYPTED upstream — dropped, and honestly
-//     undroppable anyway.
+//     undroppable anyway. Their size is not: the token_count events carry
+//     a running reasoning_output_tokens total, and each turn keeps the
+//     share spent while it ran.
 //   - role=developer messages (sandbox/permission boilerplate re-sent each
 //     turn) are runner template, not conversation — dropped.
 //   - MAX_TURNS tail cap + note, compaction-free (Codex compacts via its
@@ -59,6 +61,8 @@ interface RolloutLine {
     input?: string;
     call_id?: string;
     output?: unknown;
+    // token_count events
+    info?: { total_token_usage?: { reasoning_output_tokens?: number }; last_token_usage?: { reasoning_output_tokens?: number } } | null;
   };
 }
 
@@ -71,6 +75,7 @@ export interface CodexTurn {
   compactionBefore?: string;
   /** child threads adopted onto this turn (Codex names the parent in the child's header, never the child in the parent) */
   subagents?: SubagentRun[];
+  reasoningTokens?: number;
 }
 
 const clip = clipText;
@@ -115,6 +120,10 @@ export class CodexSessionCollector {
   private firstQuestion: string | null = null;
   private parentThreadId: string | null = null;
   private startedAt: string | null = null;
+  // the session's running reasoning total, as of the last token_count
+  // (unknown before the first: a resumed rollout opens on a total that
+  // includes runs recorded in earlier files)
+  private reasoningSoFar = -1;
 
   feedLine(raw: string): void {
     const t = raw.trim();
@@ -163,6 +172,17 @@ export class CodexSessionCollector {
       this.flush();
       const t = this.ensure();
       if (p.turn_id) t.itemIds.push(p.turn_id);
+      return;
+    }
+    if (line.type === 'event_msg' && p.type === 'token_count') {
+      // the total only grows within one run; the file's first total and a
+      // total below the last one (a fresh process) step by their own call
+      const total = p.info?.total_token_usage?.reasoning_output_tokens;
+      if (typeof total !== 'number') return;
+      const step = this.reasoningSoFar >= 0 && total >= this.reasoningSoFar ? total - this.reasoningSoFar : (p.info?.last_token_usage?.reasoning_output_tokens ?? 0);
+      this.reasoningSoFar = total;
+      const t = this.current ?? this.turns.at(-1);
+      if (step > 0 && t) t.reasoningTokens = (t.reasoningTokens ?? 0) + step;
       return;
     }
     if (line.type !== 'response_item') return;
@@ -224,6 +244,7 @@ export class CodexSessionCollector {
         if (turn.response) prev.response = prev.response ? `${prev.response}\n\n${turn.response}` : turn.response;
         prev.tools.push(...turn.tools);
         prev.itemIds.push(...turn.itemIds);
+        if (turn.reasoningTokens) prev.reasoningTokens = (prev.reasoningTokens ?? 0) + turn.reasoningTokens;
       } else {
         if (carriedCompaction && !turn.compactionBefore) turn.compactionBefore = carriedCompaction;
         carriedCompaction = undefined;
@@ -291,7 +312,7 @@ export function buildGraphFromTurns(turns: CodexTurn[], sessionId: string, cwd?:
     const node = makeNode(turn.question || '(tool-only turn)', turn.response, prev === null);
     node.data.importSource = { runner: 'codex', sessionId, itemIds: turn.itemIds, ...origin };
     node.data.source = { question: node.data.question, response: node.data.response };
-    node.data.attachments = toolAttachments(turn);
+    seatTurnWork(node, turn);
     seedPlaque(node);
     nodes.push(node);
     if (prev) edges.push({ id: generateId(), source: prev.id, target: node.id, type: 'smoothstep' } as ThoughtEdge);

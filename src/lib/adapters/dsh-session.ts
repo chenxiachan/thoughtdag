@@ -1,9 +1,9 @@
 import type { ThoughtNode, ThoughtEdge } from '../../types';
 import { makeNode, type ImportableConversation } from '../import-chat';
 import { autoLayout } from '../layout';
-import { generateId } from '../../utils';
+import { generateId, countTokens } from '../../utils';
 import {
-  turnsToBranch, seedPlaque, toolAttachments, dropSelfCommandTurns, toolOpOf, clipText,
+  turnsToBranch, seedPlaque, seatTurnWork, dropSelfCommandTurns, toolOpOf, clipText,
   toolPaths, toolScope, renderCall as renderArgCall,
   ARTIFACT_CALL_LIMIT, TOOL_CALL_LIMIT, TOOL_RESULT_LIMIT, type RunnerTool,
 } from './shared';
@@ -27,8 +27,9 @@ import {
 //     are dropped; only source.kind "user" opens a turn.
 //   - The response = the assistant message's TEXT parts per step, folded
 //     in order (a step that only reasons or calls tools adds no text).
-//     reasoning parts are dropped: they never re-enter a next turn's
-//     context in DSH either (same rule as the Claude Code adapter).
+//     reasoning parts are counted, not kept: the canvas never forwards
+//     thinking downstream (same rule as the Claude Code adapter; DSH's own
+//     agent, which always declares tools, does carry it into later turns).
 //   - Tool calls pair with their results by callId into atomic text
 //     attachments on the turn's node (tool/call arguments + tool/result
 //     text); a call that names a file (read / write / edit) records that
@@ -140,9 +141,9 @@ function partsText(content: unknown, depth = 0): string {
     const o = p as DshPart;
     if (o.type === 'text' && typeof o.text === 'string') return o.text;
     if (o.type === 'image') return '[image omitted]';
-    // reasoning never re-enters the model's own next context in DSH; it is
-    // not the answer — drop it here, before the nested fallback below could
-    // re-admit its `text` field as if it were a text part.
+    // reasoning is not the answer (the collector counts it apart) — drop it
+    // here, before the nested fallback below could re-admit its `text`
+    // field as if it were a text part.
     if (o.type === 'reasoning') return '';
     return partsText(o.text ?? (o as { content?: unknown }).content, depth + 1);
   }).filter(Boolean).join('\n');
@@ -170,6 +171,7 @@ interface DshTurn {
   itemIds: string[];
   tools: RunnerTool[];
   at?: string;
+  reasoningTokens?: number;
 }
 
 /** Streaming turn collector — one line in at a time (a DSH session can
@@ -237,6 +239,9 @@ export class DshSessionCollector {
       const text = partsText(parts).trim();
       const id = am.data?.message?.id;
       if (id) this.current.itemIds.push(id);
+      for (const p of Array.isArray(parts) ? parts as DshPart[] : []) {
+        if (p?.type === 'reasoning' && typeof p.text === 'string' && p.text) this.current.reasoningTokens = (this.current.reasoningTokens ?? 0) + countTokens(p.text);
+      }
       // text parts only; reasoning parts carry no 'text' under our reader
       if (text) this.current.response = this.current.response ? `${this.current.response}\n\n${text}` : text;
       return;
@@ -344,7 +349,7 @@ export function buildGraphFromTurns(turns: DshTurn[], sessionId: string, cwd?: s
     const node = makeNode(turn.question || '(tool-only turn)', turn.response, prev === null);
     node.data.importSource = { runner: 'dsh', sessionId, itemIds: turn.itemIds, ...origin };
     node.data.source = { question: node.data.question, response: node.data.response };
-    node.data.attachments = toolAttachments(turn);
+    seatTurnWork(node, turn);
     seedPlaque(node);
     nodes.push(node);
     if (prev) edges.push({ id: generateId(), source: prev.id, target: node.id, type: 'smoothstep' } as ThoughtEdge);

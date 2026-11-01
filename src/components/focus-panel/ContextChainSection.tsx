@@ -6,8 +6,9 @@ import { useUiStore } from '../../lib/ui-store';
 import { profileLines } from '../../lib/profile';
 import { countTokens } from '../../utils';
 import { referenceBlockContent } from '../../store/context-builder';
+import { isToolStep } from '../../lib/turn-insight';
 import type { ContextPartition } from '../../lib/graph';
-import { useT } from '../../i18n';
+import { useT, fmt } from '../../i18n';
 import type { ThoughtNode } from '../../types';
 
 // The context TREE, grouped the same way the prompt is assembled
@@ -76,6 +77,19 @@ export default function ContextChainSection({
   );
 
   const ancestors = partition.mainline.slice(0, -1); // exclude current node
+  // the tool steps that reach this question: the context builder's own rule
+  // (any node on the way may leave a step out; this node may bring it back)
+  const toolsIn = useMemo(() => {
+    const back = new Set(partition.mainline.at(-1)?.data.includedAttachmentIds ?? []);
+    const out = new Set<string>();
+    for (const n of [...partition.materials, ...partition.mainline]) for (const id of n.data.excludedAttachmentIds ?? []) if (!back.has(id)) out.add(id);
+    const by = new Map<string, number>();
+    for (const n of ancestors) {
+      const tok = (n.data.attachments ?? []).filter((a) => isToolStep(a) && !out.has(a.id)).reduce((sum, a) => sum + countTokens(a.content), 0);
+      if (tok > 0) by.set(n.id, tok);
+    }
+    return by;
+  }, [partition, ancestors]);
   const rowCls = 'w-full text-left rounded-lg px-2 py-1.5 hover:bg-wash transition-colors group flex items-center gap-2 text-xs';
   const groupCls = 'text-2xs text-ink-faint font-medium mt-2 mb-0.5';
 
@@ -154,8 +168,13 @@ export default function ContextChainSection({
                   {ancestor.data.question.slice(0, 70)}{ancestor.data.question.length > 70 ? '…' : ''}
                 </span>
                 {staleDot(ancestor.id)}
+                {toolsIn.has(ancestor.id) && (
+                  <span className="text-2xs px-1.5 py-px rounded-full bg-warm/10 text-warm shrink-0" title={t('chain.toolsInTitle')} data-chain-tools-in>
+                    {fmt(t('chain.toolsIn'), { tok: toolsIn.get(ancestor.id)!.toLocaleString() })}
+                  </span>
+                )}
                 <span className="text-2xs text-ink-faint font-mono shrink-0">
-                  {countTokens(ancestor.data.question + ancestor.data.response)}
+                  {countTokens(ancestor.data.question + ancestor.data.response) + (toolsIn.get(ancestor.id) ?? 0)}
                 </span>
               </button>
             ))}

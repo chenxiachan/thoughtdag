@@ -484,6 +484,8 @@ export async function adoptAgentTurn(nodeId: string, session: { runtime: AgentRu
             // footprints are pointers, not contents: an agent turn's tool
             // outputs stay out of downstream context unless brought back by hand
             excludedAttachmentIds: [...new Set([...(n.data.excludedAttachmentIds ?? []), ...agentAtts.map((a) => a.id)])],
+            // the thinking the session file counted, on the version this run answered
+            ...(turn.data.reasoningTokens?.[0] ? { reasoningTokens: Object.assign([...(n.data.reasoningTokens ?? [])], { [n.data.responseIndex]: turn.data.reasoningTokens[0] }) } : {}),
             importSource: turn.data.importSource,
             // the snapshot is what Pi recorded — the compiled context ahead of
             // the question — so the node reads as edited (the question as

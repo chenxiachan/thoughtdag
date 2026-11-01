@@ -1,9 +1,9 @@
 import type { ThoughtNode, ThoughtEdge } from '../../types';
 import { makeNode, type ImportableConversation } from '../import-chat';
 import { autoLayout } from '../layout';
-import { generateId } from '../../utils';
+import { generateId, countTokens } from '../../utils';
 import {
-  turnsToBranch, seedPlaque, toolAttachments, dropSelfCommandTurns, toolOpOf, clipText, attachSubagentBranches,
+  turnsToBranch, seedPlaque, seatTurnWork, dropSelfCommandTurns, toolOpOf, clipText, attachSubagentBranches,
   ARTIFACT_CALL_LIMIT, TOOL_CALL_LIMIT, TOOL_RESULT_LIMIT, type RunnerTool, type SubagentRun,
 } from './shared';
 
@@ -21,14 +21,16 @@ import {
 //     (a branch) or a bookkeeping entry (model_change, thinking_level_change)
 //     — those ride the turn they occur in, so the tree resolves through them.
 //   - The response = the assistant messages' TEXT blocks, folded in order.
-//     `thinking` blocks are dropped: they never re-enter Pi's own context.
+//     `thinking` blocks are counted, not kept: the canvas never forwards
+//     thinking downstream (whether Pi's own later turns carry it depends
+//     on the model it calls).
 //   - Tool calls are `toolCall` blocks in assistant messages; results are
 //     messages of role `toolResult` paired by toolCallId. A call that names
 //     a file (read / edit / write take `path`) records it as its footprint.
 //   - Compaction and other entry types are ignored by this projector; the
 //     source file is never written — read-only by contract.
 
-interface PiBlock { type?: string; text?: string; id?: string; name?: string; arguments?: unknown }
+interface PiBlock { type?: string; text?: string; thinking?: string; id?: string; name?: string; arguments?: unknown }
 
 interface PiEntry {
   type?: string;
@@ -43,6 +45,7 @@ interface PiEntry {
     toolCallId?: string;
     toolName?: string;
     timestamp?: number;
+    usage?: { reasoning?: number };
     /** the tool's own structured result (the subagent tool: mode and per-agent results) */
     details?: unknown;
   };
@@ -94,6 +97,7 @@ interface PiTurn {
   tools: RunnerTool[];
   at?: string;
   subagents?: SubagentRun[];
+  reasoningTokens?: number;
 }
 
 /** The runs a `subagent` tool call delegated (Pi's example extension: one agent, a parallel set,
@@ -177,6 +181,10 @@ export class PiSessionCollector {
       if (typeof e.id === 'string') cur.itemIds.push(e.id);
       const text = textOf(m.content).trim();
       if (text) cur.response = cur.response ? `${cur.response}\n\n${text}` : text;
+      // the provider's own reasoning count where Pi recorded one, else the thinking text
+      const counted = typeof m.usage?.reasoning === 'number' && m.usage.reasoning > 0 ? m.usage.reasoning
+        : Array.isArray(m.content) ? m.content.reduce((n, b) => n + (b?.type === 'thinking' && typeof b.thinking === 'string' ? countTokens(b.thinking) : 0), 0) : 0;
+      if (counted) cur.reasoningTokens = (cur.reasoningTokens ?? 0) + counted;
       if (Array.isArray(m.content)) {
         for (const b of m.content) {
           if (b?.type !== 'toolCall' || typeof b.id !== 'string' || typeof b.name !== 'string') continue;
@@ -245,7 +253,7 @@ export function buildGraphFromTurns(turns: PiTurn[], sessionId: string, cwd?: st
     const node = makeNode(turn.question || '(tool-only turn)', turn.response, prev === null);
     node.data.importSource = { runner: 'pi', sessionId, itemIds: turn.itemIds, ...origin };
     node.data.source = { question: node.data.question, response: node.data.response };
-    node.data.attachments = toolAttachments(turn);
+    seatTurnWork(node, turn);
     seedPlaque(node);
     nodes.push(node);
     const parent = turn.parentItemId ? byItem.get(turn.parentItemId) : undefined;

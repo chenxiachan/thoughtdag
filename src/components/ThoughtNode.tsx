@@ -338,20 +338,36 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on the exact fields read
   const toolMarks = useMemo(() => toolFingerprint(data), [data.attachments]);
   // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on the exact fields read
-  const composition = useMemo(() => turnComposition(data), [data.question, data.response, data.attachments]);
+  const composition = useMemo(() => turnComposition(data), [data.question, data.response, data.attachments, data.excludedAttachmentIds, data.reasonings, data.reasoningTokens, data.responseIndex]);
   // eslint-disable-next-line react-hooks/exhaustive-deps -- keyed on the exact fields read
   const prints = useMemo(() => footprint(data), [data.attachments]);
   const marksLine = toolMarks.map((m) => `${m.glyph}${m.count > 1 ? m.count : ''}`).join(' ');
   const marksTitle = toolMarks.map((m) => `${m.name}×${m.count}`).join(' · ');
+  // solid segments are what this card hands downstream, hatched ones stay
+  // on it: the tool record follows its switch, thinking never goes
+  const toolState = composition && (composition.toolForwarded === 'all' ? t('insight.toolStateAll')
+    : composition.toolForwarded === 'none' ? t('insight.toolStateNone')
+    : fmt(t('insight.toolStateSome'), { k: composition.toolStepsForwarded, n: composition.toolSteps }));
   const compBar = composition && (
     <span
-      className="inline-flex h-1.5 w-14 rounded-full overflow-hidden shrink-0 self-center"
-      title={fmt(t('insight.compTitle'), { q: composition.q, a: composition.a, tool: composition.tool, pct: Math.round(composition.toolShare * 100) })}
+      className={`inline-flex h-1.5 ${composition.think > 0 ? 'w-20' : 'w-14'} rounded-full overflow-hidden shrink-0 self-center gap-px`}
+      title={[
+        fmt(t('insight.compTitle'), { q: composition.q, a: composition.a, tool: composition.tool, state: toolState ?? '', pct: Math.round(composition.toolShare * 100) }),
+        composition.think > 0 ? fmt(t('insight.compThink'), { think: composition.think }) : '',
+        t('insight.barKey'),
+      ].filter(Boolean).join('\n')}
       data-comp-bar
+      data-tool-forwarded={composition.toolForwarded}
     >
       <span style={{ flex: Math.max(composition.q, 1) }} className="bg-accent/50" />
       <span style={{ flex: Math.max(composition.a, 1) }} className="bg-ink/25" />
-      <span style={{ flex: Math.max(composition.tool, 1) }} className={composition.toolShare > 0.6 ? 'bg-amber-500' : 'bg-warm/60'} />
+      {composition.toolForwardedTokens > 0 && (
+        <span style={{ flex: Math.max(composition.toolForwardedTokens, 1) }} className={composition.toolShare > 0.6 ? 'bg-amber-500' : 'bg-warm/60'} data-seg="tool" />
+      )}
+      {composition.tool > composition.toolForwardedTokens && (
+        <span style={{ flex: Math.max(composition.tool - composition.toolForwardedTokens, 1) }} className="comp-held-tool" data-seg="tool-held" />
+      )}
+      {composition.think > 0 && <span style={{ flex: composition.think }} className="comp-held-think" data-seg="think" />}
     </span>
   );
   // Map layer: the display summary for the ACTIVE version. Long answers wear

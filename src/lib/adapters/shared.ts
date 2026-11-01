@@ -62,6 +62,9 @@ export interface RunnerTurn {
   at?: string;
   /** the runs this turn delegated, in call order */
   subagents?: SubagentRun[];
+  /** the thinking the turn spent, counted (estimated from its text, or the
+      runner's own count where the text is encrypted); the text is not kept */
+  reasoningTokens?: number;
 }
 
 // Tool names → what they DID. Deterministic, runner-neutral: the same
@@ -117,7 +120,7 @@ export function seedPlaque(node: ThoughtNode): void {
   if (line) node.data.summaries = [line];
 }
 
-export function toolAttachments(turn: RunnerTurn): Attachment[] {
+export function toolAttachments(turn: Pick<RunnerTurn, 'tools'>): Attachment[] {
   return turn.tools.map((tool): Attachment => ({
     id: generateId(),
     name: `tool: ${tool.name}${tool.truncated ? ' (truncated)' : ''}`,
@@ -127,6 +130,16 @@ export function toolAttachments(turn: RunnerTurn): Attachment[] {
     ...(tool.paths?.length ? { paths: tool.paths } : {}),
     ...(tool.op ? { op: tool.op } : {}),
   }));
+}
+
+/** A turn's work on its node: the tool steps as attachments, left out of
+ *  downstream context until the person turns them on (an agent's tool
+ *  traffic runs many times its answer; the files it touched still travel
+ *  as one pointer line), and the thinking it spent, as a count. */
+export function seatTurnWork(node: ThoughtNode, turn: Pick<RunnerTurn, 'tools' | 'reasoningTokens'>): void {
+  node.data.attachments = toolAttachments(turn);
+  node.data.excludedAttachmentIds = node.data.attachments.map((a) => a.id);
+  if (turn.reasoningTokens) node.data.reasoningTokens = [turn.reasoningTokens];
 }
 
 /** The harvest half, runner-agnostic: a SHORT experiment session becomes a
@@ -181,7 +194,7 @@ export function attachSubagentBranches(
     node.data.isBranch = true;
     node.data.importSource = { runner, sessionId, itemIds: run.itemIds, ...(cwd ? { cwd } : {}), subagent: { agent: run.agent, of: turn.itemIds[0] ?? '' } };
     node.data.source = { question: node.data.question, response: node.data.response };
-    if (run.tools?.length) node.data.attachments = toolAttachments({ question: run.task, response: run.output, itemIds: run.itemIds, tools: run.tools });
+    if (run.tools?.length) seatTurnWork(node, { tools: run.tools });
     seedPlaque(node);
     nodes.push(node);
     kids.push(node);
@@ -205,7 +218,7 @@ export function turnsToBranch(
     const node = makeNode(turn.question || '(tool-only turn)', turn.response, false);
     node.data.importSource = { runner, sessionId, itemIds: turn.itemIds, ...(cwd ? { cwd } : {}) };
     node.data.source = { question: node.data.question, response: node.data.response };
-    node.data.attachments = toolAttachments(turn);
+    seatTurnWork(node, turn);
     seedPlaque(node);
     if (nodes.length === 0) node.data.isBranch = true; // the experiment forks off sideways
     nodes.push(node);

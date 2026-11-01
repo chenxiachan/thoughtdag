@@ -1,9 +1,9 @@
 import type { ThoughtNode, ThoughtEdge } from '../../types';
 import { makeNode, type ImportableConversation } from '../import-chat';
 import { autoLayout } from '../layout';
-import { generateId } from '../../utils';
+import { generateId, countTokens } from '../../utils';
 import { toolScope, toolPaths, renderCall,
-  turnsToBranch, seedPlaque, toolAttachments, dropSelfCommandTurns, markImporterNote, toolOpOf, clipText,
+  turnsToBranch, seedPlaque, seatTurnWork, dropSelfCommandTurns, markImporterNote, toolOpOf, clipText,
   TOOL_CALL_LIMIT, ARTIFACT_CALL_LIMIT, TOOL_RESULT_LIMIT, type RunnerTool, attachSubagentBranches, adoptSubagentSessions, type SubagentRun, type SubagentSession
 } from './shared';
 
@@ -20,9 +20,14 @@ import { toolScope, toolPaths, renderCall,
 //     tool_use_id) into ATOMIC text attachments on the turn's node — the
 //     existing per-attachment exclude dial makes each one individually
 //     prunable, which is the whole point of importing.
-//   - `thinking` blocks are dropped: they never re-enter a next turn's
-//     context in the source runner either, and this importer projects
-//     context, not the model's private reasoning.
+//   - `thinking` blocks are counted, not kept: the canvas never forwards
+//     thinking downstream (whether the runner carries it into its own later
+//     turns depends on the model), so the turn keeps how much it spent.
+//     The file holds a summary of the thinking, a fraction of what was
+//     generated (about a fifth, measured on local logs 2026-10-27); the
+//     billed output is whole, so a message's thinking is its output beyond
+//     what it visibly wrote, and the summary text counts only where a line
+//     carries no usage.
 //   - Sidechain lines: a MAIN session file skips them (older runners inlined
 //     subagent traffic there); a subagent's OWN file is sidechain top to
 //     bottom and parses as a session in its own right, named by agentId —
@@ -67,8 +72,10 @@ interface SessionLine {
   timestamp?: string;
   compactMetadata?: { preTokens?: number; postTokens?: number };
   message?: {
+    id?: string;
     role?: string;
     content?: string | ContentPart[];
+    usage?: { output_tokens?: number };
   };
 }
 
@@ -86,6 +93,9 @@ interface Turn {
   compactionBefore?: string; // note text for a compaction boundary preceding this turn
   /** the subagents this turn launched (Agent / Task tool calls), in call order */
   subagents?: SubagentRun[];
+  reasoningTokens?: number;
+  /** per assistant message: billed output, what it visibly wrote, its thinking summary */
+  spend?: Map<string, { out: number; visible: number; summary: number }>;
 }
 
 function textParts(content: string | ContentPart[] | undefined): string {
@@ -133,6 +143,12 @@ export class ClaudeSessionCollector {
 
   private flush(): void {
     const c = this.current;
+    if (c?.spend) {
+      let think = 0;
+      for (const m of c.spend.values()) think += m.out > 0 ? Math.max(0, m.out - m.visible) : m.summary;
+      if (think > 0) c.reasoningTokens = think;
+      delete c.spend;
+    }
     if (c && (c.question || c.response || c.tools.length)) this.turns.push(c);
     this.current = null;
   }
@@ -214,8 +230,20 @@ export class ClaudeSessionCollector {
       const content = line.message?.content;
       const text = textParts(content);
       if (text.trim()) this.current.response = this.current.response ? `${this.current.response}\n\n${text}` : text;
+      // one message arrives over several lines, each repeating its usage
+      const msgId = line.message?.id ?? line.uuid;
+      const spend = msgId ? ((this.current.spend ??= new Map()).get(msgId) ?? { out: 0, visible: 0, summary: 0 }) : null;
+      if (spend && msgId) {
+        spend.out = Math.max(spend.out, line.message?.usage?.output_tokens ?? 0);
+        this.current.spend!.set(msgId, spend);
+      }
       if (Array.isArray(content)) {
         for (const p of content) {
+          if (spend) {
+            if (p.type === 'thinking' && p.thinking) spend.summary += countTokens(p.thinking);
+            else if (p.type === 'text' && p.text) spend.visible += countTokens(p.text);
+            else if (p.type === 'tool_use') spend.visible += countTokens(JSON.stringify(p.input ?? {})) + 8;
+          }
           if (p.type === 'tool_use' && p.id && p.name) {
             const op = toolOpOf(p.name);
             const call = clip(renderCall(p.name, p.input), op === 'write' || op === 'edit' ? ARTIFACT_CALL_LIMIT : TOOL_CALL_LIMIT);
@@ -311,7 +339,7 @@ function buildGraphFromTurns(turns: Turn[], sessionId: string, cwd?: string): { 
     node.data.importSource = { runner: 'claude-code', sessionId, itemIds: turn.itemIds, ...origin };
     node.data.source = { question: node.data.question, response: node.data.response };
     seedPlaque(node);
-    node.data.attachments = toolAttachments(turn);
+    seatTurnWork(node, turn);
     nodes.push(node);
     attachSubagentBranches(node, turn, nodes, edges, 'claude-code', sessionId, cwd);
     // the REAL parent first (Esc-rewind forks the session tree; the

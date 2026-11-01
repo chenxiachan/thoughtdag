@@ -40,23 +40,52 @@ export interface TurnComposition {
   q: number;
   a: number;
   tool: number;
+  /** thinking the active version spent; never forwarded downstream */
+  think: number;
   total: number;
   /** tool output share of the turn, 0..1 — the pruning signal */
   toolShare: number;
+  /** how much of the tool record this node itself hands downstream */
+  toolForwarded: 'all' | 'some' | 'none';
+  /** tokens of the tool steps it hands downstream */
+  toolForwardedTokens: number;
+  /** tool steps, and how many of them go downstream */
+  toolSteps: number;
+  toolStepsForwarded: number;
+}
+
+export const isToolStep = (att: { name: string }) => TOOL_PREFIX.test(att.name);
+
+/** The thinking the active version spent: counted from its text when the
+ *  text is kept (a live answer), else the count an importer left. */
+export function thinkingTokens(data: Pick<ThoughtData, 'reasonings' | 'reasoningTokens' | 'responseIndex'>): number {
+  const text = data.reasonings?.[data.responseIndex];
+  return text ? countTokens(text) : data.reasoningTokens?.[data.responseIndex] ?? 0;
 }
 
 /** Token split of one turn — null when it carries no tool output (nothing
  *  to explain: the badge row and bar only appear on imported turns). */
-export function turnComposition(data: Pick<ThoughtData, 'question' | 'response' | 'attachments'>): TurnComposition | null {
-  let tool = 0;
+export function turnComposition(data: Pick<ThoughtData, 'question' | 'response' | 'attachments' | 'excludedAttachmentIds' | 'reasonings' | 'reasoningTokens' | 'responseIndex'>): TurnComposition | null {
+  const excluded = new Set(data.excludedAttachmentIds ?? []);
+  let tool = 0, toolForwardedTokens = 0, toolSteps = 0, toolStepsForwarded = 0;
   for (const att of data.attachments ?? []) {
-    if (TOOL_PREFIX.test(att.name)) tool += countTokens(att.content);
+    if (!isToolStep(att)) continue;
+    const n = countTokens(att.content);
+    tool += n;
+    toolSteps++;
+    if (!excluded.has(att.id)) { toolForwardedTokens += n; toolStepsForwarded++; }
   }
   if (tool === 0) return null;
   const q = countTokens(data.question);
   const a = countTokens(data.response);
   const total = q + a + tool;
-  return { q, a, tool, total, toolShare: total > 0 ? tool / total : 0 };
+  const toolForwarded = toolStepsForwarded === 0 ? 'none' : toolStepsForwarded === toolSteps ? 'all' : 'some';
+  return { q, a, tool, think: thinkingTokens(data), total, toolShare: total > 0 ? tool / total : 0, toolForwarded, toolForwardedTokens, toolSteps, toolStepsForwarded };
+}
+
+/** The ids of a node's tool steps — what the "tool record" switch moves. */
+export function toolStepIds(data: Pick<ThoughtData, 'attachments'>): string[] {
+  return (data.attachments ?? []).filter(isToolStep).map((a) => a.id);
 }
 
 export interface FootprintEntry { path: string; name: string; op: 'read' | 'write' | 'edit' }

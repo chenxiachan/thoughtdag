@@ -11,6 +11,7 @@ import { isViewerMode } from '../../lib/viewer';
 import RoleLine from './RoleLine';
 import RoleEditor from './RoleEditor';
 import AgentSessionLine from './AgentSessionLine';
+import HandoffLine from './HandoffLine';
 import AttachmentsSection from './AttachmentsSection';
 import RecallSection from './RecallSection';
 import RelatedSection from './RelatedSection';
@@ -142,6 +143,7 @@ export default function FocusPanel({ onFocusNode }: { onFocusNode?: (id: string)
       {/* Scrollable content: one card per section */}
       <div className="flex-1 overflow-y-auto px-3 py-3 space-y-2.5">
         <AgentSessionLine data={data} />
+        <HandoffLine nodeId={selectedNodeId!} data={data} />
         <QuestionSection
           key={`q-${selectedNodeId}-${data.isEditing ? 'edit' : 'view'}`}
           nodeId={selectedNodeId!}

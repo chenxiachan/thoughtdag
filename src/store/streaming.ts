@@ -247,7 +247,7 @@ export async function runNodeGeneration(
         // so repeated retries don't stack failure entries.
         const failText = new Set([t('node.failedPlaceholder'), t('node.emptyResponse')]);
         const kept = versionMode === 'append' || failed
-          ? n.data.responses.map((r, i) => ({ r, q: n.data.questions?.[i], by: n.data.generatedBy?.[i], rs: n.data.reasonings?.[i], at: n.data.generatedAts?.[i], ed: n.data.editedAts?.[i], gw: n.data.gatewaySearches?.[i], ef: n.data.generatedEfforts?.[i] })).filter(({ r }) => r && !(failed && failText.has(r)))
+          ? n.data.responses.map((r, i) => ({ r, q: n.data.questions?.[i], by: n.data.generatedBy?.[i], rs: n.data.reasonings?.[i], rt: n.data.reasoningTokens?.[i], at: n.data.generatedAts?.[i], ed: n.data.editedAts?.[i], gw: n.data.gatewaySearches?.[i], ef: n.data.generatedEfforts?.[i] })).filter(({ r }) => r && !(failed && failText.has(r)))
           : [];
         const now = new Date().toISOString();
         const responses = [...kept.map(({ r }) => r), response];
@@ -259,9 +259,11 @@ export async function runNodeGeneration(
         // the effort this version ran at: only an agent turn has one, from the run's own record
         const generatedEfforts = [...kept.map(({ ef }) => ef), (isAgentModel(modelUsed) && n.data.agentSession?.effort) || undefined];
         const reasonings = [...kept.map(({ rs }) => rs), n.data.reasoning || undefined];
+        // counts stay on the versions that had them; the new one, if an agent's, gets its count on adoption
+        const reasoningTokens = kept.some(({ rt }) => rt) ? [...kept.map(({ rt }) => rt), undefined] : undefined;
         const generatedAts = [...kept.map(({ at }) => at), now];
         const editedAts = [...kept.map(({ ed }) => ed), undefined];
-        return { ...n, data: { ...n.data, response, responses, questions, generatedBy, gatewaySearches, generatedEfforts, reasonings, generatedAts, editedAts, reasoning: undefined, restreaming: undefined, pendingApprovals: undefined, agentTrace: undefined, responseIndex: responses.length - 1, isLoading: false, tokenCount, generationFailed: failed || undefined, references, highlights: pruneHighlights(n.data.highlights, response), lastContextHash: contextHash, lastContextParts: contextParts, lastGeneratedAt: now } };
+        return { ...n, data: { ...n.data, response, responses, questions, generatedBy, gatewaySearches, generatedEfforts, reasonings, reasoningTokens, generatedAts, editedAts, reasoning: undefined, restreaming: undefined, pendingApprovals: undefined, agentTrace: undefined, responseIndex: responses.length - 1, isLoading: false, tokenCount, generationFailed: failed || undefined, references, highlights: pruneHighlights(n.data.highlights, response), lastContextHash: contextHash, lastContextParts: contextParts, lastGeneratedAt: now } };
       }),
     }));
   };

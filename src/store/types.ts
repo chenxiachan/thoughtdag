@@ -135,6 +135,8 @@ export interface AttachmentSlice {
   addAttachment: (nodeId: string, attachment: Attachment) => void;
   removeAttachment: (nodeId: string, attachmentId: string) => void;
   toggleExcludeAttachment: (nodeId: string, attachmentId: string, ancestorExcluded?: boolean) => void;
+  /** Hand a node's tool record downstream, or keep it on the node: every tool step at once. */
+  setToolRecordForwarded: (nodeId: string, forward: boolean) => void;
   setAttachmentRenderMode: (nodeId: string, attachmentId: string, mode: 'full' | 'text-only') => void;
   setAttachmentData: (nodeId: string, attachmentId: string, data: Partial<Attachment>) => void;
   getInheritedAttachments: (nodeId: string) => { attachment: Attachment; sourceNodeId: string; sourceQuestion: string; excludedByAncestor: boolean }[];

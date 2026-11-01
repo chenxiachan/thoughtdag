@@ -2,6 +2,7 @@ import type { StateCreator } from 'zustand';
 import type { Attachment } from '../../types';
 import { walkUpAncestors } from '../../lib/graph';
 import { attachmentFingerprint } from '../../lib/attachments';
+import { toolStepIds } from '../../lib/turn-insight';
 import type { StoreState, AttachmentSlice } from '../types';
 
 export const createAttachmentSlice: StateCreator<StoreState, [], [], AttachmentSlice> = (set, get) => ({
@@ -59,6 +60,21 @@ export const createAttachmentSlice: StateCreator<StoreState, [], [], AttachmentS
           // Not excluded → exclude
           return { ...n, data: { ...n.data, excludedAttachmentIds: [...excluded, attachmentId] } };
         }
+      }),
+    }));
+    get().pushHistory();
+  },
+
+  setToolRecordForwarded: (nodeId: string, forward: boolean) => {
+    const node = get().nodes.find((n) => n.id === nodeId);
+    const ids = node ? toolStepIds(node.data) : [];
+    if (ids.length === 0) return;
+    get().pushHistory();
+    set((state) => ({
+      nodes: state.nodes.map((n) => {
+        if (n.id !== nodeId) return n;
+        const rest = (n.data.excludedAttachmentIds || []).filter((id) => !ids.includes(id));
+        return { ...n, data: { ...n.data, excludedAttachmentIds: forward ? rest : [...rest, ...ids] } };
       }),
     }));
     get().pushHistory();
