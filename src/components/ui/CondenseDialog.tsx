@@ -4,6 +4,7 @@ import { Archive, Check, Copy, Loader2, Minimize2, X } from 'lucide-react';
 import { useUiStore, toast } from '../../lib/ui-store';
 import { useStore } from '../../store';
 import { useModels } from '../../lib/use-models';
+import { backgroundModels, isApiModel } from '../../lib/background-model';
 import { findCandidateSegments, startCondenseRun, cancelCondenseRun, type CondenseSegment } from '../../lib/condense';
 import { useI18n, useT, fmt } from '../../i18n';
 
@@ -25,8 +26,17 @@ export default function CondenseDialog({ onFocusSegment }: { onFocusSegment?: (n
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const segments = useMemo(() => (open && run.status === 'idle' ? findCandidateSegments(nodes, edges) : []), [open, run.status, nodes, edges, refreshTick]);
   const globalModel = useUiStore((s) => s.selectedModel);
-  const models = useModels()?.models ?? [];
+  // distilling is an API model's job, never an agent's (startCondenseRun)
+  const models = (useModels()?.models ?? []).filter((m) => isApiModel(m.id));
   const [model, setModel] = useState('');
+  // the model "automatic" stands for: the picked one when it is an API model, else the background order's first
+  const [autoModel, setAutoModel] = useState<string | null>(null);
+  useEffect(() => {
+    if (!open) return;
+    let live = true;
+    void backgroundModels().then(([m]) => { if (live) setAutoModel(m ?? null); });
+    return () => { live = false; };
+  }, [open, globalModel]);
   const [unchecked, setUnchecked] = useState<Set<string>>(new Set());
   // draggable: grab the title row, put the window anywhere
   const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
@@ -64,7 +74,7 @@ export default function CondenseDialog({ onFocusSegment }: { onFocusSegment?: (n
 
   const build = () => {
     if (picked.length === 0) return;
-    void startCondenseRun(picked, lang, model || globalModel || undefined);
+    void startCondenseRun(picked, lang, model || undefined);
   };
 
   const archiveOriginal = () => {
@@ -116,7 +126,7 @@ export default function CondenseDialog({ onFocusSegment }: { onFocusSegment?: (n
             <label className="text-2xs text-ink-muted shrink-0">{t('condense.modelLabel')}</label>
             <select value={model} onChange={(e) => setModel(e.target.value)} data-condense-model
               className="text-xs bg-wash text-ink rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-accent/40 max-w-[220px] truncate">
-              <option value="">{fmt(t('condense.modelGlobal'), { model: globalModel || 'auto' })}</option>
+              <option value="">{fmt(t('condense.modelAuto'), { model: autoModel ?? '—' })}</option>
               {models.map((m) => <option key={m.id} value={m.id}>{m.id}</option>)}
             </select>
           </div>

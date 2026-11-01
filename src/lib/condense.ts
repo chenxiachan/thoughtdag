@@ -1,4 +1,5 @@
 import { llmCallStream } from './api';
+import { backgroundModels } from './background-model';
 import { useStore } from '../store';
 import { autoLayout } from './layout';
 import { activeSummary, countTokens, generateId } from '../utils';
@@ -308,12 +309,17 @@ export async function startCondenseRun(picked: CondenseSegment[], lang: 'zh' | '
   const originalIds = useStore.getState().nodes.map((n) => n.id);
   ui.setCondenseRun({ status: 'building', current: 0, total: picked.length, streaming: '', error: undefined, originalIds, distillIds: [] });
   try {
+    // An API model writes the distillates, the picked one when it is one, else the background order's first:
+    // an agent would run a whole session with tools per run (a Harness Agent left one per run in its profile
+    // directory, ungrouped, #85)
+    const [writer] = await backgroundModels([model]);
+    if (!writer) throw new Error(i18nT('condense.noApiModel'));
     const distillates: string[] = [];
     let brief = '';
     for (let i = 0; i < picked.length; i++) {
       if (runCounter !== token) return;
       useUiStore.getState().setCondenseRun({ current: i + 1, streaming: '' });
-      const d = await distillSegment(picked[i], lang, model,
+      const d = await distillSegment(picked[i], lang, writer,
         (soFar) => { if (runCounter === token) useUiStore.getState().setCondenseRun({ streaming: soFar }); },
         brief || undefined);
       if (runCounter !== token) return;
