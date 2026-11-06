@@ -13,6 +13,12 @@
     <link rel="alternate" hreflang="zh-CN" href="https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v2/zh/" />
     <link rel="alternate" hreflang="x-default" href="https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v2/" />
     <link rel="stylesheet" href="../../../assets/research-pages.css" />
+    <style>
+      .report-section .bib-wrap { position: relative; margin: 18px 0 0; }
+      .report-section .bib { margin: 0; padding: 20px 22px; overflow-x: auto; border-radius: 14px; background: var(--ink); color: #f4f2f8; font: 13px/1.65 "SFMono-Regular", Consolas, monospace; }
+      .report-section .bib-copy { position: absolute; top: 12px; right: 12px; padding: 6px 12px; border: 1px solid rgba(255,255,255,0.25); border-radius: 8px; background: transparent; color: #fff; font: inherit; font-size: 12px; cursor: pointer; }
+      .report-section .bib-copy:focus-visible { outline: 2px solid var(--purple-soft); outline-offset: 2px; }
+    </style>
     <meta property="og:type" content="article" />
     <meta property="og:title" content="LLM 上下文修复：试点实验 v2 · ThoughtDAG" />
     <meta property="og:description" content="九个模型端点、受控配对和一次推理消融：在可编辑的 LLM 上下文图里，错误如何传播，删除与按依赖顺序重算各能修复多少。" />
@@ -218,7 +224,7 @@
           <p>三点观察，每一点都只针对这个端点。第一，登记的预测通过了有效检验：关掉报告中的推理模式后，仅删源头的修复从 16/18 跌到 2/18。第二，被带偏的情况没有变化：两边的三分污染结果完全相同。推理模式改变的是这个模型能从什么中恢复，而不是它会不会被带偏。第三，没有推理时，修复策略的排序变了：重算保持满分 18/18，删除子图下滑到 15/18，仅删源头大多失败。删除子图的失败很能说明问题：受污染的轮次被切除后，上下文是干净了，但中间步骤也没了，模型只能从光秃秃的输入重新计算，结果算错（其中一次失败直接把 96 和 9 拼成了 969）。删除恢复的是干净，不是已经做过的计算；重算两者都能恢复。</p>
           <p><strong>这有多确定？</strong>两边共享同样的 18 个被带偏案例，所以首选的检验是配对检验。在 18 个配对结果中，推理开修好了 14 个推理关没修好的案例，反过来的情况一次也没有出现；精确双侧 McNemar 检验 p = 1.22 × 10⁻⁴。在预先登记的任务族层面，六个冲突类任务族全部偏向推理开，双侧符号检验 p = .031。另有两点说明：删除子图上的差异（18/18 对 15/18，三个不一致的配对全部同向）在这个样本上统计上无法区分（精确 McNemar p = 0.25），所以我们对此不下结论。另外，每个条件只在温度 0 下跑了一次，所以没有估计解码层面的波动。</p>
           <p>这也解释了之前的困惑。第二批里那个「不带推理」的端点，在服务商默认设置下其实一直在推理（验证探针里有 97 个推理 token），所以那次无效的比较指向了错误的方向。</p>
-          <h3>修复的稳健性不取决于规模</h3>
+          <h3>在这个样本里，修复的稳健性与规模不对应</h3>
           <p>第二个登记的预测是：一个 9B 模型会跌破干净准确率的上限，并表现出更弱的修复能力。两者都没有发生：Nemotron Nano 9B 在干净条件下 27/27 答对，在每种策略下都修好了所有被带偏的案例，这个满分连它的 30B 同系列模型都没有做到。在这个九端点的便利样本里，修复能力的差异与模型规模和厂商都不对应；抵抗力看起来是每个模型各自的特性。</p>
           <h3>代际配对与架构配对为第二批收尾</h3>
           <p>GLM-5.2 是 GLM-4.5 Flash 的同厂商代际配对，它在每种策略下都修好了所有被带偏的案例。Gemma 4 31B dense 是 26B 混合专家模型的同厂商架构配对，同样拿了满分。第二个结果回答了一个登记过的问题：26B MoE 在仅删源头时随深度递减的规律（6/6，然后 5/6，然后 4/6），没有出现在它的稠密同系列模型上。一对模型不足以确立架构上的原因，但在这个系列里，随深度变差的脆弱性只属于 MoE 变体。</p>
@@ -274,6 +280,21 @@
           </ul>
           <p>ThoughtDAG 是用来可视化和复现这些干预的参考实现，它不是实验的结论。</p>
         </section>
+
+        <section class="report-section" id="cite">
+          <h2>引用本报告</h2>
+          <div class="bib-wrap">
+            <pre class="bib" id="bib">@misc{chen_context_repair_2026,
+  author       = {Chen, Xia},
+  title        = {Context Repair for {LLMs}: Pilot v2},
+  howpublished = {ThoughtDAG research report},
+  year         = {2026},
+  month        = aug,
+  url          = {https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v2/}
+}</pre>
+            <button class="bib-copy" id="bib-copy" type="button">复制</button>
+          </div>
+        </section>
       </article>
 
       <aside class="report-aside" aria-label="本页章节">
@@ -290,10 +311,23 @@
         <a href="#lengthrot">与长度退化的关系</a>
         <a href="#limits">局限</a>
         <a href="#reproduce">复现</a>
+        <a href="#cite">引用</a>
         <a class="aside-cta" href="../../../stories/context-repair/?lang=zh">查看简明案例 →</a>
       </aside>
     </div>
 
     <footer class="page-footer">ThoughtDAG · 上下文修复试点实验 v2 · 试点结果，不是权威的模型排行榜</footer>
+    <script>
+      document.getElementById("bib-copy").addEventListener("click", (event) => {
+        const button = event.currentTarget;
+        const done = () => { button.textContent = "已复制"; setTimeout(() => { button.textContent = "复制"; }, 1600); };
+        navigator.clipboard?.writeText(document.getElementById("bib").textContent).then(done, () => {
+          const range = document.createRange();
+          range.selectNodeContents(document.getElementById("bib"));
+          getSelection().removeAllRanges();
+          getSelection().addRange(range);
+        });
+      });
+    </script>
   </body>
 </html>
