@@ -13,6 +13,12 @@
     <link rel="alternate" hreflang="zh-CN" href="https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v2/zh/" />
     <link rel="alternate" hreflang="x-default" href="https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v2/" />
     <link rel="stylesheet" href="../../assets/research-pages.css" />
+    <style>
+      .report-section .bib-wrap { position: relative; margin: 18px 0 0; }
+      .report-section .bib { margin: 0; padding: 20px 22px; overflow-x: auto; border-radius: 14px; background: var(--ink); color: #f4f2f8; font: 13px/1.65 "SFMono-Regular", Consolas, monospace; }
+      .report-section .bib-copy { position: absolute; top: 12px; right: 12px; padding: 6px 12px; border: 1px solid rgba(255,255,255,0.25); border-radius: 8px; background: transparent; color: #fff; font: inherit; font-size: 12px; cursor: pointer; }
+      .report-section .bib-copy:focus-visible { outline: 2px solid var(--purple-soft); outline-offset: 2px; }
+    </style>
     <meta property="og:type" content="article" />
     <meta property="og:title" content="Context Repair for LLMs: Pilot v2 — ThoughtDAG" />
     <meta property="og:description" content="Nine endpoints, controlled pairs and a reasoning ablation: propagation, pruning, and dependency-ordered recomputation in editable LLM context graphs." />
@@ -217,7 +223,7 @@
           <p>Three observations, each stated for this endpoint. First, the registered prediction survives its valid test: with the reported reasoning mode off, source-only recovery dropped from 16/18 to 2/18. Second, harm was untouched: the three-way pollution split is identical on both sides. The reasoning mode changed what this model recovered from, not whether it was derailed. Third, the repair hierarchy reordered without reasoning: recompute stayed perfect at 18/18, subgraph deletion slipped to 15/18, and source-only deletion mostly failed. The subgraph failures are instructive: with the contaminated turns excised, the context is clean but the intermediate steps are gone, and the model miscalculated from the bare inputs (one failure literally concatenates 96 and 9 into 969). Deleting restores cleanliness but not the work; recomputation restores both.</p>
           <p><strong>How certain is this?</strong> The two sides share the same 18 derailed cases, so the right primary test is a paired one. Across the 18 paired outcomes, reasoning ON repaired 14 cases that reasoning OFF did not, while the reverse never occurred; the exact two-sided McNemar test gives p = 1.22 × 10⁻⁴. At the preregistered family level, all six conflicting families favored reasoning ON, a two-sided sign test at p = .031. Two honest notes alongside: the subgraph difference (18/18 vs 15/18, three discordant pairs all one way) is not statistically distinguishable on this sample (exact McNemar p = 0.25), so we make no claim there. And each condition ran once at temperature 0, so decode-level variability was not estimated.</p>
           <p>This also resolves the earlier confusion. The wave-2 "non-reasoning" endpoint was quietly reasoning all along under provider defaults (97 reasoning tokens in the verification probe), which is why the invalid comparison pointed the wrong way.</p>
-          <h3>Repair robustness is not a function of scale</h3>
+          <h3>Repair robustness did not track scale in this sample</h3>
           <p>The second registered prediction was that a 9B model would break the clean-accuracy ceiling and show weaker repair. It did neither: Nemotron Nano 9B answered 27/27 clean and recovered every derailed case under every strategy, a perfect score its own 30B siblings did not match. In this nine-endpoint convenience sample, repair differences did not track model size or vendor; the resistance looks specific to each model.</p>
           <h3>The generation and architecture pairs close the wave</h3>
           <p>GLM-5.2, the same-vendor generation pair for GLM-4.5 Flash, recovered every derailed case under every strategy. Gemma 4 31B dense, the same-vendor architecture pair for the 26B mixture-of-experts model, also scored perfectly. That second result answers a registered question: the 26B MoE's depth gradient under source-only pruning (6/6, then 5/6, then 4/6) does not appear in its dense sibling. One pair cannot establish an architectural cause, but within this family the depth fragility belongs to the MoE variant alone.</p>
@@ -273,6 +279,21 @@
           </ul>
           <p>ThoughtDAG is the reference implementation used to visualize and reproduce the intervention. It is not the conclusion of the experiment.</p>
         </section>
+
+        <section class="report-section" id="cite">
+          <h2>Cite this report</h2>
+          <div class="bib-wrap">
+            <pre class="bib" id="bib">@misc{chen_context_repair_2026,
+  author       = {Chen, Xia},
+  title        = {Context Repair for {LLMs}: Pilot v2},
+  howpublished = {ThoughtDAG research report},
+  year         = {2026},
+  month        = aug,
+  url          = {https://chenxiachan.github.io/thoughtdag/research/context-repair-pilot-v2/}
+}</pre>
+            <button class="bib-copy" id="bib-copy" type="button">Copy</button>
+          </div>
+        </section>
       </article>
 
       <aside class="report-aside" aria-label="Report sections">
@@ -289,10 +310,23 @@
         <a href="#lengthrot">Vs. length degradation</a>
         <a href="#limits">Limitations</a>
         <a href="#reproduce">Reproduce</a>
+        <a href="#cite">Cite</a>
         <a class="aside-cta" href="../../stories/context-repair/">View the concise case study →</a>
       </aside>
     </div>
 
     <footer class="page-footer">ThoughtDAG · Context Repair Pilot v2 · Pilot results, not an authoritative model leaderboard</footer>
+    <script>
+      document.getElementById("bib-copy").addEventListener("click", (event) => {
+        const button = event.currentTarget;
+        const done = () => { button.textContent = "Copied"; setTimeout(() => { button.textContent = "Copy"; }, 1600); };
+        navigator.clipboard?.writeText(document.getElementById("bib").textContent).then(done, () => {
+          const range = document.createRange();
+          range.selectNodeContents(document.getElementById("bib"));
+          getSelection().removeAllRanges();
+          getSelection().addRange(range);
+        });
+      });
+    </script>
   </body>
 </html>
