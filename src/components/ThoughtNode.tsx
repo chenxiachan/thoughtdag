@@ -987,7 +987,7 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
                 </span>
               )}
               {data.agentSession?.continued && (
-                <span className="text-2xs text-ink-faint ml-1 shrink-0" title={t('agent.continuedTitle')} data-agent-continued>↩ {t('agent.continued')}</span>
+                <span className="text-2xs text-ink-faint ml-1 shrink-0" title={t(data.agentSession.forked ? 'agent.forkedTitle' : 'agent.continuedTitle')} data-agent-continued={data.agentSession.forked ? 'forked' : 'same'}>{data.agentSession.forked ? `↳ ${t('agent.forked')}` : `↩ ${t('agent.continued')}`}</span>
               )}
               {data.importSource?.runner === 'pi' && window.desktopSessions && (
                 <button

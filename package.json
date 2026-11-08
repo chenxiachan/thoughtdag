@@ -29,6 +29,7 @@
     "test:subagents": "node scripts/test-subagents.mjs",
     "test:turn-context": "node scripts/test-turn-context.mjs",
     "test:harness-workspace": "node scripts/test-harness-workspace.mjs",
+    "test:claude-fork": "node scripts/test-claude-fork.mjs",
     "desktop:why": "esbuild cli/src/lib.ts --bundle --platform=node --format=esm --target=node20 --define:import.meta.env={} --outfile=desktop/why.mjs --log-level=warning"
   },
   "dependencies": {

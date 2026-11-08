@@ -255,6 +255,8 @@ export const zh: Record<keyof typeof en, string> = {
   'agent.useAsCwd': '设为这张画布的工作目录',
   'agent.useAsCwdDone': '已设为画布的工作目录，下一轮起生效',
   'agent.continuedTitle': '这一轮接在同一个 Agent 会话上，只发送了问题',
+  'agent.forked': '分叉',
+  'agent.forkedTitle': '这一轮从上一个节点那一轮分出新的 Agent 会话：带着原会话到那一轮为止的记录，后面的轮次不在其中，原会话不变。只发送了问题',
   'agent.guardAllowed': '已放行的位置',
   'agent.guardRemove': '取消放行',
   'agent.perm': '权限',

@@ -462,8 +462,9 @@ export async function runNodeGeneration(
       onAgentSession: (session) => {
         if (!isCurrent()) return;
         const continued = !!agentRoute?.continue;
+        const forked = !!agentRoute?.forkEntryId;
         // a later session event (the file found, the effort read) adds to the record, never wipes it
-        set((state) => ({ nodes: state.nodes.map((n) => n.id === nodeId ? { ...n, data: { ...n.data, agentSession: { ...n.data.agentSession, ...session, continued } } } : n) }));
+        set((state) => ({ nodes: state.nodes.map((n) => n.id === nodeId ? { ...n, data: { ...n.data, agentSession: { ...n.data.agentSession, ...session, continued, forked } } } : n) }));
         if (continued && session.sessionId) void claimAgentTurn(session.runtime, nodeId, session.sessionId, session.cwd);
       },
       onAgentChanges: (changes) => {

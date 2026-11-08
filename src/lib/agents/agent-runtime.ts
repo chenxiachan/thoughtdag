@@ -159,9 +159,12 @@ async function agentSessionFile(runtime: AgentRuntime, sessionId: string, tail: 
 
 /**
  * The route for the node about to generate. A question asked DIRECTLY off
- * the tail of a Pi session this canvas subscribes to, with nothing else
- * wired in, continues that session in its own directory: the session
- * already holds the conversation, so only the question travels. Any other
+ * the tail of a session this canvas subscribes to, with nothing else wired
+ * in, continues that session in its own directory: the session already
+ * holds the conversation, so only the question travels. Asked directly off
+ * an earlier Claude Code turn, it branches that turn's session there: the
+ * new session holds the conversation up to and including that turn and
+ * none of the later ones, and the original stays as it was (#89). Any other
  * wiring, or a different working directory, opens a fresh session carrying
  * the compiled context.
  */
@@ -176,20 +179,27 @@ export async function agentOutbound(model: string | undefined, nodeId?: string):
     const { useProjects } = await import('../../store/projects');
     const { projects, activeId } = useProjects.getState();
     const ss = projects.find((p) => p.id === activeId)?.sourceSession;
-    if (!ss) return { cwd: choice.cwd };
     const { nodes, edges } = useStore.getState();
     const incoming = edges.filter((e) => e.target === nodeId);
     if (incoming.length !== 1) return { cwd: choice.cwd };
     const parentId = incoming[0].source;
-    const entries = [ss, ...(ss.chapters ?? []), ...(ss.branches ?? [])].filter((e) => e.runner === runtime && e.sessionId);
-    const entry = entries.find((e) => e.tailNodeId === parentId);
-    if (!entry) return { cwd: choice.cwd };
-    const tail = nodes.find((n) => n.id === parentId);
-    const sessionCwd = tail?.data.agentSession?.cwd ?? tail?.data.importSource?.cwd ?? null;
+    const parent = nodes.find((n) => n.id === parentId);
+    const sessionCwd = parent?.data.agentSession?.cwd ?? parent?.data.importSource?.cwd ?? null;
     if (sessionCwd && sessionCwd !== choice.cwd) return { cwd: choice.cwd };
-    const sessionPath = await agentSessionFile(runtime, entry.sessionId, tail);
-    if (!sessionPath) return { cwd: choice.cwd };
-    return { cwd: sessionCwd ?? choice.cwd, sessionPath, continue: true };
+    const entries = ss ? [ss, ...(ss.chapters ?? []), ...(ss.branches ?? [])].filter((e) => e.runner === runtime && e.sessionId) : [];
+    const entry = entries.find((e) => e.tailNodeId === parentId);
+    if (entry) {
+      const sessionPath = await agentSessionFile(runtime, entry.sessionId, parent);
+      return sessionPath ? { cwd: sessionCwd ?? choice.cwd, sessionPath, continue: true } : { cwd: choice.cwd };
+    }
+    // an earlier turn: Claude Code resumes at any entry of its transcript,
+    // and a turn's last item is its last entry (a delegated run's items are
+    // tool call ids, not entries)
+    const source = parent?.data.importSource;
+    const last = source?.itemIds?.at(-1);
+    if (runtime !== 'claude-code' || source?.runner !== runtime || source.subagent || !source.sessionId || !last) return { cwd: choice.cwd };
+    const sessionPath = await agentSessionFile(runtime, source.sessionId, parent);
+    return sessionPath ? { cwd: sessionCwd ?? choice.cwd, sessionPath, forkEntryId: last, continue: true } : { cwd: choice.cwd };
   } catch {
     return { cwd: choice.cwd };
   }

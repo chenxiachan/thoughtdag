@@ -256,6 +256,8 @@ export interface ThoughtData extends Record<string, unknown> {
     effort?: string;
     /** the turn continued the mirrored session instead of opening a fresh one */
     continued?: boolean;
+    /** it continued from an earlier turn: a new session holding the original up to that turn */
+    forked?: boolean;
     /** what changed on disk during the turn, by the file system's account */
     changes?: { changed: string[]; added: string[]; removed: string[]; truncated?: boolean };
   };

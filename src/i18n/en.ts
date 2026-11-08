@@ -255,6 +255,8 @@ export const en = {
   'agent.useAsCwd': 'Use as this canvas\'s working directory',
   'agent.useAsCwdDone': 'Set as the canvas\'s working directory from the next turn on',
   'agent.continuedTitle': 'This turn continued the same agent session; only the question was sent',
+  'agent.forked': 'forked',
+  'agent.forkedTitle': 'This turn branched a new agent session from the turn above: it holds the original session up to that turn and none of the later ones, and the original is unchanged. Only the question was sent',
   'agent.guardAllowed': 'Allowed locations',
   'agent.guardRemove': 'Stop allowing',
   'agent.perm': 'Permissions',

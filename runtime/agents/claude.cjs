@@ -3,7 +3,9 @@
 // content-block deltas, tool calls as tool_use blocks with their
 // tool_result, permission prompts as control requests answered on stdin
 // (`--permission-prompt-tool stdio`), the end as a result message. A session
-// continues with `--resume`, branches with `--fork-session`. Claude Code
+// continues with `--resume`; a branch from an earlier turn resumes up to that
+// turn's last entry (`--resume-session-at`, print mode only) under a new id
+// (`--fork-session`), so the original session is left as it was. Claude Code
 // keeps its session files under ~/.claude/projects, its login and its model
 // aliases; the shell only asks. Same event kinds as the other runtimes.
 'use strict';
@@ -137,7 +139,7 @@ function createClaudeRuntime({ log } = {}) {
       if (!b) throw new Error('claude is not installed (no `claude` on PATH or in the usual places)');
       const runId = randomUUID();
       const emit = (event) => { try { onEvent({ runId, event }); } catch { /* renderer gone */ } };
-      const state = { runId, proc: null, asks: new Map(), text: '', final: null, sessionId: null, waiting: false, ended: false, aborted: false,
+      const state = { runId, proc: null, asks: new Map(), text: '', final: null, sessionId: null, waiting: false, ended: false, aborted: false, lastErr: '',
         // what this conversation already allowed for good (see README: `rule`)
         allowRules: new Set(Array.isArray(req.allowRules) ? req.allowRules.filter((s) => typeof s === 'string' && s.startsWith('claude:')) : []) };
       runs.set(runId, state);
@@ -158,7 +160,7 @@ function createClaudeRuntime({ log } = {}) {
           if (model) args.push('--model', model);
           // only a level the CLI itself lists; anything else means its default
           if (req.effort && (await effortsOf(b)).includes(req.effort)) args.push('--effort', req.effort);
-          if (resumeId) { args.push('--resume', resumeId); if (req.forkEntryId) args.push('--fork-session'); }
+          if (resumeId) { args.push('--resume', resumeId); if (req.forkEntryId) args.push('--resume-session-at', String(req.forkEntryId), '--fork-session'); }
           const proc = spawn(b, args, { cwd, env: childEnv(), stdio: ['pipe', 'pipe', 'pipe'] });
           state.proc = proc;
           let buf = '';
@@ -174,9 +176,9 @@ function createClaudeRuntime({ log } = {}) {
                 handle(m, done);
               }
             });
-            proc.stderr.on('data', (d) => say('[claude stderr] ' + d.toString().trim().slice(0, 400)));
+            proc.stderr.on('data', (d) => { const s = d.toString().trim(); if (s) state.lastErr = s.split('\n').pop().slice(0, 300); say('[claude stderr] ' + s.slice(0, 400)); });
             proc.on('error', (e) => { mark({ type: 'run_error', message: 'spawn error: ' + e.message }); done('error'); });
-            proc.on('exit', (code, signal) => { if (!state.ended) { if (!state.aborted && code) mark({ type: 'run_error', message: `claude exited (${signal || code})` }); done(state.aborted ? 'aborted' : (code ? 'error' : 'end')); } });
+            proc.on('exit', (code, signal) => { if (!state.ended) { if (!state.aborted && code) mark({ type: 'run_error', message: `claude exited (${signal || code})${state.lastErr ? ': ' + state.lastErr : ''}` }); done(state.aborted ? 'aborted' : (code ? 'error' : 'end')); } });
           });
           watchdog = setInterval(() => {
             if (state.waiting || Date.now() - lastEvent < IDLE) return;
@@ -278,7 +280,8 @@ function createClaudeRuntime({ log } = {}) {
               }
               case 'result':
                 state.final = typeof m.result === 'string' ? m.result : null;
-                if (m.subtype && m.subtype !== 'success') mark({ type: 'run_error', message: String(m.result ?? m.subtype) });
+                // a run the CLI refused (say, a branch entry the transcript lacks) names why in `errors`
+                if (m.subtype && m.subtype !== 'success') mark({ type: 'run_error', message: String(m.result ?? (Array.isArray(m.errors) && m.errors.length ? m.errors.join('; ') : m.subtype)) });
                 done(m.subtype === 'success' ? 'end' : 'error');
                 break;
               default: break;
