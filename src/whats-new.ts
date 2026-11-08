@@ -39,6 +39,17 @@ const DOCS = 'https://chenxiachan.github.io/thoughtdag/docs';
 
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
+    // a quiet release: the 0.5.27 entry stays the announcement, this one is history only
+    version: '0.5.28',
+    date: '2026-11-08',
+    announce: false,
+    lead: {
+      zh: '从 Claude Code 会话中间的某一轮接着问，且只连着这一个节点时，会在那一轮分出一个新会话：它带着到这一轮为止的原始记录，后面的轮次不在其中，原会话保持不变，新节点标「分叉」（#89）。在分出的会话上继续问，接的是这个新会话。Claude Code 拒绝运行时，节点上显示它给出的原因，不再只有退出码。对话地图扫描大的 Harness 会话不再卡住：标题只从日志开头读取，两次扫描之间记住已经读过的卡片（@MrUncleXiang 的 PR #82，#80）。凝练窗口只列 API 模型，「自动」一项写明会用哪个；模型选择器停在 Agent 上时，凝练不再每次开一个 Agent 会话（#85）。',
+      en: 'A question asked off an earlier turn of a Claude Code session, with that node as its only input, branches a new session at that turn: it holds the original record up to that turn and none of the later ones, the original session stays as it was, and the new node is marked forked (#89). Questions asked on the branch continue the new session. When Claude Code refuses a run, the node shows the reason it gave instead of an exit code. The session map no longer stalls on large Harness sessions: a title is read from the start of the log, and cards already read are remembered between scans (@MrUncleXiang\'s PR #82, #80). The condense window lists API models only and its Automatic entry names the one it will use; with the model picker on an agent, condensing no longer opens an agent session on every run (#85).',
+    },
+    items: [],
+  },
+  {
     version: '0.5.27',
     date: '2026-11-01',
     announce: true,
