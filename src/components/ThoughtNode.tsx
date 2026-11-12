@@ -269,7 +269,17 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   };
 
   const handleEditKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') { setEditing(id, false); return; }
+    if (e.key === 'Escape') {
+      // a new question left empty goes away: a wire dropped by mistake costs one key (#90); undo brings it back
+      if (isAwaitingAsk && !editValue.trim() && !data.attachments?.length && !useStore.getState().edges.some((ed) => ed.source === id)) {
+        e.preventDefault();
+        useUiStore.getState().setDraft(askDraftKey, '');
+        deleteNode(id);
+        return;
+      }
+      setEditing(id, false);
+      return;
+    }
     if (e.key !== 'Enter' || isImeComposing(e)) return;
     // First-input surfaces (human turn, empty ask node) keep Enter-to-send.
     // REVISING an existing question confirms explicitly — a regeneration is

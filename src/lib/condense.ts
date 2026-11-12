@@ -224,7 +224,9 @@ export function buildCondensedCopy(segments: CondenseSegment[], distillates: str
       : '';
     const id = generateId();
     distillIds.push(id);
-    const question = `${lang === 'zh' ? '凝练' : 'Condensed'}: ${(head.data as ThoughtData).question.replace(/\s+/g, ' ').slice(0, 60)} → ${(tail.data as ThoughtData).question.replace(/\s+/g, ' ').slice(0, 60)}`;
+    // a step that is itself a condensed note already carries the prefix: the title names it once
+    const end = (n: ThoughtNode) => (n.data as ThoughtData).question.replace(/\s+/g, ' ').replace(/^(?:(?:凝练|Condensed): )+/, '').slice(0, 60);
+    const question = `${lang === 'zh' ? '凝练' : 'Condensed'}: ${end(head)} → ${end(tail)}`;
     const response = `${distillates[i] || ''}${fidelity}`;
     copies.push({
       id,

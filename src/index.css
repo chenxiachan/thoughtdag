@@ -352,6 +352,10 @@ textarea:focus-visible {
 .react-flow__handle.tdag-handle-lg::after {
   inset: -18px;
 }
+/* The bottom halo reaches outward only: the card's own edge stays the
+   card's, so a card dragged by its bottom edge (the whole card is the grip
+   once zoomed out) moves instead of pulling out a new question (#90). */
+.react-flow__handle-bottom.tdag-handle::after { top: 50%; }
 
 /* Focus panel: sections are white cards floating on the wash ground —
    depth does the grouping, not divider lines. */
