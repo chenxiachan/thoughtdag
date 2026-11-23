@@ -74,7 +74,14 @@ export async function agentCatalog(): Promise<{ models: ModelInfo[]; runtimes: P
     const note = r as { searched?: string[]; error?: string } | null;
     runtimes[runtime] = { installed: !!r?.installed, ...(note?.searched ? { searched: note.searched } : {}), ...(note?.error ? { error: note.error } : {}) };
     if (!r?.installed) return; // not installed, or it did not answer: it stays out of the list
-    for (const m of r.models ?? []) models.push({ id: `${def.prefix}${m.provider}/${m.id}`, name: `${def.label} · ${m.name}`, provider: AGENT_PROVIDER, vision: m.vision, efforts: m.efforts ?? [], defaultEffort: m.defaultEffort ?? null });
+    // a runtime that serves models through several providers lists the same model
+    // more than once: the name carries the provider then, and the picker groups by it (#97);
+    // the providers keep the order they first appear in, the models keep theirs within one
+    const listed = r.models ?? [];
+    const vendors = [...new Set(listed.map((m) => m.provider))];
+    const many = vendors.length > 1;
+    const ordered = many ? [...listed].sort((a, b) => vendors.indexOf(a.provider) - vendors.indexOf(b.provider)) : listed;
+    for (const m of ordered) models.push({ id: `${def.prefix}${m.provider}/${m.id}`, name: `${def.label} · ${m.name}${many ? ` (${m.provider})` : ''}`, provider: AGENT_PROVIDER, ...(many ? { vendor: m.provider } : {}), vision: m.vision, efforts: m.efforts ?? [], defaultEffort: m.defaultEffort ?? null });
   });
   return { models, runtimes };
 }

@@ -9,6 +9,8 @@ export interface ModelInfo {
   id: string;
   name: string;
   provider: string;
+  /** agent models: the provider the runtime serves this model through, set when the runtime lists more than one */
+  vendor?: string;
   vision: boolean;
   /** agent models: the effort levels this runtime accepts for the model, in its own words (read from the CLI) */
   efforts?: string[];

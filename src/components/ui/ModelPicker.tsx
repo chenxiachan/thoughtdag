@@ -202,14 +202,19 @@ export default function ModelPicker({ value, onChange, compact }: PickerProps) {
                         <span className="text-2xs text-ink-faint">{list.length}</span>
                         {!isOpen && current && <span className="text-2xs text-accent truncate ml-auto max-w-[55%]">{current.name.replace(`${label} · `, '')}</span>}
                       </button>
-                      {isOpen && list.map((m) => (
+                      {isOpen && list.map((m, i) => (
                         <div key={m.id}>
+                          {/* a runtime serving models through several providers lists them under each provider (#97);
+                              the runtime's order is kept within a provider */}
+                          {m.vendor && m.vendor !== list[i - 1]?.vendor && (
+                            <p className="pl-8 pr-3 pt-1.5 pb-0.5 text-2xs text-ink-faint truncate" data-runtime-vendor={m.vendor}>{m.vendor}</p>
+                          )}
                           <button
                             onClick={() => pick(m.id)}
                             title={m.name}
                             className={`w-full text-left pl-8 pr-3 py-1.5 text-xs flex items-center gap-2 transition-colors hover:bg-wash ${m.id === activeId ? 'text-accent font-medium' : 'text-ink'}`}
                           >
-                            <span className="flex-1 break-words leading-snug">{m.name.replace(` (${m.provider})`, '').replace(`${label} · `, '')}</span>
+                            <span className="flex-1 break-words leading-snug">{m.name.replace(` (${m.vendor ?? m.provider})`, '').replace(`${label} · `, '')}</span>
                             {m.vision && <span className="text-2xs text-ink-faint shrink-0">{t('model.vision')}</span>}
                             {m.id === activeId && <Check size={13} strokeWidth={2} className="shrink-0" />}
                           </button>
