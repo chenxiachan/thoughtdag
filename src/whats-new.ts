@@ -40,6 +40,16 @@ const DOCS = 'https://chenxiachan.github.io/thoughtdag/docs';
 export const WHATS_NEW: WhatsNewEntry[] = [
   {
     // a quiet release: the 0.5.27 entry stays the announcement, this one is history only
+    version: '0.5.29',
+    date: '2026-11-23',
+    announce: false,
+    lead: {
+      zh: '缩小视图后按住卡片下沿拖动，移动的是卡片，不再从底部圆点拉出一个新提问；误拉出来的提问没输入内容时按 Esc 就会消失，撤销能找回来（#90）。Pi 启用了多个提供商时，模型选择器按提供商分组列出模型，选中的模型名也带上提供商，同名模型不再分不清（#97）。用凝练出来的节点再凝练，标题里的「凝练:」只出现一次（#85）。',
+      en: 'Once zoomed out, dragging a card by its bottom edge moves the card instead of pulling a new question out of its bottom dot; a question pulled out by mistake goes away on Esc while it is still empty, and undo brings it back (#90). When Pi serves models through several providers, the model picker lists them under each provider and the picked model\'s name carries its provider, so models with the same name can be told apart (#97). Condensing steps that are themselves condensed notes names "Condensed:" once in the title (#85).',
+    },
+    items: [],
+  },
+  {
     version: '0.5.28',
     date: '2026-11-08',
     announce: false,
