@@ -69,6 +69,7 @@
     "tailwindcss": "^4.1.18",
     "turndown": "^7.2.4",
     "zhipu-ai-provider": "^0.3.1",
+    "zod": "^4.3.6",
     "zustand": "^5.0.11"
   },
   "devDependencies": {
