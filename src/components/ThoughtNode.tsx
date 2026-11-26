@@ -110,6 +110,11 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
   // nothing" bug). Pending asks / human turns keep their card box — the
   // panel renders those read-only.
   const panelOwnsEditor = useUiStore((s) => s.panelOpen) && selectedNodeId === id && !isParadigmNode;
+  // The panel renders the node's ONE follow-up composer while it shows THIS
+  // node. Hiding the card's inline box on mere selection (panel closed)
+  // unmounted it under the cursor: a click looked like the card folding, and
+  // only a pane click (which clears the selection) brought it back.
+  const panelOwnsComposer = useUiStore((s) => s.panelOpen) && selectedNodeId === id;
   // While any paradigm step is incomplete the run is in progress: structure
   // is fixed (no follow-ups, no deletion) until the performance finishes.
   const runLocked = useStore((s) => isParadigmNode && isRunLocked(s.nodes));
@@ -1070,9 +1075,16 @@ export default function ThoughtNode({ id, data }: NodeProps<ThoughtNodeType>) {
           )}
 
           {/* Inline continue input — hidden while a paradigm run is in
-              progress (the structure IS the paradigm); returns on unlock */}
-          {!data.isLoading && !data.isEditingResponse && !isAwaitingAsk && !(isParadigmNode && runLocked) && !isViewerMode && selectedNodeId !== id && (
-            <div className="mt-3 pt-3 border-t border-line relative">
+              progress (the structure IS the paradigm); returns on unlock.
+              Clicks stop at the composer: an inner editor selects nothing
+              (that used to swap the card for the panel) and a word
+              double-click keeps selecting text instead of opening the panel. */}
+          {!data.isLoading && !data.isEditingResponse && !isAwaitingAsk && !(isParadigmNode && runLocked) && !isViewerMode && !panelOwnsComposer && (
+            <div
+              className="mt-3 pt-3 border-t border-line relative"
+              onClick={(e) => e.stopPropagation()}
+              onDoubleClick={(e) => e.stopPropagation()}
+            >
               <MentionSurface m={mention} text={inputValue} setText={setInputValue} />
               <div className="flex items-end gap-2 bg-wash rounded-xl px-4 py-2.5 transition-shadow focus-within:ring-1 focus-within:ring-accent/40">
                 <textarea
